@@ -11,6 +11,7 @@ from hydromt.cli.cli_utils import parse_config
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
+
 def test_model_class():
     # read model in examples folder
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
@@ -20,7 +21,8 @@ def test_model_class():
     # run test_model_api() method
     non_compliant_list = mod.test_model_api()
     assert len(non_compliant_list) == 0
-    #pass
+    # pass
+
 
 def test_model_build(tmpdir):
     # test build method
@@ -29,7 +31,11 @@ def test_model_build(tmpdir):
     root = str(tmpdir.join(model))
     mod1 = MODELS.get(model)(root=root, mode="w")
     # Build method options
-    region = {'subbasin': [12.2051, 45.8331], 'strord': 4, 'bbox': [11.70, 45.35, 12.95, 46.70]}
+    region = {
+        "subbasin": [12.2051, 45.8331],
+        "strord": 4,
+        "bbox": [11.70, 45.35, 12.95, 46.70],
+    }
     res = 0.01666667
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.ini")
     opt = parse_config(config)
@@ -38,7 +44,7 @@ def test_model_build(tmpdir):
     # Check if model is api compliant
     non_compliant_list = mod1.test_model_api()
     assert len(non_compliant_list) == 0
-    
+
     # Compare with model from examples folder
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     mod0 = MODELS.get(model)(root=root, mode="r")
@@ -72,5 +78,3 @@ def test_model_build(tmpdir):
     if mod0._config:
         # flatten
         assert mod0._config == mod1._config, f"config mismatch"
-    
-    

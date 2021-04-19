@@ -1,4 +1,3 @@
-
 """Implement wflow model class"""
 # FIXME implement model class following model API
 
