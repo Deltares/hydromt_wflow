@@ -59,6 +59,7 @@ class WflowModel(Model):
 
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
+    _DATADIR = DATADIR
     _GEOMS = {}
     _MAPS = {
         "flwdir": "wflow_ldd",
@@ -1420,26 +1421,26 @@ class WflowModel(Model):
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
     def write_states(self):
         """write states at <root/?/> in model ready format"""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray"""
         if not self._write:
             # start fresh in read-only mode
             self._results = dict()
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
     def write_results(self):
         """write results at <root/?/> in model ready format"""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        raise NotImplementedError()
+        # raise NotImplementedError()
 
     def read_intbl(self, **kwargs):
         """Read and intbl files at <root/intbl> and parse to xarray"""

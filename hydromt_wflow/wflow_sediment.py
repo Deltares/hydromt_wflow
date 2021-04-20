@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from hydromt_wflow import WflowModel
+from hydromt_wflow.wflow import WflowModel
 from .workflows import landuse, soilgrids_sediment
 from . import DATADIR
 
@@ -38,6 +38,7 @@ class WflowSedimentModel(WflowModel):
 
     _NAME = "wflow_sediment"
     _CONF = "wflow_sediment.toml"
+    _DATADIR = DATADIR
     _GEOMS = {}
     _MAPS = {
         "flwdir": "wflow_ldd",
@@ -68,13 +69,20 @@ class WflowSedimentModel(WflowModel):
     ]
 
     def __init__(
-        self, root=None, mode="w", config_fn=None, data_libs=None, logger=logger
+        self,
+        root=None,
+        mode="w",
+        config_fn=None,
+        data_libs=None,
+        deltares_data=False,
+        logger=logger,
     ):
         super().__init__(
             root=root,
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
+            deltares_data=deltares_data,
             logger=logger,
         )
 

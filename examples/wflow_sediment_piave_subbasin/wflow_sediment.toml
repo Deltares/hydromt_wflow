@@ -1,0 +1,128 @@
+casename = "wflow_sediment"
+calendar = "proleptic_gregorian"
+starttime = 2010-02-01T00:00:00
+endtime = 2010-02-10T00:00:00
+time_units = "days since 1900-01-01 00:00:00"
+timestepsecs = 86400
+
+[state]
+path_input = "instate/instates.nc"
+path_output = "run_default/outstate/outstates.nc"
+
+[input]
+path_forcing = "inmaps.nc"
+path_static = "staticmaps.nc"
+gauges = "wflow_gauges"
+ldd = "wflow_ldd"
+river_location = "wflow_river"
+subcatchment = "wflow_subcatch"
+forcing = [ "vertical.h_land", "vertical.interception", "vertical.precipitation", "vertical.q_land", "lateral.land.h_riv", "lateral.land.q_riv",]
+cyclic = [ "vertical.leaf_area_index",]
+gauges_grdc = "wflow_gauges_grdc"
+
+[model]
+type = "sediment"
+reinit = true
+runrivermodel = true
+doreservoir = true
+dolake = true
+rainerosmethod = "answers"
+landtransportmethod = "yalinpart"
+rivtransportmethod = "bagnold"
+reservoirs = false
+lakes = false
+
+[output]
+path = "run_default/output.nc"
+
+[csv]
+path = "run_default/output.csv"
+[[csv.column]]
+header = "TSS"
+map = "gauges"
+parameter = "lateral.river.SSconc"
+
+[[csv.column]]
+header = "Q"
+map = "gauges_grdc"
+parameter = "lateral.river.q_riv"
+
+[[csv.column]]
+header = "TSS"
+map = "gauges_grdc"
+parameter = "lateral.river.SSconc"
+
+[input.vertical]
+altitude = "wflow_dem"
+canopyheight = "CanopyHeight"
+erosk = "ErosK"
+erosspl = "eros_spl_EUROSEM"
+erosov = "eros_ov"
+h_land = "lwl"
+interception = "int"
+kext = "Kext"
+leaf_area_index = "LAI"
+pathfrac = "PathFrac"
+precipitation = "prec"
+q_land = "lro"
+slope = "Slope"
+specific_leaf = "Sl"
+storage_wood = "Swood"
+usleC = "USLE_C"
+usleK = "USLE_K"
+pclay = "PercentClay"
+psilt = "PercentSilt"
+rivcell = "wflow_river"
+resareas = "wflow_reservoirareas"
+lakeareas = "wflow_lakeareas"
+
+[output.vertical]
+soilloss = "soilloss"
+
+[state.lateral.river]
+clayload = "clayload"
+siltload = "siltload"
+sandload = "sandload"
+saggload = "saggload"
+laggload = "laggload"
+gravload = "gravload"
+claystore = "claystore"
+siltstore = "siltstore"
+sandstore = "sandstore"
+saggstore = "saggstore"
+laggstore = "laggstore"
+gravstore = "gravstore"
+outclay = "outclay"
+outsilt = "outsilt"
+outsand = "outsand"
+outsagg = "outsagg"
+outlagg = "outlagg"
+outgrav = "outgrav"
+
+[input.lateral.land]
+slope = "Slope"
+h_riv = "rwl"
+q_riv = "rro"
+
+[input.lateral.river]
+cbagnold = "c_Bagnold"
+d50 = "D50_River"
+d50engelund = "D50_River"
+ebagnold = "exp_Bagnold"
+fclayriv = "ClayF_River"
+fsiltriv = "SiltF_River"
+fsandriv = "SandF_River"
+fgravriv = "GravelF_River"
+length = "wflow_riverlength"
+slope = "RiverSlope"
+width = "wflow_riverwidth"
+resarea = "ResSimpleArea"
+restrapeff = "ResTrapEff"
+resareas = "wflow_reservoirareas"
+reslocs = "wflow_reservoirlocs"
+lakearea = "LakeArea"
+lakeareas = "wflow_lakeareas"
+lakelocs = "wflow_lakelocs"
+
+[output.lateral.river]
+SSconc = "SSconc"
