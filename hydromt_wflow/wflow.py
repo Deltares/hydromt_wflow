@@ -163,7 +163,7 @@ class WflowModel(Model):
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(source_name)
         # TODO support and test (user) data from other sources with other crs!
-        if ds_org.rio.crs is None or ds_org.rio.crs.to_epsg() != 4326:
+        if ds_org.raster.crs is None or ds_org.raster.crs.to_epsg() != 4326:
             raise ValueError("Only EPSG:4326 base data supported.")
         # get basin geometry and clip data
         kind, region = parse_region(region, logger=self.logger)
@@ -188,7 +188,7 @@ class WflowModel(Model):
             raise ValueError(f"wflow region argument not understood: {region}")
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
-        ds_org = ds_org.rio.clip_geom(geom, align=res, buffer=10)
+        ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
         self.logger.debug(f"Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
 
@@ -208,8 +208,8 @@ class WflowModel(Model):
             da_flwdir = xr.DataArray(
                 name="flwdir",
                 data=data,
-                coords=ds_base.rio.coords,
-                dims=ds_base.rio.dims,
+                coords=ds_base.raster.coords,
+                dims=ds_base.raster.dims,
                 attrs=dict(
                     long_name="ldd flow direction",
                     _FillValue=core_ldd._mv,
@@ -307,7 +307,7 @@ class WflowModel(Model):
             strord > max_str, max_str, strord
         )  # if streamroder value larger than max_str, assign last value
         strord = xr.where(
-            strord == strord.rio.nodata, -999, strord
+            strord == strord.raster.nodata, -999, strord
         )  # handle missing value (last row of csv is mapping of nan values)
 
         ds_nriver = landuse(
@@ -584,7 +584,7 @@ class WflowModel(Model):
             self.logger.info(f"Gauges locations set based on outlets.")
             da, idxs, ids = flw.gaugemap(self.staticmaps, idxs=self.flwdir.idxs_pit)
             self.set_staticmaps(da, name=self._MAPS["gauges"])
-            points = gpd.points_from_xy(*self.staticmaps.rio.idx_to_xy(idxs))
+            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
             gdf = gpd.GeoDataFrame(index=ids, geometry=points, crs=self.crs)
             self.set_staticgeoms(gdf, name="gauges")
             self.logger.info(f"Gauges map based on catchment outlets added.")
@@ -620,7 +620,7 @@ class WflowModel(Model):
                 xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
                     gdf["geometry"]
                 )
-                idxs = self.staticmaps.rio.xy_to_idx(xs, ys)
+                idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
                 ids = gdf.index.values
 
                 if snap_to_river and mask is None:
@@ -638,7 +638,7 @@ class WflowModel(Model):
                 self.set_staticmaps(da, name=mapname)
 
                 # geoms
-                points = gpd.points_from_xy(*self.staticmaps.rio.idx_to_xy(idxs))
+                points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
                 # if csv contains additional columns, these are also written in the staticgeoms
                 gdf_snapped = gpd.GeoDataFrame(index=ids, geometry=points, crs=self.crs)
                 gdf["geometry"] = gdf_snapped.geometry
@@ -759,7 +759,7 @@ class WflowModel(Model):
             self.set_staticgeoms(gdf_org, name="lakes")
 
             for name in lake_params[1:]:
-                da_lake = ds_lakes.rio.rasterize(
+                da_lake = ds_lakes.raster.rasterize(
                     gdf_org_points, col_name=name, dtype="float32", nodata=-999
                 )
                 self.set_staticmaps(da_lake)
@@ -863,7 +863,7 @@ class WflowModel(Model):
             self.set_staticgeoms(gdf_org, name="reservoirs")
 
             for name in gdf_org_points.columns[2:]:
-                da_res = ds_res.rio.rasterize(
+                da_res = ds_res.raster.rasterize(
                     gdf_org_points, col_name=name, dtype="float32", nodata=-999
                 )
                 self.set_staticmaps(da_res)
@@ -926,7 +926,7 @@ class WflowModel(Model):
                 f"Skipping {wb_type} procedures!"
             )
 
-        # rasterize points polygons in rio.rasterize -- you need staticmaps to nkow the grid
+        # rasterize points polygons in raster.rasterize -- you need staticmaps to nkow the grid
         return gdf_org, ds_waterbody
 
     def setup_soilmaps(self, source_name="soilgrids", ptf_ksatver="brakensiek"):
@@ -1064,7 +1064,7 @@ class WflowModel(Model):
             da_param = xr.where(
                 self.staticmaps[self._MAPS["basins"]], value, nodatafloat
             )
-            da_param.rio.set_nodata(nodatafloat)
+            da_param.raster.set_nodata(nodatafloat)
 
             da_param = da_param.rename(key)
             self.set_staticmaps(da_param)
@@ -1106,7 +1106,7 @@ class WflowModel(Model):
         if climate_fn != None:
             clim = self.data_catalog.get_rasterdataset(
                 climate_fn,
-                geom=precip.rio.box,
+                geom=precip.raster.box,
                 buffer=2,
                 variables=["precip"],
             )
@@ -1192,7 +1192,7 @@ class WflowModel(Model):
         if dem_forcing_fn != None:
             dem_forcing = self.data_catalog.get_rasterdataset(
                 dem_forcing_fn,
-                geom=ds.rio.box,  # clip dem with forcing bbox for full coverage
+                geom=ds.raster.box,  # clip dem with forcing bbox for full coverage
                 buffer=2,
                 variables=["elevtn"],
             ).squeeze()
@@ -1287,7 +1287,7 @@ class WflowModel(Model):
         self.logger.info(f"Write staticmaps to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
-            ds_out[v] = ds_out[v].where(mask, ds_out[v].rio.nodata)
+            ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn)
         # self.write_staticmaps_pcr()
 
@@ -1301,11 +1301,11 @@ class WflowModel(Model):
             self.logger.warning(f"No staticmaps found at {fn}")
             return
         self._staticmaps = open_mfraster(fns, **kwargs)
-        for name in self.staticmaps.rio.vars:
+        for name in self.staticmaps.raster.vars:
             if PCR_VS_MAP.get(name, "scalar") == "bool":
                 self._staticmaps[name] = self._staticmaps[name] == 1
                 # a nodata value is required when writing
-                self._staticmaps[name].rio.set_nodata(0)
+                self._staticmaps[name].raster.set_nodata(0)
         path = join(self.root, "staticmaps", "clim", f"LAI*")
         if len(glob.glob(path)) > 0:
             da_lai = open_mfraster(
@@ -1339,16 +1339,18 @@ class WflowModel(Model):
         if "c" in ds_out.data_vars:
             for layer in ds_out["layer"]:
                 ds_out[f"c_{layer.item():d}"] = ds_out["c"].sel(layer=layer)
-                ds_out[f"c_{layer.item():d}"].rio.set_nodata(ds_out["c"].rio.nodata)
+                ds_out[f"c_{layer.item():d}"].raster.set_nodata(
+                    ds_out["c"].raster.nodata
+                )
             ds_out = ds_out.drop(["c", "layer"])
         self.logger.info("Writing (updated) staticmap files.")
         # add datatypes for maps with same basenames, e.g. wflow_gauges_grdc
         pcr_vs_map = PCR_VS_MAP.copy()
-        for var_name in ds_out.rio.vars:
+        for var_name in ds_out.raster.vars:
             base_name = "_".join(var_name.split("_")[:-1])  # clip _<postfix>
             if base_name in PCR_VS_MAP:
                 pcr_vs_map.update({var_name: PCR_VS_MAP[base_name]})
-        ds_out.rio.to_mapstack(
+        ds_out.raster.to_mapstack(
             root=join(self.root, "staticmaps"),
             mask=True,
             driver="PCRaster",
@@ -1591,11 +1593,11 @@ class WflowModel(Model):
 
         # clip based on subbasin args, geom or bbox
         if geom is not None:
-            self._staticmaps = self.staticmaps.rio.clip_geom(
+            self._staticmaps = self.staticmaps.raster.clip_geom(
                 geom, align=align, buffer=buffer
             )
         elif bbox is not None:
-            self._staticmaps = self.staticmaps.rio.clip_bbox(
+            self._staticmaps = self.staticmaps.raster.clip_bbox(
                 bbox, align=align, buffer=buffer
             )
 
@@ -1690,9 +1692,9 @@ class WflowModel(Model):
             if self.crs is None and crs is not None:
                 self.set_crs(crs)
             # use the bounds of staticmaps to clip forcing to get identical grids
-            forcing_clip = forcing.rio.clip_bbox(self.staticmaps.rio.bounds)
+            forcing_clip = forcing.raster.clip_bbox(self.staticmaps.raster.bounds)
             for dvar in forcing_clip.data_vars:
-                forcing_clip[dvar].rio.to_raster(
+                forcing_clip[dvar].raster.to_raster(
                     join(model_destination, "inmaps", dvar),
                     mask=True,
                     driver="PCRaster",
@@ -1709,7 +1711,7 @@ class WflowModel(Model):
                     chunks_out = {}
                     forcing = xr.open_dataset(fn)
                 # use the bounds of staticmaps to clip forcing to get identical grids
-                forcing_clip = forcing.rio.clip_bbox(self.staticmaps.rio.bounds)
+                forcing_clip = forcing.raster.clip_bbox(self.staticmaps.raster.bounds)
                 fn_out = join(model_destination, "inmaps", basename(fn))
 
                 def chunk_lst(da):

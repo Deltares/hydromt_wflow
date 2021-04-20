@@ -48,7 +48,7 @@ def glaciermaps(
         Dataset containing gridded glacier data
     """
     # Rasterize the GeoDataFrame to get the areas mask of glaciers with their ids
-    ds_out = ds_like.rio.rasterize(
+    ds_out = ds_like.raster.rasterize(
         gdf,
         col_name=id_column,
         nodata=0,
@@ -90,8 +90,8 @@ def glaciermaps(
         "Creating vector grid for calculating glacier fraction and storage per grid cell"
     )
     elevtn = ds_like[elevtn_name]
-    idx_valid = np.where(elevtn.values.flatten() != elevtn.rio.nodata)[0]
-    gdf_grid = ds_like.rio.vector_grid().loc[idx_valid]
+    idx_valid = np.where(elevtn.values.flatten() != elevtn.raster.nodata)[0]
+    gdf_grid = ds_like.raster.vector_grid().loc[idx_valid]
     gdf_grid["glacierfrac"] = np.zeros(len(idx_valid))
     gdf_grid["glacierstore"] = np.zeros(len(idx_valid))
     gdf_grid["area"] = gdf_grid.to_crs(3857).area  # area calculation in projected crs
@@ -115,7 +115,7 @@ def glaciermaps(
 
     # reproject back to original projection
     # Create the rasterized glacier storage map
-    ds_out["glacstore"] = ds_like.rio.rasterize(
+    ds_out["glacstore"] = ds_like.raster.rasterize(
         gdf_grid,
         col_name="glacierstore",
         nodata=0,
@@ -125,7 +125,7 @@ def glaciermaps(
     )
 
     # Create the rasterized glacier fraction map
-    ds_out["glacfracs"] = ds_like.rio.rasterize(
+    ds_out["glacfracs"] = ds_like.raster.rasterize(
         gdf_grid,
         col_name="glacierfrac",
         nodata=0,

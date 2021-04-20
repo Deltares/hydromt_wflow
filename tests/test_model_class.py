@@ -52,7 +52,7 @@ def test_model_build(tmpdir):
     # check maps
     invalid_maps = []
     if len(mod0._staticmaps) > 0:
-        maps = mod0.staticmaps.rio.vars
+        maps = mod0.staticmaps.raster.vars
         assert np.all(mod0.crs == mod1.crs), f"map crs {name}"
         for name in maps:
             map0 = mod0.staticmaps[name].fillna(0)

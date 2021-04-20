@@ -73,7 +73,7 @@ def average_soillayers(ds, soilthickness):
         output_dtypes=[float],
     )
 
-    da_av = da_av.rio.interpolate_na()
+    da_av = da_av.raster.interpolate_na()
 
     return da_av
 
@@ -176,7 +176,7 @@ def pore_size_distrution_index_layers(ds, thetas):
             output_dtypes=[float],
         )
         da.name = "sl" + str(l)
-        da = da.rio.interpolate_na()
+        da = da.raster.interpolate_na()
         da_lst.append(da)
     ds = xr.merge(da_lst)
     return ds
@@ -222,7 +222,7 @@ def kv_layers(ds, thetas, ptf_name):
             )
 
         da.name = "kv"
-        da = da.rio.interpolate_na()
+        da = da.raster.interpolate_na()
         da_lst.append(da)
     ds = xr.concat(da_lst, pd.Index(soildepth_mm, name="z"))
     return ds
@@ -338,28 +338,28 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
         Dataset containing gridded soil parameters.
     """
 
-    ds_out = xr.Dataset(coords=ds_like.rio.coords)
+    ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
     # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
-    ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].rio.nodata, np.nan, ds)
+    ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
 
     logger.info("calculate and resample thetaS")
     thetas_sl = thetas_layers(ds)
     thetas = average_soillayers(thetas_sl, ds["soilthickness"])
-    thetas = thetas.rio.reproject_like(ds_like, method="average")
+    thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["thetaS"] = thetas.astype(np.float32)
 
     logger.info("calculate and resample thetaR")
     thetar_sl = thetar_layers(ds)
     thetar = average_soillayers(thetar_sl, ds["soilthickness"])
-    thetar = thetar.rio.reproject_like(ds_like, method="average")
+    thetar = thetar.raster.reproject_like(ds_like, method="average")
     ds_out["thetaR"] = thetar.astype(np.float32)
 
-    soilthickness_hr = ds["soilthickness"].rio.interpolate_na()
-    soilthickness = soilthickness_hr.rio.reproject_like(ds_like, method="average")
+    soilthickness_hr = ds["soilthickness"].raster.interpolate_na()
+    soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
     # wflow_sbm cannot handle (yet) zero soil thickness
     soilthickness = xr.where(soilthickness == 0.0, np.nan, soilthickness)
-    soilthickness = soilthickness.rio.interpolate_na()
+    soilthickness = soilthickness.raster.interpolate_na()
     ds_out["SoilThickness"] = (
         soilthickness.astype(np.float32) * 10.0
     )  # from [cm] to [mm]
@@ -368,13 +368,13 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     logger.info("calculate and resample KsatVer")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
     kv_sl = xr.ufuncs.log(kv_sl_hr)
-    kv_sl = kv_sl.rio.reproject_like(ds_like, method="average")
+    kv_sl = kv_sl.raster.reproject_like(ds_like, method="average")
     kv_sl = xr.ufuncs.exp(kv_sl)
 
     logger.info("calculate and resample pore size distribution index")
     lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
     lambda_sl = xr.ufuncs.log(lambda_sl_hr)
-    lambda_sl = lambda_sl.rio.reproject_like(ds_like, method="average")
+    lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
     lambda_sl = xr.ufuncs.exp(lambda_sl)
 
     da_c = []
@@ -431,14 +431,14 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     ds_out["f"] = popt_0.astype(np.float32)
 
     # wflow soil map is based on USDA soil classification
-    soilmap = ds["tax_usda"].rio.interpolate_na()
-    soilmap = soilmap.rio.reproject_like(ds_like, method="mode")
+    soilmap = ds["tax_usda"].raster.interpolate_na()
+    soilmap = soilmap.raster.reproject_like(ds_like, method="mode")
     ds_out["wflow_soil"] = soilmap.astype(np.float32)
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
         ds_out[var] = ds_out[var].fillna(nodata)
-        ds_out[var].rio.set_nodata(nodata)
+        ds_out[var].raster.set_nodata(nodata)
 
     return ds_out
 
@@ -471,22 +471,22 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         Dataset containing gridded soil parameters for sediment modelling.
     """
 
-    ds_out = xr.Dataset(coords=ds_like.rio.coords)
+    ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
     # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
-    ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].rio.nodata, np.nan, ds)
+    ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
 
     # soil properties
-    pclay = ds["clyppt_sl1"].rio.interpolate_na()
-    percentclay = pclay.rio.reproject_like(ds_like, method="average")
+    pclay = ds["clyppt_sl1"].raster.interpolate_na()
+    percentclay = pclay.raster.reproject_like(ds_like, method="average")
     ds_out["PercentClay"] = percentclay.astype(np.float32)
 
-    psilt = ds["sltppt_sl1"].rio.interpolate_na()
-    percentsilt = psilt.rio.reproject_like(ds_like, method="average")
+    psilt = ds["sltppt_sl1"].raster.interpolate_na()
+    percentsilt = psilt.raster.reproject_like(ds_like, method="average")
     ds_out["PercentSilt"] = percentsilt.astype(np.float32)
 
-    poc = ds["oc_sl1"].rio.interpolate_na()
-    percentoc = poc.rio.reproject_like(ds_like, method="average")
+    poc = ds["oc_sl1"].raster.interpolate_na()
+    percentoc = poc.raster.reproject_like(ds_like, method="average")
     ds_out["PercentOC"] = percentoc.astype(np.float32)
 
     # Detachability of the soil
@@ -497,7 +497,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         dask="parallelized",
         output_dtypes=[float],
     )
-    erosK = erosK.rio.reproject_like(ds_like, method="average")
+    erosK = erosK.raster.reproject_like(ds_like, method="average")
     ds_out["ErosK"] = erosK.astype(np.float32)
 
     # USLE K parameter
@@ -517,12 +517,12 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             dask="parallelized",
             output_dtypes=[float],
         )
-    usleK = usleK.rio.reproject_like(ds_like, method="average")
+    usleK = usleK.raster.reproject_like(ds_like, method="average")
     ds_out["USLE_K"] = usleK.astype(np.float32)
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
         ds_out[var] = ds_out[var].fillna(nodata)
-        ds_out[var].rio.set_nodata(nodata)
+        ds_out[var].raster.set_nodata(nodata)
 
     return ds_out

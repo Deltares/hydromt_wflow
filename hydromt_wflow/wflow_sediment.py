@@ -329,7 +329,7 @@ class WflowSedimentModel(WflowModel):
             strord > max_str, max_str, strord
         )  # if streamroder value larger than max_str, assign last value
         strord = xr.where(
-            strord == strord.rio.nodata, -999, strord
+            strord == strord.raster.nodata, -999, strord
         )  # handle missing value (last row of csv is mapping of nan values)
 
         ds_riversed = landuse(
@@ -368,11 +368,11 @@ class WflowSedimentModel(WflowModel):
         dsin = self.data_catalog.get_rasterdataset(
             source_name, geom=self.region, buffer=2
         )
-        dsout = xr.Dataset(coords=self.staticmaps.rio.coords)
-        ds_out = dsin.rio.reproject_like(self.staticmaps, method="average")
+        dsout = xr.Dataset(coords=self.staticmaps.raster.coords)
+        ds_out = dsin.raster.reproject_like(self.staticmaps, method="average")
         dsout["CanopyHeight"] = ds_out.astype(np.float32)
         dsout["CanopyHeight"] = dsout["CanopyHeight"].fillna(-9999.0)
-        dsout["CanopyHeight"].rio.set_nodata(-9999.0)
+        dsout["CanopyHeight"].raster.set_nodata(-9999.0)
         self.set_staticmaps(dsout)
 
     def setup_soilmaps(

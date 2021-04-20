@@ -88,7 +88,7 @@ def river(
         ds_like = ds
 
     logger.debug(f"Set river mask with upstream area threshold: {river_upa} km2.")
-    dims = ds_like.rio.dims
+    dims = ds_like.raster.dims
     _mask = ds_like["uparea"] > river_upa  # initial mask
     _mask_org = ds["uparea"].values >= river_upa  # highres riv mask
 
@@ -96,11 +96,11 @@ def river(
     flwdir = flw.flwdir_from_da(ds["flwdir"], **kwargs)
     if subgrid == False:
         # get cell index of river cells
-        idxs_out = np.arange(ds_like.rio.size).reshape(ds_like.rio.shape)
+        idxs_out = np.arange(ds_like.raster.size).reshape(ds_like.raster.shape)
         idxs_out = np.where(_mask, idxs_out, flwdir._mv)
     else:
         # get subgrid outlet pixel index
-        idxs_out = ds.rio.xy_to_idx(
+        idxs_out = ds.raster.xy_to_idx(
             xs=ds_like["x_out"].values,
             ys=ds_like["y_out"].values,
             mask=_mask.values,
@@ -116,9 +116,9 @@ def river(
     )
 
     # minimum river length equal 10% of cellsize
-    xres, yres = ds_like.rio.res
-    if ds_like.rio.crs.is_geographic:  # convert degree to meters
-        xres, yres = gis_utils.cellres(ds_like.rio.ycoords.values.mean(), xres, yres)
+    xres, yres = ds_like.raster.res
+    if ds_like.raster.crs.is_geographic:  # convert degree to meters
+        xres, yres = gis_utils.cellres(ds_like.raster.ycoords.values.mean(), xres, yres)
     min_len = np.mean(np.abs([xres, yres])) * min_rivlen_ratio
     rivlen = np.where(msk, np.maximum(rivlen, min_len), -9999)
 
@@ -161,7 +161,7 @@ def river(
     rivslp = np.where(msk, rivslp, -9999)
 
     # create xarray dataset for river mask, length and width
-    ds_out = xr.Dataset(coords=ds_like.rio.coords)
+    ds_out = xr.Dataset(coords=ds_like.raster.coords)
     ds_out["rivmsk"] = xr.Variable(dims, msk, attrs=dict(_FillValue=0))
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
@@ -229,7 +229,7 @@ def river_width(
     # read river width observations
     if nowth == False:
         rivwth_org = ds_like[f"{rivwth_name}{obs_postfix}"].values
-        nodata = ds_like[f"{rivwth_name}{obs_postfix}"].rio.nodata
+        nodata = ds_like[f"{rivwth_name}{obs_postfix}"].raster.nodata
         rivmsk = rivwth_org != nodata
         rivwth_org = np.where(rivmsk, rivwth_org, -9999)
 
@@ -237,7 +237,7 @@ def river_width(
         mask = rivwth_org > min_wth
         for name in mask_names:
             if name in ds_like:
-                mask[ds_like[name].values != ds_like[name].rio.nodata] = False
+                mask[ds_like[name].values != ds_like[name].raster.nodata] = False
                 logger.debug(f"{name} masked out in rivwth data.")
             else:
                 logger.warning(f'mask variable "{name}" not found in maps.')
@@ -263,7 +263,7 @@ def river_width(
 
     # compute new riverwidth
     rivmsk = ds_like[rivmsk_name].values
-    rivwth_out = np.full(ds_like.rio.shape, -9999.0, dtype=np.float32)
+    rivwth_out = np.full(ds_like.raster.shape, -9999.0, dtype=np.float32)
     rivwth_out[rivmsk] = np.maximum(min_wth, power_law(values[rivmsk], a, b))
 
     # overwrite rivwth data with original data at valid points
@@ -278,7 +278,7 @@ def river_width(
 
     # return xarray dataarray
     attrs = dict(_FillValue=-9999, unit="m")
-    return xr.DataArray(rivwth_out, dims=ds_like.rio.dims, attrs=attrs)
+    return xr.DataArray(rivwth_out, dims=ds_like.raster.dims, attrs=attrs)
 
 
 def _width_fit(
@@ -328,10 +328,11 @@ def _width_fit(
 def _precip(ds_like, flwdir, da_precip, logger=logger):
     """"""
     precip = (
-        da_precip.rio.reproject_like(ds_like, method=RESAMPLING["precip"]).values / 1e3
+        da_precip.raster.reproject_like(ds_like, method=RESAMPLING["precip"]).values
+        / 1e3
     )  # [m/yr]
     precip = np.maximum(precip, 0)
-    lat, lon = ds_like.rio.ycoords.values, ds_like.rio.xcoords.values
+    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
     area = gis_utils.reggrid_area(lat, lon)
     # 10 x average flow
     accu_precip = flwdir.accuflux(precip * area / (86400 * 365) * 10)  # [m3/s]
@@ -360,16 +361,18 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     params = regr_map.loc[base_class]
 
     # precipitation (TO-DO: add checks that were present in old version?)
-    precip = da_precip.rio.reproject_like(ds_like, method=RESAMPLING["precip"]).values
+    precip = da_precip.raster.reproject_like(
+        ds_like, method=RESAMPLING["precip"]
+    ).values
     # apply scaling factor to make sure accumulated precipitation will stay
     # (approximately) the same
-    scaling_factor_1 = np.round(da_precip.rio.res[0] / ds_like.rio.res[0], 4)
-    scaling_factor_2 = np.round(da_precip.rio.res[1] / ds_like.rio.res[1], 4)
+    scaling_factor_1 = np.round(da_precip.raster.res[0] / ds_like.raster.res[0], 4)
+    scaling_factor_2 = np.round(da_precip.raster.res[1] / ds_like.raster.res[1], 4)
     scaling_factor = (scaling_factor_1 + scaling_factor_2) / 2
     precip = precip / scaling_factor ** 2
 
     # derive cell areas (m2)
-    lat, lon = ds_like.rio.ycoords.values, ds_like.rio.xcoords.values
+    lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
     areagrid = gis_utils.reggrid_area(lat, lon) / 1e6
 
     # calculate "local runoff" (note: set missings in precipitation to zero)

@@ -49,7 +49,7 @@ def waterbodymaps(
     """
     # Rasterize the GeoDataFrame to get the areas mask of waterbodies
     res_id = gdf["waterbody_id"].values
-    da_wbmask = ds_like.rio.rasterize(
+    da_wbmask = ds_like.raster.rasterize(
         gdf,
         col_name="waterbody_id",
         nodata=-999,
@@ -97,7 +97,7 @@ def waterbodymaps(
         outgdf = gp.GeoDataFrame(
             outdf, geometry=gp.points_from_xy(outdf.xout, outdf.yout)
         )
-        ds_out["reslocs"] = ds_like.rio.rasterize(
+        ds_out["reslocs"] = ds_like.raster.rasterize(
             outgdf, col_name="waterbody_id", nodata=-999
         )
     # Else outlet map is equal to areas mask map
