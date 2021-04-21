@@ -1,7 +1,20 @@
+.. currentmodule:: hydromt_wflow
+
 Workflows
 =========
 
-.. note::
+Several workflows were created for the wflow plugin. They are:
 
-  Document here any specific workflow(s) created for your model.
+.. autosummary::
+   :toctree: generated/
+   :nosignatures:
+
+   workflows.glaciers.glaciermaps
+   workflows.glaciers.glacierattrs
+   workflows.river.river
+   workflows.river.river_width
+   workflows.soilgrids.soilgrids
+   workflows.soilgrids.soilgrids_sediment
+   workflows.waterbodies.waterbodymaps
+   workflows.waterbodies.reservoirattrs
 

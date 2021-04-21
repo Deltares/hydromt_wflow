@@ -26,9 +26,7 @@ _models = {
 def test_model_class(model):
     _model = _models[model]
     # read model in examples folder
-    # root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     root = join(EXAMPLEDIR, _model["example"])
-    # model = "wflow"
     mod = MODELS.get(model)(root=root, mode="r")
     mod.read()
     # run test_model_api() method
@@ -41,7 +39,6 @@ def test_model_build(tmpdir, model):
     _model = _models[model]
     # test build method
     # compare results with model from examples folder
-    # model = "wflow"
     root = str(tmpdir.join(model))
     mod1 = MODELS.get(model)(root=root, mode="w")
     # Build method options
@@ -51,7 +48,6 @@ def test_model_build(tmpdir, model):
         "bbox": [11.70, 45.35, 12.95, 46.70],
     }
     res = 0.01666667
-    # config = join(TESTDATADIR, "wflow_piave_build_subbasin.ini")
     config = join(TESTDATADIR, _model["ini"])
     opt = parse_config(config)
     # Build model
@@ -64,7 +60,6 @@ def test_model_build(tmpdir, model):
     # (need to read it again for proper staticgeoms check)
     mod1 = MODELS.get(model)(root=root, mode="r")
     mod1.read()
-    # root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     root = join(EXAMPLEDIR, _model["example"])
     mod0 = MODELS.get(model)(root=root, mode="r")
     mod0.read()

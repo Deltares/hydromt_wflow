@@ -1,14 +1,42 @@
-.. currentmodule:: hydromt
+.. currentmodule:: hydromt_wflow
 
 =========
 Workflows
 =========
 API documentation of model specific workflows.
 
-Workflow1
+Glaciers
+========
+
+.. autosummary::
+   :toctree: generated/
+
+   workflows.glaciers.glaciermaps
+   workflows.glaciers.glacierattrs
+
+River
+=====
+
+.. autosummary::
+   :toctree: generated/
+
+   workflows.river.river
+   workflows.river.river_width
+
+Soilgrids
 =========
 
 .. autosummary::
    :toctree: generated/
 
-   workflows.new_workflow
+   workflows.soilgrids.soilgrids
+   workflows.soilgrids.soilgrids_sediment
+
+Waterbodies
+===========
+
+.. autosummary::
+   :toctree: generated/
+
+   workflows.waterbodies.waterbodymaps
+   workflows.waterbodies.reservoirattrs

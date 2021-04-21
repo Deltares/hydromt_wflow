@@ -1060,6 +1060,18 @@ class WflowModel(Model):
             self.set_staticgeoms(gdf_org, name="glaciers")
 
     def setup_constant_pars(self, **kwargs):
+        """Setup constant parameter maps.
+        
+        Adds model layer:
+            
+        * **param_name** map: constant parameter map.
+        
+        Parameters
+        ----------
+        name = value : list of opt
+            Will add name in staticmaps with value for every active cell.
+        
+        """
         for key, value in kwargs.items():
             nodatafloat = -999
             da_param = xr.where(
