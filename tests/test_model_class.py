@@ -64,7 +64,7 @@ def test_model_build(tmpdir, model):
     mod0 = MODELS.get(model)(root=root, mode="r")
     mod0.read()
     # check maps
-    invalid_maps = []
+    invalid_maps = {}
     if len(mod0._staticmaps) > 0:
         maps = mod0.staticmaps.raster.vars
         assert np.all(mod0.crs == mod1.crs), f"map crs {name}"
@@ -72,9 +72,14 @@ def test_model_build(tmpdir, model):
             map0 = mod0.staticmaps[name].fillna(0)
             map1 = mod1.staticmaps[name].fillna(0)
             if not np.allclose(map0, map1):
-                invalid_maps.append(name)
-    invalid_map_str = ", ".join(invalid_maps)
-    assert len(invalid_maps) == 0, f"invalid maps: {invalid_map_str}"
+                notclose = ~np.isclose(map0, map1)
+                xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
+                ncells = int(np.sum(notclose))
+                diff = (map0 - map1).values[notclose].mean()
+                xys = "), (".join([(x, y) for x, y in zip(*xy)])
+                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: ({xys}))"
+    # invalid_map_str = ", ".join(invalid_maps)
+    assert len(invalid_maps) == 0, f"invalid maps: {invalid_maps}"
     # check geoms
     if mod0._staticgeoms:
         for name in mod0.staticgeoms:
