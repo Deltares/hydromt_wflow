@@ -7,23 +7,23 @@ Model components
 For wflow, the different components available for building or updating are:
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../../generated/
    :nosignatures:
 
-   WflowModel.setup_config
-   WflowModel.setup_basemaps
-   WflowModel.setup_rivers
-   WflowModel.setup_lakes
-   WflowModel.setup_reservoirs
-   WflowModel.setup_glaciers
-   WflowModel.setup_lulcmaps
-   WflowModel.setup_laimaps
-   WflowModel.setup_soilmaps
-   WflowModel.setup_riverwidth
-   WflowModel.setup_gauges
-   WflowModel.setup_precip_forcing
-   WflowModel.setup_temp_pet_forcing
-   WflowModel.setup_constant_pars
+   ~WflowModel.setup_config
+   ~WflowModel.setup_basemaps
+   ~WflowModel.setup_rivers
+   ~WflowModel.setup_lakes
+   ~WflowModel.setup_reservoirs
+   ~WflowModel.setup_glaciers
+   ~WflowModel.setup_lulcmaps
+   ~WflowModel.setup_laimaps
+   ~WflowModel.setup_soilmaps
+   ~WflowModel.setup_riverwidth
+   ~WflowModel.setup_gauges
+   ~WflowModel.setup_precip_forcing
+   ~WflowModel.setup_temp_pet_forcing
+   ~WflowModel.setup_constant_pars
 
 
 .. warning::

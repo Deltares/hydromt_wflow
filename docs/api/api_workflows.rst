@@ -9,7 +9,7 @@ Glaciers
 ========
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    workflows.glaciers.glaciermaps
    workflows.glaciers.glacierattrs
@@ -18,7 +18,7 @@ River
 =====
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    workflows.river.river
    workflows.river.river_width
@@ -27,7 +27,7 @@ Soilgrids
 =========
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    workflows.soilgrids.soilgrids
    workflows.soilgrids.soilgrids_sediment
@@ -36,7 +36,7 @@ Waterbodies
 ===========
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    workflows.waterbodies.waterbodymaps
    workflows.waterbodies.reservoirattrs

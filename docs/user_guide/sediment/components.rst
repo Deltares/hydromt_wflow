@@ -7,7 +7,7 @@ Model components
 For wflow_sediment, the different components available for building or updating are:
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../../generated/
    :nosignatures:
 
    WflowSedimentModel.setup_config

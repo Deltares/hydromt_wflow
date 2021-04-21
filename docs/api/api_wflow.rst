@@ -8,7 +8,7 @@ Initialize
 ----------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowModel
 
@@ -16,7 +16,7 @@ Build components
 ----------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowModel.setup_config
    WflowModel.setup_basemaps
@@ -37,7 +37,7 @@ Model specific attributes
 -------------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowModel.flwdir
    WflowModel.basins
@@ -47,7 +47,7 @@ Model specific methods
 ----------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowModel.set_flwdir
    WflowModel.clip_staticmaps

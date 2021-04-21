@@ -34,7 +34,7 @@ Documentation
 * :doc:`user_guide/sediment/index`
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :hidden:
    :caption: User Guide
 

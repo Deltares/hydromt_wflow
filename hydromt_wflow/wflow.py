@@ -255,12 +255,12 @@ class WflowModel(Model):
 
         Adds model layers:
 
-        * **wflow_river** map: river mask [-].
+        * **wflow_river** map: river mask [-]
         * **wflow_riverlength** map: river length [m]
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [add]
         * **RiverZ** map: elevation of the river bed for rivercells only [m]
-        * **rivers** geom: river vector based on wflow_river mask.
+        * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
         ----------
@@ -442,7 +442,7 @@ class WflowModel(Model):
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]
         * **Swood** map: Fraction of wood in the vegetation/plant [-]
-         * **RootingDepth** map: Length of vegetation roots [mm]
+        * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
         * **N** map: Manning Roughness [-]
@@ -1061,16 +1061,16 @@ class WflowModel(Model):
 
     def setup_constant_pars(self, **kwargs):
         """Setup constant parameter maps.
-        
+
         Adds model layer:
-            
+
         * **param_name** map: constant parameter map.
-        
+
         Parameters
         ----------
         name = value : list of opt
             Will add name in staticmaps with value for every active cell.
-        
+
         """
         for key, value in kwargs.items():
             nodatafloat = -999

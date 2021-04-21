@@ -8,9 +8,9 @@ A wflow model in HydroMT also has a set of specific attributes, on top of the on
 from the model API. These are:
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../../generated/
    :nosignatures:
 
-   WflowModel.flwdir
-   WflowModel.basins
-   WflowModel.rivers
+   ~WflowModel.flwdir
+   ~WflowModel.basins
+   ~WflowModel.rivers

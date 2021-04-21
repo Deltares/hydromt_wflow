@@ -28,7 +28,7 @@ def waterbodymaps(
 
     The following waterbody maps are calculated:\
     - resareas/lakeareas : waterbody areas mask [ID]\
-    - reslocs/lakelocs : waterbody outlets [ID]\
+    - reslocs/lakelocs : waterbody outlets [ID]
     
     Parameters
     ----------

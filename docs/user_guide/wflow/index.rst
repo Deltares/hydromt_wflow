@@ -3,7 +3,7 @@ Wflow
 =====
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 0
 
    components
    build_configuration

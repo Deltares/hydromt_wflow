@@ -8,7 +8,7 @@ Initialize
 ----------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowSedimentModel
 
@@ -16,7 +16,7 @@ Build components
 ----------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowSedimentModel.setup_config
    WflowSedimentModel.setup_basemaps
@@ -36,7 +36,7 @@ Model specific attributes
 -------------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowSedimentModel.flwdir
    WflowSedimentModel.basins
@@ -46,7 +46,7 @@ Model specific methods
 ----------------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    WflowSedimentModel.set_flwdir
    WflowSedimentModel.clip_staticmaps
