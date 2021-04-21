@@ -113,6 +113,7 @@ def river(
         idxs_out=idxs_out,
         mask=_mask_org,
         direction=channel_dir,
+        unit="m",
     )
 
     # minimum river length equal 10% of cellsize
@@ -140,7 +141,7 @@ def river(
     bed_level_adjust = np.where(msk, bed_level_adjust, -9999)
 
     # add diff and log
-    diff = flwdir_model.downstream(bed_level_adjust) - bed_level_adjust.ravel()
+    diff = flwdir_model.downstream(bed_level_adjust) - bed_level_adjust
     if np.all(diff <= 0) == False:
         logger.warning(
             "Erroneous increase in riverbed level in downstream direction found."

@@ -10,19 +10,19 @@ For wflow_sediment, the different components available for building or updating 
    :toctree: ../../generated/
    :nosignatures:
 
-   WflowSedimentModel.setup_config
-   WflowSedimentModel.setup_basemaps
-   WflowSedimentModel.setup_rivers
-   WflowSedimentModel.setup_lakes
-   WflowSedimentModel.setup_reservoirs
-   WflowSedimentModel.setup_lulcmaps
-   WflowSedimentModel.setup_laimaps
-   WflowSedimentModel.setup_canopymaps
-   WflowSedimentModel.setup_soilmaps
-   WflowSedimentModel.setup_riverwidth
-   WflowSedimentModel.setup_riverbedsed
-   WflowSedimentModel.setup_gauges
-   WflowSedimentModel.setup_constant_pars
+   ~WflowSedimentModel.setup_config
+   ~WflowSedimentModel.setup_basemaps
+   ~WflowSedimentModel.setup_rivers
+   ~WflowSedimentModel.setup_lakes
+   ~WflowSedimentModel.setup_reservoirs
+   ~WflowSedimentModel.setup_lulcmaps
+   ~WflowSedimentModel.setup_laimaps
+   ~WflowSedimentModel.setup_canopymaps
+   ~WflowSedimentModel.setup_soilmaps
+   ~WflowSedimentModel.setup_riverwidth
+   ~WflowSedimentModel.setup_riverbedsed
+   ~WflowSedimentModel.setup_gauges
+   ~WflowSedimentModel.setup_constant_pars
 
 
 .. warning::
