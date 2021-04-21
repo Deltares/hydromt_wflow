@@ -76,8 +76,8 @@ def test_model_build(tmpdir, model):
                 xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                 ncells = int(np.sum(notclose))
                 diff = (map0 - map1).values[notclose].mean()
-                xys = "), (".join([(x, y) for x, y in zip(*xy)])
-                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: ({xys}))"
+                xys = ", ".join([f"({x:.6f}, {y:.6f})" for x, y in zip(*xy)])
+                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{xys}])"
     # invalid_map_str = ", ".join(invalid_maps)
     assert len(invalid_maps) == 0, f"invalid maps: {invalid_maps}"
     # check geoms
