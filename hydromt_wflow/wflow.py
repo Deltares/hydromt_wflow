@@ -15,7 +15,8 @@ import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 
 from hydromt.models.model_api import Model
-from hydromt.models.region import parse_region
+
+# from hydromt.workflows.basin_mask import parse_region
 from hydromt import workflows, flw
 from hydromt.io import open_mfraster
 
@@ -120,6 +121,7 @@ class WflowModel(Model):
         region,
         res=1 / 120.0,
         source_name="hydro_merit",
+        fn_basin_index="hydro_merit_index",
         upscale_method="ihu",
     ):
         """
@@ -152,6 +154,8 @@ class WflowModel(Model):
             * Required variables: ['flwdir', 'uparea', 'basins', 'strord', 'elevtn']
 
             * Optional variables: ['lndslp', 'mask']
+        fn_basin_index : str
+            Name of data source for basin_index data linked to source_name.
         region : dict
             Dictionary describing region of interest.
             See :py:function:~basin_mask.parse_region for all options
@@ -167,16 +171,14 @@ class WflowModel(Model):
         if ds_org.raster.crs is None or ds_org.raster.crs.to_epsg() != 4326:
             raise ValueError("Only EPSG:4326 base data supported.")
         # get basin geometry and clip data
-        kind, region = parse_region(region, logger=self.logger)
+        kind, region = workflows.parse_region(region, logger=self.logger)
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
-            # TODO explicitly provide basin index path, see issue #156
-            # a memory error may occur when this index is not found
-            root = dirname(self.data_catalog.sources[source_name].path)
+            bas_index = self.data_catalog[fn_basin_index]
             geom, xy = workflows.get_basin_geometry(
                 ds=ds_org,
-                root=root,
                 kind=kind,
+                basin_index=bas_index,
                 logger=self.logger,
                 **region,
             )
@@ -1524,7 +1526,10 @@ class WflowModel(Model):
         """"Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd"""
         flwdir_name = flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
-            self.staticmaps[flwdir_name], ftype=ftype, check_ftype=True
+            self.staticmaps[flwdir_name],
+            ftype=ftype,
+            check_ftype=True,
+            mask=(self.staticmaps[self._MAPS["basins"]] > 0),
         )
 
     @property
