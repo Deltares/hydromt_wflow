@@ -8,5 +8,5 @@ and examples, refer to the relevant chapters in the main part of the documentati
 .. toctree::
    :maxdepth: 2
 
-   Model <api_model>
+   Model <api_model_index>
    Workflows <api_workflows>

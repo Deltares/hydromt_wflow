@@ -13,26 +13,18 @@ To install HydroMT wflow plugin using conda do:
 
     $ conda install hydromt_wflow -c conda-forge
 
-To install a HydroMT environment with conda installed do:
+This will automatically install both HydroMT core library and dependencies as well as the model plugin.
+
+You can also install hydromt_wflow using pip:
 
 .. code-block:: console
 
-    $ conda create hydromt_wflow -n hydromt-wflow -c conda-forge
-
-This will automatically install both HydroMT core library and dependencies as well as the model plugin.
-
-.. note::
-
-  If your model plugin is not available via conda install, you can also use pip:
-  
-  .. code-block:: console
-  
-      $ pip install hydromt_wflow
+    $ pip install hydromt_wflow
 
 
 Developper install
 ------------------
-If you want to download the wflow plugin directly from git to easily have access to the latest developmemts or 
+If you want to download the wflow plugin directly from git to easily have access to the latest developments or 
 make changes to the code you can use the following steps.
 
 First, clone hydromt's wflow plugin ``git`` repo from
@@ -52,17 +44,25 @@ file contained in the repository:
     $ conda env create -f envs/hydromt-wflow.yml
     $ conda activate hydromt-wflow
 
-Finally, build and install hydromt_wflow using pip. If you wish to develop in hydromt_wflow, then 
-make an editable install of hydromt by adding ``-e`` after install:
+Finally, build and install hydromt_wflow using pip.
 
 .. code-block:: console
 
     $ pip install .
 
-or for developpers:
+If you wish to make changes in hydromt_wflow, then you should make an editable install of hydromt. 
+This is possible using the `flit <https://flit.readthedocs.io/en/latest/>`_ package and install command.
+
+For Windows:
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ flit install --pth-file
+
+For Linux:
+
+.. code-block:: console
+
+    $ flit install -s
 
 For more information about how to contribute, see `HydroMT contributing guidelines <https://hydromt.readthedocs.io/en/latest/contributing.html>`_.

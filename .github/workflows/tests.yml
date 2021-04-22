@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest" ] #, "macos-latest", "windows-latest"]
+        os: ["windows-latest"] #, "macos-latest", "ubuntu-latest"]
         python-version: ["3.8", "3.9"] # fix tests to support older versions
     
     steps:
@@ -32,10 +32,13 @@ jobs:
          conda info
          conda list
 
-      - name: Check style
-        run: black --check .
+      - name: Intall hydromt_wflow
+        run: flit install
 
       - name: Test
         run: python -m pytest --verbose --cov=hydromt --cov-report xml
+
+      - name: Check style
+        run: black --check .
 
       - uses: codecov/codecov-action@v1
