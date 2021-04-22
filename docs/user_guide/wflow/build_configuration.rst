@@ -51,7 +51,6 @@ The recommended `region options <https://hydromt.readthedocs.io/en/latest/user_g
 for a proper implementation of this model are:
 
 - basin
-- outlet
 - subbasin
 
 Updating a model
@@ -83,5 +82,4 @@ As for building, the recommended `region options <https://hydromt.readthedocs.io
 for a proper implementation of the clipped model are:
 
 - basin
-- outlet
 - subbasin

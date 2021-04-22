@@ -51,7 +51,6 @@ The recommended `region options <https://hydromt.readthedocs.io/en/latest/user_g
 for a proper implementation of the wflow_sediment model are:
 
 - basin
-- outlet
 - subbasin
 
 
@@ -84,7 +83,6 @@ As for building, the recommended `region options <https://hydromt.readthedocs.io
 for a proper implementation of the clipped model are:
 
 - basin
-- outlet
 - subbasin
 
 Extending a wflow model with a wflow_sediment model
