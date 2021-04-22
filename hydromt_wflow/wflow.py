@@ -1403,13 +1403,6 @@ class WflowModel(Model):
         if not self._write:
             # start fresh in read-only mode
             self._forcing = dict()
-        elif self._write and isfile(fn):
-            # check if staticmaps file exists, if True replace file
-            name = basename(fn).strip(".nc")
-            fn_org = join(dirname(fn), f"{name}_original.nc")
-            self.logger.info(f"Forcing file {fn} already exists, rename to {fn_org}")
-            os.replace(fn, fn_org)
-            fn = fn_org
         if fn is not None and isfile(fn):
             self.logger.info(f"Read forcing from {fn}")
             ds = xr.open_dataset(fn, chunks={"time": 30})
@@ -1422,13 +1415,18 @@ class WflowModel(Model):
             raise IOError("Model opened in read-only mode")
         if self.forcing:
             self.logger.info("Write forcing file")
-            mask = self.staticmaps[self._MAPS["basins"]] > 0
+            mask = self.staticmaps[self._MAPS["basins"]].values > 0
             ds = xr.merge(self.forcing.values())
             encoding = {
                 v: {"zlib": True, "dtype": "float32"} for v in ds.data_vars.keys()
             }
             fn_out = self.get_config("input.path_forcing", abs_path=True)
-            ds.where(mask).to_netcdf(fn_out, encoding=encoding, mode="w")
+            if isfile(fn_out):
+                self.logger.warning(
+                    "Netcdf forcing file already exists, skipping write. To overwrite netcdf forcing file: change name input.path_forcing in setup_config section of the build inifile."
+                )
+            else:
+                ds.where(mask).to_netcdf(fn_out, encoding=encoding, mode="w")
 
     def read_states(self):
         """Read states at <root/?/> and parse to dict of xr.DataArray"""
@@ -1592,7 +1590,7 @@ class WflowModel(Model):
         basins_name = self._MAPS["basins"]
         flwdir_name = self._MAPS["flwdir"]
 
-        kind, region = parse_region(region, logger=self.logger)
+        kind, region = workflows.parse_region(region, logger=self.logger)
         # translate basin and outlet kinds to geom
         geom = region.get("geom", None)
         bbox = region.get("bbox", None)
@@ -1611,18 +1609,31 @@ class WflowModel(Model):
 
         # clip based on subbasin args, geom or bbox
         if geom is not None:
-            self._staticmaps = self.staticmaps.raster.clip_geom(
+            ds_staticmaps = self.staticmaps.raster.clip_geom(
                 geom, align=align, buffer=buffer
             )
+            ds_staticmaps[basins_name] = ds_staticmaps[basins_name].where(
+                ds_staticmaps["mask"], self.staticmaps[basins_name].raster.nodata
+            )
+            ds_staticmaps[basins_name].attrs.update(
+                _FillValue=self.staticmaps[basins_name].raster.nodata
+            )
         elif bbox is not None:
-            self._staticmaps = self.staticmaps.raster.clip_bbox(
+            ds_staticmaps = self.staticmaps.raster.clip_bbox(
                 bbox, align=align, buffer=buffer
             )
 
-        # Update flwdir and staticgeoms
-        self.set_flwdir()
+        # Update flwdir staticmaps and staticgeoms
         if self.crs is None and crs is not None:
             self.set_crs(crs)
+
+        self._staticmaps = xr.Dataset()
+        self.set_staticmaps(ds_staticmaps)
+
+        # add pits at edges after clipping
+        self._flwdir = None  # make sure old flwdir object is removed
+        self.staticmaps[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
+
         self._staticgeoms = dict()
         self.basins
         self.rivers
@@ -1681,13 +1692,7 @@ class WflowModel(Model):
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
 
-        # add pits at edges after clipping
-        self._flwdir = None  # make sure old flwdir object is removed
-        self._staticmaps[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
-
-        return self._staticmaps
-
-    def clip_forcing(self, model_destination, crs=4326, **kwargs):
+    def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
 
         Returns
@@ -1696,54 +1701,9 @@ class WflowModel(Model):
             Clipped forcing.
 
         """
-        # TODO when prepare forcing script integrated incorporate forcing to wflow model
-        # Works with nc or map files only
-        fns_nc = glob.glob(join(self.root, "inmaps", f"*.nc"))
-        fns_map = glob.glob(join(self.root, "inmaps", f"*.map"))
-        destination = join(model_destination, "inmaps")
-        if not os.path.isdir(destination):
-            os.makedirs(destination)
-
-        if len(fns_map) > 0:
-            self.logger.info("Clipping PCRaster forcing..")
-            forcing = open_mfraster(fns_map, concat=True, concat_dim="time")
-            if self.crs is None and crs is not None:
-                self.set_crs(crs)
-            # use the bounds of staticmaps to clip forcing to get identical grids
-            forcing_clip = forcing.raster.clip_bbox(self.staticmaps.raster.bounds)
-            for dvar in forcing_clip.data_vars:
-                forcing_clip[dvar].raster.to_raster(
-                    join(model_destination, "inmaps", dvar),
-                    mask=True,
-                    driver="PCRaster",
-                    pcr_vs_map=PCR_VS_MAP.get(dvar, "scalar"),
-                )
-        if len(fns_nc) > 0:
+        if len(self.forcing) > 0:
             self.logger.info("Clipping NetCDF forcing..")
-            for fn in fns_nc:
-                # This is clipping, coordinates for wflow should be named time lat lon, else no specific chunking
-                try:
-                    chunks_out = {"time": 10, "lat": -1, "lon": -1}
-                    forcing = xr.open_dataset(fn, chunks=chunks_out)
-                except:
-                    chunks_out = {}
-                    forcing = xr.open_dataset(fn)
-                # use the bounds of staticmaps to clip forcing to get identical grids
-                forcing_clip = forcing.raster.clip_bbox(self.staticmaps.raster.bounds)
-                fn_out = join(model_destination, "inmaps", basename(fn))
-
-                def chunk_lst(da):
-                    chunks = np.asarray(da.shape).tolist()
-                    chunks[0] = min(chunks[0], 10)  # chunk first (time) dim
-                    return chunks
-
-                encoding = {
-                    v: {
-                        "zlib": True,
-                        "dtype": "float32",
-                        "chunksizes": chunk_lst(forcing_clip[v]),
-                    }
-                    for v in forcing_clip.data_vars.keys()
-                }
-                forcing_clip.to_netcdf(fn_out, encoding=encoding)
-                forcing_clip.close()
+            ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
+                self.staticmaps.raster.bounds
+            )
+            self.set_forcing(ds_forcing)

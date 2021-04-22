@@ -1,0 +1,162 @@
+casename = "wflow_sbm"
+calendar = "proleptic_gregorian"
+starttime = 2010-02-01T00:00:00
+endtime = 2010-02-10T00:00:00
+time_units = "days since 1900-01-01 00:00:00"
+timestepsecs = 86400
+
+[state]
+path_input = "instate/instates.nc"
+path_output = "run_default/outstate/outstates.nc"
+
+[input]
+path_forcing = "inmaps.nc"
+path_static = "staticmaps.nc"
+gauges = "wflow_gauges"
+ldd = "wflow_ldd"
+river_location = "wflow_river"
+subcatchment = "wflow_subcatch"
+forcing = [ "vertical.precipitation", "vertical.temperature", "vertical.potential_evaporation",]
+cyclic = [ "vertical.leaf_area_index",]
+gauges_grdc = "wflow_gauges_grdc"
+
+[model]
+type = "sbm"
+masswasting = true
+snow = true
+reinit = true
+reservoirs = false
+lakes = false
+glacier = true
+kin_wave_iteration = true
+kw_river_tstep = 900
+kw_land_tstep = 3600
+thicknesslayers = [ 100, 300, 800,]
+
+[output]
+path = "run_default/output.nc"
+
+[csv]
+path = "run_default/output.csv"
+[[csv.column]]
+header = "Q"
+map = "gauges"
+parameter = "lateral.river.q_av"
+
+[[csv.column]]
+header = "Q"
+map = "gauges_grdc"
+parameter = "lateral.river.q_av"
+
+[[csv.column]]
+header = "P"
+map = "gauges_grdc"
+parameter = "vertical.precipitation"
+
+[state.vertical]
+satwaterdepth = "satwaterdepth"
+snow = "snow"
+tsoil = "tsoil"
+ustorelayerdepth = "ustorelayerdepth"
+snowwater = "snowwater"
+canopystorage = "canopystorage"
+
+[input.vertical]
+altitude = "wflow_dem"
+c = "c"
+cf_soil = "cf_soil"
+cfmax = "Cfmax"
+e_r = "EoverR"
+f = "f"
+infiltcappath = "InfiltCapPath"
+infiltcapsoil = "InfiltCapSoil"
+kext = "Kext"
+"kv₀" = "KsatVer"
+leaf_area_index = "LAI"
+m = "M_"
+maxleakage = "MaxLeakage"
+pathfrac = "PathFrac"
+potential_evaporation = "pet"
+precipitation = "precip"
+rootdistpar = "rootdistpar"
+rootingdepth = "RootingDepth"
+soilminthickness = "SoilMinThickness"
+soilthickness = "SoilThickness"
+specific_leaf = "Sl"
+storage_wood = "Swood"
+temperature = "temp"
+tt = "TT"
+tti = "TTI"
+ttm = "TTM"
+w_soil = "wflow_soil"
+water_holding_capacity = "WHC"
+waterfrac = "WaterFrac"
+"θᵣ" = "thetaR"
+"θₛ" = "thetaS"
+
+[output.vertical]
+satwaterdepth = "satwaterdepth"
+snow = "snow"
+tsoil = "tsoil"
+ustorelayerdepth = "ustorelayerdepth"
+snowwater = "snowwater"
+canopystorage = "canopystorage"
+
+[state.lateral.river]
+q = "q_river"
+h = "h_river"
+h_av = "h_av_river"
+
+[state.lateral.subsurface]
+ssf = "ssf"
+
+[state.lateral.land]
+q = "q_land"
+h = "h_land"
+h_av = "h_av_land"
+
+[input.lateral.river]
+length = "wflow_riverlength"
+n = "N_River"
+slope = "RiverSlope"
+width = "wflow_riverwidth"
+
+[input.lateral.subsurface]
+ksathorfrac = "KsatHorFrac"
+
+[input.lateral.land]
+n = "N"
+slope = "Slope"
+
+[output.lateral.river]
+q_av = "q_river"
+h = "h_river"
+
+[output.lateral.subsurface]
+ssf = "ssf"
+
+[output.lateral.land]
+q = "q_land"
+h = "h_land"
+
+[input.lateral.river.reservoir]
+area = "ResSimpleArea"
+areas = "wflow_reservoirareas"
+demand = "ResDemand"
+locs = "wflow_reservoirlocs"
+maxrelease = "ResMaxRelease"
+maxvolume = "ResMaxVolume"
+targetfullfrac = "ResTargetFullFrac"
+targetminfrac = "ResTargetMinFrac"
+
+[input.lateral.river.lake]
+area = "LakeArea"
+areas = "wflow_lakeareas"
+b = "Lake_b"
+e = "Lake_e"
+locs = "wflow_lakelocs"
+outflowfunc = "LakeOutflowFunc"
+storfunc = "LakeStorFunc"
+threshold = "LakeThreshold"
+linkedlakelocs = "LinkedLakeLocs"
+waterlevel = "LakeAvgLevel"
