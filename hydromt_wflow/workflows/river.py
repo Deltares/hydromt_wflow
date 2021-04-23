@@ -93,7 +93,7 @@ def river(
     _mask_org = ds["uparea"].values >= river_upa  # highres riv mask
 
     logger.debug("Derive river length.")
-    flwdir = flw.flwdir_from_da(ds["flwdir"], **kwargs)
+    flwdir = flw.flwdir_from_da(ds["flwdir"], mask=True)
     if subgrid == False:
         # get cell index of river cells
         idxs_out = np.arange(ds_like.raster.size).reshape(ds_like.raster.shape)
@@ -129,9 +129,9 @@ def river(
 
     # make model resolution masked flwdir for rivers
     da_flw_model = ds_like["flwdir"].copy()
-    da_flw_model = da_flw_model.assign_coords(mask=_mask)
+    # da_flw_model = da_flw_model.assign_coords(mask=_mask)
     # indices van flwdir
-    flwdir_model = flw.flwdir_from_da(da_flw_model, **kwargs)
+    flwdir_model = flw.flwdir_from_da(da_flw_model, mask=_mask)
 
     # hydrologically adjust
     bed_level_adjust = flwdir_model.dem_adjust(bed_level)
