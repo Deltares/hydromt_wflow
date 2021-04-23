@@ -1,0 +1,381 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Wflow model &mdash; hydromt_wflow  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Wflow Sediment model" href="api_sediment.html" />
+    <link rel="prev" title="Models" href="api_model_index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> hydromt_wflow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/wflow/index.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/sediment/index.html">Wflow Sediment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced topics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/workflows.html">Workflows</a></li>
+</ul>
+<p class="caption"><span class="caption-text">References &amp; Help</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api_index.html">API reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="api_model_index.html">Model</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Wflow Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#initialize">Initialize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-components">Build components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-specific-attributes">Model specific attributes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-specific-methods">Model specific methods</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api_sediment.html">Wflow Sediment Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api_workflows.html">Workflows</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hydromt_wflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="api_index.html">API reference</a> &raquo;</li>
+        
+          <li><a href="api_model_index.html">Models</a> &raquo;</li>
+        
+      <li>Wflow model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/api_wflow.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="wflow-model">
+<span id="api-model"></span><h1>Wflow model<a class="headerlink" href="#wflow-model" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="initialize">
+<h2>Initialize<a class="headerlink" href="#initialize" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel</span></code>([root, mode, config_fn, …])</p></td>
+<td><p>This is the wflow model class</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="build-components">
+<h2>Build components<a class="headerlink" href="#build-components" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_config</span></code>(**cfdict)</p></td>
+<td><p>Update config with a dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_basemaps</span></code>(region[, res, …])</p></td>
+<td><p>This component sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code> (resolution in degrees) of the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_rivers</span></code>(river_upa, slope_len)</p></td>
+<td><p>This component sets the river parameter maps including a boolean river mask, length, slope.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_lakes</span></code>([source_name, min_area])</p></td>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_reservoirs</span></code>([source_name, …])</p></td>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_glaciers</span></code>([source_name, …])</p></td>
+<td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature thresohld, melting factor and snow-to-ice convertion fraction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_lulcmaps</span></code>(source_name[, …])</p></td>
+<td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_laimaps</span></code>([source_name])</p></td>
+<td><p>This component sets leaf area index (LAI) climatoloy maps per month.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_soilmaps</span></code>([source_name, …])</p></td>
+<td><p>This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_riverwidth</span></code>([predictor, …])</p></td>
+<td><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_gauges</span></code>([source_name, …])</p></td>
+<td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">source_name</span></code> data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_precip_forcing</span></code>([precip_fn, …])</p></td>
+<td><p>Setup gridded precipitation forcing at model resolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_temp_pet_forcing</span></code>([…])</p></td>
+<td><p>Setup gridded reference evapotranspiration forcing at model resolution.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_constant_pars</span></code>(**kwargs)</p></td>
+<td><p>Setup constant parameter maps.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="model-specific-attributes">
+<h2>Model specific attributes<a class="headerlink" href="#model-specific-attributes" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.flwdir</span></code></p></td>
+<td><p>Returns the pyflwdir.FlwdirRaster object parsed from the wflow ldd.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.basins</span></code></p></td>
+<td><p>Returns a basin(s) geometry as a geopandas.GeoDataFrame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.rivers</span></code></p></td>
+<td><p>Returns a river geometry as a geopandas.GeoDataFrame.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="model-specific-methods">
+<h2>Model specific methods<a class="headerlink" href="#model-specific-methods" title="Permalink to this headline">¶</a></h2>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_flwdir</span></code>([ftype])</p></td>
+<td><p>“Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.clip_staticmaps</span></code>(region[, buffer, …])</p></td>
+<td><p>Clip staticmaps to subbasin.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.clip_forcing</span></code>([crs])</p></td>
+<td><p>Return clippped forcing for subbasin.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="api_sediment.html" class="btn btn-neutral float-right" title="Wflow Sediment model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="api_model_index.html" class="btn btn-neutral float-left" title="Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright Deltares.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
