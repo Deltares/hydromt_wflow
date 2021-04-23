@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Overview: module code &mdash; hydromt_wflow  documentation</title>
+  <title>hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir &mdash; hydromt_wflow  documentation</title>
   
 
   
@@ -39,7 +39,9 @@
 
     
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.basins" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.basins.html" />
+    <link rel="prev" title="Model attributes" href="../user_guide/sediment/attributes.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,9 +97,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/wflow/index.html">Wflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/sediment/index.html">Wflow Sediment</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user_guide/sediment/index.html">Wflow Sediment</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment/components.html">Model components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment/build_configuration.html">Model configuration</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../user_guide/sediment/attributes.html">Model attributes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.basins.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.basins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.rivers.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.rivers</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption"><span class="caption-text">Advanced topics</span></p>
 <ul>
@@ -156,10 +168,18 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Overview: module code</li>
+          <li><a href="../user_guide/sediment/index.html">Wflow Sediment</a> &raquo;</li>
+        
+          <li><a href="../user_guide/sediment/attributes.html">Model attributes</a> &raquo;</li>
+        
+      <li>hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -171,18 +191,49 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="hydromt_wflow/wflow_sediment.html">hydromt_wflow.wflow_sediment</a></li>
-<li><a href="hydromt_wflow/workflows/glaciers.html">hydromt_wflow.workflows.glaciers</a></li>
-<li><a href="hydromt_wflow/workflows/river.html">hydromt_wflow.workflows.river</a></li>
-<li><a href="hydromt_wflow/workflows/soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
-<li><a href="hydromt_wflow/workflows/waterbodies.html">hydromt_wflow.workflows.waterbodies</a></li>
-</ul>
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="hydromt-wflow-wflow-sediment-wflowsedimentmodel-flwdir">
+<h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-flwdir" title="Permalink to this headline">¶</a></h1>
+<dl class="py method">
+<dt id="hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">flwdir</span></code><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.flwdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the pyflwdir.FlwdirRaster object parsed from the wflow ldd.</p>
+</dd></dl>
+
+</div>
+
 
            </div>
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.basins.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.basins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../user_guide/sediment/attributes.html" class="btn btn-neutral float-left" title="Model attributes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 

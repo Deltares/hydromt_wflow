@@ -217,6 +217,48 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_config</span></code></p></td>
+<td><p>Update config with a dictionary</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basemaps</span></code></p></td>
+<td><p>This component sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code> (resolution in degrees) of the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rivers</span></code></p></td>
+<td><p>This component sets the river parameter maps including a boolean river mask, length, slope.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lakes</span></code></p></td>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_reservoirs</span></code></p></td>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_glaciers</span></code></p></td>
+<td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature thresohld, melting factor and snow-to-ice convertion fraction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code></p></td>
+<td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></p></td>
+<td><p>This component sets leaf area index (LAI) climatoloy maps per month.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_soilmaps</span></code></p></td>
+<td><p>This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_riverwidth</span></code></p></td>
+<td><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_gauges</span></code></p></td>
+<td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">source_name</span></code> data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code></p></td>
+<td><p>Setup gridded precipitation forcing at model resolution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_temp_pet_forcing</span></code></p></td>
+<td><p>Setup gridded reference evapotranspiration forcing at model resolution.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_constant_pars</span></code></p></td>
+<td><p>Setup constant parameter maps.</p></td>
+</tr>
 </tbody>
 </table>
 <div class="admonition warning">
