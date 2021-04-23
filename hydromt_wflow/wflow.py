@@ -1105,6 +1105,8 @@ class WflowModel(Model):
         """
         if precip_fn is None:
             return
+        # Load config needed in update mode before using get
+        self.config
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
@@ -1135,6 +1137,13 @@ class WflowModel(Model):
             logger=self.logger,
             **kwargs,
         )
+        # Update meta attributes with setup opt
+        opt_attr = {
+            "precip_fn": str(precip_fn),
+            "climate_fn": str(climate_fn),
+        }
+        precip_out.attrs.update(opt_attr)
+
         self.set_forcing(precip_out, name="precip")
 
     def setup_temp_pet_forcing(
@@ -1179,6 +1188,8 @@ class WflowModel(Model):
         """
         if temp_pet_fn is None:
             return
+        # Load config needed in update mode before using get
+        self.config
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         timestep = self.get_config("timestepsecs")
@@ -1234,6 +1245,12 @@ class WflowModel(Model):
                 logger=self.logger,
                 **kwargs,
             )
+            # Update meta attributes with setup opt
+            opt_attr = {
+                "pet_fn": str(temp_pet_fn),
+                "pet_method": str(pet_method),
+            }
+            pet_out.attrs.update(opt_attr)
             self.set_forcing(pet_out, name="pet")
 
         # resample temp after pet workflow
@@ -1247,6 +1264,12 @@ class WflowModel(Model):
             conserve_mass=False,
             logger=self.logger,
         )
+        # Update meta attributes with setup opt
+        opt_attr = {
+            "temp_fn": str(temp_pet_fn),
+            "temp_correction": str(temp_correction),
+        }
+        temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out, name="temp")
 
     # I/O
@@ -1410,21 +1433,77 @@ class WflowModel(Model):
                 self.set_forcing(ds[v])
 
     def write_forcing(self):
-        """write forcing at <root/?/> in model ready format"""
+        """write forcing at <root/?/> in model ready format
+
+        Default name format (with downscaling):
+            inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+        Default name format (no downscaling):
+            inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+        """
         if not self._write:
             raise IOError("Model opened in read-only mode")
         if self.forcing:
             self.logger.info("Write forcing file")
+
+            # Get default forcing name from forcing attrs
+            yr0 = pd.to_datetime(self.get_config("starttime")).year
+            yr1 = pd.to_datetime(self.get_config("endtime")).year
+            freq = self.get_config("timestepsecs")
+            if all(key in self.forcing for key in ("precip", "temp", "pet")):
+                if all(
+                    key in self.forcing["precip"].attrs
+                    for key in ("precip_fn", "climate_fn")
+                ):
+                    if self.forcing["precip"].attrs["climate_fn"] != "None":
+                        sourceP = self.forcing["precip"].attrs["precip_fn"] + "d"
+                    else:
+                        sourceP = self.forcing["precip"].attrs["precip_fn"]
+                else:
+                    sourceP = None
+                if all(
+                    key in self.forcing["temp"].attrs
+                    for key in ("temp_fn", "temp_correction")
+                ):
+                    if self.forcing["temp"].attrs["temp_correction"] == "True":
+                        sourceT = self.forcing["temp"].attrs["temp_fn"] + "d"
+                    else:
+                        sourceT = self.forcing["temp"].attrs["temp_fn"]
+                if "pet_method" in self.forcing["pet"].attrs:
+                    methodPET = self.forcing["pet"].attrs["pet_method"]
+                else:
+                    methodPET = None
+                if sourceP is None or sourceT is None or methodPET is None:
+                    fn_default = "inmaps_{freq}_{yr0}_{yr1}.nc"
+                else:
+                    fn_default = (
+                        f"inmaps_{sourceP}_{sourceT}_{methodPET}_{freq}_{yr0}_{yr1}.nc"
+                    )
+            else:
+                fn_default = "inmaps_{freq}_{yr0}_{yr1}.nc"
+            fn_default_path = join(self.root, fn_default)
+            # Mask and write forcing
             mask = self.staticmaps[self._MAPS["basins"]].values > 0
             ds = xr.merge(self.forcing.values())
             encoding = {
                 v: {"zlib": True, "dtype": "float32"} for v in ds.data_vars.keys()
             }
-            fn_out = self.get_config("input.path_forcing", abs_path=True)
+            fn_out = self.get_config(
+                "input.path_forcing", abs_path=True, fallback=fn_default_path
+            )
             if isfile(fn_out):
                 self.logger.warning(
-                    "Netcdf forcing file already exists, skipping write. To overwrite netcdf forcing file: change name input.path_forcing in setup_config section of the build inifile."
+                    "Netcdf forcing file from input.path_forcing in the TOML already exists, using default name."
                 )
+                if isfile(fn_default_path):
+                    self.logger.warning(
+                        "Netcdf default forcing file already exists, skipping write. To overwrite netcdf forcing file: change name input.path_forcing in setup_config section of the build inifile."
+                    )
+                else:
+                    self.set_config("input.path_forcing", fn_default)
+                    self.write_config()
+                    ds.where(mask).to_netcdf(
+                        fn_default_path, encoding=encoding, mode="w"
+                    )
             else:
                 ds.where(mask).to_netcdf(fn_out, encoding=encoding, mode="w")
 
