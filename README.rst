@@ -4,9 +4,11 @@ hydroMT-wflow: wflow plugin for hydroMT
 .. image:: https://codecov.io/gh/Deltares/hydromt_wflow/branch/main/graph/badge.svg?token=ss3EgmwHhH
     :target: https://codecov.io/gh/Deltares/hydromt_wflow
 
-.. image:: https://readthedocs.org/projects/hydromt_wflow/badge/?version=latest
-    :target: https://hydromt_wflow.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
+    :target: http://deltares.github.io/hydromt_wflow/latest/?badge=latest
+
+.. image:: https://mybinder.org/badge_logo.svg
+    :target: https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples
 
 hydroMT_ is a python package, developed by Deltares, to build and analysis hydro models.
 It provides a generic model api with attributes to access the model schematization,
@@ -39,12 +41,12 @@ To create a hydromt environment with conda installed do:
 Documentation
 -------------
 
-Learn more about hydroMT in its `online documentation <https://hydromt_wflow.readthedocs.io/en/latest/>`_
+Learn more about hydroMT in its `online documentation <http://deltares.github.io/hydromt_wflow/latest/>`_
 
 Contributing
 ------------
 
-You can find information about contributing to hydroMT at our `Contributing page <https://hydromt_wflow.readthedocs.io/en/latest/contributing.html>`_.
+You can find information about contributing to hydroMT at our `Contributing page <http://deltares.github.io/hydromt_wflow/latest/contributing.html>`_.
 
 License
 -------
