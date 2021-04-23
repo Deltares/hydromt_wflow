@@ -18,7 +18,6 @@
 #
 import os
 import sys
-import hydromt
 import hydromt_wflow
 import sphinx_autosummary_accessors
 
@@ -53,6 +52,7 @@ extensions = [
     "sphinx_autosummary_accessors",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
+    "nbsphinx",
 ]
 
 autosummary_generate = True
@@ -126,7 +126,7 @@ html_context = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "pyflwdir_doc"
+htmlhelp_basename = "hydromt_wflow_doc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
