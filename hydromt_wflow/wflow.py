@@ -1105,8 +1105,6 @@ class WflowModel(Model):
         """
         if precip_fn is None:
             return
-        # Load config needed in update mode before using get
-        self.config
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
@@ -1139,8 +1137,8 @@ class WflowModel(Model):
         )
         # Update meta attributes with setup opt
         opt_attr = {
-            "precip_fn": str(precip_fn),
-            "climate_fn": str(climate_fn),
+            "precip_fn": precip_fn,
+            "climate_fn": climate_fn,
         }
         precip_out.attrs.update(opt_attr)
 
@@ -1188,8 +1186,6 @@ class WflowModel(Model):
         """
         if temp_pet_fn is None:
             return
-        # Load config needed in update mode before using get
-        self.config
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         timestep = self.get_config("timestepsecs")
@@ -1247,8 +1243,8 @@ class WflowModel(Model):
             )
             # Update meta attributes with setup opt
             opt_attr = {
-                "pet_fn": str(temp_pet_fn),
-                "pet_method": str(pet_method),
+                "pet_fn": temp_pet_fn,
+                "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
             self.set_forcing(pet_out, name="pet")
@@ -1266,8 +1262,8 @@ class WflowModel(Model):
         )
         # Update meta attributes with setup opt
         opt_attr = {
-            "temp_fn": str(temp_pet_fn),
-            "temp_correction": str(temp_correction),
+            "temp_fn": temp_pet_fn,
+            "temp_correction": temp_correction,
         }
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out, name="temp")
@@ -1449,37 +1445,31 @@ class WflowModel(Model):
             yr0 = pd.to_datetime(self.get_config("starttime")).year
             yr1 = pd.to_datetime(self.get_config("endtime")).year
             freq = self.get_config("timestepsecs")
-            if all(key in self.forcing for key in ("precip", "temp", "pet")):
-                if all(
-                    key in self.forcing["precip"].attrs
-                    for key in ("precip_fn", "climate_fn")
-                ):
-                    if self.forcing["precip"].attrs["climate_fn"] != "None":
-                        sourceP = self.forcing["precip"].attrs["precip_fn"] + "d"
-                    else:
-                        sourceP = self.forcing["precip"].attrs["precip_fn"]
-                else:
-                    sourceP = None
-                if all(
-                    key in self.forcing["temp"].attrs
-                    for key in ("temp_fn", "temp_correction")
-                ):
-                    if self.forcing["temp"].attrs["temp_correction"] == "True":
-                        sourceT = self.forcing["temp"].attrs["temp_fn"] + "d"
-                    else:
-                        sourceT = self.forcing["temp"].attrs["temp_fn"]
-                if "pet_method" in self.forcing["pet"].attrs:
-                    methodPET = self.forcing["pet"].attrs["pet_method"]
-                else:
-                    methodPET = None
-                if sourceP is None or sourceT is None or methodPET is None:
-                    fn_default = "inmaps_{freq}_{yr0}_{yr1}.nc"
-                else:
-                    fn_default = (
-                        f"inmaps_{sourceP}_{sourceT}_{methodPET}_{freq}_{yr0}_{yr1}.nc"
-                    )
-            else:
-                fn_default = "inmaps_{freq}_{yr0}_{yr1}.nc"
+            sourceP = ""
+            sourceT = ""
+            methodPET = ""
+            Pdown = ""
+            Tdown = ""
+            if "precip" in self.forcing:
+                val = self.forcing["precip"].attrs.pop("climate_fn", None)
+                if val is not None:
+                    Pdown = "d"
+                val = self.forcing["precip"].attrs.pop("precip_fn", None)
+                if val is not None:
+                    sourceP = f"_{val}{Pdown}"
+            if "temp" in self.forcing:
+                val = self.forcing["temp"].attrs.pop("temp_correction", False)
+                if val:
+                    Tdown = "d"
+                val = self.forcing["temp"].attrs.pop("temp_fn", None)
+                if val is not None:
+                    sourceT = f"_{val}{Tdown}"
+            if "pet" in self.forcing:
+                val = self.forcing["pet"].attrs.pop("pet_method", None)
+                if val is not None:
+                    methodPET = f"_{val}"
+
+            fn_default = f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
             fn_default_path = join(self.root, fn_default)
             # Mask and write forcing
             mask = self.staticmaps[self._MAPS["basins"]].values > 0
