@@ -86,13 +86,13 @@ class WflowSedimentModel(WflowModel):
             logger=logger,
         )
 
-    def setup_lakes(self, source_name="hydro_lakes", min_area=1.0):
+    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=1.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
 
         The data is generated from features with ``min_area`` [km2] from a database with
         lake geometry, IDs and metadata. Currently, "hydro_lakes" (hydroLakes) is the only
-        supported ``source_name`` data source and we use a default minimum area of 1 km2.
+        supported ``lakes_fn`` data source and we use a default minimum area of 1 km2.
 
         Adds model layers:
 
@@ -106,14 +106,14 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        source_name : {'hydro_lakes'}
+        lakes_fn : {'hydro_lakes'}
             Name of data source for lake parameters, see data/data_sources.yml.
 
             * Required variables: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
         min_area : float, optional
             Minimum lake area threshold [km2], by default 1.0 km2.
         """
-        super().setup_lakes(source_name, min_area)
+        super().setup_lakes(lakes_fn=lakes_fn, min_area=min_area)
         # Update the toml to match wflow_sediment and not wflow_sbm
         lakes_toml_add = {
             "model.dolake": True,
@@ -125,7 +125,11 @@ class WflowSedimentModel(WflowModel):
             del self.config["state"]["lateral"]["river"]["lake"]
 
     def setup_reservoirs(
-        self, source_name="hydro_reservoirs", min_area=1.0, priority_jrc=True, **kwargs
+        self,
+        reservoirs_fn="hydro_reservoirs",
+        min_area=1.0,
+        priority_jrc=True,
+        **kwargs,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average reservoir area, demand, min and max target storage capacities and
@@ -133,7 +137,7 @@ class WflowSedimentModel(WflowModel):
 
         The data is generated from features with ``min_area`` [km2]
         from a database with reservoir geometry, IDs and metadata.
-        Currently, "hydro_reservoirs" (based on GRAND) is the only supported ``source_name``
+        Currently, "hydro_reservoirs" (based on GRAND) is the only supported ``reservoirs_fn``
         data source and we use a default minimum area of 1 km2.
 
 
@@ -151,7 +155,7 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        source_name : {'hydro_reservoirs'}
+        reservoirs_fn : {'hydro_reservoirs'}
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
             * Required variables with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
@@ -163,7 +167,12 @@ class WflowSedimentModel(WflowModel):
             If True, use JRC water occurence (Pekel,2016) data from GEE to calculate
             and overwrite the reservoir volume/areas of the data source.
         """
-        super().setup_reservoirs(source_name, min_area, priority_jrc, **kwargs)
+        super().setup_reservoirs(
+            reservoirs_fn=reservoirs_fn,
+            min_area=min_area,
+            priority_jrc=priority_jrc,
+            **kwargs,
+        )
         # Update the toml to match wflow_sediment and not wflow_sbm
         res_toml_add = {
             "model.doreservoir": True,
@@ -176,7 +185,7 @@ class WflowSedimentModel(WflowModel):
 
     def setup_gauges(
         self,
-        source_name=None,
+        gauges_fn=None,
         source_gdf=None,
         snap_to_river=True,
         mask=None,
@@ -189,7 +198,7 @@ class WflowSedimentModel(WflowModel):
         **kwargs,
     ):
         """This components sets the default gauge map based on basin outlets and additional
-        gauge maps based on ``source_name`` data.
+        gauge maps based on ``gauges_fn`` data.
 
         Supported gauge datasets include "grdc"
         or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
@@ -202,7 +211,7 @@ class WflowSedimentModel(WflowModel):
         Adds model layers:
 
         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
-        * **wflow_gauges_source** map: gauge IDs map from source [-] (if source_name)
+        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
         * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
         * **gauges** geom: polygon of catchment outlets
         * **gauges_source** geom: polygon of gauges from source
@@ -210,7 +219,7 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        source_name : str, {"grdc"}, optional
+        gauges_fn : str, {"grdc"}, optional
             Known source name or path to gauges file geometry file, by default None.
         source_gdf : geopandas.GeoDataFame, optional
             Direct gauges file geometry, by default None.
@@ -223,7 +232,7 @@ class WflowSedimentModel(WflowModel):
         derive_outlet : bool, optional
             Derive gaugemap based on catchment outlets, by default True
         basename : str, optional
-            Map name in staticmaps (wflow_gauges_basename), if None use the source_name basename.
+            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
         update_toml : boolean, optional
             Update [outputcsv] section of wflow toml file.
         gauge_toml_header : list, optional
@@ -238,22 +247,22 @@ class WflowSedimentModel(WflowModel):
             gauge_toml_header = ["Q", "TSS"]
             gauge_toml_param = ["lateral.river.q_riv", "lateral.river.SSconc"]
         super().setup_gauges(
-            source_name,
-            source_gdf,
-            snap_to_river,
-            mask,
-            derive_subcatch,
-            derive_outlet,
-            basename,
-            update_toml,
-            gauge_toml_header,
-            gauge_toml_param,
+            gauges_fn=gauges_fn,
+            source_gdf=source_gdf,
+            snap_to_river=snap_to_river,
+            mask=mask,
+            derive_subcatch=derive_subcatch,
+            derive_outlet=derive_outlet,
+            basename=basename,
+            update_toml=update_toml,
+            gauge_toml_header=gauge_toml_header,
+            gauge_toml_param=gauge_toml_param,
         )
 
     def setup_lulcmaps(
         self,
-        source_name,
-        lulc_mapping=None,
+        lulc_fn="globcover",
+        lulc_mapping_fn=None,
         lulc_vars=[
             "landuse",
             "Cov_River",
@@ -269,7 +278,7 @@ class WflowSedimentModel(WflowModel):
         """This component derives several wflow maps are derived based on landuse-
         landcover (LULC) data. 
         
-        Currently, ``source_name`` can be set to the "vito", "globcover"
+        Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
@@ -290,19 +299,21 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        source_name : {"globcover", "vito", "corine"}
+        lulc_fn : {"globcover", "vito", "corine"}
             Name of data source in data_sources.yml file.
-        lulc_mapping : str
+        lulc_mapping_fn : str
             Path to a mapping csv file from landuse in source name to parameter values in lulc_vars.
         lulc_vars : list
             List of landuse parameters to keep.\
             By default ["landuse","Cov_river","Kext","N","PathFrac","USLE_C","Sl","Swood","WaterFrac"]
         """
-        super().setup_lulcmaps(source_name, lulc_mapping, lulc_vars)
+        super().setup_lulcmaps(
+            lulc_fn=lulc_fn, lulc_mapping_fn=lulc_mapping_fn, lulc_vars=lulc_vars
+        )
 
     def setup_riverbedsed(
         self,
-        bedsed_mapping=None,
+        bedsed_mapping_fn=None,
     ):
         """Setup sediments based river bed characteristics maps.
         
@@ -316,7 +327,7 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        bedsed_mapping : str
+        bedsed_mapping_fn : str
             Path to a mapping csv file from streamorder to river bed particles characteristics.
             
             * Required variable: ['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
@@ -324,10 +335,10 @@ class WflowSedimentModel(WflowModel):
         """
         self.logger.info(f"Preparing riverbedsed parameter maps.")
         # Make D50_River map from csv file with mapping between streamorder and D50_River value
-        if bedsed_mapping is None:
+        if bedsed_mapping_fn is None:
             fn_map = join(DATADIR, "wflow_sediment", "riverbedsed_mapping.csv")
         else:
-            fn_map = bedsed_mapping
+            fn_map = bedsed_mapping_fn
         strord = self.staticmaps[self._MAPS["strord"]].copy()
         df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python")
         max_str = df.index[
@@ -351,7 +362,7 @@ class WflowSedimentModel(WflowModel):
 
     def setup_canopymaps(
         self,
-        source_name,
+        canopy_fn="simard",
     ):
         """Setup sediments based canopy height maps.
 
@@ -361,20 +372,20 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        source_name : {"simard"}
+        canopy_fn : {"simard"}
             Name of canopy height data source in data_sources.yml file.
         """
         self.logger.info(f"Preparing canopy height map.")
 
         # Canopy height
-        if source_name not in ["simard"]:
+        if canopy_fn not in ["simard"]:
             self.logger.warning(
-                f"Invalid source '{source_name}', skipping setup canopy map for sediment."
+                f"Invalid source '{canopy_fn}', skipping setup canopy map for sediment."
             )
             return
 
         dsin = self.data_catalog.get_rasterdataset(
-            source_name, geom=self.region, buffer=2
+            canopy_fn, geom=self.region, buffer=2
         )
         dsout = xr.Dataset(coords=self.staticmaps.raster.coords)
         ds_out = dsin.raster.reproject_like(self.staticmaps, method="average")
@@ -385,7 +396,7 @@ class WflowSedimentModel(WflowModel):
 
     def setup_soilmaps(
         self,
-        source_name,
+        soil_fn="soilgrids",
         usleK_method="renard",
     ):
         """Setup sediments based soil parameter maps.
@@ -401,7 +412,7 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        source_name : {"soilgrids"}
+        soil_fn : {"soilgrids"}
             Name of soil data source in data_sources.yml file.
 
             * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
@@ -411,15 +422,13 @@ class WflowSedimentModel(WflowModel):
         self.logger.info(f"Preparing soil parameter maps.")
 
         # Soil related maps
-        if source_name not in ["soilgrids"]:
+        if soil_fn not in ["soilgrids"]:
             self.logger.warning(
-                f"Invalid source '{source_name}', skipping setup_soilmaps for sediment."
+                f"Invalid source '{soil_fn}', skipping setup_soilmaps for sediment."
             )
             return
 
-        dsin = self.data_catalog.get_rasterdataset(
-            source_name, geom=self.region, buffer=2
-        )
+        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = soilgrids_sediment(
             dsin,
             self.staticmaps,
