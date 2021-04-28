@@ -229,13 +229,13 @@
 <h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_reservoirs<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-reservoirs" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
 <dt id="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_reservoirs">
-<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_reservoirs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_reservoirs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority_jrc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_reservoirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_reservoirs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_reservoirs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoirs_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_reservoirs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priority_jrc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_reservoirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_reservoirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component generates maps of lake areas and outlets as well as parameters
 with average reservoir area, demand, min and max target storage capacities and
 discharge capacity values.</p>
 <p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2]
 from a database with reservoir geometry, IDs and metadata.
-Currently, “hydro_reservoirs” (based on GRAND) is the only supported <code class="docutils literal notranslate"><span class="pre">source_name</span></code>
+Currently, “hydro_reservoirs” (based on GRAND) is the only supported <code class="docutils literal notranslate"><span class="pre">reservoirs_fn</span></code>
 data source and we use a default minimum area of 1 km2.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
@@ -252,7 +252,7 @@ data source and we use a default minimum area of 1 km2.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_name</strong> (<em>{'hydro_reservoirs'}</em>) – <p>Name of data source for reservoir parameters, see data/data_sources.yml.</p>
+<li><p><strong>reservoirs_fn</strong> (<em>{'hydro_reservoirs'}</em>) – <p>Name of data source for reservoir parameters, see data/data_sources.yml.</p>
 <ul>
 <li><p>Required variables with hydroengine: [‘waterbody_id’, ‘Hylak_id’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Dam_height’]</p></li>
 <li><p>Required variables without hydroengine: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Capacity_max’, ‘Capacity_norm’, ‘Capacity_min’, ‘Dam_height’]</p></li>

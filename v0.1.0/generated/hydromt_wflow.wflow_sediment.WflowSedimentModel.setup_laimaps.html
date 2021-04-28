@@ -229,10 +229,10 @@
 <h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_laimaps<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-laimaps" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
 <dt id="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_laimaps">
-<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_laimaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'model_lai'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_laimaps" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_laimaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lai_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'model_lai'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_laimaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component sets leaf area index (LAI) climatoloy maps per month.</p>
 <p>The values are resampled to the model resolution using the average value.
-The only <code class="docutils literal notranslate"><span class="pre">source_name</span></code> currently supported is “modis_lai” based on MODIS data.</p>
+The only <code class="docutils literal notranslate"><span class="pre">lai_fn</span></code> currently supported is “modis_lai” based on MODIS data.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -244,7 +244,7 @@ correspond to bare soil, these are set to zero before resampling.</p>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>source_name</strong> (<em>{'modis_lai'}</em>) – <p>Name of data source for LAI parameters, see data/data_sources.yml.</p>
+<dd class="field-odd"><p><strong>lai_fn</strong> (<em>{'modis_lai'}</em>) – <p>Name of data source for LAI parameters, see data/data_sources.yml.</p>
 <ul class="simple">
 <li><p>Required variables: [‘LAI’]</p></li>
 </ul>

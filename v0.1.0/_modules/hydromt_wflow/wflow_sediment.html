@@ -262,13 +262,13 @@
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowSedimentModel.setup_lakes"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_lakes.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowSedimentModel.setup_lakes"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_lakes.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average lake area, depth a discharge values.</span>
 
 <span class="sd">        The data is generated from features with ``min_area`` [km2] from a database with</span>
 <span class="sd">        lake geometry, IDs and metadata. Currently, &quot;hydro_lakes&quot; (hydroLakes) is the only</span>
-<span class="sd">        supported ``source_name`` data source and we use a default minimum area of 1 km2.</span>
+<span class="sd">        supported ``lakes_fn`` data source and we use a default minimum area of 1 km2.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -282,14 +282,14 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_name : {&#39;hydro_lakes&#39;}</span>
+<span class="sd">        lakes_fn : {&#39;hydro_lakes&#39;}</span>
 <span class="sd">            Name of data source for lake parameters, see data/data_sources.yml.</span>
 
 <span class="sd">            * Required variables: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;]</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum lake area threshold [km2], by default 1.0 km2.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_lakes</span><span class="p">(</span><span class="n">source_name</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_lakes</span><span class="p">(</span><span class="n">lakes_fn</span><span class="o">=</span><span class="n">lakes_fn</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">)</span>
         <span class="c1"># Update the toml to match wflow_sediment and not wflow_sbm</span>
         <span class="n">lakes_toml_add</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;model.dolake&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -301,7 +301,11 @@
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;lake&quot;</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_reservoirs"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_reservoirs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">source_name</span><span class="o">=</span><span class="s2">&quot;hydro_reservoirs&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">priority_jrc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">reservoirs_fn</span><span class="o">=</span><span class="s2">&quot;hydro_reservoirs&quot;</span><span class="p">,</span>
+        <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">priority_jrc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average reservoir area, demand, min and max target storage capacities and</span>
@@ -309,7 +313,7 @@
 
 <span class="sd">        The data is generated from features with ``min_area`` [km2]</span>
 <span class="sd">        from a database with reservoir geometry, IDs and metadata.</span>
-<span class="sd">        Currently, &quot;hydro_reservoirs&quot; (based on GRAND) is the only supported ``source_name``</span>
+<span class="sd">        Currently, &quot;hydro_reservoirs&quot; (based on GRAND) is the only supported ``reservoirs_fn``</span>
 <span class="sd">        data source and we use a default minimum area of 1 km2.</span>
 
 
@@ -327,7 +331,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_name : {&#39;hydro_reservoirs&#39;}</span>
+<span class="sd">        reservoirs_fn : {&#39;hydro_reservoirs&#39;}</span>
 <span class="sd">            Name of data source for reservoir parameters, see data/data_sources.yml.</span>
 
 <span class="sd">            * Required variables with hydroengine: [&#39;waterbody_id&#39;, &#39;Hylak_id&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Dam_height&#39;]</span>
@@ -339,7 +343,12 @@
 <span class="sd">            If True, use JRC water occurence (Pekel,2016) data from GEE to calculate</span>
 <span class="sd">            and overwrite the reservoir volume/areas of the data source.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_reservoirs</span><span class="p">(</span><span class="n">source_name</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="n">priority_jrc</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_reservoirs</span><span class="p">(</span>
+            <span class="n">reservoirs_fn</span><span class="o">=</span><span class="n">reservoirs_fn</span><span class="p">,</span>
+            <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">,</span>
+            <span class="n">priority_jrc</span><span class="o">=</span><span class="n">priority_jrc</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="c1"># Update the toml to match wflow_sediment and not wflow_sbm</span>
         <span class="n">res_toml_add</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;model.doreservoir&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
@@ -352,7 +361,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_gauges"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges">[docs]</a>    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">source_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">gauges_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">source_gdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">snap_to_river</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -365,7 +374,7 @@
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets and additional</span>
-<span class="sd">        gauge maps based on ``source_name`` data.</span>
+<span class="sd">        gauge maps based on ``gauges_fn`` data.</span>
 
 <span class="sd">        Supported gauge datasets include &quot;grdc&quot;</span>
 <span class="sd">        or &quot;&lt;path_to_source&gt;&quot; for user supplied csv or geometry files with gauge locations.</span>
@@ -378,7 +387,7 @@
 <span class="sd">        Adds model layers:</span>
 
 <span class="sd">        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
-<span class="sd">        * **wflow_gauges_source** map: gauge IDs map from source [-] (if source_name)</span>
+<span class="sd">        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)</span>
 <span class="sd">        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)</span>
 <span class="sd">        * **gauges** geom: polygon of catchment outlets</span>
 <span class="sd">        * **gauges_source** geom: polygon of gauges from source</span>
@@ -386,7 +395,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_name : str, {&quot;grdc&quot;}, optional</span>
+<span class="sd">        gauges_fn : str, {&quot;grdc&quot;}, optional</span>
 <span class="sd">            Known source name or path to gauges file geometry file, by default None.</span>
 <span class="sd">        source_gdf : geopandas.GeoDataFame, optional</span>
 <span class="sd">            Direct gauges file geometry, by default None.</span>
@@ -399,7 +408,7 @@
 <span class="sd">        derive_outlet : bool, optional</span>
 <span class="sd">            Derive gaugemap based on catchment outlets, by default True</span>
 <span class="sd">        basename : str, optional</span>
-<span class="sd">            Map name in staticmaps (wflow_gauges_basename), if None use the source_name basename.</span>
+<span class="sd">            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.</span>
 <span class="sd">        update_toml : boolean, optional</span>
 <span class="sd">            Update [outputcsv] section of wflow toml file.</span>
 <span class="sd">        gauge_toml_header : list, optional</span>
@@ -414,22 +423,22 @@
             <span class="n">gauge_toml_header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;TSS&quot;</span><span class="p">]</span>
             <span class="n">gauge_toml_param</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;lateral.river.q_riv&quot;</span><span class="p">,</span> <span class="s2">&quot;lateral.river.SSconc&quot;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_gauges</span><span class="p">(</span>
-            <span class="n">source_name</span><span class="p">,</span>
-            <span class="n">source_gdf</span><span class="p">,</span>
-            <span class="n">snap_to_river</span><span class="p">,</span>
-            <span class="n">mask</span><span class="p">,</span>
-            <span class="n">derive_subcatch</span><span class="p">,</span>
-            <span class="n">derive_outlet</span><span class="p">,</span>
-            <span class="n">basename</span><span class="p">,</span>
-            <span class="n">update_toml</span><span class="p">,</span>
-            <span class="n">gauge_toml_header</span><span class="p">,</span>
-            <span class="n">gauge_toml_param</span><span class="p">,</span>
+            <span class="n">gauges_fn</span><span class="o">=</span><span class="n">gauges_fn</span><span class="p">,</span>
+            <span class="n">source_gdf</span><span class="o">=</span><span class="n">source_gdf</span><span class="p">,</span>
+            <span class="n">snap_to_river</span><span class="o">=</span><span class="n">snap_to_river</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+            <span class="n">derive_subcatch</span><span class="o">=</span><span class="n">derive_subcatch</span><span class="p">,</span>
+            <span class="n">derive_outlet</span><span class="o">=</span><span class="n">derive_outlet</span><span class="p">,</span>
+            <span class="n">basename</span><span class="o">=</span><span class="n">basename</span><span class="p">,</span>
+            <span class="n">update_toml</span><span class="o">=</span><span class="n">update_toml</span><span class="p">,</span>
+            <span class="n">gauge_toml_header</span><span class="o">=</span><span class="n">gauge_toml_header</span><span class="p">,</span>
+            <span class="n">gauge_toml_param</span><span class="o">=</span><span class="n">gauge_toml_param</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_lulcmaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">source_name</span><span class="p">,</span>
-        <span class="n">lulc_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
+        <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="o">=</span><span class="p">[</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Cov_River&quot;</span><span class="p">,</span>
@@ -445,7 +454,7 @@
         <span class="sd">&quot;&quot;&quot;This component derives several wflow maps are derived based on landuse-</span>
 <span class="sd">        landcover (LULC) data. </span>
 <span class="sd">        </span>
-<span class="sd">        Currently, ``source_name`` can be set to the &quot;vito&quot;, &quot;globcover&quot;</span>
+<span class="sd">        Currently, ``lulc_fn`` can be set to the &quot;vito&quot;, &quot;globcover&quot;</span>
 <span class="sd">        or &quot;corine&quot;, fo which lookup tables are constructed to convert lulc classses to</span>
 <span class="sd">        model parameters based on literature. The data is remapped at its original</span>
 <span class="sd">        resolution and then resampled to the model resolution using the average</span>
@@ -466,19 +475,21 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_name : {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;}</span>
+<span class="sd">        lulc_fn : {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;}</span>
 <span class="sd">            Name of data source in data_sources.yml file.</span>
-<span class="sd">        lulc_mapping : str</span>
+<span class="sd">        lulc_mapping_fn : str</span>
 <span class="sd">            Path to a mapping csv file from landuse in source name to parameter values in lulc_vars.</span>
 <span class="sd">        lulc_vars : list</span>
 <span class="sd">            List of landuse parameters to keep.\</span>
 <span class="sd">            By default [&quot;landuse&quot;,&quot;Cov_river&quot;,&quot;Kext&quot;,&quot;N&quot;,&quot;PathFrac&quot;,&quot;USLE_C&quot;,&quot;Sl&quot;,&quot;Swood&quot;,&quot;WaterFrac&quot;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_lulcmaps</span><span class="p">(</span><span class="n">source_name</span><span class="p">,</span> <span class="n">lulc_mapping</span><span class="p">,</span> <span class="n">lulc_vars</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_lulcmaps</span><span class="p">(</span>
+            <span class="n">lulc_fn</span><span class="o">=</span><span class="n">lulc_fn</span><span class="p">,</span> <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="n">lulc_mapping_fn</span><span class="p">,</span> <span class="n">lulc_vars</span><span class="o">=</span><span class="n">lulc_vars</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed">[docs]</a>    <span class="k">def</span> <span class="nf">setup_riverbedsed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">bedsed_mapping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup sediments based river bed characteristics maps.</span>
 <span class="sd">        </span>
@@ -492,7 +503,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        bedsed_mapping : str</span>
+<span class="sd">        bedsed_mapping_fn : str</span>
 <span class="sd">            Path to a mapping csv file from streamorder to river bed particles characteristics.</span>
 <span class="sd">            </span>
 <span class="sd">            * Required variable: [&#39;strord&#39;,&#39;D50_River&#39;, &#39;ClayF_River&#39;, &#39;SiltF_River&#39;, &#39;SandF_River&#39;, &#39;GravelF_River&#39;]</span>
@@ -500,10 +511,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing riverbedsed parameter maps.&quot;</span><span class="p">)</span>
         <span class="c1"># Make D50_River map from csv file with mapping between streamorder and D50_River value</span>
-        <span class="k">if</span> <span class="n">bedsed_mapping</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">bedsed_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fn_map</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;wflow_sediment&quot;</span><span class="p">,</span> <span class="s2">&quot;riverbedsed_mapping.csv&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">fn_map</span> <span class="o">=</span> <span class="n">bedsed_mapping</span>
+            <span class="n">fn_map</span> <span class="o">=</span> <span class="n">bedsed_mapping_fn</span>
         <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
         <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
@@ -527,7 +538,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_canopymaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_canopymaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_canopymaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">source_name</span><span class="p">,</span>
+        <span class="n">canopy_fn</span><span class="o">=</span><span class="s2">&quot;simard&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup sediments based canopy height maps.</span>
 
@@ -537,20 +548,20 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_name : {&quot;simard&quot;}</span>
+<span class="sd">        canopy_fn : {&quot;simard&quot;}</span>
 <span class="sd">            Name of canopy height data source in data_sources.yml file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing canopy height map.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Canopy height</span>
-        <span class="k">if</span> <span class="n">source_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;simard&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">canopy_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;simard&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">source_name</span><span class="si">}</span><span class="s2">&#39;, skipping setup canopy map for sediment.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">canopy_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup canopy map for sediment.&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span>
 
         <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
-            <span class="n">source_name</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span>
+            <span class="n">canopy_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span>
         <span class="p">)</span>
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">dsin</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
@@ -561,7 +572,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_soilmaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_soilmaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">source_name</span><span class="p">,</span>
+        <span class="n">soil_fn</span><span class="o">=</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
         <span class="n">usleK_method</span><span class="o">=</span><span class="s2">&quot;renard&quot;</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup sediments based soil parameter maps.</span>
@@ -577,7 +588,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        source_name : {&quot;soilgrids&quot;}</span>
+<span class="sd">        soil_fn : {&quot;soilgrids&quot;}</span>
 <span class="sd">            Name of soil data source in data_sources.yml file.</span>
 
 <span class="sd">            * Required variables: [&#39;clyppt_sl1&#39;, &#39;sltppt_sl1&#39;, &#39;oc_sl1&#39;]</span>
@@ -587,15 +598,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing soil parameter maps.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Soil related maps</span>
-        <span class="k">if</span> <span class="n">source_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">soil_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">source_name</span><span class="si">}</span><span class="s2">&#39;, skipping setup_soilmaps for sediment.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">soil_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_soilmaps for sediment.&quot;</span>
             <span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
-            <span class="n">source_name</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span>
-        <span class="p">)</span>
+        <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">soil_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">soilgrids_sediment</span><span class="p">(</span>
             <span class="n">dsin</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>

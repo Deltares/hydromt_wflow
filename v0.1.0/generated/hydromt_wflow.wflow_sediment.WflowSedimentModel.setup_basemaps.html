@@ -229,13 +229,13 @@
 <h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-basemaps" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
 <dt id="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps">
-<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_basemaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.008333333333333333</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_merit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fn_basin_index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_merit_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upscale_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ihu'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_basemaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.008333333333333333</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basin_index_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upscale_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ihu'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code> (resolution in degrees) of the
 model. All DEM and flow direction related maps are then build.</p>
 <p>If the model resolution is larger than the source data resolution,
 the flow direction is upscaled using the <code class="docutils literal notranslate"><span class="pre">upscale_method</span></code>, by default the
 Iterative Hydrography Upscaling (IHU).
-The default <code class="docutils literal notranslate"><span class="pre">source_name</span></code> is “merit_hydro” (<a class="reference external" href="http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html">MERIT hydro</a>
+The default <code class="docutils literal notranslate"><span class="pre">hydrography_fn</span></code> is “merit_hydro” (<a class="reference external" href="http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html">MERIT hydro</a>
 at 3 arcsec resolution) Alternative sources include “merit_hydro_1k” at 30 arcsec resolution.
 Users can also supply their own elevation and flow direction data. Note that only EPSG:4326 base data supported.</p>
 <p>Adds model layers:</p>
@@ -252,13 +252,13 @@ Users can also supply their own elevation and flow direction data. Note that onl
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_name</strong> (<em>{'hydro_merit'</em><em>, </em><em>'hydro_merit_1k'}</em>) – <p>Name of data source for basemap parameters, see data/data_sources.yml.</p>
+<li><p><strong>hydrography_fn</strong> (<em>{'merit_hydro'</em><em>, </em><em>'merit_hydro_1k'}</em>) – <p>Name of data source for basemap parameters, see data/data_sources.yml.</p>
 <ul>
 <li><p>Required variables: [‘flwdir’, ‘uparea’, ‘basins’, ‘strord’, ‘elevtn’]</p></li>
 <li><p>Optional variables: [‘lndslp’, ‘mask’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>fn_basin_index</strong> (<em>str</em>) – Name of data source for basin_index data linked to source_name.</p></li>
+<li><p><strong>basin_index_fn</strong> (<em>str</em>) – Name of data source for basin_index data linked to hydrography_fn.</p></li>
 <li><p><strong>region</strong> (<em>dict</em>) – Dictionary describing region of interest.
 See :py:function:~basin_mask.parse_region for all options</p></li>
 <li><p><strong>res</strong> (<em>float</em>) – Output model resolution</p></li>

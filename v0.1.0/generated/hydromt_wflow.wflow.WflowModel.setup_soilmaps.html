@@ -230,11 +230,11 @@
 <h1>hydromt_wflow.wflow.WflowModel.setup_soilmaps<a class="headerlink" href="#hydromt-wflow-wflow-wflowmodel-setup-soilmaps" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
 <dt id="hydromt_wflow.wflow.WflowModel.setup_soilmaps">
-<code class="sig-prename descclassname"><span class="pre">WflowModel.</span></code><code class="sig-name descname"><span class="pre">setup_soilmaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptf_ksatver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'brakensiek'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_soilmaps" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">WflowModel.</span></code><code class="sig-name descname"><span class="pre">setup_soilmaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptf_ksatver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'brakensiek'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_soilmaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component derives several (layered) soil parameters based on a database with
 physical soil properties using available point-scale (pedo)transfer functions (PTFs)
 from literature with upscaling rules to ensure flux matching across scales.</p>
-<p>Currently, the only supported <code class="docutils literal notranslate"><span class="pre">source_name</span></code> is “soilgrids” and the default
+<p>Currently, the only supported <code class="docutils literal notranslate"><span class="pre">soil_fn</span></code> is “soilgrids” and the default
 <code class="docutils literal notranslate"><span class="pre">ptf_ksatver</span></code> (PTF for the vertical hydraulic conductivity) is “brakensiek”.</p>
 <p>The following maps are added to staticmaps:</p>
 <ul class="simple">
@@ -269,7 +269,7 @@ from literature with upscaling rules to ensure flux matching across scales.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_name</strong> (<em>{'soilgrids'}</em>) – <p>Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
+<li><p><strong>soil_fn</strong> (<em>{'soilgrids'}</em>) – <p>Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
 7 soil depths of soilgrids.</p>
 <ul>
 <li><p>Required variables: [‘bd_sl*’, ‘clyppt_sl*’, ‘sltppt_sl*’, ‘oc_sl*’, ‘ph_sl*’, ‘sndppt_sl*’, ‘soilthickness’, ‘tax_usda’]</p></li>

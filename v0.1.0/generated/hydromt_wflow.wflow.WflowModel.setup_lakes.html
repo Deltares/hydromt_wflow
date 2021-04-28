@@ -230,12 +230,12 @@
 <h1>hydromt_wflow.wflow.WflowModel.setup_lakes<a class="headerlink" href="#hydromt-wflow-wflow-wflowmodel-setup-lakes" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
 <dt id="hydromt_wflow.wflow.WflowModel.setup_lakes">
-<code class="sig-prename descclassname"><span class="pre">WflowModel.</span></code><code class="sig-name descname"><span class="pre">setup_lakes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_lakes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_lakes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">WflowModel.</span></code><code class="sig-name descname"><span class="pre">setup_lakes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lakes_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_lakes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_lakes" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component generates maps of lake areas and outlets as well as parameters
 with average lake area, depth a discharge values.</p>
 <p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2] from a database with
 lake geometry, IDs and metadata. Currently, “hydro_lakes” (hydroLakes) is the only
-supported <code class="docutils literal notranslate"><span class="pre">source_name</span></code> data source and we use a default minimum area of 1 km2.</p>
+supported <code class="docutils literal notranslate"><span class="pre">lakes_fn</span></code> data source and we use a default minimum area of 1 km2.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_lakeareas</strong> map: lake IDs [-]</p></li>
@@ -249,7 +249,7 @@ supported <code class="docutils literal notranslate"><span class="pre">source_na
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>source_name</strong> (<em>{'hydro_lakes'}</em>) – <p>Name of data source for lake parameters, see data/data_sources.yml.</p>
+<li><p><strong>lakes_fn</strong> (<em>{'hydro_lakes'}</em>) – <p>Name of data source for lake parameters, see data/data_sources.yml.</p>
 <ul>
 <li><p>Required variables: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’]</p></li>
 </ul>
