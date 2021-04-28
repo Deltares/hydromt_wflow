@@ -85,10 +85,7 @@ class WflowModel(Model):
         "glacstore": "wflow_glacierstore",
     }
     _FOLDERS = [
-        "staticmaps",
         "staticgeoms",
-        "setup",
-        "inmaps",
         "instate",
         "run_default",
     ]
@@ -869,10 +866,8 @@ class WflowModel(Model):
                 )
                 self.set_staticmaps(da_res)
 
-            # Save accuracy information on reservoir parameters in setup folder
-            reservoir_accuracy.to_csv(
-                join(self.root, "setup", "reservoir_accuracy.csv")
-            )
+            # Save accuracy information on reservoir parameters
+            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
 
             for option in res_toml:
                 self.set_config(option, res_toml[option])
