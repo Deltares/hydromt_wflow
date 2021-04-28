@@ -7,6 +7,10 @@ hydroMT-wflow: wflow plugin for hydroMT
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: http://deltares.github.io/hydromt_wflow/latest/?badge=latest
 
+.. image:: https://pypip.in/v/hydromt_wflow/badge.png
+    :target: https://pypi.org/project/hydromt_wflow/
+    :alt: Latest PyPI version
+
 .. image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples
 
@@ -24,16 +28,16 @@ for the wflow_ model.
 Installation
 ------------
 
-hydroMT is availble from pypi and conda-forge. We recommend installing a stable version with conda:
+hydroMT is availble from pypi and we are working on adding a release from conda-forge (ongoing).
 
-To install hydromt using conda do:
+To install hydromt using pip do:
 
 .. code-block:: console
 
-  conda install hydromt_wflow -c conda-forge
+  pip install hydromt_wflow
 
-To install the latest hydromt with some additional packages to run the examples, 
-we recommend install a hydromt-wflow environment based on the environment.yml file.
+We recommend installing a hydromt-wflow environment including the hydromt_wflow package
+based on the environment.yml file.
 
 .. code-block:: console
 
