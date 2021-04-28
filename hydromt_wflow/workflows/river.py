@@ -327,7 +327,7 @@ def _width_fit(
 
 
 def _precip(ds_like, flwdir, da_precip, logger=logger):
-    """"""
+    """ """
     precip = (
         da_precip.raster.reproject_like(ds_like, method=RESAMPLING["precip"]).values
         / 1e3
@@ -341,7 +341,7 @@ def _precip(ds_like, flwdir, da_precip, logger=logger):
 
 
 def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
-    """"""
+    """ """
     # read clim classes and regression parameters from data dir
     source_precip = da_precip.name
     source_climate = da_climate.name

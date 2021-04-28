@@ -1405,7 +1405,7 @@ class WflowModel(Model):
                 self.set_staticgeoms(gpd.read_file(fn), name=name)
 
     def write_staticgeoms(self):
-        """Write staticmaps at <root/staticgeoms> in model ready format """
+        """Write staticmaps at <root/staticgeoms> in model ready format"""
         # to write use self.staticgeoms[var].to_file()
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -1590,7 +1590,7 @@ class WflowModel(Model):
         return self._flwdir
 
     def set_flwdir(self, ftype="infer"):
-        """"Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd"""
+        """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd"""
         flwdir_name = flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
             self.staticmaps[flwdir_name],
