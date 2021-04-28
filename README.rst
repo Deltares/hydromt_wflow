@@ -9,11 +9,13 @@ FIXME add badges with correct links
   implement new plugins for hydroMT. To implement a new model do:
   
   - replace all instances of `plugin` with the model name
-  - check and fix git installation (including pyproject.toml) and an example environment yaml in the envs folder
+  - edit license (default GPLv3)
+  - edit model class (plugin.py) to be adapted for the new model
+  - check and fix git installation (including pyproject.toml) including entry point
+  - test "hydromt --models"
+  - edit installation guide 
+  - edit .github actions and envs/hydromt-plugin.yml environment
   - edit template documentation
-  - empty model class (plugin.py) to be adapted for the new model
-  - template coverage test in the tests folder (model_api compliance and build test)
-  - example license is MIT (same as hydromt core)
 
 
 hydroMT_ is a python package, developed by Deltares, to build and analysis hydro models.
