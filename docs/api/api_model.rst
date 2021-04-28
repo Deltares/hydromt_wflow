@@ -1,13 +1,13 @@
-.. currentmodule:: hydromt
+.. currentmodule:: hydromt_plugin.plugin
 .. _api_model:
 
-===========
-Wflow model
-===========
+=============
+plugin model
+=============
 
 .. note::
 
-  Here is an template of API documentation for a WflowModel class of Model.
+  Here is an template of API documentation for a PluginModel class.
   Edit according to your model plugin attributes and methods.
 
 
@@ -15,31 +15,21 @@ Initialize
 ----------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
-   WflowModel
+   PluginModel
 
 Build components
 ----------------
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
-   WflowModel.setup_basemaps
-   WflowModel.setup_rivers
+   PluginModel.setup_basemaps
 
 Model specific attributes
 -------------------------
 
-.. autosummary::
-   :toctree: generated/
-
-   WflowModel.flwdir
 
 Model specific methods
 ----------------------
-
-.. autosummary::
-   :toctree: generated/
-
-   WflowModel.set_flwdir

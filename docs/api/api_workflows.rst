@@ -9,6 +9,6 @@ Workflow1
 =========
 
 .. autosummary::
-   :toctree: generated/
+   :toctree: ../generated/
 
    workflows.new_workflow

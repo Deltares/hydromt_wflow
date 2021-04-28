@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# hydromt_wflow documentation build configuration file, created by
+# hydromt_plugin documentation build configuration file, created by
 # sphinx-quickstart on Wed Jul 24 15:19:00 2019.
 #
 # This file is execfile()d with the current directory set to its
@@ -19,20 +19,19 @@
 import os
 import sys
 import hydromt
-import hydromt_wflow
-import sphinx_autosummary_accessors
+import hydromt_plugin
 
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
 
 # -- Project information -----------------------------------------------------
 
-project = "hydromt_wflow"
+project = "hydromt_plugin"
 copyright = "Deltares"
 author = "Dirk Eilander"
 
 # The short version which is displayed
-version = hydromt_wflow.__version__
+version = hydromt_plugin.__version__
 
 # -- General configuration ------------------------------------------------
 
@@ -50,14 +49,14 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx.ext.githubpages",
-    "sphinx_autosummary_accessors",
     "IPython.sphinxext.ipython_directive",
     "IPython.sphinxext.ipython_console_highlighting",
+    "nbsphinx",
 ]
 
 autosummary_generate = True
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates", sphinx_autosummary_accessors.templates_path]
+templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
@@ -126,7 +125,7 @@ html_context = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "pyflwdir_doc"
+htmlhelp_basename = "hydromt_plugin_doc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -152,8 +151,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "hydromt_wflow.tex",
-        "HydroMT wflow plugin Documentation",
+        "hydromt_plugin.tex",
+        "HydroMT plugin plugin Documentation",
         [author],
         "manual",
     ),
@@ -165,7 +164,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, "hydromt_wflow", "HydroMT wflow plugin Documentation", [author], 1)
+    (master_doc, "hydromt_plugin", "HydroMT plugin Documentation", [author], 1)
 ]
 
 
@@ -177,11 +176,11 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "hydromt_wflow",
-        "HydroMT wflow plugin Documentation",
+        "hydromt_plugin",
+        "HydroMT plugin Documentation",
         author,
-        "HydroMT wflow plugin",
-        "Build and analyze wflow models like a data-wizard.",
+        "HydroMT plugin",
+        "Build and analyze plugin models like a data-wizard.",
         "Miscellaneous",
     ),
 ]
