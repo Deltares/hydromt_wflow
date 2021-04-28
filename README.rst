@@ -24,7 +24,7 @@ for the wflow_ model.
 Installation
 ------------
 
-hydroMT is availble from pypi and conda-forge, but we recommend installing with conda.
+hydroMT is availble from pypi and conda-forge. We recommend installing a stable version with conda:
 
 To install hydromt using conda do:
 
@@ -32,11 +32,12 @@ To install hydromt using conda do:
 
   conda install hydromt_wflow -c conda-forge
 
-To create a hydromt environment with conda installed do:
+To install the latest hydromt with some additional packages to run the examples, 
+we recommend install a hydromt-wflow environment based on the environment.yml file.
 
 .. code-block:: console
 
-  conda create hydromt -n hydromt_wflow -c conda-forge
+  conda env create -f environment.yml
 
 Documentation
 -------------
