@@ -5,21 +5,21 @@ User install
 ------------
 
 HydroMT is available from pypi and conda-forge, but we recommend installing with conda.
-It is the same for the wflow plugin.
 
-To install HydroMT wflow plugin using conda do:
+The hydromt_wflow plugin is currently only available from PyPi.
 
-.. code-block:: console
-
-    $ conda install hydromt_wflow -c conda-forge
-
-This will automatically install both HydroMT core library and dependencies as well as the model plugin.
-
-You can also install hydromt_wflow using pip:
+To install hydromt using pip do:
 
 .. code-block:: console
 
-    $ pip install hydromt_wflow
+  pip install hydromt_wflow
+
+We recommend installing a hydromt-wflow environment including the hydromt_wflow package
+based on the environment.yml file in the repository root.
+
+.. code-block:: console
+
+  conda env create -f environment.yml
 
 
 Developper install

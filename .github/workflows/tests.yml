@@ -36,7 +36,7 @@ jobs:
         run: flit install
 
       - name: Test
-        run: python -m pytest --verbose --cov=hydromt --cov-report xml
+        run: python -m pytest --verbose --cov=hydromt_wflow --cov-report xml
 
       - name: Check style
         run: black --check .

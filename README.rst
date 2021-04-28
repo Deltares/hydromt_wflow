@@ -5,7 +5,16 @@ hydroMT-wflow: wflow plugin for hydroMT
     :target: https://codecov.io/gh/Deltares/hydromt_wflow
 
 .. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
-    :target: http://deltares.github.io/hydromt_wflow/latest/?badge=latest
+    :target: https://deltares.github.io/hydromt_wflow/latest
+    :alt: Latest developers docs
+
+.. image:: https://img.shields.io/badge/docs-stable-brightgreen.svg
+    :target: https://deltares.github.io/hydromt_wflow/stable
+    :alt: Stable docs last release
+
+.. image:: https://pypip.in/v/hydromt_wflow/badge.png
+    :target: https://pypi.org/project/hydromt_wflow/
+    :alt: Latest PyPI version
 
 .. image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples
@@ -24,19 +33,20 @@ for the wflow_ model.
 Installation
 ------------
 
-hydroMT is availble from pypi and conda-forge, but we recommend installing with conda.
+hydroMT is availble from pypi and we are working on adding a release from conda-forge (ongoing).
 
-To install hydromt using conda do:
-
-.. code-block:: console
-
-  conda install hydromt_wflow -c conda-forge
-
-To create a hydromt environment with conda installed do:
+To install hydromt using pip do:
 
 .. code-block:: console
 
-  conda create hydromt -n hydromt_wflow -c conda-forge
+  pip install hydromt_wflow
+
+We recommend installing a hydromt-wflow environment including the hydromt_wflow package
+based on the environment.yml file.
+
+.. code-block:: console
+
+  conda env create -f environment.yml
 
 Documentation
 -------------

@@ -3,8 +3,6 @@ name: hydromt-wflow
 channels:
   - conda-forge
 
-# note that these are the developer dependencies,
-# FIXME change to minimal version after hydromt is on conda-forge
 dependencies:
   - affine
   - click
@@ -17,6 +15,7 @@ dependencies:
   - flit>=3.2
   - gdal>=3.1
   - geopandas
+  - hydromt>=0.4.0
   - jupyter # to run examples
   - netcdf4
   - matplotlib # to run examples
@@ -37,6 +36,5 @@ dependencies:
   - zarr
   - pip:
     - hydroengine
-    - git+https://github.com/Deltares/hydromt.git
-    - git+https://github.com/Deltares/hydromt_wflow.git
+    - hydromt_wflow
 
