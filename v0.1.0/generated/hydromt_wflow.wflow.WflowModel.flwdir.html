@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>hydromt_wflow.wflow_sediment.WflowSedimentModel.set_flwdir &mdash; hydromt_wflow  documentation</title>
+  <title>hydromt_wflow.wflow.WflowModel.flwdir &mdash; hydromt_wflow  documentation</title>
   
 
   
@@ -40,8 +40,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.clip_staticmaps" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.clip_staticmaps.html" />
-    <link rel="prev" title="hydromt_wflow.wflow_sediment.WflowSedimentModel" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.html" /> 
+    <link rel="next" title="hydromt_wflow.wflow.WflowModel.basins" href="hydromt_wflow.wflow.WflowModel.basins.html" />
+    <link rel="prev" title="Model attributes" href="../user_guide/wflow/attributes.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -97,8 +97,18 @@
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
 </ul>
 <p class="caption"><span class="caption-text">User Guide</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../user_guide/wflow/index.html">Wflow</a></li>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_guide/wflow/index.html">Wflow</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow/components.html">Model components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow/build_configuration.html">Model configuration</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../user_guide/wflow/attributes.html">Model attributes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.wflow.WflowModel.flwdir</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.basins.html">hydromt_wflow.wflow.WflowModel.basins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.rivers.html">hydromt_wflow.wflow.WflowModel.rivers</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../user_guide/sediment/index.html">Wflow Sediment</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Advanced topics</span></p>
@@ -106,22 +116,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../advanced/workflows.html">Workflows</a></li>
 </ul>
 <p class="caption"><span class="caption-text">References &amp; Help</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../api/api_index.html">API reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../api/api_model_index.html">Model</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="../api/api_wflow.html">Wflow Model</a></li>
-<li class="toctree-l3 current"><a class="reference internal" href="../api/api_sediment.html">Wflow Sediment Model</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../api/api_sediment.html#initialize">Initialize</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/api_sediment.html#build-components">Build components</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../api/api_sediment.html#model-specific-attributes">Model specific attributes</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="../api/api_sediment.html#model-specific-methods">Model specific methods</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../api/api_workflows.html">Workflows</a></li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api_index.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
@@ -172,19 +168,17 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-          <li><a href="../api/api_index.html">API reference</a> &raquo;</li>
+          <li><a href="../user_guide/wflow/index.html">Wflow</a> &raquo;</li>
         
-          <li><a href="../api/api_model_index.html">Models</a> &raquo;</li>
+          <li><a href="../user_guide/wflow/attributes.html">Model attributes</a> &raquo;</li>
         
-          <li><a href="../api/api_sediment.html">Wflow Sediment model</a> &raquo;</li>
-        
-      <li>hydromt_wflow.wflow_sediment.WflowSedimentModel.set_flwdir</li>
+      <li>hydromt_wflow.wflow.WflowModel.flwdir</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.set_flwdir.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/hydromt_wflow.wflow.WflowModel.flwdir.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -221,12 +215,12 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="hydromt-wflow-wflow-sediment-wflowsedimentmodel-set-flwdir">
-<h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.set_flwdir<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-set-flwdir" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="hydromt-wflow-wflow-wflowmodel-flwdir">
+<h1>hydromt_wflow.wflow.WflowModel.flwdir<a class="headerlink" href="#hydromt-wflow-wflow-wflowmodel-flwdir" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
-<dt id="hydromt_wflow.wflow_sediment.WflowSedimentModel.set_flwdir">
-<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">set_flwdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ftype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'infer'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.set_flwdir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd</p>
+<dt id="hydromt_wflow.wflow.WflowModel.flwdir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-prename descclassname"><span class="pre">WflowModel.</span></code><code class="sig-name descname"><span class="pre">flwdir</span></code><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.flwdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the pyflwdir.FlwdirRaster object parsed from the wflow ldd.</p>
 </dd></dl>
 
 </div>
@@ -237,8 +231,8 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.clip_staticmaps.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.clip_staticmaps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.html" class="btn btn-neutral float-left" title="hydromt_wflow.wflow_sediment.WflowSedimentModel" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hydromt_wflow.wflow.WflowModel.basins.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow.WflowModel.basins" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../user_guide/wflow/attributes.html" class="btn btn-neutral float-left" title="Model attributes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

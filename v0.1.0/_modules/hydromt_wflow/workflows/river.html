@@ -503,7 +503,7 @@
 
 
 <span class="k">def</span> <span class="nf">_precip</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="p">,</span> <span class="n">da_precip</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="n">precip</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">da_precip</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RESAMPLING</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
         <span class="o">/</span> <span class="mf">1e3</span>
@@ -517,7 +517,7 @@
 
 
 <span class="k">def</span> <span class="nf">_discharge</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="p">,</span> <span class="n">da_precip</span><span class="p">,</span> <span class="n">da_climate</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
     <span class="c1"># read clim classes and regression parameters from data dir</span>
     <span class="n">source_precip</span> <span class="o">=</span> <span class="n">da_precip</span><span class="o">.</span><span class="n">name</span>
     <span class="n">source_climate</span> <span class="o">=</span> <span class="n">da_climate</span><span class="o">.</span><span class="n">name</span>
