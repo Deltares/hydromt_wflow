@@ -343,12 +343,12 @@ def _precip(ds_like, flwdir, da_precip, logger=logger):
 def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     """ """
     # read clim classes and regression parameters from data dir
-    source_precip = da_precip.name
-    source_climate = da_climate.name
-    fn_regr = join(DATADIR, "rivwth", f"regr_{source_precip}.csv")
-    fn_clim = join(DATADIR, "rivwth", f"{source_climate}.csv")
+    precip_fn = da_precip.name
+    climate_fn = da_climate.name
+    fn_regr = join(DATADIR, "rivwth", f"regr_{precip_fn}.csv")
+    fn_clim = join(DATADIR, "rivwth", f"{climate_fn}.csv")
     clim_map = pd.read_csv(fn_clim, index_col="class")
-    regr_map = pd.read_csv(fn_regr, index_col="source").loc[source_climate]
+    regr_map = pd.read_csv(fn_regr, index_col="source").loc[climate_fn]
     regr_map = regr_map.set_index("base_class")
 
     # get overall catchment climate classification (based on mode)

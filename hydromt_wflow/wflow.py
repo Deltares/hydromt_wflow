@@ -120,8 +120,8 @@ class WflowModel(Model):
         self,
         region,
         res=1 / 120.0,
-        source_name="merit_hydro",
-        fn_basin_index="merit_hydro_index",
+        hydrography_fn="merit_hydro",
+        basin_index_fn="merit_hydro_index",
         upscale_method="ihu",
     ):
         """
@@ -131,7 +131,7 @@ class WflowModel(Model):
         If the model resolution is larger than the source data resolution,
         the flow direction is upscaled using the ``upscale_method``, by default the
         Iterative Hydrography Upscaling (IHU).
-        The default ``source_name`` is "merit_hydro" (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
+        The default ``hydrography_fn`` is "merit_hydro" (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
         at 3 arcsec resolution) Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
         Users can also supply their own elevation and flow direction data. Note that only EPSG:4326 base data supported.
 
@@ -148,14 +148,14 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'merit_hydro', 'merit_hydro_1k'}
+        hydrography_fn : {'merit_hydro', 'merit_hydro_1k'}
             Name of data source for basemap parameters, see data/data_sources.yml.
 
             * Required variables: ['flwdir', 'uparea', 'basins', 'strord', 'elevtn']
 
             * Optional variables: ['lndslp', 'mask']
-        fn_basin_index : str
-            Name of data source for basin_index data linked to source_name.
+        basin_index_fn : str
+            Name of data source for basin_index data linked to hydrography_fn.
         region : dict
             Dictionary describing region of interest.
             See :py:function:~basin_mask.parse_region for all options
@@ -166,7 +166,7 @@ class WflowModel(Model):
         """
         self.logger.info(f"Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
-        ds_org = self.data_catalog.get_rasterdataset(source_name)
+        ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
         # TODO support and test (user) data from other sources with other crs!
         if ds_org.raster.crs is None or ds_org.raster.crs.to_epsg() != 4326:
             raise ValueError("Only EPSG:4326 base data supported.")
@@ -174,7 +174,7 @@ class WflowModel(Model):
         kind, region = workflows.parse_region(region, logger=self.logger)
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
-            bas_index = self.data_catalog[fn_basin_index]
+            bas_index = self.data_catalog[basin_index_fn]
             geom, xy = workflows.get_basin_geometry(
                 ds=ds_org,
                 kind=kind,
@@ -235,9 +235,9 @@ class WflowModel(Model):
 
     def setup_rivers(
         self,
-        river_upa,
-        slope_len,
-        source_name="merit_hydro",
+        hydrography_fn="merit_hydro",
+        river_upa=30,
+        slope_len=2000,
         n_river_mapping=None,
         min_rivlen_ratio=0.1,
     ):
@@ -266,7 +266,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : str, path
+        hydrography_fn : str, path
             Name of data source for basemap parameters, see data/data_sources.yml.
             Must be same as setup_basemaps for consitent results.
         river_upa : float
@@ -280,7 +280,7 @@ class WflowModel(Model):
 
         # derive river mask, length, slope
         ds_base = self.data_catalog.get_rasterdataset(
-            source_name, geom=self.region, buffer=2
+            hydrography_fn, geom=self.region, buffer=2
         )
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
 
@@ -332,8 +332,8 @@ class WflowModel(Model):
         fill=False,
         fit=False,
         min_wth=1.0,
-        source_precip="chelsa",
-        source_climate="koppen_geiger",
+        precip_fn="chelsa",
+        climate_fn="koppen_geiger",
         **kwargs,
     ):
         """
@@ -369,9 +369,9 @@ class WflowModel(Model):
             Manual power-law parameters
         min_wth : float
             minimum river width
-        source_precip : {'chelsa'}
+        precip_fn : {'chelsa'}
             Source of long term precipitation grid if the predictor is set to 'discharge' or 'precip'.
-        source_climate: {'koppen_geiger'}
+        climate_fn: {'koppen_geiger'}
             Source of long-term climate grid if the predictor is set to 'discharge'.
         """
         if not self._MAPS["rivmsk"] in self.staticmaps:
@@ -383,15 +383,15 @@ class WflowModel(Model):
         data = {}
         if predictor in ["discharge", "precip"]:
             da_precip = self.data_catalog.get_rasterdataset(
-                source_precip, geom=self.region, buffer=2
+                precip_fn, geom=self.region, buffer=2
             )
-            da_precip.name = source_precip
+            da_precip.name = precip_fn
             data["da_precip"] = da_precip
         if predictor == "discharge":
             da_climate = self.data_catalog.get_rasterdataset(
-                source_climate, geom=self.region, buffer=2
+                climate_fn, geom=self.region, buffer=2
             )
-            da_climate.name = source_climate
+            da_climate.name = climate_fn
             data["da_climate"] = da_climate
 
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
@@ -415,8 +415,8 @@ class WflowModel(Model):
 
     def setup_lulcmaps(
         self,
-        source_name,
-        lulc_mapping=None,
+        lulc_fn="globcover",
+        lulc_mapping_fn=None,
         lulc_vars=[
             "landuse",
             "Kext",
@@ -432,7 +432,7 @@ class WflowModel(Model):
         This component derives several wflow maps are derived based on landuse-
         landcover (LULC) data. 
         
-        Currently, ``source_name`` can be set to the "vito", "globcover"
+        Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
@@ -451,25 +451,25 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {"globcover", "vito", "corine"}
+        lulc_fn : {"globcover", "vito", "corine"}
             Name of data source in data_sources.yml file.
-        lulc_mapping : str
+        lulc_mapping_fn : str
             Path to a mapping csv file from landuse in source name to parameter values in lulc_vars.
         lulc_vars : list
             List of landuse parameters to keep.\
             By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
         """
         self.logger.info(f"Preparing LULC parameter maps.")
-        if lulc_mapping is None:
-            fn_map = join(DATADIR, "lulc", f"{source_name}_mapping.csv")
+        if lulc_mapping_fn is None:
+            fn_map = join(DATADIR, "lulc", f"{lulc_fn}_mapping.csv")
         else:
-            fn_map = lulc_mapping
+            fn_map = lulc_mapping_fn
         if not isfile(fn_map):
             self.logger.error(f"LULC mapping file not found: {fn_map}")
             return
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
-            source_name, geom=self.region, buffer=2, variables=["landuse"]
+            lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
         )
         # process landuse
         ds_lulc_maps = landuse(
@@ -482,12 +482,12 @@ class WflowModel(Model):
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_staticmaps(ds_lulc_maps.rename(rmdict))
 
-    def setup_laimaps(self, source_name="model_lai"):
+    def setup_laimaps(self, lai_fn="model_lai"):
         """
         This component sets leaf area index (LAI) climatoloy maps per month.
 
         The values are resampled to the model resolution using the average value.
-        The only ``source_name`` currently supported is "modis_lai" based on MODIS data.
+        The only ``lai_fn`` currently supported is "modis_lai" based on MODIS data.
 
         Adds model layers:
 
@@ -497,21 +497,17 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'modis_lai'}
+        lai_fn : {'modis_lai'}
             Name of data source for LAI parameters, see data/data_sources.yml.
 
             * Required variables: ['LAI']
         """
-        if source_name not in ["modis_lai"]:
-            self.logger.warning(
-                f"Invalid source '{source_name}', skipping setup_laimaps."
-            )
+        if lai_fn not in ["modis_lai"]:
+            self.logger.warning(f"Invalid source '{lai_fn}', skipping setup_laimaps.")
             return
         # retrieve data for region
         self.logger.info(f"Preparing LAI maps.")
-        da = self.data_catalog.get_rasterdataset(
-            source_name, geom=self.region, buffer=2
-        )
+        da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
         da_lai = lai(
             da=da,
             ds_like=self.staticmaps,
@@ -523,7 +519,7 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        source_name="grdc",
+        gauges_fn="grdc",
         source_gdf=None,
         snap_to_river=True,
         mask=None,
@@ -536,7 +532,7 @@ class WflowModel(Model):
         **kwargs,
     ):
         """This components sets the default gauge map based on basin outlets and additional
-        gauge maps based on ``source_name`` data.
+        gauge maps based on ``gauges_fn`` data.
 
         Supported gauge datasets include "grdc"
         or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
@@ -549,7 +545,7 @@ class WflowModel(Model):
         Adds model layers:
 
         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
-        * **wflow_gauges_source** map: gauge IDs map from source [-] (if source_name)
+        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
         * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
         * **gauges** geom: polygon of catchment outlets
         * **gauges_source** geom: polygon of gauges from source
@@ -557,7 +553,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : str, {"grdc"}, optional
+        gauges_fn : str, {"grdc"}, optional
             Known source name or path to gauges file geometry file, by default None.
         source_gdf : geopandas.GeoDataFame, optional
             Direct gauges file geometry, by default None.
@@ -570,7 +566,7 @@ class WflowModel(Model):
         derive_outlet : bool, optional
             Derive gaugemap based on catchment outlets, by default True
         basename : str, optional
-            Map name in staticmaps (wflow_gauges_basename), if None use the source_name basename.
+            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
         update_toml : boolean, optional
             Update [outputcsv] section of wflow toml file.
         gauge_toml_header : list, optional
@@ -592,12 +588,12 @@ class WflowModel(Model):
             self.set_staticgeoms(gdf, name="gauges")
             self.logger.info(f"Gauges map based on catchment outlets added.")
 
-        if source_name is not None or source_gdf is not None:
+        if gauges_fn is not None or source_gdf is not None:
             # append location from geometry
             # TODO check snapping locations based on upstream area attribute of the gauge data
-            if source_name is not None:
+            if gauges_fn is not None:
                 gdf = self.data_catalog.get_geodataframe(
-                    source_name, geom=self.basins, assert_gtype="Point"
+                    gauges_fn, geom=self.basins, assert_gtype="Point"
                 )
                 gdf = gdf.to_crs(self.crs)
             elif source_gdf is not None and basename is None:
@@ -610,12 +606,12 @@ class WflowModel(Model):
 
             if gdf.index.size == 0:
                 self.logger.warning(
-                    f"No {source_name} gauge locations found within domain"
+                    f"No {gauges_fn} gauge locations found within domain"
                 )
             else:
                 if basename is None:
                     basename = (
-                        os.path.basename(source_name).split(".")[0].replace("_", "-")
+                        os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
                     )
                 self.logger.info(
                     f"{gdf.index.size} {basename} gauge locations found within domain"
@@ -680,13 +676,13 @@ class WflowModel(Model):
                     )
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
-    def setup_lakes(self, source_name="hydro_lakes", min_area=10.0):
+    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
 
         The data is generated from features with ``min_area`` [km2] from a database with
         lake geometry, IDs and metadata. Currently, "hydro_lakes" (hydroLakes) is the only
-        supported ``source_name`` data source and we use a default minimum area of 1 km2.
+        supported ``lakes_fn`` data source and we use a default minimum area of 1 km2.
 
         Adds model layers:
 
@@ -700,7 +696,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'hydro_lakes'}
+        lakes_fn : {'hydro_lakes'}
             Name of data source for lake parameters, see data/data_sources.yml.
 
             * Required variables: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
@@ -713,12 +709,10 @@ class WflowModel(Model):
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
         }
 
-        if source_name not in ["hydro_lakes"]:
-            self.logger.warning(
-                f"Invalid source '{source_name}', skipping setup_lakes."
-            )
+        if lakes_fn not in ["hydro_lakes"]:
+            self.logger.warning(f"Invalid source '{lakes_fn}', skipping setup_lakes.")
             return
-        gdf_org, ds_lakes = self._setup_waterbodies(source_name, "lake", min_area)
+        gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
             self.set_staticmaps(ds_lakes.rename(rmdict))
@@ -772,7 +766,11 @@ class WflowModel(Model):
                 self.set_config(option, lakes_toml[option])
 
     def setup_reservoirs(
-        self, source_name="hydro_reservoirs", min_area=1.0, priority_jrc=True, **kwargs
+        self,
+        reservoirs_fn="hydro_reservoirs",
+        min_area=1.0,
+        priority_jrc=True,
+        **kwargs,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average reservoir area, demand, min and max target storage capacities and
@@ -780,7 +778,7 @@ class WflowModel(Model):
 
         The data is generated from features with ``min_area`` [km2]
         from a database with reservoir geometry, IDs and metadata.
-        Currently, "hydro_reservoirs" (based on GRAND) is the only supported ``source_name``
+        Currently, "hydro_reservoirs" (based on GRAND) is the only supported ``reservoirs_fn``
         data source and we use a default minimum area of 1 km2.
 
 
@@ -798,7 +796,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'hydro_reservoirs'}
+        reservoirs_fn : {'hydro_reservoirs'}
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
             * Required variables with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
@@ -827,12 +825,12 @@ class WflowModel(Model):
         }
 
         # path or filename. get_geodataframe
-        if source_name not in ["hydro_reservoirs"]:
+        if reservoirs_fn not in ["hydro_reservoirs"]:
             self.logger.warning(
-                f"Invalid source '{source_name}', skipping setup_reservoirs."
+                f"Invalid source '{reservoirs_fn}', skipping setup_reservoirs."
             )
             return
-        gdf_org, ds_res = self._setup_waterbodies(source_name, "reservoir", min_area)
+        gdf_org, ds_res = self._setup_waterbodies(reservoirs_fn, "reservoir", min_area)
         # TODO: check if there are missing values in the above columns of the parameters tbls =
         # if everything is present, skip calculate reservoirattrs() and directly make the maps
         if ds_res is not None:
@@ -879,13 +877,13 @@ class WflowModel(Model):
             for option in res_toml:
                 self.set_config(option, res_toml[option])
 
-    def _setup_waterbodies(self, source_name, wb_type, min_area=0.0):
+    def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0):
         """Helper method with the common workflow of setup_lakes and setup_reservoir.
         See specific methods for more info about the arguments."""
         # retrieve data for basin
         self.logger.info(f"Preparing {wb_type} maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            source_name, geom=self.basins, predicate="contains"
+            waterbodies_fn, geom=self.basins, predicate="contains"
         )
         # skip small size waterbodies
         if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
@@ -932,13 +930,13 @@ class WflowModel(Model):
         # rasterize points polygons in raster.rasterize -- you need staticmaps to nkow the grid
         return gdf_org, ds_waterbody
 
-    def setup_soilmaps(self, source_name="soilgrids", ptf_ksatver="brakensiek"):
+    def setup_soilmaps(self, soil_fn="soilgrids", ptf_ksatver="brakensiek"):
         """
         This component derives several (layered) soil parameters based on a database with
         physical soil properties using available point-scale (pedo)transfer functions (PTFs)
         from literature with upscaling rules to ensure flux matching across scales.
 
-        Currently, the only supported ``source_name`` is "soilgrids" and the default
+        Currently, the only supported ``soil_fn`` is "soilgrids" and the default
         ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) is "brakensiek".
 
 
@@ -966,7 +964,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'soilgrids'}
+        soil_fn : {'soilgrids'}
             Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
             7 soil depths of soilgrids.
 
@@ -977,9 +975,7 @@ class WflowModel(Model):
         """
         self.logger.info(f"Preparing soil parameter maps.")
         # TODO add variables list with required variable names
-        dsin = self.data_catalog.get_rasterdataset(
-            source_name, geom=self.region, buffer=2
-        )
+        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = soilgrids(
             dsin,
             self.staticmaps,
@@ -988,7 +984,7 @@ class WflowModel(Model):
         )
         self.set_staticmaps(dsout)
 
-    def setup_glaciers(self, source_name="rgi", min_area=1):
+    def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
         This component generates maps of glacier areas, area fraction and volume fraction,
         as well as tables with temperature thresohld, melting factor and snow-to-ice
@@ -996,7 +992,7 @@ class WflowModel(Model):
 
         The data is generated from features with ``min_area`` [km2]
         from a database with glacier geometry, IDs and metadata.
-        Currently, "rgi" (Randolph Glacier Inventory) is the only supported ``source_name``
+        Currently, "rgi" (Randolph Glacier Inventory) is the only supported ``glaciers_fn``
         data source and we use a default minimum area of 1 km2.
 
         Adds model layers:
@@ -1010,7 +1006,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'rgi'}
+        glaciers_fn : {'rgi'}
             Name of data source for glaciers, see data/data_sources.yml.
 
             * Required variables: ['simple_id']
@@ -1019,15 +1015,15 @@ class WflowModel(Model):
         """
         glac_toml = {"glacier": True}
         # retrieve data for basin
-        if source_name not in ["rgi"]:
-            if source_name:
+        if glaciers_fn not in ["rgi"]:
+            if glaciers_fn:
                 self.logger.warning(
-                    f"Invalid source '{source_name}', skipping setup_glaciers."
+                    f"Invalid source '{glaciers_fn}', skipping setup_glaciers."
                 )
             return
         self.logger.info(f"Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            source_name, geom=self.basins, predicate="contains"
+            glaciers_fn, geom=self.basins, predicate="contains"
         )
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
@@ -1084,7 +1080,7 @@ class WflowModel(Model):
             da_param = da_param.rename(key)
             self.set_staticmaps(da_param)
 
-    def setup_precip_forcing(self, precip_fn="era5", climate_fn=None, **kwargs):
+    def setup_precip_forcing(self, precip_fn="era5", precip_clim_fn=None, **kwargs):
         """Setup gridded precipitation forcing at model resolution.
 
         Adds model layer:
@@ -1097,7 +1093,7 @@ class WflowModel(Model):
             Precipitation data source, see data/forcing_sources.yml.
 
             * Required variable: ['precip']
-        climate_fn : str, default None
+        precip_clim_fn : str, default None
             High resolution climatology precipitation data source to correct precipitation,
             see data/forcing_sources.yml.
 
@@ -1118,9 +1114,9 @@ class WflowModel(Model):
         )
 
         clim = None
-        if climate_fn != None:
+        if precip_clim_fn != None:
             clim = self.data_catalog.get_rasterdataset(
-                climate_fn,
+                precip_clim_fn,
                 geom=precip.raster.box,
                 buffer=2,
                 variables=["precip"],
@@ -1138,7 +1134,7 @@ class WflowModel(Model):
         # Update meta attributes with setup opt
         opt_attr = {
             "precip_fn": precip_fn,
-            "climate_fn": climate_fn,
+            "precip_clim_fn": precip_clim_fn,
         }
         precip_out.attrs.update(opt_attr)
 
@@ -1451,7 +1447,7 @@ class WflowModel(Model):
             Pdown = ""
             Tdown = ""
             if "precip" in self.forcing:
-                val = self.forcing["precip"].attrs.pop("climate_fn", None)
+                val = self.forcing["precip"].attrs.pop("precip_clim_fn", None)
                 if val is not None:
                     Pdown = "d"
                 val = self.forcing["precip"].attrs.pop("precip_fn", None)
