@@ -13,4 +13,5 @@ Examples
    Update Wflow model: forcing <examples/update_model_forcing>
    Update Wflow model: gauges <examples/update_model_gauges>
    Clip Wflow model: <examples/clip_model>
+   Build Wflow sediment model <examples/build_sediment>
 
