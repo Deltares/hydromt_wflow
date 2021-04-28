@@ -18,6 +18,7 @@
 #
 import os
 import sys
+import hydromt
 import hydromt_wflow
 
 here = os.path.dirname(__file__)
