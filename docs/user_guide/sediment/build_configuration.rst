@@ -14,10 +14,10 @@ every option from each :ref:`model component <model_components_sed>` can be chan
 in its corresponding section.
 
 Below is an example of ini file that can be used to build a complete wflow_sediment model
-:download:`.ini file </../examples/wflow_sediment_build.ini>`. Each section corresponds 
+:download:`.ini file </../../../examples/wflow_sediment_build.ini>`. Each section corresponds 
 to a model component with the same name.
 
-.. literalinclude:: /../examples/wflow_sediment_build.ini
+.. literalinclude:: /../../../examples/wflow_sediment_build.ini
    :language: Ini
 
 Selecting data
@@ -89,7 +89,7 @@ Extending a wflow model with a wflow_sediment model
 ---------------------------------------------------
 If you already have a wflow model and you want to extend it in order to include sediment as well, then you do not need to build the 
 wflow_sediment from scratch. You can instead ``update`` the wflow model with the additional components needed by wflow_sediment.
-These components are available in a template :download:`.ini file </../examples/wflow_extend_sediment.ini>` and shown below. The corresponding 
+These components are available in a template :download:`.ini file </../../../examples/wflow_extend_sediment.ini>` and shown below. The corresponding 
 command line would be:
 
 .. code-block:: console
@@ -97,5 +97,5 @@ command line would be:
     activate hydromt-wflow
     hydromt update wflow_sediment path/to/wflow_model_to_extend -i wflow_extend_sediment.ini -d data_sources.yml -vvv
 
-.. literalinclude:: /../examples/wflow_extend_sediment.ini
+.. literalinclude:: /../../../examples/wflow_extend_sediment.ini
    :language: Ini

@@ -14,10 +14,10 @@ every option from each :ref:`model component <model_components>` can be changed 
 in its corresponding section.
 
 Below is an example of ini file that can be used to build a complete wflow model
-:download:`.ini file </../examples/wflow_build.ini>`. Each section corresponds 
+:download:`.ini file </../../../examples/wflow_build.ini>`. Each section corresponds 
 to a model component with the same name.
 
-.. literalinclude:: /../examples/wflow_build.ini
+.. literalinclude:: /../../../examples/wflow_build.ini
    :language: Ini
 
 Selecting data
