@@ -120,8 +120,8 @@ class WflowModel(Model):
         self,
         region,
         res=1 / 120.0,
-        source_name="hydro_merit",
-        fn_basin_index="hydro_merit_index",
+        source_name="merit_hydro",
+        fn_basin_index="merit_hydro_index",
         upscale_method="ihu",
     ):
         """
@@ -148,7 +148,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_name : {'hydro_merit', 'hydro_merit_1k'}
+        source_name : {'merit_hydro', 'merit_hydro_1k'}
             Name of data source for basemap parameters, see data/data_sources.yml.
 
             * Required variables: ['flwdir', 'uparea', 'basins', 'strord', 'elevtn']
@@ -237,7 +237,7 @@ class WflowModel(Model):
         self,
         river_upa,
         slope_len,
-        source_name="hydro_merit",
+        source_name="merit_hydro",
         n_river_mapping=None,
         min_rivlen_ratio=0.1,
     ):
