@@ -1,10 +1,8 @@
-name: hydromt-wflow
+name: hydromt-plugin
 
 channels:
   - conda-forge
 
-# note that these are the developer dependencies,
-# FIXME change to minimal version after hydromt is on conda-forge
 dependencies:
   - affine
   - click
@@ -17,16 +15,17 @@ dependencies:
   - flit>=3.2
   - gdal>=3.1
   - geopandas
+  - hydromt
   - jupyter # to run examples
   - netcdf4
   - matplotlib # to run examples
+  - nbsphinx  # docs
   - numba
   - numpy
   - openpyxl
   - pandas
-  - pcraster # TODO make optional
   - pip
-  - pyflwdir>=0.4.6
+  - pyflwdir>=0.4.7
   - pygeos>=0.8
   - pytest # tests
   - pytest-cov # tests
@@ -35,13 +34,8 @@ dependencies:
   - rasterio
   - requests
   - scipy
-  - toml
   - sphinx # docs
   - sphinx_rtd_theme # docs
   - xarray
   - zarr
-  - pip:
-    - hydroengine
-    - sphinx_autosummary_accessors
-    - git+https://github.com/Deltares/hydromt.git
 

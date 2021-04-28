@@ -1,21 +1,17 @@
-hydroMT-wflow: wflow plugin for hydroMT
-#######################################
+hydroMT-plugin: plugin plugin for hydroMT
+###########################################
 
-.. image:: https://codecov.io/gh/Deltares/hydromt_wflow/branch/main/graph/badge.svg?token=ss3EgmwHhH
-    :target: https://codecov.io/gh/Deltares/hydromt_wflow
-
-.. image:: https://readthedocs.org/projects/hydromt_wflow/badge/?version=latest
-    :target: https://hydromt_wflow.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+FIXME add badges with correct links
 
 .. note::
 
-  This minimal branch from the hydromt_wflow plugin can be used as a **template** to easily 
-  implement new plugins for hydroMT. It contains:
+  This minimal branch from the hydromt_plugin plugin can be used as a **template** to easily 
+  implement new plugins for hydroMT. To implement a new model do:
   
-  - git installation (including pyproject.toml) and an example environment yaml in the envs folder
-  - template documentation to be edited
-  - empty model class (wflow.py) to be adapted for the new model
+  - replace all instances of `plugin` with the model name
+  - check and fix git installation (including pyproject.toml) and an example environment yaml in the envs folder
+  - edit template documentation
+  - empty model class (plugin.py) to be adapted for the new model
   - template coverage test in the tests folder (model_api compliance and build test)
   - example license is MIT (same as hydromt core)
 
@@ -23,40 +19,26 @@ hydroMT-wflow: wflow plugin for hydroMT
 hydroMT_ is a python package, developed by Deltares, to build and analysis hydro models.
 It provides a generic model api with attributes to access the model schematization,
 (dynamic) forcing data, results and states. This plugin provides an implementation 
-for the wflow_ model.
+for the plugin model.
 
 
 .. _hydromt: https://deltares.github.io/hydromt
-
-.. _wflow: https://github.com/Deltares/Wflow.jl
 
 
 Installation
 ------------
 
-hydroMT is availble from pypi and conda-forge, but we recommend installing with conda.
-
-To install hydromt using conda do:
-
-.. code-block:: console
-
-  conda install hydromt_wflow -c conda-forge
-
-To create a hydromt environment with conda installed do:
-
-.. code-block:: console
-
-  conda create hydromt -n hydromt_wflow -c conda-forge
+FIXME installation guide
 
 Documentation
 -------------
 
-Learn more about hydroMT in its `online documentation <https://hydromt_wflow.readthedocs.io/en/latest/>`_
+Learn more about hydroMT in its `online documentation <https://deltares.github.io/hydromt_plugin/>`_
 
 Contributing
 ------------
 
-You can find information about contributing to hydroMT at our `Contributing page <https://hydromt_wflow.readthedocs.io/en/latest/contributing.html>`_.
+You can find information about contributing to hydroMT at our `Contributing page <https://deltares.github.io/hydromt_plugin/latest/contributing.html>`_.
 
 License
 -------

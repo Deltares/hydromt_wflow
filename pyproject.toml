@@ -3,14 +3,13 @@ requires = ["flit_core >=3.2.0,<3.3"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "hydromt_wflow"
+name = "hydromt_plugin"
 authors = [
     {name = "Dirk Eilander", email = "dirk.eilander@deltares.nl"},
     {name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl"},
 ]
 dependencies = [
     "hydromt",
-    "toml",
 ]
 requires-python = ">=3.8" # fix tests to support older versions
 readme = "README.rst"
@@ -39,11 +38,11 @@ doc = [
 ]
 
 [project.urls]
-Documentation = "https://hydromt_wflow.readthedocs.io/en/latest/"
-Source = "https://github.com/Deltares/hydromt_wflow"
+Documentation = "https://deltares.github.io/hydromt_plugin/"
+Source = "https://github.com/Deltares/hydromt_plugin"
 
 [project.entry-points."hydromt.models"]
-wflow = "hydromt_wflow.wflow:WflowModel"
+plugin = "hydromt_plugin.plugin:PluginModel"
 
 [tool.black]
 line-length = 88
