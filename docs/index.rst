@@ -1,12 +1,14 @@
 =====================
-HydroMT plugin: wflow
+HydroMT plugin: Wflow
 =====================
 
 `HydroMT <https://github.com/Deltares/hydromt>`_ is a python package, developed by Deltares, to build 
 and analyse environmental models. It provides a generic model api with attributes to access the model schematization, 
-(dynamic) forcing data, results and states. This plugin provides an implementation for the 
-`wflow <https://github.com/Deltares/Wflow.jl>`_ package. It details the different steps and explains how to 
-use HydroMT to easily get started and work on your own wflow model.
+(dynamic) forcing data, results and states. 
+
+This plugin provides an implementation for the 
+`Wflow <https://github.com/Deltares/Wflow.jl>`_ hydrological modelling framework. It details the different steps and explains how to 
+use HydroMT to easily get started and work on your own Wflow model.
 
 For detailed information on HydroMT itself, you can visit the `core documentation <https://hydromt.readthedocs.io/en/latest/>`_.
 

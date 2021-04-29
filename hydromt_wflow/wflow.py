@@ -589,8 +589,11 @@ class WflowModel(Model):
             # append location from geometry
             # TODO check snapping locations based on upstream area attribute of the gauge data
             if gauges_fn is not None:
+                kwargs = {}
+                if isfile(gauges_fn):
+                    kwargs.update(crs=self.crs)
                 gdf = self.data_catalog.get_geodataframe(
-                    gauges_fn, geom=self.basins, assert_gtype="Point"
+                    gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
                 )
                 gdf = gdf.to_crs(self.crs)
             elif source_gdf is not None and basename is None:
