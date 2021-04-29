@@ -13,7 +13,7 @@ To install hydromt using pip do:
   pip install hydromt_wflow
 
 This will install both the hydromt_wflow plugin as well as the 
-`hydroMT core package<https://github.com/Deltares/hydromt>`_ from conda-forge.
+`hydroMT core package <https://github.com/Deltares/hydromt>`_ from conda-forge.
 
 
 We recommend installing a hydromt-wflow environment including the hydromt_wflow package

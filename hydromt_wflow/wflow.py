@@ -650,7 +650,7 @@ class WflowModel(Model):
                 if gauge_toml_param is None and update_toml:
                     gauge_toml_header = ["Q", "P"]
                     gauge_toml_param = ["lateral.river.q_av", "vertical.precipitation"]
-                
+
                 if update_toml:
                     self.set_config(f"input.gauges_{basename}", f"{mapname}")
                     if self.get_config("csv") is not None:
