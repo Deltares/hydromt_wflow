@@ -727,7 +727,7 @@ class WflowModel(Model):
             )
             gdf_org["Lake_b"] = (
                 gdf_org["LakeAvgOut"].values / gdf_org["LakeAvgLevel"].values
-            ) ** (0.5)
+            ) ** (2)
             gdf_org["Lake_e"] = 2
             gdf_org["LakeStorFunc"] = 1
             gdf_org["LakeOutflowFunc"] = 3
