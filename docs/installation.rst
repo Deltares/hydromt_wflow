@@ -5,19 +5,27 @@ User install
 ------------
 
 The hydromt_wflow plugin is currently only available from PyPi.
+We are working on a release from conda-forge. 
 
-To install hydromt using pip do:
+If you haven't installed the `hydroMT core package <https://github.com/Deltares/hydromt>`_ 
+we recommend installing it from conda-forge to get all dependencies and then install the plugin. 
+
+To install hydromt and the toml package using conda-forge do:
+
+.. code-block:: console
+
+  conda install hydromt toml -c conda-forge
+
+To install hydromt_wflow using pip do:
+Note: make sure this is installed in the same environment as hydromt.
 
 .. code-block:: console
 
   pip install hydromt_wflow
 
-This will install both the hydromt_wflow plugin as well as the 
-`hydroMT core package <https://github.com/Deltares/hydromt>`_ from conda-forge.
-
-
-We recommend installing a hydromt-wflow environment including the hydromt_wflow package
-based on the environment.yml file in the repository root.
+The hydroMT core and Wflow plugin can be easily installed together in a single hydromt-wflow environment 
+using the environment.yml file in the repository root. This environment includes some packages that are 
+required to run the example notebooks.
 
 .. code-block:: console
 
@@ -52,7 +60,7 @@ Finally, build and install hydromt_wflow using pip.
 
     $ pip install .
 
-If you wish to make changes in hydromt_wflow, then you should make an editable install of hydromt. 
+If you wish to make changes in hydromt_wflow, you should make an editable install of hydromt. 
 This is possible using the `flit <https://flit.readthedocs.io/en/latest/>`_ package and install command.
 
 For Windows:
