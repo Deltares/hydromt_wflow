@@ -209,14 +209,22 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="user-install">
 <h2>User install<a class="headerlink" href="#user-install" title="Permalink to this headline">¶</a></h2>
-<p>HydroMT is available from pypi and conda-forge, but we recommend installing with conda.</p>
-<p>The hydromt_wflow plugin is currently only available from PyPi.</p>
-<p>To install hydromt using pip do:</p>
+<p>The hydromt_wflow plugin is currently only available from PyPi.
+We are working on a release from conda-forge.</p>
+<p>If you haven’t installed the <a class="reference external" href="https://github.com/Deltares/hydromt">hydroMT core package</a>
+we recommend installing it from conda-forge to get all dependencies and then install the plugin.</p>
+<p>To install hydromt and the toml package using conda-forge do:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda install hydromt toml -c conda-forge</span>
+</pre></div>
+</div>
+<p>To install hydromt_wflow using pip do:
+Note: make sure this is installed in the same environment as hydromt.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install hydromt_wflow</span>
 </pre></div>
 </div>
-<p>We recommend installing a hydromt-wflow environment including the hydromt_wflow package
-based on the environment.yml file in the repository root.</p>
+<p>The hydroMT core and Wflow plugin can be easily installed together in a single hydromt-wflow environment
+using the environment.yml file in the repository root. This environment includes some packages that are
+required to run the example notebooks.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda env create -f environment.yml</span>
 </pre></div>
 </div>
@@ -242,7 +250,7 @@ file contained in the repository:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install .
 </pre></div>
 </div>
-<p>If you wish to make changes in hydromt_wflow, then you should make an editable install of hydromt.
+<p>If you wish to make changes in hydromt_wflow, you should make an editable install of hydromt.
 This is possible using the <a class="reference external" href="https://flit.readthedocs.io/en/latest/">flit</a> package and install command.</p>
 <p>For Windows:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>flit install --pth-file
