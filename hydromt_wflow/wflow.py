@@ -1137,7 +1137,7 @@ class WflowModel(Model):
 
         precip_out = workflows.forcing.precip(
             precip=precip,
-            da_like=self.staticmaps,
+            da_like=self.staticmaps[self._MAPS["elevtn"]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
