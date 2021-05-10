@@ -42,7 +42,7 @@ def _compare_wflow_models(mod0, mod1):
                 xys = ", ".join([f"({x:.6f}, {y:.6f})" for x, y in zip(*xy)])
                 invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{xys}])"
     # invalid_map_str = ", ".join(invalid_maps)
-    assert len(invalid_maps) == 0, f"invalid maps: {invalid_maps}"
+    assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
     if mod0._staticgeoms:
         for name in mod0.staticgeoms:
@@ -75,6 +75,7 @@ def test_model_class(model):
     assert len(non_compliant_list) == 0
 
 
+@pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_models.keys()))
 def test_model_build(tmpdir, model):
     logger = logging.getLogger(__name__)
@@ -82,6 +83,7 @@ def test_model_build(tmpdir, model):
     # test build method
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
+    print(root)
     mod1 = MODELS.get(model)(root=root, mode="w", logger=logger)
     # Build method options
     region = {
