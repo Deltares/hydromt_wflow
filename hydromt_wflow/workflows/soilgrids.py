@@ -73,6 +73,7 @@ def average_soillayers(ds, soilthickness):
         output_dtypes=[float],
     )
 
+    da_av.raster.set_nodata(np.nan)
     da_av = da_av.raster.interpolate_na("linear")
 
     return da_av
