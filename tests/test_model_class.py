@@ -91,7 +91,7 @@ def test_model_build(tmpdir, model):
         "strord": 4,
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
-    res = 0.01666667
+    res = 1 / 60.0
     config = join(TESTDATADIR, _model["ini"])
     opt = parse_config(config)
     # Build model

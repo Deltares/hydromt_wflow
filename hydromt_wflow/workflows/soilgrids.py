@@ -74,7 +74,7 @@ def average_soillayers(ds, soilthickness):
     )
 
     da_av.raster.set_nodata(np.nan)
-    da_av = da_av.raster.interpolate_na("linear")
+    da_av = da_av.raster.interpolate_na("nearest")
 
     return da_av
 
@@ -178,7 +178,7 @@ def pore_size_distrution_index_layers(ds, thetas):
         )
         da.name = "sl" + str(l)
         da.raster.set_nodata(np.nan)
-        da = da.raster.interpolate_na("linear")
+        da = da.raster.interpolate_na("nearest")
         da_lst.append(da)
     ds = xr.merge(da_lst)
     return ds
@@ -225,7 +225,7 @@ def kv_layers(ds, thetas, ptf_name):
 
         da.name = "kv"
         da.raster.set_nodata(np.nan)
-        da = da.raster.interpolate_na("linear")
+        da = da.raster.interpolate_na("nearest")
         da_lst.append(da)
     ds = xr.concat(da_lst, pd.Index(soildepth_mm, name="z"))
     return ds
@@ -360,12 +360,12 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     thetar = thetar.raster.reproject_like(ds_like, method="average")
     ds_out["thetaR"] = thetar.astype(np.float32)
 
-    soilthickness_hr = ds["soilthickness"].raster.interpolate_na("linear")
+    soilthickness_hr = ds["soilthickness"].raster.interpolate_na("nearest")
     soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
     # wflow_sbm cannot handle (yet) zero soil thickness
     soilthickness = soilthickness.where(soilthickness > 0.0, np.nan)
     soilthickness.raster.set_nodata(np.nan)
-    soilthickness = soilthickness.raster.interpolate_na("linear").astype(np.float32)
+    soilthickness = soilthickness.raster.interpolate_na("nearest").astype(np.float32)
     ds_out["SoilThickness"] = soilthickness * 10.0  # from [cm] to [mm]
     ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)
 
@@ -482,15 +482,15 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
     ds = ds.raster.mask_nodata()
 
     # soil properties
-    pclay = ds["clyppt_sl1"].raster.interpolate_na("linear")
+    pclay = ds["clyppt_sl1"].raster.interpolate_na("nearest")
     percentclay = pclay.raster.reproject_like(ds_like, method="average")
     ds_out["PercentClay"] = percentclay.astype(np.float32)
 
-    psilt = ds["sltppt_sl1"].raster.interpolate_na("linear")
+    psilt = ds["sltppt_sl1"].raster.interpolate_na("nearest")
     percentsilt = psilt.raster.reproject_like(ds_like, method="average")
     ds_out["PercentSilt"] = percentsilt.astype(np.float32)
 
-    poc = ds["oc_sl1"].raster.interpolate_na("linear")
+    poc = ds["oc_sl1"].raster.interpolate_na("nearest")
     percentoc = poc.raster.reproject_like(ds_like, method="average")
     ds_out["PercentOC"] = percentoc.astype(np.float32)
 
