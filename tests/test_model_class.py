@@ -39,8 +39,8 @@ def _compare_wflow_models(mod0, mod1):
                 xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                 ncells = int(np.sum(notclose))
                 diff = (map0 - map1).values[notclose].mean()
-                xys = ", ".join([f"({x:.6f}, {y:.6f})" for x, y in zip(*xy)])
-                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{xys}])"
+                yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
+                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{yxs}])"
     # invalid_map_str = ", ".join(invalid_maps)
     assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
