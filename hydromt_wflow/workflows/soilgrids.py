@@ -17,14 +17,66 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["soilgrids", "soilgrids_sediment"]
 
+soildepth_cm_midpoint = np.array([2.5, 10.0, 22.5, 45.0, 80.0, 150.0])
+soildepth_cm_midpoint_surface = np.array([0, 10.0, 22.5, 45.0, 80.0, 150.0])
 soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
 soildepth_mm = 10.0 * soildepth_cm
+soildepth_mm_midpoint = 10.0 * soildepth_cm_midpoint
+soildepth_mm_midpoint_surface = 10.0 * soildepth_cm_midpoint_surface
 M_minmax = 10000.0
 nodata = -9999.0
 
 # default z [cm] of soil layers wflow_sbm: 10, 40, 120, > 120
 # mapping of wflow_sbm parameter c to soil layer SoilGrids
-c_sl_index = [2, 4, 6, 7]
+# c_sl_index = [2, 4, 6, 7]
+c_sl_index = [2, 3, 4, 6]  # matching 100, 225, 450, 1500 # TODO: check
+
+
+def average_soillayers_block(ds, soilthickness):
+    """
+    Determine the weighted average of soil property at different depths over soil thickness,
+    assuming that the properties are computed at the mid-point of the interval and are considered
+    constant over the whole depth interval (Sousa et al., 2020). https://doi.org/10.5194/soil-2020-65
+
+    Parameters
+    ----------
+    ds: xarray.Dataset
+        Dataset containing soil property over each soil depth profile [sl1 - sl6].
+    soilthickness : xarray.DataArray
+        Dataset containing soil thickness [cm].
+
+    Returns
+    -------
+    da_av : xarray.DataArray
+        Dataset containing weighted average of soil property.
+
+    """
+    da_sum = soilthickness * 0.0
+    # set NaN values to 0.0 (to avoid RuntimeWarning in comparison soildepth)
+    d = soilthickness.fillna(0.0)
+
+    for i in ds.sl:
+
+        da_sum = da_sum + (
+            (soildepth_cm[i] - soildepth_cm[i - 1])
+            * ds.sel(sl=i)
+            * (d >= soildepth_cm[i])
+            + (d - soildepth_cm[i - 1])
+            * ds.sel(sl=i)
+            * ((d < soildepth_cm[i]) & (d > soildepth_cm[i - 1]))
+        )
+
+    da_av = xr.apply_ufunc(
+        lambda x, y: x / y,
+        da_sum,
+        soilthickness,
+        dask="parallelized",
+        output_dtypes=[float],
+    )
+
+    da_av = da_av.raster.interpolate_na()
+
+    return da_av
 
 
 def average_soillayers(ds, soilthickness):
@@ -78,73 +130,6 @@ def average_soillayers(ds, soilthickness):
     return da_av
 
 
-def thetas_layers(ds):
-
-    """
-    Determine saturated water content (thetaS) per soil layer based on PTF.
-
-    Parameters
-    ----------
-    ds: xarray.Dataset
-        Dataset containing soil properties at each soil depth [sl1 - sl7].
-
-    Returns
-    -------
-    ds : xarray.Dataset
-        Dataset containing thetaS [m3/m3] for each soil layer.
-
-    """
-
-    da_lst = []
-    for l in range(1, 8):
-        da = xr.apply_ufunc(
-            ptf.thetas_toth,
-            ds["ph_sl" + str(l)],
-            ds["bd_sl" + str(l)],
-            ds["clyppt_sl" + str(l)],
-            ds["sltppt_sl" + str(l)],
-            dask="parallelized",
-            output_dtypes=[float],
-        )
-        da.name = "sl" + str(l)
-        da_lst.append(da)
-    ds = xr.merge(da_lst)
-    return ds
-
-
-def thetar_layers(ds):
-
-    """
-    Determine residual water content (thetaR) per soil layer depth based on PTF.
-
-    Parameters
-    ----------
-    ds: xarray.Dataset
-        Dataset containing soil properties at each soil depth [sl1 - sl7].
-
-    Returns
-    -------
-    ds : xarray.Dataset
-        Dataset containing thetaR [m3/m3] for each soil layer depth.
-
-    """
-
-    da_lst = []
-    for l in range(1, 8):
-        da = xr.apply_ufunc(
-            ptf.thetar_toth,
-            ds["oc_sl" + str(l)],
-            ds["clyppt_sl" + str(l)],
-            ds["sltppt_sl" + str(l)],
-            dask="parallelized",
-            output_dtypes=[float],
-        )
-        da.name = "sl" + str(l)
-        da_lst.append(da)
-    ds = xr.merge(da_lst)
-    return ds
-
-
 def pore_size_distrution_index_layers(ds, thetas):
 
     """
@@ -165,21 +150,17 @@ def pore_size_distrution_index_layers(ds, thetas):
 
     """
 
-    da_lst = []
-    for l in range(1, 8):
-        da = xr.apply_ufunc(
-            ptf.pore_size_index_brakensiek,
-            ds["sndppt_sl" + str(l)],
-            thetas["sl" + str(l)],
-            ds["clyppt_sl" + str(l)],
-            dask="parallelized",
-            output_dtypes=[float],
-        )
-        da.name = "sl" + str(l)
-        da = da.raster.interpolate_na()
-        da_lst.append(da)
-    ds = xr.merge(da_lst)
-    return ds
+    da = xr.apply_ufunc(
+        ptf.pore_size_index_brakensiek,
+        ds["sndppt"],
+        thetas,
+        ds["clyppt"],
+        dask="parallelized",
+        output_dtypes=[float],
+    )
+    da.name = "pore_size"
+    da = da.raster.interpolate_na()
+    return da
 
 
 def kv_layers(ds, thetas, ptf_name):
@@ -201,31 +182,27 @@ def kv_layers(ds, thetas, ptf_name):
     ds : xarray.Dataset
         Dataset containing KsatVer [mm/day] for each soil layer depth.
     """
-    da_lst = []
-    for l in range(1, 8):
-        if ptf_name == "brakensiek":
-            da = xr.apply_ufunc(
-                ptf.kv_brakensiek,
-                thetas["sl" + str(l)],
-                ds["clyppt_sl" + str(l)],
-                ds["sndppt_sl" + str(l)],
-                dask="parallelized",
-                output_dtypes=[float],
-            )
-        elif ptf_name == "cosby":
-            da = xr.apply_ufunc(
-                ptf.kv_cosby,
-                ds["clyppt_sl" + str(l)],
-                ds["sndppt_sl" + str(l)],
-                dask="parallelized",
-                output_dtypes=[float],
-            )
+    if ptf_name == "brakensiek":
+        da = xr.apply_ufunc(
+            ptf.kv_brakensiek,
+            thetas,
+            ds["clyppt"],
+            ds["sndppt"],
+            dask="parallelized",
+            output_dtypes=[float],
+        )
+    elif ptf_name == "cosby":
+        da = xr.apply_ufunc(
+            ptf.kv_cosby,
+            ds["clyppt"],
+            ds["sndppt"],
+            dask="parallelized",
+            output_dtypes=[float],
+        )
 
-        da.name = "kv"
-        da = da.raster.interpolate_na()
-        da_lst.append(da)
-    ds = xr.concat(da_lst, pd.Index(soildepth_mm, name="z"))
-    return ds
+    da.name = "kv"
+    da = da.raster.interpolate_na()
+    return da
 
 
 def func(x, b):
@@ -343,15 +320,51 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
     ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
 
+    # add new coordinate sl to merge layers
+    ds = ds.assign_coords(sl=np.arange(1, len(soildepth_cm_midpoint) + 1))
+
+    for var in ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"]:
+        da_prop = []
+        for i in np.arange(1, len(soildepth_cm_midpoint) + 1):
+            da_prop.append(ds[f"{var}_sl{i}"])
+            # remove layer from ds
+            ds = ds.drop(f"{var}_sl{i}")
+        da = xr.concat(
+            da_prop,
+            pd.Index(
+                np.arange(1, len(soildepth_cm_midpoint) + 1, dtype=int), name="sl"
+            ),
+        ).transpose("sl", ...)
+        da.name = var
+        # add concat maps to ds
+        ds[f"{var}"] = da
+
     logger.info("calculate and resample thetaS")
-    thetas_sl = thetas_layers(ds)
-    thetas = average_soillayers(thetas_sl, ds["soilthickness"])
+    thetas_sl = xr.apply_ufunc(
+        ptf.thetas_toth,
+        ds["ph"],
+        ds["bd"],
+        ds["clyppt"],
+        ds["sltppt"],
+        dask="parallelized",
+        output_dtypes=[float],
+    )
+
+    thetas = average_soillayers_block(thetas_sl, ds["soilthickness"])
     thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["thetaS"] = thetas.astype(np.float32)
 
     logger.info("calculate and resample thetaR")
-    thetar_sl = thetar_layers(ds)
-    thetar = average_soillayers(thetar_sl, ds["soilthickness"])
+    thetar_sl = xr.apply_ufunc(
+        ptf.thetar_toth,
+        ds["oc"],
+        ds["clyppt"],
+        ds["sltppt"],
+        dask="parallelized",
+        output_dtypes=[float],
+    )
+
+    thetar = average_soillayers_block(thetar_sl, ds["soilthickness"])
     thetar = thetar.raster.reproject_like(ds_like, method="average")
     ds_out["thetaR"] = thetar.astype(np.float32)
 
@@ -379,47 +392,45 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
 
     da_c = []
     for (i, sl_ind) in enumerate(c_sl_index):
-        #        ds_out["c_" + str(i)] = 3.0 + (2.0 / lambda_sl["sl" + str(sl_ind)])
-        #        da_c.append(ds_out["c_" + str(i)])
-        da_c.append(3.0 + (2.0 / lambda_sl["sl" + str(sl_ind)]))
-    # TO DO check -- should coordinate be linked to layer?
-    #    da = xr.concat(da_c,'layer')
+        da_c.append(3.0 + (2.0 / lambda_sl.sel(sl=sl_ind)))
     da = xr.concat(
         da_c, pd.Index(np.arange(len(c_sl_index), dtype=int), name="layer")
     ).transpose("layer", ...)
     da.name = "c"
     ds_out["c"] = da
 
-    ksatver = kv_sl[0]
-    ds_out["KsatVer"] = ksatver.drop("z").astype(np.float32)
+    ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)
 
-    for i in range(0, len(soildepth_cm)):
-        kv = kv_sl[i].drop("z")
-        ds_out["KsatVer_" + str(soildepth_cm[i]) + "cm"] = kv.astype(np.float32)
+    for i, sl in enumerate(kv_sl["sl"]):
+        kv = kv_sl.sel(sl=sl)
+        ds_out["KsatVer_" + str(soildepth_cm_midpoint[i]) + "cm"] = kv.astype(
+            np.float32
+        )
 
-    kv = kv_sl / kv_sl[0]
+    kv = kv_sl / kv_sl.sel(sl=1)
     logger.info("fit z - log(KsatVer) with numpy linalg regression (y = b*x) -> M_")
-    popt_0 = xr.apply_ufunc(
+    popt_0_ = xr.apply_ufunc(
         do_linalg,
-        soildepth_mm,
+        soildepth_mm_midpoint_surface,
         kv,
-        input_core_dims=[["z"], ["z"]],
         vectorize=True,
+        input_core_dims=[["z"], ["sl"]],
         output_dtypes=[float],
     )
 
-    M_ = (thetas - thetar) / (-popt_0)
+    M_ = (thetas - thetar) / (-popt_0_)
     ds_out["M_original_"] = M_.astype(np.float32)
-    M_ = constrain_M(M_, popt_0, M_minmax)
+    M_ = constrain_M(M_, popt_0_, M_minmax)
     ds_out["M_"] = M_.astype(np.float32)
+    ds_out["f_"] = -popt_0_.astype(np.float32)
 
     logger.info("fit zi - Ksat with curve_fit (scipy.optimize) -> M")
     popt_0 = xr.apply_ufunc(
         do_curve_fit,
-        kv.z,
+        soildepth_mm_midpoint_surface,
         kv,
-        input_core_dims=[["z"], ["z"]],
         vectorize=True,
+        input_core_dims=[["z"], ["sl"]],
         output_dtypes=[float],
     )
 
