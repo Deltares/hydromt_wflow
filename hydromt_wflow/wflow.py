@@ -1103,8 +1103,9 @@ class WflowModel(Model):
 
             * Required variable: ['precip']
         chunksize: int, optional
-            Chunksize on time dimension. If None the data chunksize is used, this can
-            however be optimized for large/small catchments. By default None.
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
         """
         if precip_fn is None:
             return
@@ -1190,8 +1191,9 @@ class WflowModel(Model):
         skip_pet : bool, optional
             If True caculate temp only.
         chunksize: int, optional
-            Chunksize on time dimension. If None the data chunksize is used, this can
-            however be optimized for large/small catchments. By default None.
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
         """
         if temp_pet_fn is None:
             return
@@ -1441,15 +1443,24 @@ class WflowModel(Model):
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
 
-    def write_forcing(self, **kwargs):
-        """write forcing at root/<path_forcing>.nc in model ready format.
+    def write_forcing(self, fn_out=None, chunksize=1, decimals=2, **kwargs):
+        """write forcing at `fn_out` in model ready format.
 
-        If path_forcing from the  wflow toml exists use the following default filenames:
+        If no `fn_out` path is provided and path_forcing from the  wflow toml exists,
+        the following default filenames are used:
 
-        Default name format (with downscaling):
-            inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
-        Default name format (no downscaling):
-            inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+            * Default name format (with downscaling): inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+            * Default name format (no downscaling): inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+
+        Parameters
+        ----------
+        fn_out: str, Path, optional
+            Path to save output netcdf file; if None the name is read from the wflow
+            toml file.
+        chunksize: int, optional
+            Chunksize on time dimension when saving to disk. By default 1.
+        decimals, int, optional
+            Round the ouput data to the given number of decimals.
 
         """
         if not self._write:
@@ -1463,54 +1474,61 @@ class WflowModel(Model):
             freq = self.get_config("timestepsecs")
 
             # get output filename
-            fn_out = self.get_config("input.path_forcing", abs_path=True)
-            if fn_out is None or isfile(fn_out):
-                self.logger.warning(
-                    "Netcdf forcing file from input.path_forcing in the TOML already "
-                    "exists, using default name."
-                )
-                sourceP = ""
-                sourceT = ""
-                methodPET = ""
-                if "precip" in self.forcing:
-                    val = self.forcing["precip"].attrs.get("precip_clim_fn", None)
-                    Pdown = "d" if val is not None else ""
-                    val = self.forcing["precip"].attrs.get("precip_fn", None)
-                    if val is not None:
-                        sourceP = f"_{val}{Pdown}"
-                if "temp" in self.forcing:
-                    val = self.forcing["temp"].attrs.get("temp_correction", "False")
-                    Tdown = "d" if val == "True" else ""
-                    val = self.forcing["temp"].attrs.get("temp_fn", None)
-                    if val is not None:
-                        sourceT = f"_{val}{Tdown}"
-                if "pet" in self.forcing:
-                    val = self.forcing["pet"].attrs.get("pet_method", None)
-                    if val is not None:
-                        methodPET = f"_{val}"
-                fn_default = (
-                    f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
-                )
-                fn_default_path = join(self.root, fn_default)
-                if isfile(fn_default_path):
+            if fn_out is not None:
+                self.set_config("input.path_forcing", fn_out)
+                self.write_config()  # re-write config
+            else:
+                fn_out = self.get_config("input.path_forcing", abs_path=True)
+                # get deafult filename if file exists
+                if fn_out is None or isfile(fn_out):
                     self.logger.warning(
-                        "Netcdf default forcing file already exists, skipping write_forcing. "
-                        "To overwrite netcdf forcing file: change name input.path_forcing "
-                        "in setup_config section of the build inifile."
+                        "Netcdf forcing file from input.path_forcing in the TOML  "
+                        "already exists, using default name."
                     )
-                    return
-                else:
-                    self.set_config("input.path_forcing", fn_default)
-                    self.write_config()  # re-write config
-                    fn_out = fn_default_path
+                    sourceP = ""
+                    sourceT = ""
+                    methodPET = ""
+                    if "precip" in self.forcing:
+                        val = self.forcing["precip"].attrs.get("precip_clim_fn", None)
+                        Pdown = "d" if val is not None else ""
+                        val = self.forcing["precip"].attrs.get("precip_fn", None)
+                        if val is not None:
+                            sourceP = f"_{val}{Pdown}"
+                    if "temp" in self.forcing:
+                        val = self.forcing["temp"].attrs.get("temp_correction", "False")
+                        Tdown = "d" if val == "True" else ""
+                        val = self.forcing["temp"].attrs.get("temp_fn", None)
+                        if val is not None:
+                            sourceT = f"_{val}{Tdown}"
+                    if "pet" in self.forcing:
+                        val = self.forcing["pet"].attrs.get("pet_method", None)
+                        if val is not None:
+                            methodPET = f"_{val}"
+                    fn_default = (
+                        f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
+                    )
+                    fn_default_path = join(self.root, fn_default)
+                    if isfile(fn_default_path):
+                        self.logger.warning(
+                            "Netcdf default forcing file already exists, skipping write_forcing. "
+                            "To overwrite netcdf forcing file: change name input.path_forcing "
+                            "in setup_config section of the build inifile."
+                        )
+                        return
+                    else:
+                        self.set_config("input.path_forcing", fn_default)
+                        self.write_config()  # re-write config
+                        fn_out = fn_default_path
 
             # merge, process and write forcing
             ds = xr.merge(self.forcing.values())
+            if decimals is not None:
+                ds = ds.round(decimals)
             # write with output chunksizes with single timestep and complete
             # spatial grid to speed up the reading from wflow.jl
             # dims are always ordered (time, y, x)
             ds.raster._check_dimensions()
-            chunksizes = (1, ds.raster.ycoords.size, ds.raster.xcoords.size)
+            chunksizes = (chunksize, ds.raster.ycoords.size, ds.raster.xcoords.size)
             encoding = {
                 v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
                 for v in ds.data_vars.keys()
