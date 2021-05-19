@@ -9,9 +9,18 @@ authors = [
     {name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl"},
 ]
 dependencies = [
-    "hydromt>=0.4.0",
+    "hydromt >=0.4.0",
+    "dask >=2021.1,<2021.5",
+    "geopandas >=0.8",
+    "netcdf4",
+    "numpy",
+    "pandas",
+    "pyflwdir >=0.4.7",
+    "pygeos",
+    "rasterio",
+    "scipy",
     "toml",
-    "hydroengine"
+    "xarray",
 ]
 requires-python = ">=3.8" # fix tests to support older versions
 readme = "README.rst"
@@ -21,7 +30,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Hydrology",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Programming Language :: Python :: 3",
 ]
 dynamic = ['version', 'description']
@@ -50,3 +59,7 @@ wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 [tool.black]
 line-length = 88
 target-version = ['py38']
+
+[tool.flit.sdist]
+include = ["hydromt_wflow"]
+exclude = ["docs", "examples", "envs", "tests", "binder", ".github"]
