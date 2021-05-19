@@ -5,16 +5,12 @@
 Derives river/stream widths to construct a riverwidth map (wflow_riverwidth.map) to be used in a wflow model.
 """
 
-import os
 from os.path import join
-import json
 import numpy as np
 from scipy.optimize import curve_fit
 import xarray as xr
 import pandas as pd
 import logging
-import pyflwdir
-from pyflwdir import FlwdirRaster
 
 from hydromt import gis_utils, stats, flw
 from hydromt_wflow import DATADIR  # global var
