@@ -30,6 +30,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -123,7 +124,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">What’s new</a></li>
 </ul>
 
             
@@ -220,8 +221,8 @@
 <div class="section" id="hydromt-wflow-workflows-soilgrids-soilgrids-sediment">
 <h1>hydromt_wflow.workflows.soilgrids.soilgrids_sediment<a class="headerlink" href="#hydromt-wflow-workflows-soilgrids-soilgrids-sediment" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
-<dt id="hydromt_wflow.workflows.soilgrids.soilgrids_sediment">
-<code class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.soilgrids.</span></code><code class="sig-name descname"><span class="pre">soilgrids_sediment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ds</span></em>, <em class="sig-param"><span class="pre">ds_like</span></em>, <em class="sig-param"><span class="pre">usleK_method</span></em>, <em class="sig-param"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids_sediment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids.soilgrids_sediment" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydromt_wflow.workflows.soilgrids.soilgrids_sediment">
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.soilgrids.</span></span><span class="sig-name descname"><span class="pre">soilgrids_sediment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ds</span></em>, <em class="sig-param"><span class="pre">ds_like</span></em>, <em class="sig-param"><span class="pre">usleK_method</span></em>, <em class="sig-param"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids_sediment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids.soilgrids_sediment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns soil parameter maps for sediment modelling at model resolution based on soil propertiesfrom SoilGrids dataset.</p>
 <p>The following soil parameter maps are calculated:        - PercentClay: clay content of the topsoil [%]        - PercentSilt: silt content of the topsoil [%]        - PercentOC: organic carbon in the topsoil [%]        - ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]        - USLE_K: soil erodibility factor from the USLE equation [-]
 :param ds: Dataset containing soil properties.

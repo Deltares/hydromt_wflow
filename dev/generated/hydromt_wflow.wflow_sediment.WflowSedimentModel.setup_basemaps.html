@@ -30,6 +30,7 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
@@ -129,7 +130,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../api/api_index.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">What’s new</a></li>
 </ul>
 
             
@@ -228,8 +229,8 @@
 <div class="section" id="hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-basemaps">
 <h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-basemaps" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
-<dt id="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps">
-<code class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></code><code class="sig-name descname"><span class="pre">setup_basemaps</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.008333333333333333</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basin_index_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upscale_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ihu'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps">
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_basemaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.008333333333333333</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basin_index_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upscale_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ihu'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_basemaps" title="Permalink to this definition">¶</a></dt>
 <dd><p>This component sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code> (resolution in degrees) of the
 model. All DEM and flow direction related maps are then build.</p>
 <p>If the model resolution is larger than the source data resolution,
