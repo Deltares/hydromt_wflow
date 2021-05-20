@@ -10,7 +10,7 @@ This plugin provides an implementation for the
 `Wflow <https://github.com/Deltares/Wflow.jl>`_ hydrological modelling framework. It details the different steps and explains how to 
 use HydroMT to easily get started and work on your own Wflow model.
 
-For detailed information on HydroMT itself, you can visit the `core documentation <https://hydromt.readthedocs.io/en/latest/>`_.
+For detailed information on HydroMT itself, you can visit the `core documentation <https://deltares.github.io/hydromt/latest/index.html>`_.
 
 Documentation
 =============
