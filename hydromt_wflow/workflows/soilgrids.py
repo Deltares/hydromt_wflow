@@ -71,6 +71,7 @@ def average_soillayers(ds, soilthickness):
         soilthickness,
         dask="parallelized",
         output_dtypes=[float],
+        keep_attrs=True,
     )
 
     da_av.raster.set_nodata(np.nan)
@@ -106,6 +107,7 @@ def thetas_layers(ds):
             ds["sltppt_sl" + str(l)],
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
         da.name = "sl" + str(l)
         da_lst.append(da)
@@ -139,6 +141,7 @@ def thetar_layers(ds):
             ds["sltppt_sl" + str(l)],
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
         da.name = "sl" + str(l)
         da_lst.append(da)
@@ -175,6 +178,7 @@ def pore_size_distrution_index_layers(ds, thetas):
             ds["clyppt_sl" + str(l)],
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
         da.name = "sl" + str(l)
         da.raster.set_nodata(np.nan)
@@ -213,6 +217,7 @@ def kv_layers(ds, thetas, ptf_name):
                 ds["sndppt_sl" + str(l)],
                 dask="parallelized",
                 output_dtypes=[float],
+                keep_attrs=True,
             )
         elif ptf_name == "cosby":
             da = xr.apply_ufunc(
@@ -221,6 +226,7 @@ def kv_layers(ds, thetas, ptf_name):
                 ds["sndppt_sl" + str(l)],
                 dask="parallelized",
                 output_dtypes=[float],
+                keep_attrs=True,
             )
 
         da.name = "kv"
@@ -410,6 +416,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
         input_core_dims=[["z"], ["z"]],
         vectorize=True,
         output_dtypes=[float],
+        keep_attrs=True,
     )
 
     M_ = (thetas - thetar) / (-popt_0)
@@ -425,6 +432,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
         input_core_dims=[["z"], ["z"]],
         vectorize=True,
         output_dtypes=[float],
+        keep_attrs=True,
     )
 
     M = (thetas - thetar) / (popt_0)
@@ -501,6 +509,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         psilt,
         dask="parallelized",
         output_dtypes=[float],
+        keep_attrs=True,
     )
     erosK = erosK.raster.reproject_like(ds_like, method="average")
     ds_out["ErosK"] = erosK.astype(np.float32)
@@ -513,6 +522,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             psilt,
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
     elif usleK_method == "epic":
         usleK = xr.apply_ufunc(
@@ -521,6 +531,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             psilt,
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
     usleK = usleK.raster.reproject_like(ds_like, method="average")
     ds_out["USLE_K"] = usleK.astype(np.float32)
