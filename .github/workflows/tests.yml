@@ -16,14 +16,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-latest"] #, "macos-latest", "ubuntu-latest"]
-        python-version: ["3.8", "3.9"] # fix tests to support older versions
+        os: ["windows-latest"] #, "ubuntu-latest", "macos-latest"]
+        python-version: ["3.9"] # fix tests to support older versions
     
     steps:
       - uses: actions/checkout@v2
       - uses: conda-incubator/setup-miniconda@v2
         with:
-          environment-file: envs/hydromt-wflow.yml
+          environment-file: envs/test_env.yml
           python-version: ${{ matrix.python-version }}
           activate-environment: hydromt-wflow
 
@@ -32,8 +32,8 @@ jobs:
          conda info
          conda list
 
-      - name: Intall hydromt_wflow
-        run: flit install
+      - name: Install hydromt_wflow
+        run: flit install --deps all
 
       - name: Test
         run: python -m pytest --verbose --cov=hydromt_wflow --cov-report xml

@@ -71,9 +71,11 @@ def average_soillayers(ds, soilthickness):
         soilthickness,
         dask="parallelized",
         output_dtypes=[float],
+        keep_attrs=True,
     )
 
-    da_av = da_av.raster.interpolate_na()
+    da_av.raster.set_nodata(np.nan)
+    da_av = da_av.raster.interpolate_na("nearest")
 
     return da_av
 
@@ -105,6 +107,7 @@ def thetas_layers(ds):
             ds["sltppt_sl" + str(l)],
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
         da.name = "sl" + str(l)
         da_lst.append(da)
@@ -138,6 +141,7 @@ def thetar_layers(ds):
             ds["sltppt_sl" + str(l)],
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
         da.name = "sl" + str(l)
         da_lst.append(da)
@@ -174,9 +178,11 @@ def pore_size_distrution_index_layers(ds, thetas):
             ds["clyppt_sl" + str(l)],
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
         da.name = "sl" + str(l)
-        da = da.raster.interpolate_na()
+        da.raster.set_nodata(np.nan)
+        da = da.raster.interpolate_na("nearest")
         da_lst.append(da)
     ds = xr.merge(da_lst)
     return ds
@@ -211,6 +217,7 @@ def kv_layers(ds, thetas, ptf_name):
                 ds["sndppt_sl" + str(l)],
                 dask="parallelized",
                 output_dtypes=[float],
+                keep_attrs=True,
             )
         elif ptf_name == "cosby":
             da = xr.apply_ufunc(
@@ -219,10 +226,12 @@ def kv_layers(ds, thetas, ptf_name):
                 ds["sndppt_sl" + str(l)],
                 dask="parallelized",
                 output_dtypes=[float],
+                keep_attrs=True,
             )
 
         da.name = "kv"
-        da = da.raster.interpolate_na()
+        da.raster.set_nodata(np.nan)
+        da = da.raster.interpolate_na("nearest")
         da_lst.append(da)
     ds = xr.concat(da_lst, pd.Index(soildepth_mm, name="z"))
     return ds
@@ -340,8 +349,10 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
 
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
-    # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
-    ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
+    # set nodata values in dataset to NaN based on internal nodata values
+    ds = ds.raster.mask_nodata()
+    # NAN was based on soil property SLTPPT at first soil layer
+    # ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
 
     logger.info("calculate and resample thetaS")
     thetas_sl = thetas_layers(ds)
@@ -355,14 +366,13 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     thetar = thetar.raster.reproject_like(ds_like, method="average")
     ds_out["thetaR"] = thetar.astype(np.float32)
 
-    soilthickness_hr = ds["soilthickness"].raster.interpolate_na()
+    soilthickness_hr = ds["soilthickness"].raster.interpolate_na("nearest")
     soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
     # wflow_sbm cannot handle (yet) zero soil thickness
-    soilthickness = xr.where(soilthickness == 0.0, np.nan, soilthickness)
-    soilthickness = soilthickness.raster.interpolate_na()
-    ds_out["SoilThickness"] = (
-        soilthickness.astype(np.float32) * 10.0
-    )  # from [cm] to [mm]
+    soilthickness = soilthickness.where(soilthickness > 0.0, np.nan)
+    soilthickness.raster.set_nodata(np.nan)
+    soilthickness = soilthickness.raster.interpolate_na("nearest").astype(np.float32)
+    ds_out["SoilThickness"] = soilthickness * 10.0  # from [cm] to [mm]
     ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)
 
     logger.info("calculate and resample KsatVer")
@@ -406,6 +416,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
         input_core_dims=[["z"], ["z"]],
         vectorize=True,
         output_dtypes=[float],
+        keep_attrs=True,
     )
 
     M_ = (thetas - thetar) / (-popt_0)
@@ -421,6 +432,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
         input_core_dims=[["z"], ["z"]],
         vectorize=True,
         output_dtypes=[float],
+        keep_attrs=True,
     )
 
     M = (thetas - thetar) / (popt_0)
@@ -446,8 +458,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
 def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     """
-    Returns soil parameter maps for sediment modelling at model resolution based on soil properties\ 
-    from SoilGrids dataset.
+    Returns soil parameter maps for sediment modelling at model resolution based on soil 
+    properties from SoilGrids dataset.
 
     The following soil parameter maps are calculated:\
         - PercentClay: clay content of the topsoil [%]\
@@ -474,18 +486,19 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
     # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
-    ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
+    # ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
+    ds = ds.raster.mask_nodata()
 
     # soil properties
-    pclay = ds["clyppt_sl1"].raster.interpolate_na()
+    pclay = ds["clyppt_sl1"].raster.interpolate_na("nearest")
     percentclay = pclay.raster.reproject_like(ds_like, method="average")
     ds_out["PercentClay"] = percentclay.astype(np.float32)
 
-    psilt = ds["sltppt_sl1"].raster.interpolate_na()
+    psilt = ds["sltppt_sl1"].raster.interpolate_na("nearest")
     percentsilt = psilt.raster.reproject_like(ds_like, method="average")
     ds_out["PercentSilt"] = percentsilt.astype(np.float32)
 
-    poc = ds["oc_sl1"].raster.interpolate_na()
+    poc = ds["oc_sl1"].raster.interpolate_na("nearest")
     percentoc = poc.raster.reproject_like(ds_like, method="average")
     ds_out["PercentOC"] = percentoc.astype(np.float32)
 
@@ -496,6 +509,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         psilt,
         dask="parallelized",
         output_dtypes=[float],
+        keep_attrs=True,
     )
     erosK = erosK.raster.reproject_like(ds_like, method="average")
     ds_out["ErosK"] = erosK.astype(np.float32)
@@ -508,6 +522,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             psilt,
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
     elif usleK_method == "epic":
         usleK = xr.apply_ufunc(
@@ -516,6 +531,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             psilt,
             dask="parallelized",
             output_dtypes=[float],
+            keep_attrs=True,
         )
     usleK = usleK.raster.reproject_like(ds_like, method="average")
     ds_out["USLE_K"] = usleK.astype(np.float32)

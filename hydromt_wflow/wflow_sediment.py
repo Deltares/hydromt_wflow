@@ -341,15 +341,13 @@ class WflowSedimentModel(WflowModel):
             fn_map = bedsed_mapping_fn
         strord = self.staticmaps[self._MAPS["strord"]].copy()
         df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python")
-        max_str = df.index[
-            -2
-        ]  # max streamorder value above which values get the same N_River value
-        strord = xr.where(
-            strord > max_str, max_str, strord
-        )  # if streamroder value larger than max_str, assign last value
-        strord = xr.where(
-            strord == strord.raster.nodata, -999, strord
-        )  # handle missing value (last row of csv is mapping of nan values)
+        # max streamorder value above which values get the same N_River value
+        max_str = df.index[-2]
+        # if streamroder value larger than max_str, assign last value
+        strord = strord.where(strord <= max_str, max_str)
+        # handle missing value (last row of csv is mapping of nan values)
+        strord = strord.where(strord != strord.raster.nodata, -999)
+        strord.raster.set_nodata(-999)
 
         ds_riversed = landuse(
             da=strord,

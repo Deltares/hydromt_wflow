@@ -1,15 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
-from os.path import join, isdir, dirname, basename, isfile, abspath
-import glob
 import numpy as np
 import pandas as pd
-import xarray as xr
-import geopandas as gp
-import rasterio
-from rasterio import features
-import warnings
 import logging
 
 
