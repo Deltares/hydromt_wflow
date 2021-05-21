@@ -1,0 +1,743 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Clip a Wflow model &mdash; hydromt_wflow  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Convert wflow staticmaps netcdf to raster files" href="convert_staticmaps_to_gtiff.html" />
+    <link rel="prev" title="Update a wflow model: gauging stations" href="update_model_gauges.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> hydromt_wflow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_model.html">Build Wflow model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_sediment.html">Build Wflow sediment model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_landuse.html">Update Wflow model: landuse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_forcing.html">Update Wflow model: forcing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_gauges.html">Update Wflow model: gauges</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Clip Wflow model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hydroMT-CLI-clip-interface">hydroMT CLI clip interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Clip-a-small-sub-basin">Clip a small sub-basin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Visualize-and/or-inspect-model-schematization">Visualize and/or inspect model schematization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_gtiff.html">Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/wflow/index.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/sediment/index.html">Wflow Sediment</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Advanced topics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced/workflows.html">Workflows</a></li>
+</ul>
+<p class="caption"><span class="caption-text">References &amp; Help</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/api_index.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">What’s new</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">hydromt_wflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Examples</a> &raquo;</li>
+        
+      <li>Clip a Wflow model</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/examples/examples/clip_model.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="Clip-a-Wflow-model">
+<h1>Clip a Wflow model<a class="headerlink" href="#Clip-a-Wflow-model" title="Permalink to this headline">¶</a></h1>
+<p>Let’s imagine you have built and calibrated a <strong>Wflow</strong> model for a whole country or continent. And now you have a new project for a small basin belonging to your big calibrated Wflow model. Instead of re-building the smaller model fomr scratch with HydroMT and re-doing the calibration steps, you can easily use the <strong>clip</strong> method of hydroMT to directly extract your smaller catchment out of your already existing big calibrated model!</p>
+<p>This notebook demonstrates how to clip a <strong>Wflow</strong> model from an already existing one using the command line interace (CLI).</p>
+<p>All lines in this notebook which start with <code class="docutils literal notranslate"><span class="pre">!</span></code> are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste these in your shell to get more direct feedback.</p>
+<div class="section" id="hydroMT-CLI-clip-interface">
+<h2>hydroMT CLI clip interface<a class="headerlink" href="#hydroMT-CLI-clip-interface" title="Permalink to this headline">¶</a></h2>
+<p>Using the <strong>hydromt clip</strong> API we can extract a smaller wflow model out of an already existing bigger one. Let’s get an overview of all the available options:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">!</span>hydromt clip --help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Usage: hydromt clip [OPTIONS] MODEL MODEL_ROOT MODEL_DESTINATION REGION
+
+  Create a new model based on clipped region of an existing model. If the
+  existing model contains forcing, they will also be clipped to the new
+  model.
+
+  For options to build wflow models see:
+
+  Example usage to clip a wflow model for a subbasin derived from point coordinates
+  snapped to cells with stream order &gt;= 4
+  hydromt clip wflow /path/to/model_root /path/to/model_destination &#34;{&#39;subbasin&#39;: [-7.24, 62.09], &#39;wflow_streamorder&#39;: 4}&#34;
+
+  Example usage basin based on ID from model_root basins map
+  hydromt clip wflow /path/to/model_root /path/to/model_destination &#34;{&#39;basin&#39;: 1}&#34;
+
+  Example usage basins whose outlets are inside a geometry
+  hydromt clip wflow /path/to/model_root /path/to/model_destination &#34;{&#39;outlet&#39;: &#39;geometry.geojson&#39;}&#34;
+
+  All available option in the clip_staticmaps function help.
+
+Options:
+  -q, --quiet    Decrease verbosity.
+  -v, --verbose  Increase verbosity.
+  --help         Show this message and exit.
+
+</pre></div></div>
+</div>
+</div>
+<div class="section" id="Clip-a-small-sub-basin">
+<h2>Clip a small sub-basin<a class="headerlink" href="#Clip-a-small-sub-basin" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
+<span class="o">!</span>hydromt clip wflow <span class="s2">&quot;wflow_piave_subbasin&quot;</span> <span class="s2">&quot;./wflow_test_clip&quot;</span> <span class="s2">&quot;{&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}&quot;</span> -v
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2021-05-21 08:14:18,704 - clip - log - INFO - HydroMT version: v0.4.2.dev
+2021-05-21 08:14:18,704 - clip - main - INFO - Clipping instance of wflow model.
+2021-05-21 08:14:18,704 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2021-05-21 08:14:18,740 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.1).
+2021-05-21 08:14:18,740 - clip - main - INFO - Reading model to clip
+2021-05-21 08:14:18,743 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2021-05-21 08:14:18,792 - clip - wflow - INFO - Reading model intbl files.
+2021-05-21 08:14:18,792 - clip - wflow - INFO - Reading model staticgeom files.
+2021-05-21 08:14:18,952 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2021-05-21 08:14:18,961 - clip - wflow - INFO - Model read
+2021-05-21 08:14:18,962 - clip - main - INFO - Clipping staticmaps
+2021-05-21 08:14:21,618 - clip - basin_mask - INFO - basin bbox: [12.0083, 46.3417, 12.3250, 46.6750] / size: 161
+2021-05-21 08:14:22,932 - clip - main - INFO - Clipping forcing
+2021-05-21 08:14:22,932 - clip - wflow - INFO - Clipping NetCDF forcing..
+2021-05-21 08:14:22,947 - clip - model_api - WARNING - Replacing forcing: precip
+2021-05-21 08:14:22,948 - clip - model_api - WARNING - Replacing forcing: pet
+2021-05-21 08:14:22,948 - clip - model_api - WARNING - Replacing forcing: temp
+2021-05-21 08:14:22,948 - clip - main - INFO - Writting clipped model
+2021-05-21 08:14:22,948 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip
+2021-05-21 08:14:22,948 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/wflow_sbm.toml
+2021-05-21 08:14:22,949 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/staticmaps.nc
+2021-05-21 08:14:23,242 - clip - wflow - INFO - Writing model staticgeom to file.
+2021-05-21 08:14:23,268 - clip - wflow - INFO - Write forcing file
+2021-05-21 08:14:23,278 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/inmaps.nc
+[########################################] | 100% Completed |  0.1s
+
+</pre></div></div>
+</div>
+<p>The example above means the following: run <strong>hydromt clip</strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow</span></code> : i.e. clip a wflow model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow_piave_subbasin</span></code>: original model to clip</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">./wflow_test_clip</span></code> : output model folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;{'subbasin':</span> <span class="pre">[12.3006,</span> <span class="pre">46.4324],</span> <span class="pre">'wflow_streamorder':</span> <span class="pre">4}&quot;</span></code> : derive a subbasin with its outlet at the given x,y coordinates (WGS84) snapped to a river with minimum stream order (wflow_streamorder) of 4. All <em>REGION</em> options are described in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options">docs</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-vv</span></code> : give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
+</ul>
+<p>NOTE: Compared to build, you may notice here that the streamorder argument is called ‘wflow_streamorder’. As we are clipping a wflow model, the name here should correspond to the name of the stream order map inside of your wflow model.</p>
+<p>Compared to build, the clip command line has less options (no configuration file and no data catalog or resolution). Clip simply re-uses the original model data and extract all the informations from the model for our clipped region location.</p>
+</div>
+<div class="section" id="Visualize-and/or-inspect-model-schematization">
+<h2>Visualize and/or inspect model schematization<a class="headerlink" href="#Visualize-and/or-inspect-model-schematization" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>wflow plot</strong> example notebook contains scripts to visualize your model.</p>
+<p>Here we will just simply plot the region of the different model (original and clipped) to check the differences between them.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Import plot packages</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
+<span class="kn">import</span> <span class="nn">descartes</span> <span class="c1"># required to plot polygons</span>
+<span class="kn">import</span> <span class="nn">cartopy.io.img_tiles</span> <span class="k">as</span> <span class="nn">cimgt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">hydromt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load both models with hydromt</span>
+<span class="n">mod0</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;wflow_piave_subbasin&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">mod1</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s1">&#39;wflow_test_clip&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># read/derive river geometries</span>
+<span class="n">gdf_riv0</span> <span class="o">=</span> <span class="n">mod0</span><span class="o">.</span><span class="n">rivers</span>
+<span class="n">gdf_riv1</span> <span class="o">=</span> <span class="n">mod1</span><span class="o">.</span><span class="n">rivers</span>
+<span class="c1"># read/derive model basin boundary</span>
+<span class="n">gdf_bas0</span> <span class="o">=</span> <span class="n">mod0</span><span class="o">.</span><span class="n">basins</span>
+<span class="n">gdf_bas1</span> <span class="o">=</span> <span class="n">mod1</span><span class="o">.</span><span class="n">basins</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;seaborn-whitegrid&#39;</span><span class="p">)</span> <span class="c1"># set nice style</span>
+<span class="c1"># we assume the model maps are in the geographic CRS EPSG:4326</span>
+<span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+<span class="c1"># adjust zoomlevel and figure size to your basis size &amp; aspect</span>
+<span class="n">zoom_level</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">shaded</span><span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="c1"># initialize image with geoaxes</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+<span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mod0</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mf">0.02</span><span class="p">)</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+
+<span class="c1"># add sat background image</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">cimgt</span><span class="o">.</span><span class="n">QuadtreeTiles</span><span class="p">(),</span> <span class="n">zoom_level</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># plot rivers with increasing width with stream order</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">strord</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gdf_riv0</span><span class="p">[</span><span class="s1">&#39;strord&#39;</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="n">strord</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gdf_riv0</span><span class="p">[</span><span class="s1">&#39;strord&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;river&#39;</span><span class="p">)</span>
+    <span class="n">gdf_riv0</span><span class="p">[</span><span class="n">gdf_riv0</span><span class="p">[</span><span class="s1">&#39;strord&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">strord</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">strord</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">strord</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gdf_riv1</span><span class="p">[</span><span class="s1">&#39;strord&#39;</span><span class="p">]):</span>
+    <span class="k">if</span> <span class="n">strord</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">gdf_riv1</span><span class="p">[</span><span class="s1">&#39;strord&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;river clip&#39;</span><span class="p">)</span>
+    <span class="n">gdf_riv1</span><span class="p">[</span><span class="n">gdf_riv1</span><span class="p">[</span><span class="s1">&#39;strord&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">strord</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">strord</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;purple&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="c1"># plot the basin boundary</span>
+<span class="n">gdf_bas0</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;basin original&#39;</span><span class="p">)</span>
+<span class="n">gdf_bas1</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;basin clip&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;latitude [degree north]&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;longitude [degree east]&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;wflow base map&quot;</span><span class="p">)</span>
+<span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Legend&quot;</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+    <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;white&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_examples_clip_model_16_0.png" src="../../_images/examples_examples_clip_model_16_0.png" />
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="convert_staticmaps_to_gtiff.html" class="btn btn-neutral float-right" title="Convert wflow staticmaps netcdf to raster files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="update_model_gauges.html" class="btn btn-neutral float-left" title="Update a wflow model: gauging stations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright Deltares.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
