@@ -337,7 +337,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.wflow.WflowModel.setup_lulcmaps" title="hydromt_wflow.wflow.WflowModel.setup_lulcmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code></a>([lulc_fn, lulc_mapping_fn, …])</p></td>
 <td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.wflow.WflowModel.setup_precip_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code></a>([precip_fn, precip_clim_fn])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.wflow.WflowModel.setup_precip_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code></a>([precip_fn, …])</p></td>
 <td><p>Setup gridded precipitation forcing at model resolution.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.wflow.WflowModel.setup_reservoirs" title="hydromt_wflow.wflow.WflowModel.setup_reservoirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_reservoirs</span></code></a>([reservoirs_fn, min_area, …])</p></td>
@@ -367,8 +367,8 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_config</span></code>([config_name, config_root])</p></td>
 <td><p>Write config to &lt;root/config_fn&gt;</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_forcing</span></code>()</p></td>
-<td><p>write forcing at &lt;root/?/&gt; in model ready format</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_forcing</span></code>([fn_out, chunksize, decimals])</p></td>
+<td><p>write forcing at <cite>fn_out</cite> in model ready format.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_intbl</span></code>()</p></td>
 <td><p>Write intbl at &lt;root/intbl&gt; in PCRaster table format.</p></td>

@@ -518,15 +518,13 @@
             <span class="n">fn_map</span> <span class="o">=</span> <span class="n">bedsed_mapping_fn</span>
         <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
-        <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
-            <span class="o">-</span><span class="mi">2</span>
-        <span class="p">]</span>  <span class="c1"># max streamorder value above which values get the same N_River value</span>
-        <span class="n">strord</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">strord</span> <span class="o">&gt;</span> <span class="n">max_str</span><span class="p">,</span> <span class="n">max_str</span><span class="p">,</span> <span class="n">strord</span>
-        <span class="p">)</span>  <span class="c1"># if streamroder value larger than max_str, assign last value</span>
-        <span class="n">strord</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">strord</span> <span class="o">==</span> <span class="n">strord</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="o">-</span><span class="mi">999</span><span class="p">,</span> <span class="n">strord</span>
-        <span class="p">)</span>  <span class="c1"># handle missing value (last row of csv is mapping of nan values)</span>
+        <span class="c1"># max streamorder value above which values get the same N_River value</span>
+        <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># if streamroder value larger than max_str, assign last value</span>
+        <span class="n">strord</span> <span class="o">=</span> <span class="n">strord</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">strord</span> <span class="o">&lt;=</span> <span class="n">max_str</span><span class="p">,</span> <span class="n">max_str</span><span class="p">)</span>
+        <span class="c1"># handle missing value (last row of csv is mapping of nan values)</span>
+        <span class="n">strord</span> <span class="o">=</span> <span class="n">strord</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">strord</span> <span class="o">!=</span> <span class="n">strord</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
+        <span class="n">strord</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">999</span><span class="p">)</span>
 
         <span class="n">ds_riversed</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">strord</span><span class="p">,</span>

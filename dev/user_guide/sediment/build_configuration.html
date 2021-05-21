@@ -221,7 +221,7 @@
 <span id="model-config-sed"></span><h1>Model configuration<a class="headerlink" href="#model-configuration" title="Permalink to this headline">¶</a></h1>
 <p>This HydroMT plugin provides an implementation for the wflow_sediment model in order to build, update or clip from
 command line. Specific details on the HydroMT CLI methods can be found in
-<a class="reference external" href="https://hydromt.readthedocs.io/en/latest/user_guide/cli.html">https://hydromt.readthedocs.io/en/latest/user_guide/cli.html</a></p>
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html">https://deltares.github.io/hydromt/latest/user_guide/cli.html</a></p>
 <div class="section" id="configuration-file">
 <h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
 <p>Settings to build or update a wflow model are managed in a configuration file. In this file,
@@ -308,7 +308,7 @@ which contains an extract of global data for a small region around the Piave riv
 P-drive). In the command lines examples below, this is done by adding either <strong>-dd</strong> or <strong>–deltares-data</strong>
 to the build / update command line.</p></li>
 <li><p>Finally, the user can prepare its own yaml libary (or libraries) (see
-<a class="reference external" href="https://hydromt.readthedocs.io/en/latest/user_guide/data.html">HydroMT documentation</a> to check the guidelines).
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data.html">HydroMT documentation</a> to check the guidelines).
 These user libraries can be added either in the command line using the <strong>-d</strong> option and path/to/yaml or in the <strong>ini file</strong>
 with the <strong>data_libs</strong> option in the [global] sections.</p></li>
 </ul>
@@ -321,7 +321,7 @@ data libraries are set, you can build a model by using:</p>
 <span class="go">hydromt build wflow_sediment path/to/built_model &quot;{&#39;basin&#39;: [x, y]}&quot; -i wflow_sediment_build.ini -d data_sources.yml -vvv</span>
 </pre></div>
 </div>
-<p>The recommended <a class="reference external" href="https://hydromt.readthedocs.io/en/latest/user_guide/cli.html#region-options">region options</a>
+<p>The recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options">region options</a>
 for a proper implementation of the wflow_sediment model are:</p>
 <ul class="simple">
 <li><p>basin</p></li>
@@ -349,7 +349,7 @@ if needed edit your data library with new data sources required for the update a
 <span class="go">hydromt clip wflow_sediment path/to/model_to_clip path/to/clipped_model &quot;{&#39;basin&#39; [1001]}&quot; -vvv</span>
 </pre></div>
 </div>
-<p>As for building, the recommended <a class="reference external" href="https://hydromt.readthedocs.io/en/latest/user_guide/cli.html#region-options">region options</a>
+<p>As for building, the recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options">region options</a>
 for a proper implementation of the clipped model are:</p>
 <ul class="simple">
 <li><p>basin</p></li>

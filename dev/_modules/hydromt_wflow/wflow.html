@@ -180,6 +180,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">isfile</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -190,7 +191,8 @@
 <span class="kn">import</span> <span class="nn">toml</span>
 <span class="kn">import</span> <span class="nn">codecs</span>
 <span class="kn">from</span> <span class="nn">pyflwdir</span> <span class="kn">import</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span><span class="p">,</span> <span class="n">core_conversion</span>
-
+<span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span> <span class="nn">dask.distributed</span> <span class="kn">import</span> <span class="n">LocalCluster</span><span class="p">,</span> <span class="n">Client</span><span class="p">,</span> <span class="n">performance_report</span>
 <span class="kn">from</span> <span class="nn">hydromt.models.model_api</span> <span class="kn">import</span> <span class="n">Model</span>
 
 <span class="c1"># from hydromt.workflows.basin_mask import parse_region</span>
@@ -477,15 +479,13 @@
             <span class="n">fn_map</span> <span class="o">=</span> <span class="n">n_river_mapping</span>
         <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
-        <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span>
-            <span class="o">-</span><span class="mi">2</span>
-        <span class="p">]</span>  <span class="c1"># max streamorder value above which values get the same N_River value</span>
-        <span class="n">strord</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">strord</span> <span class="o">&gt;</span> <span class="n">max_str</span><span class="p">,</span> <span class="n">max_str</span><span class="p">,</span> <span class="n">strord</span>
-        <span class="p">)</span>  <span class="c1"># if streamroder value larger than max_str, assign last value</span>
-        <span class="n">strord</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">strord</span> <span class="o">==</span> <span class="n">strord</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="o">-</span><span class="mi">999</span><span class="p">,</span> <span class="n">strord</span>
-        <span class="p">)</span>  <span class="c1"># handle missing value (last row of csv is mapping of nan values)</span>
+        <span class="c1"># max streamorder value above which values get the same N_River value</span>
+        <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># if streamroder value larger than max_str, assign last value</span>
+        <span class="n">strord</span> <span class="o">=</span> <span class="n">strord</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">strord</span> <span class="o">&lt;=</span> <span class="n">max_str</span><span class="p">,</span> <span class="n">max_str</span><span class="p">)</span>
+        <span class="c1"># handle missing value (last row of csv is mapping of missing values)</span>
+        <span class="n">strord</span> <span class="o">=</span> <span class="n">strord</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">strord</span> <span class="o">!=</span> <span class="n">strord</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
+        <span class="n">strord</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">999</span><span class="p">)</span>
 
         <span class="n">ds_nriver</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">strord</span><span class="p">,</span>
@@ -1255,7 +1255,13 @@
             <span class="n">da_param</span> <span class="o">=</span> <span class="n">da_param</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_param</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_precip_forcing"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.wflow.WflowModel.setup_precip_forcing">[docs]</a>    <span class="k">def</span> <span class="nf">setup_precip_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precip_fn</span><span class="o">=</span><span class="s2">&quot;era5&quot;</span><span class="p">,</span> <span class="n">precip_clim_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.setup_precip_forcing"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.wflow.WflowModel.setup_precip_forcing">[docs]</a>    <span class="k">def</span> <span class="nf">setup_precip_forcing</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">precip_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5&quot;</span><span class="p">,</span>
+        <span class="n">precip_clim_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Setup gridded precipitation forcing at model resolution.</span>
 
 <span class="sd">        Adds model layer:</span>
@@ -1273,12 +1279,17 @@
 <span class="sd">            see data/forcing_sources.yml.</span>
 
 <span class="sd">            * Required variable: [&#39;precip&#39;]</span>
+<span class="sd">        chunksize: int, optional</span>
+<span class="sd">            Chunksize on time dimension for processing data (not for saving to disk!).</span>
+<span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
+<span class="sd">            large/small catchments. By default None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">precip_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">)</span>
         <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">)</span>
         <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
         <span class="n">precip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">precip_fn</span><span class="p">,</span>
@@ -1287,6 +1298,9 @@
             <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
             <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chunksize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">precip</span> <span class="o">=</span> <span class="n">precip</span><span class="o">.</span><span class="n">chunk</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">chunksize</span><span class="p">})</span>
 
         <span class="n">clim</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">precip_clim_fn</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
@@ -1299,32 +1313,31 @@
 
         <span class="n">precip_out</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">precip</span><span class="p">(</span>
             <span class="n">precip</span><span class="o">=</span><span class="n">precip</span><span class="p">,</span>
-            <span class="n">da_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
+            <span class="n">da_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
             <span class="n">clim</span><span class="o">=</span><span class="n">clim</span><span class="p">,</span>
             <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
             <span class="n">resample_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="c1"># Update meta attributes with setup opt</span>
-        <span class="n">opt_attr</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn</span><span class="p">,</span>
-            <span class="s2">&quot;precip_clim_fn&quot;</span><span class="p">:</span> <span class="n">precip_clim_fn</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span></div>
+        <span class="c1"># Update meta attributes (used for default output filename later)</span>
+        <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn</span><span class="p">})</span>
+        <span class="k">if</span> <span class="n">precip_clim_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_clim_fn&quot;</span><span class="p">:</span> <span class="n">precip_clim_fn</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowModel.setup_temp_pet_forcing"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.wflow.WflowModel.setup_temp_pet_forcing">[docs]</a>    <span class="k">def</span> <span class="nf">setup_temp_pet_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">temp_pet_fn</span><span class="o">=</span><span class="s2">&quot;era5&quot;</span><span class="p">,</span>
-        <span class="n">pet_method</span><span class="o">=</span><span class="s2">&quot;debruin&quot;</span><span class="p">,</span>
-        <span class="n">press_correction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">temp_correction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">dem_forcing_fn</span><span class="o">=</span><span class="s2">&quot;era5_orography&quot;</span><span class="p">,</span>
-        <span class="n">skip_pet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">temp_pet_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5&quot;</span><span class="p">,</span>
+        <span class="n">pet_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;debruin&quot;</span><span class="p">,</span>
+        <span class="n">press_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">temp_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">dem_forcing_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5_orography&quot;</span><span class="p">,</span>
+        <span class="n">skip_pet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Setup gridded reference evapotranspiration forcing at model resolution.</span>
 
 <span class="sd">        Adds model layer:</span>
@@ -1354,6 +1367,10 @@
 <span class="sd">             combination with elevation at model resolution to correct the temperature.</span>
 <span class="sd">        skip_pet : bool, optional</span>
 <span class="sd">            If True caculate temp only.</span>
+<span class="sd">        chunksize: int, optional</span>
+<span class="sd">            Chunksize on time dimension for processing data (not for saving to disk!).</span>
+<span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
+<span class="sd">            large/small catchments. By default None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">temp_pet_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1361,6 +1378,7 @@
         <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">)</span>
         <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">)</span>
         <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">timestep</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
         <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_pet</span><span class="p">:</span>
@@ -1380,6 +1398,9 @@
             <span class="n">variables</span><span class="o">=</span><span class="n">variables</span><span class="p">,</span>
             <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># always return dataset</span>
         <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">chunksize</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">chunk</span><span class="p">({</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">chunksize</span><span class="p">})</span>
 
         <span class="n">dem_forcing</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">dem_forcing_fn</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
@@ -1418,7 +1439,7 @@
                 <span class="s2">&quot;pet_method&quot;</span><span class="p">:</span> <span class="n">pet_method</span><span class="p">,</span>
             <span class="p">}</span>
             <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">pet_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">pet_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
 
         <span class="c1"># resample temp after pet workflow</span>
         <span class="n">temp_out</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">resample_time</span><span class="p">(</span>
@@ -1431,13 +1452,13 @@
             <span class="n">conserve_mass</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="c1"># Update meta attributes with setup opt</span>
+        <span class="c1"># Update meta attributes with setup opt (used for default naming later)</span>
         <span class="n">opt_attr</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;temp_fn&quot;</span><span class="p">:</span> <span class="n">temp_pet_fn</span><span class="p">,</span>
-            <span class="s2">&quot;temp_correction&quot;</span><span class="p">:</span> <span class="n">temp_correction</span><span class="p">,</span>
+            <span class="s2">&quot;temp_correction&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">temp_correction</span><span class="p">),</span>
         <span class="p">}</span>
         <span class="n">temp_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">temp_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span></div>
 
     <span class="c1"># I/O</span>
     <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1599,13 +1620,25 @@
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">])</span>
 
-    <span class="k">def</span> <span class="nf">write_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;write forcing at &lt;root/?/&gt; in model ready format</span>
+    <span class="k">def</span> <span class="nf">write_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;write forcing at `fn_out` in model ready format.</span>
 
-<span class="sd">        Default name format (with downscaling):</span>
-<span class="sd">            inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc</span>
-<span class="sd">        Default name format (no downscaling):</span>
-<span class="sd">            inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc</span>
+<span class="sd">        If no `fn_out` path is provided and path_forcing from the  wflow toml exists,</span>
+<span class="sd">        the following default filenames are used:</span>
+
+<span class="sd">            * Default name format (with downscaling): inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc</span>
+<span class="sd">            * Default name format (no downscaling): inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fn_out: str, Path, optional</span>
+<span class="sd">            Path to save output netcdf file; if None the name is read from the wflow</span>
+<span class="sd">            toml file.</span>
+<span class="sd">        chunksize: int, optional</span>
+<span class="sd">            Chunksize on time dimension when saving to disk. By default 1.</span>
+<span class="sd">        decimals, int, optional</span>
+<span class="sd">            Round the ouput data to the given number of decimals.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -1616,57 +1649,83 @@
             <span class="n">yr0</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">year</span>
             <span class="n">yr1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">year</span>
             <span class="n">freq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">)</span>
-            <span class="n">sourceP</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">sourceT</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">methodPET</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">Pdown</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="n">Tdown</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-            <span class="k">if</span> <span class="s2">&quot;precip&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">:</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;precip_clim_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">Pdown</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">sourceP</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">val</span><span class="si">}{</span><span class="n">Pdown</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">:</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;temp_correction&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">val</span><span class="p">:</span>
-                    <span class="n">Tdown</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;temp_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">sourceT</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">val</span><span class="si">}{</span><span class="n">Tdown</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">if</span> <span class="s2">&quot;pet&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">:</span>
-                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pet_method&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">methodPET</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="n">fn_default</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;inmaps</span><span class="si">{</span><span class="n">sourceP</span><span class="si">}{</span><span class="n">sourceT</span><span class="si">}{</span><span class="n">methodPET</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">yr0</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">yr1</span><span class="si">}</span><span class="s2">.nc&quot;</span>
-            <span class="n">fn_default_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
-            <span class="c1"># Mask and write forcing</span>
-            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-            <span class="n">encoding</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">v</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;zlib&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="s2">&quot;float32&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-            <span class="p">}</span>
-            <span class="n">fn_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-                <span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default_path</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_out</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;Netcdf forcing file from input.path_forcing in the TOML already exists, using default name.&quot;</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_default_path</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;Netcdf default forcing file already exists, skipping write. To overwrite netcdf forcing file: change name input.path_forcing in setup_config section of the build inifile.&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>
-                    <span class="n">ds</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span>
-                        <span class="n">fn_default_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span>
-                    <span class="p">)</span>
+            <span class="c1"># get output filename</span>
+            <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">ds</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
+                <span class="n">fn_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="c1"># get deafult filename if file exists</span>
+                <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_out</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;Netcdf forcing file from input.path_forcing in the TOML  &quot;</span>
+                        <span class="s2">&quot;already exists, using default name.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">sourceP</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">sourceT</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="n">methodPET</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                    <span class="k">if</span> <span class="s2">&quot;precip&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;precip_clim_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="n">Pdown</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span> <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">sourceP</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">val</span><span class="si">}{</span><span class="n">Pdown</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">if</span> <span class="s2">&quot;temp&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temp_correction&quot;</span><span class="p">,</span> <span class="s2">&quot;False&quot;</span><span class="p">)</span>
+                        <span class="n">Tdown</span> <span class="o">=</span> <span class="s2">&quot;d&quot;</span> <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s2">&quot;True&quot;</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temp_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">sourceT</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">val</span><span class="si">}{</span><span class="n">Tdown</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">if</span> <span class="s2">&quot;pet&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">:</span>
+                        <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pet_method&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">methodPET</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">fn_default</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;inmaps</span><span class="si">{</span><span class="n">sourceP</span><span class="si">}{</span><span class="n">sourceT</span><span class="si">}{</span><span class="n">methodPET</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">yr0</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">yr1</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">fn_default_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_default_path</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Netcdf default forcing file already exists, skipping write_forcing. &quot;</span>
+                            <span class="s2">&quot;To overwrite netcdf forcing file: change name input.path_forcing &quot;</span>
+                            <span class="s2">&quot;in setup_config section of the build inifile.&quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">return</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
+                        <span class="n">fn_out</span> <span class="o">=</span> <span class="n">fn_default_path</span>
+
+            <span class="c1"># merge, process and write forcing</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">decimals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="p">)</span>
+            <span class="c1"># write with output chunksizes with single timestep and complete</span>
+            <span class="c1"># spatial grid to speed up the reading from wflow.jl</span>
+            <span class="c1"># dims are always ordered (time, y, x)</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">_check_dimensions</span><span class="p">()</span>
+            <span class="n">chunksizes</span> <span class="o">=</span> <span class="p">(</span><span class="n">chunksize</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xcoords</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">encoding</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">v</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;zlib&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="s2">&quot;chunksizes&quot;</span><span class="p">:</span> <span class="n">chunksizes</span><span class="p">}</span>
+                <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">}</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process forcing; saving to </span><span class="si">{</span><span class="n">fn_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># with compute=False we get a delayed object which is executed when</span>
+            <span class="c1"># calling .compute where we can pass more arguments to the dask.compute method</span>
+            <span class="n">delayed_obj</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span>
+                <span class="n">fn_out</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">compute</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+            <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
+                <span class="n">delayed_obj</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="c1"># TO profile uncomment lines below to replace lines above</span>
+            <span class="c1"># from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler</span>
+            <span class="c1"># import cachey</span>
+            <span class="c1"># with Profiler() as prof, CacheProfiler(metric=cachey.nbytes) as cprof, ResourceProfiler() as rprof:</span>
+            <span class="c1">#     delayed_obj.compute()</span>
+            <span class="c1"># visualize([prof, cprof, rprof], file_path=r&#39;c:\Users\eilan_dk\work\profile2.html&#39;)</span>
 
     <span class="k">def</span> <span class="nf">read_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read states at &lt;root/?/&gt; and parse to dict of xr.DataArray&quot;&quot;&quot;</span>

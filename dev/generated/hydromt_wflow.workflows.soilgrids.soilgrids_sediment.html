@@ -223,7 +223,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.soilgrids.soilgrids_sediment">
 <span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.soilgrids.</span></span><span class="sig-name descname"><span class="pre">soilgrids_sediment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ds</span></em>, <em class="sig-param"><span class="pre">ds_like</span></em>, <em class="sig-param"><span class="pre">usleK_method</span></em>, <em class="sig-param"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids_sediment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids.soilgrids_sediment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns soil parameter maps for sediment modelling at model resolution based on soil propertiesfrom SoilGrids dataset.</p>
+<dd><p>Returns soil parameter maps for sediment modelling at model resolution based on soil
+properties from SoilGrids dataset.</p>
 <p>The following soil parameter maps are calculated:        - PercentClay: clay content of the topsoil [%]        - PercentSilt: silt content of the topsoil [%]        - PercentOC: organic carbon in the topsoil [%]        - ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]        - USLE_K: soil erodibility factor from the USLE equation [-]
 :param ds: Dataset containing soil properties.
 :type ds: xarray.Dataset
