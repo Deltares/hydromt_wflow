@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.1.1.dev
+                0.1.2.dev
               </div>
             
           
@@ -210,23 +210,20 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="user-install">
 <h2>User install<a class="headerlink" href="#user-install" title="Permalink to this headline">¶</a></h2>
-<p>The hydromt_wflow plugin is currently only available from PyPi.
-We are working on a release from conda-forge.</p>
-<p>If you haven’t installed the <a class="reference external" href="https://github.com/Deltares/hydromt">hydroMT core package</a>
-we recommend installing it from conda-forge to get all dependencies and then install the plugin.</p>
-<p>To install hydromt and the toml package using conda-forge do:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda install hydromt toml -c conda-forge</span>
+<p>The hydromt_wflow plugin is available from PyPi and conda-forge, but we recommend installing with conda.</p>
+<p>To install hydromt_wflow using conda do:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda install -c conda-forge hydromt_wflow</span>
+</pre></div>
+</div>
+<p>This will install <strong>almost</strong> all dependencies including the core hydroMT library and the model API as well
+as the model plugins <strong>wflow</strong> and <strong>wflow_sediment</strong>. To complete the installation, add manually the hydroengine dependency
+from pypi (not available from conda):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install hydroengine</span>
 </pre></div>
 </div>
 <p>To install hydromt_wflow using pip do:
 Note: make sure this is installed in the same environment as hydromt.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install hydromt_wflow</span>
-</pre></div>
-</div>
-<p>The hydroMT core and Wflow plugin can be easily installed together in a single hydromt-wflow environment
-using the environment.yml file in the repository root. This environment includes some packages that are
-required to run the example notebooks.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda env create -f environment.yml</span>
 </pre></div>
 </div>
 </div>
@@ -247,7 +244,7 @@ file contained in the repository:</p>
 <span class="gp">$ </span>conda activate hydromt-wflow
 </pre></div>
 </div>
-<p>Finally, build and install hydromt_wflow using pip.</p>
+<p>Finally, for a fixed installation, build and install hydromt_wflow using pip.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install .
 </pre></div>
 </div>
