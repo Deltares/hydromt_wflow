@@ -423,6 +423,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     ds_out["M_original_"] = M_.astype(np.float32)
     M_ = constrain_M(M_, popt_0, M_minmax)
     ds_out["M_"] = M_.astype(np.float32)
+    ds_out["f_"] = ((thetas - thetar) / M_).astype(np.float32)
 
     logger.info("fit zi - Ksat with curve_fit (scipy.optimize) -> M")
     popt_0 = xr.apply_ufunc(
@@ -439,8 +440,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, logger=logger):
     ds_out["M_original"] = M.astype(np.float32)
     M = constrain_M(M, popt_0, M_minmax)
     ds_out["M"] = M.astype(np.float32)
-
-    ds_out["f"] = popt_0.astype(np.float32)
+    ds_out["f"] = ((thetas - thetar) / M).astype(np.float32)
 
     # wflow soil map is based on USDA soil classification
     soilmap = ds["tax_usda"].raster.interpolate_na()
