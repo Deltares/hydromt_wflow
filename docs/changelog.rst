@@ -8,6 +8,11 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 [Unreleased]
 ------------
 
+Fixed
+^^^^^
+
+- Fix f and add f_ parameter in soilgrids
+
 v0.1.1 (21 May 2021)
 --------------------
 This release adds more functionnality for saving forcing data for wflow and fixes several bugs for some parameter values and soilgrids workflow.
