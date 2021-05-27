@@ -8,10 +8,15 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 [Unreleased]
 ------------
 
+Added
+^^^^^
+
+- Add f_ parameter in soilgrids 
+
 Fixed
 ^^^^^
 
-- Fix f and add f_ parameter in soilgrids
+- Fix f parameter in soilgrids
 
 v0.1.1 (21 May 2021)
 --------------------
