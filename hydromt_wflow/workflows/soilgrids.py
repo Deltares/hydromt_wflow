@@ -533,14 +533,6 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     soil_texture = soil_texture.raster.reproject_like(ds_like, method="mode")
     ds_out["wflow_soil"] = soil_texture.astype(np.int)
 
-    # check ppt maps between both datasets
-    for var in ["sltppt", "clyppt", "sndppt", "ph", "bd", "oc"]:
-        da_var = ds[var]
-        da_var.raster.set_nodata(np.nan)
-        da_var = da_var.raster.interpolate_na("nearest")
-        var_lr = da_var.raster.reproject_like(ds_like, method="average")
-        ds_out["var"] = var_lr
-
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
         ds_out[var] = ds_out[var].fillna(nodata)
