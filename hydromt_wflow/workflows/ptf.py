@@ -204,6 +204,97 @@ def thetar_toth(oc, clay, silt):
     return thetar
 
 
+def soil_texture_usda(clay, silt):
+    """
+    Determine USDA soil texture.
+
+    Parameters
+    ----------
+    clay: float
+        sand percentage [%].
+    silt: float
+        silt percentage [%].
+
+    Returns
+    -------
+    soil texture : int
+        based on integer mapping following Ballabio et al. 2016 (https://doi.org/10.1016/j.geoderma.2015.07.006) for European topsoil physical properties.
+        Value	NAME
+        1	Clay
+        2	Silty Clay
+        3	Silty Clay-Loam
+        4	Sandy Clay
+        5	Sandy Clay-Loam
+        6	Clay-Loam
+        7	Silt
+        8	Silt-Loam
+        9	Loam
+        10	Sand
+        11	Loamy Sand
+        12	Sandy Loam
+
+
+    """
+
+    sand = 100 - (clay + silt)
+
+    soil_texture = np.where(
+        np.logical_and(clay >= 40.0, sand >= 20.0, sand <= 45),
+        1,  # clay
+        np.where(
+            np.logical_and(clay >= 27.0, sand >= 20.0, sand <= 45),
+            6,  # clay loam
+            np.where(
+                np.logical_and(silt <= 40.0, sand <= 20.0),
+                1,  # clay
+                np.where(
+                    np.logical_and(silt > 40.0, clay >= 40.0),
+                    2,  # silty clay
+                    np.where(
+                        np.logical_and(clay >= 35.0, sand >= 45.0),
+                        4,  # sandy clay
+                        np.where(
+                            np.logical_and(clay >= 27.0, sand < 20.0),
+                            3,  # silty clay loam
+                            np.where(
+                                np.logical_and(clay <= 10.0, silt >= 80.0),
+                                7,  # silt
+                                np.where(
+                                    (silt >= 50.0),
+                                    8,  # silt loam
+                                    np.where(
+                                        np.logical_and(
+                                            clay >= 7.0, sand <= 52.0, silt >= 28.0
+                                        ),
+                                        9,  # loam
+                                        np.where(
+                                            (clay >= 20.0),
+                                            5,  # sandy clay loam
+                                            np.where(
+                                                (clay >= (sand - 70)),
+                                                12,  # sandy loam
+                                                np.where(
+                                                    (clay >= (2 * sand - 170.0)),
+                                                    11,  # loamy sand
+                                                    np.where(
+                                                        np.isnan(clay), np.nan, 10
+                                                    ),  # sand
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    return soil_texture
+
+
 def ErosK_texture(clay, silt):
     """
     Determine mean detachability of the soil (Morgan et al., 1998) based on USDA soil texture.

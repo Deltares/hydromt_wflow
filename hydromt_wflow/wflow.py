@@ -951,13 +951,15 @@ class WflowModel(Model):
             (fitted with numpy linalg regression), bounds of M_ are checked
         * **M_original** map: M without checking bounds
         * **M_original_** map: M_ without checking bounds
-        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1]
+        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
+        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
         * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution index at
             depth of 1st soil layer (100 mm) wflow_sbm
         * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm
         * **c_2** map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm
         * **c_3** map: idem c_0 at depth 4th soil layer (> 1200 mm) wflow_sbm
         * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        * **wflow_soil** map: soil texture based on USDA soil texture triangle (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
 
         Parameters
@@ -978,6 +980,7 @@ class WflowModel(Model):
             dsin,
             self.staticmaps,
             ptf_ksatver,
+            soil_fn,
             logger=self.logger,
         )
         self.set_staticmaps(dsout)
