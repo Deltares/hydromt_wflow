@@ -149,13 +149,13 @@ def pore_size_distrution_index_layers(ds, thetas):
 
     Returns
     -------
-    ds : xarray.Dataset
+    ds_out : xarray.Dataset
         Dataset containing pore size distribution index [-] for each soil layer
         depth.
 
     """
 
-    da = xr.apply_ufunc(
+    ds_out = xr.apply_ufunc(
         ptf.pore_size_index_brakensiek,
         ds["sndppt"],
         thetas,
@@ -164,10 +164,10 @@ def pore_size_distrution_index_layers(ds, thetas):
         output_dtypes=[float],
         keep_attrs=True,
     )
-    da.name = "pore_size"
-    da.raster.set_nodata(np.nan)
-    da = da.raster.interpolate_na("nearest")
-    return da
+    ds_out.name = "pore_size"
+    ds_out.raster.set_nodata(np.nan)
+    ds_out = ds_out.raster.interpolate_na("nearest")
+    return ds_out
 
 
 def kv_layers(ds, thetas, ptf_name):
@@ -186,11 +186,11 @@ def kv_layers(ds, thetas, ptf_name):
 
     Returns
     -------
-    ds : xarray.Dataset
+    ds_out : xarray.Dataset
         Dataset containing KsatVer [mm/day] for each soil layer depth.
     """
     if ptf_name == "brakensiek":
-        da = xr.apply_ufunc(
+        ds_out = xr.apply_ufunc(
             ptf.kv_brakensiek,
             thetas,
             ds["clyppt"],
@@ -200,7 +200,7 @@ def kv_layers(ds, thetas, ptf_name):
             keep_attrs=True,
         )
     elif ptf_name == "cosby":
-        da = xr.apply_ufunc(
+        ds_out = xr.apply_ufunc(
             ptf.kv_cosby,
             ds["clyppt"],
             ds["sndppt"],
@@ -209,10 +209,10 @@ def kv_layers(ds, thetas, ptf_name):
             keep_attrs=True,
         )
 
-    da.name = "kv"
-    da.raster.set_nodata(np.nan)
-    da = da.raster.interpolate_na("nearest")
-    return da
+    ds_out.name = "kv"
+    ds_out.raster.set_nodata(np.nan)
+    ds_out = ds_out.raster.interpolate_na("nearest")
+    return ds_out
 
 
 def func(x, b):
@@ -438,30 +438,30 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
         c_sl.name = "c_sl"
 
         # make empty dataarray for c for the 4 sbm layers
-        da = xr.full_like(soilthickness, np.nan)
-        da.name = "c"
-        da = da.expand_dims(dim=dict(layer=[0, 1, 2, 3])).copy()
+        ds_c = xr.full_like(soilthickness, np.nan)
+        ds_c.name = "c"
+        ds_c = ds_c.expand_dims(dim=dict(layer=[0, 1, 2, 3])).copy()
         # calc average values of c over the sbm soil layers
-        da.loc[dict(layer=0)] = (
+        ds_c.loc[dict(layer=0)] = (
             c_sl.sel(sl=1) * 50 + c_sl.sel(sl=2) * 50
         ) / 100  # average over layer 0-100
-        da.loc[dict(layer=1)] = (
+        ds_c.loc[dict(layer=1)] = (
             c_sl.sel(sl=2) * 50 + c_sl.sel(sl=3) * 150 + c_sl.sel(sl=4) * 100
         ) / 300  # average over layer 100-400
-        da.loc[dict(layer=2)] = (
+        ds_c.loc[dict(layer=2)] = (
             c_sl.sel(sl=4) * 200 + c_sl.sel(sl=5) * 400 + c_sl.sel(sl=6) * 200
         ) / 800  # average over layer 400-1200
-        da.loc[dict(layer=3)] = c_sl.sel(sl=6)  # layer >1200
+        ds_c.loc[dict(layer=3)] = c_sl.sel(sl=6)  # layer >1200
     else:
         # for soilgrids 2017, keep the direct mapping calculation.
         da_c = []
         for (i, sl_ind) in enumerate(c_sl_index):
             da_c.append(3.0 + (2.0 / lambda_sl.sel(sl=sl_ind)))
-        da = xr.concat(
+        ds_c = xr.concat(
             da_c, pd.Index(np.arange(len(c_sl_index), dtype=int), name="layer")
         ).transpose("layer", ...)
-        da.name = "c"
-    ds_out["c"] = da
+        ds_c.name = "c"
+    ds_out["c"] = ds_c
 
     ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)
 
