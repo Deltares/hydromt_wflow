@@ -934,9 +934,12 @@ class WflowModel(Model):
         physical soil properties using available point-scale (pedo)transfer functions (PTFs)
         from literature with upscaling rules to ensure flux matching across scales.
 
-        Currently, the only supported ``soil_fn`` is "soilgrids" and the default
-        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) is "brakensiek".
-
+        Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
+        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are "brakensiek" and "cosby".
+        "soilgrids" provides data at 7 specific depths, while "soilgrids_2020" provides data averaged over 6 depth intervals.
+        This leads to small changes in the workflow: (1) M parameter uses midpoint depths in soilgrids_2020 versus specific depths in soilgrids,
+        (2) weighted average of soil properties over soil thickness is done with the trapezoidal rule in soilgrids versus simple block weighted average in soilgrids_2020,
+        (3) the c parameter is computed as weighted average over wflow_sbm soil layers in soilgrids_2020 versus at specific depths for soilgrids. 
 
         The following maps are added to staticmaps:
 
@@ -964,10 +967,9 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        soil_fn : {'soilgrids'}
+        soil_fn : {'soilgrids', 'soilgrids_2020'}
             Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
-            7 soil depths of soilgrids.
-
+            7 soil depths of soilgrids (or 6 depths intervals for soilgrids_2020).
             * Required variables: ['bd_sl*', 'clyppt_sl*', 'sltppt_sl*', 'oc_sl*', 'ph_sl*', 'sndppt_sl*', 'soilthickness', 'tax_usda']
         ptf_ksatver : {'brakensiek', 'cosby'}
             Pedotransfer function (PTF) to use for calculation KsatVer (vertical saturated

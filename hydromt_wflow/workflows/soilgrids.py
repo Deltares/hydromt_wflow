@@ -38,6 +38,7 @@ def average_soillayers_block(ds, soilthickness):
     Determine the weighted average of soil property at different depths over soil thickness,
     assuming that the properties are computed at the mid-point of the interval and are considered
     constant over the whole depth interval (Sousa et al., 2020). https://doi.org/10.5194/soil-2020-65
+    This function is used for soilgrids_2020.
 
     Parameters
     ----------
@@ -90,6 +91,7 @@ def average_soillayers(ds, soilthickness):
     See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda,
     M., Blagotic, A., et al.: SoilGrids250m: Global gridded soil information based on machine learning,
     PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
+    This function is used for soilgrids (2017).
 
     Parameters
     ----------
@@ -286,7 +288,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
     """
     Returns soil parameter maps at model resolution based on soil properties from SoilGrids datasets.
-    Both soilgrids 2017 and 2020 are supported.
+    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties at 7 specific depths, while soilgrids_2020 provides soil properties averaged over 6 depth intervals. 
     Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda, 
     M., Blagotic, A., et al.: SoilGrids250m: Global gridded soil information based on machine learning, 
     PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
@@ -314,7 +316,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     - c_2               : idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm\
     - c_3               : idem c_0 at depth 4th soil layer (> 1200 mm) wflow_sbm\
     - KsatVer_[z]cm     : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]\
-    - wflow_soil        : USDA Soil texture based on percentage clay, silt, sand\
+    - wflow_soil        : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]\
                 
     
     Parameters
@@ -335,6 +337,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     """
 
     if soil_fn == "soilgrids_2020":
+        #use midpoints of depth intervals for soilgrids_2020.
         soildepth_cm_midpoint = np.array([2.5, 10.0, 22.5, 45.0, 80.0, 150.0])
         soildepth_cm_midpoint_surface = np.array([0, 10.0, 22.5, 45.0, 80.0, 150.0])
         soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
@@ -440,7 +443,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
         ds_c = xr.full_like(soilthickness, np.nan)
         ds_c.name = "c"
         ds_c = ds_c.expand_dims(dim=dict(layer=[0, 1, 2, 3])).copy()
-        # calc average values of c over the sbm soil layers
+        # calc weighted average values of c over the sbm soil layers
         ds_c.loc[dict(layer=0)] = (
             c_sl.sel(sl=1) * 50 + c_sl.sel(sl=2) * 50
         ) / 100  # average over layer 0-100
