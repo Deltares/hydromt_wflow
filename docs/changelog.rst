@@ -12,6 +12,14 @@ Added
 ^^^^^
 
 - Add f_ parameter in soilgrids 
+- Support soilgrids version 2020
+
+Changed
+^^^^^^^
+
+- wfow_sbm.toml remove netcdf output.
+- wflow_soil map is now based on soil texture calculated directly from soilgrids data
+- test cases change toml and wflow_soil.map
 
 Fixed
 ^^^^^
