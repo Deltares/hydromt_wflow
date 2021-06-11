@@ -235,8 +235,12 @@
 <dd><p>This component derives several (layered) soil parameters based on a database with
 physical soil properties using available point-scale (pedo)transfer functions (PTFs)
 from literature with upscaling rules to ensure flux matching across scales.</p>
-<p>Currently, the only supported <code class="docutils literal notranslate"><span class="pre">soil_fn</span></code> is “soilgrids” and the default
-<code class="docutils literal notranslate"><span class="pre">ptf_ksatver</span></code> (PTF for the vertical hydraulic conductivity) is “brakensiek”.</p>
+<p>Currently, supported <code class="docutils literal notranslate"><span class="pre">soil_fn</span></code> is “soilgrids” and “soilgrids_2020”.
+<code class="docutils literal notranslate"><span class="pre">ptf_ksatver</span></code> (PTF for the vertical hydraulic conductivity) options are “brakensiek” and “cosby”.
+“soilgrids” provides data at 7 specific depths, while “soilgrids_2020” provides data averaged over 6 depth intervals.
+This leads to small changes in the workflow: (1) M parameter uses midpoint depths in soilgrids_2020 versus specific depths in soilgrids,
+(2) weighted average of soil properties over soil thickness is done with the trapezoidal rule in soilgrids versus simple block weighted average in soilgrids_2020,
+(3) the c parameter is computed as weighted average over wflow_sbm soil layers in soilgrids_2020 versus at specific depths for soilgrids.</p>
 <p>The following maps are added to staticmaps:</p>
 <ul class="simple">
 <li><p><strong>thetaS</strong> map: average saturated soil water content [m3/m3]</p></li>
@@ -256,7 +260,8 @@ from literature with upscaling rules to ensure flux matching across scales.</p>
 </li>
 <li><p><strong>M_original</strong> map: M without checking bounds</p></li>
 <li><p><strong>M_original_</strong> map: <a href="#id3"><span class="problematic" id="id4">M_</span></a> without checking bounds</p></li>
-<li><p><strong>f</strong> map: scaling parameter controlling the decline of KsatVer [mm-1]</p></li>
+<li><p><strong>f</strong> map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</p></li>
+<li><p><strong>f_</strong> map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked</p></li>
 <li><dl class="simple">
 <dt><strong>c_0</strong> map: Brooks Corey coefficient [-] based on pore size distribution index at</dt><dd><p>depth of 1st soil layer (100 mm) wflow_sbm</p>
 </dd>
@@ -266,16 +271,14 @@ from literature with upscaling rules to ensure flux matching across scales.</p>
 <li><p><strong>c_2</strong> map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm</p></li>
 <li><p><strong>c_3</strong> map: idem c_0 at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</p></li>
 <li><p><strong>KsatVer_[z]cm</strong> map: KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
+<li><p><strong>wflow_soil</strong> map: soil texture based on USDA soil texture triangle (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>soil_fn</strong> (<em>{'soilgrids'}</em>) – <p>Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
-7 soil depths of soilgrids.</p>
-<ul>
-<li><p>Required variables: [‘bd_sl*’, ‘clyppt_sl*’, ‘sltppt_sl*’, ‘oc_sl*’, ‘ph_sl*’, ‘sndppt_sl*’, ‘soilthickness’, ‘tax_usda’]</p></li>
-</ul>
-</p></li>
+<li><p><strong>soil_fn</strong> (<em>{'soilgrids'</em><em>, </em><em>'soilgrids_2020'}</em>) – Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
+7 soil depths of soilgrids (or 6 depths intervals for soilgrids_2020).
+* Required variables: [‘bd_sl*’, ‘clyppt_sl*’, ‘sltppt_sl*’, ‘oc_sl*’, ‘ph_sl*’, ‘sndppt_sl*’, ‘soilthickness’, ‘tax_usda’]</p></li>
 <li><p><strong>ptf_ksatver</strong> (<em>{'brakensiek'</em><em>, </em><em>'cosby'}</em>) – Pedotransfer function (PTF) to use for calculation KsatVer (vertical saturated
 hydraulic conductivity [mm/day]). By default ‘brakensiek’.</p></li>
 </ul>

@@ -1111,9 +1111,12 @@
 <span class="sd">        physical soil properties using available point-scale (pedo)transfer functions (PTFs)</span>
 <span class="sd">        from literature with upscaling rules to ensure flux matching across scales.</span>
 
-<span class="sd">        Currently, the only supported ``soil_fn`` is &quot;soilgrids&quot; and the default</span>
-<span class="sd">        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) is &quot;brakensiek&quot;.</span>
-
+<span class="sd">        Currently, supported ``soil_fn`` is &quot;soilgrids&quot; and &quot;soilgrids_2020&quot;.</span>
+<span class="sd">        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are &quot;brakensiek&quot; and &quot;cosby&quot;.</span>
+<span class="sd">        &quot;soilgrids&quot; provides data at 7 specific depths, while &quot;soilgrids_2020&quot; provides data averaged over 6 depth intervals.</span>
+<span class="sd">        This leads to small changes in the workflow: (1) M parameter uses midpoint depths in soilgrids_2020 versus specific depths in soilgrids,</span>
+<span class="sd">        (2) weighted average of soil properties over soil thickness is done with the trapezoidal rule in soilgrids versus simple block weighted average in soilgrids_2020,</span>
+<span class="sd">        (3) the c parameter is computed as weighted average over wflow_sbm soil layers in soilgrids_2020 versus at specific depths for soilgrids.</span>
 
 <span class="sd">        The following maps are added to staticmaps:</span>
 
@@ -1128,21 +1131,22 @@
 <span class="sd">            (fitted with numpy linalg regression), bounds of M_ are checked</span>
 <span class="sd">        * **M_original** map: M without checking bounds</span>
 <span class="sd">        * **M_original_** map: M_ without checking bounds</span>
-<span class="sd">        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1]</span>
+<span class="sd">        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</span>
+<span class="sd">        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked</span>
 <span class="sd">        * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution index at</span>
 <span class="sd">            depth of 1st soil layer (100 mm) wflow_sbm</span>
 <span class="sd">        * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm</span>
 <span class="sd">        * **c_2** map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm</span>
 <span class="sd">        * **c_3** map: idem c_0 at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</span>
 <span class="sd">        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
+<span class="sd">        * **wflow_soil** map: soil texture based on USDA soil texture triangle (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])</span>
 
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        soil_fn : {&#39;soilgrids&#39;}</span>
+<span class="sd">        soil_fn : {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
 <span class="sd">            Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the</span>
-<span class="sd">            7 soil depths of soilgrids.</span>
-
+<span class="sd">            7 soil depths of soilgrids (or 6 depths intervals for soilgrids_2020).</span>
 <span class="sd">            * Required variables: [&#39;bd_sl*&#39;, &#39;clyppt_sl*&#39;, &#39;sltppt_sl*&#39;, &#39;oc_sl*&#39;, &#39;ph_sl*&#39;, &#39;sndppt_sl*&#39;, &#39;soilthickness&#39;, &#39;tax_usda&#39;]</span>
 <span class="sd">        ptf_ksatver : {&#39;brakensiek&#39;, &#39;cosby&#39;}</span>
 <span class="sd">            Pedotransfer function (PTF) to use for calculation KsatVer (vertical saturated</span>
@@ -1155,6 +1159,7 @@
             <span class="n">dsin</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
             <span class="n">ptf_ksatver</span><span class="p">,</span>
+            <span class="n">soil_fn</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span></div>
