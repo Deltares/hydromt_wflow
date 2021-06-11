@@ -3,30 +3,30 @@ name: hydromt-wflow
 channels:
   - conda-forge
 
+# note that these are the developer dependencies,
+# FIXME change to minimal version after hydromt is on conda-forge
 dependencies:
   - affine
   - click
   - black
   - bottleneck
-  - cartopy # to run examples
   - dask
-  - descartes # to run examples
   - entrypoints
   - flit>=3.2
   - gdal>=3.1
   - geopandas
-#  - hydromt>=0.4.0
-  - jupyter # to run examples
   - netcdf4
-  - matplotlib # to run examples
   - numba
   - numpy
   - openpyxl
   - pandas
-  - pcraster # optional
   - pip
   - pyflwdir>=0.4.7
   - pygeos>=0.8
+  - pytest # tests
+  # - pytest-benchmark # test > unused
+  - pytest-cov # tests
+  - pytest-timeout # test
   - python>=3.7
   - rasterio
   - requests
@@ -35,7 +35,6 @@ dependencies:
   - xarray
   - zarr
   - pip:
-    - hydroengine
+    # - hydroengine > test without for speed
     - git+https://github.com/Deltares/hydromt.git
-    - git+https://github.com/Deltares/hydromt_wflow.git
 

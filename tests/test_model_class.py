@@ -34,15 +34,15 @@ def _compare_wflow_models(mod0, mod1):
         for name in maps:
             map0 = mod0.staticmaps[name].fillna(0)
             map1 = mod1.staticmaps[name].fillna(0)
-            if not np.allclose(map0, map1):
+            if not np.allclose(map0, map1, atol=1e-3, rtol=1e-3):
                 notclose = ~np.isclose(map0, map1)
                 xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                 ncells = int(np.sum(notclose))
                 diff = (map0 - map1).values[notclose].mean()
-                xys = ", ".join([f"({x:.6f}, {y:.6f})" for x, y in zip(*xy)])
-                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{xys}])"
+                yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
+                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{yxs}])"
     # invalid_map_str = ", ".join(invalid_maps)
-    assert len(invalid_maps) == 0, f"invalid maps: {invalid_maps}"
+    assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
     if mod0._staticgeoms:
         for name in mod0.staticgeoms:
@@ -75,6 +75,7 @@ def test_model_class(model):
     assert len(non_compliant_list) == 0
 
 
+@pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_models.keys()))
 def test_model_build(tmpdir, model):
     logger = logging.getLogger(__name__)
@@ -82,6 +83,7 @@ def test_model_build(tmpdir, model):
     # test build method
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
+    print(root)
     mod1 = MODELS.get(model)(root=root, mode="w", logger=logger)
     # Build method options
     region = {
@@ -89,7 +91,7 @@ def test_model_build(tmpdir, model):
         "strord": 4,
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
-    res = 0.01666667
+    res = 1 / 60.0
     config = join(TESTDATADIR, _model["ini"])
     opt = parse_config(config)
     # Build model

@@ -16,6 +16,9 @@ hydroMT-wflow: wflow plugin for hydroMT
     :target: https://pypi.org/project/hydromt_wflow/
     :alt: Latest PyPI version
 
+.. image:: https://anaconda.org/conda-forge/hydromt/badges/installer/conda.svg
+    :target: https://anaconda.org/conda-forge/hydromt_wflow
+
 .. image:: https://mybinder.org/badge_logo.svg
     :target: https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples
 
@@ -33,20 +36,20 @@ for the wflow_ model.
 Installation
 ------------
 
-hydroMT is availble from pypi and we are working on adding a release from conda-forge (ongoing).
+hydroMT_wflow is available from pypi and conda-forge, but we recommend installing with conda.
 
-To install hydromt using pip do:
-
-.. code-block:: console
-
-  pip install hydromt_wflow
-
-We recommend installing a hydromt-wflow environment including the hydromt_wflow package
-based on the environment.yml file.
+To install hydromt_wflow using conda do:
 
 .. code-block:: console
 
-  conda env create -f environment.yml
+  conda install -c conda-forge hydromt_wflow
+
+This will install both the hydroMT core library and the hydromt_wflow plugin. To get a full installation, 
+manually add the hydroengine dependency in your environment (not available from conda install):
+
+.. code-block:: console
+
+  pip install hydroengine
 
 Documentation
 -------------

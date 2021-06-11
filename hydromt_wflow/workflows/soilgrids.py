@@ -413,7 +413,6 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     soilthickness_hr = ds["soilthickness"].raster.interpolate_na("nearest")
     soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
     # wflow_sbm cannot handle (yet) zero soil thickness
-
     soilthickness = soilthickness.where(soilthickness > 0.0, np.nan)
     soilthickness.raster.set_nodata(np.nan)
     soilthickness = soilthickness.raster.interpolate_na("nearest").astype(np.float32)
@@ -544,8 +543,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     """
-    Returns soil parameter maps for sediment modelling at model resolution based on soil properties\ 
-    from SoilGrids dataset.
+    Returns soil parameter maps for sediment modelling at model resolution based on soil 
+    properties from SoilGrids dataset.
 
     The following soil parameter maps are calculated:\
         - PercentClay: clay content of the topsoil [%]\

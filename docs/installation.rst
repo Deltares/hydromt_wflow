@@ -4,17 +4,22 @@ Installation
 User install
 ------------
 
-The hydromt_wflow plugin is currently only available from PyPi.
-We are working on a release from conda-forge. 
+The hydromt_wflow plugin is available from PyPi and conda-forge, but we recommend installing with conda.
 
-If you haven't installed the `hydroMT core package <https://github.com/Deltares/hydromt>`_ 
-we recommend installing it from conda-forge to get all dependencies and then install the plugin. 
-
-To install hydromt and the toml package using conda-forge do:
+To install hydromt_wflow using conda do:
 
 .. code-block:: console
 
-  conda install hydromt toml -c conda-forge
+  conda install -c conda-forge hydromt_wflow
+
+This will install **almost** all dependencies including the core hydroMT library and the model API as well 
+as the model plugins **wflow** and **wflow_sediment**. To complete the installation, add manually the hydroengine dependency 
+from pypi (not available from conda):
+
+.. code-block:: console
+
+  pip install hydroengine
+
 
 To install hydromt_wflow using pip do:
 Note: make sure this is installed in the same environment as hydromt.
@@ -22,14 +27,6 @@ Note: make sure this is installed in the same environment as hydromt.
 .. code-block:: console
 
   pip install hydromt_wflow
-
-The hydroMT core and Wflow plugin can be easily installed together in a single hydromt-wflow environment 
-using the environment.yml file in the repository root. This environment includes some packages that are 
-required to run the example notebooks.
-
-.. code-block:: console
-
-  conda env create -f environment.yml
 
 
 Developper install
@@ -54,7 +51,7 @@ file contained in the repository:
     $ conda env create -f envs/hydromt-wflow.yml
     $ conda activate hydromt-wflow
 
-Finally, build and install hydromt_wflow using pip.
+Finally, for a fixed installation, build and install hydromt_wflow using pip.
 
 .. code-block:: console
 
@@ -75,4 +72,4 @@ For Linux:
 
     $ flit install -s
 
-For more information about how to contribute, see `HydroMT contributing guidelines <https://hydromt.readthedocs.io/en/latest/contributing.html>`_.
+For more information about how to contribute, see `HydroMT contributing guidelines <https://deltares.github.io/hydromt/latest/contributing.html>`_.

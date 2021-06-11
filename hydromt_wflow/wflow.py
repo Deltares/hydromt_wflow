@@ -3,6 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile
+from typing import Optional
 import glob
 import numpy as np
 import pandas as pd
@@ -13,7 +14,8 @@ import pyproj
 import toml
 import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
-
+from dask.diagnostics import ProgressBar
+from dask.distributed import LocalCluster, Client, performance_report
 from hydromt.models.model_api import Model
 
 # from hydromt.workflows.basin_mask import parse_region
@@ -300,15 +302,13 @@ class WflowModel(Model):
             fn_map = n_river_mapping
         strord = self.staticmaps[self._MAPS["strord"]].copy()
         df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python")
-        max_str = df.index[
-            -2
-        ]  # max streamorder value above which values get the same N_River value
-        strord = xr.where(
-            strord > max_str, max_str, strord
-        )  # if streamroder value larger than max_str, assign last value
-        strord = xr.where(
-            strord == strord.raster.nodata, -999, strord
-        )  # handle missing value (last row of csv is mapping of nan values)
+        # max streamorder value above which values get the same N_River value
+        max_str = df.index[-2]
+        # if streamroder value larger than max_str, assign last value
+        strord = strord.where(strord <= max_str, max_str)
+        # handle missing value (last row of csv is mapping of missing values)
+        strord = strord.where(strord != strord.raster.nodata, -999)
+        strord.raster.set_nodata(-999)
 
         ds_nriver = landuse(
             da=strord,
@@ -1081,7 +1081,13 @@ class WflowModel(Model):
             da_param = da_param.rename(key)
             self.set_staticmaps(da_param)
 
-    def setup_precip_forcing(self, precip_fn="era5", precip_clim_fn=None, **kwargs):
+    def setup_precip_forcing(
+        self,
+        precip_fn: str = "era5",
+        precip_clim_fn: Optional[str] = None,
+        chunksize: Optional[int] = None,
+        **kwargs,
+    ) -> None:
         """Setup gridded precipitation forcing at model resolution.
 
         Adds model layer:
@@ -1099,12 +1105,17 @@ class WflowModel(Model):
             see data/forcing_sources.yml.
 
             * Required variable: ['precip']
+        chunksize: int, optional
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
         """
         if precip_fn is None:
             return
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        mask = self.staticmaps[self._MAPS["basins"]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
             precip_fn,
@@ -1113,6 +1124,9 @@ class WflowModel(Model):
             time_tuple=(starttime, endtime),
             variables=["precip"],
         )
+
+        if chunksize is not None:
+            precip = precip.chunk({"time": chunksize})
 
         clim = None
         if precip_clim_fn != None:
@@ -1125,32 +1139,31 @@ class WflowModel(Model):
 
         precip_out = workflows.forcing.precip(
             precip=precip,
-            da_like=self.staticmaps,
+            da_like=self.staticmaps[self._MAPS["elevtn"]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
             **kwargs,
         )
-        # Update meta attributes with setup opt
-        opt_attr = {
-            "precip_fn": precip_fn,
-            "precip_clim_fn": precip_clim_fn,
-        }
-        precip_out.attrs.update(opt_attr)
 
-        self.set_forcing(precip_out, name="precip")
+        # Update meta attributes (used for default output filename later)
+        precip_out.attrs.update({"precip_fn": precip_fn})
+        if precip_clim_fn is not None:
+            precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
+        self.set_forcing(precip_out.where(mask), name="precip")
 
     def setup_temp_pet_forcing(
         self,
-        temp_pet_fn="era5",
-        pet_method="debruin",
-        press_correction=True,
-        temp_correction=True,
-        dem_forcing_fn="era5_orography",
-        skip_pet=False,
+        temp_pet_fn: str = "era5",
+        pet_method: str = "debruin",
+        press_correction: bool = True,
+        temp_correction: bool = True,
+        dem_forcing_fn: str = "era5_orography",
+        skip_pet: str = False,
+        chunksize: Optional[int] = None,
         **kwargs,
-    ):
+    ) -> None:
         """Setup gridded reference evapotranspiration forcing at model resolution.
 
         Adds model layer:
@@ -1180,6 +1193,10 @@ class WflowModel(Model):
              combination with elevation at model resolution to correct the temperature.
         skip_pet : bool, optional
             If True caculate temp only.
+        chunksize: int, optional
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
         """
         if temp_pet_fn is None:
             return
@@ -1187,6 +1204,7 @@ class WflowModel(Model):
         endtime = self.get_config("endtime")
         timestep = self.get_config("timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
+        mask = self.staticmaps[self._MAPS["basins"]].values > 0
 
         variables = ["temp"]
         if not skip_pet:
@@ -1206,6 +1224,9 @@ class WflowModel(Model):
             variables=variables,
             single_var_as_array=False,  # always return dataset
         )
+
+        if chunksize is not None:
+            ds = ds.chunk({"time": chunksize})
 
         dem_forcing = None
         if dem_forcing_fn != None:
@@ -1244,7 +1265,7 @@ class WflowModel(Model):
                 "pet_method": pet_method,
             }
             pet_out.attrs.update(opt_attr)
-            self.set_forcing(pet_out, name="pet")
+            self.set_forcing(pet_out.where(mask), name="pet")
 
         # resample temp after pet workflow
         temp_out = workflows.forcing.resample_time(
@@ -1257,13 +1278,13 @@ class WflowModel(Model):
             conserve_mass=False,
             logger=self.logger,
         )
-        # Update meta attributes with setup opt
+        # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
             "temp_fn": temp_pet_fn,
-            "temp_correction": temp_correction,
+            "temp_correction": str(temp_correction),
         }
         temp_out.attrs.update(opt_attr)
-        self.set_forcing(temp_out, name="temp")
+        self.set_forcing(temp_out.where(mask), name="temp")
 
     # I/O
     def read(self):
@@ -1425,13 +1446,25 @@ class WflowModel(Model):
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
 
-    def write_forcing(self):
-        """write forcing at <root/?/> in model ready format
+    def write_forcing(self, fn_out=None, chunksize=1, decimals=2, **kwargs):
+        """write forcing at `fn_out` in model ready format.
 
-        Default name format (with downscaling):
-            inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
-        Default name format (no downscaling):
-            inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+        If no `fn_out` path is provided and path_forcing from the  wflow toml exists,
+        the following default filenames are used:
+
+            * Default name format (with downscaling): inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+            * Default name format (no downscaling): inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+
+        Parameters
+        ----------
+        fn_out: str, Path, optional
+            Path to save output netcdf file; if None the name is read from the wflow
+            toml file.
+        chunksize: int, optional
+            Chunksize on time dimension when saving to disk. By default 1.
+        decimals, int, optional
+            Round the ouput data to the given number of decimals.
+
         """
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -1442,57 +1475,83 @@ class WflowModel(Model):
             yr0 = pd.to_datetime(self.get_config("starttime")).year
             yr1 = pd.to_datetime(self.get_config("endtime")).year
             freq = self.get_config("timestepsecs")
-            sourceP = ""
-            sourceT = ""
-            methodPET = ""
-            Pdown = ""
-            Tdown = ""
-            if "precip" in self.forcing:
-                val = self.forcing["precip"].attrs.pop("precip_clim_fn", None)
-                if val is not None:
-                    Pdown = "d"
-                val = self.forcing["precip"].attrs.pop("precip_fn", None)
-                if val is not None:
-                    sourceP = f"_{val}{Pdown}"
-            if "temp" in self.forcing:
-                val = self.forcing["temp"].attrs.pop("temp_correction", False)
-                if val:
-                    Tdown = "d"
-                val = self.forcing["temp"].attrs.pop("temp_fn", None)
-                if val is not None:
-                    sourceT = f"_{val}{Tdown}"
-            if "pet" in self.forcing:
-                val = self.forcing["pet"].attrs.pop("pet_method", None)
-                if val is not None:
-                    methodPET = f"_{val}"
 
-            fn_default = f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
-            fn_default_path = join(self.root, fn_default)
-            # Mask and write forcing
-            mask = self.staticmaps[self._MAPS["basins"]].values > 0
-            ds = xr.merge(self.forcing.values())
-            encoding = {
-                v: {"zlib": True, "dtype": "float32"} for v in ds.data_vars.keys()
-            }
-            fn_out = self.get_config(
-                "input.path_forcing", abs_path=True, fallback=fn_default_path
-            )
-            if isfile(fn_out):
-                self.logger.warning(
-                    "Netcdf forcing file from input.path_forcing in the TOML already exists, using default name."
-                )
-                if isfile(fn_default_path):
-                    self.logger.warning(
-                        "Netcdf default forcing file already exists, skipping write. To overwrite netcdf forcing file: change name input.path_forcing in setup_config section of the build inifile."
-                    )
-                else:
-                    self.set_config("input.path_forcing", fn_default)
-                    self.write_config()
-                    ds.where(mask).to_netcdf(
-                        fn_default_path, encoding=encoding, mode="w"
-                    )
+            # get output filename
+            if fn_out is not None:
+                self.set_config("input.path_forcing", fn_out)
+                self.write_config()  # re-write config
             else:
-                ds.where(mask).to_netcdf(fn_out, encoding=encoding, mode="w")
+                fn_out = self.get_config("input.path_forcing", abs_path=True)
+                # get deafult filename if file exists
+                if fn_out is None or isfile(fn_out):
+                    self.logger.warning(
+                        "Netcdf forcing file from input.path_forcing in the TOML  "
+                        "already exists, using default name."
+                    )
+                    sourceP = ""
+                    sourceT = ""
+                    methodPET = ""
+                    if "precip" in self.forcing:
+                        val = self.forcing["precip"].attrs.get("precip_clim_fn", None)
+                        Pdown = "d" if val is not None else ""
+                        val = self.forcing["precip"].attrs.get("precip_fn", None)
+                        if val is not None:
+                            sourceP = f"_{val}{Pdown}"
+                    if "temp" in self.forcing:
+                        val = self.forcing["temp"].attrs.get("temp_correction", "False")
+                        Tdown = "d" if val == "True" else ""
+                        val = self.forcing["temp"].attrs.get("temp_fn", None)
+                        if val is not None:
+                            sourceT = f"_{val}{Tdown}"
+                    if "pet" in self.forcing:
+                        val = self.forcing["pet"].attrs.get("pet_method", None)
+                        if val is not None:
+                            methodPET = f"_{val}"
+                    fn_default = (
+                        f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
+                    )
+                    fn_default_path = join(self.root, fn_default)
+                    if isfile(fn_default_path):
+                        self.logger.warning(
+                            "Netcdf default forcing file already exists, skipping write_forcing. "
+                            "To overwrite netcdf forcing file: change name input.path_forcing "
+                            "in setup_config section of the build inifile."
+                        )
+                        return
+                    else:
+                        self.set_config("input.path_forcing", fn_default)
+                        self.write_config()  # re-write config
+                        fn_out = fn_default_path
+
+            # merge, process and write forcing
+            ds = xr.merge(self.forcing.values())
+            if decimals is not None:
+                ds = ds.round(decimals)
+            # write with output chunksizes with single timestep and complete
+            # spatial grid to speed up the reading from wflow.jl
+            # dims are always ordered (time, y, x)
+            ds.raster._check_dimensions()
+            chunksizes = (chunksize, ds.raster.ycoords.size, ds.raster.xcoords.size)
+            encoding = {
+                v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
+                for v in ds.data_vars.keys()
+            }
+
+            self.logger.info(f"Process forcing; saving to {fn_out}")
+            # with compute=False we get a delayed object which is executed when
+            # calling .compute where we can pass more arguments to the dask.compute method
+            delayed_obj = ds.to_netcdf(
+                fn_out, encoding=encoding, mode="w", compute=False
+            )
+            with ProgressBar():
+                delayed_obj.compute(**kwargs)
+
+            # TO profile uncomment lines below to replace lines above
+            # from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler
+            # import cachey
+            # with Profiler() as prof, CacheProfiler(metric=cachey.nbytes) as cprof, ResourceProfiler() as rprof:
+            #     delayed_obj.compute()
+            # visualize([prof, cprof, rprof], file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
     def read_states(self):
         """Read states at <root/?/> and parse to dict of xr.DataArray"""
