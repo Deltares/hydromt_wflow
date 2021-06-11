@@ -337,7 +337,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     """
 
     if soil_fn == "soilgrids_2020":
-        #use midpoints of depth intervals for soilgrids_2020.
+        # use midpoints of depth intervals for soilgrids_2020.
         soildepth_cm_midpoint = np.array([2.5, 10.0, 22.5, 45.0, 80.0, 150.0])
         soildepth_cm_midpoint_surface = np.array([0, 10.0, 22.5, 45.0, 80.0, 150.0])
         soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
