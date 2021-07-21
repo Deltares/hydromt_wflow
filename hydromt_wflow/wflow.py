@@ -676,6 +676,43 @@ class WflowModel(Model):
                     )
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
+    def setup_areamap(
+        self,
+        area_fn: str,
+        col2raster: str,
+    ):
+        """Setup area map from vector data to save wflow outputs for specific area.
+        Adds model layer:
+        * **area_fn** map:  output area data map
+        Parameters
+        ----------
+        area_fn : str
+            Name of vector data corresponding to wflow output area.
+        col2raster : str
+            Name of the column from the vector file to rasterize.
+        """
+        if area_fn not in self.data_catalog:
+            self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
+            return
+
+        self.logger.info(f"Preparing '{area_fn}' map.")
+        gdf_org = self.data_catalog.get_geodataframe(
+            area_fn, geom=self.basins, dst_crs=self.crs
+        )
+        if gdf_org.empty:
+            self.logger.warning(
+                f"No shapes of {area_fn} found within region, skipping areamap."
+            )
+            return
+        else:
+            da_area = self.staticmaps.raster.rasterize(
+                gdf=gdf_org,
+                col_name=col2raster,
+                nodata=0,
+                all_touched=True,
+            )
+        self.set_staticmaps(da_area.rename(area_fn))
+
     def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.

@@ -22,6 +22,7 @@ For wflow_sediment, the different components available for building or updating 
    ~WflowSedimentModel.setup_riverwidth
    ~WflowSedimentModel.setup_riverbedsed
    ~WflowSedimentModel.setup_gauges
+   ~WflowModel.setup_areamap
    ~WflowSedimentModel.setup_constant_pars
 
 
