@@ -13,6 +13,7 @@ Added
 
 - Add f_ parameter in soilgrids 
 - Support soilgrids version 2020
+- Setup_areamap component to prepare maps of areas of interest to save wflow outputs at.
 
 Changed
 ^^^^^^^

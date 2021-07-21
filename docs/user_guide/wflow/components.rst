@@ -21,6 +21,7 @@ For wflow, the different components available for building or updating are:
    ~WflowModel.setup_soilmaps
    ~WflowModel.setup_riverwidth
    ~WflowModel.setup_gauges
+   ~WflowModel.setup_areamap
    ~WflowModel.setup_precip_forcing
    ~WflowModel.setup_temp_pet_forcing
    ~WflowModel.setup_constant_pars
