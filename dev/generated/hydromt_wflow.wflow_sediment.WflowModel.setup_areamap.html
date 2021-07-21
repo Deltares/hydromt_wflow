@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed &mdash; hydromt_wflow  documentation</title>
+  <title>hydromt_wflow.wflow_sediment.WflowModel.setup_areamap &mdash; hydromt_wflow  documentation</title>
   
 
   
@@ -41,8 +41,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges.html" />
-    <link rel="prev" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverwidth" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverwidth.html" /> 
+    <link rel="next" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_constant_pars" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_constant_pars.html" />
+    <link rel="prev" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -112,9 +112,9 @@
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_canopymaps.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_canopymaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_soilmaps.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_soilmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverwidth.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverwidth</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowModel.setup_areamap.html">hydromt_wflow.wflow_sediment.WflowModel.setup_areamap</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.wflow_sediment.WflowModel.setup_areamap</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_constant_pars</a></li>
 </ul>
 </li>
@@ -184,13 +184,13 @@
         
           <li><a href="../user_guide/sediment/components.html">Model components</a> &raquo;</li>
         
-      <li>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed</li>
+      <li>hydromt_wflow.wflow_sediment.WflowModel.setup_areamap</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/generated/hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/hydromt_wflow.wflow_sediment.WflowModel.setup_areamap.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -227,29 +227,18 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-riverbedsed">
-<h1>hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowsedimentmodel-setup-riverbedsed" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="hydromt-wflow-wflow-sediment-wflowmodel-setup-areamap">
+<h1>hydromt_wflow.wflow_sediment.WflowModel.setup_areamap<a class="headerlink" href="#hydromt-wflow-wflow-sediment-wflowmodel-setup-areamap" title="Permalink to this headline">¶</a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverbedsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedsed_mapping_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_riverbedsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverbedsed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup sediments based river bed characteristics maps.</p>
-<p>Adds model layers:</p>
-<ul class="simple">
-<li><p><strong>D50_River</strong> map: median sediment diameter of the river bed [mm]</p></li>
-<li><p><strong>ClayF_River</strong> map: fraction of clay material in the river bed [-]</p></li>
-<li><p><strong>SiltF_River</strong> map: fraction of silt material in the river bed [-]</p></li>
-<li><p><strong>SandF_River</strong> map: fraction of sand material in the river bed [-]</p></li>
-<li><p><strong>GravelF_River</strong> map: fraction of gravel material in the river bed [-]</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>bedsed_mapping_fn</strong> (<em>str</em>) – <p>Path to a mapping csv file from streamorder to river bed particles characteristics.</p>
-<ul class="simple">
-<li><p>Required variable: [‘strord’,’D50_River’, ‘ClayF_River’, ‘SiltF_River’, ‘SandF_River’, ‘GravelF_River’]</p></li>
-</ul>
-</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="hydromt_wflow.wflow_sediment.WflowModel.setup_areamap">
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_areamap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area_fn</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col2raster</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_areamap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow_sediment.WflowModel.setup_areamap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup area map from vector data to save wflow outputs for specific area.
+Adds model layer:
+* <strong>area_fn</strong> map:  output area data map
+:param area_fn: Name of vector data corresponding to wflow output area.
+:type area_fn: str
+:param col2raster: Name of the column from the vector file to rasterize.
+:type col2raster: str</p>
 </dd></dl>
 
 </div>
@@ -260,8 +249,8 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverwidth.html" class="btn btn-neutral float-left" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_riverwidth" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_constant_pars.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_constant_pars" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges.html" class="btn btn-neutral float-left" title="hydromt_wflow.wflow_sediment.WflowSedimentModel.setup_gauges" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
