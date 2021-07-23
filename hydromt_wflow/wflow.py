@@ -1454,7 +1454,11 @@ class WflowModel(Model):
         """Read and staticgeoms at <root/staticgeoms> and parse to geopandas"""
         if not self._write:
             self._staticgeoms = dict()  # fresh start in read-only mode
-        fns = glob.glob(join(self.root, "staticgeoms", "*.geojson"))
+        dir_default = join(self.root, "staticmaps.nc")
+        dir_mod = dirname(
+            self.get_config("input.path_static", abs_path=True, fallback=dir_default)
+        )
+        fns = glob.glob(join(dir_mod, "staticgeoms", "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -1617,8 +1621,7 @@ class WflowModel(Model):
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30})
-            # TODO ? Rename dict based on wflow variables names instead of user names in toml
-            # eg vertical.precipitation
+            # TODO ? align coords names and values of results nc with staticmaps
             for v in ds.data_vars:
                 self.set_results(ds[v])
 
