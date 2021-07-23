@@ -20,7 +20,8 @@ from hydromt.models.model_api import Model
 
 # from hydromt.workflows.basin_mask import parse_region
 from hydromt import workflows, flw
-from hydromt.io import open_mfraster
+from hydromt.io import open_mfraster, open_timeseries_from_table
+from hydromt.vector import GeoDataArray
 
 from .workflows import (
     river,
@@ -1610,7 +1611,40 @@ class WflowModel(Model):
         if not self._write:
             # start fresh in read-only mode
             self._results = dict()
-        # raise NotImplementedError()
+
+        # Read gridded netcdf (output section)
+        nc_fn = self.get_config("output.path", abs_path=True)
+        if nc_fn is not None and isfile(nc_fn):
+            self.logger.info(f"Read results from {nc_fn}")
+            ds = xr.open_dataset(nc_fn, chunks={"time": 30})
+            # TODO ? Rename dict based on wflow variables names instead of user names in toml
+            # eg vertical.precipitation
+            for v in ds.data_vars:
+                self.set_results(ds[v])
+
+        # Read csv timeseries (csv section)
+        csv_fn = self.get_config("csv.path", abs_path=True)
+        # Count items by csv.column
+        count = 1
+        # Loop over csv.column
+        for col in self.get_config("csv.column"):
+            header = col["header"]
+            # Read the corresponding map and derive the different locations
+            # The centroid of the geometry is used as coordinates for the timeseries
+            map_name = self.get_config(f"input.{col['map']}")
+            da = self.staticmaps[map_name]
+            gdf = da.raster.vectorize()
+            gdf.geometry = gdf.geometry.centroid
+            gdf.index = gdf.value.astype(da.dtype)
+            gdf.index.name = "index"
+            # Read the timeseries
+            usecols = [0]
+            usecols = np.append(usecols, np.arange(count, count + len(gdf.index)))
+            count += len(gdf.index)
+            da_ts = open_timeseries_from_table(csv_fn, name=header, usecols=usecols)
+            da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
+            # Add to results
+            self.set_results(da)
 
     def write_results(self):
         """write results at <root/?/> in model ready format"""
