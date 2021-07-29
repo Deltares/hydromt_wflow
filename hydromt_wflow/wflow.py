@@ -1622,16 +1622,14 @@ class WflowModel(Model):
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30})
             # TODO ? align coords names and values of results nc with staticmaps
-            for v in ds.data_vars:
-                self.set_results(ds[v], name="output")
+            self.set_results(ds, name="output")
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("netcdf.path", abs_path=True)
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
             ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
-            for v in ds.data_vars:
-                self.set_results(ds[v], name="netcdf")
+            self.set_results(ds, name="netcdf")
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("csv.path", abs_path=True)
@@ -1696,17 +1694,18 @@ class WflowModel(Model):
                             xi = self.staticmaps.raster.xcoords.values[
                                 col["index"]["x"] - 1
                             ]
-                            yi = np.sort(self.staticmaps.raster.xcoords.values)[
+                            yi = np.sort(self.staticmaps.raster.ycoords.values)[
                                 col["index"]["y"] - 1
                             ]
                             scoords = {
-                                "x": xr.IndexVariable("index", xi),
-                                "y": xr.IndexVariable("index", yi),
+                                "x": xr.IndexVariable("index", [xi]),
+                                "y": xr.IndexVariable("index", [yi]),
                             }
                         # index of the full array
                         else:
                             # Create grid with full 2D Julia indices
                             # Dimensions are ascending and ordered as (x,y,layer,time)
+                            # Indices are created before ordering for compatibility with raster.idx_to_xy
                             full_index = self.staticmaps[
                                 f'{self.get_config("input.subcatchment")}'
                             ].copy()
@@ -1719,13 +1718,13 @@ class WflowModel(Model):
                                         ][::-1]
                                     }
                                 )
-                            full_index = full_index.transpose(
-                                full_index.raster.x_dim, full_index.raster.y_dim
-                            )
                             data = np.arange(0, np.size(full_index)).reshape(
                                 np.size(full_index, 0), np.size(full_index, 1)
                             )
                             full_index[:, :] = data
+                            full_index = full_index.transpose(
+                                full_index.raster.x_dim, full_index.raster.y_dim
+                            )
                             # Index depends on the struct
                             # For land uses the active subcatch IDs
                             if (
@@ -1749,6 +1748,7 @@ class WflowModel(Model):
                                     f'{self.get_config("input.river_location")}'
                                 ].copy()
                             # Rearrange the mask
+                            res_x, res_y = mask.raster.res
                             if res_y < 0:
                                 mask = mask.reindex(
                                     {mask.raster.y_dim: mask[mask.raster.y_dim][::-1]}
@@ -1761,7 +1761,10 @@ class WflowModel(Model):
                             mask_index = mask_index[mask_index != 0]
                             # idx corresponding to the wflow index
                             idx = mask_index[col["index"] - 1]
-                            xi, yi = full_index.raster.idx_to_xy(idx)
+                            # Reorder full_index as (y,x) to use raster.idx_to_xy method
+                            xi, yi = full_index.transpose(
+                                full_index.raster.y_dim, full_index.raster.x_dim
+                            ).raster.idx_to_xy(idx)
                             scoords = {
                                 "x": xr.IndexVariable("index", xi),
                                 "y": xr.IndexVariable("index", yi),
@@ -1770,8 +1773,8 @@ class WflowModel(Model):
                     else:
                         xmin, ymin, xmax, ymax = self.bounds
                         scoords = {
-                            "x": xr.IndexVariable("index", [(xmax - xmin) / 2]),
-                            "y": xr.IndexVariable("index", [(ymax - ymin) / 2]),
+                            "x": xr.IndexVariable("index", [(xmax + xmin) / 2]),
+                            "y": xr.IndexVariable("index", [(ymax + ymin) / 2]),
                         }
                     da = da_ts.assign_coords(scoords)
 
