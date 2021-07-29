@@ -3,6 +3,7 @@
 import pytest
 from os.path import join, dirname, abspath
 import numpy as np
+import xarray as xr
 import warnings
 import pdb
 from hydromt.models import MODELS
@@ -145,3 +146,39 @@ def test_model_clip(tmpdir):
     mod0.read()
     # compare models
     _compare_wflow_models(mod0, mod1)
+
+
+def test_model_results():
+    logger = logging.getLogger(__name__)
+    model = "wflow"
+    # test read_results method
+    # read results from model from examples folder
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+    config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
+
+    # Initialize model and read results
+    mod = MODELS.get(model)(root=root, mode="r", config_fn=config_fn, logger=logger)
+
+    # Tests on results
+    # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
+    assert len(mod.results) == (2 + len(mod.get_config("csv.column")))
+
+    # Check that the output and netcdf xr.Dataset are present
+    assert "output" in mod.results
+    assert isinstance(mod.results["netcdf"], xr.Dataset)
+
+    # Checks for the csv columns
+    # Q for gauges_grdc
+    assert len(mod.results["Q"].index) == 3
+    assert np.isin(6349410, mod.results["Q"].index)
+
+    # Coordinates and values for coordinate.x and index.x for temp
+    assert np.isclose(
+        mod.results["temp_bycoord"]["x"].values, mod.results["temp_byindex"]["x"].values
+    )
+    assert np.allclose(
+        mod.results["temp_bycoord"].values, mod.results["temp_byindex"].values
+    )
+
+    # Coordinates of the reservoir
+    assert np.isclose(mod.results["res-volume"]["y"], 46.16656)
