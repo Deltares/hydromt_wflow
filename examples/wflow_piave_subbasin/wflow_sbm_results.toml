@@ -8,7 +8,7 @@ timestepsecs = 86400
 
 [state]
 path_input = "instate/instates.nc"
-path_output = "run_default/outstate/outstates.nc"
+path_output = "run_results/outstate/outstates.nc"
 
 [input]
 path_forcing = "inmaps.nc"
@@ -129,7 +129,7 @@ linkedlakelocs = "LinkedLakeLocs"
 waterlevel = "LakeAvgLevel"
 
 [output]
-path = "run_default/output.nc"
+path = "run_results/output.nc"
 
 [output.lateral.river]
 q_av = "q_river"
@@ -138,7 +138,7 @@ q_av = "q_river"
 h = "h_land"
 
 [netcdf]
-path = "run_default/output_scalar.nc"
+path = "run_results/output_scalar.nc"
 
 [[netcdf.variable]]
 name = "Q"
@@ -153,7 +153,7 @@ coordinate.y = 45.8925
 parameter = "vertical.temperature"
 
 [csv]
-path = "run_default/output.csv"
+path = "run_results/output.csv"
 
 [[csv.column]]
 header = "Q-max"
