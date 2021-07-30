@@ -21,6 +21,7 @@ Changed
 - wfow_sbm.toml remove netcdf output.
 - wflow_soil map is now based on soil texture calculated directly from soilgrids data
 - test cases change toml and wflow_soil.map
+- wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.
 
 Fixed
 ^^^^^
