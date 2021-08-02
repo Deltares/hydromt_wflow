@@ -16,7 +16,7 @@ gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
 subcatchment = "wflow_subcatch"
-forcing = [ "vertical.h_land", "vertical.interception", "vertical.precipitation", "vertical.q_land", "lateral.land.h_riv", "lateral.land.q_riv",]
+forcing = [ "vertical.h_land", "vertical.interception", "vertical.precipitation", "vertical.q_land", "lateral.river.h_riv", "lateral.river.q_riv",]
 cyclic = [ "vertical.leaf_area_index",]
 gauges_grdc = "wflow_gauges_grdc"
 
@@ -101,10 +101,10 @@ outgrav = "outgrav"
 
 [input.lateral.land]
 slope = "Slope"
-h_riv = "rwl"
-q_riv = "rro"
 
 [input.lateral.river]
+h_riv = "rwl"
+q_riv = "rro"
 cbagnold = "c_Bagnold"
 d50 = "D50_River"
 d50engelund = "D50_River"
