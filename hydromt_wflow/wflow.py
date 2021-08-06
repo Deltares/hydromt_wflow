@@ -89,7 +89,6 @@ class WflowModel(Model):
         "percentH": "wflow_percentH",
         "percentP": "wflow_percentP",
         "percentW": "wflow_percentW",
-
     }
     _FOLDERS = [
         "staticgeoms",
@@ -237,12 +236,12 @@ class WflowModel(Model):
         self.logger.debug(f"Adding region vector to staticgeoms.")
         self.set_staticgeoms(self.region, name="region")
 
-        #setup classification hillslope wetland plateau based on slope and hand thresholds
+        # setup classification hillslope wetland plateau based on slope and hand thresholds
         ds_class = classification_hru(
             ds=ds_org,
             ds_like=self.staticmaps,
-            hand_th = 5.9,
-            slope_th = 0.07,
+            hand_th=5.9,
+            slope_th=0.07,
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_class.data_vars}

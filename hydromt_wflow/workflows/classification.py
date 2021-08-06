@@ -15,13 +15,13 @@ __all__ = ["classification_hru"]
 def classification_hru(
     ds,
     ds_like,
-    hand_th = 5.9,
-    slope_th = 0.07,
+    hand_th=5.9,
+    slope_th=0.07,
     logger=logger,
 ):
     """Returns percentage hillslope, plateau and wetland at model resolution based on
-    high resolution hand and slope data. 
-    
+    high resolution hand and slope data.
+
     Parameters
     ----------
     ds : xarray.DataArray
@@ -43,16 +43,23 @@ def classification_hru(
     hand = ds["hnd"]
     slope = ds["lndslp"]
 
-    ds["hru"] = xr.where((hand>hand_th) & (slope>slope_th), 1, #hillslope
-                           xr.where((hand>hand_th) & (slope<=slope_th), 2, #plateau
-                           3, #wetland
-                           ))
-    
+    ds["hru"] = xr.where(
+        (hand > hand_th) & (slope > slope_th),
+        1,  # hillslope
+        xr.where(
+            (hand > hand_th) & (slope <= slope_th),
+            2,  # plateau
+            3,  # wetland
+        ),
+    )
+
     ds["percentH"] = xr.where(ds["hru"] == 1, 1.0, 0)
     ds["percentP"] = xr.where(ds["hru"] == 2, 1.0, 0)
     ds["percentW"] = xr.where(ds["hru"] == 3, 1.0, 0)
 
-    ds_out = ds[["percentH", "percentP", "percentW"]].raster.reproject_like(ds_like, method = "average")
+    ds_out = ds[["percentH", "percentP", "percentW"]].raster.reproject_like(
+        ds_like, method="average"
+    )
 
     # for writing pcraster map files a scalar nodata value is required
     nodata = -9999.0
@@ -61,4 +68,3 @@ def classification_hru(
         ds_out[var].raster.set_nodata(nodata)
 
     return ds_out
-
