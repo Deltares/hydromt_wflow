@@ -837,9 +837,11 @@ class WflowModel(Model):
         reservoirs_fn : {'hydro_reservoirs'}
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+            * Required variables for direct use: ['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', 'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
 
-            * Required variables without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+            * Required variables for computation with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+
+            * Required variables for computation without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         priority_jrc : boolean, optional
@@ -863,7 +865,7 @@ class WflowModel(Model):
         }
 
         # path or filename. get_geodataframe
-        if reservoirs_fn not in ["hydro_reservoirs"]:
+        if reservoirs_fn not in self.data_catalog:
             self.logger.warning(
                 f"Invalid source '{reservoirs_fn}', skipping setup_reservoirs."
             )
@@ -874,15 +876,30 @@ class WflowModel(Model):
         if ds_res is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
             self.set_staticmaps(ds_res.rename(rmdict))
+
             # add attributes
-            intbl_reservoirs, reservoir_accuracy = reservoirattrs(
-                gdf=gdf_org,
-                priorityJRC=priority_jrc,
-                usehe=kwargs.get("usehe", True),
-                logger=self.logger,
-            )
-            #
-            intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
+            # if present use directly
+            resattributes = [
+                "waterbody_id",
+                "ResSimpleArea",
+                "ResMaxVolume",
+                "ResTargetMinFrac",
+                "ResTargetFullFrac",
+                "ResDemand",
+                "ResMaxRelease",
+            ]
+            if np.all(np.isin(resattributes, gdf_org.columns)):
+                intbl_reservoirs = gdf_org[resattributes]
+                reservoir_accuracy = None
+            # else compute
+            else:
+                intbl_reservoirs, reservoir_accuracy = reservoirattrs(
+                    gdf=gdf_org,
+                    priorityJRC=priority_jrc,
+                    usehe=kwargs.get("usehe", True),
+                    logger=self.logger,
+                )
+                intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
             # create a geodf with id of reservoir and gemoetry at outflow location
             gdf_org_points = gpd.GeoDataFrame(
@@ -902,13 +919,15 @@ class WflowModel(Model):
             self.set_staticgeoms(gdf_org, name="reservoirs")
 
             for name in gdf_org_points.columns[2:]:
+                gdf_org_points[name] = gdf_org_points[name].astype("float32")
                 da_res = ds_res.raster.rasterize(
                     gdf_org_points, col_name=name, dtype="float32", nodata=-999
                 )
                 self.set_staticmaps(da_res)
 
             # Save accuracy information on reservoir parameters
-            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
+            if reservoir_accuracy is not None:
+                reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
 
             for option in res_toml:
                 self.set_config(option, res_toml[option])
@@ -1611,7 +1630,7 @@ class WflowModel(Model):
         # raise NotImplementedError()
 
     def read_results(self):
-        """Read results at <root/?/> and parse to dict of xr.DataArray"""
+        """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset"""
         if not self._write:
             # start fresh in read-only mode
             self._results = dict()
@@ -1656,7 +1675,7 @@ class WflowModel(Model):
                     )
                     count += len(gdf.index)
                     da_ts = open_timeseries_from_table(
-                        csv_fn, name=header, usecols=usecols
+                        csv_fn, name=f'{header}_{col["map"]}', usecols=usecols
                     )
                     da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
                 # Column based on xy coordinates or reducer for the full model domain domain

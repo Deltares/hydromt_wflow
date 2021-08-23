@@ -169,8 +169,8 @@ def test_model_results():
 
     # Checks for the csv columns
     # Q for gauges_grdc
-    assert len(mod.results["Q"].index) == 3
-    assert np.isin(6349410, mod.results["Q"].index)
+    assert len(mod.results["Q_gauges_grdc"].index) == 3
+    assert np.isin(6349410, mod.results["Q_gauges_grdc"].index)
 
     # Coordinates and values for coordinate.x and index.x for temp
     assert np.isclose(
