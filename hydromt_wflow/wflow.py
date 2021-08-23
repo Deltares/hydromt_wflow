@@ -15,7 +15,8 @@ import toml
 import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
-from dask.distributed import LocalCluster, Client, performance_report
+
+# from dask.distributed import LocalCluster, Client, performance_report
 from hydromt.models.model_api import Model
 
 # from hydromt.workflows.basin_mask import parse_region
