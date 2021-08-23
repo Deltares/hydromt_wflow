@@ -39,6 +39,9 @@ def _compare_wflow_models(mod0, mod1):
             map0 = mod0.staticmaps[name].fillna(0)
             map1 = mod1.staticmaps[name].fillna(0)
             if not np.allclose(map0, map1, atol=1e-3, rtol=1e-3):
+                if len(map0.dims) > 2:  # 3 dim map
+                    map0 = map0[0, :, :]
+                    map1 = map1[0, :, :]
                 notclose = ~np.isclose(map0, map1)
                 xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                 ncells = int(np.sum(notclose))
