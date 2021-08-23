@@ -6,7 +6,8 @@ import numpy as np
 import xarray as xr
 import warnings
 import pdb
-from hydromt.models import WflowModel, WflowSedimentModel
+from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow_sediment import WflowSedimentModel
 from hydromt.cli.cli_utils import parse_config
 
 import logging
