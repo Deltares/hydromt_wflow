@@ -6,7 +6,7 @@ import numpy as np
 import xarray as xr
 import warnings
 import pdb
-from hydromt.models import MODELS
+from hydromt.models import WflowModel, WflowSedimentModel
 from hydromt.cli.cli_utils import parse_config
 
 import logging
@@ -18,10 +18,12 @@ _models = {
     "wflow": {
         "example": "wflow_piave_subbasin",
         "ini": "wflow_piave_build_subbasin.ini",
+        "model": "wflow",
     },
     "wflow_sediment": {
         "example": "wflow_sediment_piave_subbasin",
         "ini": "wflow_sediment_piave_build_subbasin.ini",
+        "model": "wflow_sediment",
     },
 }
 
@@ -69,7 +71,10 @@ def test_model_class(model):
     _model = _models[model]
     # read model in examples folder
     root = join(EXAMPLEDIR, _model["example"])
-    mod = MODELS.get(model)(root=root, mode="r")
+    if _model["model"] == "wflow_sediment":
+        mod = WflowSedimentModel(root=root, mode="r")
+    else:
+        mod = WflowModel(root=root, mode="r")
     mod.read()
     # run test_model_api() method
     non_compliant_list = mod.test_model_api()
@@ -85,7 +90,10 @@ def test_model_build(tmpdir, model):
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
     print(root)
-    mod1 = MODELS.get(model)(root=root, mode="w", logger=logger)
+    if _model["model"] == "wflow_sediment":
+        mod1 = WflowSedimentModel(root=root, mode="w", logger=logger)
+    else:
+        mod1 = WflowModel(root=root, mode="w", logger=logger)
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],
@@ -103,10 +111,16 @@ def test_model_build(tmpdir, model):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = MODELS.get(model)(root=root, mode="r", logger=logger)
+    if _model["model"] == "wflow_sediment":
+        mod1 = WflowSedimentModel(root=root, mode="r", logger=logger)
+    else:
+        mod1 = WflowModel(root=root, mode="r", logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, _model["example"])
-    mod0 = MODELS.get(model)(root=root, mode="r")
+    if _model["model"] == "wflow_sediment":
+        mod0 = WflowSedimentModel(root=root, mode="r")
+    else:
+        mod0 = WflowModel(root=root, mode="r")
     mod0.read()
     # compare models
     _compare_wflow_models(mod0, mod1)
@@ -127,7 +141,7 @@ def test_model_clip(tmpdir):
     }
 
     # Clip workflow
-    mod1 = MODELS.get(model)(root=root, mode="r", logger=logger)
+    mod1 = WflowModel(root=root, mode="r", logger=logger)
     mod1.read()
     mod1.set_root(destination, mode="w")
     mod1.clip_staticmaps(region)
@@ -139,10 +153,10 @@ def test_model_clip(tmpdir):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = MODELS.get(model)(root=destination, mode="r", logger=logger)
+    mod1 = WflowModel(root=destination, mode="r", logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod0 = MODELS.get(model)(root=root, mode="r")
+    mod0 = WflowModel(root=root, mode="r")
     mod0.read()
     # compare models
     _compare_wflow_models(mod0, mod1)
@@ -150,14 +164,13 @@ def test_model_clip(tmpdir):
 
 def test_model_results():
     logger = logging.getLogger(__name__)
-    model = "wflow"
     # test read_results method
     # read results from model from examples folder
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
 
     # Initialize model and read results
-    mod = MODELS.get(model)(root=root, mode="r", config_fn=config_fn, logger=logger)
+    mod = WflowModel(root=root, mode="r", config_fn=config_fn, logger=logger)
 
     # Tests on results
     # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
