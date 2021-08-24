@@ -32,7 +32,8 @@ Examples
 .. toctree::
    :maxdepth: 1
 
-   Convert wflow staticmaps netcdf to raster files <examples/convert_staticmaps_to_gtiff>
+   Convert wflow staticmaps netcdf to raster files <examples/convert_staticmaps_to_mapstack>
    Plot Wflow static maps <examples/plot_wflow_staticmaps>
    Plot Wflow forcing data <examples/plot_wflow_forcing>
+   Plot Wflow results data <examples/plot_wflow_results>
 

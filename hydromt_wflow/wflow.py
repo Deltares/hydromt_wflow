@@ -15,12 +15,14 @@ import toml
 import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
-from dask.distributed import LocalCluster, Client, performance_report
+
+# from dask.distributed import LocalCluster, Client, performance_report
 from hydromt.models.model_api import Model
 
 # from hydromt.workflows.basin_mask import parse_region
 from hydromt import workflows, flw
-from hydromt.io import open_mfraster
+from hydromt.io import open_mfraster, open_timeseries_from_table
+from hydromt.vector import GeoDataArray
 
 from .workflows import (
     river,
@@ -836,9 +838,11 @@ class WflowModel(Model):
         reservoirs_fn : {'hydro_reservoirs'}
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+            * Required variables for direct use: ['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', 'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
 
-            * Required variables without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+            * Required variables for computation with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+
+            * Required variables for computation without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         priority_jrc : boolean, optional
@@ -862,7 +866,7 @@ class WflowModel(Model):
         }
 
         # path or filename. get_geodataframe
-        if reservoirs_fn not in ["hydro_reservoirs"]:
+        if reservoirs_fn not in self.data_catalog:
             self.logger.warning(
                 f"Invalid source '{reservoirs_fn}', skipping setup_reservoirs."
             )
@@ -873,15 +877,30 @@ class WflowModel(Model):
         if ds_res is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
             self.set_staticmaps(ds_res.rename(rmdict))
+
             # add attributes
-            intbl_reservoirs, reservoir_accuracy = reservoirattrs(
-                gdf=gdf_org,
-                priorityJRC=priority_jrc,
-                usehe=kwargs.get("usehe", True),
-                logger=self.logger,
-            )
-            #
-            intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
+            # if present use directly
+            resattributes = [
+                "waterbody_id",
+                "ResSimpleArea",
+                "ResMaxVolume",
+                "ResTargetMinFrac",
+                "ResTargetFullFrac",
+                "ResDemand",
+                "ResMaxRelease",
+            ]
+            if np.all(np.isin(resattributes, gdf_org.columns)):
+                intbl_reservoirs = gdf_org[resattributes]
+                reservoir_accuracy = None
+            # else compute
+            else:
+                intbl_reservoirs, reservoir_accuracy = reservoirattrs(
+                    gdf=gdf_org,
+                    priorityJRC=priority_jrc,
+                    usehe=kwargs.get("usehe", True),
+                    logger=self.logger,
+                )
+                intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
             # create a geodf with id of reservoir and gemoetry at outflow location
             gdf_org_points = gpd.GeoDataFrame(
@@ -901,13 +920,15 @@ class WflowModel(Model):
             self.set_staticgeoms(gdf_org, name="reservoirs")
 
             for name in gdf_org_points.columns[2:]:
+                gdf_org_points[name] = gdf_org_points[name].astype("float32")
                 da_res = ds_res.raster.rasterize(
                     gdf_org_points, col_name=name, dtype="float32", nodata=-999
                 )
                 self.set_staticmaps(da_res)
 
             # Save accuracy information on reservoir parameters
-            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
+            if reservoir_accuracy is not None:
+                reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
 
             for option in res_toml:
                 self.set_config(option, res_toml[option])
@@ -1453,7 +1474,11 @@ class WflowModel(Model):
         """Read and staticgeoms at <root/staticgeoms> and parse to geopandas"""
         if not self._write:
             self._staticgeoms = dict()  # fresh start in read-only mode
-        fns = glob.glob(join(self.root, "staticgeoms", "*.geojson"))
+        dir_default = join(self.root, "staticmaps.nc")
+        dir_mod = dirname(
+            self.get_config("input.path_static", abs_path=True, fallback=dir_default)
+        )
+        fns = glob.glob(join(dir_mod, "staticgeoms", "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -1606,11 +1631,175 @@ class WflowModel(Model):
         # raise NotImplementedError()
 
     def read_results(self):
-        """Read results at <root/?/> and parse to dict of xr.DataArray"""
+        """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset"""
         if not self._write:
             # start fresh in read-only mode
             self._results = dict()
-        # raise NotImplementedError()
+
+        # Read gridded netcdf (output section)
+        nc_fn = self.get_config("output.path", abs_path=True)
+        if nc_fn is not None and isfile(nc_fn):
+            self.logger.info(f"Read results from {nc_fn}")
+            ds = xr.open_dataset(nc_fn, chunks={"time": 30})
+            # TODO ? align coords names and values of results nc with staticmaps
+            self.set_results(ds, name="output")
+
+        # Read scalar netcdf (netcdf section)
+        ncs_fn = self.get_config("netcdf.path", abs_path=True)
+        if ncs_fn is not None and isfile(ncs_fn):
+            self.logger.info(f"Read results from {ncs_fn}")
+            ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
+            self.set_results(ds, name="netcdf")
+
+        # Read csv timeseries (csv section)
+        csv_fn = self.get_config("csv.path", abs_path=True)
+        if csv_fn is not None and isfile(csv_fn):
+            # Count items by csv.column
+            count = 1
+            # Loop over csv.column
+            for col in self.get_config("csv.column"):
+                header = col["header"]
+                # Column based on map
+                if "map" in col.keys():
+                    # Read the corresponding map and derive the different locations
+                    # The centroid of the geometry is used as coordinates for the timeseries
+                    map_name = self.get_config(f"input.{col['map']}")
+                    da = self.staticmaps[map_name]
+                    gdf = da.raster.vectorize()
+                    gdf.geometry = gdf.geometry.centroid
+                    gdf.index = gdf.value.astype(da.dtype)
+                    gdf.index.name = "index"
+                    # Read the timeseries
+                    usecols = [0]
+                    usecols = np.append(
+                        usecols, np.arange(count, count + len(gdf.index))
+                    )
+                    count += len(gdf.index)
+                    da_ts = open_timeseries_from_table(
+                        csv_fn, name=f'{header}_{col["map"]}', usecols=usecols
+                    )
+                    da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
+                # Column based on xy coordinates or reducer for the full model domain domain
+                else:
+                    # Read the timeseries
+                    usecols = [0]
+                    usecols = np.append(usecols, np.arange(count, count + 1))
+                    count += 1
+                    try:
+                        da_ts = open_timeseries_from_table(
+                            csv_fn, name=header, usecols=usecols
+                        )
+                    except:
+                        colnames = ["time", "0"]
+                        da_ts = open_timeseries_from_table(
+                            csv_fn,
+                            name=header,
+                            usecols=usecols,
+                            header=0,
+                            names=colnames,
+                        )
+                    # Add point coordinates
+                    # Column based on xy coordinates
+                    if "coordinate" in col.keys():
+                        scoords = {
+                            "x": xr.IndexVariable("index", [col["coordinate"]["x"]]),
+                            "y": xr.IndexVariable("index", [col["coordinate"]["y"]]),
+                        }
+                    # Column based on index
+                    elif "index" in col.keys():
+                        # x and y index, works on the full 2D grid
+                        if isinstance(col["index"], dict):
+                            # index in julia starts at 1
+                            # coordinates are always ascending
+                            xi = self.staticmaps.raster.xcoords.values[
+                                col["index"]["x"] - 1
+                            ]
+                            yi = np.sort(self.staticmaps.raster.ycoords.values)[
+                                col["index"]["y"] - 1
+                            ]
+                            scoords = {
+                                "x": xr.IndexVariable("index", [xi]),
+                                "y": xr.IndexVariable("index", [yi]),
+                            }
+                        # index of the full array
+                        else:
+                            # Create grid with full 2D Julia indices
+                            # Dimensions are ascending and ordered as (x,y,layer,time)
+                            # Indices are created before ordering for compatibility with raster.idx_to_xy
+                            full_index = self.staticmaps[
+                                f'{self.get_config("input.subcatchment")}'
+                            ].copy()
+                            res_x, res_y = full_index.raster.res
+                            if res_y < 0:
+                                full_index = full_index.reindex(
+                                    {
+                                        full_index.raster.y_dim: full_index[
+                                            full_index.raster.y_dim
+                                        ][::-1]
+                                    }
+                                )
+                            data = np.arange(0, np.size(full_index)).reshape(
+                                np.size(full_index, 0), np.size(full_index, 1)
+                            )
+                            full_index[:, :] = data
+                            full_index = full_index.transpose(
+                                full_index.raster.x_dim, full_index.raster.y_dim
+                            )
+                            # Index depends on the struct
+                            # For land uses the active subcatch IDs
+                            if (
+                                "vertical" in col["parameter"]
+                                or "lateral.land" in col["parameter"]
+                            ):
+                                mask = self.staticmaps[
+                                    f'{self.get_config("input.subcatchment")}'
+                                ].copy()
+                            elif "reservoir" in col["parameter"]:
+                                mask = self.staticmaps[
+                                    f'{self.get_config("input.lateral.river.reservoir.locs")}'
+                                ].copy()
+                            elif "lake" in col["parameter"]:
+                                mask = self.staticmaps[
+                                    f'{self.get_config("input.lateral.river.lake.locs")}'
+                                ].copy()
+                            # Else lateral.river
+                            else:
+                                mask = self.staticmaps[
+                                    f'{self.get_config("input.river_location")}'
+                                ].copy()
+                            # Rearrange the mask
+                            res_x, res_y = mask.raster.res
+                            if res_y < 0:
+                                mask = mask.reindex(
+                                    {mask.raster.y_dim: mask[mask.raster.y_dim][::-1]}
+                                )
+                            mask = mask.transpose(mask.raster.x_dim, mask.raster.y_dim)
+                            # Filter and reduce full_index based on mask
+                            full_index = full_index.where(mask != mask.raster.nodata, 0)
+                            full_index.attrs.update(_FillValue=0)
+                            mask_index = full_index.values.flatten()
+                            mask_index = mask_index[mask_index != 0]
+                            # idx corresponding to the wflow index
+                            idx = mask_index[col["index"] - 1]
+                            # Reorder full_index as (y,x) to use raster.idx_to_xy method
+                            xi, yi = full_index.transpose(
+                                full_index.raster.y_dim, full_index.raster.x_dim
+                            ).raster.idx_to_xy(idx)
+                            scoords = {
+                                "x": xr.IndexVariable("index", xi),
+                                "y": xr.IndexVariable("index", yi),
+                            }
+                    # Based on model bbox center for column based on reducer for the full model domain domain
+                    else:
+                        xmin, ymin, xmax, ymax = self.bounds
+                        scoords = {
+                            "x": xr.IndexVariable("index", [(xmax + xmin) / 2]),
+                            "y": xr.IndexVariable("index", [(ymax + ymin) / 2]),
+                        }
+                    da = da_ts.assign_coords(scoords)
+
+                # Add to results
+                self.set_results(da)
 
     def write_results(self):
         """write results at <root/?/> in model ready format"""

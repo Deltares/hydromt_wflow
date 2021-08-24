@@ -11,6 +11,7 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Added
 ^^^^^
 
+- Add results attributes for wflow and read_results method (including test+example).
 - Add f_ parameter in soilgrids 
 - Support soilgrids version 2020
 - Setup_areamap component to prepare maps of areas of interest to save wflow outputs at.
@@ -28,6 +29,12 @@ Fixed
 ^^^^^
 
 - Fix f parameter in soilgrids
+
+Documentation
+^^^^^^^^^^^^^
+
+- Added wflow_plot_results example.
+- Fixed staticmaps_to_mapstack example.
 
 v0.1.1 (21 May 2021)
 --------------------
