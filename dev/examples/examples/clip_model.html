@@ -36,14 +36,14 @@
         <script src="../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
     
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Convert wflow staticmaps netcdf to raster files" href="convert_staticmaps_to_gtiff.html" />
+    <link rel="next" title="Convert wflow staticmaps netcdf to raster files" href="convert_staticmaps_to_mapstack.html" />
     <link rel="prev" title="Update a wflow model: gauging stations" href="update_model_gauges.html" /> 
 </head>
 
@@ -109,9 +109,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#Visualize-and/or-inspect-model-schematization">Visualize and/or inspect model schematization</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_gtiff.html">Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Convert wflow staticmaps netcdf to raster files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow results data</a></li>
 </ul>
 </li>
 </ul>
@@ -535,30 +536,30 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-08-02 15:28:30,694 - clip - log - INFO - HydroMT version: 0.4.3.dev
-2021-08-02 15:28:30,694 - clip - main - INFO - Clipping instance of wflow model.
-2021-08-02 15:28:30,694 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2021-08-02 15:28:30,736 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.2.dev0).
-2021-08-02 15:28:30,737 - clip - main - INFO - Reading model to clip
-2021-08-02 15:28:30,740 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
-2021-08-02 15:28:30,812 - clip - wflow - INFO - Reading model intbl files.
-2021-08-02 15:28:30,812 - clip - wflow - INFO - Reading model staticgeom files.
-2021-08-02 15:28:31,024 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
-2021-08-02 15:28:31,036 - clip - wflow - INFO - Model read
-2021-08-02 15:28:31,037 - clip - main - INFO - Clipping staticmaps
-2021-08-02 15:28:34,344 - clip - basin_mask - INFO - basin bbox: [12.0083, 46.3417, 12.3250, 46.6750] / size: 161
-2021-08-02 15:28:35,987 - clip - main - INFO - Clipping forcing
-2021-08-02 15:28:35,987 - clip - wflow - INFO - Clipping NetCDF forcing..
-2021-08-02 15:28:36,006 - clip - model_api - WARNING - Replacing forcing: precip
-2021-08-02 15:28:36,006 - clip - model_api - WARNING - Replacing forcing: pet
-2021-08-02 15:28:36,006 - clip - model_api - WARNING - Replacing forcing: temp
-2021-08-02 15:28:36,006 - clip - main - INFO - Writting clipped model
-2021-08-02 15:28:36,006 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip
-2021-08-02 15:28:36,006 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/wflow_sbm.toml
-2021-08-02 15:28:36,007 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/staticmaps.nc
-2021-08-02 15:28:36,416 - clip - wflow - INFO - Writing model staticgeom to file.
-2021-08-02 15:28:36,451 - clip - wflow - INFO - Write forcing file
-2021-08-02 15:28:36,464 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/inmaps.nc
+2021-08-24 09:40:47,356 - clip - log - INFO - HydroMT version: 0.4.3.dev
+2021-08-24 09:40:47,356 - clip - main - INFO - Clipping instance of wflow model.
+2021-08-24 09:40:47,356 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2021-08-24 09:40:47,388 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.2.dev0).
+2021-08-24 09:40:47,388 - clip - main - INFO - Reading model to clip
+2021-08-24 09:40:47,391 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2021-08-24 09:40:47,448 - clip - wflow - INFO - Reading model intbl files.
+2021-08-24 09:40:47,449 - clip - wflow - INFO - Reading model staticgeom files.
+2021-08-24 09:40:47,604 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2021-08-24 09:40:47,614 - clip - wflow - INFO - Model read
+2021-08-24 09:40:47,614 - clip - main - INFO - Clipping staticmaps
+2021-08-24 09:40:50,195 - clip - basin_mask - INFO - basin bbox: [12.0083, 46.3417, 12.3250, 46.6750] / size: 161
+2021-08-24 09:40:51,499 - clip - main - INFO - Clipping forcing
+2021-08-24 09:40:51,499 - clip - wflow - INFO - Clipping NetCDF forcing..
+2021-08-24 09:40:51,515 - clip - model_api - WARNING - Replacing forcing: precip
+2021-08-24 09:40:51,515 - clip - model_api - WARNING - Replacing forcing: pet
+2021-08-24 09:40:51,515 - clip - model_api - WARNING - Replacing forcing: temp
+2021-08-24 09:40:51,516 - clip - main - INFO - Writting clipped model
+2021-08-24 09:40:51,516 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip
+2021-08-24 09:40:51,516 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/wflow_sbm.toml
+2021-08-24 09:40:51,516 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/staticmaps.nc
+2021-08-24 09:40:51,835 - clip - wflow - INFO - Writing model staticgeom to file.
+2021-08-24 09:40:51,861 - clip - wflow - INFO - Write forcing file
+2021-08-24 09:40:51,872 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/inmaps.nc
 [########################################] | 100% Completed |  0.1s
 
 </pre></div></div>
@@ -698,7 +699,7 @@ Options:
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="convert_staticmaps_to_gtiff.html" class="btn btn-neutral float-right" title="Convert wflow staticmaps netcdf to raster files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="convert_staticmaps_to_mapstack.html" class="btn btn-neutral float-right" title="Convert wflow staticmaps netcdf to raster files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
         <a href="update_model_gauges.html" class="btn btn-neutral float-left" title="Update a wflow model: gauging stations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 

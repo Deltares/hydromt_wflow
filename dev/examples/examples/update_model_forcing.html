@@ -36,7 +36,7 @@
         <script src="../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -111,9 +111,10 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="update_model_gauges.html">Update Wflow model: gauges</a></li>
 <li class="toctree-l2"><a class="reference internal" href="clip_model.html">Clip Wflow model</a></li>
-<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_gtiff.html">Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Convert wflow staticmaps netcdf to raster files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow results data</a></li>
 </ul>
 </li>
 </ul>
@@ -514,7 +515,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-08-02 15:29:10,845 - update_model_forcing - log - INFO - HydroMT version: 0.4.3.dev
+2021-08-24 09:41:28,191 - update_model_forcing - log - INFO - HydroMT version: 0.4.3.dev
 </pre></div></div>
 </div>
 </div>
@@ -645,39 +646,39 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-08-02 15:29:16,419 - update - log - INFO - HydroMT version: 0.4.3.dev
-2021-08-02 15:29:16,419 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
-2021-08-02 15:29:16,419 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing
-2021-08-02 15:29:16,419 - update - main - INFO - User settings:
-2021-08-02 15:29:16,461 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.2.dev0).
-2021-08-02 15:29:16,464 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
-2021-08-02 15:29:16,540 - update - wflow - INFO - Reading model intbl files.
-2021-08-02 15:29:16,541 - update - wflow - INFO - Reading model staticgeom files.
-2021-08-02 15:29:16,748 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
-2021-08-02 15:29:16,760 - update - wflow - INFO - Model read
-2021-08-02 15:29:16,772 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2021-08-02 15:29:16,772 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2021-08-02 15:29:16,772 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2021-08-02 15:29:16,785 - update - data_adapter - INFO - Updating data sources from yml file /home/runner/.hydromt_data/data/v0.0.4/data_catalog.yml
-2021-08-02 15:29:16,867 - update - data_adapter - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.4/chirps_global.nc
-2021-08-02 15:29:17,010 - update - model_api - WARNING - Replacing forcing: precip
-2021-08-02 15:29:17,010 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2021-08-02 15:29:17,010 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2021-08-02 15:29:17,010 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2021-08-02 15:29:17,010 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2021-08-02 15:29:17,011 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2021-08-02 15:29:17,011 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2021-08-02 15:29:17,011 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2021-08-02 15:29:17,024 - update - data_adapter - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.4/era5.nc
-2021-08-02 15:29:17,129 - update - data_adapter - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.4/era5_orography.nc
-2021-08-02 15:29:17,596 - update - model_api - WARNING - Replacing forcing: pet
-2021-08-02 15:29:17,598 - update - model_api - WARNING - Replacing forcing: temp
-2021-08-02 15:29:17,598 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing
-2021-08-02 15:29:17,599 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing/wflow_sbm.toml
-2021-08-02 15:29:17,599 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing/staticmaps.nc
-2021-08-02 15:29:18,169 - update - wflow - INFO - Writing model staticgeom to file.
-2021-08-02 15:29:18,400 - update - wflow - INFO - Write forcing file
-2021-08-02 15:29:18,406 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing/inmaps-chirps-2010.nc
+2021-08-24 09:41:32,524 - update - log - INFO - HydroMT version: 0.4.3.dev
+2021-08-24 09:41:32,524 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
+2021-08-24 09:41:32,524 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing
+2021-08-24 09:41:32,524 - update - main - INFO - User settings:
+2021-08-24 09:41:32,557 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.2.dev0).
+2021-08-24 09:41:32,560 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2021-08-24 09:41:32,617 - update - wflow - INFO - Reading model intbl files.
+2021-08-24 09:41:32,618 - update - wflow - INFO - Reading model staticgeom files.
+2021-08-24 09:41:32,770 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2021-08-24 09:41:32,780 - update - wflow - INFO - Model read
+2021-08-24 09:41:32,789 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2021-08-24 09:41:32,789 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2021-08-24 09:41:32,789 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2021-08-24 09:41:32,798 - update - data_adapter - INFO - Updating data sources from yml file /home/runner/.hydromt_data/data/v0.0.4/data_catalog.yml
+2021-08-24 09:41:32,865 - update - data_adapter - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.4/chirps_global.nc
+2021-08-24 09:41:32,977 - update - model_api - WARNING - Replacing forcing: precip
+2021-08-24 09:41:32,977 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2021-08-24 09:41:32,977 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2021-08-24 09:41:32,977 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2021-08-24 09:41:32,977 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2021-08-24 09:41:32,977 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2021-08-24 09:41:32,978 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2021-08-24 09:41:32,978 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2021-08-24 09:41:32,986 - update - data_adapter - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.4/era5.nc
+2021-08-24 09:41:33,067 - update - data_adapter - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.4/era5_orography.nc
+2021-08-24 09:41:33,428 - update - model_api - WARNING - Replacing forcing: pet
+2021-08-24 09:41:33,430 - update - model_api - WARNING - Replacing forcing: temp
+2021-08-24 09:41:33,431 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing
+2021-08-24 09:41:33,431 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing/wflow_sbm.toml
+2021-08-24 09:41:33,432 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing/staticmaps.nc
+2021-08-24 09:41:33,883 - update - wflow - INFO - Writing model staticgeom to file.
+2021-08-24 09:41:34,058 - update - wflow - INFO - Write forcing file
+2021-08-24 09:41:34,063 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_forcing/inmaps-chirps-2010.nc
 [########################################] | 100% Completed |  0.1s
 
 </pre></div></div>

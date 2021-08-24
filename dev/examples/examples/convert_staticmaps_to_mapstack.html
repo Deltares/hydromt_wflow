@@ -36,7 +36,7 @@
         <script src="../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     
     <script type="text/javascript" src="../../_static/js/theme.js"></script>
 
@@ -109,10 +109,16 @@
 <li class="toctree-l3"><a class="reference internal" href="#Read-wflow-staticmaps">Read wflow staticmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Write-netcdf-to-mapstack">Write netcdf to mapstack</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Create-staticmaps-netcdf-files-based-on-mapstack">Create staticmaps netcdf files based on mapstack</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Update-wflow-staticmaps-manually-using-hydroMT">Update wflow staticmaps manually using hydroMT</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Save-the-staticmaps-as-a-PCRaster-mapstack">Save the staticmaps as a PCRaster mapstack</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Create-a-new-wflow-model-based-on-the-updated-PCRaster-mapstack">Create a new wflow model based on the updated PCRaster mapstack</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow results data</a></li>
 </ul>
 </li>
 </ul>
@@ -186,7 +192,7 @@
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../../_sources/examples/examples/convert_staticmaps_to_gtiff.ipynb.txt" rel="nofollow"> View page source</a>
+            <a href="../../_sources/examples/examples/convert_staticmaps_to_mapstack.ipynb.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -510,10 +516,10 @@ div.rendered_html tbody tr:hover {
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 &lt;xarray.Dataset&gt;
-Dimensions:               (x: 58, y: 53, time: 12, layer: 4)
+Dimensions:               (y: 53, x: 58, time: 12, layer: 4)
 Coordinates:
-  * x                     (x) float64 11.78 11.8 11.82 ... 12.7 12.72 12.73
   * y                     (y) float64 46.68 46.67 46.65 ... 45.85 45.83 45.82
+  * x                     (x) float64 11.78 11.8 11.82 ... 12.7 12.72 12.73
     idx_out               (y, x) int32 24029 24049 28860 ... 1281540 1280360
     spatial_ref           int32 1
     mask                  (y, x) uint8 0 0 0 0 0 0 0 0 0 0 ... 0 0 0 0 0 0 0 0 0
@@ -606,7 +612,8 @@ Data variables: (12/84)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># update the model staticmaps</span>
+<span></span><span class="c1"># Reinitialize and update the new model staticmaps</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">_staticmaps</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
 <span class="n">mod</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_updated</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -619,6 +626,111 @@ Data variables: (12/84)
 <span></span><span class="c1"># write the model to the new directory</span>
 <span class="n">mod</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
 </pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Update-wflow-staticmaps-manually-using-hydroMT">
+<h2>Update wflow staticmaps manually using hydroMT<a class="headerlink" href="#Update-wflow-staticmaps-manually-using-hydroMT" title="Permalink to this headline">¶</a></h2>
+<p>The previous steps show you how you can easily save a model staticmaps to a GeoTIFF mapstacks and read it again using hydroMT functions <strong>to_mapstack</strong> and <strong>open_mfraster</strong>.</p>
+<p>However in order to have a fully ready-to-run wflow model, the mapstacks that we create needs to be processed a little more:</p>
+<ul class="simple">
+<li><p>The LAI maps have a third <em>time</em> dimension (other than x and y coordinates)</p></li>
+<li><p>The c maps have a third soil <em>layer</em> dimension</p></li>
+</ul>
+<p>To update manually a wflow model that is then ready to run, we advise to use the following workflow and functions:</p>
+<ul class="simple">
+<li><p>read the original model</p></li>
+<li><p>save the original model staticmaps to formatted PCRaster mapstacks using the <strong>write_staticmaps_pcr</strong> function (based on to_mapstack with c and LAI pre-processing)</p></li>
+<li><p>manually update the PCRaster maps (eg using QGIS)</p></li>
+<li><p>read the updated staticmaps using the <strong>read_staticmaps_pcr</strong> function (based on open_mfraster with c and LAI post-processing)</p></li>
+<li><p>Change the model root to write the updated model to a new directory</p></li>
+<li><p>Write the model</p></li>
+</ul>
+<p>NOTE: We do not read the forcing as it is probably faster to just copy the file instead of loading it into python and writing it back to netcdf.</p>
+<p>NOTE: The staticgeoms might be changed because of manual changes in the wflow_river, lakes, reservoir or glacier staticmaps and are therefore not read here. To change these maps we recommend using the hydromt update method to keep the staticgeoms and maps aligned.</p>
+<div class="section" id="Save-the-staticmaps-as-a-PCRaster-mapstack">
+<h3>Save the staticmaps as a PCRaster mapstack<a class="headerlink" href="#Save-the-staticmaps-as-a-PCRaster-mapstack" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># read the original model</span>
+<span class="n">root</span> <span class="o">=</span> <span class="s1">&#39;wflow_piave_subbasin&#39;</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">)</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">read_staticmaps</span><span class="p">()</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">read_config</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># save the staticmaps to PCRaster mapstacks and update them manually where needed</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">write_staticmaps_pcr</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Create-a-new-wflow-model-based-on-the-updated-PCRaster-mapstack">
+<h3>Create a new wflow model based on the updated PCRaster mapstack<a class="headerlink" href="#Create-a-new-wflow-model-based-on-the-updated-PCRaster-mapstack" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># read the updated staticmaps</span>
+<span class="n">root</span> <span class="o">=</span> <span class="s1">&#39;wflow_piave_subbasin&#39;</span>
+<span class="n">mod</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">read_staticmaps_pcr</span><span class="p">()</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">read_config</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># change root to a new directory</span>
+<span class="n">root_updated</span> <span class="o">=</span> <span class="s1">&#39;wflow_piave_subbasin_updated&#39;</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">set_root</span><span class="p">(</span><span class="n">root_updated</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+<span class="c1"># re-generate the basins and rivers staticgeoms, for others (gauges, lakes, reservoirs, glaicers) use the hydromt update method</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">basins</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">rivers</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating a new directory for the updated model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin_updated/staticgeoms.
+Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin_updated/instate.
+Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin_updated/run_default.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Creating a new directory for the updated model
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># write the model to the new directory</span>
+<span class="n">mod</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>

@@ -257,8 +257,9 @@ data source and we use a default minimum area of 1 km2.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reservoirs_fn</strong> (<em>{'hydro_reservoirs'}</em>) – <p>Name of data source for reservoir parameters, see data/data_sources.yml.</p>
 <ul>
-<li><p>Required variables with hydroengine: [‘waterbody_id’, ‘Hylak_id’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Dam_height’]</p></li>
-<li><p>Required variables without hydroengine: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Capacity_max’, ‘Capacity_norm’, ‘Capacity_min’, ‘Dam_height’]</p></li>
+<li><p>Required variables for direct use: [‘waterbody_id’, ‘ResSimpleArea’, ‘ResMaxVolume’, ‘ResTargetMinFrac’, ‘ResTargetFullFrac’, ‘ResDemand’, ‘ResMaxRelease’]</p></li>
+<li><p>Required variables for computation with hydroengine: [‘waterbody_id’, ‘Hylak_id’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Dam_height’]</p></li>
+<li><p>Required variables for computation without hydroengine: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Capacity_max’, ‘Capacity_norm’, ‘Capacity_min’, ‘Dam_height’]</p></li>
 </ul>
 </p></li>
 <li><p><strong>min_area</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum reservoir area threshold [km2], by default 1.0 km2.</p></li>
