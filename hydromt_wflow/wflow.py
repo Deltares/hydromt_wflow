@@ -2,7 +2,7 @@
 # Implement model class following model API
 
 import os
-from os.path import join, dirname, basename, isfile
+from os.path import join, dirname, basename, isfile, isdir
 from typing import Optional
 import glob
 import numpy as np
@@ -1396,6 +1396,9 @@ class WflowModel(Model):
         ds_out = self.staticmaps
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        # Check if all sub-folders in fn exists and if not create them
+        if not isdir(dirname(fn)):
+            os.makedirs(dirname(fn))
         self.logger.info(f"Write staticmaps to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
@@ -1602,6 +1605,9 @@ class WflowModel(Model):
             }
 
             self.logger.info(f"Process forcing; saving to {fn_out}")
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
             # with compute=False we get a delayed object which is executed when
             # calling .compute where we can pass more arguments to the dask.compute method
             delayed_obj = ds.to_netcdf(
