@@ -579,13 +579,17 @@ class WflowModel(Model):
         self.staticgeoms
 
         if derive_outlet:
-            self.logger.info(f"Gauges locations set based on outlets.")
+            self.logger.info(f"Gauges locations set based on river outlets.")
             da, idxs, ids = flw.gaugemap(self.staticmaps, idxs=self.flwdir.idxs_pit)
+            # Only keep river outlets for gauges
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"]])
+            ids_da = np.unique(da.values[da.values > 0])
+            idxs_da = idxs[np.isin(ids, ids_da)]
             self.set_staticmaps(da, name=self._MAPS["gauges"])
-            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
-            gdf = gpd.GeoDataFrame(index=ids, geometry=points, crs=self.crs)
+            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
+            gdf = gpd.GeoDataFrame(index=ids_da, geometry=points, crs=self.crs)
             self.set_staticgeoms(gdf, name="gauges")
-            self.logger.info(f"Gauges map based on catchment outlets added.")
+            self.logger.info(f"Gauges map based on catchment river outlets added.")
 
         if gauges_fn is not None or source_gdf is not None:
             # append location from geometry
