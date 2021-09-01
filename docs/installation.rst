@@ -3,13 +3,22 @@ Installation
 
 User install
 ------------
+HydroMT and its plugins are python packages. If you do not have a python installation we recommend using 
+conda and `Miniconda <https://docs.conda.io/en/latest/miniconda.html>`_.
 
-The hydromt_wflow plugin is available from PyPi and conda-forge, but we recommend installing with conda.
-
-To install hydromt_wflow using conda do:
+The hydromt_wflow plugin is available from PyPi and conda-forge, but we recommend installing with conda in 
+a specific environment. To create a new **hydromt-wflow** environment from the command or conda prompt, do:
 
 .. code-block:: console
 
+  conda create --name hydromt-wflow
+
+This will create a new empty conda environment named hydromt-wflow. To install hydromt and the hydromt_wflow plugin
+in this new environment using conda do:
+
+.. code-block:: console
+
+  conda activate hydromt-wflow
   conda install -c conda-forge hydromt_wflow
 
 This will install **almost** all dependencies including the core hydroMT library and the model API as well 
@@ -21,7 +30,7 @@ from pypi (not available from conda):
   pip install hydroengine
 
 
-To install hydromt_wflow using pip do:
+**Alternatively** to install hydromt_wflow using pip do:
 Note: make sure this is installed in the same environment as hydromt.
 
 .. code-block:: console

@@ -2,7 +2,7 @@
 
 from os.path import join, dirname, abspath
 
-__version__ = "0.1.2.dev"
+__version__ = "0.1.2"
 
 try:
     import pcraster as pcr
@@ -12,3 +12,7 @@ except ImportError:
     HAS_PCRASTER = False
 
 DATADIR = join(dirname(abspath(__file__)), "data")
+
+from .wflow import *
+from .wflow_sediment import *
+from .utils import *

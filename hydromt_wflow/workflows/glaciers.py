@@ -67,10 +67,10 @@ def glaciermaps(
     # gdf["AREA2"] = gdf.to_crs(3857).area / 1e6  # km2, area calculation needs projected crs
 
     def calcStore(areakm2, k=0.2055, gamma=1.375):
-        return np.int(k * (areakm2 * 1e6) ** gamma)
+        return int(k * (areakm2 * 1e6) ** gamma)
 
     def convStoremm(areakm2, volm3, rhoice=0.9):
-        return np.int(rhoice * volm3 / (areakm2 * 1e6) * 1000)
+        return int(rhoice * volm3 / (areakm2 * 1e6) * 1000)
 
     gdf["glaciervolume"] = gdf.apply(lambda row: calcStore(row["AREA"]), axis=1)
     gdf["glacierstore"] = gdf.apply(

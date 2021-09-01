@@ -8,6 +8,10 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 [Unreleased]
 ------------
 
+v0.1.2 (1 September 2021)
+-------------------------
+This release implements the new results attributes for Wflow.
+
 Added
 ^^^^^
 
@@ -16,6 +20,7 @@ Added
 - Support soilgrids version 2020
 - Setup_areamap component to prepare maps of areas of interest to save wflow outputs at.
 - Support wflow_sediment with vito landuse.
+- New utils.py script for low_level wflow methods.
 
 Changed
 ^^^^^^^
@@ -29,6 +34,8 @@ Fixed
 ^^^^^
 
 - Fix f parameter in soilgrids
+- Full reading and writting of wflow filepaths depending on the toml file (including subfolders).
+- The wflow_gauges now contains river outlets only (instead of all outlets).
 
 Documentation
 ^^^^^^^^^^^^^

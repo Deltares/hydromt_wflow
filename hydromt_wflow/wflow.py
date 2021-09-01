@@ -2,7 +2,7 @@
 # Implement model class following model API
 
 import os
-from os.path import join, dirname, basename, isfile
+from os.path import join, dirname, basename, isfile, isdir
 from typing import Optional
 import glob
 import numpy as np
@@ -21,8 +21,7 @@ from hydromt.models.model_api import Model
 
 # from hydromt.workflows.basin_mask import parse_region
 from hydromt import workflows, flw
-from hydromt.io import open_mfraster, open_timeseries_from_table
-from hydromt.vector import GeoDataArray
+from hydromt.io import open_mfraster
 
 from .workflows import (
     river,
@@ -33,7 +32,7 @@ from .workflows import (
     glaciermaps,
 )
 from .workflows import landuse, lai
-from . import DATADIR
+from . import utils, DATADIR
 
 import logging
 
@@ -579,13 +578,19 @@ class WflowModel(Model):
         self.staticgeoms
 
         if derive_outlet:
-            self.logger.info(f"Gauges locations set based on outlets.")
+            self.logger.info(f"Gauges locations set based on river outlets.")
             da, idxs, ids = flw.gaugemap(self.staticmaps, idxs=self.flwdir.idxs_pit)
+            # Only keep river outlets for gauges
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"]])
+            ids_da = np.unique(da.values[da.values > 0])
+            idxs_da = idxs[np.isin(ids, ids_da)]
             self.set_staticmaps(da, name=self._MAPS["gauges"])
-            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
-            gdf = gpd.GeoDataFrame(index=ids, geometry=points, crs=self.crs)
+            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
+            gdf = gpd.GeoDataFrame(
+                index=ids_da.astype(np.int32), geometry=points, crs=self.crs
+            )
             self.set_staticgeoms(gdf, name="gauges")
-            self.logger.info(f"Gauges map based on catchment outlets added.")
+            self.logger.info(f"Gauges map based on catchment river outlets added.")
 
         if gauges_fn is not None or source_gdf is not None:
             # append location from geometry
@@ -1396,6 +1401,9 @@ class WflowModel(Model):
         ds_out = self.staticmaps
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        # Check if all sub-folders in fn exists and if not create them
+        if not isdir(dirname(fn)):
+            os.makedirs(dirname(fn))
         self.logger.info(f"Write staticmaps to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
@@ -1454,7 +1462,7 @@ class WflowModel(Model):
                 ds_out[f"c_{layer.item():d}"].raster.set_nodata(
                     ds_out["c"].raster.nodata
                 )
-            ds_out = ds_out.drop(["c", "layer"])
+            ds_out = ds_out.drop_vars(["c", "layer"])
         self.logger.info("Writing (updated) staticmap files.")
         # add datatypes for maps with same basenames, e.g. wflow_gauges_grdc
         pcr_vs_map = PCR_VS_MAP.copy()
@@ -1602,6 +1610,9 @@ class WflowModel(Model):
             }
 
             self.logger.info(f"Process forcing; saving to {fn_out}")
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
             # with compute=False we get a delayed object which is executed when
             # calling .compute where we can pass more arguments to the dask.compute method
             delayed_obj = ds.to_netcdf(
@@ -1654,152 +1665,12 @@ class WflowModel(Model):
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("csv.path", abs_path=True)
         if csv_fn is not None and isfile(csv_fn):
-            # Count items by csv.column
-            count = 1
-            # Loop over csv.column
-            for col in self.get_config("csv.column"):
-                header = col["header"]
-                # Column based on map
-                if "map" in col.keys():
-                    # Read the corresponding map and derive the different locations
-                    # The centroid of the geometry is used as coordinates for the timeseries
-                    map_name = self.get_config(f"input.{col['map']}")
-                    da = self.staticmaps[map_name]
-                    gdf = da.raster.vectorize()
-                    gdf.geometry = gdf.geometry.centroid
-                    gdf.index = gdf.value.astype(da.dtype)
-                    gdf.index.name = "index"
-                    # Read the timeseries
-                    usecols = [0]
-                    usecols = np.append(
-                        usecols, np.arange(count, count + len(gdf.index))
-                    )
-                    count += len(gdf.index)
-                    da_ts = open_timeseries_from_table(
-                        csv_fn, name=f'{header}_{col["map"]}', usecols=usecols
-                    )
-                    da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
-                # Column based on xy coordinates or reducer for the full model domain domain
-                else:
-                    # Read the timeseries
-                    usecols = [0]
-                    usecols = np.append(usecols, np.arange(count, count + 1))
-                    count += 1
-                    try:
-                        da_ts = open_timeseries_from_table(
-                            csv_fn, name=header, usecols=usecols
-                        )
-                    except:
-                        colnames = ["time", "0"]
-                        da_ts = open_timeseries_from_table(
-                            csv_fn,
-                            name=header,
-                            usecols=usecols,
-                            header=0,
-                            names=colnames,
-                        )
-                    # Add point coordinates
-                    # Column based on xy coordinates
-                    if "coordinate" in col.keys():
-                        scoords = {
-                            "x": xr.IndexVariable("index", [col["coordinate"]["x"]]),
-                            "y": xr.IndexVariable("index", [col["coordinate"]["y"]]),
-                        }
-                    # Column based on index
-                    elif "index" in col.keys():
-                        # x and y index, works on the full 2D grid
-                        if isinstance(col["index"], dict):
-                            # index in julia starts at 1
-                            # coordinates are always ascending
-                            xi = self.staticmaps.raster.xcoords.values[
-                                col["index"]["x"] - 1
-                            ]
-                            yi = np.sort(self.staticmaps.raster.ycoords.values)[
-                                col["index"]["y"] - 1
-                            ]
-                            scoords = {
-                                "x": xr.IndexVariable("index", [xi]),
-                                "y": xr.IndexVariable("index", [yi]),
-                            }
-                        # index of the full array
-                        else:
-                            # Create grid with full 2D Julia indices
-                            # Dimensions are ascending and ordered as (x,y,layer,time)
-                            # Indices are created before ordering for compatibility with raster.idx_to_xy
-                            full_index = self.staticmaps[
-                                f'{self.get_config("input.subcatchment")}'
-                            ].copy()
-                            res_x, res_y = full_index.raster.res
-                            if res_y < 0:
-                                full_index = full_index.reindex(
-                                    {
-                                        full_index.raster.y_dim: full_index[
-                                            full_index.raster.y_dim
-                                        ][::-1]
-                                    }
-                                )
-                            data = np.arange(0, np.size(full_index)).reshape(
-                                np.size(full_index, 0), np.size(full_index, 1)
-                            )
-                            full_index[:, :] = data
-                            full_index = full_index.transpose(
-                                full_index.raster.x_dim, full_index.raster.y_dim
-                            )
-                            # Index depends on the struct
-                            # For land uses the active subcatch IDs
-                            if (
-                                "vertical" in col["parameter"]
-                                or "lateral.land" in col["parameter"]
-                            ):
-                                mask = self.staticmaps[
-                                    f'{self.get_config("input.subcatchment")}'
-                                ].copy()
-                            elif "reservoir" in col["parameter"]:
-                                mask = self.staticmaps[
-                                    f'{self.get_config("input.lateral.river.reservoir.locs")}'
-                                ].copy()
-                            elif "lake" in col["parameter"]:
-                                mask = self.staticmaps[
-                                    f'{self.get_config("input.lateral.river.lake.locs")}'
-                                ].copy()
-                            # Else lateral.river
-                            else:
-                                mask = self.staticmaps[
-                                    f'{self.get_config("input.river_location")}'
-                                ].copy()
-                            # Rearrange the mask
-                            res_x, res_y = mask.raster.res
-                            if res_y < 0:
-                                mask = mask.reindex(
-                                    {mask.raster.y_dim: mask[mask.raster.y_dim][::-1]}
-                                )
-                            mask = mask.transpose(mask.raster.x_dim, mask.raster.y_dim)
-                            # Filter and reduce full_index based on mask
-                            full_index = full_index.where(mask != mask.raster.nodata, 0)
-                            full_index.attrs.update(_FillValue=0)
-                            mask_index = full_index.values.flatten()
-                            mask_index = mask_index[mask_index != 0]
-                            # idx corresponding to the wflow index
-                            idx = mask_index[col["index"] - 1]
-                            # Reorder full_index as (y,x) to use raster.idx_to_xy method
-                            xi, yi = full_index.transpose(
-                                full_index.raster.y_dim, full_index.raster.x_dim
-                            ).raster.idx_to_xy(idx)
-                            scoords = {
-                                "x": xr.IndexVariable("index", xi),
-                                "y": xr.IndexVariable("index", yi),
-                            }
-                    # Based on model bbox center for column based on reducer for the full model domain domain
-                    else:
-                        xmin, ymin, xmax, ymax = self.bounds
-                        scoords = {
-                            "x": xr.IndexVariable("index", [(xmax + xmin) / 2]),
-                            "y": xr.IndexVariable("index", [(ymax + ymin) / 2]),
-                        }
-                    da = da_ts.assign_coords(scoords)
-
+            csv_dict = utils.read_csv_results(
+                csv_fn, config=self.config, maps=self.staticmaps
+            )
+            for key in csv_dict:
                 # Add to results
-                self.set_results(da)
+                self.set_results(csv_dict[f"{key}"])
 
     def write_results(self):
         """write results at <root/?/> in model ready format"""
@@ -2007,7 +1878,7 @@ class WflowModel(Model):
                     "ResMaxRelease",
                     "ResMaxVolume",
                 ]
-                self._staticmaps = self.staticmaps.drop(remove_maps)
+                self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
         remove_lake = False
         if self._MAPS["lakeareas"] in self.staticmaps:
@@ -2027,7 +1898,7 @@ class WflowModel(Model):
                     "Lake_b",
                     "Lake_e",
                 ]
-                self._staticmaps = self.staticmaps.drop(remove_maps)
+                self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs

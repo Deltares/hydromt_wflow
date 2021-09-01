@@ -365,7 +365,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
         for i in np.arange(1, len(soildepth_cm_midpoint) + 1):
             da_prop.append(ds[f"{var}_sl{i}"])
             # remove layer from ds
-            ds = ds.drop(f"{var}_sl{i}")
+            ds = ds.drop_vars(f"{var}_sl{i}")
         da = xr.concat(
             da_prop,
             pd.Index(
@@ -424,15 +424,15 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
     logger.info("calculate and resample KsatVer")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
-    kv_sl = xr.ufuncs.log(kv_sl_hr)
+    kv_sl = np.log(kv_sl_hr)
     kv_sl = kv_sl.raster.reproject_like(ds_like, method="average")
-    kv_sl = xr.ufuncs.exp(kv_sl)
+    kv_sl = np.exp(kv_sl)
 
     logger.info("calculate and resample pore size distribution index")
     lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
-    lambda_sl = xr.ufuncs.log(lambda_sl_hr)
+    lambda_sl = np.log(lambda_sl_hr)
     lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
-    lambda_sl = xr.ufuncs.exp(lambda_sl)
+    lambda_sl = np.exp(lambda_sl)
 
     if soil_fn == "soilgrids_2020":
         # calculate c for each layer of lambda
@@ -533,7 +533,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     )
 
     soil_texture = soil_texture.raster.reproject_like(ds_like, method="mode")
-    ds_out["wflow_soil"] = soil_texture.astype(np.int)
+    ds_out["wflow_soil"] = soil_texture.astype(np.int32)
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:

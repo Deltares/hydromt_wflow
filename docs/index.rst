@@ -2,8 +2,8 @@
 HydroMT plugin: Wflow
 =====================
 
-`HydroMT <https://github.com/Deltares/hydromt>`_ is a python package, developed by Deltares, to build 
-and analyse environmental models. It provides a generic model api with attributes to access the model schematization, 
+`HydroMT <https://github.com/Deltares/hydromt>`_ is a python package, developed by Deltares, to build, update
+and analyse water systems models. It provides a generic model api with attributes to access the model schematization, 
 (dynamic) forcing data, results and states. 
 
 This plugin provides an implementation for the 
@@ -32,31 +32,20 @@ Documentation
 
 **User Guide**
 
-* :doc:`user_guide/wflow/index`
-* :doc:`user_guide/sediment/index`
+* :doc:`user_guide/wflow`
+* :doc:`user_guide/sediment`
 
 .. toctree::
    :maxdepth: 1
    :hidden:
    :caption: User Guide
 
-   user_guide/wflow/index
-   user_guide/sediment/index
-
-**Advanced topics**
-
-* :doc:`advanced/workflows`
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Advanced topics
-
-   advanced/workflows
+   user_guide/wflow
+   user_guide/sediment
 
 **References & Help**
 
-* :doc:`api/api_index`
+* :doc:`api/api`
 * :doc:`contributing`
 * :doc:`changelog`
 
@@ -65,7 +54,7 @@ Documentation
    :hidden:
    :caption: References & Help
 
-   api/api_index
+   api/api
    contributing
    changelog
 
