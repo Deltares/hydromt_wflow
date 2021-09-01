@@ -65,7 +65,7 @@
             
             
               <div class="version">
-                0.1.2.dev
+                0.1.3.dev
               </div>
             
           
@@ -98,19 +98,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_guide/wflow/index.html">Wflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide/sediment/index.html">Wflow Sediment</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Advanced topics</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="advanced/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/wflow.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/sediment.html">Wflow Sediment</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="api/api_index.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">What’s new</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-2-1-september-2021">v0.1.2 (1 September 2021)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
@@ -233,6 +230,10 @@
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <div class="section" id="unreleased">
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="v0-1-2-1-september-2021">
+<h2>v0.1.2 (1 September 2021)<a class="headerlink" href="#v0-1-2-1-september-2021" title="Permalink to this headline">¶</a></h2>
+<p>This release implements the new results attributes for Wflow.</p>
 <div class="section" id="added">
 <h3>Added<a class="headerlink" href="#added" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
@@ -241,6 +242,7 @@
 <li><p>Support soilgrids version 2020</p></li>
 <li><p>Setup_areamap component to prepare maps of areas of interest to save wflow outputs at.</p></li>
 <li><p>Support wflow_sediment with vito landuse.</p></li>
+<li><p>New utils.py script for low_level wflow methods.</p></li>
 </ul>
 </div>
 <div class="section" id="changed">
@@ -256,6 +258,8 @@
 <h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>Fix f parameter in soilgrids</p></li>
+<li><p>Full reading and writting of wflow filepaths depending on the toml file (including subfolders).</p></li>
+<li><p>The wflow_gauges now contains river outlets only (instead of all outlets).</p></li>
 </ul>
 </div>
 <div class="section" id="documentation">

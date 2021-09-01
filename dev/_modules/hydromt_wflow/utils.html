@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>hydromt_wflow.utils &mdash; hydromt_wflow  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/theme_overrides.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> hydromt_wflow
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1.3.dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/wflow.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/sediment.html">Wflow Sediment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">What’s new</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">hydromt_wflow</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>hydromt_wflow.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for hydromt_wflow.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">hydromt.io</span> <span class="kn">import</span> <span class="n">open_timeseries_from_table</span>
+<span class="kn">from</span> <span class="nn">hydromt.vector</span> <span class="kn">import</span> <span class="n">GeoDataArray</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;read_csv_results&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="read_csv_results"><a class="viewcode-back" href="../../generated/hydromt_wflow.read_csv_results.html#hydromt_wflow.read_csv_results">[docs]</a><span class="k">def</span> <span class="nf">read_csv_results</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">maps</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Read wflow results csv timeseries and parse to dictionnary</span>
+
+<span class="sd">    Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per</span>
+<span class="sd">    column (csv section and csv.column sections of the TOML). The xy coordinates are the</span>
+<span class="sd">    coordinates of the station or of the representative point of the subcatch/area. The</span>
+<span class="sd">    variable name in the ``GeoDataArray`` corresponds to the csv header attribute or</span>
+<span class="sd">    header_map when available.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fn: str</span>
+<span class="sd">        Path to the wflow csv results file.</span>
+<span class="sd">    config: dict</span>
+<span class="sd">        wflow.toml configuration.</span>
+<span class="sd">    maps: xr.Dataset</span>
+<span class="sd">        wflow staticmaps.nc dataset</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    csv_dict: dict</span>
+<span class="sd">        Dictionnary of hydromt.GeoDataArrays for the different csv.column section of the config.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Count items by csv.column</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">csv_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="c1"># Loop over csv.column</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;column&quot;</span><span class="p">):</span>
+        <span class="n">header</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="s2">&quot;header&quot;</span><span class="p">]</span>
+        <span class="c1"># Column based on map</span>
+        <span class="k">if</span> <span class="s2">&quot;map&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="c1"># Read the corresponding map and derive the different locations</span>
+            <span class="c1"># The centroid of the geometry is used as coordinates for the timeseries</span>
+            <span class="n">map_name</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="p">[</span><span class="s1">&#39;map&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span><span class="n">map_name</span><span class="p">]</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;index&quot;</span>
+            <span class="c1"># Read the timeseries</span>
+            <span class="n">usecols</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">usecols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">usecols</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">)))</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">da_ts</span> <span class="o">=</span> <span class="n">open_timeseries_from_table</span><span class="p">(</span>
+                <span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;map&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span>
+            <span class="p">)</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">GeoDataArray</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">da_ts</span><span class="p">,</span> <span class="n">index_dim</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="c1"># Column based on xy coordinates or reducer for the full model domain domain</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Read the timeseries</span>
+            <span class="n">usecols</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">usecols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">usecols</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">count</span><span class="p">,</span> <span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">da_ts</span> <span class="o">=</span> <span class="n">open_timeseries_from_table</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">colnames</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">]</span>
+                <span class="n">da_ts</span> <span class="o">=</span> <span class="n">open_timeseries_from_table</span><span class="p">(</span>
+                    <span class="n">fn</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+                    <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">,</span>
+                    <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                    <span class="n">names</span><span class="o">=</span><span class="n">colnames</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="c1"># Add point coordinates</span>
+            <span class="c1"># Column based on xy coordinates</span>
+            <span class="k">if</span> <span class="s2">&quot;coordinate&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">scoords</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;coordinate&quot;</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]]),</span>
+                    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;coordinate&quot;</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]]),</span>
+                <span class="p">}</span>
+            <span class="c1"># Column based on index</span>
+            <span class="k">elif</span> <span class="s2">&quot;index&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># x and y index, works on the full 2D grid</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="c1"># index in julia starts at 1</span>
+                    <span class="c1"># coordinates are always ascending</span>
+                    <span class="n">xi</span> <span class="o">=</span> <span class="n">maps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xcoords</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">yi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">maps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="p">)[</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="n">scoords</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">xi</span><span class="p">]),</span>
+                        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">yi</span><span class="p">]),</span>
+                    <span class="p">}</span>
+                <span class="c1"># index of the full array</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Create grid with full 2D Julia indices</span>
+                    <span class="c1"># Dimensions are ascending and ordered as (x,y,layer,time)</span>
+                    <span class="c1"># Indices are created before ordering for compatibility with raster.idx_to_xy</span>
+                    <span class="n">full_index</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subcatchment&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">res_x</span><span class="p">,</span> <span class="n">res_y</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span>
+                    <span class="k">if</span> <span class="n">res_y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">full_index</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                            <span class="p">{</span>
+                                <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">full_index</span><span class="p">[</span>
+                                    <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span>
+                                <span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="p">}</span>
+                        <span class="p">)</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">full_index</span><span class="p">))</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">full_index</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">full_index</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">full_index</span><span class="p">[:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">data</span>
+                    <span class="n">full_index</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+                        <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span>
+                    <span class="p">)</span>
+                    <span class="c1"># Index depends on the struct</span>
+                    <span class="c1"># For land uses the active subcatch IDs</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="s2">&quot;vertical&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span>
+                        <span class="ow">or</span> <span class="s2">&quot;lateral.land&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]</span>
+                    <span class="p">):</span>
+                        <span class="n">mask</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subcatchment&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="s2">&quot;reservoir&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]:</span>
+                        <span class="n">mask</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;reservoir&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;locs&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="s2">&quot;lake&quot;</span> <span class="ow">in</span> <span class="n">col</span><span class="p">[</span><span class="s2">&quot;parameter&quot;</span><span class="p">]:</span>
+                        <span class="n">mask</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span>
+                            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;lake&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;locs&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+                        <span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="c1"># Else lateral.river</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">mask</span> <span class="o">=</span> <span class="n">maps</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;river_location&quot;</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="c1"># Rearrange the mask</span>
+                    <span class="n">res_x</span><span class="p">,</span> <span class="n">res_y</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span>
+                    <span class="k">if</span> <span class="n">res_y</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                            <span class="p">{</span><span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
+                        <span class="p">)</span>
+                    <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">)</span>
+                    <span class="c1"># Filter and reduce full_index based on mask</span>
+                    <span class="n">full_index</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span> <span class="o">!=</span> <span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="n">full_index</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">mask_index</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                    <span class="n">mask_index</span> <span class="o">=</span> <span class="n">mask_index</span><span class="p">[</span><span class="n">mask_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># idx corresponding to the wflow index</span>
+                    <span class="n">idx</span> <span class="o">=</span> <span class="n">mask_index</span><span class="p">[</span><span class="n">col</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                    <span class="c1"># Reorder full_index as (y,x) to use raster.idx_to_xy method</span>
+                    <span class="n">xi</span><span class="p">,</span> <span class="n">yi</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span>
+                        <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">full_index</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+                    <span class="n">scoords</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">xi</span><span class="p">),</span>
+                        <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">yi</span><span class="p">),</span>
+                    <span class="p">}</span>
+            <span class="c1"># Based on model bbox center for column based on reducer for the full model domain</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">maps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span>
+                <span class="n">scoords</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">xmax</span> <span class="o">+</span> <span class="n">xmin</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]),</span>
+                    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">IndexVariable</span><span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">ymax</span> <span class="o">+</span> <span class="n">ymin</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]),</span>
+                <span class="p">}</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">da_ts</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">scoords</span><span class="p">)</span>
+
+        <span class="n">csv_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
+
+    <span class="k">return</span> <span class="n">csv_dict</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright Deltares.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

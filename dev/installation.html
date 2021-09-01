@@ -66,7 +66,7 @@
             
             
               <div class="version">
-                0.1.2.dev
+                0.1.3.dev
               </div>
             
           
@@ -103,16 +103,12 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_guide/wflow/index.html">Wflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide/sediment/index.html">Wflow Sediment</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Advanced topics</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="advanced/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/wflow.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide/sediment.html">Wflow Sediment</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="api/api_index.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">What’s new</a></li>
 </ul>
@@ -210,9 +206,17 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="user-install">
 <h2>User install<a class="headerlink" href="#user-install" title="Permalink to this headline">¶</a></h2>
-<p>The hydromt_wflow plugin is available from PyPi and conda-forge, but we recommend installing with conda.</p>
-<p>To install hydromt_wflow using conda do:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda install -c conda-forge hydromt_wflow</span>
+<p>HydroMT and its plugins are python packages. If you do not have a python installation we recommend using
+conda and <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>.</p>
+<p>The hydromt_wflow plugin is available from PyPi and conda-forge, but we recommend installing with conda in
+a specific environment. To create a new <strong>hydromt-wflow</strong> environment from the command or conda prompt, do:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda create --name hydromt-wflow</span>
+</pre></div>
+</div>
+<p>This will create a new empty conda environment named hydromt-wflow. To install hydromt and the hydromt_wflow plugin
+in this new environment using conda do:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda activate hydromt-wflow</span>
+<span class="go">conda install -c conda-forge hydromt_wflow</span>
 </pre></div>
 </div>
 <p>This will install <strong>almost</strong> all dependencies including the core hydroMT library and the model API as well
@@ -221,7 +225,7 @@ from pypi (not available from conda):</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install hydroengine</span>
 </pre></div>
 </div>
-<p>To install hydromt_wflow using pip do:
+<p><strong>Alternatively</strong> to install hydromt_wflow using pip do:
 Note: make sure this is installed in the same environment as hydromt.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install hydromt_wflow</span>
 </pre></div>
