@@ -586,7 +586,9 @@ class WflowModel(Model):
             idxs_da = idxs[np.isin(ids, ids_da)]
             self.set_staticmaps(da, name=self._MAPS["gauges"])
             points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
-            gdf = gpd.GeoDataFrame(index=ids_da, geometry=points, crs=self.crs)
+            gdf = gpd.GeoDataFrame(
+                index=ids_da.astype(np.int32), geometry=points, crs=self.crs
+            )
             self.set_staticgeoms(gdf, name="gauges")
             self.logger.info(f"Gauges map based on catchment river outlets added.")
 
@@ -1460,7 +1462,7 @@ class WflowModel(Model):
                 ds_out[f"c_{layer.item():d}"].raster.set_nodata(
                     ds_out["c"].raster.nodata
                 )
-            ds_out = ds_out.drop(["c", "layer"])
+            ds_out = ds_out.drop_vars(["c", "layer"])
         self.logger.info("Writing (updated) staticmap files.")
         # add datatypes for maps with same basenames, e.g. wflow_gauges_grdc
         pcr_vs_map = PCR_VS_MAP.copy()
@@ -1876,7 +1878,7 @@ class WflowModel(Model):
                     "ResMaxRelease",
                     "ResMaxVolume",
                 ]
-                self._staticmaps = self.staticmaps.drop(remove_maps)
+                self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
         remove_lake = False
         if self._MAPS["lakeareas"] in self.staticmaps:
@@ -1896,7 +1898,7 @@ class WflowModel(Model):
                     "Lake_b",
                     "Lake_e",
                 ]
-                self._staticmaps = self.staticmaps.drop(remove_maps)
+                self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
