@@ -14,4 +14,5 @@ except ImportError:
 DATADIR = join(dirname(abspath(__file__)), "data")
 
 from .wflow import *
+from .wflow_sediment import *
 from .utils import *
