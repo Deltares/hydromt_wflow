@@ -12,3 +12,6 @@ except ImportError:
     HAS_PCRASTER = False
 
 DATADIR = join(dirname(abspath(__file__)), "data")
+
+from .wflow import *
+from .utils import *
