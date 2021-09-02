@@ -289,7 +289,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="c1"># COMPONENTS</span>
-<div class="viewcode-block" id="WflowModel.setup_basemaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_basemaps.html#hydromt_wflow.WflowModel.setup_basemaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_basemaps</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_basemaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_basemaps.html#hydromt_wflow.WflowModel.setup_basemaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_basemaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">region</span><span class="p">,</span>
         <span class="n">res</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">120.0</span><span class="p">,</span>
@@ -406,7 +406,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding region vector to staticgeoms.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_rivers"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers">[docs]</a>    <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_rivers"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers">[docs]</a>    <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hydrography_fn</span><span class="o">=</span><span class="s2">&quot;merit_hydro&quot;</span><span class="p">,</span>
         <span class="n">river_upa</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
@@ -497,7 +497,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">staticgeoms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># remove old rivers if in staticgeoms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>  <span class="c1"># add new rivers to staticgeoms</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_riverwidth"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_riverwidth.html#hydromt_wflow.WflowModel.setup_riverwidth">[docs]</a>    <span class="k">def</span> <span class="nf">setup_riverwidth</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_riverwidth"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_riverwidth.html#hydromt_wflow.WflowModel.setup_riverwidth">[docs]</a>    <span class="k">def</span> <span class="nf">setup_riverwidth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">predictor</span><span class="o">=</span><span class="s2">&quot;discharge&quot;</span><span class="p">,</span>
         <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -584,7 +584,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_rivwth</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_lulcmaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lulcmaps</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_lulcmaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
         <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -653,7 +653,7 @@
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_laimaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lai_fn</span><span class="o">=</span><span class="s2">&quot;model_lai&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.setup_laimaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lai_fn</span><span class="o">=</span><span class="s2">&quot;model_lai&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This component sets leaf area index (LAI) climatoloy maps per month.</span>
 
@@ -688,7 +688,7 @@
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">da_lai</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="s2">&quot;time&quot;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_lai</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAI&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_gauges"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges">[docs]</a>    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_gauges"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges">[docs]</a>    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gauges_fn</span><span class="o">=</span><span class="s2">&quot;grdc&quot;</span><span class="p">,</span>
         <span class="n">source_gdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -856,7 +856,7 @@
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_areamap"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap">[docs]</a>    <span class="k">def</span> <span class="nf">setup_areamap</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_areamap"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow_sediment.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap">[docs]</a>    <span class="k">def</span> <span class="nf">setup_areamap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">area_fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">col2raster</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -893,7 +893,7 @@
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">area_fn</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_lakes"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.setup_lakes"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average lake area, depth a discharge values.</span>
 
@@ -982,7 +982,7 @@
             <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">lakes_toml</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">lakes_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_reservoirs"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_reservoirs"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">reservoirs_fn</span><span class="o">=</span><span class="s2">&quot;hydro_reservoirs&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -1164,7 +1164,7 @@
         <span class="c1"># rasterize points polygons in raster.rasterize -- you need staticmaps to nkow the grid</span>
         <span class="k">return</span> <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_waterbody</span>
 
-<div class="viewcode-block" id="WflowModel.setup_soilmaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soil_fn</span><span class="o">=</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="n">ptf_ksatver</span><span class="o">=</span><span class="s2">&quot;brakensiek&quot;</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.setup_soilmaps"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soil_fn</span><span class="o">=</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="n">ptf_ksatver</span><span class="o">=</span><span class="s2">&quot;brakensiek&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This component derives several (layered) soil parameters based on a database with</span>
 <span class="sd">        physical soil properties using available point-scale (pedo)transfer functions (PTFs)</span>
@@ -1223,7 +1223,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_glaciers"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers">[docs]</a>    <span class="k">def</span> <span class="nf">setup_glaciers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glaciers_fn</span><span class="o">=</span><span class="s2">&quot;rgi&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.setup_glaciers"><a class="viewcode-back" href="../../generated/hydromt_wflow.wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers">[docs]</a>    <span class="k">def</span> <span class="nf">setup_glaciers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glaciers_fn</span><span class="o">=</span><span class="s2">&quot;rgi&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This component generates maps of glacier areas, area fraction and volume fraction,</span>
 <span class="sd">        as well as tables with temperature thresohld, melting factor and snow-to-ice</span>
