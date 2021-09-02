@@ -31,6 +31,7 @@ setup components are exposed. Click on
 a specific method see its documentation. 
 
 .. autosummary::
+   :toctree: ../generated/
    :nosignatures:
 
    ~WflowModel.setup_config
