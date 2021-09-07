@@ -924,6 +924,16 @@
         <span class="n">lakes_toml</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;model.lakes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s2">&quot;state.lateral.river.lake.waterlevel&quot;</span><span class="p">:</span> <span class="s2">&quot;waterlevel_lake&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.area&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeArea&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.areas&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_lakeareas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.b&quot;</span><span class="p">:</span> <span class="s2">&quot;Lake_b&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.e&quot;</span><span class="p">:</span> <span class="s2">&quot;Lake_e&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.locs&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_lakelocs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.outflowfunc&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.storfunc&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeStorFunc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.threshold&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeThreshold&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.linkedlakelocs&quot;</span><span class="p">:</span> <span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.lake.waterlevel&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="n">lakes_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">]:</span>
@@ -1041,6 +1051,14 @@
         <span class="n">res_toml</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;model.reservoirs&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s2">&quot;state.lateral.river.reservoir.volume&quot;</span><span class="p">:</span> <span class="s2">&quot;volume_reservoir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.area&quot;</span><span class="p">:</span> <span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.areas&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_reservoirareas&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.demand&quot;</span><span class="p">:</span> <span class="s2">&quot;ResDemand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.locs&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_reservoirlocs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.maxrelease&quot;</span><span class="p">:</span> <span class="s2">&quot;ResMaxRelease&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.maxvolume&quot;</span><span class="p">:</span> <span class="s2">&quot;ResMaxVolume&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.targetfullfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTargetFullFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.lateral.river.reservoir.targetminfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTargetMinFrac&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="c1"># path or filename. get_geodataframe</span>
@@ -1252,7 +1270,15 @@
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum glacier area threshold [km2], by default 0 (all included)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">glac_toml</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;glacier&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="n">glac_toml</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;model.glacier&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;state.vertical.glacierstore&quot;</span><span class="p">:</span> <span class="s2">&quot;glacierstore&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.vertical.glacierstore&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_glacierstore&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.vertical.glacierfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_glacierfrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.vertical.g_cfmax&quot;</span><span class="p">:</span> <span class="s2">&quot;G_Cfmax&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.vertical.g_tt&quot;</span><span class="p">:</span> <span class="s2">&quot;G_TT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.vertical.g_sifrac&quot;</span><span class="p">:</span> <span class="s2">&quot;G_SIfrac&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="c1"># retrieve data for basin</span>
         <span class="k">if</span> <span class="n">glaciers_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rgi&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="n">glaciers_fn</span><span class="p">:</span>
@@ -1282,19 +1308,19 @@
                 <span class="n">elevtn_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">],</span>
                 <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
+
+            <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_glac</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_glac</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;glaciers&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">glac_toml</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">glac_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;No glaciers of sufficient size found within region!&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Skipping glacier procedures!&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">ds_glac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_glac</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_glac</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-
-            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">glac_toml</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="n">glac_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;glaciers&quot;</span><span class="p">)</span></div>
+            <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowModel.setup_constant_pars"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars">[docs]</a>    <span class="k">def</span> <span class="nf">setup_constant_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup constant parameter maps.</span>
