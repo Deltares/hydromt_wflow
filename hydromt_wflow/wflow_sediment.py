@@ -119,10 +119,13 @@ class WflowSedimentModel(WflowModel):
             "model.dolake": True,
             "model.lakes": False,
         }
-        for option in lakes_toml_add:
-            self.set_config(option, lakes_toml_add[option])
-        if self.get_config("state.lateral.river.lake") is not None:
-            del self.config["state"]["lateral"]["river"]["lake"]
+        if "wflow_lakeareas" in self.staticmaps:
+            for option in lakes_toml_add:
+                self.set_config(option, lakes_toml_add[option])
+            if self.get_config("state.lateral.river.lake") is not None:
+                del self.config["state"]["lateral"]["river"]["lake"]
+            if self.get_config("input.lateral.river.lake") is not None:
+                del self.config["input"]["lateral"]["river"]["lake"]
 
     def setup_reservoirs(
         self,
@@ -178,10 +181,13 @@ class WflowSedimentModel(WflowModel):
             "model.doreservoir": True,
             "model.reservoirs": False,
         }
-        for option in res_toml_add:
-            self.set_config(option, res_toml_add[option])
-        if self.get_config("state.lateral.river.reservoir") is not None:
-            del self.config["state"]["lateral"]["river"]["reservoir"]
+        if "wflow_reservoirareas" in self.staticmaps:
+            for option in res_toml_add:
+                self.set_config(option, res_toml_add[option])
+            if self.get_config("state.lateral.river.reservoir") is not None:
+                del self.config["state"]["lateral"]["river"]["reservoir"]
+            if self.get_config("input.lateral.river.reservoir") is not None:
+                del self.config["input"]["lateral"]["river"]["reservoir"]
 
     def setup_gauges(
         self,
