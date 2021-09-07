@@ -751,6 +751,16 @@ class WflowModel(Model):
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
+            "input.lateral.river.lake.area": "LakeArea",
+            "input.lateral.river.lake.areas": "wflow_lakeareas",
+            "input.lateral.river.lake.b": "Lake_b",
+            "input.lateral.river.lake.e": "Lake_e",
+            "input.lateral.river.lake.locs": "wflow_lakelocs",
+            "input.lateral.river.lake.outflowfunc": "LakeOutflowFunc",
+            "input.lateral.river.lake.storfunc": "LakeStorFunc",
+            "input.lateral.river.lake.threshold": "LakeThreshold",
+            "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
+            "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
         }
 
         if lakes_fn not in ["hydro_lakes"]:
@@ -868,6 +878,14 @@ class WflowModel(Model):
         res_toml = {
             "model.reservoirs": True,
             "state.lateral.river.reservoir.volume": "volume_reservoir",
+            "input.lateral.river.reservoir.area": "ResSimpleArea",
+            "input.lateral.river.reservoir.areas": "wflow_reservoirareas",
+            "input.lateral.river.reservoir.demand": "ResDemand",
+            "input.lateral.river.reservoir.locs": "wflow_reservoirlocs",
+            "input.lateral.river.reservoir.maxrelease": "ResMaxRelease",
+            "input.lateral.river.reservoir.maxvolume": "ResMaxVolume",
+            "input.lateral.river.reservoir.targetfullfrac": "ResTargetFullFrac",
+            "input.lateral.river.reservoir.targetminfrac": "ResTargetMinFrac",
         }
 
         # path or filename. get_geodataframe
@@ -1079,7 +1097,15 @@ class WflowModel(Model):
         min_area : float, optional
             Minimum glacier area threshold [km2], by default 0 (all included)
         """
-        glac_toml = {"glacier": True}
+        glac_toml = {
+            "model.glacier": True,
+            "state.vertical.glacierstore": "glacierstore",
+            "input.vertical.glacierstore": "wflow_glacierstore",
+            "input.vertical.glacierfrac": "wflow_glacierfrac",
+            "input.vertical.g_cfmax": "G_Cfmax",
+            "input.vertical.g_tt": "G_TT",
+            "input.vertical.g_sifrac": "G_SIfrac",
+        }
         # retrieve data for basin
         if glaciers_fn not in ["rgi"]:
             if glaciers_fn:
@@ -1109,19 +1135,19 @@ class WflowModel(Model):
                 elevtn_name=self._MAPS["elevtn"],
                 logger=self.logger,
             )
+
+            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
+            self.set_staticmaps(ds_glac.rename(rmdict))
+
+            self.set_staticgeoms(gdf_org, name="glaciers")
+
+            for option in glac_toml:
+                self.set_config(option, glac_toml[option])
         else:
             self.logger.warning(
                 f"No glaciers of sufficient size found within region!"
                 f"Skipping glacier procedures!"
             )
-        if ds_glac is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
-            self.set_staticmaps(ds_glac.rename(rmdict))
-
-            for option in glac_toml:
-                self.set_config("model", option, glac_toml[option])
-
-            self.set_staticgeoms(gdf_org, name="glaciers")
 
     def setup_constant_pars(self, **kwargs):
         """Setup constant parameter maps.
