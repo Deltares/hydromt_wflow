@@ -581,7 +581,7 @@ class WflowModel(Model):
             self.logger.info(f"Gauges locations set based on river outlets.")
             da, idxs, ids = flw.gaugemap(self.staticmaps, idxs=self.flwdir.idxs_pit)
             # Only keep river outlets for gauges
-            da = da.where(self.staticmaps[self._MAPS["rivmsk"]])
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata)
             ids_da = np.unique(da.values[da.values > 0])
             idxs_da = idxs[np.isin(ids, ids_da)]
             self.set_staticmaps(da, name=self._MAPS["gauges"])

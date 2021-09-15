@@ -32,12 +32,16 @@ _models = {
 def _compare_wflow_models(mod0, mod1):
     # check maps
     invalid_maps = {}
+    invalid_maps_dtype = {}
     if len(mod0._staticmaps) > 0:
         maps = mod0.staticmaps.raster.vars
         assert np.all(mod0.crs == mod1.crs), f"map crs staticmaps"
         for name in maps:
             map0 = mod0.staticmaps[name].fillna(0)
             map1 = mod1.staticmaps[name].fillna(0)
+            # Check on dtypes
+            if map0.dtype != map1.dtype:
+                invalid_maps_dtype[name] = f"{map1.dtype} instead of {map0.dtype}"
             if not np.allclose(map0, map1, atol=1e-3, rtol=1e-3):
                 if len(map0.dims) > 2:  # 3 dim map
                     map0 = map0[0, :, :]
@@ -49,6 +53,9 @@ def _compare_wflow_models(mod0, mod1):
                 yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
                 invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{yxs}])"
     # invalid_map_str = ", ".join(invalid_maps)
+    assert (
+        len(invalid_maps_dtype) == 0
+    ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
     assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
     if mod0._staticgeoms:
