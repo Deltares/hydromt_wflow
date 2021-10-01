@@ -8,6 +8,11 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 [Unreleased]
 ------------
 
+Fixed
+^^^^^
+ - pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope
+ - fixed docs with rtd v1.0
+
 v0.1.2 (1 September 2021)
 -------------------------
 This release implements the new results attributes for Wflow.
