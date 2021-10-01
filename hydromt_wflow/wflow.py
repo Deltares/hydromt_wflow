@@ -1804,7 +1804,7 @@ class WflowModel(Model):
             # Check if there are river cells in the model before continuing
             if np.any(rivmsk):
                 feats = self.flwdir.streams(mask=rivmsk)
-                gdf = gpd.GeoDataFrame.from_features(feats).set_index("idxs")
+                gdf = gpd.GeoDataFrame.from_features(feats)  # .set_index("idxs")
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
                 self.set_staticgeoms(gdf, name="rivers")
             else:
