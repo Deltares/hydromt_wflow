@@ -8,6 +8,24 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 [Unreleased]
 ------------
 
+Added
+^^^^^
+
+ - write data_catalog with the used data when writting model
+ - tests on staticmaps dtype
+
+Changed
+^^^^^^^
+
+- TOML files only contains reservoir/lake/glacier lines when they are setup and present in the model region.
+
+Fixed
+^^^^^
+ - pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope
+ - Fixed docs with rtd v1.0
+ - Wrong dtype for wflow_gauges
+ - Removed uncesseray glacier/lake/reservoir lines from the TOML, fixes a bug if missing glacier
+
 v0.1.2 (1 September 2021)
 -------------------------
 This release implements the new results attributes for Wflow.

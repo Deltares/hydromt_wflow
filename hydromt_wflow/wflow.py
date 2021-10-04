@@ -598,7 +598,12 @@ class WflowModel(Model):
             if gauges_fn is not None:
                 kwargs = {}
                 if isfile(gauges_fn):
-                    kwargs.update(crs=self.crs)
+                    # try to get epsg number directly, important when writting back data_catalog
+                    if self.crs.is_epsg_code:
+                        code = int(self.crs["init"].lstrip("epsg:"))
+                    else:
+                        code = self.crs
+                    kwargs.update(crs=code)
                 gdf = self.data_catalog.get_geodataframe(
                     gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
                 )
@@ -1394,6 +1399,7 @@ class WflowModel(Model):
         if not self._write:
             self.logger.warning("Cannot write in read-only mode")
             return
+        self.write_data_catalog()
         if self.config:  # try to read default if not yet set
             self.write_config()
         if self._staticmaps:
@@ -1803,8 +1809,10 @@ class WflowModel(Model):
             rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
             # Check if there are river cells in the model before continuing
             if np.any(rivmsk):
-                feats = self.flwdir.streams(mask=rivmsk)
-                gdf = gpd.GeoDataFrame.from_features(feats).set_index("idxs")
+                # add stream order 'strord' column
+                strord = self.flwdir.stream_order(mask=rivmsk)
+                feats = self.flwdir.streams(mask=rivmsk, strord=strord)
+                gdf = gpd.GeoDataFrame.from_features(feats)
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
                 self.set_staticgeoms(gdf, name="rivers")
             else:

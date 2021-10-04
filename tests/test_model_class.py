@@ -39,19 +39,27 @@ def _compare_wflow_models(mod0, mod1):
         for name in maps:
             map0 = mod0.staticmaps[name].fillna(0)
             map1 = mod1.staticmaps[name].fillna(0)
-            # Check on dtypes
-            if map0.dtype != map1.dtype:
-                invalid_maps_dtype[name] = f"{map1.dtype} instead of {map0.dtype}"
-            if not np.allclose(map0, map1, atol=1e-3, rtol=1e-3):
+            if (
+                not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
+                or map0.dtype != map1.dtype
+            ):
                 if len(map0.dims) > 2:  # 3 dim map
                     map0 = map0[0, :, :]
                     map1 = map1[0, :, :]
+                # Check on dtypes
+                err = (
+                    ""
+                    if map0.dtype == map1.dtype
+                    else f"{map1.dtype} instead of {map0.dtype}"
+                )
                 notclose = ~np.isclose(map0, map1)
-                xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                 ncells = int(np.sum(notclose))
-                diff = (map0 - map1).values[notclose].mean()
-                yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
-                invalid_maps[name] = f"diff: {diff:.4f} ({ncells:d} cells: [{yxs}])"
+                if ncells > 0:
+                    # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
+                    # yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
+                    diff = (map0 - map1).values[notclose].mean()
+                    err = f"diff ({ncells:d} cells): {diff:.4f}; {err}"
+                invalid_maps[name] = err
     # invalid_map_str = ", ".join(invalid_maps)
     assert (
         len(invalid_maps_dtype) == 0
