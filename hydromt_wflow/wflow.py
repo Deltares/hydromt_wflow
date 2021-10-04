@@ -598,7 +598,12 @@ class WflowModel(Model):
             if gauges_fn is not None:
                 kwargs = {}
                 if isfile(gauges_fn):
-                    kwargs.update(crs=self.crs)
+                    # try to get epsg number directly, important when writting back data_catalog
+                    if self.crs.is_epsg_code:
+                        code = int(self.crs["init"].lstrip("epsg:"))
+                    else:
+                        code = self.crs
+                    kwargs.update(crs=code)
                 gdf = self.data_catalog.get_geodataframe(
                     gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
                 )
