@@ -1394,6 +1394,7 @@ class WflowModel(Model):
         if not self._write:
             self.logger.warning("Cannot write in read-only mode")
             return
+        self.write_data_catalog()
         if self.config:  # try to read default if not yet set
             self.write_config()
         if self._staticmaps:
