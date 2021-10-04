@@ -1803,8 +1803,10 @@ class WflowModel(Model):
             rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
             # Check if there are river cells in the model before continuing
             if np.any(rivmsk):
-                feats = self.flwdir.streams(mask=rivmsk)
-                gdf = gpd.GeoDataFrame.from_features(feats)  # .set_index("idxs")
+                # add stream order 'strord' column
+                strord = self.flwdir.stream_order(mask=rivmsk)
+                feats = self.flwdir.streams(mask=rivmsk, strord=strord)
+                gdf = gpd.GeoDataFrame.from_features(feats)
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
                 self.set_staticgeoms(gdf, name="rivers")
             else:
