@@ -1,77 +1,38 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Wflow &mdash; hydromt_wflow  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/theme_overrides.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydromt_wflow.wflow.WflowModel.setup_config" href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html" />
     <link rel="prev" title="Plot Wflow results" href="../examples/examples/plot_wflow_results.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> hydromt_wflow
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 0.1.3.dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -79,18 +40,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
@@ -135,71 +85,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../changelog.html">What’s new</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">hydromt_wflow</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
       <li>Wflow</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/user_guide/wflow.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   
 <style>
 /* CSS overrides for sphinx_rtd_theme */
@@ -224,8 +133,8 @@
     text-align: unset;
 }
 </style>
-<div class="section" id="wflow">
-<h1>Wflow<a class="headerlink" href="#wflow" title="Permalink to this headline">¶</a></h1>
+<section id="wflow">
+<h1>Wflow<a class="headerlink" href="#wflow" title="Permalink to this headline"></a></h1>
 <p>With the hydromt_wflow plugin, you can easily work with wflow (SBM) models. This plugin helps you preparing or updating
 several <a class="reference internal" href="#model-components"><span class="std std-ref">components</span></a> of a wflow model such as topography information, landuse, soil or forcing.
 The <a class="reference internal" href="#model-config"><span class="std std-ref">main interactions</span></a> are available from the HydroMT Command Line Interface and allow you to configure
@@ -240,8 +149,8 @@ a <a class="reference external" href="https://deltares.github.io/hydromt/latest/
 <li><p><cite>setup_riverwidth</cite> should be listed after <cite>setup_lakes</cite> and <cite>setup_reservoirs</cite>.</p></li>
 </ul>
 <p>For python users all Wflow attributes and methods are available, see <a class="reference internal" href="../api/api.html#api-model"><span class="std std-ref">Wflow model class</span></a></p>
-<div class="section" id="wflow-model-components">
-<span id="model-components"></span><h2>Wflow model components<a class="headerlink" href="#wflow-model-components" title="Permalink to this headline">¶</a></h2>
+<section id="wflow-model-components">
+<span id="model-components"></span><h2>Wflow model components<a class="headerlink" href="#wflow-model-components" title="Permalink to this headline"></a></h2>
 <p>An overview of the available WflowModel setup components
 is provided in the table below. When using hydromt from the command line only the
 setup components are exposed. Click on
@@ -290,16 +199,16 @@ a specific method see its documentation.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="wflow-datamodel">
-<h2>Wflow datamodel<a class="headerlink" href="#wflow-datamodel" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="wflow-datamodel">
+<h2>Wflow datamodel<a class="headerlink" href="#wflow-datamodel" title="Permalink to this headline"></a></h2>
 <p>The following table provides an overview of which <a class="reference internal" href="../generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel" title="hydromt_wflow.WflowModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">WflowModel</span></code></a>
 attribute contains which Wflow in- and output files. The files are read and written with the associated
 read- and write- methods, i.e. <code class="xref py py-func docutils literal notranslate"><span class="pre">read_config()</span></code>
 and <code class="xref py py-func docutils literal notranslate"><span class="pre">write_config()</span></code> for the
 <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>  attribute.</p>
 <table class="colwidths-given docutils align-default" id="id2">
-<caption><span class="caption-text">WflowModel data</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">WflowModel data</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
 <colgroup>
 <col style="width: 30%" />
 <col style="width: 70%" />
@@ -330,14 +239,14 @@ and <code class="xref py py-func docutils literal notranslate"><span class="pre"
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="wflow-configuration">
-<span id="model-config"></span><h2>Wflow configuration<a class="headerlink" href="#wflow-configuration" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="wflow-configuration">
+<span id="model-config"></span><h2>Wflow configuration<a class="headerlink" href="#wflow-configuration" title="Permalink to this headline"></a></h2>
 <p>This HydroMT plugin provides an implementation for the wflow model in order to build, update or clip from
 command line. Specific details on the HydroMT CLI methods can be found in
 <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html">https://deltares.github.io/hydromt/latest/user_guide/cli.html</a></p>
-<div class="section" id="configuration-file">
-<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h3>
+<section id="configuration-file">
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline"></a></h3>
 <p>Settings to build or update a wflow model are managed in a configuration file. In this file,
 every option from each <a class="reference internal" href="#model-components"><span class="std std-ref">model component</span></a> can be changed by the user
 in its corresponding section.</p>
@@ -428,9 +337,9 @@ to a model component with the same name.</p>
 <span class="na">G_TT</span> <span class="o">=</span> <span class="s">1.3</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="selecting-data">
-<h3>Selecting data<a class="headerlink" href="#selecting-data" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="selecting-data">
+<h3>Selecting data<a class="headerlink" href="#selecting-data" title="Permalink to this headline"></a></h3>
 <p>Data sources in HydroMT are provided in one of several yaml libraries. These libraries contain required
 information on the different data sources so that HydroMT can process them for the different models. There
 are three ways for the user to select which data libraries to use:</p>
@@ -446,9 +355,9 @@ to the build / update command line.</p></li>
 These user libraries can be added either in the command line using the <strong>-d</strong> option and path/to/yaml or in the <strong>ini file</strong>
 with the <strong>data_libs</strong> option in the [global] sections.</p></li>
 </ul>
-</div>
-<div class="section" id="building-a-model">
-<h3>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="building-a-model">
+<h3>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline"></a></h3>
 <p>This plugin allows to build a complete model from available data. Once the configuration and
 data libraries are set, you can build a model by using:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
@@ -461,18 +370,18 @@ for a proper implementation of this model are:</p>
 <li><p>basin</p></li>
 <li><p>subbasin</p></li>
 </ul>
-</div>
-<div class="section" id="updating-a-model">
-<h3>Updating a model<a class="headerlink" href="#updating-a-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="updating-a-model">
+<h3>Updating a model<a class="headerlink" href="#updating-a-model" title="Permalink to this headline"></a></h3>
 <p>This plugin allows to update any components from a wflow model. To do so, list the components to update in a configuration file,
 if needed edit your data library with new data sources required for the update and use the command:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
 <span class="go">hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.ini -d data_sources.yml -vvv</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="clipping-a-model">
-<h3>Clipping a model<a class="headerlink" href="#clipping-a-model" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="clipping-a-model">
+<h3>Clipping a model<a class="headerlink" href="#clipping-a-model" title="Permalink to this headline"></a></h3>
 <p>This plugin allows to clip the following parts of an existing model for a smaller region from command line:</p>
 <ul class="simple">
 <li><p>staticmaps</p></li>
@@ -495,56 +404,39 @@ for a proper implementation of the clipped model are:</p>
 </dl>
 </li>
 </ul>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow.WflowModel.setup_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../examples/examples/plot_wflow_results.html" class="btn btn-neutral float-left" title="Plot Wflow results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow.WflowModel.setup_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright Deltares.
-
-    </p>
+    <p>&#169; Copyright Deltares.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
