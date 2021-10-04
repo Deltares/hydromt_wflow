@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hydromt_wflow.wflow.WflowModel.setup_glaciers &mdash; hydromt_wflow  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hydromt_wflow.wflow.WflowModel.setup_lulcmaps" href="hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html" />
+    <link rel="prev" title="hydromt_wflow.wflow.WflowModel.setup_reservoirs" href="hydromt_wflow.wflow.WflowModel.setup_reservoirs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> hydromt_wflow
+          </a>
+              <div class="version">
+                0.1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../user_guide/wflow.html">Wflow</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../user_guide/wflow.html#wflow-model-components">Wflow model components</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_config.html">hydromt_wflow.wflow.WflowModel.setup_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_basemaps.html">hydromt_wflow.wflow.WflowModel.setup_basemaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_rivers.html">hydromt_wflow.wflow.WflowModel.setup_rivers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_lakes.html">hydromt_wflow.wflow.WflowModel.setup_lakes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.wflow.WflowModel.setup_reservoirs</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.wflow.WflowModel.setup_glaciers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.wflow.WflowModel.setup_lulcmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_laimaps.html">hydromt_wflow.wflow.WflowModel.setup_laimaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.wflow.WflowModel.setup_soilmaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_riverwidth.html">hydromt_wflow.wflow.WflowModel.setup_riverwidth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_gauges.html">hydromt_wflow.wflow.WflowModel.setup_gauges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_areamap.html">hydromt_wflow.wflow.WflowModel.setup_areamap</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow.html#wflow-datamodel">Wflow datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow.html#wflow-configuration">Wflow configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/sediment.html">Wflow Sediment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">What’s new</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hydromt_wflow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../user_guide/wflow.html">Wflow</a> &raquo;</li>
+      <li>hydromt_wflow.wflow.WflowModel.setup_glaciers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/hydromt_wflow.wflow.WflowModel.setup_glaciers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="hydromt-wflow-wflow-wflowmodel-setup-glaciers">
+<h1>hydromt_wflow.wflow.WflowModel.setup_glaciers<a class="headerlink" href="#hydromt-wflow-wflow-wflowmodel-setup-glaciers" title="Permalink to this headline"></a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydromt_wflow.wflow.WflowModel.setup_glaciers">
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_glaciers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">glaciers_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rgi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_glaciers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_glaciers" title="Permalink to this definition"></a></dt>
+<dd><p>This component generates maps of glacier areas, area fraction and volume fraction,
+as well as tables with temperature thresohld, melting factor and snow-to-ice
+convertion fraction.</p>
+<p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2]
+from a database with glacier geometry, IDs and metadata.
+Currently, “rgi” (Randolph Glacier Inventory) is the only supported <code class="docutils literal notranslate"><span class="pre">glaciers_fn</span></code>
+data source and we use a default minimum area of 1 km2.</p>
+<p>Adds model layers:</p>
+<ul class="simple">
+<li><p><strong>wflow_glacierareas</strong> map: glacier IDs [-]</p></li>
+<li><p><strong>wflow_glacierfrac</strong> map: area fraction of glacier per cell [-]</p></li>
+<li><p><strong>wflow_glacierstore</strong> map: storage (volume) of glacier per cell [mm]</p></li>
+<li><p><strong>G_TT</strong> map: temperature threshold for glacier melt/buildup [°C]</p></li>
+<li><p><strong>G_Cfmax</strong> map: glacier melting factor [mm/°C*day]</p></li>
+<li><p><strong>G_SIfrac</strong> map: fraction of snowpack on top of glacier converted to ice, added to glacierstore [-]</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>glaciers_fn</strong> (<em>{'rgi'}</em>) – <p>Name of data source for glaciers, see data/data_sources.yml.</p>
+<ul>
+<li><p>Required variables: [‘simple_id’]</p></li>
+</ul>
+</p></li>
+<li><p><strong>min_area</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum glacier area threshold [km2], by default 0 (all included)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="hydromt_wflow.wflow.WflowModel.setup_reservoirs.html" class="btn btn-neutral float-left" title="hydromt_wflow.wflow.WflowModel.setup_reservoirs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow.WflowModel.setup_lulcmaps" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Deltares.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

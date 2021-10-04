@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hydromt_wflow.WflowSedimentModel.setup_riverwidth &mdash; hydromt_wflow  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_soilmaps" href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> hydromt_wflow
+          </a>
+              <div class="version">
+                0.1.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/wflow.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide/sediment.html">Wflow Sediment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api/api.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#wflow-model-class">Wflow model class</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api/api.html#wflowsediment-model-class">WflowSediment model class</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../api/api.html#id1">Initialize</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../api/api.html#id2">Setup components</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">hydromt_wflow.WflowSedimentModel.setup_config</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">hydromt_wflow.WflowSedimentModel.setup_basemaps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html">hydromt_wflow.WflowSedimentModel.setup_rivers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html">hydromt_wflow.WflowSedimentModel.setup_lakes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_reservoirs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_laimaps.html">hydromt_wflow.WflowSedimentModel.setup_laimaps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_canopymaps.html">hydromt_wflow.WflowSedimentModel.setup_canopymaps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html">hydromt_wflow.WflowSedimentModel.setup_soilmaps</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">hydromt_wflow.WflowSedimentModel.setup_riverwidth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html">hydromt_wflow.WflowSedimentModel.setup_riverbedsed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_gauges.html">hydromt_wflow.WflowSedimentModel.setup_gauges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html">hydromt_wflow.WflowSedimentModel.setup_areamap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../api/api.html#id4">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/api.html#id5">High level methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../api/api.html#id6">General methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#wflow-workflows">Wflow workflows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html#wflow-low-level-methods">Wflow low-level methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">What’s new</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">hydromt_wflow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api/api.html">API reference</a> &raquo;</li>
+      <li>hydromt_wflow.WflowSedimentModel.setup_riverwidth</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/hydromt_wflow.WflowSedimentModel.setup_riverwidth.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="hydromt-wflow-wflowsedimentmodel-setup-riverwidth">
+<h1>hydromt_wflow.WflowSedimentModel.setup_riverwidth<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-riverwidth" title="Permalink to this headline"></a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_riverwidth">
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'discharge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_wth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precip_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chelsa'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">climate_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'koppen_geiger'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_riverwidth" title="Permalink to this definition"></a></dt>
+<dd><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p>
+<p>By default the riverwidth is estimated based on discharge as <code class="docutils literal notranslate"><span class="pre">predictor</span></code> and used to
+set the riverwidth globally based on pre-defined power-law parameters per climate class.
+With <code class="docutils literal notranslate"><span class="pre">fit</span></code> set to True, the power-law relationsship paramters are set on-the-fly.
+With <code class="docutils literal notranslate"><span class="pre">fill</span></code> set to True, the estimated river widths are only used fill gaps in the
+observed data. Alternative <code class="docutils literal notranslate"><span class="pre">predictor</span></code> values are precip (accumulated precipitation)
+and uparea (upstream area). For these predictors values <code class="docutils literal notranslate"><span class="pre">fit</span></code> default to True.
+By default the predictor is based on discharge which is estimated through multiple linear
+regression with precipitation and upstream area per climate zone.</p>
+<ul class="simple">
+<li><p><strong>wflow_riverwidth</strong> map: river width [m]</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predictor</strong> (<em>{&quot;discharge&quot;</em><em>, </em><em>&quot;precip&quot;</em><em>, </em><em>&quot;uparea&quot;}</em>) – Predictor used in the power-law equation: width = a * predictor ^ b.
+Discharge is based on multiple linear regression per climate zone.
+Precip is based on the 10x the daily average accumulated precipitation [m3/s].
+Uparea is based on the upstream area grid [km2].
+Other variables, e.g. bankfull discharge, can also be provided if present in the staticmaps</p></li>
+<li><p><strong>fill</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True (default), use estimate to fill gaps, outliers and lake/res areas in observed width data (if present);
+if False, set all riverwidths based on predictor (automatic choice if no observations found)</p></li>
+<li><p><strong>fit</strong> (<em>bool</em><em>, </em><em>optional kwarg</em>) – If True, the power-law parameters are fitted on the fly
+By default True for all but “discharge” predictor.
+A-priori derived parameters will be overwritten if True.</p></li>
+<li><p><strong>a</strong> (<em>float</em><em>, </em><em>optional kwarg</em>) – Manual power-law parameters</p></li>
+<li><p><strong>b</strong> (<em>float</em><em>, </em><em>optional kwarg</em>) – Manual power-law parameters</p></li>
+<li><p><strong>min_wth</strong> (<em>float</em>) – minimum river width</p></li>
+<li><p><strong>precip_fn</strong> (<em>{'chelsa'}</em>) – Source of long term precipitation grid if the predictor is set to ‘discharge’ or ‘precip’.</p></li>
+<li><p><strong>climate_fn</strong> (<em>{'koppen_geiger'}</em>) – Source of long-term climate grid if the predictor is set to ‘discharge’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html" class="btn btn-neutral float-left" title="hydromt_wflow.WflowSedimentModel.setup_soilmaps" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html" class="btn btn-neutral float-right" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Deltares.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
