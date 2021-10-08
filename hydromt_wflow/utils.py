@@ -6,7 +6,7 @@ import logging
 
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
-from hydromt.gis_utils import cellarea 
+from hydromt.gis_utils import cellarea
 
 __all__ = ["read_csv_results", "surfacearea"]
 
@@ -173,8 +173,7 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
 
 
 def surfacearea(ds_like, logger=logger):
-    """
-    """
+    """ """
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
     ys, xs = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values

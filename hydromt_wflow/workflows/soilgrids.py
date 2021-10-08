@@ -420,7 +420,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     soilthickness.raster.set_nodata(np.nan)
     soilthickness = soilthickness.raster.interpolate_na("nearest").astype(np.float32)
     ds_out["SoilThickness"] = soilthickness * 10.0  # from [cm] to [mm]
-    ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)  
+    ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)
 
     logger.info("calculate and resample KsatVer")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
@@ -470,8 +470,12 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     ds_out["c"] = ds_c
 
     ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)
-    ds_out["conductivity_average_md"] = (kv_sl_integrated/1000).astype(np.float32) # [m/d] conductivity averaged over soil profile
-    ds_out["conductivity_surface_md"] = (kv_sl.sel(sl=1)/1000).astype(np.float32) # [m/d] conductivity at soil surface -- unit for wflow_sbm+gw
+    ds_out["conductivity_average_md"] = (kv_sl_integrated / 1000).astype(
+        np.float32
+    )  # [m/d] conductivity averaged over soil profile
+    ds_out["conductivity_surface_md"] = (kv_sl.sel(sl=1) / 1000).astype(
+        np.float32
+    )  # [m/d] conductivity at soil surface -- unit for wflow_sbm+gw
 
     for i, sl in enumerate(kv_sl["sl"]):
         kv = kv_sl.sel(sl=sl)
@@ -548,7 +552,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
     return ds_out
 
-def aquifer_thickness(ds, ds_like, aquiferthickness_fn, logger = logger):
+
+def aquifer_thickness(ds, ds_like, aquiferthickness_fn, logger=logger):
     """
     Returns an estimate of the aquifer thickness (wflow sbm + gw) [mm]
 
@@ -577,14 +582,23 @@ def aquifer_thickness(ds, ds_like, aquiferthickness_fn, logger = logger):
 
     # absolute depth to bedrock for sbm+gw
     soilthickness_bedrock_hr = ds.raster.interpolate_na("nearest")
-    soilthickness_bedrock = soilthickness_bedrock_hr.raster.reproject_like(ds_like, method="average")
+    soilthickness_bedrock = soilthickness_bedrock_hr.raster.reproject_like(
+        ds_like, method="average"
+    )
     # wflow_sbm cannot handle (yet) zero soil thickness
-    soilthickness_bedrock = soilthickness_bedrock.where(soilthickness_bedrock > 0.0, np.nan)
+    soilthickness_bedrock = soilthickness_bedrock.where(
+        soilthickness_bedrock > 0.0, np.nan
+    )
     soilthickness_bedrock.raster.set_nodata(np.nan)
-    soilthickness_bedrock = soilthickness_bedrock.raster.interpolate_na("nearest").astype(np.float32)
-    ds_out["SoilThickness_bedrock"] = soilthickness_bedrock # [mm] conversion already done in yml. 
-    
+    soilthickness_bedrock = soilthickness_bedrock.raster.interpolate_na(
+        "nearest"
+    ).astype(np.float32)
+    ds_out[
+        "SoilThickness_bedrock"
+    ] = soilthickness_bedrock  # [mm] conversion already done in yml.
+
     return ds_out
+
 
 def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
