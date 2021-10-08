@@ -15,7 +15,7 @@ from . import ptf
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["soilgrids", "soilgrids_sediment"]
+__all__ = ["soilgrids", "soilgrids_sediment", "aquifer_thickness"]
 
 # soilgrids_2017
 soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
@@ -420,13 +420,17 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     soilthickness.raster.set_nodata(np.nan)
     soilthickness = soilthickness.raster.interpolate_na("nearest").astype(np.float32)
     ds_out["SoilThickness"] = soilthickness * 10.0  # from [cm] to [mm]
-    ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)
+    ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)  
 
     logger.info("calculate and resample KsatVer")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
     kv_sl = np.log(kv_sl_hr)
+    # integrated Ksat over depth for sbm+groundwater
+    kv_sl_integrated = average_soillayers(kv_sl, ds["soilthickness"])
     kv_sl = kv_sl.raster.reproject_like(ds_like, method="average")
     kv_sl = np.exp(kv_sl)
+    kv_sl_integrated = kv_sl_integrated.raster.reproject_like(ds_like, method="average")
+    kv_sl_integrated = np.exp(kv_sl_integrated)
 
     logger.info("calculate and resample pore size distribution index")
     lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
@@ -466,6 +470,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     ds_out["c"] = ds_c
 
     ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)
+    ds_out["conductivity_average_md"] = (kv_sl_integrated/1000).astype(np.float32) # [m/d] conductivity averaged over soil profile
+    ds_out["conductivity_surface_md"] = (kv_sl.sel(sl=1)/1000).astype(np.float32) # [m/d] conductivity at soil surface -- unit for wflow_sbm+gw
 
     for i, sl in enumerate(kv_sl["sl"]):
         kv = kv_sl.sel(sl=sl)
@@ -542,6 +548,43 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
     return ds_out
 
+def aquifer_thickness(ds, ds_like, aquiferthickness_fn, logger = logger):
+    """
+    Returns an estimate of the aquifer thickness (wflow sbm + gw) [mm]
+
+    Adds model layer:
+
+        * **SoilThickness_bedrock**: aquifer thickness [mm]
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing soil properties.
+    ds_like : xarray.DataArray
+        Dataset at model resolution.
+    aquiferthickness_fn : str
+        soilgrids v1.0 {'soilgrids_depthbedrock'}
+
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing gridded soil parameters for aquifer thickness.
+
+    """
+
+    ds_out = xr.Dataset(coords=ds_like.raster.coords)
+    ds = ds.raster.mask_nodata()
+
+    # absolute depth to bedrock for sbm+gw
+    soilthickness_bedrock_hr = ds.raster.interpolate_na("nearest")
+    soilthickness_bedrock = soilthickness_bedrock_hr.raster.reproject_like(ds_like, method="average")
+    # wflow_sbm cannot handle (yet) zero soil thickness
+    soilthickness_bedrock = soilthickness_bedrock.where(soilthickness_bedrock > 0.0, np.nan)
+    soilthickness_bedrock.raster.set_nodata(np.nan)
+    soilthickness_bedrock = soilthickness_bedrock.raster.interpolate_na("nearest").astype(np.float32)
+    ds_out["SoilThickness_bedrock"] = soilthickness_bedrock # [mm] conversion already done in yml. 
+    
+    return ds_out
 
 def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 

@@ -2,12 +2,15 @@ import numpy as np
 import xarray as xr
 from typing import Dict, Union
 from pathlib import Path
+import logging
 
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
+from hydromt.gis_utils import cellarea 
 
+__all__ = ["read_csv_results", "surfacearea"]
 
-__all__ = ["read_csv_results"]
+logger = logging.getLogger(__name__)
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
@@ -167,3 +170,21 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
         csv_dict[f"{da.name}"] = da
 
     return csv_dict
+
+
+def surfacearea(ds_like, logger=logger):
+    """
+    """
+    ds_out = xr.Dataset(coords=ds_like.raster.coords)
+
+    ys, xs = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
+    xres = np.abs(np.mean(np.diff(xs)))
+    yres = np.abs(np.mean(np.diff(ys)))
+    area = np.ones((ys.size, xs.size), dtype=ys.dtype)
+    cell_res = cellarea(ys, xres, yres)[:, None] * area
+    attrs = dict(_FillValue=-9999, unit="m2")
+    dims = ds_like.raster.dims
+    cell_res = xr.Variable(dims, cell_res, attrs=attrs)
+    ds_out["wflow_surfacearea"] = cell_res
+
+    return ds_out

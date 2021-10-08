@@ -29,6 +29,7 @@ from .workflows import (
     waterbodymaps,
     reservoirattrs,
     soilgrids,
+    aquifer_thickness,
     glaciermaps,
 )
 from .workflows import landuse, lai
@@ -86,6 +87,10 @@ class WflowModel(Model):
         "glacareas": "wflow_glacierareas",
         "glacfracs": "wflow_glacierfrac",
         "glacstore": "wflow_glacierstore",
+        "cellarea": "wflow_surfacearea",
+        "depth_bedrock": "SoilThickness_bedrock",
+        "conductivity_average": "conductivity_average_md",
+        "conductivity_surface": "conductivity_surface_md",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -1153,6 +1158,182 @@ class WflowModel(Model):
                 f"No glaciers of sufficient size found within region!"
                 f"Skipping glacier procedures!"
             )
+
+    def setup_surfacearea(self):
+        """
+        Calculate cell area at model resolution [m2]
+        TODO: this actually better fits in setup_basemaps as it may be useful for other models? therefore remove function from utils?
+
+        Adds model layer:
+        * **wflow_surfacearea**: surface area of cells at model resolution [m2]
+
+        """
+        self.logger.info(f"Preparing wflow_surfacearea map.")
+        dsout = utils.surfacearea(
+            self.staticmaps,
+            logger=self.logger,
+        )
+        self.set_staticmaps(dsout)
+    
+    def setup_aquiferthickness(self, aquiferthickness_fn="soilgrids_depthbedrock"):
+        """
+        Setup aquifer thickness map (for sbm+gw)
+        
+        Adds model layer:
+
+        * **SoilThickness_bedrock**: aquifer thickness [mm]
+
+        Parameters
+        ----------
+        aquiferthickness_fn: data source (default: soilgrids absolute depth to bedrock) [mm]
+        
+        """
+        self.logger.info(f"Preparing aquifer thickness parameter map.")
+        
+        dsin = self.data_catalog.get_rasterdataset(aquiferthickness_fn, geom=self.region, buffer=2)
+        
+        dsout = aquifer_thickness(
+            dsin,
+            self.staticmaps,
+            aquiferthickness_fn,
+            logger=self.logger,
+        )
+        self.set_staticmaps(dsout)
+
+    
+    def setup_drains(self, drain_resistance = 2.0, drain_depth = 0.2):
+        """
+        Setup drain maps for the sbm+groundwater model.
+        The drain conductance is based on a resistance [d] 
+        and the cell area (at model resolution).
+        The drain elevation is defined from the drain depth [m] below the DEM [m].
+
+        Adds model layer:
+
+        * **drain_elevation**: elevation of the drains [m]
+        * **drain_conductance**:  [m2/day]
+
+        Parameters
+        ----------
+        drain_resistance = 2 [d] (default)
+        drain_depth = 0.2 [m] (default)
+
+        """
+        self.logger.info(f"Preparing drain maps.")
+
+        if not self._MAPS["cellarea"] in self.staticmaps:
+            raise ValueError(
+                "The setup_drains method requires to run setup_surfacearea method first."
+            )
+
+        nodatafloat = -999
+
+        drain_elevation = xr.where(
+                self.staticmaps[self._MAPS["basins"]], self.staticmaps[self._MAPS["elevtn"]] - drain_depth, nodatafloat
+            )
+        drain_elevation.raster.set_nodata(nodatafloat)
+        drain_elevation = drain_elevation.rename("drain_elevation")
+        self.set_staticmaps(drain_elevation)
+
+        drain_conductance = xr.where(
+                self.staticmaps[self._MAPS["basins"]], self.staticmaps[self._MAPS["cellarea"]] / drain_resistance, nodatafloat
+            )
+        drain_conductance = drain_conductance.rename("drain_conductance")
+        self.set_staticmaps(drain_conductance)
+
+    def setup_riverbottomelev(self, r = 0.12, p = 0.78):
+        """
+        Estimate river bottom elevation for the sbm+groundwater model.
+        This is based on a very simple formula with coefficients for gravel bed rivers in Britain. (Neal et al., 2012)
+        TODO: check if better estimates are available. 
+
+        Adds model layer:
+
+        * **river_bottom_elevation**: elevation of the bottom of the river [m]
+
+        Parameters
+        ----------
+        r = 0.12 coefficient [-] (default)
+        p = 0.78 exponent [-] (default)
+        """
+
+        if not self._MAPS["rivwth"] in self.staticmaps:
+            raise ValueError(
+                "The setup_riverbottomelev method requies to run setup_riverwidth method first."
+            )
+
+        nodatafloat = -999
+        river_depth = xr.where(self.staticmaps[self._MAPS["rivwth"]], r * self.staticmaps[self._MAPS["rivwth"]]**p, nodatafloat)
+        river_bottom_elevation = self.staticmaps[self._MAPS["elevtn"]] - river_depth
+        river_bottom_elevation = river_bottom_elevation.rename("river_bottom_elevation")
+        self.set_staticmaps(river_bottom_elevation)
+        
+        #warning if depth of river below depth to bedrock
+        if self._MAPS["depth_bedrock"] in self.staticmaps:
+            diff_depthbedrock_depthriver = xr.where(self.staticmaps[self._MAPS["rivwth"]], self.staticmaps[self._MAPS["depth_bedrock"]]/1000 - river_depth, nodatafloat)
+            diff_depthbedrock_depthriver = diff_depthbedrock_depthriver.rename("diff_depthbedrock_depthriver")
+            #TODO: check add this map to staticmaps? probably not, warning enough. 
+            self.set_staticmaps(diff_depthbedrock_depthriver)
+            if np.min(diff_depthbedrock_depthriver) < 0 :
+                self.logger.warning("River bottom elevation lower than absolute depth to bedrock")
+        
+    def setup_riverconductance(self):
+        """
+        Estimate river infiltration and exfiltration conductance based on surface and average conductivity (KsatVer). 
+
+        """
+
+        nodatafloat = -999
+
+        if not self._MAPS["rivwth"] in self.staticmaps:
+            raise ValueError(
+                "The setup_riverconductance method requires to run setup_riverwidth method first."
+            )
+        if not self._MAPS["cellarea"] in self.staticmaps:
+            raise ValueError(
+                "The setup_riverconductance method requires to run setup_surfacearea method first."
+            )
+        if not self._MAPS["depth_bedrock"] in self.staticmaps:
+            raise ValueError(
+                "The setup_riverconductance method requires to run setup_aquiferthickness method first."
+            )
+        if not self._MAPS["conductivity_surface"] in self.staticmaps:
+            raise ValueError(
+                "The setup_riverconductance method requires to run setup_soil method first."
+            )
+
+        self.logger.info(f"Preparing river infiltration and exfiltration conductance maps.")
+
+        # Compute average distance between ditches 
+        wetted_area = self.staticmaps[self._MAPS["rivlen"]] * self.staticmaps[self._MAPS["rivwth"]]
+        #TODO: wetted area based on high res data? 
+
+        #check if cell_area larger than wetted area or emit warning
+        if np.min(wetted_area) < 0 :
+            self.logger.warning("Wetted area in cell larger than cell area!")
+
+        L = (self.staticmaps[self._MAPS["cellarea"]] - wetted_area) / self.staticmaps[self._MAPS["rivlen"]] 
+        
+        # compute "lumped" resistance for each cel (based on surface conductivity and average conductivity over soil profile)
+        #TODO: NB: conductivity in [m/d]
+        horizontal_flow_resistance_surf = L**2 / (8 * self.staticmaps[self._MAPS["conductivity_surface"]] * self.staticmaps[self._MAPS["depth_bedrock"]]/1000) #depth_bedrock from mm to m
+        horizontal_flow_resistance_aver = L**2 / (8 * self.staticmaps[self._MAPS["conductivity_average"]] * self.staticmaps[self._MAPS["depth_bedrock"]]/1000) #depth_bedrock from mm to m
+        
+        #compute conductance
+        conductance_surf = self.staticmaps[self._MAPS["cellarea"]] / horizontal_flow_resistance_surf
+        conductance_aver = self.staticmaps[self._MAPS["cellarea"]] / horizontal_flow_resistance_aver
+        
+        #mask except river cells 
+        conductance_surf = xr.where(self.staticmaps[self._MAPS["rivmsk"]], conductance_surf, nodatafloat)
+        conductance_aver = xr.where(self.staticmaps[self._MAPS["rivmsk"]], conductance_aver, nodatafloat)
+        conductance_surf.raster.set_nodata(nodatafloat)
+        conductance_aver.raster.set_nodata(nodatafloat)
+
+        conductance_surf = conductance_surf.rename("infiltration_conductance_Ksurface")
+        conductance_aver = conductance_aver.rename("infiltration_conductance_Kaverage")
+        self.set_staticmaps(conductance_surf)
+        self.set_staticmaps(conductance_aver)
+
 
     def setup_constant_pars(self, **kwargs):
         """Setup constant parameter maps.
