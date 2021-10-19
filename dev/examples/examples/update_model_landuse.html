@@ -428,7 +428,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:30,188 - update_model_landuse - log - INFO - HydroMT version: 0.4.4.dev
+2021-10-19 07:36:02,852 - update_model_landuse - log - INFO - HydroMT version: 0.4.4.dev
 </pre></div></div>
 </div>
 </section>
@@ -462,7 +462,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:30,202 - update_model_landuse - data_adapter - INFO - Adding sample data v0.0.5 from artifacts
+2021-10-19 07:36:02,863 - update_model_landuse - data_adapter - INFO - Adding sample data v0.0.5 from artifacts
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -508,8 +508,8 @@ Name: source_url, dtype: object
 <div class="highlight"><pre>
 Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
 
-  Update a specific component of a model. Set an output directory to copy
-  the edited model to a new folder, otherwise maps are overwritten.
+  Update a specific component of a model. Set an output directory to copy the
+  edited model to a new folder, otherwise maps are overwritten.
 
   Example usage:
   --------------
@@ -523,22 +523,17 @@ Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
 Options:
   -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
                              overwritten if left empty.
-
   -c, --components TEXT      Model components from ini file to run
   --opt TEXT                 Component specific keyword arguments, see the
                              setup_&lt;component&gt; method of the specific model
                              for more information about the arguments.
-
   -i, --config PATH          Path to hydroMT configuration file, for the model
                              specific implementation.
-
   -d, --data PATH            File path to yml data sources file. See
                              documentation for required yml file format.
-
   --dd, --deltares-data      Parse default deltares data yml from
                              https://github.com/DirkEilander/hydromt-
                              artifacts/releases
-
   -q, --quiet                Decrease verbosity.
   -v, --verbose              Increase verbosity.
   --help                     Show this message and exit.
@@ -563,36 +558,36 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:35,829 - update - log - INFO - HydroMT version: 0.4.4.dev
-2021-10-04 14:01:35,829 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
-2021-10-04 14:01:35,829 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine
-2021-10-04 14:01:35,829 - update - main - INFO - User settings:
-2021-10-04 14:01:35,872 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
-2021-10-04 14:01:35,876 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
-2021-10-04 14:01:35,956 - update - wflow - INFO - Reading model intbl files.
-2021-10-04 14:01:35,957 - update - wflow - INFO - Reading model staticgeom files.
-2021-10-04 14:01:36,048 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
-2021-10-04 14:01:36,061 - update - wflow - INFO - Model read
-2021-10-04 14:01:36,067 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2021-10-04 14:01:36,067 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2021-10-04 14:01:36,067 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2021-10-04 14:01:36,067 - update - wflow - INFO - Preparing LULC parameter maps.
-2021-10-04 14:01:36,071 - update - data_adapter - INFO - Adding sample data v0.0.5 from artifacts
-2021-10-04 14:01:36,156 - update - data_adapter - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/data/v0.0.5/corine.tif
-2021-10-04 14:01:36,279 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2021-10-04 14:01:36,503 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2021-10-04 14:01:36,716 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2021-10-04 14:01:36,932 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2021-10-04 14:01:37,156 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2021-10-04 14:01:37,370 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2021-10-04 14:01:37,592 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2021-10-04 14:01:37,814 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2021-10-04 14:01:38,062 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine
-2021-10-04 14:01:38,064 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/wflow_sbm.toml
-2021-10-04 14:01:38,065 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/staticmaps.nc
-2021-10-04 14:01:38,653 - update - wflow - INFO - Writing model staticgeom to file.
-2021-10-04 14:01:38,849 - update - wflow - INFO - Write forcing file
-2021-10-04 14:01:38,866 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/inmaps.nc
+2021-10-19 07:36:07,619 - update - log - INFO - HydroMT version: 0.4.4.dev
+2021-10-19 07:36:07,619 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
+2021-10-19 07:36:07,619 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine
+2021-10-19 07:36:07,619 - update - main - INFO - User settings:
+2021-10-19 07:36:07,656 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
+2021-10-19 07:36:07,658 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2021-10-19 07:36:07,720 - update - wflow - INFO - Reading model intbl files.
+2021-10-19 07:36:07,720 - update - wflow - INFO - Reading model staticgeom files.
+2021-10-19 07:36:07,797 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2021-10-19 07:36:07,807 - update - wflow - INFO - Model read
+2021-10-19 07:36:07,811 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2021-10-19 07:36:07,812 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2021-10-19 07:36:07,812 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2021-10-19 07:36:07,812 - update - wflow - INFO - Preparing LULC parameter maps.
+2021-10-19 07:36:07,815 - update - data_adapter - INFO - Adding sample data v0.0.5 from artifacts
+2021-10-19 07:36:07,885 - update - data_adapter - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/data/v0.0.5/corine.tif
+2021-10-19 07:36:07,981 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2021-10-19 07:36:08,171 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2021-10-19 07:36:08,351 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2021-10-19 07:36:08,531 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2021-10-19 07:36:08,711 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2021-10-19 07:36:08,891 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2021-10-19 07:36:09,072 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2021-10-19 07:36:09,251 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2021-10-19 07:36:09,457 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine
+2021-10-19 07:36:09,458 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/wflow_sbm.toml
+2021-10-19 07:36:09,459 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/staticmaps.nc
+2021-10-19 07:36:09,913 - update - wflow - INFO - Writing model staticgeom to file.
+2021-10-19 07:36:10,068 - update - wflow - INFO - Write forcing file
+2021-10-19 07:36:10,081 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/inmaps.nc
 [########################################] | 100% Completed |  0.1s
 
 </pre></div></div>
@@ -627,8 +622,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:39,550 - update_model_landuse - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
-2021-10-04 14:01:39,551 - update_model_landuse - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
+2021-10-19 07:36:10,767 - update_model_landuse - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
+2021-10-19 07:36:10,768 - update_model_landuse - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -665,8 +660,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:39,599 - update_model_landuse - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/wflow_sbm.toml
-2021-10-04 14:01:39,600 - update_model_landuse - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2021-10-19 07:36:10,805 - update_model_landuse - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/wflow_sbm.toml
+2021-10-19 07:36:10,806 - update_model_landuse - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -712,8 +707,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:40,202 - update_model_landuse - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/wflow_sbm.toml
-2021-10-04 14:01:40,203 - update_model_landuse - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/staticmaps.nc
+2021-10-19 07:36:11,313 - update_model_landuse - model_api - DEBUG - Model config read from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/wflow_sbm.toml
+2021-10-19 07:36:11,314 - update_model_landuse - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_corine/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">

@@ -434,7 +434,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:05,823 - update_model_gauges - log - INFO - HydroMT version: 0.4.4.dev
+2021-10-19 07:35:43,846 - update_model_gauges - log - INFO - HydroMT version: 0.4.4.dev
 </pre></div></div>
 </div>
 </section>
@@ -487,8 +487,8 @@ div.rendered_html tbody tr:hover {
 <div class="highlight"><pre>
 Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
 
-  Update a specific component of a model. Set an output directory to copy
-  the edited model to a new folder, otherwise maps are overwritten.
+  Update a specific component of a model. Set an output directory to copy the
+  edited model to a new folder, otherwise maps are overwritten.
 
   Example usage:
   --------------
@@ -502,22 +502,17 @@ Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
 Options:
   -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
                              overwritten if left empty.
-
   -c, --components TEXT      Model components from ini file to run
   --opt TEXT                 Component specific keyword arguments, see the
                              setup_&lt;component&gt; method of the specific model
                              for more information about the arguments.
-
   -i, --config PATH          Path to hydroMT configuration file, for the model
                              specific implementation.
-
   -d, --data PATH            File path to yml data sources file. See
                              documentation for required yml file format.
-
   --dd, --deltares-data      Parse default deltares data yml from
                              https://github.com/DirkEilander/hydromt-
                              artifacts/releases
-
   -q, --quiet                Decrease verbosity.
   -v, --verbose              Increase verbosity.
   --help                     Show this message and exit.
@@ -542,38 +537,38 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:11,476 - update - log - INFO - HydroMT version: 0.4.4.dev
-2021-10-04 14:01:11,477 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
-2021-10-04 14:01:11,477 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
-2021-10-04 14:01:11,477 - update - main - INFO - User settings:
-2021-10-04 14:01:11,530 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
-2021-10-04 14:01:11,533 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
-2021-10-04 14:01:11,618 - update - wflow - INFO - Reading model intbl files.
-2021-10-04 14:01:11,619 - update - wflow - INFO - Reading model staticgeom files.
-2021-10-04 14:01:11,712 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
-2021-10-04 14:01:11,726 - update - wflow - INFO - Model read
-2021-10-04 14:01:11,731 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2021-10-04 14:01:11,731 - update - model_api - INFO - setup_gauges.source_gdf: None
-2021-10-04 14:01:11,731 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2021-10-04 14:01:11,731 - update - model_api - INFO - setup_gauges.mask: None
-2021-10-04 14:01:11,732 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2021-10-04 14:01:11,732 - update - model_api - INFO - setup_gauges.derive_outlet: True
-2021-10-04 14:01:11,732 - update - model_api - INFO - setup_gauges.basename: test-flow
-2021-10-04 14:01:11,732 - update - model_api - INFO - setup_gauges.update_toml: True
-2021-10-04 14:01:11,732 - update - model_api - INFO - setup_gauges.gauge_toml_header: None
-2021-10-04 14:01:11,732 - update - model_api - INFO - setup_gauges.gauge_toml_param: None
-2021-10-04 14:01:11,732 - update - wflow - INFO - Gauges locations set based on river outlets.
-2021-10-04 14:01:12,952 - update - wflow - INFO - Gauges map based on catchment river outlets added.
-2021-10-04 14:01:12,952 - update - data_adapter - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from test_stations.csv
-2021-10-04 14:01:12,957 - update - data_adapter - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2021-10-04 14:01:12,979 - update - wflow - INFO - 3 test-flow gauge locations found within domain
-2021-10-04 14:01:14,063 - update - wflow - INFO - Gauges map from test-flow added.
-2021-10-04 14:01:14,064 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
-2021-10-04 14:01:14,065 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/wflow_sbm.toml
-2021-10-04 14:01:14,066 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
-2021-10-04 14:01:14,666 - update - wflow - INFO - Writing model staticgeom to file.
-2021-10-04 14:01:14,881 - update - wflow - INFO - Write forcing file
-2021-10-04 14:01:14,897 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/inmaps.nc
+2021-10-19 07:35:48,424 - update - log - INFO - HydroMT version: 0.4.4.dev
+2021-10-19 07:35:48,424 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
+2021-10-19 07:35:48,424 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2021-10-19 07:35:48,424 - update - main - INFO - User settings:
+2021-10-19 07:35:48,460 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
+2021-10-19 07:35:48,462 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2021-10-19 07:35:48,522 - update - wflow - INFO - Reading model intbl files.
+2021-10-19 07:35:48,523 - update - wflow - INFO - Reading model staticgeom files.
+2021-10-19 07:35:48,596 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2021-10-19 07:35:48,606 - update - wflow - INFO - Model read
+2021-10-19 07:35:48,610 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2021-10-19 07:35:48,610 - update - model_api - INFO - setup_gauges.source_gdf: None
+2021-10-19 07:35:48,610 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2021-10-19 07:35:48,610 - update - model_api - INFO - setup_gauges.mask: None
+2021-10-19 07:35:48,610 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2021-10-19 07:35:48,611 - update - model_api - INFO - setup_gauges.derive_outlet: True
+2021-10-19 07:35:48,611 - update - model_api - INFO - setup_gauges.basename: test-flow
+2021-10-19 07:35:48,611 - update - model_api - INFO - setup_gauges.update_toml: True
+2021-10-19 07:35:48,611 - update - model_api - INFO - setup_gauges.gauge_toml_header: None
+2021-10-19 07:35:48,611 - update - model_api - INFO - setup_gauges.gauge_toml_param: None
+2021-10-19 07:35:48,611 - update - wflow - INFO - Gauges locations set based on river outlets.
+2021-10-19 07:35:49,575 - update - wflow - INFO - Gauges map based on catchment river outlets added.
+2021-10-19 07:35:49,576 - update - data_adapter - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from test_stations.csv
+2021-10-19 07:35:49,580 - update - data_adapter - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2021-10-19 07:35:49,598 - update - wflow - INFO - 3 test-flow gauge locations found within domain
+2021-10-19 07:35:50,427 - update - wflow - INFO - Gauges map from test-flow added.
+2021-10-19 07:35:50,427 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2021-10-19 07:35:50,428 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/wflow_sbm.toml
+2021-10-19 07:35:50,429 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
+2021-10-19 07:35:50,902 - update - wflow - INFO - Writing model staticgeom to file.
+2021-10-19 07:35:51,074 - update - wflow - INFO - Write forcing file
+2021-10-19 07:35:51,087 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/inmaps.nc
 [########################################] | 100% Completed |  0.1s
 
 </pre></div></div>
@@ -613,36 +608,36 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-10-04 14:01:18,105 - update - log - INFO - HydroMT version: 0.4.4.dev
-2021-10-04 14:01:18,106 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges (r+).
-2021-10-04 14:01:18,106 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
-2021-10-04 14:01:18,106 - update - main - INFO - User settings:
-2021-10-04 14:01:18,152 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
-2021-10-04 14:01:18,157 - update - wflow - INFO - Reading model staticgeom files.
-2021-10-04 14:01:18,260 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
-2021-10-04 14:01:18,358 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.source_gdf: None
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.snap_to_river: False
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.mask: None
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.derive_outlet: True
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.basename: test-rain
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.update_toml: True
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
-2021-10-04 14:01:18,359 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
-2021-10-04 14:01:18,359 - update - wflow - INFO - Gauges locations set based on river outlets.
-2021-10-04 14:01:19,543 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
-2021-10-04 14:01:19,551 - update - model_api - WARNING - Replacing staticgeom: gauges
-2021-10-04 14:01:19,552 - update - wflow - INFO - Gauges map based on catchment river outlets added.
-2021-10-04 14:01:19,552 - update - data_adapter - WARNING - Overwriting data source test_stations.
-2021-10-04 14:01:19,552 - update - data_adapter - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from test_stations.csv
-2021-10-04 14:01:19,557 - update - data_adapter - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2021-10-04 14:01:19,579 - update - wflow - INFO - 3 test-rain gauge locations found within domain
-2021-10-04 14:01:19,590 - update - wflow - INFO - Gauges map from test-rain added.
-2021-10-04 14:01:19,591 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
-2021-10-04 14:01:19,592 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/wflow_sbm.toml
-2021-10-04 14:01:19,593 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
-2021-10-04 14:01:20,217 - update - wflow - INFO - Writing model staticgeom to file.
+2021-10-19 07:35:53,854 - update - log - INFO - HydroMT version: 0.4.4.dev
+2021-10-19 07:35:53,854 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges (r+).
+2021-10-19 07:35:53,854 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2021-10-19 07:35:53,854 - update - main - INFO - User settings:
+2021-10-19 07:35:53,889 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
+2021-10-19 07:35:53,893 - update - wflow - INFO - Reading model staticgeom files.
+2021-10-19 07:35:53,969 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
+2021-10-19 07:35:54,034 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.source_gdf: None
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.snap_to_river: False
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.mask: None
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.derive_outlet: True
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.basename: test-rain
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.update_toml: True
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
+2021-10-19 07:35:54,035 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
+2021-10-19 07:35:54,035 - update - wflow - INFO - Gauges locations set based on river outlets.
+2021-10-19 07:35:54,983 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
+2021-10-19 07:35:54,990 - update - model_api - WARNING - Replacing staticgeom: gauges
+2021-10-19 07:35:54,990 - update - wflow - INFO - Gauges map based on catchment river outlets added.
+2021-10-19 07:35:54,991 - update - data_adapter - WARNING - Overwriting data source test_stations.
+2021-10-19 07:35:54,991 - update - data_adapter - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from test_stations.csv
+2021-10-19 07:35:54,995 - update - data_adapter - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2021-10-19 07:35:55,013 - update - wflow - INFO - 3 test-rain gauge locations found within domain
+2021-10-19 07:35:55,022 - update - wflow - INFO - Gauges map from test-rain added.
+2021-10-19 07:35:55,022 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2021-10-19 07:35:55,023 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/wflow_sbm.toml
+2021-10-19 07:35:55,023 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
+2021-10-19 07:35:55,508 - update - wflow - INFO - Writing model staticgeom to file.
 
 </pre></div></div>
 </div>
