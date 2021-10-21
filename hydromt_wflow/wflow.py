@@ -1550,7 +1550,9 @@ class WflowModel(Model):
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
 
-    def write_forcing(self, fn_out=None, chunksize=1, decimals=2, **kwargs):
+    def write_forcing(
+        self, fn_out=None, fn_freq=None, chunksize=1, decimals=2, **kwargs
+    ):
         """write forcing at `fn_out` in model ready format.
 
         If no `fn_out` path is provided and path_forcing from the  wflow toml exists,
@@ -1564,6 +1566,10 @@ class WflowModel(Model):
         fn_out: str, Path, optional
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
+        fn_freq: str (Offset), optional
+            Write several files for the forcing according to fn_freq. For example 'Y' for one file per year or 'M'
+            for one file per month. By default writes the one file.
+            For more options, see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
         chunksize: int, optional
             Chunksize on time dimension when saving to disk. By default 1.
         decimals, int, optional
@@ -1641,17 +1647,31 @@ class WflowModel(Model):
                 for v in ds.data_vars.keys()
             }
 
-            self.logger.info(f"Process forcing; saving to {fn_out}")
             # Check if all sub-folders in fn_out exists and if not create them
             if not isdir(dirname(fn_out)):
                 os.makedirs(dirname(fn_out))
-            # with compute=False we get a delayed object which is executed when
-            # calling .compute where we can pass more arguments to the dask.compute method
-            delayed_obj = ds.to_netcdf(
-                fn_out, encoding=encoding, mode="w", compute=False
-            )
-            with ProgressBar():
-                delayed_obj.compute(**kwargs)
+
+            forcing_list = []
+
+            if fn_freq is None:
+                # with compute=False we get a delayed object which is executed when
+                # calling .compute where we can pass more arguments to the dask.compute method
+                forcing_list.append([fn_out, ds])
+            else:
+                self.logger.info(f"Writting several forcing with freq {fn_freq}")
+                for label, ds_gr in ds.resample(time=fn_freq):
+                    # ds_gr = group[1]
+                    start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
+                    fn_out_gr = f"{str(fn_out)[0:-3]}_{start}.nc"
+                    forcing_list.append([fn_out_gr, ds_gr])
+
+            for fn_out_gr, ds_gr in forcing_list:
+                self.logger.info(f"Process forcing; saving to {fn_out_gr}")
+                delayed_obj = ds_gr.to_netcdf(
+                    fn_out_gr, encoding=encoding, mode="w", compute=False
+                )
+                with ProgressBar():
+                    delayed_obj.compute(**kwargs)
 
             # TO profile uncomment lines below to replace lines above
             # from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler
