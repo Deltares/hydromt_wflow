@@ -1551,7 +1551,7 @@ class WflowModel(Model):
                 self.set_forcing(ds[v])
 
     def write_forcing(
-        self, fn_out=None, fn_freq=None, chunksize=1, decimals=2, **kwargs
+        self, fn_out=None, freq_out=None, chunksize=1, decimals=2, **kwargs
     ):
         """write forcing at `fn_out` in model ready format.
 
@@ -1566,7 +1566,7 @@ class WflowModel(Model):
         fn_out: str, Path, optional
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
-        fn_freq: str (Offset), optional
+        freq_out: str (Offset), optional
             Write several files for the forcing according to fn_freq. For example 'Y' for one file per year or 'M'
             for one file per month. By default writes the one file.
             For more options, see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
@@ -1653,13 +1653,17 @@ class WflowModel(Model):
 
             forcing_list = []
 
-            if fn_freq is None:
+            if freq_out is None:
                 # with compute=False we get a delayed object which is executed when
                 # calling .compute where we can pass more arguments to the dask.compute method
                 forcing_list.append([fn_out, ds])
             else:
-                self.logger.info(f"Writting several forcing with freq {fn_freq}")
-                for label, ds_gr in ds.resample(time=fn_freq):
+                self.logger.info(f"Writting several forcing with freq {freq_out}")
+                # Updating path forcing in config
+                fns_out = os.path.relpath(fn_out, self.root)
+                fns_out = f"{str(fns_out)[0:-3]}_*.nc"
+                self.set_config("input.path_forcing", fns_out)
+                for label, ds_gr in ds.resample(time=freq_out):
                     # ds_gr = group[1]
                     start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
                     fn_out_gr = f"{str(fn_out)[0:-3]}_{start}.nc"
