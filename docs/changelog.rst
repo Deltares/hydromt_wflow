@@ -8,6 +8,14 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 [Unreleased]
 ------------
 
+Added
+^^^^^
+- Possibility to write_forcing in several files based on time frequency (fn_freq argument).
+
+Fixed
+^^^^^
+- Calculation of lake_b parameter in setup_lakes.
+
 v0.1.3 (4 October 2021)
 -------------------------
 This release adds pyflwdir v0.5 compatibility and a data_catalog of the used data to the write_method.
