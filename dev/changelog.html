@@ -56,34 +56,38 @@
 <li class="toctree-l1"><a class="reference internal" href="api/api.html">API reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">What’s new</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#v0-1-3-4-october-2021">v0.1.3 (4 October 2021)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#added">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#v0-1-2-1-september-2021">v0.1.2 (1 September 2021)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-3-4-october-2021">v0.1.3 (4 October 2021)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id1">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id2">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Fixed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-1-2-1-september-2021">v0.1.2 (1 September 2021)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Fixed</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#documentation">Documentation</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-1-1-21-may-2021">v0.1.1 (21 May 2021)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id4">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id6">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Documentation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#tests">Tests</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#v0-1-0-28-april-2021">v0.1.0 (28 April 2021)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id8">Added</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id9">Changed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id10">Fixed</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id11">Documentation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id12">Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Added</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">Changed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Fixed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">Tests</a></li>
 </ul>
 </li>
 </ul>
@@ -145,12 +149,24 @@
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Permalink to this headline"></a></h2>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Possibility to write_forcing in several files based on time frequency (fn_freq argument).</p></li>
+</ul>
+</section>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Calculation of lake_b parameter in setup_lakes.</p></li>
+</ul>
+</section>
 </section>
 <section id="v0-1-3-4-october-2021">
 <h2>v0.1.3 (4 October 2021)<a class="headerlink" href="#v0-1-3-4-october-2021" title="Permalink to this headline"></a></h2>
 <p>This release adds pyflwdir v0.5 compatibility and a data_catalog of the used data to the write_method.</p>
-<section id="added">
-<h3>Added<a class="headerlink" href="#added" title="Permalink to this headline"></a></h3>
+<section id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>write data_catalog with the used data when writting model</p></li>
@@ -164,8 +180,8 @@
 <li><p>TOML files only contains reservoir/lake/glacier lines when they are setup and present in the model region.</p></li>
 </ul>
 </section>
-<section id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Permalink to this headline"></a></h3>
+<section id="id2">
+<h3>Fixed<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope</p></li>
@@ -179,19 +195,19 @@
 <section id="v0-1-2-1-september-2021">
 <h2>v0.1.2 (1 September 2021)<a class="headerlink" href="#v0-1-2-1-september-2021" title="Permalink to this headline"></a></h2>
 <p>This release implements the new results attributes for Wflow.</p>
-<section id="id1">
-<h3>Added<a class="headerlink" href="#id1" title="Permalink to this headline"></a></h3>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Add results attributes for wflow and read_results method (including test+example).</p></li>
-<li><p>Add <a href="#id13"><span class="problematic" id="id14">f_</span></a> parameter in soilgrids</p></li>
+<li><p>Add <a href="#id15"><span class="problematic" id="id16">f_</span></a> parameter in soilgrids</p></li>
 <li><p>Support soilgrids version 2020</p></li>
 <li><p>Setup_areamap component to prepare maps of areas of interest to save wflow outputs at.</p></li>
 <li><p>Support wflow_sediment with vito landuse.</p></li>
 <li><p>New utils.py script for low_level wflow methods.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Changed<a class="headerlink" href="#id2" title="Permalink to this headline"></a></h3>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>wfow_sbm.toml remove netcdf output.</p></li>
 <li><p>wflow_soil map is now based on soil texture calculated directly from soilgrids data</p></li>
@@ -199,8 +215,8 @@
 <li><p>wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Fixed<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<section id="id5">
+<h3>Fixed<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Fix f parameter in soilgrids</p></li>
 <li><p>Full reading and writting of wflow filepaths depending on the toml file (including subfolders).</p></li>
@@ -218,22 +234,22 @@
 <section id="v0-1-1-21-may-2021">
 <h2>v0.1.1 (21 May 2021)<a class="headerlink" href="#v0-1-1-21-may-2021" title="Permalink to this headline"></a></h2>
 <p>This release adds more functionnality for saving forcing data for wflow and fixes several bugs for some parameter values and soilgrids workflow.</p>
-<section id="id4">
-<h3>Added<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<section id="id6">
+<h3>Added<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Write the forcing with user defined chunking on time (default is 1) and none on the lat/lon dimensions (makes Wflow.jl run much faster).</p></li>
 <li><p>Rounding of the forcing data with user defined number of decimals (by default 2).</p></li>
 <li><p>Progress bar when writting the forcing file.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Changed<a class="headerlink" href="#id5" title="Permalink to this headline"></a></h3>
+<section id="id7">
+<h3>Changed<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Remove unused imports.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Fixed<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h3>
+<section id="id8">
+<h3>Fixed<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Fixed a mistake in the computation of the lake_b parameter for wflow.</p></li>
 <li><p>Missing no data values for soilgrids workflows.</p></li>
@@ -241,8 +257,8 @@
 <li><p>New behavior of apply_ufunc from an update of xarray for passing attributes (need to specify keep_attrs=True).</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Documentation<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h3>
+<section id="id9">
+<h3>Documentation<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Added changelog.</p></li>
 </ul>
@@ -257,29 +273,29 @@
 <section id="v0-1-0-28-april-2021">
 <h2>v0.1.0 (28 April 2021)<a class="headerlink" href="#v0-1-0-28-april-2021" title="Permalink to this headline"></a></h2>
 <p>Initial open source release of hydroMT wflow plugin, also published on pypi. Noticeable changes are listed below.</p>
-<section id="id8">
-<h3>Added<a class="headerlink" href="#id8" title="Permalink to this headline"></a></h3>
+<section id="id10">
+<h3>Added<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Minimum hydroMT plugin template in the <strong>plugin-boilerplate</strong> branch.</p></li>
 <li><p>Default filename for the forcing file created by hydromt (when the one in config already exists).</p></li>
 </ul>
 </section>
-<section id="id9">
-<h3>Changed<a class="headerlink" href="#id9" title="Permalink to this headline"></a></h3>
+<section id="id11">
+<h3>Changed<a class="headerlink" href="#id11" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Implement new get_basin_geometry from hydromt core.</p></li>
 <li><p>Consistent setup fonctions arguments for data sources (‘_fn’).</p></li>
 <li><p>Rename <strong>hydrom_merit</strong> source to <strong>merit_hydro</strong> (updated version of data-artifacts).</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Fixed<a class="headerlink" href="#id10" title="Permalink to this headline"></a></h3>
+<section id="id12">
+<h3>Fixed<a class="headerlink" href="#id12" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Bugs using the clip functions</p></li>
 </ul>
 </section>
-<section id="id11">
-<h3>Documentation<a class="headerlink" href="#id11" title="Permalink to this headline"></a></h3>
+<section id="id13">
+<h3>Documentation<a class="headerlink" href="#id13" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Initial version of the documentation on github-pages.</p></li>
 <li><p><strong>Latest</strong> and <strong>stable</strong> version of the documentation.</p></li>
@@ -287,8 +303,8 @@
 <li><p>Add examples notebooks for the documentation.</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3>Tests<a class="headerlink" href="#id12" title="Permalink to this headline"></a></h3>
+<section id="id14">
+<h3>Tests<a class="headerlink" href="#id14" title="Permalink to this headline"></a></h3>
 <ul class="simple">
 <li><p>Initial tests for wflow and wflow_sediment.</p></li>
 </ul>

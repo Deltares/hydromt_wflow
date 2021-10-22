@@ -1633,7 +1633,9 @@
             <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="WflowModel.write_forcing"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing">[docs]</a>    <span class="k">def</span> <span class="nf">write_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.write_forcing"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing">[docs]</a>    <span class="k">def</span> <span class="nf">write_forcing</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;write forcing at `fn_out` in model ready format.</span>
 
 <span class="sd">        If no `fn_out` path is provided and path_forcing from the  wflow toml exists,</span>
@@ -1647,6 +1649,10 @@
 <span class="sd">        fn_out: str, Path, optional</span>
 <span class="sd">            Path to save output netcdf file; if None the name is read from the wflow</span>
 <span class="sd">            toml file.</span>
+<span class="sd">        freq_out: str (Offset), optional</span>
+<span class="sd">            Write several files for the forcing according to fn_freq. For example &#39;Y&#39; for one file per year or &#39;M&#39;</span>
+<span class="sd">            for one file per month. By default writes the one file.</span>
+<span class="sd">            For more options, see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases</span>
 <span class="sd">        chunksize: int, optional</span>
 <span class="sd">            Chunksize on time dimension when saving to disk. By default 1.</span>
 <span class="sd">        decimals, int, optional</span>
@@ -1724,17 +1730,35 @@
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="p">}</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process forcing; saving to </span><span class="si">{</span><span class="n">fn_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="c1"># Check if all sub-folders in fn_out exists and if not create them</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">)):</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">))</span>
-            <span class="c1"># with compute=False we get a delayed object which is executed when</span>
-            <span class="c1"># calling .compute where we can pass more arguments to the dask.compute method</span>
-            <span class="n">delayed_obj</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span>
-                <span class="n">fn_out</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">compute</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">)</span>
-            <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
-                <span class="n">delayed_obj</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+            <span class="n">forcing_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">if</span> <span class="n">freq_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># with compute=False we get a delayed object which is executed when</span>
+                <span class="c1"># calling .compute where we can pass more arguments to the dask.compute method</span>
+                <span class="n">forcing_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">ds</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writting several forcing with freq </span><span class="si">{</span><span class="n">freq_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="c1"># Updating path forcing in config</span>
+                <span class="n">fns_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+                <span class="n">fns_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">fns_out</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_*.nc&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fns_out</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ds_gr</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">freq_out</span><span class="p">):</span>
+                    <span class="c1"># ds_gr = group[1]</span>
+                    <span class="n">start</span> <span class="o">=</span> <span class="n">ds_gr</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+                    <span class="n">fn_out_gr</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">fn_out</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+                    <span class="n">forcing_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">fn_out_gr</span><span class="p">,</span> <span class="n">ds_gr</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">fn_out_gr</span><span class="p">,</span> <span class="n">ds_gr</span> <span class="ow">in</span> <span class="n">forcing_list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Process forcing; saving to </span><span class="si">{</span><span class="n">fn_out_gr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">delayed_obj</span> <span class="o">=</span> <span class="n">ds_gr</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span>
+                    <span class="n">fn_out_gr</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">compute</span><span class="o">=</span><span class="kc">False</span>
+                <span class="p">)</span>
+                <span class="k">with</span> <span class="n">ProgressBar</span><span class="p">():</span>
+                    <span class="n">delayed_obj</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
             <span class="c1"># TO profile uncomment lines below to replace lines above</span>
             <span class="c1"># from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler</span>
