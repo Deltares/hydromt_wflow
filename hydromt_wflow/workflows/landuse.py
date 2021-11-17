@@ -54,13 +54,13 @@ def landuse(da, ds_like, fn_map, logger=logger, params=None):
     def reclass(x):
         return np.vectorize(d.get)(x, nodata)
 
+    da = da.raster.interpolate_na(method="nearest")
     # apply for each parameter
     for param in params:
         method = RESAMPLING.get(param, "average")
         values = df[param].values
         nodata = values[-1]  # NOTE values is set in last row
         d = dict(zip(keys, values))  # NOTE global param in reclass method
-        da = da.raster.interpolate_na(method="nearest")
         logger.info(f"Deriving {param} using {method} resampling (nodata={nodata}).")
         da_param = xr.apply_ufunc(
             reclass, da, dask="parallelized", output_dtypes=[values.dtype]
