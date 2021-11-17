@@ -171,18 +171,43 @@ def river(
 
 
 def river_bathymetry(
-    ds_model,
-    gdf_riv=None,
-    method="powlaw",
-    smooth_len=5e3,
-    min_rivdph=1,
-    min_rivwth=30,
+    ds_model: xr.Dataset,
+    gdf_riv: gpd.GeoDataFrame,
+    method: str = "powlaw",
+    smooth_len: float = 5e3,
+    min_rivdph: float = 1.0,
+    min_rivwth: float = 30.0,
     logger=logger,
     **kwargs,
-):
+) -> xr.Dataset:
+    """Get river width and bankfull discharge from `gdf_riv` to estimate river depth
+    using :py:meth:`hydromt.workflows.river_depth`.
+
+    Parameters
+    ----------
+    ds_model : xr.Dataset
+        Model dataset with 'flwdir', 'rivmsk', 'rivlen', 'x_out' and 'y_out' variables.
+    gdf_riv : gpd.GeoDataFrame
+        River geometry with 'rivwth' and 'qbankfull' columns.
+    method : {'gvf', 'manning', 'powlaw'}
+        see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+    smooth_len : float, optional
+        Lenght [m] over which to smooth the output river width and depth, by default 5e3
+    min_rivdph : float, optional
+        Minimum river depth [m], by default 1.0
+    min_rivwth : float, optional
+        Minimum river width [m], by default 30.0
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with 'rivwth' and 'rivdph' variables
+    """
     dims = ds_model.raster.dims
     # check data variables.
     dvars_model = ["flwdir", "rivmsk", "rivlen"]
+    if method != "powlaw":
+        dvars_model += ["rivslp", "rivzs"]
     if not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
 
@@ -227,55 +252,51 @@ def river_bathymetry(
                 dst_nn < max_dist, gdf_riv.loc[idx_nn, name].fillna(-9999).values, -9999
             )
             ds_model[name] = xr.Variable(dims, data, attrs=dict(_FillValue=-9999))
-
     # TODO fallback option when qbankfull is missing.
-
+    assert "qbankfull" in ds_model and "rivwth" in ds_model
     # fill gaps in data using downward filling along flow directions
     for name in vars0:
-        if name not in ds_model:
-            raise ValueError(f"Variable {name} not found in ds_model.")
         data = ds_model[name].values
         nodata = ds_model[name].raster.nodata
         if np.all(data[riv_mask] != nodata):
             continue
         data = flwdir_river.fillnodata(data, nodata, direction="down", how="max")
         ds_model[name].values = np.maximum(0, data)
+    # smooth by averaging along flow directions and set minimum
+    if smooth_len > 0:
+        nsmooth = min(1, int(round(smooth_len / rivlen_avg / 2)))
+        kwgs = dict(n=nsmooth, restrict_strord=True)
+        ds_model["rivwth"].values = flwdir_river.moving_average(
+            ds_model["rivwth"].values, nodata=ds_model["rivwth"].raster.nodata, **kwgs
+        )
+    ds_model["rivwth"] = np.maximum(min_rivwth, ds_model["rivwth"]).where(
+        riv_mask, ds_model["rivwth"].raster.nodata
+    )
 
+    ## river depth
     # distance to outlet; required for manning and gvf rivdph methods
     if method != "powlaw" and "rivdst" not in ds_model:
         rivlen = ds_model["rivlen"].values
         nodata = ds_model["rivlen"].raster.nodata
-        rivdst = flwdir_river.accuflux(
-            rivlen, nodata=nodata, direction="down"
-        )  # FIXME direction
+        rivdst = flwdir_river.accuflux(rivlen, nodata=nodata, direction="down")
         ds_model["rivdst"] = xr.Variable(dims, rivdst, attrs=dict(_FillValue=nodata))
-
-    ## river depth
     # add river distance to outlet -> required for manning/gvf method
-    rivdph = workflows.rivers.river_depth(
-        data=ds_model, flwdir=flwdir_river, method=method, **kwargs
+    rivdph = workflows.river_depth(
+        data=ds_model,
+        flwdir=flwdir_river,
+        method=method,
+        min_rivdph=min_rivdph,
+        **kwargs,
     )
     attrs = dict(_FillValue=-9999, unit="m")
-    ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs)
-
-    # smooth by averaging along flow directions
+    ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
+    # smooth by averaging along flow directions and set minimum
     if smooth_len > 0:
-        kwgs = dict(
-            n=min(1, int(round(smooth_len / rivlen_avg / 2))), restrict_strord=True
-        )
-        ds_model["rivwth"].values = flwdir_river.moving_average(
-            ds_model["rivwth"].values, nodata=ds_model["rivwth"].raster.nodata, **kwgs
-        )
         ds_model["rivdph"].values = flwdir_river.moving_average(
-            ds_model["rivdph"].values, nodata=ds_model["rivdph"].raster.nodata, **kwgs
+            ds_model["rivdph"].values, nodata=-9999, **kwgs
         )
-
-    # set minimum values
-    ds_model["rivwth"] = np.minimum(min_rivwth, ds_model["rivwth"]).where(
-        riv_mask, ds_model["rivwth"].raster.nodata
-    )
-    ds_model["rivdph"] = np.minimum(min_rivdph, ds_model["rivdph"]).where(
-        riv_mask, ds_model["rivdph"].raster.nodata
+    ds_model["rivdph"] = np.maximum(min_rivdph, ds_model["rivdph"]).where(
+        riv_mask, -9999
     )
 
     return ds_model[["rivwth", "rivdph"]]

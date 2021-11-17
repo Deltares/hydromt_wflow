@@ -67,6 +67,7 @@ class WflowModel(Model):
         "rivmsk": "wflow_river",
         "rivwth": "wflow_riverwidth",
         "rivdph": "wflow_riverdepth",
+        "rivman": "N_River",
         "rivzs": "RiverZ",
         "gauges": "wflow_gauges",
         "landuse": "wflow_landuse",
@@ -227,11 +228,11 @@ class WflowModel(Model):
     def setup_rivers(
         self,
         hydrography_fn,
-        river_geom_fn,
+        river_geom_fn=None,
         river_upa=30,
+        method="powlaw",
         slope_len=2e3,
         min_rivlen_ratio=0.1,
-        method="powlaw",
         min_rivdph=1,
         min_rivwth=30,
         smooth_len=5e3,
@@ -260,6 +261,8 @@ class WflowModel(Model):
 
         * **wflow_river** map: river mask [-]
         * **wflow_riverlength** map: river length [m]
+        * **wflow_riverwidth** map: river width [m]
+        * **wflow_riverdepth** map: bankfull river depth [m]
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [s.m^1/3]
         * **RiverZ** map: bankfull river elevation [m]
@@ -283,6 +286,14 @@ class WflowModel(Model):
             length over which the river slope is calculated [km]
         min_rivlen_ratio: float
             minimum global river length to avg. cell resolution ratio, by default 0.1
+        method : {'gvf', 'manning', 'powlaw'}
+            see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+        smooth_len : float, optional
+            Lenght [m] over which to smooth the output river width and depth, by default 5e3
+        min_rivdph : float, optional
+            Minimum river depth [m], by default 1.0
+        min_rivwth : float, optional
+            Minimum river width [m], by default 30.0
         """
         self.logger.info(f"Preparing river maps.")
 
@@ -315,7 +326,7 @@ class WflowModel(Model):
         df = pd.read_csv(rivman_mapping_fn, index_col=0, sep=",|;", engine="python")
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
-        # if streamroder value larger than max_str, assign last value
+        # if streamorder value larger than max_str, assign last value
         strord = strord.where(strord <= max_str, max_str)
         # handle missing value (last row of csv is mapping of missing values)
         strord = strord.where(strord != strord.raster.nodata, -999)
@@ -395,6 +406,10 @@ class WflowModel(Model):
         climate_fn: {'koppen_geiger'}
             Source of long-term climate grid if the predictor is set to 'discharge'.
         """
+        self.logger.warning(
+            "The setup_rivwidth method has been deprecated and will soon be removed. "
+            "You can now use the setup_river method for all river parameters."
+        )
         if not self._MAPS["rivmsk"] in self.staticmaps:
             raise ValueError(
                 "The setup_riverwidth method requies to run setup_river method first."
