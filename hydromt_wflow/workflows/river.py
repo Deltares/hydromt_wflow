@@ -181,7 +181,9 @@ def river_bathymetry(
     **kwargs,
 ) -> xr.Dataset:
     """Get river width and bankfull discharge from `gdf_riv` to estimate river depth
-    using :py:meth:`hydromt.workflows.river_depth`.
+    using :py:meth:`hydromt.workflows.river_depth`. Missing values in rivwth are first
+    filled using downward filling and remaining  (upstream) missing values are set
+    to min_rivwth (for rivwth) and 0 (for qbankfull).
 
     Parameters
     ----------
@@ -226,14 +228,14 @@ def river_bathymetry(
             raise ValueError(f" columns {vars0} not found in gdf_riv")
         logger.debug(f"Derive {vars} from shapefile.")
         if "x_out" in ds_model and "y_out" in ds_model:
+            # get subgrid outlet pixel index and coordinates
+            xs_out = ds_model["x_out"].values[riv_mask]
+            ys_out = ds_model["y_out"].values[riv_mask]
+        else:
             # get river cell coordinates
             row, col = np.where(riv_mask)
             xs_out = ds_model.raster.xcoords.values[col]
             ys_out = ds_model.raster.ycoords.values[row]
-        else:
-            # get subgrid outlet pixel index and coordinates
-            xs_out = ds_model["x_out"].values[riv_mask]
-            ys_out = ds_model["y_out"].values[riv_mask]
         gdf_out = gpd.GeoDataFrame(
             geometry=gpd.points_from_xy(xs_out, ys_out), crs=ds_model.raster.crs
         )
@@ -245,7 +247,9 @@ def river_bathymetry(
             xres, yres = gis_utils.cellres(lat_avg, xres, yres)
         max_dist = np.mean(np.abs([xres, yres])) / 2.0
         nriv, nsnap = xs_out.size, int(np.sum(dst_nn < max_dist))
-        logger.debug(f"Valid for {nsnap}/{nriv} river cells (max dist: {max_dist} m).")
+        logger.debug(
+            f"Valid for {nsnap}/{nriv} river cells (max dist: {max_dist:.0f} m)."
+        )
         for name in vars:
             data = np.full_like(riv_mask, -9999, dtype=np.float32)
             data[riv_mask] = np.where(

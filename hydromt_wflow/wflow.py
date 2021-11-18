@@ -230,7 +230,7 @@ class WflowModel(Model):
         hydrography_fn,
         river_geom_fn=None,
         river_upa=30,
-        method="powlaw",
+        rivdph_method="powlaw",
         slope_len=2e3,
         min_rivlen_ratio=0.1,
         min_rivdph=1,
@@ -256,6 +256,16 @@ class WflowModel(Model):
 
         The river manning roughness coefficient is derived based on reclassification
         of the streamorder map using a lookup table `rivman_mapping_fn`.
+
+        The river width is derived from the nearest river segement in `river_geom_fn`.
+        Data gaps are filled by the nearest valid upstream value and averaged along
+        the flow directions over a length `smooth_len` [m]
+
+        The river depth is calculated using the `rivdph_method`, by default powlaw:
+        h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
+        segement in `river_geom_fn` and takes optional argumetns for the hc
+        (default = 0.27) and hp (default = 0.30) paramters. For other methods see
+        :py:meth:`hydromt.workflows.river_depth`.
 
         Adds model layers:
 
@@ -286,7 +296,7 @@ class WflowModel(Model):
             length over which the river slope is calculated [km]
         min_rivlen_ratio: float
             minimum global river length to avg. cell resolution ratio, by default 0.1
-        method : {'gvf', 'manning', 'powlaw'}
+        rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
         smooth_len : float, optional
             Lenght [m] over which to smooth the output river width and depth, by default 5e3
@@ -297,30 +307,28 @@ class WflowModel(Model):
         """
         self.logger.info(f"Preparing river maps.")
 
+        # read data
         ds_hydro = self.data_catalog.get_rasterdataset(
             hydrography_fn, geom=self.region, buffer=2
         )
-        if river_geom_fn is not None:
-            gdf_riv = self.data_catalog.get_geodataframe(
-                river_geom_fn, geom=self.region
-            )
 
+        # get rivmsk, rivlen, rivslp & rivzb
+        # read model maps and revert wflow to hydromt map names
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
-        ds_model = self.staticmaps.rename(inv_rename)
-        # returns rivmsk, rivlen, rivslp & rivzb
         ds_riv = workflows.river(
             ds=ds_hydro,
-            ds_model=ds_model,
+            ds_model=self.staticmaps.rename(inv_rename),
             river_upa=river_upa,
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
             logger=self.logger,
         )[0]
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv.data_vars}
-        self.set_staticmaps(ds_riv.rename(rmdict))
+        dvars = ["rivmsk", "rivlen", "rivslp", "rivzs"]
+        rmdict = {k: v for k, v in self._MAPS.items() if k in dvars}
+        self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 
-        # TODO make seperate method
+        # TODO make seperate workflows.river_manning  method
         # Make N_River map from csv file with mapping between streamorder and N_River value
         strord = self.staticmaps[self._MAPS["strord"]].copy()
         df = pd.read_csv(rivman_mapping_fn, index_col=0, sep=",|;", engine="python")
@@ -339,20 +347,27 @@ class WflowModel(Model):
         )
         self.set_staticmaps(ds_nriver)
 
-        ds_riv1 = workflows.river_bathymetry(
-            ds_model=xr.merge(
-                [ds_model[["flwdir"]], ds_riv, ds_nriver.rename({"N_River": "rivman"})]
-            ),
-            gdf_riv=gdf_riv,
-            method=method,
-            smooth_len=smooth_len,
-            min_rivdph=min_rivdph,
-            min_rivwth=min_rivwth,
-            logger=self.logger,
-            **kwargs,
-        )
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
-        self.set_staticmaps(ds_riv1.rename(rmdict))
+        # get rivdph, rivwth
+        # while we still have setup_riverwidth one can skip river_bathymetry here
+        # TODO make river_geom_fn required after removing setup_riverwidth
+        if river_geom_fn is not None:
+            gdf_riv = self.data_catalog.get_geodataframe(
+                river_geom_fn, geom=self.region
+            )
+            # reread model data to get river maps
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            ds_riv1 = workflows.river_bathymetry(
+                ds_model=self.staticmaps.rename(inv_rename),
+                gdf_riv=gdf_riv,
+                method=rivdph_method,
+                smooth_len=smooth_len,
+                min_rivdph=min_rivdph,
+                min_rivwth=min_rivwth,
+                logger=self.logger,
+                **kwargs,
+            )
+            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
+            self.set_staticmaps(ds_riv1.rename(rmdict))
 
         self.logger.debug(f"Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
