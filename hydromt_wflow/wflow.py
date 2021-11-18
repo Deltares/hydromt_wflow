@@ -66,9 +66,9 @@ class WflowModel(Model):
         "rivslp": "RiverSlope",
         "rivmsk": "wflow_river",
         "rivwth": "wflow_riverwidth",
-        "rivdph": "wflow_riverdepth",
         "rivman": "N_River",
         "rivzs": "RiverZ",
+        "rivdph": "RiverDepth",
         "gauges": "wflow_gauges",
         "landuse": "wflow_landuse",
         "resareas": "wflow_reservoirareas",
@@ -346,6 +346,8 @@ class WflowModel(Model):
             logger=self.logger,
         )
         self.set_staticmaps(ds_nriver)
+        # update config
+        self.set_config("input.lateral.river.bankfull_elevation", self._MAPS["rivzs"])
 
         # get rivdph, rivwth
         # while we still have setup_riverwidth one can skip river_bathymetry here
@@ -368,10 +370,38 @@ class WflowModel(Model):
             )
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
             self.set_staticmaps(ds_riv1.rename(rmdict))
+            # update config
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
         self.logger.debug(f"Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
+
+    def setup_floodplains(self, **kwargs):
+        """This component adds a binary floodplain classification and hydrologically
+        adjusted elevation map.
+
+        Adds model layers:
+
+        * **FloodplainZ** map: hydrologically adjusted elevation [m+REF]
+        * **Floodplain** map: floodplain classification [-]
+
+        Parameters
+        ----------
+        **kwargs:
+            arugments are passed to :py:meth:`pyflwdir.FlwdirRaster.floodplains`
+        """
+
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        ds_model = self.staticmaps.rename(inv_rename)
+        ds_out = flw.floodplain_elevation(
+            ds_model=ds_model,
+            adjust_river_d8=True,
+            connectivity=4,
+            logger=self.logger,
+            **kwargs,
+        ).rename({"elevtn": "FloodplainZ", "fldpln": "Floodplain"})
+        self.set_staticmaps(ds_out)
 
     def setup_riverwidth(
         self,

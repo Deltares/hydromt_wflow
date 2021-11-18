@@ -11,10 +11,17 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Added
 ^^^^^
 - Possibility to write_forcing in several files based on time frequency (fn_freq argument).
+- new setup_floodplains method for D4 conditioned elevation
+- workflow.river.river_bathymetry method
 
 Fixed
 ^^^^^
 - Calculation of lake_b parameter in setup_lakes.
+
+Changed
+^^^^^^^^
+- setup_riverwidth method deprecated (will be removed in future versions)
+- setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
 
 v0.1.3 (4 October 2021)
 -------------------------

@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-@author: haag (2019)
-
-Derives river/stream widths to construct a riverwidth map (wflow_riverwidth.map) to be used in a wflow model.
-"""
+"""Workflows to derive river for a wflow model."""
 
 from os.path import join
 import numpy as np

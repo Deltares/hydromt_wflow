@@ -34,7 +34,7 @@ Setup components
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
    WflowModel.setup_soilmaps
-   WflowModel.setup_riverwidth
+   WflowModel.setup_floodplains
    WflowModel.setup_gauges
    WflowModel.setup_areamap
    WflowModel.setup_precip_forcing
