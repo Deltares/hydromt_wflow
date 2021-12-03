@@ -309,7 +309,7 @@ class WflowModel(Model):
 
         # read data
         ds_hydro = self.data_catalog.get_rasterdataset(
-            hydrography_fn, geom=self.region, buffer=2
+            hydrography_fn, geom=self.region, buffer=10
         )
 
         # get rivmsk, rivlen, rivslp & rivzb
@@ -325,7 +325,7 @@ class WflowModel(Model):
             logger=self.logger,
         )[0]
         dvars = ["rivmsk", "rivlen", "rivslp", "rivzs"]
-        rmdict = {k: v for k, v in self._MAPS.items() if k in dvars}
+        rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 
         # TODO make seperate workflows.river_manning  method
@@ -377,31 +377,39 @@ class WflowModel(Model):
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
 
-    def setup_floodplains(self, **kwargs):
-        """This component adds a binary floodplain classification and hydrologically
-        adjusted elevation map.
+    def setup_floodplains(self, elevtn_map="wflow_dem"):
+        """This component adds a hydrologically adjusted river+floodplain elevation map
+        for the 1D-2D local inertial based routing.
 
         Adds model layers:
 
         * **FloodplainZ** map: hydrologically adjusted elevation [m+REF]
-        * **Floodplain** map: floodplain classification [-]
 
         Parameters
         ----------
-        **kwargs:
-            arugments are passed to :py:meth:`pyflwdir.FlwdirRaster.floodplains`
+        elevtn_map: str, optional
+            Name of staticmap to base the river+floodplain elevation map on, by default
+            "wflow_dem". To base it on the subgrid river elevation map use "RiverZ";
+            to base it on avarage cell elevation use "wflow_dem".
         """
-
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
-        ds_model = self.staticmaps.rename(inv_rename)
-        ds_out = flw.floodplain_elevation(
-            ds_model=ds_model,
-            adjust_river_d8=True,
+        if not elevtn_map in self.staticmaps:
+            raise ValueError(f'"{elevtn_map}" not found in staticmaps')
+        self.logger.info(f"Preparing river+floodplain elevation map for 1D-2D routing.")
+        # ds_out = flw.dem_adjust( TODO import from updated hydroMT core before merge
+        ds_out = workflows.dem_adjust(
+            da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+            da_elevtn=self.staticmaps[elevtn_map],
+            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+            flwdir=self.flwdir,
             connectivity=4,
+            river_d8=True,
             logger=self.logger,
-            **kwargs,
-        ).rename({"elevtn": "FloodplainZ", "fldpln": "Floodplain"})
+        ).rename("FloodplainZ")
         self.set_staticmaps(ds_out)
+        # set toml entries for !D and 2D components to the same map!
+        self.logger.debug("(Re)setting maps for 1D and 2D routing in wflow config.")
+        self.set_config("input.lateral.river.bankfull_elevation", "FloodplainZ")
+        self.set_config("input.lateral.land.elevation", "FloodplainZ")
 
     def setup_riverwidth(
         self,

@@ -8,17 +8,14 @@ import xarray as xr
 import pandas as pd
 import geopandas as gpd
 import logging
+import pyflwdir
 
 from hydromt import gis_utils, stats, flw, workflows
 from hydromt_wflow import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "river",
-    "river_bathymetry",
-    "river_width",
-]
+__all__ = ["river", "river_bathymetry", "river_width", "dem_adjust"]
 
 RESAMPLING = {"climate": "nearest", "precip": "average"}
 NODATA = {"discharge": -9999}
@@ -85,6 +82,7 @@ def river(
     ## river mask and flow directions at model grid
     logger.debug(f"Set river mask (min uparea: {river_upa} km2) and prepare flow dirs.")
     riv_mask = ds_model["uparea"] > river_upa  # initial mask
+    mod_mask = ds_model["uparea"] != ds_model["uparea"].raster.nodata
 
     ## (high res) flwdir and outlet indices
     riv_mask_org = ds["uparea"].values >= river_upa  # highres riv mask
@@ -92,13 +90,13 @@ def river(
     if subgrid == False:
         # get cell index of river cells
         idxs_out = np.arange(ds_model.raster.size).reshape(ds_model.raster.shape)
-        idxs_out = np.where(riv_mask, idxs_out, flwdir._mv)
+        idxs_out = np.where(mod_mask, idxs_out, flwdir._mv)
     else:
         # get subgrid outlet pixel index
         idxs_out = ds.raster.xy_to_idx(
             xs=ds_model["x_out"].values,
             ys=ds_model["y_out"].values,
-            mask=riv_mask.values,
+            mask=mod_mask,
             nodata=flwdir._mv,
         )
 
@@ -134,14 +132,14 @@ def river(
     )
     rivslp = np.where(riv_mask.values, rivslp, -9999)
 
-    ## bed level
-    # readout elevation at outlet pixels and adjust hydrologically
-    logger.debug("Derive river bank full elevation.")
+    ## river outlet levels
+    # readout elevation at outlet pixels
+    logger.debug("Derive river elevation at outlet pixels.")
     flwdir_river = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
-    bed_level = ds["elevtn"].values.flat[idxs_out]
-    bed_level_adjust = flwdir_river.dem_adjust(bed_level)
-    # mask to keep river cells
-    bed_level_adjust = np.where(riv_mask.values, bed_level_adjust, -9999)
+    rivzs = ds["elevtn"].values.flat[idxs_out]
+    rivzs = np.where(idxs_out >= 0, rivzs, -9999)
+    # adjust hydrologically
+    rivzs = flwdir_river.dem_adjust(rivzs)
 
     # create xarray dataset for all river variables
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
@@ -153,7 +151,7 @@ def river(
     attrs = dict(_FillValue=-9999, unit="m.m-1")
     ds_out["rivslp"] = xr.Variable(dims, rivslp, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m+REF")
-    ds_out["rivzs"] = xr.Variable(dims, bed_level_adjust, attrs=attrs)
+    ds_out["rivzs"] = xr.Variable(dims, rivzs, attrs=attrs)
 
     for name in ["rivwth", "qbankfull"]:
         if name in ds:
@@ -302,14 +300,80 @@ def river_bathymetry(
     return ds_model[["rivwth", "rivdph"]]
 
 
-# def river_manning(
-#     ds_model,
-#     df_mapping
-# ):
-#     # check data variables.
-#     dvars_model = ["strord"]
-#     if not np.all([v in ds_model for v in dvars_model]):
-#         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
+# TODO: before merge: import from hydroMT
+def dem_adjust(
+    da_elevtn,
+    da_flwdir,
+    da_rivmsk=None,
+    flwdir=None,
+    connectivity=4,
+    river_d8: bool = False,
+    logger=logger,
+) -> xr.Dataset:
+    """Returns hydrologically adjusted elevation and
+    if `return_floodplain`, a binary floodplain classification.
+
+    Parameters
+    ----------
+    da_elevtn, da_flwdir, da_rivmsk : xr.DataArray
+        elevation [m+REF]
+        D8 flow directions [-]
+        binary river mask [-], optional
+    flwdir : pyflwdir.FlwdirRaster, optional
+        Flow direction raster object. If None it is derived from da_flwdir.
+    connectivity: {4, 8}
+        D4 or D8 flow connectivity.
+    river_d8 : bool
+        If True and `connectivity==4`, additionally condition river cells to D8.
+        Requires `da_rivmsk`.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with hydrologically adjusted elevation ('elevtn') [m+REF]
+    """
+    # get flow directions for entire domain and for rivers
+    if flwdir is None:
+        flwdir = flw.flwdir_from_da(da_flwdir, mask=False)
+    elevtn = da_elevtn.values
+    nodata = da_elevtn.raster.nodata
+    rivmsk = da_rivmsk.values == 1 if da_rivmsk is not None else None
+
+    logger.info(f"Condition elevation to D{connectivity} flow directions.")
+    # get D8 conditioned elevation
+    elevtn = flwdir.dem_adjust(elevtn)
+    # get D4 conditioned elevation (based on D8 conditioned!)
+    if connectivity == 4:
+        # derive D4 flow directions with forced pits at original locations
+        d4 = pyflwdir.dem.fill_depressions(
+            elevtn=flwdir.dem_dig_d4(elevtn, rivmsk=rivmsk, nodata=nodata),
+            nodata=nodata,
+            connectivity=connectivity,
+            idxs_pit=flwdir.idxs_pit,
+        )[1]
+        # condition the DEM to the new D4 flow dirs
+        flwdir_d4 = pyflwdir.from_array(
+            d4, ftype="d8", transform=flwdir.transform, latlon=flwdir.latlon
+        )
+        elevtn = flwdir_d4.dem_adjust(elevtn)
+        # condition river cells to D8
+        if river_d8 and rivmsk is not None:
+            flwdir_river = flw.flwdir_from_da(da_flwdir, mask=rivmsk)
+            elevtn = flwdir_river.dem_adjust(elevtn)
+            # assert np.all((elv2 - flwdir_river.downstream(elv2))>=0)
+        elif river_d8:
+            logger.warning('Provide "rivmsk" variable to condition river cells in D8.')
+        # assert np.all((elv2 - flwdir_d4.downstream(elv2))>=0)
+
+    # save to dataarray
+    da_out = xr.DataArray(
+        data=elevtn,
+        coords=da_elevtn.raster.coords,
+        dims=da_elevtn.raster.dims,
+    )
+    da_out.raster.set_nodata(nodata)
+    da_out.raster.set_crs(da_elevtn.raster.crs)
+    return da_out
 
 
 # TODO: methods below are redundant after version v0.1.4 and will be removed in
