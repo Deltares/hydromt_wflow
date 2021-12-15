@@ -79,7 +79,6 @@ def average_soillayers_block(ds, soilthickness):
 
     da_av.raster.set_nodata(np.nan)
 
-
     return da_av
 
 
@@ -132,7 +131,6 @@ def average_soillayers(ds, soilthickness):
     )
 
     da_av.raster.set_nodata(np.nan)
-
 
     return da_av
 
