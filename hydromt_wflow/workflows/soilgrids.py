@@ -236,7 +236,7 @@ def do_linalg(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ~np.isinf(np.log(y))
+    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
     return np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][0]
 
 
@@ -258,19 +258,22 @@ def do_curve_fit(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ~np.isinf(np.log(y))
-    try:
-        # try curve fitting with certain p0
-        popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-3))[0]
-    except RuntimeError:
+    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
+    if len(y[idx]) == 0:
+        popt_0 = np.nan
+    else:
         try:
-            # try curve fitting with lower p0
-            popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-4))[0]
+            # try curve fitting with certain p0
+            popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-3))[0]
         except RuntimeError:
-            # do linalg  regression instead
-            popt_0 = np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][
-                0
-            ]
+            try:
+                # try curve fitting with lower p0
+                popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-4))[0]
+            except RuntimeError:
+                # do linalg  regression instead
+                popt_0 = np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][
+                    0
+                ]
     return popt_0
 
 
@@ -478,6 +481,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
         soildepth_mm_midpoint_surface,
         kv.compute(),
         vectorize=True,
+        dask="parallelized",
         input_core_dims=[["z"], ["sl"]],
         output_dtypes=[float],
         keep_attrs=True,
@@ -495,7 +499,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
         soildepth_mm_midpoint_surface,
         kv.compute(),
         vectorize=True,
-        dask="allowed",
+        dask="parallelized",
         input_core_dims=[["z"], ["sl"]],
         output_dtypes=[float],
         keep_attrs=True,
