@@ -631,6 +631,8 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
+        ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+        logger.info(f"Interpolate NAN values for {var}")
         ds_out[var] = ds_out[var].fillna(nodata)
         ds_out[var].raster.set_nodata(nodata)
 
