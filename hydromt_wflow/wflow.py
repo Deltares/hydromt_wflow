@@ -769,9 +769,7 @@ class WflowModel(Model):
         }
 
         if lakes_fn not in self.data_catalog:
-            self.logger.warning(
-                f"Invalid source '{lakes_fn}', skipping setup_lakes."
-            )
+            self.logger.warning(f"Invalid source '{lakes_fn}', skipping setup_lakes.")
             return
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is not None:
@@ -787,6 +785,7 @@ class WflowModel(Model):
                 }
             )
             # Minimum value for LakeAvgOut
+            LakeAvgOut = gdf_org["LakeAvgOut"].copy()
             gdf_org["LakeAvgOut"] = np.maximum(gdf_org["LakeAvgOut"], 0.01)
             gdf_org["Lake_b"] = gdf_org["LakeAvgOut"].values / (
                 gdf_org["LakeAvgLevel"].values
@@ -796,6 +795,12 @@ class WflowModel(Model):
             gdf_org["LakeOutflowFunc"] = 3
             gdf_org["LakeThreshold"] = 0.0
             gdf_org["LinkedLakeLocs"] = 0
+
+            # Check if some LakeAvgOut values have been replaced
+            if not np.all(LakeAvgOut == gdf_org["LakeAvgOut"]):
+                self.logger.warning(
+                    "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
+                )
 
             lake_params = [
                 "waterbody_id",
@@ -1554,7 +1559,13 @@ class WflowModel(Model):
                 self.set_forcing(ds[v])
 
     def write_forcing(
-        self, fn_out=None, freq_out=None, chunksize=1, decimals=2, **kwargs
+        self,
+        fn_out=None,
+        freq_out=None,
+        chunksize=1,
+        decimals=2,
+        time_units="days since 1900-01-01T00:00:00",
+        **kwargs,
     ):
         """write forcing at `fn_out` in model ready format.
 
@@ -1577,6 +1588,8 @@ class WflowModel(Model):
             Chunksize on time dimension when saving to disk. By default 1.
         decimals, int, optional
             Round the ouput data to the given number of decimals.
+        time_units: str, optional
+            Common time units when writting several netcdf forcing files. By default "days since 1900-01-01T00:00:00".
 
         """
         if not self._write:
@@ -1649,6 +1662,7 @@ class WflowModel(Model):
                 v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
                 for v in ds.data_vars.keys()
             }
+            encoding["time"] = {"units": time_units}
 
             # Check if all sub-folders in fn_out exists and if not create them
             if not isdir(dirname(fn_out)):
