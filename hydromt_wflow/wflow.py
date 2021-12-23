@@ -500,7 +500,7 @@ class WflowModel(Model):
 
             * Required variables: ['LAI']
         """
-        if lai_fn not in ["modis_lai"]:
+        if lai_fn not in self.data_catalog:
             self.logger.warning(f"Invalid source '{lai_fn}', skipping setup_laimaps.")
             return
         # retrieve data for region
@@ -768,8 +768,10 @@ class WflowModel(Model):
             "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
         }
 
-        if lakes_fn not in ["hydro_lakes"]:
-            self.logger.warning(f"Invalid source '{lakes_fn}', skipping setup_lakes.")
+        if lakes_fn not in self.data_catalog:
+            self.logger.warning(
+                f"Invalid source '{lakes_fn}', skipping setup_lakes."
+            )
             return
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is not None:
@@ -784,6 +786,8 @@ class WflowModel(Model):
                     "Dis_avg": "LakeAvgOut",
                 }
             )
+            # Minimum value for LakeAvgOut
+            gdf_org["LakeAvgOut"] = np.maximum(gdf_org["LakeAvgOut"], 0.01)
             gdf_org["Lake_b"] = gdf_org["LakeAvgOut"].values / (
                 gdf_org["LakeAvgLevel"].values
             ) ** (2)
@@ -1112,11 +1116,10 @@ class WflowModel(Model):
             "input.vertical.g_sifrac": "G_SIfrac",
         }
         # retrieve data for basin
-        if glaciers_fn not in ["rgi"]:
-            if glaciers_fn:
-                self.logger.warning(
-                    f"Invalid source '{glaciers_fn}', skipping setup_glaciers."
-                )
+        if glaciers_fn not in self.data_catalog:
+            self.logger.warning(
+                f"Invalid source '{glaciers_fn}', skipping setup_glaciers."
+            )
             return
         self.logger.info(f"Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
