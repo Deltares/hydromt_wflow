@@ -263,8 +263,8 @@ class WflowModel(Model):
 
         The river depth is calculated using the `rivdph_method`, by default powlaw:
         h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
-        segement in `river_geom_fn` and takes optional argumetns for the hc
-        (default = 0.27) and hp (default = 0.30) paramters. For other methods see
+        segement in `river_geom_fn` and takes optional arguments for the hc
+        (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
         Adds model layers:
@@ -282,7 +282,7 @@ class WflowModel(Model):
         ----------
         hydrography_fn : str, Path
             Name of data source for hydrography data.
-            Must be same as setup_basemaps for consitent results.
+            Must be same as setup_basemaps for consistent results.
 
             * Required variables: ['flwdir', 'uparea', 'elevtn']
             * Optional variables: ['rivwth', 'qbankfull']
