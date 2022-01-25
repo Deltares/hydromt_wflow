@@ -11,8 +11,8 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Added
 ^^^^^
 - Possibility to write_forcing in several files based on time frequency (fn_freq argument).
-- new setup_floodplains method for D4 conditioned elevation
-- workflow.river.river_bathymetry method
+- setup_hydrodem method for D4 conditioned elevation used with land_routing="local-inertial"
+- workflow.river.river_bathymetry method to derive river depth estimates
 
 Fixed
 ^^^^^
@@ -30,7 +30,7 @@ This release adds pyflwdir v0.5 compatibility and a data_catalog of the used dat
 Added
 ^^^^^
 
- - write data_catalog with the used data when writting model
+ - write data_catalog with the used data when writing model
  - tests on staticmaps dtype
 
 Changed
@@ -43,7 +43,7 @@ Fixed
  - pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope
  - Fixed docs with rtd v1.0
  - Wrong dtype for wflow_gauges
- - Removed uncesseray glacier/lake/reservoir lines from the TOML, fixes a bug if missing glacier
+ - Removed unnecessary glacier/lake/reservoir lines from the TOML, fixes a bug if missing glacier
 
 v0.1.2 (1 September 2021)
 -------------------------
@@ -71,7 +71,7 @@ Fixed
 ^^^^^
 
 - Fix f parameter in soilgrids
-- Full reading and writting of wflow filepaths depending on the toml file (including subfolders).
+- Full reading and writing of wflow filepaths depending on the toml file (including subfolders).
 - The wflow_gauges now contains river outlets only (instead of all outlets).
 
 Documentation
@@ -89,7 +89,7 @@ Added
 
 - Write the forcing with user defined chunking on time (default is 1) and none on the lat/lon dimensions (makes Wflow.jl run much faster).
 - Rounding of the forcing data with user defined number of decimals (by default 2).
-- Progress bar when writting the forcing file.
+- Progress bar when writing the forcing file.
 
 Changed
 ^^^^^^^
@@ -128,7 +128,7 @@ Changed
 ^^^^^^^
 
 - Implement new get_basin_geometry from hydromt core.
-- Consistent setup fonctions arguments for data sources ('_fn').
+- Consistent setup functions arguments for data sources ('_fn').
 - Rename **hydrom_merit** source to **merit_hydro** (updated version of data-artifacts).
 
 Fixed

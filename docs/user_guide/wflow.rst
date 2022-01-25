@@ -42,7 +42,7 @@ a specific method see its documentation.
    ~WflowModel.setup_lulcmaps
    ~WflowModel.setup_laimaps
    ~WflowModel.setup_soilmaps
-   ~WflowModel.setup_floodplains
+   ~WflowModel.setup_hydrodem
    ~WflowModel.setup_gauges
    ~WflowModel.setup_areamap
 
