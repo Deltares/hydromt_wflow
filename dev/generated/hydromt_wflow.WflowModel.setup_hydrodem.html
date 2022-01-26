@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hydromt_wflow.WflowModel.setup_riverwidth &mdash; hydromt_wflow  documentation</title>
+  <title>hydromt_wflow.WflowModel.setup_hydrodem &mdash; hydromt_wflow  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -67,7 +67,7 @@
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_riverwidth</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
@@ -104,9 +104,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api/api.html">API reference</a> &raquo;</li>
-      <li>hydromt_wflow.WflowModel.setup_riverwidth</li>
+      <li>hydromt_wflow.WflowModel.setup_hydrodem</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/hydromt_wflow.WflowModel.setup_riverwidth.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/hydromt_wflow.WflowModel.setup_hydrodem.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -138,44 +138,41 @@
     text-align: unset;
 }
 </style>
-<section id="hydromt-wflow-wflowmodel-setup-riverwidth">
-<h1>hydromt_wflow.WflowModel.setup_riverwidth<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-riverwidth" title="Permalink to this headline"></a></h1>
+<section id="hydromt-wflow-wflowmodel-setup-hydrodem">
+<h1>hydromt_wflow.WflowModel.setup_hydrodem<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-hydrodem" title="Permalink to this headline"></a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_riverwidth">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverwidth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'discharge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_wth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precip_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'chelsa'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">climate_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'koppen_geiger'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_riverwidth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_riverwidth" title="Permalink to this definition"></a></dt>
-<dd><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p>
-<p>By default the riverwidth is estimated based on discharge as <code class="docutils literal notranslate"><span class="pre">predictor</span></code> and used to
-set the riverwidth globally based on pre-defined power-law parameters per climate class.
-With <code class="docutils literal notranslate"><span class="pre">fit</span></code> set to True, the power-law relationsship paramters are set on-the-fly.
-With <code class="docutils literal notranslate"><span class="pre">fill</span></code> set to True, the estimated river widths are only used fill gaps in the
-observed data. Alternative <code class="docutils literal notranslate"><span class="pre">predictor</span></code> values are precip (accumulated precipitation)
-and uparea (upstream area). For these predictors values <code class="docutils literal notranslate"><span class="pre">fit</span></code> default to True.
-By default the predictor is based on discharge which is estimated through multiple linear
-regression with precipitation and upstream area per climate zone.</p>
+<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_hydrodem">
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_hydrodem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elevtn_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wflow_dem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_routing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local-inertial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_routing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kinematic-wave'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_hydrodem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_hydrodem" title="Permalink to this definition"></a></dt>
+<dd><p>This component adds a hydrologically conditioned elevation (hydrodem) map for
+river and/or land local-inertial routing.</p>
+<p>River cells are always conditioned to D8 flow directions.  Land cells are conditioned
+to D4 flow directions if land_routing=”local-inertial”, else to D8.</p>
+<p>The conditioned elevation can be based on the average cell elevation (“wflow_dem”)
+or subgrid outlet pixel elevation (“dem_subgrid”). For local-inertial river
+routing the subgrid elevation might provide a better representation of the river
+elevation profile, however in combination with local-inertial land routing the
+subgrid elevation will likely overestimate the floodplain storage capacity.</p>
+<p>Note that the same input elevation map should be used for river bankfull elevation
+and land elevation when using local-inertial land routing.</p>
+<p>Adds model layers:</p>
 <ul class="simple">
-<li><p><strong>wflow_riverwidth</strong> map: river width [m]</p></li>
+<li><p><strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF].</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>predictor</strong> (<em>{&quot;discharge&quot;</em><em>, </em><em>&quot;precip&quot;</em><em>, </em><em>&quot;uparea&quot;}</em>) – Predictor used in the power-law equation: width = a * predictor ^ b.
-Discharge is based on multiple linear regression per climate zone.
-Precip is based on the 10x the daily average accumulated precipitation [m3/s].
-Uparea is based on the upstream area grid [km2].
-Other variables, e.g. bankfull discharge, can also be provided if present in the staticmaps</p></li>
-<li><p><strong>fill</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True (default), use estimate to fill gaps, outliers and lake/res areas in observed width data (if present);
-if False, set all riverwidths based on predictor (automatic choice if no observations found)</p></li>
-<li><p><strong>fit</strong> (<em>bool</em><em>, </em><em>optional kwarg</em>) – If True, the power-law parameters are fitted on the fly
-By default True for all but “discharge” predictor.
-A-priori derived parameters will be overwritten if True.</p></li>
-<li><p><strong>a</strong> (<em>float</em><em>, </em><em>optional kwarg</em>) – Manual power-law parameters</p></li>
-<li><p><strong>b</strong> (<em>float</em><em>, </em><em>optional kwarg</em>) – Manual power-law parameters</p></li>
-<li><p><strong>min_wth</strong> (<em>float</em>) – minimum river width</p></li>
-<li><p><strong>precip_fn</strong> (<em>{'chelsa'}</em>) – Source of long term precipitation grid if the predictor is set to ‘discharge’ or ‘precip’.</p></li>
-<li><p><strong>climate_fn</strong> (<em>{'koppen_geiger'}</em>) – Source of long-term climate grid if the predictor is set to ‘discharge’.</p></li>
+<li><p><strong>elevtn_map</strong> (<em>{&quot;wflow_dem&quot;</em><em>, </em><em>&quot;dem_subgrid&quot;}</em>) – Name of staticmap to hydrologically condition, by default “wflow_dem”.</p></li>
+<li><p><strong>river_routing</strong> (<em>{&quot;kinematic-wave&quot;</em><em>, </em><em>&quot;local-inertial&quot;}</em>) – changes wflow config model.river_routing (by default “local-inertial”)
+and model.land_routing (default “kinematic-wave”)</p></li>
+<li><p><strong>land_routing</strong> (<em>{&quot;kinematic-wave&quot;</em><em>, </em><em>&quot;local-inertial&quot;}</em>) – changes wflow config model.river_routing (by default “local-inertial”)
+and model.land_routing (default “kinematic-wave”)</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.flw.dem_adjust</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.dem_adjust</span></code></p>
+</div>
 </dd></dl>
 
 </section>

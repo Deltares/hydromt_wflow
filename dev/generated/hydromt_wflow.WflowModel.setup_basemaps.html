@@ -67,7 +67,7 @@
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_riverwidth.html">hydromt_wflow.WflowModel.setup_riverwidth</a></li>
+<li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
@@ -157,7 +157,8 @@ Users can also supply their own elevation and flow direction data. Note that onl
 <li><p><strong>wflow_subcatch</strong> map: basin ID map [-]</p></li>
 <li><p><strong>wflow_uparea</strong> map: upstream area [km2]</p></li>
 <li><p><strong>wflow_streamorder</strong> map: Strahler stream order [-]</p></li>
-<li><p><strong>wflow_dem</strong> map: average elevation [m]</p></li>
+<li><p><strong>wflow_dem</strong> map: average elevation [m+REF]</p></li>
+<li><p><strong>dem_subgrid</strong> map: subgrid outlet elevation [m+REF]</p></li>
 <li><p><strong>Slope</strong> map: average land surface slope [m/m]</p></li>
 <li><p><strong>basins</strong> geom: basins boundary vector</p></li>
 <li><p><strong>region</strong> geom: region boundary vector</p></li>
@@ -165,7 +166,7 @@ Users can also supply their own elevation and flow direction data. Note that onl
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hydrography_fn</strong> (<em>{'merit_hydro'</em><em>, </em><em>'merit_hydro_1k'}</em>) – <p>Name of data source for basemap parameters, see data/data_sources.yml.</p>
+<li><p><strong>hydrography_fn</strong> (<em>str</em>) – <p>Name of data source for basemap parameters.</p>
 <ul>
 <li><p>Required variables: [‘flwdir’, ‘uparea’, ‘basins’, ‘strord’, ‘elevtn’]</p></li>
 <li><p>Optional variables: [‘lndslp’, ‘mask’]</p></li>
@@ -179,6 +180,10 @@ See :py:function:~basin_mask.parse_region for all options</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.parse_region</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.get_basin_geometry</span></code>, <a class="reference internal" href="hydromt_wflow.workflows.hydrography.html#hydromt_wflow.workflows.hydrography" title="hydromt_wflow.workflows.hydrography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.hydrography</span></code></a>, <a class="reference internal" href="hydromt_wflow.workflows.topography.html#hydromt_wflow.workflows.topography" title="hydromt_wflow.workflows.topography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.topography</span></code></a></p>
+</div>
 </dd></dl>
 
 </section>

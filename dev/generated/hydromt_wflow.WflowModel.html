@@ -230,69 +230,72 @@
 <td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers" title="hydromt_wflow.WflowModel.setup_glaciers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_glaciers</span></code></a>([glaciers_fn, min_area])</p></td>
-<td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature thresohld, melting factor and snow-to-ice convertion fraction.</p></td>
+<td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice convertion fraction.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps" title="hydromt_wflow.WflowModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a>([lai_fn])</p></td>
-<td><p>This component sets leaf area index (LAI) climatoloy maps per month.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html#hydromt_wflow.WflowModel.setup_hydrodem" title="hydromt_wflow.WflowModel.setup_hydrodem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_hydrodem</span></code></a>([elevtn_map, river_routing, ...])</p></td>
+<td><p>This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes" title="hydromt_wflow.WflowModel.setup_lakes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lakes</span></code></a>([lakes_fn, min_area])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps" title="hydromt_wflow.WflowModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a>([lai_fn])</p></td>
+<td><p>This component sets leaf area index (LAI) climatology maps per month.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes" title="hydromt_wflow.WflowModel.setup_lakes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lakes</span></code></a>([lakes_fn, min_area])</p></td>
 <td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps" title="hydromt_wflow.WflowModel.setup_lulcmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code></a>([lulc_fn, lulc_mapping_fn, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps" title="hydromt_wflow.WflowModel.setup_lulcmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code></a>([lulc_fn, lulc_mapping_fn, ...])</p></td>
 <td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code></a>([precip_fn, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code></a>([precip_fn, ...])</p></td>
 <td><p>Setup gridded precipitation forcing at model resolution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs" title="hydromt_wflow.WflowModel.setup_reservoirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_reservoirs</span></code></a>([reservoirs_fn, min_area, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs" title="hydromt_wflow.WflowModel.setup_reservoirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_reservoirs</span></code></a>([reservoirs_fn, min_area, ...])</p></td>
 <td><p>This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rivers</span></code></a>([hydrography_fn, river_upa, ...])</p></td>
-<td><p>This component sets the river parameter maps including a boolean river mask, length, slope.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rivers</span></code></a>(hydrography_fn[, ...])</p></td>
+<td><p>This component sets the all river parameter maps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_riverwidth.html#hydromt_wflow.WflowModel.setup_riverwidth" title="hydromt_wflow.WflowModel.setup_riverwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_riverwidth</span></code></a>([predictor, fill, fit, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_riverwidth</span></code>([predictor, fill, fit, ...])</p></td>
 <td><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_soilmaps</span></code></a>([soil_fn, ptf_ksatver])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_soilmaps</span></code></a>([soil_fn, ptf_ksatver])</p></td>
 <td><p>This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing" title="hydromt_wflow.WflowModel.setup_temp_pet_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_temp_pet_forcing</span></code></a>([temp_pet_fn, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing" title="hydromt_wflow.WflowModel.setup_temp_pet_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_temp_pet_forcing</span></code></a>([temp_pet_fn, ...])</p></td>
 <td><p>Setup gridded reference evapotranspiration forcing at model resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_model_api</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_model_api</span></code>()</p></td>
 <td><p>Test compliance to model API instances.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.update.html#hydromt_wflow.WflowModel.update" title="hydromt_wflow.WflowModel.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>([model_out, write, opt])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.update.html#hydromt_wflow.WflowModel.update" title="hydromt_wflow.WflowModel.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>([model_out, write, opt])</p></td>
 <td><p>Single method to setup and write a full model schematization and configuration from scratch</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write" title="hydromt_wflow.WflowModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write" title="hydromt_wflow.WflowModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write</span></code></a>()</p></td>
 <td><p>Method to write the complete model schematization and configuration to file.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_config.html#hydromt_wflow.WflowModel.write_config" title="hydromt_wflow.WflowModel.write_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_config</span></code></a>([config_name, config_root])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_config.html#hydromt_wflow.WflowModel.write_config" title="hydromt_wflow.WflowModel.write_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_config</span></code></a>([config_name, config_root])</p></td>
 <td><p>Write config to &lt;root/config_fn&gt;</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_data_catalog</span></code>([root, used_only])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_data_catalog</span></code>([root, used_only])</p></td>
 <td><p>Write the data catalog to <cite>hydromt_data.yml</cite></p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing" title="hydromt_wflow.WflowModel.write_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_forcing</span></code></a>([fn_out, freq_out, chunksize, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing" title="hydromt_wflow.WflowModel.write_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_forcing</span></code></a>([fn_out, freq_out, chunksize, ...])</p></td>
 <td><p>write forcing at <cite>fn_out</cite> in model ready format.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_intbl</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_intbl</span></code>()</p></td>
 <td><p>Write intbl at &lt;root/intbl&gt; in PCRaster table format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_results</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_results</span></code>()</p></td>
 <td><p>write results at &lt;root/?/&gt; in model ready format</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states" title="hydromt_wflow.WflowModel.write_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_states</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states" title="hydromt_wflow.WflowModel.write_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_states</span></code></a>()</p></td>
 <td><p>write states at &lt;root/?/&gt; in model ready format</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_staticgeoms.html#hydromt_wflow.WflowModel.write_staticgeoms" title="hydromt_wflow.WflowModel.write_staticgeoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticgeoms</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_staticgeoms.html#hydromt_wflow.WflowModel.write_staticgeoms" title="hydromt_wflow.WflowModel.write_staticgeoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticgeoms</span></code></a>()</p></td>
 <td><p>Write staticmaps at &lt;root/staticgeoms&gt; in model ready format</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_staticmaps.html#hydromt_wflow.WflowModel.write_staticmaps" title="hydromt_wflow.WflowModel.write_staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_staticmaps.html#hydromt_wflow.WflowModel.write_staticmaps" title="hydromt_wflow.WflowModel.write_staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps</span></code></a>()</p></td>
 <td><p>Write staticmaps</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps_pcr</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps_pcr</span></code>()</p></td>
 <td><p>Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.</p></td>
 </tr>
 </tbody>

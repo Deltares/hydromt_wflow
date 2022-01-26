@@ -89,7 +89,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">hydromt_wflow.wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
+<span class="kn">from</span> <span class="nn">hydromt_wflow.wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span><span class="p">,</span> <span class="n">PCR_VS_MAP</span>
 <span class="kn">from</span> <span class="nn">.workflows</span> <span class="kn">import</span> <span class="n">landuse</span><span class="p">,</span> <span class="n">soilgrids_sediment</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">DATADIR</span>
 
@@ -100,21 +100,6 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="c1"># specify pcraster map types for non scalar (float) data types</span>
-<span class="n">PCR_VS_MAP</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;wflow_ldd&quot;</span><span class="p">:</span> <span class="s2">&quot;ldd&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_streamorder&quot;</span><span class="p">:</span> <span class="s2">&quot;ordinal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">:</span> <span class="s2">&quot;ordinal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_river&quot;</span><span class="p">:</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_gauges&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_landuse&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_soil&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_reservoirareas&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_reservoirlocs&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_lakeareas&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;wflow_lakelocs&quot;</span><span class="p">:</span> <span class="s2">&quot;nominal&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
 
 <div class="viewcode-block" id="WflowSedimentModel"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel">[docs]</a><span class="k">class</span> <span class="nc">WflowSedimentModel</span><span class="p">(</span><span class="n">WflowModel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;This is the wflow sediment model class, a subclass of WflowModel&quot;&quot;&quot;</span>
@@ -123,33 +108,13 @@
     <span class="n">_CONF</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment.toml&quot;</span>
     <span class="n">_DATADIR</span> <span class="o">=</span> <span class="n">DATADIR</span>
     <span class="n">_GEOMS</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">_MAPS</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;flwdir&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_ldd&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;uparea&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_uparea&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;strord&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_streamorder&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;basins&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;elevtn&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_dem&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rivlen&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_riverlength&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lndslp&quot;</span><span class="p">:</span> <span class="s2">&quot;Slope&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rivslp&quot;</span><span class="p">:</span> <span class="s2">&quot;RiverSlope&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rivmsk&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_river&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;rivwth&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_riverwidth&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;gauges&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_gauges&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_landuse&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;soil&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_soil&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;resareas&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_reservoirareas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;reslocs&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_reservoirlocs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lakeareas&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_lakeareas&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;lakelocs&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_lakelocs&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="n">_FOLDERS</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;staticmaps&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;setup&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;inmaps&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;instate&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;run_default&quot;</span><span class="p">,</span>
-    <span class="p">]</span>
+    <span class="n">_MAPS</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">_MAPS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;soil&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_soil&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">_FOLDERS</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="o">.</span><span class="n">_FOLDERS</span>
 
 <div class="viewcode-block" id="WflowSedimentModel.__init__"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

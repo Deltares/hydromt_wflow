@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>hydromt_wflow.workflows.river_width &mdash; hydromt_wflow  documentation</title>
+  <title>hydromt_wflow.workflows.topography &mdash; hydromt_wflow  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.soilgrids" href="hydromt_wflow.workflows.soilgrids.html" />
-    <link rel="prev" title="hydromt_wflow.workflows.river" href="hydromt_wflow.workflows.river.html" /> 
+    <link rel="next" title="hydromt_wflow.workflows.river" href="hydromt_wflow.workflows.river.html" />
+    <link rel="prev" title="hydromt_wflow.workflows.hydrography" href="hydromt_wflow.workflows.hydrography.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,9 +58,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#wflow-model-class">Wflow model class</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../api/api.html#wflowsediment-model-class">WflowSediment model class</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../api/api.html#wflow-workflows">Wflow workflows</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.hydrography.html">hydromt_wflow.workflows.hydrography</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.workflows.topography</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">hydromt_wflow.workflows.river_width</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html">hydromt_wflow.workflows.river_bathymetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
@@ -91,9 +93,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../api/api.html">API reference</a> &raquo;</li>
-      <li>hydromt_wflow.workflows.river_width</li>
+      <li>hydromt_wflow.workflows.topography</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/hydromt_wflow.workflows.river_width.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/hydromt_wflow.workflows.topography.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -125,12 +127,38 @@
     text-align: unset;
 }
 </style>
-<section id="hydromt-wflow-workflows-river-width">
-<h1>hydromt_wflow.workflows.river_width<a class="headerlink" href="#hydromt-wflow-workflows-river-width" title="Permalink to this headline"></a></h1>
+<section id="hydromt-wflow-workflows-topography">
+<h1>hydromt_wflow.workflows.topography<a class="headerlink" href="#hydromt-wflow-workflows-topography" title="Permalink to this headline"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="hydromt_wflow.workflows.river_width">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">river_width</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_like</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flwdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data={}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_outliers=True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_wth=1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_names=[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor='discharge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rivwth_name='rivwth'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_postfix='_obs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rivmsk_name='rivmsk'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.river</span> <span class="pre">(WARNING)&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/river.html#river_width"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.river_width" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dt class="sig sig-object py" id="hydromt_wflow.workflows.topography">
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">topography</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds:</span> <span class="pre">xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like:</span> <span class="pre">xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevtn_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'elevtn'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lndslp_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'lndslp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.basemaps</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/basemaps.html#topography"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.topography" title="Permalink to this definition"></a></dt>
+<dd><p>Returns topography maps (see list below) at model resolution based on gridded
+elevation data input.</p>
+<p>The following topography maps are calculated:    - elevtn : average elevation [m]    - lndslp : average land surface slope [m/m]
+:param ds: Dataset containing gridded flow direction and elevation data.
+:type ds: xarray.DataArray
+:param ds_like: Dataset at model resolution.
+:type ds_like: xarray.DataArray
+:param elevtn_name: Name of elevation [m] and land surface slope [m/m] variables in ds
+:type elevtn_name: str, optional
+:param lndslp_name: Name of elevation [m] and land surface slope [m/m] variables in ds
+:type lndslp_name: str, optional
+:param method: Resample method used to reproject the input data, by default “average”
+:type method: str, optional</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>ds_out</strong> (<em>xarray.DataArray</em>) – Dataset containing gridded hydrography data</p></li>
+<li><p><strong>flwdir_out</strong> (<em>pyflwdir.FlwdirRaster</em>) – Flow direction raster object.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.dem.slope</span></code></p>
+</div>
+</dd></dl>
 
 </section>
 
@@ -138,8 +166,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="hydromt_wflow.workflows.river.html" class="btn btn-neutral float-left" title="hydromt_wflow.workflows.river" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="hydromt_wflow.workflows.soilgrids.html" class="btn btn-neutral float-right" title="hydromt_wflow.workflows.soilgrids" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="hydromt_wflow.workflows.hydrography.html" class="btn btn-neutral float-left" title="hydromt_wflow.workflows.hydrography" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="hydromt_wflow.workflows.river.html" class="btn btn-neutral float-right" title="hydromt_wflow.workflows.river" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

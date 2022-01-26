@@ -60,7 +60,7 @@
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_laimaps.html">hydromt_wflow.wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_riverwidth.html">hydromt_wflow.wflow.WflowModel.setup_riverwidth</a></li>
+<li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_gauges.html">hydromt_wflow.wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hydromt_wflow.wflow.WflowModel.setup_areamap.html">hydromt_wflow.wflow.WflowModel.setup_areamap</a></li>
 </ul>
@@ -131,38 +131,63 @@
 <h1>hydromt_wflow.wflow.WflowModel.setup_rivers<a class="headerlink" href="#hydromt-wflow-wflow-wflowmodel-setup-rivers" title="Permalink to this headline"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.wflow.WflowModel.setup_rivers">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_rivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_river_mapping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivlen_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_rivers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_rivers" title="Permalink to this definition"></a></dt>
-<dd><p>This component sets the river parameter maps including a boolean river mask,
-length, slope.</p>
-<p>The river mask is based on the <code class="docutils literal notranslate"><span class="pre">river_upa</span></code> [km2] threshold, by default 30 km2.
-The length is defined as the distance from the subgrid outlet pixel to the next
-upstream subgrid outlet pixel. The slope is derived from the subgrid
-elevation difference between pixels at a half distance <code class="docutils literal notranslate"><span class="pre">slope_len</span></code> [km] up- and downstream
-from the subgrid outlet pixel, by default 2 km. If a pixel has multiple upstream neighbors the pixel
-with the largest upstream area is selected. The river elevation is based on the elevation of the river
-bed at outlet pixels of a cell. A dem_adjust step is added to make sure the elevation of the river bed
-decreases or stays the same as we go downstream along the river network Manning coefficient is derived
-based on a lookup table of the streamorder map.</p>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_rivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_geom_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rivdph_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'powlaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivlen_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivdph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivwth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rivman_mapping_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow/N_river_mapping.csv'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_rivers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.wflow.WflowModel.setup_rivers" title="Permalink to this definition"></a></dt>
+<dd><p>This component sets the all river parameter maps.</p>
+<p>The river mask is defined by all cells with a mimimum upstream area threshold
+<cite>river_upa</cite> [km2].</p>
+<p>The river length is defined as the distance from the subgrid outlet pixel to
+the next upstream subgrid outlet pixel.</p>
+<p>The river slope is derived from the subgrid elevation difference between pixels at a
+half distance <cite>slope_len</cite> [m] up- and downstream from the subgrid outlet pixel.</p>
+<p>The river manning roughness coefficient is derived based on reclassification
+of the streamorder map using a lookup table <cite>rivman_mapping_fn</cite>.</p>
+<p>The river width is derived from the nearest river segment in <cite>river_geom_fn</cite>.
+Data gaps are filled by the nearest valid upstream value and averaged along
+the flow directions over a length <cite>smooth_len</cite> [m]</p>
+<p>The river depth is calculated using the <cite>rivdph_method</cite>, by default powlaw:
+h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
+segment in <cite>river_geom_fn</cite> and takes optional arguments for the hc
+(default = 0.27) and hp (default = 0.30) parameters. For other methods see
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">hydromt.workflows.river_depth()</span></code>.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_river</strong> map: river mask [-]</p></li>
 <li><p><strong>wflow_riverlength</strong> map: river length [m]</p></li>
+<li><p><strong>wflow_riverwidth</strong> map: river width [m]</p></li>
+<li><p><strong>RiverDepth</strong> map: bankfull river depth [m]</p></li>
 <li><p><strong>RiverSlope</strong> map: river slope [m/m]</p></li>
-<li><p><strong>N_River</strong> map: Manning coefficient for river cells [add]</p></li>
-<li><p><strong>RiverZ</strong> map: elevation of the river bed for rivercells only [m]</p></li>
+<li><p><strong>N_River</strong> map: Manning coefficient for river cells [s.m^1/3]</p></li>
 <li><p><strong>rivers</strong> geom: river vector based on wflow_river mask</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hydrography_fn</strong> (<em>str</em><em>, </em><em>path</em>) – Name of data source for basemap parameters, see data/data_sources.yml.
-Must be same as setup_basemaps for consitent results.</p></li>
+<li><p><strong>hydrography_fn</strong> (<em>str</em><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data.
+Must be same as setup_basemaps for consistent results.</p>
+<ul>
+<li><p>Required variables: [‘flwdir’, ‘uparea’, ‘elevtn’]</p></li>
+<li><p>Optional variables: [‘rivwth’, ‘qbankfull’]</p></li>
+</ul>
+</p></li>
+<li><p><strong>river_geom_fn</strong> (<em>str</em><em>, </em><em>Path</em><em>, </em><em>optional</em>) – <p>Name of data source for river data.</p>
+<ul>
+<li><p>Required variables: [‘rivwth’, ‘qbankfull’]</p></li>
+</ul>
+</p></li>
 <li><p><strong>river_upa</strong> (<em>float</em>) – minimum upstream area threshold for the river map [km2]</p></li>
 <li><p><strong>slope_len</strong> (<em>float</em>) – length over which the river slope is calculated [km]</p></li>
 <li><p><strong>min_rivlen_ratio</strong> (<em>float</em>) – minimum global river length to avg. cell resolution ratio, by default 0.1</p></li>
+<li><p><strong>rivdph_method</strong> (<em>{'gvf'</em><em>, </em><em>'manning'</em><em>, </em><em>'powlaw'}</em>) – see py:meth:<cite>hydromt.workflows.river_depth</cite> for details, by default “powlaw”</p></li>
+<li><p><strong>smooth_len</strong> (<em>float</em><em>, </em><em>optional</em>) – Length [m] over which to smooth the output river width and depth, by default 5e3</p></li>
+<li><p><strong>min_rivdph</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum river depth [m], by default 1.0</p></li>
+<li><p><strong>min_rivwth</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum river width [m], by default 30.0</p></li>
 </ul>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.river_bathymetry</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.river_depth</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.river_depth</span></code></p>
+</div>
 </dd></dl>
 
 </section>

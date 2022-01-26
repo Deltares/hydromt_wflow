@@ -16,8 +16,8 @@
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -313,7 +313,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -385,8 +385,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">!</span>hydromt clip --help
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>hydromt clip --help
 </pre></div>
 </div>
 </div>
@@ -428,8 +427,7 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
 <span class="o">!</span>hydromt clip wflow <span class="s2">&quot;wflow_piave_subbasin&quot;</span> <span class="s2">&quot;./wflow_test_clip&quot;</span> <span class="s2">&quot;{&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}&quot;</span> -v
 </pre></div>
 </div>
@@ -439,31 +437,31 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2021-12-17 13:35:54,461 - clip - log - INFO - HydroMT version: 0.4.5.dev
-2021-12-17 13:35:54,461 - clip - main - INFO - Clipping instance of wflow model.
-2021-12-17 13:35:54,461 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2021-12-17 13:35:54,467 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
-2021-12-17 13:35:54,467 - clip - main - INFO - Reading model to clip
-2021-12-17 13:35:54,470 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
-2021-12-17 13:35:54,544 - clip - wflow - INFO - Reading model intbl files.
-2021-12-17 13:35:54,545 - clip - wflow - INFO - Reading model staticgeom files.
-2021-12-17 13:35:54,621 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
-2021-12-17 13:35:54,631 - clip - wflow - INFO - Model read
-2021-12-17 13:35:54,631 - clip - main - INFO - Clipping staticmaps
-2021-12-17 13:35:57,738 - clip - basin_mask - INFO - basin bbox: [12.0083, 46.3417, 12.3250, 46.6750] / size: 161
-2021-12-17 13:35:59,443 - clip - main - INFO - Clipping forcing
-2021-12-17 13:35:59,443 - clip - wflow - INFO - Clipping NetCDF forcing..
-2021-12-17 13:35:59,459 - clip - model_api - WARNING - Replacing forcing: precip
-2021-12-17 13:35:59,460 - clip - model_api - WARNING - Replacing forcing: pet
-2021-12-17 13:35:59,460 - clip - model_api - WARNING - Replacing forcing: temp
-2021-12-17 13:35:59,460 - clip - main - INFO - Writting clipped model
-2021-12-17 13:35:59,460 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip
-2021-12-17 13:35:59,460 - clip - data_adapter - INFO - Adding sample data v0.0.6 from artifacts
-2021-12-17 13:35:59,572 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/wflow_sbm.toml
-2021-12-17 13:35:59,573 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/staticmaps.nc
-2021-12-17 13:35:59,875 - clip - wflow - INFO - Writing model staticgeom to file.
-2021-12-17 13:35:59,899 - clip - wflow - INFO - Write forcing file
-2021-12-17 13:35:59,910 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/inmaps.nc
+2022-01-26 16:35:37,462 - clip - log - INFO - HydroMT version: 0.4.5.dev
+2022-01-26 16:35:37,462 - clip - main - INFO - Clipping instance of wflow model.
+2022-01-26 16:35:37,462 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2022-01-26 16:35:37,469 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4.dev0).
+2022-01-26 16:35:37,469 - clip - main - INFO - Reading model to clip
+2022-01-26 16:35:37,473 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2022-01-26 16:35:37,562 - clip - wflow - INFO - Reading model intbl files.
+2022-01-26 16:35:37,562 - clip - wflow - INFO - Reading model staticgeom files.
+2022-01-26 16:35:37,655 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2022-01-26 16:35:37,666 - clip - wflow - INFO - Model read
+2022-01-26 16:35:37,667 - clip - main - INFO - Clipping staticmaps
+2022-01-26 16:35:41,458 - clip - basin_mask - INFO - basin bbox: [12.0083, 46.3417, 12.3250, 46.6750] / size: 161
+2022-01-26 16:35:43,511 - clip - main - INFO - Clipping forcing
+2022-01-26 16:35:43,511 - clip - wflow - INFO - Clipping NetCDF forcing..
+2022-01-26 16:35:43,532 - clip - model_api - WARNING - Replacing forcing: precip
+2022-01-26 16:35:43,532 - clip - model_api - WARNING - Replacing forcing: pet
+2022-01-26 16:35:43,532 - clip - model_api - WARNING - Replacing forcing: temp
+2022-01-26 16:35:43,532 - clip - main - INFO - Writting clipped model
+2022-01-26 16:35:43,532 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip
+2022-01-26 16:35:43,532 - clip - data_adapter - INFO - Adding sample data v0.0.6 from artifacts
+2022-01-26 16:35:43,663 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/wflow_sbm.toml
+2022-01-26 16:35:43,664 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/staticmaps.nc
+2022-01-26 16:35:44,024 - clip - wflow - INFO - Writing model staticgeom to file.
+2022-01-26 16:35:44,053 - clip - wflow - INFO - Write forcing file
+2022-01-26 16:35:44,067 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_test_clip/inmaps.nc
 [########################################] | 100% Completed |  0.1s
 
 </pre></div></div>
@@ -487,13 +485,12 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Import plot packages</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import plot packages</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
 <span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
-<span class="kn">import</span> <span class="nn">descartes</span>  <span class="c1"># required to plot polygons</span>
 <span class="kn">import</span> <span class="nn">cartopy.io.img_tiles</span> <span class="k">as</span> <span class="nn">cimgt</span>
+
+<span class="c1"># import descartes  # used under the hood to plot polygons</span>
 </pre></div>
 </div>
 </div>
@@ -501,9 +498,9 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">hydromt</span>
+<span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
 </pre></div>
 </div>
 </div>
@@ -511,10 +508,9 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Load both models with hydromt</span>
-<span class="n">mod0</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
-<span class="n">mod1</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_test_clip&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load both models with hydromt</span>
+<span class="n">mod0</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+<span class="n">mod1</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_test_clip&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -522,8 +518,7 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># read/derive river geometries</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># read/derive river geometries</span>
 <span class="n">gdf_riv0</span> <span class="o">=</span> <span class="n">mod0</span><span class="o">.</span><span class="n">rivers</span>
 <span class="n">gdf_riv1</span> <span class="o">=</span> <span class="n">mod1</span><span class="o">.</span><span class="n">rivers</span>
 <span class="c1"># read/derive model basin boundary</span>
@@ -536,8 +531,7 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-whitegrid&quot;</span><span class="p">)</span>  <span class="c1"># set nice style</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-whitegrid&quot;</span><span class="p">)</span>  <span class="c1"># set nice style</span>
 <span class="c1"># we assume the model maps are in the geographic CRS EPSG:4326</span>
 <span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
 <span class="c1"># adjust zoomlevel and figure size to your basis size &amp; aspect</span>
@@ -581,11 +575,21 @@ Options:
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_2969/3572997233.py:13: UserWarning: Geometry is in a geographic CRS. Results from &#39;buffer&#39; are likely incorrect. Use &#39;GeoSeries.to_crs()&#39; to re-project geometries to a projected CRS before this operation.
+
+  extent = np.array(mod0.staticmaps.raster.box.buffer(0.02).total_bounds)[[0, 2, 1, 3]]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../../_images/examples_examples_clip_model_16_0.png" src="../../_images/examples_examples_clip_model_16_0.png" />
+<img alt="../../_images/examples_examples_clip_model_16_1.png" src="../../_images/examples_examples_clip_model_16_1.png" />
 </div>
 </div>
 </section>
