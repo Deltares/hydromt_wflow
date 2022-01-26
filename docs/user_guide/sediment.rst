@@ -15,8 +15,7 @@ a data_ sources (.yml) file should be prepared.
 Note that the order in which the components are listed in the ini file is important: 
 
 - `setup_basemaps` should always be run first to determine the model domain
-- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverwidth, riverbedsed, gauges)
-- `setup_riverwidth` should be listed after `setup_lakes` and `setup_reservoirs`.
+- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverbedsed, floodplains, gauges)
 
 For python users all WflowSediment attributes and methods are available, see :ref:`api_model_sediment`
 
@@ -43,7 +42,6 @@ a specific method see its documentation.
    ~WflowSedimentModel.setup_laimaps
    ~WflowSedimentModel.setup_canopymaps
    ~WflowSedimentModel.setup_soilmaps
-   ~WflowSedimentModel.setup_riverwidth
    ~WflowSedimentModel.setup_riverbedsed
    ~WflowSedimentModel.setup_gauges
    ~WflowModel.setup_areamap

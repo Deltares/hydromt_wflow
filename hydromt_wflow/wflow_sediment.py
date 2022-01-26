@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from hydromt_wflow.wflow import WflowModel
+from hydromt_wflow.wflow import WflowModel, PCR_VS_MAP
 from .workflows import landuse, soilgrids_sediment
 from . import DATADIR
 
@@ -17,21 +17,6 @@ __all__ = ["WflowSedimentModel"]
 
 logger = logging.getLogger(__name__)
 
-# specify pcraster map types for non scalar (float) data types
-PCR_VS_MAP = {
-    "wflow_ldd": "ldd",
-    "wflow_streamorder": "ordinal",
-    "wflow_subcatch": "ordinal",
-    "wflow_river": "bool",
-    "wflow_gauges": "nominal",
-    "wflow_landuse": "nominal",
-    "wflow_soil": "nominal",
-    "wflow_reservoirareas": "nominal",
-    "wflow_reservoirlocs": "nominal",
-    "wflow_lakeareas": "nominal",
-    "wflow_lakelocs": "nominal",
-}
-
 
 class WflowSedimentModel(WflowModel):
     """This is the wflow sediment model class, a subclass of WflowModel"""
@@ -40,33 +25,13 @@ class WflowSedimentModel(WflowModel):
     _CONF = "wflow_sediment.toml"
     _DATADIR = DATADIR
     _GEOMS = {}
-    _MAPS = {
-        "flwdir": "wflow_ldd",
-        "uparea": "wflow_uparea",
-        "strord": "wflow_streamorder",
-        "basins": "wflow_subcatch",
-        "elevtn": "wflow_dem",
-        "rivlen": "wflow_riverlength",
-        "lndslp": "Slope",
-        "rivslp": "RiverSlope",
-        "rivmsk": "wflow_river",
-        "rivwth": "wflow_riverwidth",
-        "gauges": "wflow_gauges",
-        "landuse": "wflow_landuse",
-        "soil": "wflow_soil",
-        "resareas": "wflow_reservoirareas",
-        "reslocs": "wflow_reservoirlocs",
-        "lakeareas": "wflow_lakeareas",
-        "lakelocs": "wflow_lakelocs",
-    }
-    _FOLDERS = [
-        "staticmaps",
-        "staticgeoms",
-        "setup",
-        "inmaps",
-        "instate",
-        "run_default",
-    ]
+    _MAPS = WflowModel._MAPS.copy()
+    _MAPS.update(
+        {
+            "soil": "wflow_soil",
+        }
+    )
+    _FOLDERS = WflowModel._FOLDERS
 
     def __init__(
         self,
