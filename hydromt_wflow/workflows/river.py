@@ -15,7 +15,7 @@ from hydromt_wflow import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["river", "river_bathymetry", "river_width", "dem_adjust"]
+__all__ = ["river", "river_bathymetry", "river_width"]
 
 RESAMPLING = {"climate": "nearest", "precip": "average"}
 NODATA = {"discharge": -9999}
@@ -132,15 +132,6 @@ def river(
     )
     rivslp = np.where(riv_mask.values, rivslp, -9999)
 
-    ## river outlet levels
-    # readout elevation at outlet pixels
-    logger.debug("Derive river elevation at outlet pixels.")
-    flwdir_river = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
-    rivzs = ds["elevtn"].values.flat[idxs_out]
-    rivzs = np.where(idxs_out >= 0, rivzs, -9999)
-    # adjust hydrologically
-    rivzs = flwdir_river.dem_adjust(rivzs)
-
     # create xarray dataset for all river variables
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
     dims = ds_model.raster.dims
@@ -150,8 +141,6 @@ def river(
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
     ds_out["rivslp"] = xr.Variable(dims, rivslp, attrs=attrs)
-    attrs = dict(_FillValue=-9999, unit="m+REF")
-    ds_out["rivzs"] = xr.Variable(dims, rivzs, attrs=attrs)
 
     for name in ["rivwth", "qbankfull"]:
         if name in ds:
@@ -188,7 +177,7 @@ def river_bathymetry(
     method : {'gvf', 'manning', 'powlaw'}
         see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
     smooth_len : float, optional
-        Lenght [m] over which to smooth the output river width and depth, by default 5e3
+        Length [m] over which to smooth the output river width and depth, by default 5e3
     min_rivdph : float, optional
         Minimum river depth [m], by default 1.0
     min_rivwth : float, optional
@@ -298,82 +287,6 @@ def river_bathymetry(
     )
 
     return ds_model[["rivwth", "rivdph"]]
-
-
-# TODO: before merge: import from hydroMT
-def dem_adjust(
-    da_elevtn,
-    da_flwdir,
-    da_rivmsk=None,
-    flwdir=None,
-    connectivity=4,
-    river_d8: bool = False,
-    logger=logger,
-) -> xr.Dataset:
-    """Returns hydrologically adjusted elevation and
-    if `return_floodplain`, a binary floodplain classification.
-
-    Parameters
-    ----------
-    da_elevtn, da_flwdir, da_rivmsk : xr.DataArray
-        elevation [m+REF]
-        D8 flow directions [-]
-        binary river mask [-], optional
-    flwdir : pyflwdir.FlwdirRaster, optional
-        Flow direction raster object. If None it is derived from da_flwdir.
-    connectivity: {4, 8}
-        D4 or D8 flow connectivity.
-    river_d8 : bool
-        If True and `connectivity==4`, additionally condition river cells to D8.
-        Requires `da_rivmsk`.
-
-    Returns
-    -------
-    xr.Dataset
-        Dataset with hydrologically adjusted elevation ('elevtn') [m+REF]
-    """
-    # get flow directions for entire domain and for rivers
-    if flwdir is None:
-        flwdir = flw.flwdir_from_da(da_flwdir, mask=False)
-    elevtn = da_elevtn.values
-    nodata = da_elevtn.raster.nodata
-    rivmsk = da_rivmsk.values == 1 if da_rivmsk is not None else None
-
-    logger.info(f"Condition elevation to D{connectivity} flow directions.")
-    # get D8 conditioned elevation
-    elevtn = flwdir.dem_adjust(elevtn)
-    # get D4 conditioned elevation (based on D8 conditioned!)
-    if connectivity == 4:
-        # derive D4 flow directions with forced pits at original locations
-        d4 = pyflwdir.dem.fill_depressions(
-            elevtn=flwdir.dem_dig_d4(elevtn, rivmsk=rivmsk, nodata=nodata),
-            nodata=nodata,
-            connectivity=connectivity,
-            idxs_pit=flwdir.idxs_pit,
-        )[1]
-        # condition the DEM to the new D4 flow dirs
-        flwdir_d4 = pyflwdir.from_array(
-            d4, ftype="d8", transform=flwdir.transform, latlon=flwdir.latlon
-        )
-        elevtn = flwdir_d4.dem_adjust(elevtn)
-        # condition river cells to D8
-        if river_d8 and rivmsk is not None:
-            flwdir_river = flw.flwdir_from_da(da_flwdir, mask=rivmsk)
-            elevtn = flwdir_river.dem_adjust(elevtn)
-            # assert np.all((elv2 - flwdir_river.downstream(elv2))>=0)
-        elif river_d8:
-            logger.warning('Provide "rivmsk" variable to condition river cells in D8.')
-        # assert np.all((elv2 - flwdir_d4.downstream(elv2))>=0)
-
-    # save to dataarray
-    da_out = xr.DataArray(
-        data=elevtn,
-        coords=da_elevtn.raster.coords,
-        dims=da_elevtn.raster.dims,
-    )
-    da_out.raster.set_nodata(nodata)
-    da_out.raster.set_crs(da_elevtn.raster.crs)
-    return da_out
 
 
 # TODO: methods below are redundant after version v0.1.4 and will be removed in
