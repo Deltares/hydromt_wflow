@@ -16,6 +16,10 @@ Added
   Note that the new river width estimates are different and result in different model results.
 - moved basemaps workflows (hydrography and topography) from hydromt core.
 
+Changed
+^^^^^
+- Moved interpolate_na function to be done only on output dataset (i.e. on the model resolution), rather then on the original data resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.
+
 Fixed
 ^^^^^
 - Calculation of lake_b parameter in setup_lakes.

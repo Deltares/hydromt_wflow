@@ -78,7 +78,6 @@ def average_soillayers_block(ds, soilthickness):
     )
 
     da_av.raster.set_nodata(np.nan)
-    da_av = da_av.raster.interpolate_na("nearest")
 
     return da_av
 
@@ -132,7 +131,6 @@ def average_soillayers(ds, soilthickness):
     )
 
     da_av.raster.set_nodata(np.nan)
-    da_av = da_av.raster.interpolate_na("nearest")
 
     return da_av
 
@@ -168,7 +166,7 @@ def pore_size_distrution_index_layers(ds, thetas):
     )
     ds_out.name = "pore_size"
     ds_out.raster.set_nodata(np.nan)
-    ds_out = ds_out.raster.interpolate_na("nearest")
+    # ds_out = ds_out.raster.interpolate_na("nearest")
     return ds_out
 
 
@@ -213,7 +211,7 @@ def kv_layers(ds, thetas, ptf_name):
 
     ds_out.name = "kv"
     ds_out.raster.set_nodata(np.nan)
-    ds_out = ds_out.raster.interpolate_na("nearest")
+
     return ds_out
 
 
@@ -238,7 +236,7 @@ def do_linalg(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ~np.isinf(np.log(y))
+    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
     return np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][0]
 
 
@@ -260,19 +258,22 @@ def do_curve_fit(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ~np.isinf(np.log(y))
-    try:
-        # try curve fitting with certain p0
-        popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-3))[0]
-    except RuntimeError:
+    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
+    if len(y[idx]) == 0:
+        popt_0 = np.nan
+    else:
         try:
-            # try curve fitting with lower p0
-            popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-4))[0]
+            # try curve fitting with certain p0
+            popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-3))[0]
         except RuntimeError:
-            # do linalg  regression instead
-            popt_0 = np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][
-                0
-            ]
+            try:
+                # try curve fitting with lower p0
+                popt_0 = curve_fit(func, x[idx], y[idx], p0=(1e-4))[0]
+            except RuntimeError:
+                # do linalg  regression instead
+                popt_0 = np.linalg.lstsq(
+                    x[idx, np.newaxis], np.log(y[idx]), rcond=None
+                )[0][0]
     return popt_0
 
 
@@ -413,12 +414,12 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     thetar = thetar.raster.reproject_like(ds_like, method="average")
     ds_out["thetaR"] = thetar.astype(np.float32)
 
-    soilthickness_hr = ds["soilthickness"].raster.interpolate_na("nearest")
+    soilthickness_hr = ds["soilthickness"]
     soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
     # wflow_sbm cannot handle (yet) zero soil thickness
     soilthickness = soilthickness.where(soilthickness > 0.0, np.nan)
     soilthickness.raster.set_nodata(np.nan)
-    soilthickness = soilthickness.raster.interpolate_na("nearest").astype(np.float32)
+    soilthickness = soilthickness.astype(np.float32)
     ds_out["SoilThickness"] = soilthickness * 10.0  # from [cm] to [mm]
     ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)
 
@@ -478,8 +479,9 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     popt_0_ = xr.apply_ufunc(
         do_linalg,
         soildepth_mm_midpoint_surface,
-        kv,
+        kv.compute(),
         vectorize=True,
+        dask="parallelized",
         input_core_dims=[["z"], ["sl"]],
         output_dtypes=[float],
         keep_attrs=True,
@@ -495,8 +497,9 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     popt_0 = xr.apply_ufunc(
         do_curve_fit,
         soildepth_mm_midpoint_surface,
-        kv,
+        kv.compute(),
         vectorize=True,
+        dask="parallelized",
         input_core_dims=[["z"], ["sl"]],
         output_dtypes=[float],
         keep_attrs=True,
@@ -537,6 +540,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
+        ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+        logger.info(f"Interpolate NAN values for {var}")
         ds_out[var] = ds_out[var].fillna(nodata)
         ds_out[var].raster.set_nodata(nodata)
 
@@ -578,15 +583,15 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
     ds = ds.raster.mask_nodata()
 
     # soil properties
-    pclay = ds["clyppt_sl1"].raster.interpolate_na("nearest")
+    pclay = ds["clyppt_sl1"]
     percentclay = pclay.raster.reproject_like(ds_like, method="average")
     ds_out["PercentClay"] = percentclay.astype(np.float32)
 
-    psilt = ds["sltppt_sl1"].raster.interpolate_na("nearest")
+    psilt = ds["sltppt_sl1"]
     percentsilt = psilt.raster.reproject_like(ds_like, method="average")
     ds_out["PercentSilt"] = percentsilt.astype(np.float32)
 
-    poc = ds["oc_sl1"].raster.interpolate_na("nearest")
+    poc = ds["oc_sl1"]
     percentoc = poc.raster.reproject_like(ds_like, method="average")
     ds_out["PercentOC"] = percentoc.astype(np.float32)
 
@@ -626,6 +631,8 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
+        ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+        logger.info(f"Interpolate NAN values for {var}")
         ds_out[var] = ds_out[var].fillna(nodata)
         ds_out[var].raster.set_nodata(nodata)
 
