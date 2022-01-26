@@ -277,7 +277,7 @@ class WflowModel(Model):
         * **wflow_river** map: river mask [-]
         * **wflow_riverlength** map: river length [m]
         * **wflow_riverwidth** map: river width [m]
-        * **wflow_riverdepth** map: bankfull river depth [m]
+        * **RiverDepth** map: bankfull river depth [m]
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
