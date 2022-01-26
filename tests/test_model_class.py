@@ -9,6 +9,7 @@ import pdb
 from hydromt_wflow.wflow import WflowModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
 from hydromt.cli.cli_utils import parse_config
+from hydromt.log import setuplog
 
 import logging
 
@@ -19,12 +20,12 @@ _models = {
     "wflow": {
         "example": "wflow_piave_subbasin",
         "ini": "wflow_piave_build_subbasin.ini",
-        "model": "wflow",
+        "model": WflowModel,
     },
     "wflow_sediment": {
         "example": "wflow_sediment_piave_subbasin",
         "ini": "wflow_sediment_piave_build_subbasin.ini",
-        "model": "wflow_sediment",
+        "model": WflowSedimentModel,
     },
 }
 
@@ -38,6 +39,9 @@ def _compare_wflow_models(mod0, mod1):
         assert np.all(mod0.crs == mod1.crs), f"map crs staticmaps"
         for name in maps:
             map0 = mod0.staticmaps[name].fillna(0)
+            if name not in mod1.staticmaps:
+                invalid_maps[name] = "KeyError"
+                continue
             map1 = mod1.staticmaps[name].fillna(0)
             if (
                 not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
@@ -90,10 +94,7 @@ def test_model_class(model):
     _model = _models[model]
     # read model in examples folder
     root = join(EXAMPLEDIR, _model["example"])
-    if _model["model"] == "wflow_sediment":
-        mod = WflowSedimentModel(root=root, mode="r")
-    else:
-        mod = WflowModel(root=root, mode="r")
+    mod = _model["model"](root=root, mode="r")
     mod.read()
     # run test_model_api() method
     non_compliant_list = mod.test_model_api()
@@ -103,16 +104,12 @@ def test_model_class(model):
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("model", list(_models.keys()))
 def test_model_build(tmpdir, model):
-    logger = logging.getLogger(__name__)
     _model = _models[model]
     # test build method
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
-    print(root)
-    if _model["model"] == "wflow_sediment":
-        mod1 = WflowSedimentModel(root=root, mode="w", logger=logger)
-    else:
-        mod1 = WflowModel(root=root, mode="w", logger=logger)
+    logger = setuplog(__name__, join(root, "hydromt.log"), log_level=10)
+    mod1 = _model["model"](root=root, mode="w", logger=logger)
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],
@@ -130,16 +127,10 @@ def test_model_build(tmpdir, model):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    if _model["model"] == "wflow_sediment":
-        mod1 = WflowSedimentModel(root=root, mode="r", logger=logger)
-    else:
-        mod1 = WflowModel(root=root, mode="r", logger=logger)
+    mod1 = _model["model"](root=root, mode="r", logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, _model["example"])
-    if _model["model"] == "wflow_sediment":
-        mod0 = WflowSedimentModel(root=root, mode="r")
-    else:
-        mod0 = WflowModel(root=root, mode="r")
+    mod0 = _model["model"](root=root, mode="r")
     mod0.read()
     # compare models
     _compare_wflow_models(mod0, mod1)

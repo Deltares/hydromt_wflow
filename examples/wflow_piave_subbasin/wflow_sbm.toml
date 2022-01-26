@@ -32,6 +32,8 @@ kin_wave_iteration = true
 kw_river_tstep = 900
 kw_land_tstep = 3600
 thicknesslayers = [ 100, 300, 800,]
+river_routing = "local-inertial"
+land_routing = "local-inertial"
 
 [output]
 path = "run_default/output.nc"
@@ -108,16 +110,19 @@ h_av = "h_av_river"
 ssf = "ssf"
 
 [state.lateral.land]
-q = "q_land"
 h = "h_land"
 h_av = "h_av_land"
+qx = "qx_land"
+qy = "qy_land"
 
 [input.lateral.river]
 length = "wflow_riverlength"
 n = "N_River"
 slope = "RiverSlope"
 width = "wflow_riverwidth"
-bankfull_elevation = "RiverZ"
+bankfull_depth = "RiverDepth"
+h_bankfull = "RiverDepth"
+bankfull_elevation = "hydrodem_avg"
 
 [input.lateral.subsurface]
 ksathorfrac = "KsatHorFrac"
@@ -125,12 +130,12 @@ ksathorfrac = "KsatHorFrac"
 [input.lateral.land]
 n = "N"
 slope = "Slope"
+elevation = "hydrodem_avg"
 
 [output.lateral.river]
 q_av = "q_river"
 
 [output.lateral.land]
-q = "q_land"
 h = "h_land"
 
 [state.lateral.river.reservoir]

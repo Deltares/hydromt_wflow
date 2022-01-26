@@ -11,8 +11,10 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Added
 ^^^^^
 - Possibility to write_forcing in several files based on time frequency (fn_freq argument).
-- setup_hydrodem method for D4 conditioned elevation used with land_routing="local-inertial"
-- workflow.river.river_bathymetry method to derive river depth estimates
+- setup_hydrodem method for hydrological conditioned elevation used with "local-inertial" routing
+- workflow.river.river_bathymetry method to derive river width and depth estimates. 
+  Note that the new river width estimates are different and result in different model results.
+- moved basemaps workflows (hydrography and topography) from hydromt core.
 
 Fixed
 ^^^^^
@@ -20,7 +22,7 @@ Fixed
 
 Changed
 ^^^^^^^^
-- setup_riverwidth method deprecated (will be removed in future versions)
+- setup_riverwidth method deprecated (will be removed in future versions) in favour of setup_rivers.
 - setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
 
 v0.1.3 (4 October 2021)

@@ -219,9 +219,11 @@ Wflow workflows
 .. autosummary::
    :toctree: ../generated/
 
-   workflows.landuse
+   workflows.hydrography
+   workflows.topography
    workflows.river
-   workflows.river_width
+   workflows.river_bathymetry
+   workflows.landuse
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.waterbodymaps
