@@ -454,9 +454,9 @@ class WflowModel(Model):
         self.set_staticmaps(ds_out)
 
         # update toml model.river_routing
-        self.logger.debug(f'Update wflow config momdel.river_routing="{land_routing}"')
+        self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
-        self.logger.debug(f'Update wflow config momdel.land_routing="{land_routing}"')
+        self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
         if river_routing == "local-inertial":
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
