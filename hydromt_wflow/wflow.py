@@ -379,9 +379,7 @@ class WflowModel(Model):
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
             self.set_staticmaps(ds_riv1.rename(rmdict))
             # update config
-            # bankfull_depth for local inertial and h_bankfull for kin wave ?!
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.h_bankfull", self._MAPS["rivdph"])
 
         self.logger.debug(f"Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms

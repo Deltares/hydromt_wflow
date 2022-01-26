@@ -121,7 +121,7 @@ Initialize
 
    WflowSedimentModel
 
-.. _components:
+.. _components_sediment:
 
 Setup components
 ----------------
