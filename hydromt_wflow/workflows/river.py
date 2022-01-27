@@ -96,7 +96,7 @@ def river(
         idxs_out = ds.raster.xy_to_idx(
             xs=ds_model["x_out"].values,
             ys=ds_model["y_out"].values,
-            mask=mod_mask,
+            mask=mod_mask.values,
             nodata=flwdir._mv,
         )
 
