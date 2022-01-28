@@ -15,26 +15,16 @@ import toml
 import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
+import logging
 
 # from dask.distributed import LocalCluster, Client, performance_report
+import hydromt
 from hydromt.models.model_api import Model
-
-# from hydromt.workflows.basin_mask import parse_region
-from hydromt import workflows, flw
+from hydromt import flw
 from hydromt.io import open_mfraster
 
-from .workflows import (
-    river,
-    river_width,
-    waterbodymaps,
-    reservoirattrs,
-    soilgrids,
-    glaciermaps,
-)
-from .workflows import landuse, lai
-from . import utils, DATADIR
+from . import utils, workflows, DATADIR
 
-import logging
 
 __all__ = ["WflowModel"]
 
@@ -67,16 +57,18 @@ class WflowModel(Model):
     _GEOMS = {}
     _MAPS = {
         "flwdir": "wflow_ldd",
+        "elevtn": "wflow_dem",
+        "subelv": "dem_subgrid",
         "uparea": "wflow_uparea",
         "strord": "wflow_streamorder",
         "basins": "wflow_subcatch",
-        "elevtn": "wflow_dem",
         "rivlen": "wflow_riverlength",
-        "lndslp": "Slope",
-        "rivslp": "RiverSlope",
         "rivmsk": "wflow_river",
         "rivwth": "wflow_riverwidth",
-        "rivbed": "RiverZ",
+        "lndslp": "Slope",
+        "rivslp": "RiverSlope",
+        "rivdph": "RiverDepth",
+        "rivman": "N_River",
         "gauges": "wflow_gauges",
         "landuse": "wflow_landuse",
         "resareas": "wflow_reservoirareas",
@@ -141,15 +133,16 @@ class WflowModel(Model):
         * **wflow_subcatch** map: basin ID map [-]
         * **wflow_uparea** map: upstream area [km2]
         * **wflow_streamorder** map: Strahler stream order [-]
-        * **wflow_dem** map: average elevation [m]
+        * **wflow_dem** map: average elevation [m+REF]
+        * **dem_subgrid** map: subgrid outlet elevation [m+REF]
         * **Slope** map: average land surface slope [m/m]
         * **basins** geom: basins boundary vector
         * **region** geom: region boundary vector
 
         Parameters
         ----------
-        hydrography_fn : {'merit_hydro', 'merit_hydro_1k'}
-            Name of data source for basemap parameters, see data/data_sources.yml.
+        hydrography_fn : str
+            Name of data source for basemap parameters.
 
             * Required variables: ['flwdir', 'uparea', 'basins', 'strord', 'elevtn']
 
@@ -163,6 +156,13 @@ class WflowModel(Model):
             Output model resolution
         upscale_method : {'ihu', 'eam', 'dmm'}
             Upscaling method for flow direction data, by default 'ihu'.
+
+        See Also
+        --------
+        hydromt.workflows.parse_region
+        hydromt.workflows.get_basin_geometry
+        workflows.hydrography
+        workflows.topography
         """
         self.logger.info(f"Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
@@ -171,11 +171,11 @@ class WflowModel(Model):
         if ds_org.raster.crs is None or ds_org.raster.crs.to_epsg() != 4326:
             raise ValueError("Only EPSG:4326 base data supported.")
         # get basin geometry and clip data
-        kind, region = workflows.parse_region(region, logger=self.logger)
+        kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
             bas_index = self.data_catalog[basin_index_fn]
-            geom, xy = workflows.get_basin_geometry(
+            geom, xy = hydromt.workflows.get_basin_geometry(
                 ds=ds_org,
                 kind=kind,
                 basin_index=bas_index,
@@ -235,94 +235,242 @@ class WflowModel(Model):
 
     def setup_rivers(
         self,
-        hydrography_fn="merit_hydro",
+        hydrography_fn,
+        river_geom_fn=None,
         river_upa=30,
-        slope_len=2000,
-        n_river_mapping=None,
+        rivdph_method="powlaw",
+        slope_len=2e3,
         min_rivlen_ratio=0.1,
+        min_rivdph=1,
+        min_rivwth=30,
+        smooth_len=5e3,
+        rivman_mapping_fn=join(DATADIR, "wflow", "N_river_mapping.csv"),
+        **kwargs,
     ):
         """
-        This component sets the river parameter maps including a boolean river mask,
-        length, slope.
+        This component sets the all river parameter maps.
 
-        The river mask is based on the ``river_upa`` [km2] threshold, by default 30 km2.
-        The length is defined as the distance from the subgrid outlet pixel to the next
-        upstream subgrid outlet pixel. The slope is derived from the subgrid
-        elevation difference between pixels at a half distance ``slope_len`` [km] up- and downstream
-        from the subgrid outlet pixel, by default 2 km. If a pixel has multiple upstream neighbors the pixel
-        with the largest upstream area is selected. The river elevation is based on the elevation of the river
-        bed at outlet pixels of a cell. A dem_adjust step is added to make sure the elevation of the river bed
-        decreases or stays the same as we go downstream along the river network Manning coefficient is derived
-        based on a lookup table of the streamorder map.
+        The river mask is defined by all cells with a mimimum upstream area threshold
+        `river_upa` [km2].
+
+        The river length is defined as the distance from the subgrid outlet pixel to
+        the next upstream subgrid outlet pixel.
+
+        The river slope is derived from the subgrid elevation difference between pixels at a
+        half distance `slope_len` [m] up- and downstream from the subgrid outlet pixel.
+
+        The river manning roughness coefficient is derived based on reclassification
+        of the streamorder map using a lookup table `rivman_mapping_fn`.
+
+        The river width is derived from the nearest river segment in `river_geom_fn`.
+        Data gaps are filled by the nearest valid upstream value and averaged along
+        the flow directions over a length `smooth_len` [m]
+
+        The river depth is calculated using the `rivdph_method`, by default powlaw:
+        h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
+        segment in `river_geom_fn` and takes optional arguments for the hc
+        (default = 0.27) and hp (default = 0.30) parameters. For other methods see
+        :py:meth:`hydromt.workflows.river_depth`.
 
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
         * **wflow_riverlength** map: river length [m]
+        * **wflow_riverwidth** map: river width [m]
+        * **RiverDepth** map: bankfull river depth [m]
         * **RiverSlope** map: river slope [m/m]
-        * **N_River** map: Manning coefficient for river cells [add]
-        * **RiverZ** map: elevation of the river bed for rivercells only [m]
+        * **N_River** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
         ----------
-        hydrography_fn : str, path
-            Name of data source for basemap parameters, see data/data_sources.yml.
-            Must be same as setup_basemaps for consitent results.
+        hydrography_fn : str, Path
+            Name of data source for hydrography data.
+            Must be same as setup_basemaps for consistent results.
+
+            * Required variables: ['flwdir', 'uparea', 'elevtn']
+            * Optional variables: ['rivwth', 'qbankfull']
+        river_geom_fn : str, Path, optional
+            Name of data source for river data.
+
+            * Required variables: ['rivwth', 'qbankfull']
         river_upa : float
             minimum upstream area threshold for the river map [km2]
         slope_len : float
             length over which the river slope is calculated [km]
         min_rivlen_ratio: float
             minimum global river length to avg. cell resolution ratio, by default 0.1
+        rivdph_method : {'gvf', 'manning', 'powlaw'}
+            see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+        smooth_len : float, optional
+            Length [m] over which to smooth the output river width and depth, by default 5e3
+        min_rivdph : float, optional
+            Minimum river depth [m], by default 1.0
+        min_rivwth : float, optional
+            Minimum river width [m], by default 30.0
+
+        See Also
+        --------
+        workflows.river_bathymetry
+        hydromt.workflows.river_depth
+        pyflwdir.FlwdirRaster.river_depth
         """
         self.logger.info(f"Preparing river maps.")
 
-        # derive river mask, length, slope
-        ds_base = self.data_catalog.get_rasterdataset(
-            hydrography_fn, geom=self.region, buffer=2
+        # read data
+        ds_hydro = self.data_catalog.get_rasterdataset(
+            hydrography_fn, geom=self.region, buffer=10
         )
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
 
-        ds_riv = river(
-            ds=ds_base,
-            ds_like=self.staticmaps.rename(inv_rename),
+        # get rivmsk, rivlen, rivslp
+        # read model maps and revert wflow to hydromt map names
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        ds_riv = workflows.river(
+            ds=ds_hydro,
+            ds_model=self.staticmaps.rename(inv_rename),
             river_upa=river_upa,
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
             logger=self.logger,
         )[0]
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv.data_vars}
-        self.set_staticmaps(ds_riv.rename(rmdict))
+        dvars = ["rivmsk", "rivlen", "rivslp"]
+        rmdict = {k: self._MAPS.get(k, k) for k in dvars}
+        self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 
+        # TODO make separate workflows.river_manning  method
         # Make N_River map from csv file with mapping between streamorder and N_River value
-        if n_river_mapping is None:
-            fn_map = join(DATADIR, "wflow", "N_river_mapping.csv")
-        else:
-            fn_map = n_river_mapping
         strord = self.staticmaps[self._MAPS["strord"]].copy()
-        df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python")
+        df = pd.read_csv(rivman_mapping_fn, index_col=0, sep=",|;", engine="python")
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
-        # if streamroder value larger than max_str, assign last value
+        # if streamorder value larger than max_str, assign last value
         strord = strord.where(strord <= max_str, max_str)
         # handle missing value (last row of csv is mapping of missing values)
         strord = strord.where(strord != strord.raster.nodata, -999)
         strord.raster.set_nodata(-999)
-
-        ds_nriver = landuse(
+        ds_nriver = workflows.landuse(
             da=strord,
             ds_like=self.staticmaps,
-            fn_map=fn_map,
+            fn_map=rivman_mapping_fn,
             logger=self.logger,
         )
-
         self.set_staticmaps(ds_nriver)
+
+        # get rivdph, rivwth
+        # while we still have setup_riverwidth one can skip river_bathymetry here
+        # TODO make river_geom_fn required after removing setup_riverwidth
+        if river_geom_fn is not None:
+            gdf_riv = self.data_catalog.get_geodataframe(
+                river_geom_fn, geom=self.region
+            )
+            # reread model data to get river maps
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            ds_riv1 = workflows.river_bathymetry(
+                ds_model=self.staticmaps.rename(inv_rename),
+                gdf_riv=gdf_riv,
+                method=rivdph_method,
+                smooth_len=smooth_len,
+                min_rivdph=min_rivdph,
+                min_rivwth=min_rivwth,
+                logger=self.logger,
+                **kwargs,
+            )
+            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
+            self.set_staticmaps(ds_riv1.rename(rmdict))
+            # update config
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
         self.logger.debug(f"Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
+
+    def setup_hydrodem(
+        self,
+        elevtn_map="wflow_dem",
+        river_routing="local-inertial",
+        land_routing="kinematic-wave",
+    ):
+        """This component adds a hydrologically conditioned elevation (hydrodem) map for
+        river and/or land local-inertial routing.
+
+        River cells are always conditioned to D8 flow directions.  Land cells are conditioned
+        to D4 flow directions if land_routing="local-inertial", else to D8.
+
+        The conditioned elevation can be based on the average cell elevation ("wflow_dem")
+        or subgrid outlet pixel elevation ("dem_subgrid"). For local-inertial river
+        routing the subgrid elevation might provide a better representation of the river
+        elevation profile, however in combination with local-inertial land routing the
+        subgrid elevation will likely overestimate the floodplain storage capacity.
+
+        Note that the same input elevation map should be used for river bankfull elevation
+        and land elevation when using local-inertial land routing.
+
+        Adds model layers:
+
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF].
+
+        Parameters
+        ----------
+        elevtn_map: {"wflow_dem", "dem_subgrid"}
+            Name of staticmap to hydrologically condition, by default "wflow_dem".
+        river_routing, land_routing : {"kinematic-wave", "local-inertial"}
+            changes wflow config model.river_routing (by default "local-inertial")
+            and model.land_routing (default "kinematic-wave")
+
+        See Also
+        --------
+        hydromt.flw.dem_adjust
+        pyflwdir.FlwdirRaster.dem_adjust
+        """
+        r_list = ["kinematic-wave", "local-inertial"]
+        if not elevtn_map in self.staticmaps:
+            raise ValueError(f'"{elevtn_map}" not found in staticmaps')
+        if river_routing not in r_list:
+            raise ValueError(
+                f'river_routing="{river_routing}" unknown. Select from {r_list}.'
+            )
+        if land_routing not in r_list:
+            raise ValueError(
+                f'land_routing="{land_routing}" unknown. Select from {r_list}.'
+            )
+
+        postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(elevtn_map, "")
+        name = f"hydrodem{postfix}"
+
+        self.logger.info(f"Preparing {name} map for routing.")
+        connectivity = {"local-inertial": 4, "kinematic-wave": 8}[land_routing]
+        ds_out = flw.dem_adjust(
+            da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+            da_elevtn=self.staticmaps[elevtn_map],
+            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+            flwdir=self.flwdir,
+            connectivity=connectivity,
+            river_d8=True,
+            logger=self.logger,
+        ).rename(name)
+        self.set_staticmaps(ds_out)
+
+        # update toml model.river_routing
+        self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
+        self.set_config("model.river_routing", river_routing)
+        self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
+        self.set_config("model.land_routing", land_routing)
+        if river_routing == "local-inertial":
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+        if land_routing == "local-inertial":
+            self.set_config("input.lateral.land.elevation", name)
+            self.config["state"]["lateral"]["land"].pop("q", None)
+            self.config["output"]["lateral"]["land"].pop("q", None)
+            self.set_config("state.lateral.land.qx", "qx_land")
+            self.set_config("state.lateral.land.qy", "qy_land")
+        else:
+            self.config["state"]["lateral"]["land"].pop("qx", None)
+            self.config["state"]["lateral"]["land"].pop("qy", None)
+            self.config["output"]["lateral"]["land"].pop("qx", None)
+            self.config["output"]["lateral"]["land"].pop("qy", None)
+            self.set_config("state.lateral.land.q", "q_land")
 
     def setup_riverwidth(
         self,
@@ -372,9 +520,13 @@ class WflowModel(Model):
         climate_fn: {'koppen_geiger'}
             Source of long-term climate grid if the predictor is set to 'discharge'.
         """
+        self.logger.warning(
+            'The "setup_riverwidth" method has been deprecated and will soon be removed. '
+            'You can now use the "setup_river" method for all river parameters.'
+        )
         if not self._MAPS["rivmsk"] in self.staticmaps:
             raise ValueError(
-                "The setup_riverwidth method requies to run setup_river method first."
+                'The "setup_riverwidth" method requires to run setup_river method first.'
             )
 
         # derive river width
@@ -393,7 +545,7 @@ class WflowModel(Model):
             data["da_climate"] = da_climate
 
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
-        da_rivwth = river_width(
+        da_rivwth = workflows.river_width(
             ds_like=self.staticmaps.rename(inv_rename),
             flwdir=self.flwdir,
             data=data,
@@ -470,7 +622,7 @@ class WflowModel(Model):
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
         )
         # process landuse
-        ds_lulc_maps = landuse(
+        ds_lulc_maps = workflows.landuse(
             da=da,
             ds_like=self.staticmaps,
             fn_map=fn_map,
@@ -482,7 +634,7 @@ class WflowModel(Model):
 
     def setup_laimaps(self, lai_fn="model_lai"):
         """
-        This component sets leaf area index (LAI) climatoloy maps per month.
+        This component sets leaf area index (LAI) climatology maps per month.
 
         The values are resampled to the model resolution using the average value.
         The only ``lai_fn`` currently supported is "modis_lai" based on MODIS data.
@@ -506,7 +658,7 @@ class WflowModel(Model):
         # retrieve data for region
         self.logger.info(f"Preparing LAI maps.")
         da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
-        da_lai = lai(
+        da_lai = workflows.lai(
             da=da,
             ds_like=self.staticmaps,
             logger=self.logger,
@@ -537,7 +689,7 @@ class WflowModel(Model):
         If a csv file is provided, a "x" or "lon" and "y" or "lat" column is required
         and the first column will be used as IDs in the map. If ``snap_to_river`` is set
         to True, the gauge location will be snapped to the boolean river mask. If
-        ``derive_subcatch`` is set to True, an additonal subcatch map is derived from
+        ``derive_subcatch`` is set to True, an additional subcatch map is derived from
         the gauge locations.
 
         Adds model layers:
@@ -888,7 +1040,7 @@ class WflowModel(Model):
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         priority_jrc : boolean, optional
-            If True, use JRC water occurence (Pekel,2016) data from GEE to calculate
+            If True, use JRC water occurrence (Pekel,2016) data from GEE to calculate
             and overwrite the reservoir volume/areas of the data source.
         """
         # rename to wflow naming convention
@@ -938,7 +1090,7 @@ class WflowModel(Model):
                 reservoir_accuracy = None
             # else compute
             else:
-                intbl_reservoirs, reservoir_accuracy = reservoirattrs(
+                intbl_reservoirs, reservoir_accuracy = workflows.reservoirattrs(
                     gdf=gdf_org,
                     priorityJRC=priority_jrc,
                     usehe=kwargs.get("usehe", True),
@@ -1009,7 +1161,7 @@ class WflowModel(Model):
                     "Database coordinates used instead"
                 )
                 uparea_name = None
-            ds_waterbody, gdf_wateroutlet = waterbodymaps(
+            ds_waterbody, gdf_wateroutlet = workflows.waterbodymaps(
                 gdf=gdf_org,
                 ds_like=self.staticmaps,
                 wb_type=wb_type,
@@ -1080,7 +1232,7 @@ class WflowModel(Model):
         self.logger.info(f"Preparing soil parameter maps.")
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
-        dsout = soilgrids(
+        dsout = workflows.soilgrids(
             dsin,
             self.staticmaps,
             ptf_ksatver,
@@ -1092,7 +1244,7 @@ class WflowModel(Model):
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
         This component generates maps of glacier areas, area fraction and volume fraction,
-        as well as tables with temperature thresohld, melting factor and snow-to-ice
+        as well as tables with temperature threshold, melting factor and snow-to-ice
         convertion fraction.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
@@ -1145,7 +1297,7 @@ class WflowModel(Model):
                 f"{nb_glac} glaciers of sufficient size found within region."
             )
             # add glacier maps
-            ds_glac = glaciermaps(
+            ds_glac = workflows.glaciermaps(
                 gdf=gdf_org,
                 ds_like=self.staticmaps,
                 id_column="simple_id",
@@ -1245,7 +1397,7 @@ class WflowModel(Model):
                 variables=["precip"],
             )
 
-        precip_out = workflows.forcing.precip(
+        precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
             da_like=self.staticmaps[self._MAPS["elevtn"]],
             clim=clim,
@@ -1300,7 +1452,7 @@ class WflowModel(Model):
              If temp_correction is True and dem_forcing_fn is provided this is used in
              combination with elevation at model resolution to correct the temperature.
         skip_pet : bool, optional
-            If True caculate temp only.
+            If True calculate temp only.
         chunksize: int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
@@ -1322,7 +1474,7 @@ class WflowModel(Model):
                 variables += ["press_msl", "kin"]
             else:
                 methods = ["debruin", "makking"]
-                ValueError(f"Unkwown pet method {pet_method}, select from {methods}")
+                ValueError(f"Unknown pet method {pet_method}, select from {methods}")
 
         ds = self.data_catalog.get_rasterdataset(
             temp_pet_fn,
@@ -1345,7 +1497,7 @@ class WflowModel(Model):
                 variables=["elevtn"],
             ).squeeze()
 
-        temp_in = workflows.forcing.temp(
+        temp_in = hydromt.workflows.forcing.temp(
             ds["temp"],
             dem_model=self.staticmaps[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
@@ -1356,7 +1508,7 @@ class WflowModel(Model):
         )
 
         if not skip_pet:
-            pet_out = workflows.forcing.pet(
+            pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
                 dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 temp=temp_in,
@@ -1376,7 +1528,7 @@ class WflowModel(Model):
             self.set_forcing(pet_out.where(mask), name="pet")
 
         # resample temp after pet workflow
-        temp_out = workflows.forcing.resample_time(
+        temp_out = hydromt.workflows.forcing.resample_time(
             temp_in,
             freq,
             upsampling="bfill",  # we assume right labeled original data
@@ -1431,7 +1583,7 @@ class WflowModel(Model):
         if fn is not None and isfile(fn):
             self.logger.info(f"Read staticmaps from {fn}")
             # FIXME: we need a smarter (lazy) solution for big models which also
-            # works when overwriting / apending data in thet same source!
+            # works when overwriting / appending data in the same source!
             ds = xr.open_dataset(fn, mask_and_scale=False, **kwargs).load()
             ds.close()
             self.set_staticmaps(ds)
@@ -1893,7 +2045,7 @@ class WflowModel(Model):
         basins_name = self._MAPS["basins"]
         flwdir_name = self._MAPS["flwdir"]
 
-        kind, region = workflows.parse_region(region, logger=self.logger)
+        kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         # translate basin and outlet kinds to geom
         geom = region.get("geom", None)
         bbox = region.get("bbox", None)
@@ -1901,7 +2053,7 @@ class WflowModel(Model):
             # supply bbox to avoid getting basin bounds first when clipping subbasins
             if kind == "subbasin" and bbox is None:
                 region.update(bbox=self.bounds)
-            geom, _ = workflows.get_basin_geometry(
+            geom, _ = hydromt.workflows.get_basin_geometry(
                 ds=self.staticmaps,
                 logger=self.logger,
                 kind=kind,

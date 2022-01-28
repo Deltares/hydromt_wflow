@@ -1,26 +1,21 @@
 # -*- coding: utf-8 -*-
-"""
-@author: haag (2019)
-
-Derives river/stream widths to construct a riverwidth map (wflow_riverwidth.map) to be used in a wflow model.
-"""
+"""Workflows to derive river for a wflow model."""
 
 from os.path import join
 import numpy as np
 from scipy.optimize import curve_fit
 import xarray as xr
 import pandas as pd
+import geopandas as gpd
 import logging
+import pyflwdir
 
-from hydromt import gis_utils, stats, flw
+from hydromt import gis_utils, stats, flw, workflows
 from hydromt_wflow import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "river",
-    "river_width",
-]
+__all__ = ["river", "river_bathymetry", "river_width"]
 
 RESAMPLING = {"climate": "nearest", "precip": "average"}
 NODATA = {"discharge": -9999}
@@ -32,13 +27,12 @@ def power_law(x, a, b):
 
 def river(
     ds,
-    ds_like=None,
+    ds_model=None,
     river_upa=30.0,
-    slope_len=1e3,
-    channel_dir="up",
+    slope_len=2e3,
     min_rivlen_ratio=0.1,
+    channel_dir="up",
     logger=logger,
-    **kwargs,
 ):
     """Returns river maps
 
@@ -46,17 +40,18 @@ def river(
     - rivmsk : river mask based on upstream area threshold on upstream area\
     - rivlen : river length [m], minimum set to 1/4 cell res\
     - rivslp : smoothed river slope [m/m]\
-    - rivwth_obs : river width at pixel outlet (if in ds)
-    - rivbed : elevation of the river bed based on pixel outlet 
+    - rivzs : elevation of the river bankfull height based on pixel outlet 
+    - rivwth : river width at pixel outlet (if in ds)
+    - qbankfull : bankfull discharge at pixel outlet (if in ds)
 
     Parameters
     ----------
     ds: xr.Dataset
-        dataset containing "flwdir", "uparea", "elevtn" variables; and optional
-        "rivwth" variable
-    ds_like: xr.Dataset, optional
-        dataset with output grid, must contain "uparea", for subgrid rivlen/slp
-        must contain "x_out", "y_out". If None, takes ds grid for output
+        hydrography dataset containing "flwdir", "uparea", "elevtn" variables; 
+        and optional "rivwth" and "qbankfull" variable
+    ds_model: xr.Dataset, optional
+        model dataset with output grid, must contain "uparea", for subgrid rivlen/slp
+        must contain "x_out", "y_out". If None, ds is assumed to be the model grid
     river_upa: float
         minimum threshold to define river cell & pixels, by default 30 [km2]
     slope_len: float
@@ -70,111 +65,232 @@ def river(
     ds_out: xr.Dataset
         Dataset with output river attributes
     """
-
-    # sort options
+    # check data variables.
     dvars = ["flwdir", "uparea", "elevtn"]
-    dvars_like = ["x_out", "y_out", "uparea"]
+    dvars_model = ["flwdir", "uparea"]
+    if not np.all([v in ds for v in dvars]):
+        raise ValueError(f"One or more variables missing from ds: {dvars}.")
+    if ds_model is not None and not np.all([v in ds_model for v in dvars_model]):
+        raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
+    # sort sugrid
     subgrid = True
-    for name in dvars:
-        if name not in ds.data_vars:
-            raise ValueError(f"Dataset variable {name} not in ds.")
-    if ds_like is None or not np.all([v in ds_like for v in dvars_like]):
+    if ds_model is None or not np.all([v in ds_model for v in ["x_out", "y_out"]]):
         subgrid = False
+        ds_model = ds
         logger.info("River length and slope are calculated at model resolution.")
-        ds_like = ds
 
-    logger.debug(f"Set river mask with upstream area threshold: {river_upa} km2.")
-    dims = ds_like.raster.dims
-    _mask = ds_like["uparea"] > river_upa  # initial mask
-    _mask_org = ds["uparea"].values >= river_upa  # highres riv mask
+    ## river mask and flow directions at model grid
+    logger.debug(f"Set river mask (min uparea: {river_upa} km2) and prepare flow dirs.")
+    riv_mask = ds_model["uparea"] > river_upa  # initial mask
+    mod_mask = ds_model["uparea"] != ds_model["uparea"].raster.nodata
 
-    logger.debug("Derive river length.")
+    ## (high res) flwdir and outlet indices
+    riv_mask_org = ds["uparea"].values >= river_upa  # highres riv mask
     flwdir = flw.flwdir_from_da(ds["flwdir"], mask=True)
     if subgrid == False:
         # get cell index of river cells
-        idxs_out = np.arange(ds_like.raster.size).reshape(ds_like.raster.shape)
-        idxs_out = np.where(_mask, idxs_out, flwdir._mv)
+        idxs_out = np.arange(ds_model.raster.size).reshape(ds_model.raster.shape)
+        idxs_out = np.where(mod_mask, idxs_out, flwdir._mv)
     else:
         # get subgrid outlet pixel index
         idxs_out = ds.raster.xy_to_idx(
-            xs=ds_like["x_out"].values,
-            ys=ds_like["y_out"].values,
-            mask=_mask.values,
+            xs=ds_model["x_out"].values,
+            ys=ds_model["y_out"].values,
+            mask=mod_mask.values,
             nodata=flwdir._mv,
         )
 
+    ## river length
     # get river length based on on-between distance between two outlet pixels
-    msk = _mask.values
+    logger.debug("Derive river length.")
     rivlen = flwdir.subgrid_rivlen(
         idxs_out=idxs_out,
-        mask=_mask_org,
+        mask=riv_mask_org,
         direction=channel_dir,
         unit="m",
     )
-
+    xres, yres = ds_model.raster.res
+    if ds_model.raster.crs.is_geographic:  # convert degree to meters
+        lat_avg = ds_model.raster.ycoords.values.mean()
+        xres, yres = gis_utils.cellres(lat_avg, xres, yres)
+    res = np.mean(np.abs([xres, yres]))
     # minimum river length equal 10% of cellsize
-    xres, yres = ds_like.raster.res
-    if ds_like.raster.crs.is_geographic:  # convert degree to meters
-        xres, yres = gis_utils.cellres(ds_like.raster.ycoords.values.mean(), xres, yres)
-    min_len = np.mean(np.abs([xres, yres])) * min_rivlen_ratio
-    rivlen = np.where(msk, np.maximum(rivlen, min_len), -9999)
-
-    # bed level
-    # readout elevation of bedlevel on outlet pixels
-    bed_level = ds["elevtn"].values.flat[idxs_out]
-
-    # make model resolution masked flwdir for rivers
-    da_flw_model = ds_like["flwdir"].copy()
-    # da_flw_model = da_flw_model.assign_coords(mask=_mask)
-    # indices van flwdir
-    flwdir_model = flw.flwdir_from_da(da_flw_model, mask=_mask)
-
-    # hydrologically adjust
-    bed_level_adjust = flwdir_model.dem_adjust(bed_level)
-    #    (bed_level[msk] != bed_level_adjust[msk]).sum()
-
-    # mask to keep river cells
-    bed_level_adjust = np.where(msk, bed_level_adjust, -9999)
-
-    # add diff and log
-    diff = flwdir_model.downstream(bed_level_adjust) - bed_level_adjust
-    if np.all(diff <= 0) == False:
-        logger.warning(
-            "Erroneous increase in riverbed level in downstream direction found."
-        )
-
+    min_len = res * min_rivlen_ratio
+    rivlen = np.where(riv_mask.values, np.maximum(rivlen, min_len), -9999)
+    rivlen_avg = np.mean(rivlen[riv_mask.values])
     # set mean length at pits when taking the downstream length
     if channel_dir == "down":
-        rivlen.flat[flwdir.idxs_pit] = np.mean(rivlen[_mask])
+        rivlen.flat[flwdir.idxs_pit] = rivlen_avg
 
-    # get river slope as derivative of elevation around outlet pixels
+    ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
         idxs_out=idxs_out,
         elevtn=ds["elevtn"].values,
-        mask=_mask_org,
+        mask=riv_mask_org,
         length=slope_len,
     )
-    rivslp = np.where(msk, rivslp, -9999)
+    rivslp = np.where(riv_mask.values, rivslp, -9999)
 
-    # create xarray dataset for river mask, length and width
-    ds_out = xr.Dataset(coords=ds_like.raster.coords)
-    ds_out["rivmsk"] = xr.Variable(dims, msk, attrs=dict(_FillValue=0))
+    # create xarray dataset for all river variables
+    ds_out = xr.Dataset(coords=ds_model.raster.coords)
+    dims = ds_model.raster.dims
+    riv_mask.raster.set_nodata(0)
+    ds_out["rivmsk"] = riv_mask
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
     ds_out["rivslp"] = xr.Variable(dims, rivslp, attrs=attrs)
-    attrs = dict(_FillValue=-9999, unit="m")
-    ds_out["rivbed"] = xr.Variable(dims, bed_level_adjust, attrs=attrs)
 
-    # add river width at outlet pixels if in source
-    if "rivwth" in ds:
-        rivwth = np.full(msk.shape, -9999.0, dtype=np.float32)
-        rivwth[msk] = ds["rivwth"].values.flat[idxs_out[msk]]
-        attrs = dict(_FillValue=-9999, unit="m")
-        ds_out["rivwth_obs"] = xr.Variable(dims, rivwth, attrs=attrs)
+    for name in ["rivwth", "qbankfull"]:
+        if name in ds:
+            logger.debug(f"Derive {name} from hydrography dataset.")
+            data = np.full_like(riv_mask, -9999, dtype=np.float32)
+            data0 = ds[name].values.flat[idxs_out[riv_mask.values]]
+            data[riv_mask.values] = np.where(data0 > 0, data0, -9999)
+            ds_out[name] = xr.Variable(dims, data, attrs=dict(_FillValue=-9999))
 
     return ds_out, flwdir
+
+
+def river_bathymetry(
+    ds_model: xr.Dataset,
+    gdf_riv: gpd.GeoDataFrame,
+    method: str = "powlaw",
+    smooth_len: float = 5e3,
+    min_rivdph: float = 1.0,
+    min_rivwth: float = 30.0,
+    logger=logger,
+    **kwargs,
+) -> xr.Dataset:
+    """Get river width and bankfull discharge from `gdf_riv` to estimate river depth
+    using :py:meth:`hydromt.workflows.river_depth`. Missing values in rivwth are first
+    filled using downward filling and remaining  (upstream) missing values are set
+    to min_rivwth (for rivwth) and 0 (for qbankfull).
+
+    Parameters
+    ----------
+    ds_model : xr.Dataset
+        Model dataset with 'flwdir', 'rivmsk', 'rivlen', 'x_out' and 'y_out' variables.
+    gdf_riv : gpd.GeoDataFrame
+        River geometry with 'rivwth' and 'qbankfull' columns.
+    method : {'gvf', 'manning', 'powlaw'}
+        see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+    smooth_len : float, optional
+        Length [m] over which to smooth the output river width and depth, by default 5e3
+    min_rivdph : float, optional
+        Minimum river depth [m], by default 1.0
+    min_rivwth : float, optional
+        Minimum river width [m], by default 30.0
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with 'rivwth' and 'rivdph' variables
+    """
+    dims = ds_model.raster.dims
+    # check data variables.
+    dvars_model = ["flwdir", "rivmsk", "rivlen"]
+    if method != "powlaw":
+        dvars_model += ["rivslp", "rivzs"]
+    if not np.all([v in ds_model for v in dvars_model]):
+        raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
+
+    # setup flow direction for river
+    riv_mask = ds_model["rivmsk"].values == 1
+    flwdir_river = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
+    rivlen_avg = ds_model["rivlen"].values[riv_mask].mean()
+
+    ## river width and bunkfull discharge
+    vars0 = ["rivwth", "qbankfull"]
+    # find nearest values from river shape if provided
+    # if None assume the data is in ds_model
+    if gdf_riv is not None:
+        vars = [c for c in vars0 if c in gdf_riv.columns]
+        if len(vars) == 0:
+            raise ValueError(f" columns {vars0} not found in gdf_riv")
+        logger.debug(f"Derive {vars} from shapefile.")
+        if "x_out" in ds_model and "y_out" in ds_model:
+            # get subgrid outlet pixel index and coordinates
+            xs_out = ds_model["x_out"].values[riv_mask]
+            ys_out = ds_model["y_out"].values[riv_mask]
+        else:
+            # get river cell coordinates
+            row, col = np.where(riv_mask)
+            xs_out = ds_model.raster.xcoords.values[col]
+            ys_out = ds_model.raster.ycoords.values[row]
+        gdf_out = gpd.GeoDataFrame(
+            geometry=gpd.points_from_xy(xs_out, ys_out), crs=ds_model.raster.crs
+        )
+        idx_nn, dst_nn = gis_utils.nearest(gdf_out, gdf_riv)
+        # get valid river data within max half pixel distance
+        xres, yres = ds_model.raster.res
+        if ds_model.raster.crs.is_geographic:  # convert degree to meters
+            lat_avg = ds_model.raster.ycoords.values.mean()
+            xres, yres = gis_utils.cellres(lat_avg, xres, yres)
+        max_dist = np.mean(np.abs([xres, yres])) / 2.0
+        nriv, nsnap = xs_out.size, int(np.sum(dst_nn < max_dist))
+        logger.debug(
+            f"Valid for {nsnap}/{nriv} river cells (max dist: {max_dist:.0f} m)."
+        )
+        for name in vars:
+            data = np.full_like(riv_mask, -9999, dtype=np.float32)
+            data[riv_mask] = np.where(
+                dst_nn < max_dist, gdf_riv.loc[idx_nn, name].fillna(-9999).values, -9999
+            )
+            ds_model[name] = xr.Variable(dims, data, attrs=dict(_FillValue=-9999))
+    # TODO fallback option when qbankfull is missing.
+    assert "qbankfull" in ds_model and "rivwth" in ds_model
+    # fill gaps in data using downward filling along flow directions
+    for name in vars0:
+        data = ds_model[name].values
+        nodata = ds_model[name].raster.nodata
+        if np.all(data[riv_mask] != nodata):
+            continue
+        data = flwdir_river.fillnodata(data, nodata, direction="down", how="max")
+        ds_model[name].values = np.maximum(0, data)
+    # smooth by averaging along flow directions and set minimum
+    if smooth_len > 0:
+        nsmooth = min(1, int(round(smooth_len / rivlen_avg / 2)))
+        kwgs = dict(n=nsmooth, restrict_strord=True)
+        ds_model["rivwth"].values = flwdir_river.moving_average(
+            ds_model["rivwth"].values, nodata=ds_model["rivwth"].raster.nodata, **kwgs
+        )
+    ds_model["rivwth"] = np.maximum(min_rivwth, ds_model["rivwth"]).where(
+        riv_mask, ds_model["rivwth"].raster.nodata
+    )
+
+    ## river depth
+    # distance to outlet; required for manning and gvf rivdph methods
+    if method != "powlaw" and "rivdst" not in ds_model:
+        rivlen = ds_model["rivlen"].values
+        nodata = ds_model["rivlen"].raster.nodata
+        rivdst = flwdir_river.accuflux(rivlen, nodata=nodata, direction="down")
+        ds_model["rivdst"] = xr.Variable(dims, rivdst, attrs=dict(_FillValue=nodata))
+    # add river distance to outlet -> required for manning/gvf method
+    rivdph = workflows.river_depth(
+        data=ds_model,
+        flwdir=flwdir_river,
+        method=method,
+        min_rivdph=min_rivdph,
+        **kwargs,
+    )
+    attrs = dict(_FillValue=-9999, unit="m")
+    ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
+    # smooth by averaging along flow directions and set minimum
+    if smooth_len > 0:
+        ds_model["rivdph"].values = flwdir_river.moving_average(
+            ds_model["rivdph"].values, nodata=-9999, **kwgs
+        )
+    ds_model["rivdph"] = np.maximum(min_rivdph, ds_model["rivdph"]).where(
+        riv_mask, -9999
+    )
+
+    return ds_model[["rivwth", "rivdph"]]
+
+
+# TODO: methods below are redundant after version v0.1.4 and will be removed in
+# future versions
 
 
 def river_width(

@@ -34,7 +34,7 @@ Setup components
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
    WflowModel.setup_soilmaps
-   WflowModel.setup_riverwidth
+   WflowModel.setup_hydrodem
    WflowModel.setup_gauges
    WflowModel.setup_areamap
    WflowModel.setup_precip_forcing
@@ -121,7 +121,7 @@ Initialize
 
    WflowSedimentModel
 
-.. _components:
+.. _components_sediment:
 
 Setup components
 ----------------
@@ -219,9 +219,11 @@ Wflow workflows
 .. autosummary::
    :toctree: ../generated/
 
-   workflows.landuse
+   workflows.hydrography
+   workflows.topography
    workflows.river
-   workflows.river_width
+   workflows.river_bathymetry
+   workflows.landuse
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.waterbodymaps
