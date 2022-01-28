@@ -227,6 +227,7 @@ class WflowModel(Model):
         ds_topo = workflows.topography(
             ds=ds_org, ds_like=self.staticmaps, method="average", logger=self.logger
         )
+        ds_topo["lndslp"] = np.maximum(ds_topo["lndslp"], 0.0)
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
         self.set_staticmaps(ds_topo.rename(rmdict))
         # set basin geometry
