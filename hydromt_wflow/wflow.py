@@ -729,9 +729,9 @@ class WflowModel(Model):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
 
-        The data is generated from features with ``min_area`` [km2] from a database with
-        lake geometry, IDs and metadata. Currently, "hydro_lakes" (hydroLakes) is the only
-        supported ``lakes_fn`` data source and we use a default minimum area of 1 km2.
+        The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with
+        lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id', average area 'Area_avg' [m2],
+        average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
 
         Adds model layers:
 
@@ -768,9 +768,6 @@ class WflowModel(Model):
             "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
         }
 
-        if lakes_fn not in self.data_catalog:
-            self.logger.warning(f"Invalid source '{lakes_fn}', skipping setup_lakes.")
-            return
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
@@ -840,14 +837,30 @@ class WflowModel(Model):
         priority_jrc=True,
         **kwargs,
     ):
-        """This component generates maps of lake areas and outlets as well as parameters
+        """This component generates maps of reservoir areas and outlets as well as parameters
         with average reservoir area, demand, min and max target storage capacities and
         discharge capacity values.
 
-        The data is generated from features with ``min_area`` [km2]
+        The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with reservoir geometry, IDs and metadata.
-        Currently, "hydro_reservoirs" (based on GRAND) is the only supported ``reservoirs_fn``
-        data source and we use a default minimum area of 1 km2.
+
+        Data requirements for direct use (ie wflow parameters are data already present in reservoirs_fn)
+        are reservoir ID 'waterbody_id', area 'ResSimpleArea' [m2], maximum volume 'ResMaxVolume' [m3],
+        the targeted minimum and maximum fraction of water volume in the reservoir 'ResTargetMinFrac'
+        and 'ResTargetMaxFrac' [-], the average water demand ResDemand [m3/s] and the maximum release of
+        the reservoir before spilling 'ResMaxRelease' [m3/s].
+
+        In case the wflow parameters are not directly available they can be computed by HydroMT using other
+        reservoir characteristics. If not enough characteristics are available, the hydroengine tool will be
+        used to download additionnal timeseries from the JRC database.
+        The required variables for computation of the parameters with hydroengine are reservoir ID 'waterbody_id',
+        reservoir ID in the HydroLAKES database 'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg'
+        [m], average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
+        To compute parameters without using hydroengine, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
+        average area 'Area_avg' [m2], average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge 'Dis_avg'
+        [m3/s] and dam height 'Dam_height' [m] and minimum / normal / maximum storage capacity of the dam 'Capacity_min',
+        'Capacity_norm', 'Capacity_max' [m3].
+
 
 
         Adds model layers:
@@ -902,12 +915,6 @@ class WflowModel(Model):
             "input.lateral.river.reservoir.targetminfrac": "ResTargetMinFrac",
         }
 
-        # path or filename. get_geodataframe
-        if reservoirs_fn not in self.data_catalog:
-            self.logger.warning(
-                f"Invalid source '{reservoirs_fn}', skipping setup_reservoirs."
-            )
-            return
         gdf_org, ds_res = self._setup_waterbodies(reservoirs_fn, "reservoir", min_area)
         # TODO: check if there are missing values in the above columns of the parameters tbls =
         # if everything is present, skip calculate reservoirattrs() and directly make the maps
@@ -1088,10 +1095,12 @@ class WflowModel(Model):
         as well as tables with temperature thresohld, melting factor and snow-to-ice
         convertion fraction.
 
-        The data is generated from features with ``min_area`` [km2]
+        The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with glacier geometry, IDs and metadata.
-        Currently, "rgi" (Randolph Glacier Inventory) is the only supported ``glaciers_fn``
-        data source and we use a default minimum area of 1 km2.
+
+        The required variables from glaciers_fn dataset are glacier ID 'simple_id'.
+        Optionnally glacier area 'AREA' [km2] can be present to filter the glaciers
+        by size. If not present it will be computed on the fly.
 
         Adds model layers:
 
@@ -1121,11 +1130,6 @@ class WflowModel(Model):
             "input.vertical.g_sifrac": "G_SIfrac",
         }
         # retrieve data for basin
-        if glaciers_fn not in self.data_catalog:
-            self.logger.warning(
-                f"Invalid source '{glaciers_fn}', skipping setup_glaciers."
-            )
-            return
         self.logger.info(f"Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
             glaciers_fn, geom=self.basins, predicate="contains"
@@ -1144,7 +1148,7 @@ class WflowModel(Model):
             ds_glac = glaciermaps(
                 gdf=gdf_org,
                 ds_like=self.staticmaps,
-                id_column="simple_id",  # TODO set id as index in data adapter
+                id_column="simple_id",
                 elevtn_name=self._MAPS["elevtn"],
                 logger=self.logger,
             )
