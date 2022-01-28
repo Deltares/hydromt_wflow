@@ -16,6 +16,7 @@ Added
   Note that the new river width estimates are different and result in different model results.
 - moved basemaps workflows (hydrography and topography) from hydromt core.
 - new ID columns for the outlets staticgeoms
+- new ``index_col`` attribute to setup_gauges to choose a specific column of gauges_fn as ID for wflow_gauges
 
 Changed
 ^^^^^^^

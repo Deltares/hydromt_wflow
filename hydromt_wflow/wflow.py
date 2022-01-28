@@ -672,6 +672,7 @@ class WflowModel(Model):
         self,
         gauges_fn="grdc",
         source_gdf=None,
+        index_col=None,
         snap_to_river=True,
         mask=None,
         derive_subcatch=False,
@@ -708,6 +709,8 @@ class WflowModel(Model):
             Known source name or path to gauges file geometry file, by default None.
         source_gdf : geopandas.GeoDataFame, optional
             Direct gauges file geometry, by default None.
+        index_col : str, optional
+            Column in gauges_fn to use for ID values, by default None (use the default index column)
         snap_to_river : bool, optional
             Snap point locations to the closest downstream river cell, by default True
         mask : np.boolean, optional
@@ -742,7 +745,7 @@ class WflowModel(Model):
             gdf = gpd.GeoDataFrame(
                 index=ids_da.astype(np.int32), geometry=points, crs=self.crs
             )
-            gdf["ID"] = ids_da.astype(np.int32)
+            gdf["fid"] = ids_da.astype(np.int32)
             self.set_staticgeoms(gdf, name="gauges")
             self.logger.info(f"Gauges map based on catchment river outlets added.")
 
@@ -782,6 +785,9 @@ class WflowModel(Model):
                 self.logger.info(
                     f"{gdf.index.size} {basename} gauge locations found within domain"
                 )
+                # Set index to index_col
+                if index_col is not None and index_col in gdf:
+                    gdf = gdf.set_index(index_col)
                 xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
                     gdf["geometry"]
                 )
