@@ -19,15 +19,16 @@ Added
 Changed
 ^^^^^^^
 - Moved interpolate_na function to be done only on output dataset (i.e. on the model resolution), rather then on the original data resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.
+- setup_riverwidth method deprecated (will be removed in future versions) in favour of setup_rivers.
+- setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
+- Possibility to use any datasets and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers
 
 Fixed
 ^^^^^
 - Calculation of lake_b parameter in setup_lakes.
+- Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.
+- When writting several forcing files instead of one, their time_units should be the same to get one wflow run (time_units option in write_forcing)
 
-Changed
-^^^^^^^^
-- setup_riverwidth method deprecated (will be removed in future versions) in favour of setup_rivers.
-- setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
 
 v0.1.3 (4 October 2021)
 -------------------------
