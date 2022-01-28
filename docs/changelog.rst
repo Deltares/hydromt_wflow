@@ -15,6 +15,7 @@ Added
 - workflow.river.river_bathymetry method to derive river width and depth estimates. 
   Note that the new river width estimates are different and result in different model results.
 - moved basemaps workflows (hydrography and topography) from hydromt core.
+- new ID columns for the outlets staticgeoms
 
 Changed
 ^^^^^^^
@@ -28,6 +29,9 @@ Fixed
 - Calculation of lake_b parameter in setup_lakes.
 - Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.
 - When writting several forcing files instead of one, their time_units should be the same to get one wflow run (time_units option in write_forcing)
+- Filter gauges that could not be snapped to river (if snap_to_river is True) in setup_gauges
+- Avoid duplicates in the toml csv column for gauges
+- Fill missing values in landslope with zeros within the basin mask
 
 
 v0.1.3 (4 October 2021)

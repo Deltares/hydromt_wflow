@@ -731,7 +731,7 @@ class WflowModel(Model):
 
         if derive_outlet:
             self.logger.info(f"Gauges locations set based on river outlets.")
-            da, idxs, ids = flw.gaugemap(self.staticmaps, idxs=self.flwdir.idxs_pit)
+            da, idxs, ids = flw.gauge_map(self.staticmaps, idxs=self.flwdir.idxs_pit)
             # Only keep river outlets for gauges
             da = da.where(self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata)
             ids_da = np.unique(da.values[da.values > 0])
@@ -741,6 +741,7 @@ class WflowModel(Model):
             gdf = gpd.GeoDataFrame(
                 index=ids_da.astype(np.int32), geometry=points, crs=self.crs
             )
+            gdf["ID"] = ids_da.astype(np.int32)
             self.set_staticgeoms(gdf, name="gauges")
             self.logger.info(f"Gauges map based on catchment river outlets added.")
 
@@ -788,22 +789,31 @@ class WflowModel(Model):
 
                 if snap_to_river and mask is None:
                     mask = self.staticmaps[self._MAPS["rivmsk"]].values
-                da, idxs, _ = flw.gaugemap(
+                da, idxs, _ = flw.gauge_map(
                     self.staticmaps,
                     idxs=idxs,
                     ids=ids,
-                    mask=mask,
+                    stream=mask,
                     flwdir=self.flwdir,
                     logger=self.logger,
                 )
+                # Filter gauges that could not be snapped to rivers
+                if snap_to_river:
+                    da = da.where(
+                        self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata
+                    )
+                    ids_da = np.unique(da.values[da.values > 0])
+                    idxs_da = idxs[np.isin(ids, ids_da)]
 
                 mapname = f'{str(self._MAPS["gauges"])}_{basename}'
                 self.set_staticmaps(da, name=mapname)
 
                 # geoms
-                points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
+                points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
                 # if csv contains additional columns, these are also written in the staticgeoms
-                gdf_snapped = gpd.GeoDataFrame(index=ids, geometry=points, crs=self.crs)
+                gdf_snapped = gpd.GeoDataFrame(
+                    index=ids_da.astype(np.int32), geometry=points, crs=self.crs
+                )
                 gdf["geometry"] = gdf_snapped.geometry
                 # if first column has no name, give it a default name otherwise column is omitted when written to geojson
                 if gdf.index.name is None:
@@ -819,13 +829,14 @@ class WflowModel(Model):
                     self.set_config(f"input.gauges_{basename}", f"{mapname}")
                     if self.get_config("csv") is not None:
                         for o in range(len(gauge_toml_param)):
-                            self.config["csv"]["column"].append(
-                                {
-                                    "header": gauge_toml_header[o],
-                                    "map": f"gauges_{basename}",
-                                    "parameter": gauge_toml_param[o],
-                                }
-                            )
+                            gauge_toml_dict = {
+                                "header": gauge_toml_header[o],
+                                "map": f"gauges_{basename}",
+                                "parameter": gauge_toml_param[o],
+                            }
+                            # If the gauge outcsv column already exists skip writting twice
+                            if gauge_toml_dict not in self.config["csv"]["column"]:
+                                self.config["csv"]["column"].append(gauge_toml_dict)
                     self.logger.info(f"Gauges map from {basename} added.")
 
                 # add subcatch
