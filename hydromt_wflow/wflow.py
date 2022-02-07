@@ -796,7 +796,7 @@ class WflowModel(Model):
 
                 if snap_to_river and mask is None:
                     mask = self.staticmaps[self._MAPS["rivmsk"]].values
-                da, idxs, _ = flw.gauge_map(
+                da, idxs, ids = flw.gauge_map(
                     self.staticmaps,
                     idxs=idxs,
                     ids=ids,
@@ -806,26 +806,36 @@ class WflowModel(Model):
                 )
                 # Filter gauges that could not be snapped to rivers
                 if snap_to_river:
+                    ids_old = ids.copy()
                     da = da.where(
                         self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata
                     )
-                    ids_da = np.unique(da.values[da.values > 0])
-                    idxs_da = idxs[np.isin(ids, ids_da)]
-
+                    ids = np.unique(da.values[da.values > 0])
+                    idxs = idxs[np.isin(ids_old, ids)]
+                # Add to staticmaps
                 mapname = f'{str(self._MAPS["gauges"])}_{basename}'
                 self.set_staticmaps(da, name=mapname)
 
                 # geoms
-                points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
+                points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
                 # if csv contains additional columns, these are also written in the staticgeoms
                 gdf_snapped = gpd.GeoDataFrame(
-                    index=ids_da.astype(np.int32), geometry=points, crs=self.crs
+                    index=ids.astype(np.int32), geometry=points, crs=self.crs
                 )
-                gdf["geometry"] = gdf_snapped.geometry
-                # if first column has no name, give it a default name otherwise column is omitted when written to geojson
-                if gdf.index.name is None:
+                # Set the index name of gdf snapped based on original gdf
+                if gdf.index.name is not None:
+                    gdf_snapped.index.name = gdf.index.name
+                else:
+                    gdf_snapped.index.name = "fid"
                     gdf.index.name = "fid"
-                self.set_staticgeoms(gdf, name=mapname.replace("wflow_", ""))
+                # Add gdf attributes to gdf_snapped (filter on snapped index before merging)
+                df_attrs = pd.DataFrame(gdf.drop(columns="geometry"))
+                df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
+                gdf_snapped = gdf_snapped.merge(
+                    df_attrs, how="inner", on=gdf.index.name
+                )
+                # Add gdf_snapped to staticgeoms
+                self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
 
                 # # Add new outputcsv section in the config
                 if gauge_toml_param is None and update_toml:
