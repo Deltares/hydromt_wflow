@@ -482,7 +482,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     scaling_factor_1 = np.round(da_precip.raster.res[0] / ds_like.raster.res[0], 4)
     scaling_factor_2 = np.round(da_precip.raster.res[1] / ds_like.raster.res[1], 4)
     scaling_factor = (scaling_factor_1 + scaling_factor_2) / 2
-    precip = precip / scaling_factor ** 2
+    precip = precip / scaling_factor**2
 
     # derive cell areas (m2)
     lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values

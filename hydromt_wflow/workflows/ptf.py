@@ -33,18 +33,18 @@ def kv_brakensiek(thetas, clay, sand):
             19.52348 * thetas
             - 8.96847
             - 0.028212 * clay
-            + (1.8107 * 10 ** -4) * sand ** 2
-            - (9.4125 * 10 ** -3) * clay ** 2
-            - 8.395215 * thetas ** 2
+            + (1.8107 * 10**-4) * sand**2
+            - (9.4125 * 10**-3) * clay**2
+            - 8.395215 * thetas**2
             + 0.077718 * sand * thetas
-            - 0.00298 * sand ** 2 * thetas ** 2
-            - 0.019492 * clay ** 2 * thetas ** 2
-            + (1.73 * 10 ** -5) * sand ** 2 * clay
-            + 0.02733 * clay ** 2 * thetas
-            + 0.001434 * sand ** 2 * thetas
-            - (3.5 * 10 ** -6) * clay ** 2 * sand
+            - 0.00298 * sand**2 * thetas**2
+            - 0.019492 * clay**2 * thetas**2
+            + (1.73 * 10**-5) * sand**2 * clay
+            + 0.02733 * clay**2 * thetas
+            + 0.001434 * sand**2 * thetas
+            - (3.5 * 10**-6) * clay**2 * sand
         )
-        * (2.78 * 10 ** -6)
+        * (2.78 * 10**-6)
         * 1000
         * 3600
         * 24
@@ -109,15 +109,15 @@ def pore_size_index_brakensiek(sand, thetas, clay):
         -0.7842831
         + 0.0177544 * sand
         - 1.062498 * thetas
-        - (5.304 * 10 ** -5) * (sand ** 2)
-        - 0.00273493 * (clay ** 2)
-        + 1.11134946 * (thetas ** 2)
+        - (5.304 * 10**-5) * (sand**2)
+        - 0.00273493 * (clay**2)
+        + 1.11134946 * (thetas**2)
         - 0.03088295 * sand * thetas
-        + (2.6587 * 10 ** -4) * (sand ** 2) * (thetas ** 2)
-        - 0.00610522 * (clay ** 2) * (thetas ** 2)
-        - (2.35 * 10 ** -6) * (sand ** 2) * clay
-        + 0.00798746 * (clay ** 2) * thetas
-        - 0.00674491 * (thetas ** 2) * clay
+        + (2.6587 * 10**-4) * (sand**2) * (thetas**2)
+        - 0.00610522 * (clay**2) * (thetas**2)
+        - (2.35 * 10**-6) * (sand**2) * clay
+        + 0.00798746 * (clay**2) * thetas
+        - 0.00674491 * (thetas**2) * clay
     )
 
     return poresizeindex
@@ -150,19 +150,19 @@ def thetas_toth(ph, bd, clay, silt):
 
     thetas = (
         0.5653
-        - 0.07918 * bd ** 2
-        + 0.001671 * ph ** 2
+        - 0.07918 * bd**2
+        + 0.001671 * ph**2
         + 0.0005438 * clay
         + 0.001065 * silt
         + 0.06836
-        - 0.00001382 * clay * ph ** 2
+        - 0.00001382 * clay * ph**2
         - 0.00001270 * silt * clay
-        - 0.0004784 * bd ** 2 * ph ** 2
-        - 0.0002836 * silt * bd ** 2
-        + 0.0004158 * clay * bd ** 2
-        - 0.01686 * bd ** 2
+        - 0.0004784 * bd**2 * ph**2
+        - 0.0002836 * silt * bd**2
+        + 0.0004158 * clay * bd**2
+        - 0.01686 * bd**2
         - 0.0003541 * silt
-        - 0.0003152 * ph ** 2
+        - 0.0003152 * ph**2
     )
 
     return thetas

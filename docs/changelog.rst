@@ -23,6 +23,7 @@ Changed
 Fixed
 ^^^^^
 - Calculation of lake_b parameter in setup_lakes.
+- prevent writing a _FillValue on the time coordinate of forcing data
 
 Changed
 ^^^^^^^^

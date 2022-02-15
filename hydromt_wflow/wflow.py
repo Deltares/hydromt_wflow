@@ -1798,6 +1798,9 @@ class WflowModel(Model):
                 v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
                 for v in ds.data_vars.keys()
             }
+            # make sure no _FillValue is written to the time dimension
+            ds["time"].attrs.pop("_FillValue", None)
+            encoding["time"] = {"_FillValue": None}
 
             # Check if all sub-folders in fn_out exists and if not create them
             if not isdir(dirname(fn_out)):
