@@ -12,7 +12,7 @@ hydroMT-wflow: wflow plugin for hydroMT
     :target: https://deltares.github.io/hydromt_wflow/stable
     :alt: Stable docs last release
 
-.. image:: https://pypip.in/v/hydromt_wflow/badge.png
+.. image:: https://badge.fury.io/py/hydromt_wflow.svg
     :target: https://pypi.org/project/hydromt_wflow/
     :alt: Latest PyPI version
 

@@ -1847,7 +1847,10 @@ class WflowModel(Model):
                 v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
                 for v in ds.data_vars.keys()
             }
-            encoding["time"] = {"units": time_units}
+            # make sure no _FillValue is written to the time dimension
+            # For several forcing files add common units attributes to time
+            ds["time"].attrs.pop("_FillValue", None)
+            encoding["time"] = {"_FillValue": None}
 
             # Check if all sub-folders in fn_out exists and if not create them
             if not isdir(dirname(fn_out)):
@@ -1861,6 +1864,8 @@ class WflowModel(Model):
                 forcing_list.append([fn_out, ds])
             else:
                 self.logger.info(f"Writting several forcing with freq {freq_out}")
+                # For several forcing files add common units attributes to time
+                encoding["time"] = {"_FillValue": None, "units": time_units}
                 # Updating path forcing in config
                 fns_out = os.path.relpath(fn_out, self.root)
                 fns_out = f"{str(fns_out)[0:-3]}_*.nc"

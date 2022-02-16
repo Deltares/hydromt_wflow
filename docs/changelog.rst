@@ -33,6 +33,7 @@ Fixed
 - Filter gauges that could not be snapped to river (if snap_to_river is True) in setup_gauges
 - Avoid duplicates in the toml csv column for gauges
 - Fill missing values in landslope with zeros within the basin mask
+- prevent writing a _FillValue on the time coordinate of forcing data
 
 
 v0.1.3 (4 October 2021)
