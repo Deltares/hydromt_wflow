@@ -810,8 +810,9 @@ class WflowModel(Model):
                     da = da.where(
                         self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata
                     )
-                    ids = np.unique(da.values[da.values > 0])
-                    idxs = idxs[np.isin(ids_old, ids)]
+                    ids_new = np.unique(da.values[da.values > 0])
+                    idxs = idxs[np.isin(ids_old, ids_new)]
+                    ids = da.values.flat[idxs]
                 # Add to staticmaps
                 mapname = f'{str(self._MAPS["gauges"])}_{basename}'
                 self.set_staticmaps(da, name=mapname)
