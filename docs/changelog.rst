@@ -15,20 +15,26 @@ Added
 - workflow.river.river_bathymetry method to derive river width and depth estimates. 
   Note that the new river width estimates are different and result in different model results.
 - moved basemaps workflows (hydrography and topography) from hydromt core.
+- new ID columns for the outlets staticgeoms
+- new ``index_col`` attribute to setup_gauges to choose a specific column of gauges_fn as ID for wflow_gauges
 
 Changed
 ^^^^^^^
 - Moved interpolate_na function to be done only on output dataset (i.e. on the model resolution), rather then on the original data resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.
+- setup_riverwidth method deprecated (will be removed in future versions) in favour of setup_rivers.
+- setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
+- Possibility to use any datasets and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers
 
 Fixed
 ^^^^^
 - Calculation of lake_b parameter in setup_lakes.
+- Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.
+- When writting several forcing files instead of one, their time_units should be the same to get one wflow run (time_units option in write_forcing)
+- Filter gauges that could not be snapped to river (if snap_to_river is True) in setup_gauges
+- Avoid duplicates in the toml csv column for gauges
+- Fill missing values in landslope with zeros within the basin mask
 - prevent writing a _FillValue on the time coordinate of forcing data
 
-Changed
-^^^^^^^^
-- setup_riverwidth method deprecated (will be removed in future versions) in favour of setup_rivers.
-- setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
 
 v0.1.3 (4 October 2021)
 -------------------------
