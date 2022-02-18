@@ -310,6 +310,7 @@
         <span class="n">ds_topo</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">topography</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">=</span><span class="n">ds_org</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
         <span class="p">)</span>
+        <span class="n">ds_topo</span><span class="p">[</span><span class="s2">&quot;lndslp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">ds_topo</span><span class="p">[</span><span class="s2">&quot;lndslp&quot;</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_topo</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_topo</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># set basin geometry</span>
@@ -735,7 +736,7 @@
 
 <span class="sd">            * Required variables: [&#39;LAI&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">lai_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;modis_lai&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">lai_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">lai_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_laimaps.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="c1"># retrieve data for region</span>
@@ -754,6 +755,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gauges_fn</span><span class="o">=</span><span class="s2">&quot;grdc&quot;</span><span class="p">,</span>
         <span class="n">source_gdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">snap_to_river</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">derive_subcatch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -790,6 +792,8 @@
 <span class="sd">            Known source name or path to gauges file geometry file, by default None.</span>
 <span class="sd">        source_gdf : geopandas.GeoDataFame, optional</span>
 <span class="sd">            Direct gauges file geometry, by default None.</span>
+<span class="sd">        index_col : str, optional</span>
+<span class="sd">            Column in gauges_fn to use for ID values, by default None (use the default index column)</span>
 <span class="sd">        snap_to_river : bool, optional</span>
 <span class="sd">            Snap point locations to the closest downstream river cell, by default True</span>
 <span class="sd">        mask : np.boolean, optional</span>
@@ -814,7 +818,7 @@
 
         <span class="k">if</span> <span class="n">derive_outlet</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges locations set based on river outlets.&quot;</span><span class="p">)</span>
-            <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gaugemap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">idxs_pit</span><span class="p">)</span>
+            <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">idxs_pit</span><span class="p">)</span>
             <span class="c1"># Only keep river outlets for gauges</span>
             <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]],</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
             <span class="n">ids_da</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
@@ -824,6 +828,7 @@
             <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
                 <span class="n">index</span><span class="o">=</span><span class="n">ids_da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
             <span class="p">)</span>
+            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;fid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids_da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gauges&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges map based on catchment river outlets added.&quot;</span><span class="p">)</span>
 
@@ -863,6 +868,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2"> gauge locations found within domain&quot;</span>
                 <span class="p">)</span>
+                <span class="c1"># Set index to index_col</span>
+                <span class="k">if</span> <span class="n">index_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index_col</span> <span class="ow">in</span> <span class="n">gdf</span><span class="p">:</span>
+                    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
                 <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))(</span>
                     <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
                 <span class="p">)</span>
@@ -871,27 +879,47 @@
 
                 <span class="k">if</span> <span class="n">snap_to_river</span> <span class="ow">and</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-                <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gaugemap</span><span class="p">(</span>
+                <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
                     <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span>
                     <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
-                    <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+                    <span class="n">stream</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
                     <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
                     <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
                 <span class="p">)</span>
-
+                <span class="c1"># Filter gauges that could not be snapped to rivers</span>
+                <span class="k">if</span> <span class="n">snap_to_river</span><span class="p">:</span>
+                    <span class="n">ids_old</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]],</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+                    <span class="p">)</span>
+                    <span class="n">ids_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+                    <span class="n">idxs</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids_old</span><span class="p">,</span> <span class="n">ids_new</span><span class="p">)]</span>
+                    <span class="n">ids</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+                <span class="c1"># Add to staticmaps</span>
                 <span class="n">mapname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">])</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">&#39;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="p">)</span>
 
                 <span class="c1"># geoms</span>
                 <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
                 <span class="c1"># if csv contains additional columns, these are also written in the staticgeoms</span>
-                <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
-                <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">geometry</span>
-                <span class="c1"># if first column has no name, give it a default name otherwise column is omitted when written to geojson</span>
-                <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+                    <span class="n">index</span><span class="o">=</span><span class="n">ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
+                <span class="p">)</span>
+                <span class="c1"># Set the index name of gdf snapped based on original gdf</span>
+                <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span>
                     <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                <span class="c1"># Add gdf attributes to gdf_snapped (filter on snapped index before merging)</span>
+                <span class="n">df_attrs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">))</span>
+                <span class="n">df_attrs</span> <span class="o">=</span> <span class="n">df_attrs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df_attrs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+                <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                    <span class="n">df_attrs</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+                <span class="p">)</span>
+                <span class="c1"># Add gdf_snapped to staticgeoms</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_snapped</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
 
                 <span class="c1"># # Add new outputcsv section in the config</span>
                 <span class="k">if</span> <span class="n">gauge_toml_param</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">update_toml</span><span class="p">:</span>
@@ -902,13 +930,14 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.gauges_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gauge_toml_param</span><span class="p">)):</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                                <span class="p">{</span>
-                                    <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">gauge_toml_header</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
-                                    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                                    <span class="s2">&quot;parameter&quot;</span><span class="p">:</span> <span class="n">gauge_toml_param</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
-                                <span class="p">}</span>
-                            <span class="p">)</span>
+                            <span class="n">gauge_toml_dict</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">gauge_toml_header</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
+                                <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;parameter&quot;</span><span class="p">:</span> <span class="n">gauge_toml_param</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
+                            <span class="p">}</span>
+                            <span class="c1"># If the gauge outcsv column already exists skip writting twice</span>
+                            <span class="k">if</span> <span class="n">gauge_toml_dict</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gauge_toml_dict</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges map from </span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2"> added.&quot;</span><span class="p">)</span>
 
                 <span class="c1"># add subcatch</span>
@@ -964,9 +993,9 @@
         <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average lake area, depth a discharge values.</span>
 
-<span class="sd">        The data is generated from features with ``min_area`` [km2] from a database with</span>
-<span class="sd">        lake geometry, IDs and metadata. Currently, &quot;hydro_lakes&quot; (hydroLakes) is the only</span>
-<span class="sd">        supported ``lakes_fn`` data source and we use a default minimum area of 1 km2.</span>
+<span class="sd">        The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with</span>
+<span class="sd">        lake geometry, IDs and metadata. Data required are lake ID &#39;waterbody_id&#39;, average area &#39;Area_avg&#39; [m2],</span>
+<span class="sd">        average volume &#39;Vol_avg&#39; [m3], average depth &#39;Depth_avg&#39; [m] and average discharge &#39;Dis_avg&#39; [m3/s].</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1003,9 +1032,6 @@
             <span class="s2">&quot;input.lateral.river.lake.waterlevel&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="k">if</span> <span class="n">lakes_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">]:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">lakes_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_lakes.&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
         <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span><span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
@@ -1019,6 +1045,9 @@
                     <span class="s2">&quot;Dis_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
+            <span class="c1"># Minimum value for LakeAvgOut</span>
+            <span class="n">LakeAvgOut</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">)</span>
             <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;Lake_b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="p">(</span>
                 <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -1027,6 +1056,12 @@
             <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
             <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeThreshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
             <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Check if some LakeAvgOut values have been replaced</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">LakeAvgOut</span> <span class="o">==</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s&quot;</span>
+                <span class="p">)</span>
 
             <span class="n">lake_params</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
@@ -1066,14 +1101,30 @@
         <span class="n">priority_jrc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
+        <span class="sd">&quot;&quot;&quot;This component generates maps of reservoir areas and outlets as well as parameters</span>
 <span class="sd">        with average reservoir area, demand, min and max target storage capacities and</span>
 <span class="sd">        discharge capacity values.</span>
 
-<span class="sd">        The data is generated from features with ``min_area`` [km2]</span>
+<span class="sd">        The data is generated from features with ``min_area`` [km2] (default is 1 km2)</span>
 <span class="sd">        from a database with reservoir geometry, IDs and metadata.</span>
-<span class="sd">        Currently, &quot;hydro_reservoirs&quot; (based on GRAND) is the only supported ``reservoirs_fn``</span>
-<span class="sd">        data source and we use a default minimum area of 1 km2.</span>
+
+<span class="sd">        Data requirements for direct use (ie wflow parameters are data already present in reservoirs_fn)</span>
+<span class="sd">        are reservoir ID &#39;waterbody_id&#39;, area &#39;ResSimpleArea&#39; [m2], maximum volume &#39;ResMaxVolume&#39; [m3],</span>
+<span class="sd">        the targeted minimum and maximum fraction of water volume in the reservoir &#39;ResTargetMinFrac&#39;</span>
+<span class="sd">        and &#39;ResTargetMaxFrac&#39; [-], the average water demand ResDemand [m3/s] and the maximum release of</span>
+<span class="sd">        the reservoir before spilling &#39;ResMaxRelease&#39; [m3/s].</span>
+
+<span class="sd">        In case the wflow parameters are not directly available they can be computed by HydroMT using other</span>
+<span class="sd">        reservoir characteristics. If not enough characteristics are available, the hydroengine tool will be</span>
+<span class="sd">        used to download additionnal timeseries from the JRC database.</span>
+<span class="sd">        The required variables for computation of the parameters with hydroengine are reservoir ID &#39;waterbody_id&#39;,</span>
+<span class="sd">        reservoir ID in the HydroLAKES database &#39;Hylak_id&#39;, average volume &#39;Vol_avg&#39; [m3], average depth &#39;Depth_avg&#39;</span>
+<span class="sd">        [m], average discharge &#39;Dis_avg&#39; [m3/s] and dam height &#39;Dam_height&#39; [m].</span>
+<span class="sd">        To compute parameters without using hydroengine, the required varibales in reservoirs_fn are reservoir ID &#39;waterbody_id&#39;,</span>
+<span class="sd">        average area &#39;Area_avg&#39; [m2], average volume &#39;Vol_avg&#39; [m3], average depth &#39;Depth_avg&#39; [m], average discharge &#39;Dis_avg&#39;</span>
+<span class="sd">        [m3/s] and dam height &#39;Dam_height&#39; [m] and minimum / normal / maximum storage capacity of the dam &#39;Capacity_min&#39;,</span>
+<span class="sd">        &#39;Capacity_norm&#39;, &#39;Capacity_max&#39; [m3].</span>
+
 
 
 <span class="sd">        Adds model layers:</span>
@@ -1128,12 +1179,6 @@
             <span class="s2">&quot;input.lateral.river.reservoir.targetminfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTargetMinFrac&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="c1"># path or filename. get_geodataframe</span>
-        <span class="k">if</span> <span class="n">reservoirs_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">reservoirs_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_reservoirs.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span>
         <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span><span class="n">reservoirs_fn</span><span class="p">,</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
         <span class="c1"># TODO: check if there are missing values in the above columns of the parameters tbls =</span>
         <span class="c1"># if everything is present, skip calculate reservoirattrs() and directly make the maps</span>
@@ -1314,10 +1359,12 @@
 <span class="sd">        as well as tables with temperature threshold, melting factor and snow-to-ice</span>
 <span class="sd">        convertion fraction.</span>
 
-<span class="sd">        The data is generated from features with ``min_area`` [km2]</span>
+<span class="sd">        The data is generated from features with ``min_area`` [km2] (default is 1 km2)</span>
 <span class="sd">        from a database with glacier geometry, IDs and metadata.</span>
-<span class="sd">        Currently, &quot;rgi&quot; (Randolph Glacier Inventory) is the only supported ``glaciers_fn``</span>
-<span class="sd">        data source and we use a default minimum area of 1 km2.</span>
+
+<span class="sd">        The required variables from glaciers_fn dataset are glacier ID &#39;simple_id&#39;.</span>
+<span class="sd">        Optionnally glacier area &#39;AREA&#39; [km2] can be present to filter the glaciers</span>
+<span class="sd">        by size. If not present it will be computed on the fly.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1347,12 +1394,6 @@
             <span class="s2">&quot;input.vertical.g_sifrac&quot;</span><span class="p">:</span> <span class="s2">&quot;G_SIfrac&quot;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="c1"># retrieve data for basin</span>
-        <span class="k">if</span> <span class="n">glaciers_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rgi&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">glaciers_fn</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">glaciers_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_glaciers.&quot;</span>
-                <span class="p">)</span>
-            <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing glacier maps.&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
             <span class="n">glaciers_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span>
@@ -1371,7 +1412,7 @@
             <span class="n">ds_glac</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">glaciermaps</span><span class="p">(</span>
                 <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
                 <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
-                <span class="n">id_column</span><span class="o">=</span><span class="s2">&quot;simple_id&quot;</span><span class="p">,</span>  <span class="c1"># TODO set id as index in data adapter</span>
+                <span class="n">id_column</span><span class="o">=</span><span class="s2">&quot;simple_id&quot;</span><span class="p">,</span>
                 <span class="n">elevtn_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">],</span>
                 <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
@@ -1786,7 +1827,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="WflowModel.write_forcing"><a class="viewcode-back" href="../../generated/hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing">[docs]</a>    <span class="k">def</span> <span class="nf">write_forcing</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fn_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">freq_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">chunksize</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">time_units</span><span class="o">=</span><span class="s2">&quot;days since 1900-01-01T00:00:00&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;write forcing at `fn_out` in model ready format.</span>
 
@@ -1809,6 +1856,8 @@
 <span class="sd">            Chunksize on time dimension when saving to disk. By default 1.</span>
 <span class="sd">        decimals, int, optional</span>
 <span class="sd">            Round the ouput data to the given number of decimals.</span>
+<span class="sd">        time_units: str, optional</span>
+<span class="sd">            Common time units when writting several netcdf forcing files. By default &quot;days since 1900-01-01T00:00:00&quot;.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
@@ -1882,6 +1931,7 @@
                 <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
             <span class="p">}</span>
             <span class="c1"># make sure no _FillValue is written to the time dimension</span>
+            <span class="c1"># For several forcing files add common units attributes to time</span>
             <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">encoding</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
@@ -1897,6 +1947,8 @@
                 <span class="n">forcing_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">ds</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writting several forcing with freq </span><span class="si">{</span><span class="n">freq_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="c1"># For several forcing files add common units attributes to time</span>
+                <span class="n">encoding</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">time_units</span><span class="p">}</span>
                 <span class="c1"># Updating path forcing in config</span>
                 <span class="n">fns_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
                 <span class="n">fns_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">fns_out</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_*.nc&quot;</span>

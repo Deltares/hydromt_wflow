@@ -135,10 +135,11 @@
 <dd><p>This component generates maps of glacier areas, area fraction and volume fraction,
 as well as tables with temperature threshold, melting factor and snow-to-ice
 convertion fraction.</p>
-<p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2]
-from a database with glacier geometry, IDs and metadata.
-Currently, “rgi” (Randolph Glacier Inventory) is the only supported <code class="docutils literal notranslate"><span class="pre">glaciers_fn</span></code>
-data source and we use a default minimum area of 1 km2.</p>
+<p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2] (default is 1 km2)
+from a database with glacier geometry, IDs and metadata.</p>
+<p>The required variables from glaciers_fn dataset are glacier ID ‘simple_id’.
+Optionnally glacier area ‘AREA’ [km2] can be present to filter the glaciers
+by size. If not present it will be computed on the fly.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_glacierareas</strong> map: glacier IDs [-]</p></li>
