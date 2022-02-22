@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update a wflow model: gauging stations &mdash; hydromt_wflow  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Clip a Wflow model" href="clip_model.html" />
+    <link rel="prev" title="Update a wflow model: forcing" href="update_model_forcing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> hydromt_wflow
+          </a>
+              <div class="version">
+                0.1.4
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="build_model.html">Build Wflow model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="build_sediment.html">Build Wflow sediment model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_landuse.html">Update Wflow model: landuse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update_model_forcing.html">Update Wflow model: forcing</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Update Wflow model: gauges</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Import-packages">Import packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Locations-of-the-gauging-stations">Locations of the gauging stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hydroMT-CLI-update-interface">hydroMT CLI update interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Update-wflow-gauging-stations">Update wflow gauging stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Update-wflow-gauging-stations-without-snapping">Update wflow gauging stations without snapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Visualization-of-the-gauges">Visualization of the gauges</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="clip_model.html">Clip Wflow model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Plot Wflow static maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Plot Wflow results data</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/wflow.html">Wflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide/sediment.html">Wflow Sediment</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">What’s new</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">hydromt_wflow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Examples</a> &raquo;</li>
+      <li>Update a wflow model: gauging stations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/examples/update_model_gauges.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Update-a-wflow-model:-gauging-stations">
+<h1>Update a wflow model: gauging stations<a class="headerlink" href="#Update-a-wflow-model:-gauging-stations" title="Permalink to this headline"></a></h1>
+<p>Once you have a <strong>Wflow</strong> model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.</p>
+<p>With HydroMT, you can easily read your model and update one or several components of your model using the <strong>update</strong> function of the command line interface (CLI). Here are the steps and some examples on how to <strong>update/add gauging stations</strong> to your model.</p>
+<p>All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more feedback.</p>
+<section id="Import-packages">
+<h2>Import packages<a class="headerlink" href="#Import-packages" title="Permalink to this headline"></a></h2>
+<p>In this notebook, we will use some functions of HydroMT to plot the new gauging stations of the updated model. Here are the libraries to import to realize these steps.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">hydromt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># for plotting</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">cartopy.io.img_tiles</span> <span class="k">as</span> <span class="nn">cimgt</span>
+<span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
+
+<span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>  <span class="c1"># plot projection</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Locations-of-the-gauging-stations">
+<h2>Locations of the gauging stations<a class="headerlink" href="#Locations-of-the-gauging-stations" title="Permalink to this headline"></a></h2>
+<p>Adding gauging stations to your <strong>Wflow</strong> model can be quite useful. It allows you to directly extract model outputs at specific locations. For example for model validation, calibration, you can then directly compare model results to available observations.</p>
+<p>In our previous notebook, we built a wflow model in which the locations of the available <a class="reference external" href="https://www.bafg.de/GRDC/EN/Home/homepage_node.html">GRDC</a> stations are including. If you have other observation data available, you can easily add them to your model using hydroMT. One way to do it is to prepare a csv table containing the ID, latitude and longitude of the available stations. An example <strong>test_stations.csv</strong> has been prepared. Let’s have a look at it.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_station</span> <span class="o">=</span> <span class="s2">&quot;test_stations.csv&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_station</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+﻿ID,Name,x,y
+1001,Gauge1,11.9594,45.8925
+1002,Gauge2,12.3395,46.1492
+1003,Gauge3,12.0785,46.1122
+</pre></div></div>
+</div>
+<p>Here we can see that we have defined three stations with an ID and the longitude (x) and latitude (y) coordinates, in the same EPSG system as our model (EPSG 4326). We can now add them to our model.</p>
+</section>
+<section id="hydroMT-CLI-update-interface">
+<h2>hydroMT CLI update interface<a class="headerlink" href="#hydroMT-CLI-update-interface" title="Permalink to this headline"></a></h2>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">hydroMT</span> <span class="pre">build</span></code> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the options available from the update command</span>
+<span class="o">!</span> hydromt update --help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
+
+  Update a specific component of a model. Set an output directory to copy the
+  edited model to a new folder, otherwise maps are overwritten.
+
+  Example usage:
+  --------------
+
+  Update (overwrite) landuse-landcover maps in a wflow model
+  hydromt update wflow /path/to/model_root -c setup_lulcmaps --opt source_name=vito
+
+  Update reservoir maps based on default settings in a wflow model and write to new directory
+  hydromt update wflow /path/to/model_root -o /path/to/model_out -c setup_reservoirs
+
+Options:
+  -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
+                             overwritten if left empty.
+  -c, --components TEXT      Model components from ini file to run
+  --opt TEXT                 Component specific keyword arguments, see the
+                             setup_&lt;component&gt; method of the specific model
+                             for more information about the arguments.
+  -i, --config PATH          Path to hydroMT configuration file, for the model
+                             specific implementation.
+  -d, --data PATH            File path to yml data sources file. See
+                             documentation for required yml file format.
+  --dd, --deltares-data      Parse default deltares data yml from
+                             https://github.com/DirkEilander/hydromt-
+                             artifacts/releases
+  -q, --quiet                Decrease verbosity.
+  -v, --verbose              Increase verbosity.
+  --help                     Show this message and exit.
+
+</pre></div></div>
+</div>
+</section>
+<section id="Update-wflow-gauging-stations">
+<h2>Update wflow gauging stations<a class="headerlink" href="#Update-wflow-gauging-stations" title="Permalink to this headline"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
+<span class="o">!</span> hydromt update wflow wflow_piave_subbasin -o ./wflow_piave_gauges -c setup_gauges --opt <span class="nv">gauges_fn</span><span class="o">=</span>test_stations.csv --opt <span class="nv">basename</span><span class="o">=</span>test-flow -v
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-02-22 08:39:47,182 - update - log - INFO - HydroMT version: 0.4.5
+2022-02-22 08:39:47,182 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin (r).
+2022-02-22 08:39:47,182 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2022-02-22 08:39:47,182 - update - main - INFO - User settings:
+2022-02-22 08:39:47,188 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4).
+2022-02-22 08:39:47,191 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/staticmaps.nc
+2022-02-22 08:39:47,266 - update - wflow - INFO - Reading model intbl files.
+2022-02-22 08:39:47,266 - update - wflow - INFO - Reading model staticgeom files.
+2022-02-22 08:39:47,340 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_subbasin/inmaps.nc
+2022-02-22 08:39:47,349 - update - wflow - INFO - Model read
+2022-02-22 08:39:47,353 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.source_gdf: None
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.index_col: None
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.mask: None
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.derive_outlet: True
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.basename: test-flow
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.update_toml: True
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.gauge_toml_header: None
+2022-02-22 08:39:47,354 - update - model_api - INFO - setup_gauges.gauge_toml_param: None
+2022-02-22 08:39:47,354 - update - wflow - INFO - Gauges locations set based on river outlets.
+2022-02-22 08:39:48,202 - update - wflow - INFO - Gauges map based on catchment river outlets added.
+2022-02-22 08:39:48,202 - update - data_adapter - INFO - Adding sample data v0.0.6 from artifacts
+2022-02-22 08:39:48,268 - update - data_adapter - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/test_stations.csv
+2022-02-22 08:39:48,271 - update - data_adapter - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2022-02-22 08:39:48,286 - update - wflow - INFO - 3 test-flow gauge locations found within domain
+2022-02-22 08:39:49,225 - update - wflow - INFO - Gauges map from test-flow added.
+2022-02-22 08:39:49,226 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2022-02-22 08:39:49,226 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/wflow_sbm.toml
+2022-02-22 08:39:49,227 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
+2022-02-22 08:39:49,679 - update - wflow - INFO - Writing model staticgeom to file.
+2022-02-22 08:39:49,854 - update - wflow - INFO - Write forcing file
+2022-02-22 08:39:49,866 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/inmaps.nc
+[########################################] | 100% Completed |  0.1s
+
+</pre></div></div>
+</div>
+<p>The example above means the following: run <strong>hydromt</strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">wflow</span></code>: i.e. update a wflow model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow_piave_subbasin</span></code>: original model folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">./wflow_piave_gauges</span></code>: output updated model folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">setup_gauges</span></code>: model component to update, here setup_gauges to add gauging stations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">gauges_fn=test_stations.csv</span></code>: name in hydromt data catalog or path to a csv file containing the gauges locations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">basename=test-flow</span></code>: name of the new gauges map in the staticmaps of Wflow</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>: give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
+</ul>
+<p>Other available options are available in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/generated/hydromt_wflow.wflow.WflowModel.setup_gauges.html#hydromt_wflow.wflow.WflowModel.setup_gauges">docs(setup_gauges)</a>.</p>
+</section>
+<section id="Update-wflow-gauging-stations-without-snapping">
+<h2>Update wflow gauging stations without snapping<a class="headerlink" href="#Update-wflow-gauging-stations-without-snapping" title="Permalink to this headline"></a></h2>
+<p>By default, the <strong>setup_gauges</strong> of hydroMT Wflow will assume that gauges are for flow sampling and will therefore snap the gauges locations to the river. If your observations are used to compare rainfall data, then you do not want hydroMT to move the location of your gauges. This is done by setting <code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">snap_to_river=False</span></code>.</p>
+<p>By default, hydroMT Wflow will update the TOML in order to save both river discharge and precipitation at the new gauges locations. With our rainfall stations, we only need to save the precipitation. We can set this with hydroMT using the options:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">gauge_toml_header=&quot;['P-station']&quot;</span></code>: set the column name in the outputcsv file of the Wflow run in the TOML configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">gauge_toml_param=&quot;['vertical.precipitation']&quot;</span></code>: set the Wflow variable to save in the corresponding outputcsv file column of Wflow run in the TOML configuration</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
+<span class="o">!</span> hydromt update wflow wflow_piave_gauges -c setup_gauges --opt <span class="nv">gauges_fn</span><span class="o">=</span>test_stations.csv --opt <span class="nv">basename</span><span class="o">=</span>test-rain --opt <span class="nv">snap_to_river</span><span class="o">=</span>False --opt <span class="nv">gauge_toml_header</span><span class="o">=</span><span class="s2">&quot;[&#39;P-station&#39;]&quot;</span> --opt <span class="nv">gauge_toml_param</span><span class="o">=</span><span class="s2">&quot;[&#39;vertical.precipitation&#39;]&quot;</span> -v
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2022-02-22 08:39:53,182 - update - log - INFO - HydroMT version: 0.4.5
+2022-02-22 08:39:53,183 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges (r+).
+2022-02-22 08:39:53,183 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2022-02-22 08:39:53,183 - update - main - INFO - User settings:
+2022-02-22 08:39:53,188 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.4).
+2022-02-22 08:39:53,192 - update - wflow - INFO - Reading model staticgeom files.
+2022-02-22 08:39:53,271 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.source_gdf: None
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.index_col: None
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.snap_to_river: False
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.mask: None
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.derive_outlet: True
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.basename: test-rain
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.update_toml: True
+2022-02-22 08:39:53,348 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
+2022-02-22 08:39:53,349 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
+2022-02-22 08:39:53,349 - update - wflow - INFO - Gauges locations set based on river outlets.
+2022-02-22 08:39:54,195 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
+2022-02-22 08:39:54,202 - update - model_api - WARNING - Replacing staticgeom: gauges
+2022-02-22 08:39:54,202 - update - wflow - INFO - Gauges map based on catchment river outlets added.
+2022-02-22 08:39:54,202 - update - data_adapter - WARNING - Overwriting data source test_stations.
+2022-02-22 08:39:54,202 - update - data_adapter - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/test_stations.csv
+2022-02-22 08:39:54,206 - update - data_adapter - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2022-02-22 08:39:54,221 - update - wflow - INFO - 3 test-rain gauge locations found within domain
+2022-02-22 08:39:54,232 - update - wflow - INFO - Gauges map from test-rain added.
+2022-02-22 08:39:54,233 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges
+2022-02-22 08:39:54,234 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/wflow_sbm.toml
+2022-02-22 08:39:54,234 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/examples/examples/wflow_piave_gauges/staticmaps.nc
+2022-02-22 08:39:54,691 - update - wflow - INFO - Writing model staticgeom to file.
+
+</pre></div></div>
+</div>
+<p>The example above means the following: run <strong>hydromt</strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">wflow</span></code>: i.e. update a wflow model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow_piave_gauges</span></code>: model folder to update (here we save our updates in the same model folder)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">setup_gauges</span></code>: model component to update, here setup_gauges to add gauging stations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">gauges_fn=test_stations.csv</span></code>: name in hydromt data catalog or path to a csv file containing the gauges locations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">basename=test-rain</span></code>: name of the new gauges map in the staticmaps of Wflow</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">snap_to_river=False</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">gauge_toml_header=&quot;['P-station']&quot;</span></code>: set the column name in the outputcsv file of the Wflow run in the TOML configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--opt</span> <span class="pre">gauge_toml_param=&quot;['vertical.precipitation']&quot;</span></code>: set the Wflow variable to save in the corresponding outputcsv file column of Wflow run in the TOML configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>: give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
+</ul>
+<p>Other available options are available in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/generated/hydromt_wflow.wflow.WflowModel.setup_gauges.html#hydromt_wflow.wflow.WflowModel.setup_gauges">docs(setup_gauges)</a>.</p>
+<p>Note: when changing several options, the command line can get quite long. You can also create a hydroMT configuration file where you set all the different options and use it in your command line with the <code class="docutils literal notranslate"><span class="pre">-i</span></code> argument instead of <code class="docutils literal notranslate"><span class="pre">-c</span></code> and several <code class="docutils literal notranslate"><span class="pre">--opt</span></code></p>
+</section>
+<section id="Visualization-of-the-gauges">
+<h2>Visualization of the gauges<a class="headerlink" href="#Visualization-of-the-gauges" title="Permalink to this headline"></a></h2>
+<p>We can now plot our newly created gauges stations maps and check the differences between the flow and rain maps.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the updated model with hydromt</span>
+<span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
+
+<span class="n">mod</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_gauges&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># read/derive river geometries</span>
+<span class="n">gdf_riv</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">rivers</span>
+<span class="c1"># read/derive model basin boundary</span>
+<span class="n">gdf_bas</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">basins</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-whitegrid&quot;</span><span class="p">)</span>  <span class="c1"># set nice style</span>
+<span class="c1"># we assume the model maps are in the geographic CRS EPSG:4326</span>
+<span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
+<span class="c1"># adjust zoomlevel and figure size to your basis size &amp; aspect</span>
+<span class="n">zoom_level</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">shaded</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># initialize image with geoaxes</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+<span class="n">bbox</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mf">5e3</span><span class="p">)</span>
+<span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
+
+<span class="c1"># add sat background image</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">cimgt</span><span class="o">.</span><span class="n">QuadtreeTiles</span><span class="p">(),</span> <span class="n">zoom_level</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># plot rivers with increasing width with stream order</span>
+<span class="n">gdf_riv</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="n">gdf_riv</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;river&quot;</span><span class="p">)</span>
+<span class="c1"># plot the basin boundary</span>
+<span class="n">gdf_bas</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="s2">&quot;gauges&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;outlet&quot;</span>
+    <span class="p">)</span>
+<span class="k">if</span> <span class="s2">&quot;gauges_grdc&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges_grdc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+        <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;purple&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauges GRDC&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="k">if</span> <span class="s2">&quot;gauges_test-flow&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges_test-flow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauges Flow&quot;</span>
+    <span class="p">)</span>
+<span class="k">if</span> <span class="s2">&quot;gauges_test-rain&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges_test-rain&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
+        <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauges Rain&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;latitude [degree north]&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;longitude [degree east]&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;wflow base map&quot;</span><span class="p">)</span>
+<span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+    <span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="o">*</span><span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]],</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Legend&quot;</span><span class="p">,</span>
+    <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">,</span>
+    <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span>
+    <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_examples_update_model_gauges_24_0.png" src="../../_images/examples_examples_update_model_gauges_24_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="update_model_forcing.html" class="btn btn-neutral float-left" title="Update a wflow model: forcing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="clip_model.html" class="btn btn-neutral float-right" title="Clip a Wflow model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Deltares.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
