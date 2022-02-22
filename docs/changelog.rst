@@ -5,8 +5,15 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-[Unreleased]
-------------
+v0.1.4 (18 February 2022)
+-------------------------
+
+Changed
+^^^^^^^
+- **setup_riverwidth** method **deprecated** (will be removed in future versions) in favour of setup_rivers. We suggest to remove the setup_riverwidth component from your ini files.
+- **setup_rivers** calculate river width and depth based on the attributes of the new **river_geom_fn** river geometry file. We suggest adding "river_geom_fn = rivers_lin2019_v1" to the setup_rivers component of your ini files.
+- In **setup_soilmaps** the interpolation of missing values (interpolate_na function) is executed on the model parameters at the model resolution, rather than on the original raw soilgrids data at higher resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.
+- Possibility to use any dataset and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers. See the documentation for data requirements.
 
 Added
 ^^^^^
@@ -14,16 +21,9 @@ Added
 - setup_hydrodem method for hydrological conditioned elevation used with "local-inertial" routing
 - workflow.river.river_bathymetry method to derive river width and depth estimates. 
   Note that the new river width estimates are different and result in different model results.
-- moved basemaps workflows (hydrography and topography) from hydromt core.
+- moved basemaps workflows (hydrography and topography) from hydromt core. Note that hydromt_wflow v0.1.3 there should be used together with hydromt v0.4.4 (not newer!)
 - new ID columns for the outlets staticgeoms
 - new ``index_col`` attribute to setup_gauges to choose a specific column of gauges_fn as ID for wflow_gauges
-
-Changed
-^^^^^^^
-- Moved interpolate_na function to be done only on output dataset (i.e. on the model resolution), rather then on the original data resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.
-- setup_riverwidth method deprecated (will be removed in future versions) in favour of setup_rivers.
-- setup_rivers takes an additional river_geom_fn argument with a river segment geometry file to calculate river width and depth from its attributes
-- Possibility to use any datasets and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers
 
 Fixed
 ^^^^^
