@@ -536,6 +536,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     )
 
     soil_texture = soil_texture.raster.reproject_like(ds_like, method="mode")
+    # np.nan is not a valid value for array with type integer
+    soil_texture.raster.set_nodata(0)
     ds_out["wflow_soil"] = soil_texture.astype(np.int32)
 
     # for writing pcraster map files a scalar nodata value is required

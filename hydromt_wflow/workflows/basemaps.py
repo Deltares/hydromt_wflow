@@ -227,7 +227,15 @@ def hydrography(
     if strord_name not in ds_out.data_vars:
         logger.debug(f"Derive stream order.")
         strord = flwdir_out.stream_order()
-        ds_out[strord_name] = xr.Variable(dims, strord, attrs=dict(_FillValue=-1))
+        # -1 is not a valid nodata value for dtype uint8 (255 is)
+        # stream_order() returns 0 as nodata
+        ds_out[strord_name] = xr.Variable(
+            dims, strord.astype(np.int16), attrs=dict(_FillValue=0)
+        )
+        ds_out[strord_name] = ds_out[strord_name].where(
+            ds_out[strord_name] != ds_out[strord_name].raster.nodata, -1
+        )
+        ds_out[strord_name].raster.set_nodata(-1)
 
     # clip to basin extent
     ds_out = ds_out.raster.clip_mask(mask=ds_out[basins_name])

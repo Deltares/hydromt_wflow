@@ -737,7 +737,7 @@ class WflowModel(Model):
             self.logger.info(f"Gauges locations set based on river outlets.")
             da, idxs, ids = flw.gauge_map(self.staticmaps, idxs=self.flwdir.idxs_pit)
             # Only keep river outlets for gauges
-            da = da.where(self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata)
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
             ids_da = np.unique(da.values[da.values > 0])
             idxs_da = idxs[np.isin(ids, ids_da)]
             self.set_staticmaps(da, name=self._MAPS["gauges"])
@@ -808,7 +808,7 @@ class WflowModel(Model):
                 if snap_to_river:
                     ids_old = ids.copy()
                     da = da.where(
-                        self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata
+                        self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
                     )
                     ids_new = np.unique(da.values[da.values > 0])
                     idxs = idxs[np.isin(ids_old, ids_new)]
@@ -1613,7 +1613,9 @@ class WflowModel(Model):
             self.logger.info(f"Read staticmaps from {fn}")
             # FIXME: we need a smarter (lazy) solution for big models which also
             # works when overwriting / appending data in the same source!
-            ds = xr.open_dataset(fn, mask_and_scale=False, **kwargs).load()
+            ds = xr.open_dataset(
+                fn, mask_and_scale=False, decode_coords="all", **kwargs
+            ).load()
             ds.close()
             self.set_staticmaps(ds)
         elif len(glob.glob(join(self.root, "staticmaps", "*.map"))) > 0:
@@ -1739,7 +1741,7 @@ class WflowModel(Model):
             self._forcing = dict()
         if fn is not None and isfile(fn):
             self.logger.info(f"Read forcing from {fn}")
-            ds = xr.open_dataset(fn, chunks={"time": 30})
+            ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
 
@@ -1914,7 +1916,7 @@ class WflowModel(Model):
         nc_fn = self.get_config("output.path", abs_path=True)
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
-            ds = xr.open_dataset(nc_fn, chunks={"time": 30})
+            ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
             # TODO ? align coords names and values of results nc with staticmaps
             self.set_results(ds, name="output")
 

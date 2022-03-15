@@ -33,7 +33,7 @@ _models = {
 def _compare_wflow_models(mod0, mod1):
     # check maps
     invalid_maps = {}
-    invalid_maps_dtype = {}
+    # invalid_maps_dtype = {}
     if len(mod0._staticmaps) > 0:
         maps = mod0.staticmaps.raster.vars
         assert np.all(mod0.crs == mod1.crs), f"map crs staticmaps"
@@ -56,6 +56,12 @@ def _compare_wflow_models(mod0, mod1):
                     if map0.dtype == map1.dtype
                     else f"{map1.dtype} instead of {map0.dtype}"
                 )
+                # Check on nodata
+                err = (
+                    err
+                    if map0.raster.nodata == map1.raster.nodata
+                    else f"nodata {map1.raster.nodata} instead of {map0.raster.nodata}; {err}"
+                )
                 notclose = ~np.isclose(map0, map1)
                 ncells = int(np.sum(notclose))
                 if ncells > 0:
@@ -65,9 +71,9 @@ def _compare_wflow_models(mod0, mod1):
                     err = f"diff ({ncells:d} cells): {diff:.4f}; {err}"
                 invalid_maps[name] = err
     # invalid_map_str = ", ".join(invalid_maps)
-    assert (
-        len(invalid_maps_dtype) == 0
-    ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
+    # assert (
+    #    len(invalid_maps_dtype) == 0
+    # ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
     assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
     if mod0._staticgeoms:

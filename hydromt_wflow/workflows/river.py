@@ -135,6 +135,8 @@ def river(
     # create xarray dataset for all river variables
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
     dims = ds_model.raster.dims
+    # Explicit bool to int conversion needed
+    riv_mask = riv_mask.astype(np.int32)
     riv_mask.raster.set_nodata(0)
     ds_out["rivmsk"] = riv_mask
     attrs = dict(_FillValue=-9999, unit="m")
@@ -375,7 +377,7 @@ def river_width(
         )
 
     # compute new riverwidth
-    rivmsk = ds_like[rivmsk_name].values
+    rivmsk = ds_like[rivmsk_name].values != 0
     rivwth_out = np.full(ds_like.raster.shape, -9999.0, dtype=np.float32)
     rivwth_out[rivmsk] = np.maximum(min_wth, power_law(values[rivmsk], a, b))
 
