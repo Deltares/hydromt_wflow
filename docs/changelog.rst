@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+----------
+
+Fixed
+-----
+- correct uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
+- correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)
+
+Changed
+-------
+- new dtype and nodata arguments in **setup_constant_pars**
+
+
 v0.1.4 (18 February 2022)
 -------------------------
 
