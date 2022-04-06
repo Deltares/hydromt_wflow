@@ -1347,8 +1347,8 @@ class WflowModel(Model):
                 f"Skipping glacier procedures!"
             )
 
-    def setup_constant_pars(self, **kwargs):
-        """Setup constant parameter maps.
+    def setup_constant_pars(self, dtype="float32", nodata=-999, **kwargs):
+        """Setup constant parameter maps for all active model cells.
 
         Adds model layer:
 
@@ -1356,16 +1356,20 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        name = value : list of opt
-            Will add name in staticmaps with value for every active cell.
+        dtype: str
+            data type
+        nodata: int or float
+            nodata value
+        kwargs
+            "param_name: value" pairs for constant staticmaps.
 
         """
         for key, value in kwargs.items():
-            nodatafloat = -999
+            nodata = np.dtype(dtype).type(nodata)
             da_param = xr.where(
-                self.staticmaps[self._MAPS["basins"]], value, nodatafloat
-            )
-            da_param.raster.set_nodata(nodatafloat)
+                self.staticmaps[self._MAPS["basins"]], value, nodata
+            ).astype(dtype)
+            da_param.raster.set_nodata(nodata)
 
             da_param = da_param.rename(key)
             self.set_staticmaps(da_param)
@@ -1634,7 +1638,9 @@ class WflowModel(Model):
         self.logger.info(f"Write staticmaps to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
-            ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
+            # nodata is required for all but boolean fields
+            if ds_out[v].dtype != "bool":
+                ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn)
         # self.write_staticmaps_pcr()
 
