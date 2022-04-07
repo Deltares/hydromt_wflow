@@ -543,10 +543,11 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     # for writing pcraster map files a scalar nodata value is required
     dtypes = {"wflow_soil": np.int32}
     for var in ds_out:
-        logger.info(f"Interpolate NAN values for {var}")
+        dtype = dtypes.get(var, np.float32)
+        logger.debug(f"Interpolate nodata (NaN) values for {var}")
         ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
-        ds_out[var] = ds_out[var].fillna(nodata).astype(dtypes.get(var, np.float32))
-        ds_out[var].raster.set_nodata(nodata)
+        ds_out[var] = ds_out[var].fillna(nodata).astype(dtype)
+        ds_out[var].raster.set_nodata(np.dtype(dtype).type(nodata))
 
     return ds_out
 
