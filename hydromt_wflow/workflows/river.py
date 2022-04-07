@@ -135,9 +135,9 @@ def river(
     # create xarray dataset for all river variables
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
     dims = ds_model.raster.dims
-    # no nodata type needed for boolean map
-    # riv_mask = riv_mask.astype(np.uint8)
-    # riv_mask.raster.set_nodata(0)
+    # save as uint8 as bool is not supported in nc and tif files
+    riv_mask = riv_mask.astype(np.uint8)
+    riv_mask.raster.set_nodata(0)
     ds_out["rivmsk"] = riv_mask
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)

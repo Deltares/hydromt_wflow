@@ -47,7 +47,7 @@ def glaciermaps(
         all_touched=True,
         dtype=None,
         sindex=False,
-    )
+    ).astype("int32")
     ds_out = ds_out.rename("glacareas")
     ds_out = ds_out.to_dataset()
 
@@ -84,8 +84,8 @@ def glaciermaps(
     elevtn = ds_like[elevtn_name]
     idx_valid = np.where(elevtn.values.flatten() != elevtn.raster.nodata)[0]
     gdf_grid = ds_like.raster.vector_grid().loc[idx_valid]
-    gdf_grid["glacierfrac"] = np.zeros(len(idx_valid))
-    gdf_grid["glacierstore"] = np.zeros(len(idx_valid))
+    gdf_grid["glacierfrac"] = np.zeros(len(idx_valid), dtype=np.float32)
+    gdf_grid["glacierstore"] = np.zeros(len(idx_valid), dtype=np.float32)
     gdf_grid["area"] = gdf_grid.to_crs(3857).area  # area calculation in projected crs
 
     # Calculate fraction and storage (i.e. volume) per (vector) grid cell
@@ -114,7 +114,7 @@ def glaciermaps(
         all_touched=False,
         dtype=None,
         sindex=False,
-    )
+    ).astype("float32")
 
     # Create the rasterized glacier fraction map
     ds_out["glacfracs"] = ds_like.raster.rasterize(
@@ -124,11 +124,11 @@ def glaciermaps(
         all_touched=False,
         dtype=None,
         sindex=False,
-    )
+    ).astype("float32")
 
-    ds_out["glacareas"].attrs.update(_FillValue=0)
-    ds_out["glacstore"].attrs.update(_FillValue=0)
-    ds_out["glacfracs"].attrs.update(_FillValue=0)
+    ds_out["glacareas"].raster.set_nodata(0)
+    ds_out["glacstore"].raster.set_nodata(0)
+    ds_out["glacfracs"].raster.set_nodata(0)
     return ds_out
 
 

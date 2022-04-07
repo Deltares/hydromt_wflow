@@ -162,9 +162,9 @@ def hydrography(
         subare = flwdir.ucat_area(outidx, unit="km2")[1]
         uparea = flwdir_out.accuflux(subare)
         attrs = dict(_FillValue=-9999, unit="km2")
-        ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs)
+        ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs).astype(np.float32)
         # NOTE: subgrid cella area is currently not used in wflow
-        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs)
+        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
         if "elevtn" in ds:
             subelv = ds["elevtn"].values.flat[outidx]
             subelv = np.where(outidx >= 0, subelv, -9999)
@@ -212,13 +212,15 @@ def hydrography(
         if uparea_name not in ds_out.data_vars:
             uparea = flwdir_out.upstream_area("km2")  # km2
             attrs = dict(_FillValue=-9999, unit="km2")
-            ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs)
+            ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs).astype(
+                np.float32
+            )
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
         ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
         subare = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
-        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs)
+        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
     # logging
     npits = flwdir_out.idxs_pit.size
     xy_pit = flwdir_out.xy(flwdir_out.idxs_pit[:5])

@@ -10,11 +10,13 @@ Unreleased
 
 Fixed
 -----
-- correct uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
 - correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)
+- write **CF-compliant** staticmaps.nc and inmaps.nc
 
 Changed
 -------
+- uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
+- except for coordinates (incl *x_out* and *y_out*) all variables are saved with at most 32 bit depth
 - new dtype and nodata arguments in **setup_constant_pars**
 
 

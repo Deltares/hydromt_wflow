@@ -106,6 +106,9 @@ def waterbodymaps(
         # dummy outgdf
         outgdf = gdf[["waterbody_id"]]
     ds_out["reslocs"].attrs.update(_FillValue=-999)
+    # fix dtypes
+    ds_out["reslocs"] = ds_out["reslocs"].astype("int32")
+    ds_out["resareas"] = ds_out["resareas"].astype("float32")
 
     if wb_type == "lake":
         ds_out = ds_out.rename({"resareas": "lakeareas", "reslocs": "lakelocs"})
