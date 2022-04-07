@@ -157,6 +157,7 @@
 <li><p><strong>setup_rivers</strong> calculate river width and depth based on the attributes of the new <strong>river_geom_fn</strong> river geometry file. We suggest adding “river_geom_fn = rivers_lin2019_v1” to the setup_rivers component of your ini files.</p></li>
 <li><p>In <strong>setup_soilmaps</strong> the interpolation of missing values (interpolate_na function) is executed on the model parameters at the model resolution, rather than on the original raw soilgrids data at higher resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.</p></li>
 <li><p>Possibility to use any dataset and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers. See the documentation for data requirements.</p></li>
+<li><p>In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.</p></li>
 </ul>
 </section>
 <section id="added">

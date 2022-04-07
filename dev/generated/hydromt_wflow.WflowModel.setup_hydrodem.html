@@ -146,7 +146,9 @@
 <dd><p>This component adds a hydrologically conditioned elevation (hydrodem) map for
 river and/or land local-inertial routing.</p>
 <p>River cells are always conditioned to D8 flow directions.  Land cells are conditioned
-to D4 flow directions if land_routing=”local-inertial”, else to D8.</p>
+to D4 flow directions if land_routing=”local-inertial”, else to D8. If local inertial
+is selected for land routing, it is required to have a D4 conditioning, otherwise pits
+may remain in the land cells.</p>
 <p>The conditioned elevation can be based on the average cell elevation (“wflow_dem”)
 or subgrid outlet pixel elevation (“dem_subgrid”). For local-inertial river
 routing the subgrid elevation might provide a better representation of the river

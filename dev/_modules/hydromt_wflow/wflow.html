@@ -479,7 +479,9 @@
 <span class="sd">        river and/or land local-inertial routing.</span>
 
 <span class="sd">        River cells are always conditioned to D8 flow directions.  Land cells are conditioned</span>
-<span class="sd">        to D4 flow directions if land_routing=&quot;local-inertial&quot;, else to D8.</span>
+<span class="sd">        to D4 flow directions if land_routing=&quot;local-inertial&quot;, else to D8. If local inertial</span>
+<span class="sd">        is selected for land routing, it is required to have a D4 conditioning, otherwise pits</span>
+<span class="sd">        may remain in the land cells.</span>
 
 <span class="sd">        The conditioned elevation can be based on the average cell elevation (&quot;wflow_dem&quot;)</span>
 <span class="sd">        or subgrid outlet pixel elevation (&quot;dem_subgrid&quot;). For local-inertial river</span>
@@ -524,6 +526,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> map for routing.&quot;</span><span class="p">)</span>
         <span class="n">connectivity</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;kinematic-wave&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}[</span><span class="n">land_routing</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hydrodem</span><span class="si">{</span><span class="n">postfix</span><span class="si">}</span><span class="s2">_D</span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> map for routing.&quot;</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">dem_adjust</span><span class="p">(</span>
             <span class="n">da_flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]],</span>
             <span class="n">da_elevtn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">elevtn_map</span><span class="p">],</span>
