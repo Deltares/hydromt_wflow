@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+----------
+
+Changed
+^^^^^^^
+- In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.
+
 v0.1.4 (18 February 2022)
 -------------------------
 
@@ -14,7 +21,6 @@ Changed
 - **setup_rivers** calculate river width and depth based on the attributes of the new **river_geom_fn** river geometry file. We suggest adding "river_geom_fn = rivers_lin2019_v1" to the setup_rivers component of your ini files.
 - In **setup_soilmaps** the interpolation of missing values (interpolate_na function) is executed on the model parameters at the model resolution, rather than on the original raw soilgrids data at higher resolution. This change will generate small differences in the parameter values, but (largely) improve memory usage.
 - Possibility to use any dataset and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers. See the documentation for data requirements.
-- In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.
 
 Added
 ^^^^^
