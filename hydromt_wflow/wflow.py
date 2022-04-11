@@ -1579,6 +1579,148 @@ class WflowModel(Model):
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    def setup_cold_states(
+        self,
+        timestamp: str = None,
+    ) -> None:
+        """Setup cold states for Wflow.
+        To be run last as this requires some soil parameters or constant_pars to be computed already.
+
+        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        cold states for them if they are present in the basin.
+
+        This function is mainly useful in case the wflow model is read into Delft-FEWS.
+
+        Adds model layer:
+
+        * **satwaterdepth**: saturated store [mm]
+        * **snow**: snow storage [mm]
+        * **tsoil**: top soil temperature [°C]
+        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
+        * **snowwater**: liquid water content in the snow pack [mm]
+        * **canopystorage**: canopy storage [mm]
+        * **q_river**: river discharge [m3/s]
+        * **h_river**: river water level [m]
+        * **h_av_river**: river average water level [m]
+        * **ssf**: subsurface flow [m3/d]
+        * **h_land**: land water level [m]
+        * **h_av_land**: land average water level[m]
+        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or overland flow in x/y directions for local-inertial [m3/s]
+
+        If lakes, also adds:
+
+        * **waterlevel_lake**: lake water level [m]
+
+        If reservoirs, also adds:
+
+        * **volume_reservoir**: reservoir volume [m3]
+
+        If glaciers, also adds:
+
+        * **glacierstore**: water within the glacier [mm]
+
+        Parameters
+        ----------
+        timestamp : str, optional
+            Timestamp of the cold states. By default uses the (starttime - timestepsecs) from the config.
+        """
+        dsin = self.staticmaps
+        timestepsecs = self.get_config("timestepsecs", fallback=86400)
+        dtype = "float32"
+        nodata = -999
+
+        ds_out = xr.Dataset(coords=dsin.raster.coords)
+
+        def create_constant_map(dsin, value, nodata, dtype, maskname):
+            nodata = np.dtype(dtype).type(nodata)
+            da_param = xr.where(dsin[self._MAPS[maskname]], value, nodata).astype(dtype)
+            da_param.raster.set_nodata(nodata)
+
+            return da_param
+
+        # zeros (per layer for "ustorelayerdepth")
+        zeromap = ["tsoil", "snow", "snowwater", "canopystorage", "h_land", "h_av_land"]
+        olf = self.get_config("model.land_routing")
+        if olf == "local-inertial":
+            zeromap.extend(["qx_land", "qy_land"])
+        else:
+            zeromap.extend(["q_land"])
+
+        for var in zeromap:
+            if var == "tsoil":
+                value = 10.0
+            else:
+                value = 0.0
+            da_param = create_constant_map(
+                dsin, value, nodata, dtype, maskname="basins"
+            )
+            da_param = da_param.rename(var)
+            ds_out[var] = da_param
+
+        # zeros for river
+        zeromap_riv = ["q_river", "h_river", "h_av_river"]
+        for var in zeromap_riv:
+            value = 0.0
+            da_param = create_constant_map(
+                dsin, value, nodata, dtype, maskname="rivmsk"
+            )
+            da_param = da_param.rename(var)
+            ds_out[var] = da_param
+
+        # satwaterdepth
+        swd = 0.85 * dsin["SoilThickness"] * (dsin["thetaS"] - dsin["thetaR"])
+        swd = create_constant_map(dsin, swd.values, nodata, dtype, maskname="basins")
+        ds_out["satwaterdepth"] = swd
+
+        # ssf
+        zi = np.maximum(
+            0.0, dsin["SoilThickness"] - swd / (dsin["thetaS"] - dsin["thetaR"])
+        )
+        kh0 = dsin["KsatHorFrac"] * dsin["KsatVer"] * 0.001 * (86400 / timestepsecs)
+        ssf = (kh0 * np.maximum(0.00001, dsin["Slope"]) / (dsin["f"] * 1000)) * (
+            np.exp(-dsin["f"] * 1000 * zi * 0.001)
+        ) - (
+            np.exp(-dsin["f"] * 1000 * dsin["SoilThickness"])
+            * np.sqrt(dsin.raster.area_grid())
+        )
+        ssf = create_constant_map(dsin, ssf.values, nodata, dtype, maskname="basins")
+        ds_out["ssf"] = ssf
+
+        # ustorelayerdepth (zero per layer)
+        usld = hydromt.raster.full_like(dsin["c"], nodata=nodata)
+        for sl in usld["layer"]:
+            usld.loc[dict(layer=sl)] = xr.where(dsin[self._MAPS["basins"]], 0.0, nodata)
+        ds_out["ustorelayerdepth"] = usld
+
+        # reservoir
+        if "ResMaxVolume" in dsin:
+            resvol = dsin["ResTargetFullFrac"] * dsin["ResMaxVolume"]
+            resvol = xr.where(dsin[self._MAPS["reslocs"]] > 0, resvol, nodata)
+            resvol.raster.set_nodata(nodata)
+            ds_out["volume_reservoir"] = resvol
+        # lake
+        if "LakeAvgLevel" in dsin:
+            ds_out["waterlevel_lake"] = dsin["LakeAvgLevel"]
+        # glacier
+        if "G_SIfrac" in dsin:
+            glacstore = create_constant_map(
+                dsin, 5500.0, nodata, dtype, maskname="basins"
+            )
+            ds_out["glacierstore"] = glacstore
+
+        # Add time dimension
+        if timestamp is None:
+            starttime = pd.to_datetime(self.get_config("starttime"))
+            timestamp = starttime - pd.Timedelta(seconds=timestepsecs)
+        else:
+            timestamp = pd.to_datetime(timestamp)
+        ds_out = ds_out.expand_dims(dim=dict(time=[timestamp]))
+
+        self.set_states(ds_out)
+
+        # Update config to read the states
+        self.set_config("model.reinit", False)
+
     # I/O
     def read(self):
         """Method to read the complete model schematization and configuration from file."""
@@ -1586,6 +1728,7 @@ class WflowModel(Model):
         self.read_staticmaps()
         self.read_intbl()
         self.read_staticgeoms()
+        self.read_states()
         self.read_forcing()
         self.logger.info("Model read")
 
@@ -1603,6 +1746,8 @@ class WflowModel(Model):
             self.write_staticmaps()
         if self._staticgeoms:
             self.write_staticgeoms()
+        if self._states:
+            self.write_states()
         if self._forcing:
             self.write_forcing()
 
@@ -1897,16 +2042,43 @@ class WflowModel(Model):
 
     def read_states(self):
         """Read states at <root/?/> and parse to dict of xr.DataArray"""
+        fn_default = join(self.root, "instate", "instates.nc")
+        fn = self.get_config("state.path_input", abs_path=True, fallback=fn_default)
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
-        # raise NotImplementedError()
+        if fn is not None and isfile(fn):
+            self.logger.info(f"Read states from {fn}")
+            ds = xr.open_dataset(fn, mask_and_scale=False)
+            for v in ds.data_vars:
+                self.set_states(ds[v])
 
-    def write_states(self):
+    def write_states(self, fn_out=None):
         """write states at <root/?/> in model ready format"""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
+        if self.states:
+            self.logger.info("Write states file")
+
+            # get output filename
+            if fn_out is not None:
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
+            else:
+                fn_out = self.get_config("state.path_input", abs_path=True)
+
+            # merge, process and write forcing
+            ds = xr.merge(self.states.values())
+
+            # make sure no _FillValue is written to the time dimension
+            ds["time"].attrs.pop("_FillValue", None)
+
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
+
+            # write states
+            ds.to_netcdf(fn_out, mode="w")
 
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset"""
@@ -2200,3 +2372,28 @@ class WflowModel(Model):
                 self.staticmaps.raster.bounds
             )
             self.set_forcing(ds_forcing)
+
+    def clip_states(self, crs=4326, **kwargs):
+        """Return clippped states for subbasin.
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped states.
+
+        """
+        if len(self.states) > 0:
+            self.logger.info("Clipping NetCDF states..")
+            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+                self.staticmaps.raster.bounds
+            )
+            # Check for reservoirs/lakes presence in the clipped model
+            remove_maps = []
+            if self._MAPS["resareas"] not in self.staticmaps:
+                if "volume_reservoir" in ds_states:
+                    remove_maps.extend(["volume_reservoir"])
+            if self._MAPS["lakeareas"] not in self.staticmaps:
+                if "waterlevel_lake" in ds_states:
+                    remove_maps.extend(["waterlevel_lake"])
+            ds_states = ds_states.drop_vars(remove_maps)
+            self.set_states(ds_states)
