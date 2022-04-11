@@ -16,6 +16,7 @@ import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
+import rioxarray  # required for rio accessor
 
 # from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
