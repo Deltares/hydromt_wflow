@@ -5,6 +5,7 @@ import os
 from os.path import join, dirname, basename, isfile, isdir
 from typing import Optional
 import glob
+import shutil
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -1751,6 +1752,117 @@ class WflowModel(Model):
         if self._forcing:
             self.write_forcing()
 
+    def write_fews(
+        self,
+        fews_root: str,
+        scheme_version: int,
+        region_name: str,
+        model_version: int,
+    ) -> None:
+        """
+        Method to write and export the complete model schematization and configuration to a Delft-FEWS configuration.
+
+        Writes:
+
+        * zipped wflow model in ModuleDataSetFiles
+        * staticgeoms in MapLayerFiles
+        * states in ColdStateFiles
+        * forcing in Import
+
+        Parameters
+        ----------
+        fews_root: str
+            Path to the FEWS configuration.
+        scheme_version: int
+            Version number of the modelling scheme (coupled model suite).
+        region_name: str
+            Name of the model region.
+        model_version: int
+            Version of the current wflow model version for region_name.
+
+        """
+        self.logger.info(f"Write model data to {fews_root}")
+        # Location of wflow model
+        wflow_root = os.path.join(
+            fews_root,
+            "Config",
+            "ModuleDataSetFiles",
+            f"scheme.{scheme_version}",
+            f"{region_name}.wflow.{model_version}",
+        )
+        self.set_root(wflow_root)
+
+        # Use standard ouput filenames
+        toml_opt = {
+            "state.path_input": "instate/instates.nc",
+            "state.path_output": "run_default/outstate/outstates.nc",
+            "input.path_static": "staticmaps.nc",
+            "output.path": "run_default/output.nc",
+            "netcdf.path": "run_default/output_scalar.nc",
+            "csv": "run_default/output.csv",
+        }
+        for option in toml_opt:
+            self.set_config(option, toml_opt[option])
+
+        self.write_data_catalog()
+        if self._staticmaps:
+            self.write_staticmaps()
+
+        # Write staticgeoms in MapLayerFiles folder
+        if self._staticgeoms:
+            geoms_root = os.path.join(
+                fews_root,
+                "Config",
+                "MapLayerFiles",
+                f"scheme.{scheme_version}",
+                f"{region_name}.wflow.{model_version}",
+            )
+            self.write_staticgeoms(geoms_root=geoms_root)
+
+        # Write states in ColdStateFiles folder
+        if not self._states:
+            self.setup_cold_states()
+        states_fn = os.path.join(
+            fews_root,
+            "Config",
+            "ColdStateFiles",
+            f"scheme.{scheme_version}",
+            f"{region_name}.wflow.{model_version}",
+            "instates.nc",
+        )
+        self.write_states(fn_out=states_fn)
+
+        # Write forcing in another folder
+        if self._forcing:
+            forcing_name = os.path.basename(self.get_config("input.path_forcing"))
+            forcing_fn = os.path.join(
+                fews_root,
+                "Import",
+                f"scheme.{scheme_version}",
+                f"{region_name}.wflow.{model_version}",
+                forcing_name,
+            )
+            self.write_forcing(fn_out=forcing_fn)
+
+        # Update template config and write in toml_template folder
+        toml_opt = {
+            "starttime": "%START_DATE_TIME%",
+            "endtime": "%END_DATE_TIME%",
+            "input.path_forcing": "inmaps.nc",
+        }
+        for option in toml_opt:
+            self.set_config(option, toml_opt[option])
+
+        self.write_config(
+            config_root=os.path.join(wflow_root, "toml_template"),
+            config_name="wflow_sbm.toml",
+        )
+
+        # Zip the model and erase the unzipped copy
+        wflow_root_zip = wflow_root + ".zip"
+        shutil.make_archive(wflow_root_zip, "zip", wflow_root)
+        shutil.rmtree(wflow_root)
+
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
         fn_default = join(self.root, "staticmaps.nc")
@@ -1868,7 +1980,7 @@ class WflowModel(Model):
             if name != "region":
                 self.set_staticgeoms(gpd.read_file(fn), name=name)
 
-    def write_staticgeoms(self):
+    def write_staticgeoms(self, geoms_root=None):
         """Write staticmaps at <root/staticgeoms> in model ready format"""
         # to write use self.staticgeoms[var].to_file()
         if not self._write:
@@ -1876,7 +1988,10 @@ class WflowModel(Model):
         if self.staticgeoms:
             self.logger.info("Writing model staticgeom to file.")
             for name, gdf in self.staticgeoms.items():
-                fn_out = join(self.root, "staticgeoms", f"{name}.geojson")
+                if geoms_root:
+                    fn_out = join(geoms_root, f"{name}.geojson")
+                else:
+                    fn_out = join(self.root, "staticgeoms", f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
 
     def read_forcing(self):
