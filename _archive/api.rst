@@ -1,8 +1,10 @@
 .. currentmodule:: hydromt_wflow
 
-=============
+.. _api_reference:
+
+#############
 API reference
-=============
+#############
 
 .. _api_model:
 
