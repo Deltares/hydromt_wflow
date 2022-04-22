@@ -48,4 +48,4 @@ Getting started
 
    installation.rst
    example_index.rst
-   `User's stories <https://deltares.github.io/hydromt/preview/getting_started/user_stories.html>`
+   User's stories <https://deltares.github.io/hydromt/preview/getting_started/user_stories>

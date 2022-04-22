@@ -1,30 +1,73 @@
-===================
-Model set up basics
-===================
+===============================
+Wflow Sediment model components
+===============================
 
-This plugin helps you preparing or updating several components of a wflow sediment model such as topography information, landuse or soil.
+This plugin helps you preparing or updating several components of a Wflow Sediment model such as topography information, landuse or soil.
 The main interactions are available from the HydroMT Command Line Interface and allow you to configure
-HydroMT in order to build or update or clip wflow sediment models.
+HydroMT in order to build or update or clip Wflow Sediment models.
 
 When building or updating a model from command line a
-:ref:`model region <https://deltares.github.io/hydromt/preview/user_guide/build_region.html?highlight=region>`; a model setup
-configuration (.ini file) with model components and options and, optionally, 
-a :ref:`data sources <https://deltares.github.io/hydromt/preview/user_guide/get_data.html>`(.yml) file should be prepared.
+`model region <https://deltares.github.io/hydromt/preview/user_guide/build_region.html?highlight=region>`_; a model setup
+:ref:`configuration <model_config_sed>` (.ini file) with model components and options and, optionally,
+a `data sources <https://deltares.github.io/hydromt/preview/user_guide/get_data.html>`_ (.yml) file should be prepared.
 
-Here you can find more detailed information about the basics for setting up a Wflow model with HydroMT:
+.. currentmodule:: hydromt_wflow.wflow_sediment
 
-* :ref:`Wflow model components <model_components_sed>`
-* :ref:`Wflow configuration (.ini file) <model_config_sed>`
-* :ref:`Wflow in- and output files <model_files_sed>`
+.. _model_components_sed:
 
-Note that the order in which the components are listed in the ini file is important: 
+Wflow Sediment model setup components
+=====================================
 
-- `setup_basemaps` should always be run first to determine the model domain
-- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverbedsed, floodplains, gauges)
+An overview of the available Wflow Sediment model setup components
+is provided in the table below. When using HydroMT from the command line only the
+setup components are exposed. Click on
+a specific method see its documentation.
 
-.. toctree::
-    :hidden:
+.. autosummary::
+   :toctree: ../_generated/
+   :nosignatures:
 
-    sediment_components.rst
-    sediment_config.rst
-    sediment_files.rst
+   ~WflowSedimentModel.setup_config
+   ~WflowSedimentModel.setup_basemaps
+   ~WflowSedimentModel.setup_rivers
+   ~WflowSedimentModel.setup_lakes
+   ~WflowSedimentModel.setup_reservoirs
+   ~WflowSedimentModel.setup_lulcmaps
+   ~WflowSedimentModel.setup_laimaps
+   ~WflowSedimentModel.setup_canopymaps
+   ~WflowSedimentModel.setup_soilmaps
+   ~WflowSedimentModel.setup_riverbedsed
+   ~WflowSedimentModel.setup_gauges
+   ~WflowModel.setup_areamap
+   ~WflowSedimentModel.setup_constant_pars
+
+.. _model_files_sed:
+
+Wflow Sediment datamodel files
+==============================
+
+The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSedimentModel`
+attribute contains which Wflow Sediment in- and output files. The files are read and written with the associated
+read- and write- methods, i.e. :py:func:`~hydromt_wflow.WflowSedimentModel.read_config`
+and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
+:py:attr:`~hydromt_wflow.WflowSedimentModel.config`  attribute.
+
+
+.. list-table:: Wflow Sediment mdel data
+   :widths: 30 70
+   :header-rows: 1
+
+   * - :py:class:`~hydromt_wflow.WflowSedimentModel` attribute
+     - Wflow sediment files
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.config`
+     - wflow_sediment.toml
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps`
+     - staticmaps.nc
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms`
+     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.forcing`
+     - inmaps.nc
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.states`
+     - instates.nc
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.results`
+     - output.nc, output_scalar.nc, output.csv

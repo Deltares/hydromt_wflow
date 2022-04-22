@@ -11,27 +11,27 @@ data libraries are set, you can build a model by using:
     hydromt build wflow_sediment path/to/built_model "{'basin': [x, y]}" -i wflow_sediment_build.ini -d data_sources.yml -vvv
 
 The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options>`_ 
-for a proper implementation of the wflow_sediment model are:
+for a proper implementation of the Wflow Sediment model are:
 
 - basin
 - subbasin
 
 .. _model_config_sed:
 
-WflowSediment configuration (.ini file)
-=======================================
-
-This HydroMT plugin provides an implementation for the wflow_sediment model in order to build, update or clip from
-command line. Specific details on the HydroMT CLI methods can be found in
-https://deltares.github.io/hydromt/latest/user_guide/cli.html
-
+Wflow Sediment configuration (.ini file)
+========================================
 Configuration file
 ------------------
-Settings to build or update a wflow model are managed in a configuration file. In this file,
+Settings to build or update a Wflow model are managed in a configuration file. In this file,
 every option from each :ref:`model component <model_components_sed>` can be changed by the user
 in its corresponding section.
 
-Below is an example of ini file that can be used to build a complete wflow_sediment model
+Note that the order in which the components are listed in the ini file is important:
+
+- `setup_basemaps` should always be run first to determine the model domain
+- `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverbedsed, floodplains, gauges)
+
+Below is an example of ini file that can be used to build a complete Wflow Sediment model
 :download:`.ini file <../_examples/wflow_sediment_build.ini>`. Each section corresponds
 to a model component with the same name.
 
@@ -58,4 +58,4 @@ are three ways for the user to select which data libraries to use:
 .. toctree::
     :hidden:
 
-    Example: Build Wflow sediment model <../_examples/build_sediment>
+    Example: Build Wflow Sediment model <../_examples/build_sediment>

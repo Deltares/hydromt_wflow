@@ -6,7 +6,7 @@ Installation Guide
 
 Prerequisites
 =============
-For more information about the prerequisites for an installation of the hydromt_wflow package please visit the
+For more information about the prerequisites for an installation of the HydroMT Wflow package please visit the
 documentation of the `HydroMT core <https://deltares.github.io/hydromt/preview/getting_started/installation.html#installation-guide>`_
 
 Installation
@@ -23,7 +23,7 @@ Install HydroMT in a new environment
 ------------------------------------
 .. Tip::
 
-    This is our recommended way of installing HydroMT WFLOW!
+    This is our recommended way of installing HydroMT Wflow!
 
 To install HydroMT Wflow in a new environment called `hydromt-wflow` from the conda-forge channel do:
 
@@ -37,8 +37,8 @@ Then, activate the environment (as stated by mamba/conda) to start making use of
 
   conda activate hydromt-wflow
 
-This will install **almost** all dependencies including the core hydroMT library and the model API as well 
-as the model plugins **wflow** and **wflow_sediment**. To complete the installation, add manually the hydroengine dependency:
+This will install **almost** all dependencies including the core HydroMT library and the model API as well
+as the model plugins **Wflow** and **Wflow Sediment**. To complete the installation, add manually the hydroengine dependency:
 
 .. Note::
 

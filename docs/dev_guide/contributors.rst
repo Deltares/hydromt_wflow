@@ -1,6 +1,10 @@
+.. _contributors:
+
 Contributors
 ============
 
-.. _contributors:
-
-Here the contributors to the HydroMT Wflow plugin will be listed
+* Hélène Boisgontier `@hboisgon <https://github.com/hboisgon>`_
+* Dirk Eilander `@DirkEilander <https://github.com/DirkEilander>`_
+* Laurene Bouaziz `@laurenebouaziz <https://github.com/laurenebouaziz>`_
+* Mark Hegnauer `@markhegnauer <https://github.com/markhegnauer>`_
+* Willem van Verseveld `@verseve <https://github.com/verseve>`_

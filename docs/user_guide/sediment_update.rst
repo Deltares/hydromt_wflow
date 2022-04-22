@@ -2,7 +2,7 @@
 
 Updating a model
 ----------------
-This plugin allows to update any components from a wflow_sediment model. To do so, list the components to update in a configuration file,
+This plugin allows to update any components from a Wflow Sediment model. To do so, list the components to update in a configuration file,
 if needed edit your data library with new data sources required for the update and use the command:
 
 .. code-block:: console

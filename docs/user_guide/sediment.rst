@@ -1,11 +1,11 @@
-==============
-Wflow Sediment
-==============
+=====================================
+Working with the Wflow Sediment model
+=====================================
 
-Extending a wflow model with a wflow_sediment model
+Extending a Wflow model with a Wflow Sediment model
 ---------------------------------------------------
-If you already have a wflow model and you want to extend it in order to include sediment as well, then you do not need to build the
-wflow_sediment from scratch. You can instead ``update`` the wflow model with the additional components needed by wflow_sediment.
+If you already have a Wflow model and you want to extend it in order to include sediment as well, then you do not need to build the
+Wflow Sediment from scratch. You can instead ``update`` the Wflow model with the additional components needed by Wflow Sediment.
 These components are available in a template :download:`.ini file <../_examples/wflow_extend_sediment.ini>` and shown below. The corresponding
 command line would be:
 
@@ -21,8 +21,8 @@ command line would be:
 .. _region: https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options
 
 
-With the hydromt_wflow plugin, you can easily work with wflow sediment models.
-This plugin contains as well relevant functions for setting up or adjusting wflow sediment models:
+With the Hydromt Wflow plugin, you can easily work with Wflow Sediment models.
+This plugin contains as well relevant functions for setting up or adjusting Wflow Sediment models:
 
 * :ref:`building a model <sediment_build>`: building a model from scratch.
 * :ref:`updating a model <sediment_update>`: updating an existing model (e.g. update datafeeds).
