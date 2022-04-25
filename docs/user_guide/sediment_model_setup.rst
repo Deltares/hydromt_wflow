@@ -7,11 +7,11 @@ The main interactions are available from the HydroMT Command Line Interface and 
 HydroMT in order to build or update or clip Wflow Sediment models.
 
 When building or updating a model from command line a
-`model region <https://deltares.github.io/hydromt/preview/user_guide/build_region.html?highlight=region>`_; a model setup
+`model region <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_; a model setup
 :ref:`configuration <model_config_sed>` (.ini file) with model components and options and, optionally,
-a `data sources <https://deltares.github.io/hydromt/preview/user_guide/get_data.html>`_ (.yml) file should be prepared.
+a `data sources <https://deltares.github.io/hydromt/preview/user_guide/data_main>`_ (.yml) file should be prepared.
 
-.. currentmodule:: hydromt_wflow.wflow_sediment
+.. currentmodule:: hydromt_wflow
 
 .. _model_components_sed:
 
@@ -23,23 +23,40 @@ is provided in the table below. When using HydroMT from the command line only th
 setup components are exposed. Click on
 a specific method see its documentation.
 
-.. autosummary::
-   :toctree: ../_generated/
-   :nosignatures:
+.. list-table::
+    :widths: 20 55
+    :header-rows: 1
+    :stub-columns: 1
 
-   ~WflowSedimentModel.setup_config
-   ~WflowSedimentModel.setup_basemaps
-   ~WflowSedimentModel.setup_rivers
-   ~WflowSedimentModel.setup_lakes
-   ~WflowSedimentModel.setup_reservoirs
-   ~WflowSedimentModel.setup_lulcmaps
-   ~WflowSedimentModel.setup_laimaps
-   ~WflowSedimentModel.setup_canopymaps
-   ~WflowSedimentModel.setup_soilmaps
-   ~WflowSedimentModel.setup_riverbedsed
-   ~WflowSedimentModel.setup_gauges
-   ~WflowModel.setup_areamap
-   ~WflowSedimentModel.setup_constant_pars
+    * - Component
+      - Explanation
+    * - :py:func:`~WflowSedimentModel.setup_config`
+      - Update config with a dictionary
+    * - :py:func:`~WflowSedimentModel.setup_basemaps`
+      - This component sets the region of interest and res (resolution in degrees) of the model.
+    * - :py:func:`~WflowSedimentModel.setup_rivers`
+      - This component sets the all river parameter maps.
+    * - :py:func:`~WflowSedimentModel.setup_lakes`
+      - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
+    * - :py:func:`~WflowSedimentModel.setup_reservoirs`
+      - This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
+    * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
+      - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
+    * - :py:func:`~WflowSedimentModel.setup_laimaps`
+      - This component sets leaf area index (LAI) climatology maps per month.
+    * - :py:func:`~WflowSedimentModel.setup_canopymaps`
+      - Setup sediments based canopy height maps.
+    * - :py:func:`~WflowSedimentModel.setup_soilmaps`
+      - Setup sediments based soil parameter maps.
+    * - :py:func:`~WflowSedimentModel.setup_riverbedsed`
+      - Setup sediments based river bed characteristics maps.
+    * - :py:func:`~WflowSedimentModel.setup_gauges`
+      - This components sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.
+    * - :py:func:`~WflowModel.setup_areamap`
+      - Setup area map from vector data to save wflow outputs for specific area.
+    * - :py:func:`~WflowSedimentModel.setup_constant_pars`
+      - Setup constant parameter maps.
+
 
 .. _model_files_sed:
 

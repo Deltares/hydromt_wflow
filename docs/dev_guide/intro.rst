@@ -1,7 +1,7 @@
 Developments
 ============
 
-These pages provide guidelines on how to contribute to HydroMT.
+These pages provide guidelines on how to contribute to HydroMT Wflow.
 Furthermore it informs you on planned developments and new features.
 
 .. toctree::

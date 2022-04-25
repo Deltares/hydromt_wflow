@@ -26,6 +26,7 @@ from distutils.dir_util import copy_tree
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
 
+
 def remove_dir_content(path: str) -> None:
     for root, dirs, files in os.walk(path):
         for f in files:
@@ -34,6 +35,7 @@ def remove_dir_content(path: str) -> None:
             shutil.rmtree(os.path.join(root, d))
     if os.path.isdir(path):
         shutil.rmtree(path)
+
 
 # -- Project information -----------------------------------------------------
 
@@ -133,7 +135,10 @@ html_theme_options = {
         },
     ],
     "external_links": [
-        {"name": "HydroMT core", "url": "https://deltares.github.io/hydromt/preview/index.html"},
+        {
+            "name": "HydroMT core",
+            "url": "https://deltares.github.io/hydromt/preview/index.html",
+        },
     ],
 }
 

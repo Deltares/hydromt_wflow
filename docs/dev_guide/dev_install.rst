@@ -43,4 +43,3 @@ For Linux:
 
     $ flit install -s
 
-For more information about how to contribute, see `HydroMT contributing guidelines <https://deltares.github.io/hydromt/latest/contributing.html>`_.

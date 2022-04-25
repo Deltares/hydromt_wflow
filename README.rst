@@ -43,7 +43,7 @@ It does so by automating the workflow to go from raw data to a complete model in
 is ready to run and to analyse model results once the simulation has finished. This plugin provides an implementation
 of the model API for the wflow_ model.
 
-.. _Hydromt: https://deltares.github.io/hydromt
+.. _Hydromt: https://deltares.github.io/hydromt/preview/
 
 .. _wflow: https://github.com/Deltares/Wflow.jl
 

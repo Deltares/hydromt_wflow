@@ -15,6 +15,5 @@ This plugin contains relevant functions for setting up or adjusting models:
 
     wflow_model_setup.rst
     wflow_build.rst
-    wflow_clip.rst
     wflow_update.rst
-
+    wflow_clip.rst

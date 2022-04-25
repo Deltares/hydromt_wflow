@@ -1,3 +1,4 @@
+.. currentmodule:: hydromt_wflow
 .. _wflow_clip:
 
 Clipping a model
@@ -14,20 +15,20 @@ To clip a smaller model from an existing one use:
     activate hydromt-wflow
     hydromt clip wflow path/to/model_to_clip path/to/clipped_model "{'basin' [1001]}" -vvv
 
-As for building, the recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options>`_ 
+As for building, the recommended `region options <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_
 for a proper implementation of the clipped model are:
 
 - basin
 - subbasin
-   ~WflowModel.setup_precip_forcing
-   ~WflowModel.setup_temp_pet_forcing
-   ~WflowModel.setup_constant_pars
 
+See the following model API:
 
-.. _data: https://deltares.github.io/hydromt/latest/user_guide/data.html
-.. _region: https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options
+* :py:func:`~WflowModel.setup_precip_forcing`
+* :py:func:`~WflowModel.setup_temp_pet_forcing`
+* :py:func:`~WflowModel.setup_constant_pars`
+
 
 .. toctree::
     :hidden:
 
-    Example: Clip Wflow model <../_examples/clip_model>
+    Example: Clip Wflow model <../_examples/clip_model.ipynb>

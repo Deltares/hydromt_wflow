@@ -10,7 +10,7 @@ data libraries are set, you can build a model by using:
     activate hydromt-wflow
     hydromt build wflow_sediment path/to/built_model "{'basin': [x, y]}" -i wflow_sediment_build.ini -d data_sources.yml -vvv
 
-The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options>`_ 
+The recommended `region options <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_
 for a proper implementation of the Wflow Sediment model are:
 
 - basin
@@ -51,11 +51,11 @@ are three ways for the user to select which data libraries to use:
   P-drive). In the command lines examples below, this is done by adding either **-dd** or **--deltares-data**
   to the build / update command line.
 - Finally, the user can prepare its own yaml libary (or libraries) (see
-  `HydroMT documentation <https://deltares.github.io/hydromt/latest/user_guide/data.html>`_ to check the guidelines).
+  `HydroMT documentation <https://deltares.github.io/hydromt/preview/index>`_ to check the guidelines).
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
 
 .. toctree::
     :hidden:
 
-    Example: Build Wflow Sediment model <../_examples/build_sediment>
+    Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>

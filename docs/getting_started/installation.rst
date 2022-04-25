@@ -78,6 +78,6 @@ Note that if some dependencies are not installed from conda-forge the installati
 
 For **Using pip** from pypi (not recommended) see above
 
-Developper install
+Developer install
 ==================
-To be able to test and develop the HydroMT package see instructions in the `Developer installation guide <dev_env>`_.
+To be able to test and develop the HydroMT package see instructions in the :ref:`Developer installation guide <dev_env>`.

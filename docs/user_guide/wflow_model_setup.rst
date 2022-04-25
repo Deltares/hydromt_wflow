@@ -1,4 +1,5 @@
-.. currentmodule:: hydromt_wflow.wflow
+.. currentmodule:: hydromt_wflow
+
 .. _model_set_up:
 
 ======================
@@ -10,9 +11,9 @@ The main interactions are available from the HydroMT Command Line Interface and 
 HydroMT in order to build or update or clip Wflow models.
 
 When building or updating a model from command line a
-`model region <https://deltares.github.io/hydromt/preview/user_guide/build_region.html?highlight=region>`_; a model setup
+`model region <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_; a model setup
 :ref:`configuration <model_config>` (.ini file) with model components and options and, optionally,
-a `data sources <https://deltares.github.io/hydromt/preview/user_guide/get_data.html>`_ (.yml) file should be prepared.
+a `data sources <https://deltares.github.io/hydromt/preview/user_guide/data_main>`_ (.yml) file should be prepared.
 
 .. _model_components:
 
@@ -24,22 +25,38 @@ is provided in the table below. When using HydroMT from the command line only th
 setup components are exposed. Click on
 a specific method see its documentation.
 
-.. autosummary::
-   :toctree: ../_generated/
-   :nosignatures:
+.. list-table::
+    :widths: 20 55
+    :header-rows: 1
+    :stub-columns: 1
 
-   ~WflowModel.setup_config
-   ~WflowModel.setup_basemaps
-   ~WflowModel.setup_rivers
-   ~WflowModel.setup_lakes
-   ~WflowModel.setup_reservoirs
-   ~WflowModel.setup_glaciers
-   ~WflowModel.setup_lulcmaps
-   ~WflowModel.setup_laimaps
-   ~WflowModel.setup_soilmaps
-   ~WflowModel.setup_hydrodem
-   ~WflowModel.setup_gauges
-   ~WflowModel.setup_areamap
+    * - Component
+      - Explanation
+    * - :py:func:`~WflowModel.setup_config`
+      - Update config with a dictionary
+    * - :py:func:`~WflowModel.setup_basemaps`
+      - This component sets the region of interest and res (resolution in degrees) of the model.
+    * - :py:func:`~WflowModel.setup_rivers`
+      - This component sets the all river parameter maps.
+    * - :py:func:`~WflowModel.setup_lakes`
+      - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
+    * - :py:func:`~WflowModel.setup_reservoirs`
+      - This component generates maps of reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
+    * - :py:func:`~WflowModel.setup_glaciers`
+      - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice convertion fraction.
+    * - :py:func:`~WflowModel.setup_lulcmaps`
+      - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
+    * - :py:func:`~WflowModel.setup_laimaps`
+      - This component sets leaf area index (LAI) climatology maps per month.
+    * - :py:func:`~WflowModel.setup_soilmaps`
+      - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rulesto ensure flux matching across scales.
+    * - :py:func:`~WflowModel.setup_hydrodem`
+      - This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.
+    * - :py:func:`~WflowModel.setup_gauges`
+      - This components sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.
+    * - :py:func:`~WflowModel.setup_areamap`
+      -  Setup area map from vector data to save wflow outputs for specific area.
+
 
 .. _model_files>:
 
@@ -48,12 +65,12 @@ Wflow datamodel files
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowModel`
 attribute contains which Wflow in- and output files. The files are read and written with the associated
-read- and write- methods, i.e. :py:func:`~hydromt_wflow.wflow.WflowModel.read_config`
-and :py:func:`~hydromt_wflow.wflow.WflowModel.write_config` for the
-:py:attr:`~hydromt_wflow.wflow.WflowModel.config`  attribute.
+read- and write- methods, i.e. :py:func:`~WflowModel.read_config`
+and :py:func:`~WflowModel.write_config` for the
+:py:attr:`~WflowModel.config`  attribute.
 
 
-.. list-table:: Wflow model data
+.. list-table::
    :widths: 30 70
    :header-rows: 1
 
