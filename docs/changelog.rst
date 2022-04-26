@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+----------
+
+Changed
+^^^^^^^
+- In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.
+
 v0.1.4 (18 February 2022)
 -------------------------
 
