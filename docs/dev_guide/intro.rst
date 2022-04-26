@@ -9,7 +9,7 @@ Furthermore it informs you on planned developments and new features.
    :maxdepth: 2
    :hidden:
 
-   changelog.rst
+   ../changelog.rst
    roadmap.rst
    Developer's guide <https://deltares.github.io/hydromt/preview/dev/contributing>
    dev_install.rst

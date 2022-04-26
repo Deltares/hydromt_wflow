@@ -2,6 +2,12 @@
 
 Building a model
 ================
+
+.. toctree::
+    :hidden:
+    
+    Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>
+
 This plugin allows to build a complete model from available data. Once the configuration and 
 data libraries are set, you can build a model by using:
 
@@ -18,8 +24,6 @@ for a proper implementation of the Wflow Sediment model are:
 
 .. _model_config_sed:
 
-Wflow Sediment configuration (.ini file)
-========================================
 Configuration file
 ------------------
 Settings to build or update a Wflow model are managed in a configuration file. In this file,
@@ -54,8 +58,3 @@ are three ways for the user to select which data libraries to use:
   `HydroMT documentation <https://deltares.github.io/hydromt/preview/index>`_ to check the guidelines).
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
-
-.. toctree::
-    :hidden:
-
-    Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>

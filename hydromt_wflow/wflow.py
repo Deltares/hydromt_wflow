@@ -1233,12 +1233,12 @@ class WflowModel(Model):
         * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
         * **M** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
             (fitted with curve_fit (scipy.optimize)), bounds of M are checked
-        * **M_** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
-            (fitted with numpy linalg regression), bounds of M_ are checked
+        * **`M_`** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
+            (fitted with numpy linalg regression), bounds of `M_` are checked
         * **M_original** map: M without checking bounds
-        * **M_original_** map: M_ without checking bounds
+        * **`M_original_`** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
+        * **`f_`** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
         * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution index at
             depth of 1st soil layer (100 mm) wflow_sbm
         * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm
