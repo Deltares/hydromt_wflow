@@ -142,15 +142,19 @@
 <h1>hydromt_wflow.WflowModel.setup_constant_pars<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-constant-pars" title="Permalink to this headline"></a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_constant_pars">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_constant_pars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_constant_pars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_constant_pars" title="Permalink to this definition"></a></dt>
-<dd><p>Setup constant parameter maps.</p>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_constant_pars</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'float32'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">999</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_constant_pars"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_constant_pars" title="Permalink to this definition"></a></dt>
+<dd><p>Setup constant parameter maps for all active model cells.</p>
 <p>Adds model layer:</p>
 <ul class="simple">
 <li><p><strong>param_name</strong> map: constant parameter map.</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>value</strong> (<em>name =</em>) – Will add name in staticmaps with value for every active cell.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dtype</strong> (<em>str</em>) – data type</p></li>
+<li><p><strong>nodata</strong> (<em>int</em><em> or </em><em>float</em>) – nodata value</p></li>
+<li><p><strong>kwargs</strong> – “param_name: value” pairs for constant staticmaps.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

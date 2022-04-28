@@ -218,6 +218,8 @@
     <span class="c1"># create xarray dataset for all river variables</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
     <span class="n">dims</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span>
+    <span class="c1"># save as uint8 as bool is not supported in nc and tif files</span>
+    <span class="n">riv_mask</span> <span class="o">=</span> <span class="n">riv_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
     <span class="n">riv_mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">riv_mask</span>
     <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
@@ -458,7 +460,7 @@
         <span class="p">)</span>
 
     <span class="c1"># compute new riverwidth</span>
-    <span class="n">rivmsk</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">rivmsk_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">rivmsk</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">rivmsk_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="mi">0</span>
     <span class="n">rivwth_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">-</span><span class="mf">9999.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">rivwth_out</span><span class="p">[</span><span class="n">rivmsk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">min_wth</span><span class="p">,</span> <span class="n">power_law</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">rivmsk</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
 
