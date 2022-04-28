@@ -1636,6 +1636,7 @@ class WflowModel(Model):
         if not self._write:
             raise IOError("Model opened in read-only mode")
         # clean-up staticmaps and write CRS according to CF-conventions
+        # TODO replace later with hydromt.raster.gdal_compliant method after core release
         crs = self.staticmaps.raster.crs
         ds_out = self.staticmaps.reset_coords()
         # TODO?!
@@ -1648,6 +1649,9 @@ class WflowModel(Model):
         ds_out = ds_out.drop_vars(["mask", "spatial_ref", "ls"], errors="ignore")
         ds_out.rio.write_crs(crs, inplace=True)
         ds_out.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
+        ds_out.raster.set_spatial_dims()
+
+        # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
         # Check if all sub-folders in fn exists and if not create them
@@ -1865,6 +1869,7 @@ class WflowModel(Model):
             if decimals is not None:
                 ds = ds.round(decimals)
             # clean-up forcing and write CRS according to CF-conventions
+            # TODO replace later with hydromt.raster.gdal_compliant method after core release
             crs = self.staticmaps.raster.crs
             # TODO?!
             # if ds.raster.res[1] < 0: # write data with South -> North orientation
@@ -1876,6 +1881,8 @@ class WflowModel(Model):
             ds = ds.drop_vars(["mask", "spatial_ref", "idx_out"], errors="ignore")
             ds.rio.write_crs(crs, inplace=True)
             ds.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
+            ds.raster.set_spatial_dims()
+
             # write with output chunksizes with single timestep and complete
             # spatial grid to speed up the reading from wflow.jl
             # dims are always ordered (time, y, x)
