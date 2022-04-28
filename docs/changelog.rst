@@ -8,9 +8,18 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ----------
 
+Fixed
+^^^^^
+- correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)
+- write **CF-compliant** staticmaps.nc and inmaps.nc
+
 Changed
 ^^^^^^^
 - In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.
+- uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
+- except for coordinates (incl *x_out* and *y_out*) all variables are saved with at most 32 bit depth
+- new dtype and nodata arguments in **setup_constant_pars**
+
 
 v0.1.4 (18 February 2022)
 -------------------------

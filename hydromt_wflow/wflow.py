@@ -16,6 +16,7 @@ import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
+import rioxarray  # required for rio accessor
 
 # from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
@@ -741,7 +742,7 @@ class WflowModel(Model):
             self.logger.info(f"Gauges locations set based on river outlets.")
             da, idxs, ids = flw.gauge_map(self.staticmaps, idxs=self.flwdir.idxs_pit)
             # Only keep river outlets for gauges
-            da = da.where(self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata)
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
             ids_da = np.unique(da.values[da.values > 0])
             idxs_da = idxs[np.isin(ids, ids_da)]
             self.set_staticmaps(da, name=self._MAPS["gauges"])
@@ -812,7 +813,7 @@ class WflowModel(Model):
                 if snap_to_river:
                     ids_old = ids.copy()
                     da = da.where(
-                        self.staticmaps[self._MAPS["rivmsk"]], da.raster.nodata
+                        self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
                     )
                     ids_new = np.unique(da.values[da.values > 0])
                     idxs = idxs[np.isin(ids_old, ids_new)]
@@ -868,9 +869,7 @@ class WflowModel(Model):
                     )[0]
                     mapname = self._MAPS["basins"] + "_" + basename
                     self.set_staticmaps(da_basins, name=mapname)
-                    gdf_basins = flw.basin_shape(
-                        self.staticmaps, self.flwdir, basin_name=mapname
-                    )
+                    gdf_basins = da_basins.raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
@@ -1271,7 +1270,7 @@ class WflowModel(Model):
             ptf_ksatver,
             soil_fn,
             logger=self.logger,
-        )
+        ).reset_coords(drop=True)
         self.set_staticmaps(dsout)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
@@ -1351,8 +1350,8 @@ class WflowModel(Model):
                 f"Skipping glacier procedures!"
             )
 
-    def setup_constant_pars(self, **kwargs):
-        """Setup constant parameter maps.
+    def setup_constant_pars(self, dtype="float32", nodata=-999, **kwargs):
+        """Setup constant parameter maps for all active model cells.
 
         Adds model layer:
 
@@ -1360,16 +1359,20 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        name = value : list of opt
-            Will add name in staticmaps with value for every active cell.
+        dtype: str
+            data type
+        nodata: int or float
+            nodata value
+        kwargs
+            "param_name: value" pairs for constant staticmaps.
 
         """
         for key, value in kwargs.items():
-            nodatafloat = -999
+            nodata = np.dtype(dtype).type(nodata)
             da_param = xr.where(
-                self.staticmaps[self._MAPS["basins"]], value, nodatafloat
-            )
-            da_param.raster.set_nodata(nodatafloat)
+                self.staticmaps[self._MAPS["basins"]], value, nodata
+            ).astype(dtype)
+            da_param.raster.set_nodata(nodata)
 
             da_param = da_param.rename(key)
             self.set_staticmaps(da_param)
@@ -1617,8 +1620,13 @@ class WflowModel(Model):
             self.logger.info(f"Read staticmaps from {fn}")
             # FIXME: we need a smarter (lazy) solution for big models which also
             # works when overwriting / appending data in the same source!
-            ds = xr.open_dataset(fn, mask_and_scale=False, **kwargs).load()
+            ds = xr.open_dataset(
+                fn, mask_and_scale=False, decode_coords="all", **kwargs
+            ).load()
             ds.close()
+            # make sure internally maps are always North -> South oriented
+            if ds.raster.res[1] > 0:
+                ds = ds.raster.flipud()
             self.set_staticmaps(ds)
         elif len(glob.glob(join(self.root, "staticmaps", "*.map"))) > 0:
             self.read_staticmaps_pcr()
@@ -1627,7 +1635,23 @@ class WflowModel(Model):
         """Write staticmaps"""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        ds_out = self.staticmaps
+        # clean-up staticmaps and write CRS according to CF-conventions
+        # TODO replace later with hydromt.raster.gdal_compliant method after core release
+        crs = self.staticmaps.raster.crs
+        ds_out = self.staticmaps.reset_coords()
+        # TODO?!
+        # if ds_out.raster.res[1] < 0: # write data with South -> North orientation
+        #     ds_out = ds_out.raster.flipud()
+        x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
+        ds_out = ds_out.rename({ds_out.raster.x_dim: x_dim, ds_out.raster.y_dim: y_dim})
+        ds_out[x_dim].attrs.update(x_attrs)
+        ds_out[y_dim].attrs.update(y_attrs)
+        ds_out = ds_out.drop_vars(["mask", "spatial_ref", "ls"], errors="ignore")
+        ds_out.rio.write_crs(crs, inplace=True)
+        ds_out.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
+        ds_out.raster.set_spatial_dims()
+
+        # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
         # Check if all sub-folders in fn exists and if not create them
@@ -1636,7 +1660,9 @@ class WflowModel(Model):
         self.logger.info(f"Write staticmaps to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
-            ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
+            # nodata is required for all but boolean fields
+            if ds_out[v].dtype != "bool":
+                ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn)
         # self.write_staticmaps_pcr()
 
@@ -1743,7 +1769,7 @@ class WflowModel(Model):
             self._forcing = dict()
         if fn is not None and isfile(fn):
             self.logger.info(f"Read forcing from {fn}")
-            ds = xr.open_dataset(fn, chunks={"time": 30})
+            ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
 
@@ -1839,9 +1865,24 @@ class WflowModel(Model):
                         fn_out = fn_default_path
 
             # merge, process and write forcing
-            ds = xr.merge(self.forcing.values())
+            ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
             if decimals is not None:
                 ds = ds.round(decimals)
+            # clean-up forcing and write CRS according to CF-conventions
+            # TODO replace later with hydromt.raster.gdal_compliant method after core release
+            crs = self.staticmaps.raster.crs
+            # TODO?!
+            # if ds.raster.res[1] < 0: # write data with South -> North orientation
+            #     ds = ds.raster.flipud()
+            x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
+            ds = ds.rename({ds.raster.x_dim: x_dim, ds.raster.y_dim: y_dim})
+            ds[x_dim].attrs.update(x_attrs)
+            ds[y_dim].attrs.update(y_attrs)
+            ds = ds.drop_vars(["mask", "spatial_ref", "idx_out"], errors="ignore")
+            ds.rio.write_crs(crs, inplace=True)
+            ds.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
+            ds.raster.set_spatial_dims()
+
             # write with output chunksizes with single timestep and complete
             # spatial grid to speed up the reading from wflow.jl
             # dims are always ordered (time, y, x)
@@ -1918,7 +1959,7 @@ class WflowModel(Model):
         nc_fn = self.get_config("output.path", abs_path=True)
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
-            ds = xr.open_dataset(nc_fn, chunks={"time": 30})
+            ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
             # TODO ? align coords names and values of results nc with staticmaps
             self.set_results(ds, name="output")
 
@@ -2099,7 +2140,6 @@ class WflowModel(Model):
                 flwdir_name=flwdir_name,
                 **region,
             )
-
         # clip based on subbasin args, geom or bbox
         if geom is not None:
             ds_staticmaps = self.staticmaps.raster.clip_geom(
