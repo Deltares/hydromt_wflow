@@ -23,6 +23,7 @@ import hydromt
 from hydromt.models.model_api import Model
 from hydromt import flw
 from hydromt.io import open_mfraster
+from hydromt.cf_utils import FewsUtils
 
 from . import utils, workflows, DATADIR
 
@@ -1758,6 +1759,8 @@ class WflowModel(Model):
         scheme_version: int,
         region_name: str,
         model_version: int,
+        fews_template: str = None,
+        wflow_template: str = None,
     ) -> None:
         """
         Method to write and export the complete model schematization and configuration to a Delft-FEWS configuration.
@@ -1779,19 +1782,34 @@ class WflowModel(Model):
             Name of the model region.
         model_version: int
             Version of the current wflow model version for region_name.
-
+        fews_template: str, Path, optional
+            Path to a FEWS config template for initialisation. If None, download from url.
+        wflow_template: str, Path, optional
+            Path to a folder containing all wflow template files. If None download from url.
         """
+        if self._read:
+            self.read()
+        self.logger.info(f"Setting FEWS config at {fews_root}")
+        fews = FewsUtils(fews_root, template_path=fews_template)
+        # Instantiate the wflow model in fews object
+        model_name = f"wflow.{region_name}.{model_version}"
+        fews.add_modeldata(
+            name=model_name,
+            scheme_version=scheme_version,
+            crs=self.crs,
+            shape=self.staticmaps.raster.shape,
+            bounds=self.staticmaps.raster.bounds,
+        )
+
+        # Update and write wflow model components in specific FEWS folders and format
         self.logger.info(f"Write model data to {fews_root}")
         # Location of wflow model
         wflow_root = os.path.join(
-            fews_root,
-            "Config",
-            "ModuleDataSetFiles",
+            fews.module_path,
             f"scheme.{scheme_version}",
-            f"{region_name}.wflow.{model_version}",
+            f"wflow.{region_name}.{model_version}",
         )
-        self.set_root(wflow_root)
-
+        self.set_root(wflow_root, mode="w")
         # Use standard ouput filenames
         toml_opt = {
             "state.path_input": "instate/instates.nc",
@@ -1803,64 +1821,86 @@ class WflowModel(Model):
         }
         for option in toml_opt:
             self.set_config(option, toml_opt[option])
-
         self.write_data_catalog()
         if self._staticmaps:
             self.write_staticmaps()
 
         # Write staticgeoms in MapLayerFiles folder
         if self._staticgeoms:
+            # Write first in zip folder
+            self.write_staticgeoms()
+            # Write a copy in MapLayer with different name
             geoms_root = os.path.join(
-                fews_root,
-                "Config",
-                "MapLayerFiles",
+                fews.map_path,
                 f"scheme.{scheme_version}",
-                f"{region_name}.wflow.{model_version}",
+                f"wflow.{region_name}.{model_version}",
             )
+            if not isdir(geoms_root):
+                os.makedirs(geoms_root)
+            names = list(self.staticgeoms.keys())
+            for name in names:
+                new_name = f"wflow.{region_name}.{model_version}_{name}"
+                self._staticgeoms[new_name] = self._staticgeoms.pop(name)
             self.write_staticgeoms(geoms_root=geoms_root)
 
         # Write states in ColdStateFiles folder
         if not self._states:
             self.setup_cold_states()
         states_fn = os.path.join(
-            fews_root,
-            "Config",
-            "ColdStateFiles",
+            fews.state_path,
             f"scheme.{scheme_version}",
-            f"{region_name}.wflow.{model_version}",
+            f"wflow.{region_name}.{model_version}",
             "instates.nc",
         )
         self.write_states(fn_out=states_fn)
 
-        # Write forcing in another folder
+        # Write forcing and wflow_dem in another folder
+        import_path = os.path.join(
+            fews.import_path,
+            f"scheme.{scheme_version}",
+            f"wflow.{region_name}.{model_version}",
+        )
+        if not isdir(import_path):
+            os.makedirs(import_path)
         if self._forcing:
             forcing_name = os.path.basename(self.get_config("input.path_forcing"))
-            forcing_fn = os.path.join(
-                fews_root,
-                "Import",
-                f"scheme.{scheme_version}",
-                f"{region_name}.wflow.{model_version}",
-                forcing_name,
-            )
-            self.write_forcing(fn_out=forcing_fn)
+            self.write_forcing(fn_out=os.path.join(import_path, forcing_name))
+        if "wflow_dem" in self.staticmaps:
+            da = self.staticmaps["wflow_dem"]
+            da.to_netcdf(os.path.join(import_path, "wflow_dem.nc"))
 
-        # Update template config and write in toml_template folder
+        # Update fews times and write in toml_template folder
         toml_opt = {
             "starttime": "%START_DATE_TIME%",
             "endtime": "%END_DATE_TIME%",
             "input.path_forcing": "inmaps.nc",
+            "state.path_input": "instate/instates.nc",
         }
         for option in toml_opt:
             self.set_config(option, toml_opt[option])
-
+        config_root = os.path.join(wflow_root)  # , "toml_template")
+        if not isdir(config_root):
+            os.makedirs(config_root)
         self.write_config(
-            config_root=os.path.join(wflow_root, "toml_template"),
-            config_name="wflow_sbm.toml",
+            config_root=config_root,
+            config_name="wflow_sbm_template.toml",
         )
 
-        # Zip the model and erase the unzipped copy
-        wflow_root_zip = wflow_root + ".zip"
+        # Add FEWS config file for the model
+        self.logger.info("Adding FEWS template files for Wflow")
+        fews.add_template_configfiles(
+            model_source=model_name, model_templates=wflow_template
+        )
+        # Updating csv locs files
+        fews.add_locationsfiles(model_source=model_name)
+
+        # Close logger, Zip the model and erase the unzipped copy
+        self.logger.info("Zipping wflow model")
+        wflow_root_zip = wflow_root
         shutil.make_archive(wflow_root_zip, "zip", wflow_root)
+        for handler in self.logger.handlers[:]:
+            handler.close()
+            logger.removeHandler(handler)
         shutil.rmtree(wflow_root)
 
     def read_staticmaps(self, **kwargs):
