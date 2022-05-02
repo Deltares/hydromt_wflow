@@ -1,0 +1,450 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Working with the Wflow Sediment model &#8212; HydroMT Wflow  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Wflow Sediment model components" href="sediment_model_setup.html" />
+    <link rel="prev" title="Clip a Wflow model" href="../_examples/clip_model.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">HydroMT Wflow</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started/intro.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="intro.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../api.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../dev_guide/intro.html">
+  Developments
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Table of Contents
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="wflow.html">
+   Working with the Wflow model
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wflow_model_setup.html">
+     Wflow model components
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="wflow_build.html">
+     Building a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/build_model.html">
+       Example: Build Wflow model
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="wflow_update.html">
+     Updating a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/update_model_landuse.html">
+       Example: Update Wflow model (landuse)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/update_model_forcing.html">
+       Example: Update Wflow model (forcing)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/update_model_gauges.html">
+       Example: Update Wflow model (gauges)
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="wflow_clip.html">
+     Clipping a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+    <label for="toctree-checkbox-4">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/clip_model.html">
+       Example: Clip Wflow model
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="current reference internal" href="#">
+   Working with the Wflow Sediment model
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="sediment_model_setup.html">
+     Wflow Sediment model components
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="sediment_build.html">
+     Building a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+    <label for="toctree-checkbox-6">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/build_sediment.html">
+       Example: Build Wflow Sediment model
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="sediment_update.html">
+     Updating a model
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="sediment_clip.html">
+     Clipping a model
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="process_analyze.html">
+   Postprocessing and visualization
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">
+     Example: Convert wflow staticmaps netcdf to raster files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">
+     Example: Plot Wflow staticmaps
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/plot_wflow_forcing.html">
+     Example: Plot Wflow forcing data
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/plot_wflow_results.html">
+     Example: Plot Wflow results data
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#extending-a-wflow-model-with-a-wflow-sediment-model">
+   Extending a Wflow model with a Wflow Sediment model
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="working-with-the-wflow-sediment-model">
+<h1>Working with the Wflow Sediment model<a class="headerlink" href="#working-with-the-wflow-sediment-model" title="Permalink to this headline">#</a></h1>
+<section id="extending-a-wflow-model-with-a-wflow-sediment-model">
+<h2>Extending a Wflow model with a Wflow Sediment model<a class="headerlink" href="#extending-a-wflow-model-with-a-wflow-sediment-model" title="Permalink to this headline">#</a></h2>
+<p>If you already have a Wflow model and you want to extend it in order to include sediment as well, then you do not need to build the
+Wflow Sediment from scratch. You can instead <code class="docutils literal notranslate"><span class="pre">update</span></code> the Wflow model with the additional components needed by Wflow Sediment.
+These components are available in a template <a class="reference download internal" download="" href="../_downloads/e3cf09121caf4e6b245d64ae5d2617ac/wflow_extend_sediment.ini"><code class="xref download docutils literal notranslate"><span class="pre">.ini</span> <span class="pre">file</span></code></a> and shown below. The corresponding
+command line would be:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
+<span class="go">hydromt update wflow_sediment path/to/wflow_model_to_extend -i wflow_extend_sediment.ini -d data_sources.yml -vvv</span>
+</pre></div>
+</div>
+<div class="highlight-Ini notranslate"><div class="highlight"><pre><span></span><span class="k">[global]</span><span class="w"></span>
+<span class="na">data_libs</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">[]               # add optional paths to data yml files</span><span class="w"></span>
+
+<span class="k">[setup_config]</span><span class="w"></span>
+<span class="c1"># model.dolake = True               # uncomment if there are lakes in the wflow model</span><span class="w"></span>
+<span class="c1"># model.doreservoir = True          # uncomment if there are reservoirs in the wflow model</span><span class="w"></span>
+
+<span class="k">[setup_riverbedsed]</span><span class="w"></span>
+<span class="na">bedsed_mapping_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">None             # path to a mapping csv file from streamorder to river bed particles characteristics</span><span class="w"></span>
+
+<span class="k">[setup_lulcmaps]</span><span class="w"></span>
+<span class="na">lulc_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">globcover        # source for lulc maps: {globcover, vito, corine}</span><span class="w"></span>
+
+<span class="k">[setup_canopymaps]</span><span class="w"></span>
+<span class="na">canopy_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">simard           # source for vegetation canopy height: {simard}</span><span class="w"></span>
+
+<span class="k">[setup_soilmaps]</span><span class="w"></span>
+<span class="na">soil_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">soilgrids        # source for soilmaps: {soilgrids}</span><span class="w"></span>
+<span class="na">usleK_method</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">renard           # method to compute the USLE K factor: {renard, epic}</span><span class="w"></span>
+
+<span class="k">[setup_gauges]</span><span class="w"></span>
+<span class="na">gauges_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">grdc             # If not None add gaugemap. Either a path or known gauges_fn: {grdc}</span><span class="w"></span>
+<span class="na">snap_to_river</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">True             # If True snaps gauges from source to river</span><span class="w"></span>
+<span class="na">derive_subcatch</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">False            # if True derive subcatch map based on gauges.</span><span class="w"></span>
+
+<span class="na">[setup_constant_pars]               # constant parameters values</span><span class="w"></span>
+<span class="na">c_Bagnold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0000175</span><span class="w"></span>
+<span class="na">eros_expo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span><span class="w"></span>
+<span class="na">eros_ov</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.9</span><span class="w"></span>
+<span class="na">eros_spl_EUROSEM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span><span class="w"></span>
+<span class="na">exp_Bagnold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.4</span><span class="w"></span>
+<span class="na">ResTrapEff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span><span class="w"></span>
+</pre></div>
+</div>
+<p>With the Hydromt Wflow plugin, you can easily work with Wflow Sediment models.
+This plugin contains as well relevant functions for setting up or adjusting Wflow Sediment models:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="sediment_build.html#sediment-build"><span class="std std-ref">building a model</span></a>: building a model from scratch.</p></li>
+<li><p><a class="reference internal" href="sediment_update.html#sediment-update"><span class="std std-ref">updating a model</span></a>: updating an existing model (e.g. update datafeeds).</p></li>
+<li><p><a class="reference internal" href="sediment_clip.html#sediment-clip"><span class="std std-ref">clipping a model</span></a>: changing the spatial domain of an existing model (e.g. select subbasins from a larger model).</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../_examples/clip_model.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Clip a Wflow model</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="sediment_model_setup.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Wflow Sediment model components</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Deltares.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

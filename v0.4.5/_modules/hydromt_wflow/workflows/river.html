@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hydromt_wflow.workflows.river &#8212; HydroMT Wflow  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../../../index.html">
+<p class="title">HydroMT Wflow</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../getting_started/intro.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../user_guide/intro.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../api.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../dev_guide/intro.html">
+  Developments
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../../../_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for hydromt_wflow.workflows.river</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Workflows to derive river for a wflow model.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">pyflwdir</span>
+
+<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">gis_utils</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">flw</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">DATADIR</span>  <span class="c1"># global var</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;river&quot;</span><span class="p">,</span> <span class="s2">&quot;river_bathymetry&quot;</span><span class="p">,</span> <span class="s2">&quot;river_width&quot;</span><span class="p">]</span>
+
+<span class="n">RESAMPLING</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;climate&quot;</span><span class="p">:</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">:</span> <span class="s2">&quot;average&quot;</span><span class="p">}</span>
+<span class="n">NODATA</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;discharge&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">9999</span><span class="p">}</span>
+
+
+<span class="k">def</span> <span class="nf">power_law</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="river"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river.html#hydromt_wflow.workflows.river">[docs]</a><span class="k">def</span> <span class="nf">river</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">ds_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">river_upa</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
+    <span class="n">slope_len</span><span class="o">=</span><span class="mf">2e3</span><span class="p">,</span>
+    <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">channel_dir</span><span class="o">=</span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns river maps</span>
+
+<span class="sd">    The output maps are:\</span>
+<span class="sd">    - rivmsk : river mask based on upstream area threshold on upstream area\</span>
+<span class="sd">    - rivlen : river length [m], minimum set to 1/4 cell res\</span>
+<span class="sd">    - rivslp : smoothed river slope [m/m]\</span>
+<span class="sd">    - rivzs : elevation of the river bankfull height based on pixel outlet </span>
+<span class="sd">    - rivwth : river width at pixel outlet (if in ds)</span>
+<span class="sd">    - qbankfull : bankfull discharge at pixel outlet (if in ds)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        hydrography dataset containing &quot;flwdir&quot;, &quot;uparea&quot;, &quot;elevtn&quot; variables; </span>
+<span class="sd">        and optional &quot;rivwth&quot; and &quot;qbankfull&quot; variable</span>
+<span class="sd">    ds_model: xr.Dataset, optional</span>
+<span class="sd">        model dataset with output grid, must contain &quot;uparea&quot;, for subgrid rivlen/slp</span>
+<span class="sd">        must contain &quot;x_out&quot;, &quot;y_out&quot;. If None, ds is assumed to be the model grid</span>
+<span class="sd">    river_upa: float</span>
+<span class="sd">        minimum threshold to define river cell &amp; pixels, by default 30 [km2]</span>
+<span class="sd">    slope_len: float</span>
+<span class="sd">        minimum length over which to calculate the river slope, by default 1000 [m]</span>
+<span class="sd">    min_rivlen_ratio: float</span>
+<span class="sd">        minimum global river length to avg. cell resolution ratio, by default 0.1</span>
+<span class="sd">    channel_dir: {&quot;up&quot;, &quot;down&quot;}</span>
+<span class="sd">        flow direcition in which to calculate (subgrid) river length and width</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">    ds_out: xr.Dataset</span>
+<span class="sd">        Dataset with output river attributes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># check data variables.</span>
+    <span class="n">dvars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">,</span> <span class="s2">&quot;uparea&quot;</span><span class="p">,</span> <span class="s2">&quot;elevtn&quot;</span><span class="p">]</span>
+    <span class="n">dvars_model</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">,</span> <span class="s2">&quot;uparea&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds: </span><span class="si">{</span><span class="n">dvars</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ds_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars_model</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds_model: </span><span class="si">{</span><span class="n">dvars_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># sort sugrid</span>
+    <span class="n">subgrid</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">ds_model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x_out&quot;</span><span class="p">,</span> <span class="s2">&quot;y_out&quot;</span><span class="p">]]):</span>
+        <span class="n">subgrid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">ds_model</span> <span class="o">=</span> <span class="n">ds</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;River length and slope are calculated at model resolution.&quot;</span><span class="p">)</span>
+
+    <span class="c1">## river mask and flow directions at model grid</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Set river mask (min uparea: </span><span class="si">{</span><span class="n">river_upa</span><span class="si">}</span><span class="s2"> km2) and prepare flow dirs.&quot;</span><span class="p">)</span>
+    <span class="n">riv_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">river_upa</span>  <span class="c1"># initial mask</span>
+    <span class="n">mod_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+
+    <span class="c1">## (high res) flwdir and outlet indices</span>
+    <span class="n">riv_mask_org</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">river_upa</span>  <span class="c1"># highres riv mask</span>
+    <span class="n">flwdir</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">],</span> <span class="n">mask</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subgrid</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># get cell index of river cells</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mod_mask</span><span class="p">,</span> <span class="n">idxs_out</span><span class="p">,</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">_mv</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># get subgrid outlet pixel index</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xy_to_idx</span><span class="p">(</span>
+            <span class="n">xs</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;x_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">ys</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;y_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">mod_mask</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">nodata</span><span class="o">=</span><span class="n">flwdir</span><span class="o">.</span><span class="n">_mv</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1">## river length</span>
+    <span class="c1"># get river length based on on-between distance between two outlet pixels</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Derive river length.&quot;</span><span class="p">)</span>
+    <span class="n">rivlen</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">subgrid_rivlen</span><span class="p">(</span>
+        <span class="n">idxs_out</span><span class="o">=</span><span class="n">idxs_out</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="n">riv_mask_org</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="n">channel_dir</span><span class="p">,</span>
+        <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span>
+    <span class="k">if</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>  <span class="c1"># convert degree to meters</span>
+        <span class="n">lat_avg</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">cellres</span><span class="p">(</span><span class="n">lat_avg</span><span class="p">,</span> <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">([</span><span class="n">xres</span><span class="p">,</span> <span class="n">yres</span><span class="p">]))</span>
+    <span class="c1"># minimum river length equal 10% of cellsize</span>
+    <span class="n">min_len</span> <span class="o">=</span> <span class="n">res</span> <span class="o">*</span> <span class="n">min_rivlen_ratio</span>
+    <span class="n">rivlen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">riv_mask</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">rivlen</span><span class="p">,</span> <span class="n">min_len</span><span class="p">),</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+    <span class="n">rivlen_avg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rivlen</span><span class="p">[</span><span class="n">riv_mask</span><span class="o">.</span><span class="n">values</span><span class="p">])</span>
+    <span class="c1"># set mean length at pits when taking the downstream length</span>
+    <span class="k">if</span> <span class="n">channel_dir</span> <span class="o">==</span> <span class="s2">&quot;down&quot;</span><span class="p">:</span>
+        <span class="n">rivlen</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">flwdir</span><span class="o">.</span><span class="n">idxs_pit</span><span class="p">]</span> <span class="o">=</span> <span class="n">rivlen_avg</span>
+
+    <span class="c1">## river slope as derivative of elevation around outlet pixels</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Derive river slope.&quot;</span><span class="p">)</span>
+    <span class="n">rivslp</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">subgrid_rivslp</span><span class="p">(</span>
+        <span class="n">idxs_out</span><span class="o">=</span><span class="n">idxs_out</span><span class="p">,</span>
+        <span class="n">elevtn</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="n">riv_mask_org</span><span class="p">,</span>
+        <span class="n">length</span><span class="o">=</span><span class="n">slope_len</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">rivslp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">riv_mask</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">rivslp</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+
+    <span class="c1"># create xarray dataset for all river variables</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span>
+    <span class="c1"># save as uint8 as bool is not supported in nc and tif files</span>
+    <span class="n">riv_mask</span> <span class="o">=</span> <span class="n">riv_mask</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="n">riv_mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">riv_mask</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">rivlen</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m.m-1&quot;</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;rivslp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">rivslp</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;qbankfull&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Derive </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> from hydrography dataset.&quot;</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">riv_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">data0</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs_out</span><span class="p">[</span><span class="n">riv_mask</span><span class="o">.</span><span class="n">values</span><span class="p">]]</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">riv_mask</span><span class="o">.</span><span class="n">values</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data0</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">data0</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">flwdir</span></div>
+
+
+<div class="viewcode-block" id="river_bathymetry"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river_bathymetry.html#hydromt_wflow.workflows.river_bathymetry">[docs]</a><span class="k">def</span> <span class="nf">river_bathymetry</span><span class="p">(</span>
+    <span class="n">ds_model</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">gdf_riv</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;powlaw&quot;</span><span class="p">,</span>
+    <span class="n">smooth_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e3</span><span class="p">,</span>
+    <span class="n">min_rivdph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Get river width and bankfull discharge from `gdf_riv` to estimate river depth</span>
+<span class="sd">    using :py:meth:`hydromt.workflows.river_depth`. Missing values in rivwth are first</span>
+<span class="sd">    filled using downward filling and remaining  (upstream) missing values are set</span>
+<span class="sd">    to min_rivwth (for rivwth) and 0 (for qbankfull).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_model : xr.Dataset</span>
+<span class="sd">        Model dataset with &#39;flwdir&#39;, &#39;rivmsk&#39;, &#39;rivlen&#39;, &#39;x_out&#39; and &#39;y_out&#39; variables.</span>
+<span class="sd">    gdf_riv : gpd.GeoDataFrame</span>
+<span class="sd">        River geometry with &#39;rivwth&#39; and &#39;qbankfull&#39; columns.</span>
+<span class="sd">    method : {&#39;gvf&#39;, &#39;manning&#39;, &#39;powlaw&#39;}</span>
+<span class="sd">        see py:meth:`hydromt.workflows.river_depth` for details, by default &quot;powlaw&quot;</span>
+<span class="sd">    smooth_len : float, optional</span>
+<span class="sd">        Length [m] over which to smooth the output river width and depth, by default 5e3</span>
+<span class="sd">    min_rivdph : float, optional</span>
+<span class="sd">        Minimum river depth [m], by default 1.0</span>
+<span class="sd">    min_rivwth : float, optional</span>
+<span class="sd">        Minimum river width [m], by default 30.0</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Dataset with &#39;rivwth&#39; and &#39;rivdph&#39; variables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dims</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span>
+    <span class="c1"># check data variables.</span>
+    <span class="n">dvars_model</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">,</span> <span class="s2">&quot;rivmsk&quot;</span><span class="p">,</span> <span class="s2">&quot;rivlen&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;powlaw&quot;</span><span class="p">:</span>
+        <span class="n">dvars_model</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;rivslp&quot;</span><span class="p">,</span> <span class="s2">&quot;rivzs&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars_model</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds_model: </span><span class="si">{</span><span class="n">dvars_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># setup flow direction for river</span>
+    <span class="n">riv_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">flwdir_river</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">],</span> <span class="n">mask</span><span class="o">=</span><span class="n">riv_mask</span><span class="p">)</span>
+    <span class="n">rivlen_avg</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="c1">## river width and bunkfull discharge</span>
+    <span class="n">vars0</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;qbankfull&quot;</span><span class="p">]</span>
+    <span class="c1"># find nearest values from river shape if provided</span>
+    <span class="c1"># if None assume the data is in ds_model</span>
+    <span class="k">if</span> <span class="n">gdf_riv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">vars0</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; columns </span><span class="si">{</span><span class="n">vars0</span><span class="si">}</span><span class="s2"> not found in gdf_riv&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Derive </span><span class="si">{</span><span class="nb">vars</span><span class="si">}</span><span class="s2"> from shapefile.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;x_out&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="ow">and</span> <span class="s2">&quot;y_out&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span><span class="p">:</span>
+            <span class="c1"># get subgrid outlet pixel index and coordinates</span>
+            <span class="n">xs_out</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;x_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span>
+            <span class="n">ys_out</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;y_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># get river cell coordinates</span>
+            <span class="n">row</span><span class="p">,</span> <span class="n">col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">riv_mask</span><span class="p">)</span>
+            <span class="n">xs_out</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xcoords</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+            <span class="n">ys_out</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">row</span><span class="p">]</span>
+        <span class="n">gdf_out</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">xs_out</span><span class="p">,</span> <span class="n">ys_out</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>
+        <span class="p">)</span>
+        <span class="n">idx_nn</span><span class="p">,</span> <span class="n">dst_nn</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">nearest</span><span class="p">(</span><span class="n">gdf_out</span><span class="p">,</span> <span class="n">gdf_riv</span><span class="p">)</span>
+        <span class="c1"># get valid river data within max half pixel distance</span>
+        <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span>
+        <span class="k">if</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>  <span class="c1"># convert degree to meters</span>
+            <span class="n">lat_avg</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">cellres</span><span class="p">(</span><span class="n">lat_avg</span><span class="p">,</span> <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span><span class="p">)</span>
+        <span class="n">max_dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">([</span><span class="n">xres</span><span class="p">,</span> <span class="n">yres</span><span class="p">]))</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="n">nriv</span><span class="p">,</span> <span class="n">nsnap</span> <span class="o">=</span> <span class="n">xs_out</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dst_nn</span> <span class="o">&lt;</span> <span class="n">max_dist</span><span class="p">))</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Valid for </span><span class="si">{</span><span class="n">nsnap</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">nriv</span><span class="si">}</span><span class="s2"> river cells (max dist: </span><span class="si">{</span><span class="n">max_dist</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m).&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">riv_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">dst_nn</span> <span class="o">&lt;</span> <span class="n">max_dist</span><span class="p">,</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx_nn</span><span class="p">,</span> <span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span>
+            <span class="p">)</span>
+            <span class="n">ds_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">))</span>
+    <span class="c1"># TODO fallback option when qbankfull is missing.</span>
+    <span class="k">assert</span> <span class="s2">&quot;qbankfull&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="ow">and</span> <span class="s2">&quot;rivwth&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span>
+    <span class="c1"># fill gaps in data using downward filling along flow directions</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">vars0</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">nodata</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span> <span class="o">!=</span> <span class="n">nodata</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">flwdir_river</span><span class="o">.</span><span class="n">fillnodata</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nodata</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;down&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
+        <span class="n">ds_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+    <span class="c1"># smooth by averaging along flow directions and set minimum</span>
+    <span class="k">if</span> <span class="n">smooth_len</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">nsmooth</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">smooth_len</span> <span class="o">/</span> <span class="n">rivlen_avg</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="n">kwgs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">nsmooth</span><span class="p">,</span> <span class="n">restrict_strord</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">flwdir_river</span><span class="o">.</span><span class="n">moving_average</span><span class="p">(</span>
+            <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span>
+        <span class="p">)</span>
+    <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">min_rivwth</span><span class="p">,</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">riv_mask</span><span class="p">,</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+    <span class="p">)</span>
+
+    <span class="c1">## river depth</span>
+    <span class="c1"># distance to outlet; required for manning and gvf rivdph methods</span>
+    <span class="k">if</span> <span class="n">method</span> <span class="o">!=</span> <span class="s2">&quot;powlaw&quot;</span> <span class="ow">and</span> <span class="s2">&quot;rivdst&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_model</span><span class="p">:</span>
+        <span class="n">rivlen</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">nodata</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+        <span class="n">rivdst</span> <span class="o">=</span> <span class="n">flwdir_river</span><span class="o">.</span><span class="n">accuflux</span><span class="p">(</span><span class="n">rivlen</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;down&quot;</span><span class="p">)</span>
+        <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdst&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">rivdst</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="n">nodata</span><span class="p">))</span>
+    <span class="c1"># add river distance to outlet -&gt; required for manning/gvf method</span>
+    <span class="n">rivdph</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">river_depth</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">ds_model</span><span class="p">,</span>
+        <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir_river</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+        <span class="n">min_rivdph</span><span class="o">=</span><span class="n">min_rivdph</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
+    <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">rivdph</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+    <span class="c1"># smooth by averaging along flow directions and set minimum</span>
+    <span class="k">if</span> <span class="n">smooth_len</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">flwdir_river</span><span class="o">.</span><span class="n">moving_average</span><span class="p">(</span>
+            <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="o">**</span><span class="n">kwgs</span>
+        <span class="p">)</span>
+    <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">min_rivdph</span><span class="p">,</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">riv_mask</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_model</span><span class="p">[[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;rivdph&quot;</span><span class="p">]]</span></div>
+
+
+<span class="c1"># TODO: methods below are redundant after version v0.1.4 and will be removed in</span>
+<span class="c1"># future versions</span>
+
+
+<span class="k">def</span> <span class="nf">river_width</span><span class="p">(</span>
+    <span class="n">ds_like</span><span class="p">,</span>
+    <span class="n">flwdir</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="nb">dict</span><span class="p">(),</span>
+    <span class="n">fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">fill_outliers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">min_wth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">mask_names</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">predictor</span><span class="o">=</span><span class="s2">&quot;discharge&quot;</span><span class="p">,</span>
+    <span class="n">rivwth_name</span><span class="o">=</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span>
+    <span class="n">obs_postfix</span><span class="o">=</span><span class="s2">&quot;_obs&quot;</span><span class="p">,</span>
+    <span class="n">rivmsk_name</span><span class="o">=</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">,</span>
+    <span class="n">a</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">b</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">nopars</span> <span class="o">=</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># no manual a, b parameters</span>
+    <span class="n">fit</span> <span class="o">=</span> <span class="n">fit</span> <span class="ow">or</span> <span class="p">(</span><span class="n">nopars</span> <span class="ow">and</span> <span class="n">predictor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;discharge&quot;</span><span class="p">])</span>  <span class="c1"># fit power-law on the fly</span>
+    <span class="n">nowth</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span>
+    <span class="p">)</span>  <span class="c1"># no obseved with in staticmaps</span>
+    <span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span> <span class="ow">and</span> <span class="n">nowth</span> <span class="o">==</span> <span class="kc">False</span>  <span class="c1"># fill datagaps and masked areas (lakes/res) in obs</span>
+
+    <span class="k">if</span> <span class="n">nowth</span> <span class="ow">and</span> <span class="n">fit</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Observed rivwth &quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s1">&quot; required to fit riverwidths.&#39;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">nowth</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Observed rivwth &quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s1">&quot; not found.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># get predictor</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Deriving predictor &quot;</span><span class="si">{</span><span class="n">predictor</span><span class="si">}</span><span class="s1">&quot; values&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">predictor</span> <span class="o">==</span> <span class="s2">&quot;discharge&quot;</span><span class="p">:</span>
+        <span class="n">values</span><span class="p">,</span> <span class="n">pars</span> <span class="o">=</span> <span class="n">_discharge</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fit</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">pars</span>
+    <span class="c1"># TODO: check units</span>
+    <span class="k">elif</span> <span class="n">predictor</span> <span class="o">==</span> <span class="s2">&quot;precip&quot;</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">_precip</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">predictor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;required </span><span class="si">{</span><span class="n">predictor</span><span class="si">}</span><span class="s2"> variable missing in staticmaps.&quot;</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">predictor</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># read river width observations</span>
+    <span class="k">if</span> <span class="n">nowth</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">rivwth_org</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">nodata</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+        <span class="n">rivmsk</span> <span class="o">=</span> <span class="n">rivwth_org</span> <span class="o">!=</span> <span class="n">nodata</span>
+        <span class="n">rivwth_org</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rivmsk</span><span class="p">,</span> <span class="n">rivwth_org</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+
+        <span class="c1"># mask zero and negative riverwidth and waterbodies if present</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">rivwth_org</span> <span class="o">&gt;</span> <span class="n">min_wth</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mask_names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">ds_like</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> masked out in rivwth data.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;mask variable &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; not found in maps.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># fit predictor</span>
+        <span class="n">wth</span> <span class="o">=</span> <span class="n">rivwth_org</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">fit</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fitting power-law a,b parameters based on </span><span class="si">{</span><span class="n">predictor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">_width_fit</span><span class="p">(</span><span class="n">wth</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">mask</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">wsim</span> <span class="o">=</span> <span class="n">power_law</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wsim</span> <span class="o">-</span> <span class="n">wth</span><span class="p">)</span>
+        <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">res</span> <span class="o">&gt;</span> <span class="mi">200</span><span class="p">,</span> <span class="p">(</span><span class="n">res</span> <span class="o">/</span> <span class="n">wsim</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">pout</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span> <span class="o">/</span> <span class="n">outliers</span><span class="o">.</span><span class="n">size</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="c1"># validate</span>
+        <span class="n">wsim</span> <span class="o">=</span> <span class="n">power_law</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="o">~</span><span class="n">outliers</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">nse</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">_nse</span><span class="p">(</span><span class="n">wsim</span><span class="p">,</span> <span class="n">wth</span><span class="p">[</span><span class="o">~</span><span class="n">outliers</span><span class="p">])</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Using &quot;width = a*</span><span class="si">{</span><span class="n">predictor</span><span class="si">}</span><span class="s1">^b&quot;; where a=</span><span class="si">{</span><span class="n">a</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">, b=</span><span class="si">{</span><span class="n">b</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1"> &#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;(nse=</span><span class="si">{</span><span class="n">nse</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">; outliers=</span><span class="si">{</span><span class="n">pout</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># compute new riverwidth</span>
+    <span class="n">rivmsk</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">rivmsk_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="mi">0</span>
+    <span class="n">rivwth_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="o">-</span><span class="mf">9999.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">rivwth_out</span><span class="p">[</span><span class="n">rivmsk</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">min_wth</span><span class="p">,</span> <span class="n">power_law</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">rivmsk</span><span class="p">],</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">))</span>
+
+    <span class="c1"># overwrite rivwth data with original data at valid points</span>
+    <span class="k">if</span> <span class="n">fill</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fill_outliers</span><span class="p">:</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="o">~</span><span class="n">outliers</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;masking </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> outliers&quot;</span><span class="p">)</span>
+        <span class="n">rivwth_out</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">wth</span><span class="p">[</span><span class="o">~</span><span class="n">outliers</span><span class="p">]</span>
+
+    <span class="n">fills</span> <span class="o">=</span> <span class="s2">&quot;for missing data&quot;</span> <span class="k">if</span> <span class="n">fill</span> <span class="k">else</span> <span class="s2">&quot;globally&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;rivwth set </span><span class="si">{</span><span class="n">fills</span><span class="si">}</span><span class="s2"> based on width-</span><span class="si">{</span><span class="n">predictor</span><span class="si">}</span><span class="s2"> relationship.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># return xarray dataarray</span>
+    <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">rivwth_out</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_width_fit</span><span class="p">(</span>
+    <span class="n">wth</span><span class="p">,</span>
+    <span class="n">val</span><span class="p">,</span>
+    <span class="n">mask</span><span class="p">,</span>
+    <span class="n">p0</span><span class="o">=</span><span class="p">[</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.65</span><span class="p">],</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>  <span class="c1"># rhine uparea based</span>
+<span class="p">):</span>
+    <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">bool</span><span class="p">)</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="c1"># check if sufficient data</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># fit while removing outliers.</span>
+        <span class="k">while</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="o">~</span><span class="n">outliers</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+                <span class="n">pars</span> <span class="o">=</span> <span class="n">curve_fit</span><span class="p">(</span>
+                    <span class="n">f</span><span class="o">=</span><span class="n">power_law</span><span class="p">,</span>
+                    <span class="n">xdata</span><span class="o">=</span><span class="n">val</span><span class="p">[</span><span class="o">~</span><span class="n">outliers</span><span class="p">],</span>
+                    <span class="n">ydata</span><span class="o">=</span><span class="n">wth</span><span class="p">[</span><span class="o">~</span><span class="n">outliers</span><span class="p">],</span>
+                    <span class="n">p0</span><span class="o">=</span><span class="n">p0</span><span class="p">,</span>
+                    <span class="n">bounds</span><span class="o">=</span><span class="p">([</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span> <span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]),</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c1"># print(n, pars, np.sum(~outliers))</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">p0</span><span class="p">,</span> <span class="n">pars</span><span class="p">):</span>
+                    <span class="k">break</span>
+                <span class="c1"># outliers based on absolute and relative diff</span>
+                <span class="n">wsim</span> <span class="o">=</span> <span class="n">power_law</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="o">*</span><span class="n">pars</span><span class="p">)</span>
+                <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">wsim</span> <span class="o">-</span> <span class="n">wth</span><span class="p">)</span>
+                <span class="n">outliers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">res</span> <span class="o">&gt;</span> <span class="mi">200</span><span class="p">,</span> <span class="p">(</span><span class="n">res</span> <span class="o">/</span> <span class="n">wsim</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">:</span>  <span class="c1"># max 20 % outliers</span>
+                    <span class="n">pars</span> <span class="o">=</span> <span class="n">p0</span>
+                    <span class="n">outliers</span><span class="p">[:]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Fit not successful.&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
+                <span class="n">p0</span> <span class="o">=</span> <span class="n">pars</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">pars</span>
+    <span class="k">elif</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">p0</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Insufficient data points, using global parameters.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span>
+
+
+<span class="k">def</span> <span class="nf">_precip</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="p">,</span> <span class="n">da_precip</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="n">precip</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">da_precip</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RESAMPLING</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
+        <span class="o">/</span> <span class="mf">1e3</span>
+    <span class="p">)</span>  <span class="c1"># [m/yr]</span>
+    <span class="n">precip</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">precip</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xcoords</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">reggrid_area</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+    <span class="c1"># 10 x average flow</span>
+    <span class="n">accu_precip</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">accuflux</span><span class="p">(</span><span class="n">precip</span> <span class="o">*</span> <span class="n">area</span> <span class="o">/</span> <span class="p">(</span><span class="mi">86400</span> <span class="o">*</span> <span class="mi">365</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># [m3/s]</span>
+    <span class="k">return</span> <span class="n">accu_precip</span>
+
+
+<span class="k">def</span> <span class="nf">_discharge</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="p">,</span> <span class="n">da_precip</span><span class="p">,</span> <span class="n">da_climate</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+    <span class="c1"># read clim classes and regression parameters from data dir</span>
+    <span class="n">precip_fn</span> <span class="o">=</span> <span class="n">da_precip</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">climate_fn</span> <span class="o">=</span> <span class="n">da_climate</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">fn_regr</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;regr_</span><span class="si">{</span><span class="n">precip_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+    <span class="n">fn_clim</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">climate_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+    <span class="n">clim_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_clim</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;class&quot;</span><span class="p">)</span>
+    <span class="n">regr_map</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_regr</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">climate_fn</span><span class="p">]</span>
+    <span class="n">regr_map</span> <span class="o">=</span> <span class="n">regr_map</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;base_class&quot;</span><span class="p">)</span>
+
+    <span class="c1"># get overall catchment climate classification (based on mode)</span>
+    <span class="c1"># TODO: convert to xarray method by using scipy.stats.mode in xr.apply_ufuncs</span>
+    <span class="c1"># TODO: reproject climate and mask cells outside basin</span>
+    <span class="n">np_climate</span> <span class="o">=</span> <span class="n">da_climate</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">basin_climate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">np_climate</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span>
+    <span class="c1"># convert detailed climate classification to higher level base class</span>
+    <span class="n">base_class</span><span class="p">,</span> <span class="n">class_name</span> <span class="o">=</span> <span class="n">clim_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">basin_climate</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Basin base climate classification: </span><span class="si">{</span><span class="n">base_class</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">class_name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">regr_map</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">base_class</span><span class="p">]</span>
+
+    <span class="c1"># precipitation (TO-DO: add checks that were present in old version?)</span>
+    <span class="n">precip</span> <span class="o">=</span> <span class="n">da_precip</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+        <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RESAMPLING</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># apply scaling factor to make sure accumulated precipitation will stay</span>
+    <span class="c1"># (approximately) the same</span>
+    <span class="n">scaling_factor_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">da_precip</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">scaling_factor_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">da_precip</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">scaling_factor</span> <span class="o">=</span> <span class="p">(</span><span class="n">scaling_factor_1</span> <span class="o">+</span> <span class="n">scaling_factor_2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">precip</span> <span class="o">=</span> <span class="n">precip</span> <span class="o">/</span> <span class="n">scaling_factor</span><span class="o">**</span><span class="mi">2</span>
+
+    <span class="c1"># derive cell areas (m2)</span>
+    <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xcoords</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">areagrid</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">reggrid_area</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
+
+    <span class="c1"># calculate &quot;local runoff&quot; (note: set missings in precipitation to zero)</span>
+    <span class="n">runoff</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">precip</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="n">areagrid</span> <span class="o">*</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">])</span>
+    <span class="n">runoff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">runoff</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># make sure runoff is not negative</span>
+
+    <span class="c1"># get discharges</span>
+    <span class="n">discharge</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">accuflux</span><span class="p">(</span><span class="n">runoff</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">NODATA</span><span class="p">[</span><span class="s2">&quot;discharge&quot;</span><span class="p">],</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;up&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">discharge</span><span class="p">,</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;discharge_a&quot;</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;discharge_b&quot;</span><span class="p">])</span>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Deltares.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
