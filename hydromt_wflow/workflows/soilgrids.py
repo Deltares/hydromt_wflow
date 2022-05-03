@@ -626,6 +626,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             ptf.UsleK_EPIC,
             pclay,
             psilt,
+            poc,
             dask="parallelized",
             output_dtypes=[float],
             keep_attrs=True,
