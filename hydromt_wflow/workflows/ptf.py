@@ -410,7 +410,7 @@ def UsleK_EPIC(clay, silt, oc):
         sand percentage [%].
     silt: float
         silt percentage [%].
-    oc : float, optional
+    oc : float
         organic carbon [%].
 
     Returns
