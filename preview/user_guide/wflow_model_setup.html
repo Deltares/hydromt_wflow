@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Model components &#8212; HydroMT Wflow  documentation</title>
+    <title>Model methods and components &#8212; HydroMT Wflow  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -150,7 +150,7 @@
   <ul class="current">
    <li class="toctree-l2 current active">
     <a class="current reference internal" href="#">
-     Model components
+     Model methods and components
     </a>
    </li>
    <li class="toctree-l2 has-children">
@@ -228,7 +228,7 @@
   <ul>
    <li class="toctree-l2">
     <a class="reference internal" href="sediment_model_setup.html">
-     Model components
+     Model methods and components
     </a>
    </li>
    <li class="toctree-l2 has-children">
@@ -316,13 +316,13 @@
 <nav id="bd-toc-nav">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#model-setup-components">
-   Model setup components
+  <a class="reference internal nav-link" href="#model-setup-methods">
+   Model setup methods
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#datamodel-files">
-   Datamodel files
+  <a class="reference internal nav-link" href="#model-components">
+   Model components
   </a>
  </li>
 </ul>
@@ -346,20 +346,20 @@
               
               <div>
                 
-  <section id="model-components">
-<span id="model-set-up"></span><h1>Model components<a class="headerlink" href="#model-components" title="Permalink to this headline">#</a></h1>
-<p>The HydroMT Wflow plugin helps you preparing or updating several components of a Wflow model such as topography information, landuse, soil or forcing.
+  <section id="model-methods-and-components">
+<span id="model-set-up"></span><h1>Model methods and components<a class="headerlink" href="#model-methods-and-components" title="Permalink to this headline">#</a></h1>
+<p>The HydroMT Wflow plugin helps you preparing or updating several methods of a Wflow model such as topography information, landuse, soil or forcing.
 The main interactions are available from the HydroMT Command Line Interface and allow you to configure
 HydroMT in order to build or update or clip Wflow models.</p>
 <p>When building or updating a model from command line a
 <a class="reference external" href="https://deltares.github.io/hydromt/preview/user_guide/model_region">model region</a>; a model setup
-<a class="reference internal" href="wflow_build.html#model-config"><span class="std std-ref">configuration</span></a> (.ini file) with model components and options and, optionally,
+<a class="reference internal" href="wflow_build.html#model-config"><span class="std std-ref">configuration</span></a> (.ini file) with model methods and options and, optionally,
 a <a class="reference external" href="https://deltares.github.io/hydromt/preview/user_guide/data_main">data sources</a> (.yml) file should be prepared.</p>
-<section id="model-setup-components">
-<span id="id1"></span><h2>Model setup components<a class="headerlink" href="#model-setup-components" title="Permalink to this headline">#</a></h2>
-<p>An overview of the available Wflow model setup components
+<section id="model-setup-methods">
+<span id="model-methods"></span><h2>Model setup methods<a class="headerlink" href="#model-setup-methods" title="Permalink to this headline">#</a></h2>
+<p>An overview of the available Wflow model setup methods
 is provided in the table below. When using HydroMT from the command line only the
-setup components are exposed. Click on
+setup methods are exposed. Click on
 a specific method see its documentation.</p>
 <table class="colwidths-given table">
 <colgroup>
@@ -403,16 +403,25 @@ a specific method see its documentation.</p>
 <td><p>This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges" title="hydromt_wflow.WflowModel.setup_gauges"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_gauges()</span></code></a></p></th>
-<td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.</p></td>
+<td><p>This method sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap" title="hydromt_wflow.WflowModel.setup_areamap"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
 <td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
 </tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_precip_forcing()</span></code></a></p></th>
+<td><p>Setup gridded precipitation forcing at model resolution.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing" title="hydromt_wflow.WflowModel.setup_temp_pet_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_temp_pet_forcing()</span></code></a></p></th>
+<td><p>Setup gridded reference evapotranspiration forcing at model resolution.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a></p></th>
+<td><p>Setup constant parameter maps for all active model cells.</p></td>
+</tr>
 </tbody>
 </table>
 </section>
-<section id="datamodel-files">
-<span id="model-files"></span><h2>Datamodel files<a class="headerlink" href="#datamodel-files" title="Permalink to this headline">#</a></h2>
+<section id="model-components">
+<span id="id1"></span><h2>Model components<a class="headerlink" href="#model-components" title="Permalink to this headline">#</a></h2>
 <p>The following table provides an overview of which <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel" title="hydromt_wflow.WflowModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">WflowModel</span></code></a>
 attribute contains which Wflow in- and output files. The files are read and written with the associated
 read- and write- methods, i.e. <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.read_config.html#hydromt_wflow.WflowModel.read_config" title="hydromt_wflow.WflowModel.read_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_config()</span></code></a>
