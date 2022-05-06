@@ -2,27 +2,27 @@
 
 .. _model_set_up:
 
-======================
-Model components
-======================
+============================
+Model methods and components
+============================
 
-The HydroMT Wflow plugin helps you preparing or updating several components of a Wflow model such as topography information, landuse, soil or forcing.
+The HydroMT Wflow plugin helps you preparing or updating several methods of a Wflow model such as topography information, landuse, soil or forcing.
 The main interactions are available from the HydroMT Command Line Interface and allow you to configure
 HydroMT in order to build or update or clip Wflow models.
 
 When building or updating a model from command line a
 `model region <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_; a model setup
-:ref:`configuration <model_config>` (.ini file) with model components and options and, optionally,
+:ref:`configuration <model_config>` (.ini file) with model methods and options and, optionally,
 a `data sources <https://deltares.github.io/hydromt/preview/user_guide/data_main>`_ (.yml) file should be prepared.
 
-.. _model_components:
+.. _model_methods:
 
-Model setup components
-============================
+Model setup methods
+===================
 
-An overview of the available Wflow model setup components
+An overview of the available Wflow model setup methods
 is provided in the table below. When using HydroMT from the command line only the
-setup components are exposed. Click on
+setup methods are exposed. Click on
 a specific method see its documentation.
 
 .. list-table::
@@ -53,15 +53,21 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_hydrodem`
       - This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.
     * - :py:func:`~WflowModel.setup_gauges`
-      - This components sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.
+      - This method sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.
     * - :py:func:`~WflowModel.setup_areamap`
       -  Setup area map from vector data to save wflow outputs for specific area.
+    * - :py:func:`~WflowModel.setup_precip_forcing`
+      -  Setup gridded precipitation forcing at model resolution.
+    * - :py:func:`~WflowModel.setup_temp_pet_forcing`
+      -  Setup gridded reference evapotranspiration forcing at model resolution.
+    * - :py:func:`~WflowModel.setup_constant_pars`
+      -  Setup constant parameter maps for all active model cells.
 
 
-.. _model_files>:
+.. _model_components:
 
-Datamodel files
-=====================
+Model components
+================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowModel`
 attribute contains which Wflow in- and output files. The files are read and written with the associated

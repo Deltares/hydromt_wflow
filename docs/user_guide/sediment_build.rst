@@ -22,7 +22,7 @@ for a proper implementation of the Wflow Sediment model are:
 Configuration file
 ------------------
 Settings to build or update a Wflow model are managed in a configuration file. In this file,
-every option from each :ref:`model component <model_components_sed>` can be changed by the user
+every option from each :ref:`model component <model_methods_sed>` can be changed by the user
 in its corresponding section.
 
 Note that the order in which the components are listed in the ini file is important:

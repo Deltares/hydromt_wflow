@@ -1,6 +1,6 @@
-===============================
-Model components
-===============================
+============================
+Model methods and components
+============================
 
 This plugin helps you preparing or updating several components of a Wflow Sediment model such as topography information, landuse or soil.
 The main interactions are available from the HydroMT Command Line Interface and allow you to configure
@@ -13,10 +13,10 @@ a `data sources <https://deltares.github.io/hydromt/preview/user_guide/data_main
 
 .. currentmodule:: hydromt_wflow
 
-.. _model_components_sed:
+.. _model_methods_sed:
 
-Model setup components
-=====================================
+Model methods
+=============
 
 An overview of the available Wflow Sediment model setup components
 is provided in the table below. When using HydroMT from the command line only the
@@ -48,6 +48,8 @@ a specific method see its documentation.
       - Setup sediments based canopy height maps.
     * - :py:func:`~WflowSedimentModel.setup_soilmaps`
       - Setup sediments based soil parameter maps.
+    * - :py:func:`~WflowSedimentModel.setup_riverwidth`
+      - This component sets the river width parameter based on a power-lay relationship with a predictor.
     * - :py:func:`~WflowSedimentModel.setup_riverbedsed`
       - Setup sediments based river bed characteristics maps.
     * - :py:func:`~WflowSedimentModel.setup_gauges`
@@ -58,10 +60,10 @@ a specific method see its documentation.
       - Setup constant parameter maps.
 
 
-.. _model_files_sed:
+.. _model_components_sed:
 
-Datamodel files
-==============================
+model components
+================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSedimentModel`
 attribute contains which Wflow Sediment in- and output files. The files are read and written with the associated

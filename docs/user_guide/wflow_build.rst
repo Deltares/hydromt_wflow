@@ -22,7 +22,7 @@ for a proper implementation of this model are:
 Configuration file
 ------------------
 Settings to build or update a Wflow model are managed in a configuration file. In this file,
-every option from each :ref:`model component <model_components>` can be changed by the user
+every option from each :ref:`model component <model_methods>` can be changed by the user
 in its corresponding section.
 
 Note that the order in which the components are listed in the ini file is important:
