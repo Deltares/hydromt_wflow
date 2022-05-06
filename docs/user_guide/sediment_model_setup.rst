@@ -1,5 +1,5 @@
 ===============================
-Wflow Sediment model components
+Model components
 ===============================
 
 This plugin helps you preparing or updating several components of a Wflow Sediment model such as topography information, landuse or soil.
@@ -15,7 +15,7 @@ a `data sources <https://deltares.github.io/hydromt/preview/user_guide/data_main
 
 .. _model_components_sed:
 
-Wflow Sediment model setup components
+Model setup components
 =====================================
 
 An overview of the available Wflow Sediment model setup components
@@ -60,7 +60,7 @@ a specific method see its documentation.
 
 .. _model_files_sed:
 
-Wflow Sediment datamodel files
+Datamodel files
 ==============================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSedimentModel`

@@ -3,7 +3,7 @@
 .. _model_set_up:
 
 ======================
-Wflow model components
+Model components
 ======================
 
 The HydroMT Wflow plugin helps you preparing or updating several components of a Wflow model such as topography information, landuse, soil or forcing.
@@ -17,7 +17,7 @@ a `data sources <https://deltares.github.io/hydromt/preview/user_guide/data_main
 
 .. _model_components:
 
-Wflow model setup components
+Model setup components
 ============================
 
 An overview of the available Wflow model setup components
@@ -60,7 +60,7 @@ a specific method see its documentation.
 
 .. _model_files>:
 
-Wflow datamodel files
+Datamodel files
 =====================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowModel`

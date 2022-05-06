@@ -31,7 +31,7 @@ Note that the order in which the components are listed in the ini file is import
 - `setup_basemaps` should always be run first to determine the model domain
 - `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverbedsed, floodplains, gauges)
 
-Below is an example of ini file that can be used to build a complete Wflow Sediment model
+Below is an example ini file that can be used to build a complete Wflow Sediment model
 :download:`.ini file <../_examples/wflow_sediment_build.ini>`. Each section corresponds
 to a model component with the same name.
 
