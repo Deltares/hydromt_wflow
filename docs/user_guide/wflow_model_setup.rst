@@ -30,7 +30,7 @@ a specific method see its documentation.
     :header-rows: 1
     :stub-columns: 1
 
-    * - Component
+    * - Method
       - Explanation
     * - :py:func:`~WflowModel.setup_config`
       - Update config with a dictionary
@@ -70,17 +70,17 @@ Model components
 ================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowModel`
-attribute contains which Wflow in- and output files. The files are read and written with the associated
+component contains which Wflow in- and output files. The files are read and written with the associated
 read- and write- methods, i.e. :py:func:`~WflowModel.read_config`
 and :py:func:`~WflowModel.write_config` for the
-:py:attr:`~WflowModel.config`  attribute.
+:py:attr:`~WflowModel.config` component.
 
 
 .. list-table::
    :widths: 30 70
    :header-rows: 1
 
-   * - :py:class:`~hydromt_wflow.WflowModel` attribute
+   * - :py:class:`~hydromt_wflow.WflowModel` component
      - Wflow files
    * - :py:attr:`~hydromt_wflow.WflowModel.config`
      - wflow_sbm.toml

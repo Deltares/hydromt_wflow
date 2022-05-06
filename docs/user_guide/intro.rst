@@ -1,7 +1,7 @@
 .. _intro_user_guide:
 
 User guide
-============
+==========
 
 With the **Hydromt Wflow plugin**, users can easily benefit from the rich set of tools of the
 `HydroMT package <https://deltares.github.io/hydromt/preview/index.html>`_ to build and update

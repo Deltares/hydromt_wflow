@@ -28,7 +28,7 @@ a specific method see its documentation.
     :header-rows: 1
     :stub-columns: 1
 
-    * - Component
+    * - Method
       - Explanation
     * - :py:func:`~WflowSedimentModel.setup_config`
       - Update config with a dictionary
@@ -66,17 +66,17 @@ model components
 ================
 
 The following table provides an overview of which :py:class:`~hydromt_wflow.WflowSedimentModel`
-attribute contains which Wflow Sediment in- and output files. The files are read and written with the associated
+component contains which Wflow Sediment in- and output files. The files are read and written with the associated
 read- and write- methods, i.e. :py:func:`~hydromt_wflow.WflowSedimentModel.read_config`
 and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
-:py:attr:`~hydromt_wflow.WflowSedimentModel.config`  attribute.
+:py:attr:`~hydromt_wflow.WflowSedimentModel.config`  component.
 
 
 .. list-table:: Wflow Sediment mdel data
    :widths: 30 70
    :header-rows: 1
 
-   * - :py:class:`~hydromt_wflow.WflowSedimentModel` attribute
+   * - :py:class:`~hydromt_wflow.WflowSedimentModel` component
      - Wflow sediment files
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.config`
      - wflow_sediment.toml
