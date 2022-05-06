@@ -396,7 +396,9 @@ class WflowModel(Model):
         river and/or land local-inertial routing.
 
         River cells are always conditioned to D8 flow directions.  Land cells are conditioned
-        to D4 flow directions if land_routing="local-inertial", else to D8.
+        to D4 flow directions if land_routing="local-inertial", else to D8. If local inertial
+        is selected for land routing, it is required to have a D4 conditioning, otherwise pits
+        may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation ("wflow_dem")
         or subgrid outlet pixel elevation ("dem_subgrid"). For local-inertial river
@@ -441,6 +443,8 @@ class WflowModel(Model):
 
         self.logger.info(f"Preparing {name} map for routing.")
         connectivity = {"local-inertial": 4, "kinematic-wave": 8}[land_routing]
+        name = f"hydrodem{postfix}_D{connectivity}"
+        self.logger.info(f"Preparing {name} map for routing.")
         ds_out = flw.dem_adjust(
             da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
             da_elevtn=self.staticmaps[elevtn_map],
@@ -1233,12 +1237,12 @@ class WflowModel(Model):
         * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
         * **M** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
             (fitted with curve_fit (scipy.optimize)), bounds of M are checked
-        * **M_** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
-            (fitted with numpy linalg regression), bounds of M_ are checked
+        * **`M_`** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
+            (fitted with numpy linalg regression), bounds of `M_` are checked
         * **M_original** map: M without checking bounds
-        * **M_original_** map: M_ without checking bounds
+        * **`M_original_`** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
+        * **`f_`** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
         * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution index at
             depth of 1st soil layer (100 mm) wflow_sbm
         * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm

@@ -287,20 +287,20 @@ class WflowSedimentModel(WflowModel):
         bedsed_mapping_fn=None,
     ):
         """Setup sediments based river bed characteristics maps.
-        
+
         Adds model layers:
-        
-        * **D50_River** map: median sediment diameter of the river bed [mm]\        
-        * **ClayF_River** map: fraction of clay material in the river bed [-]\        
-        * **SiltF_River** map: fraction of silt material in the river bed [-]\        
-        * **SandF_River** map: fraction of sand material in the river bed [-]\        
-        * **GravelF_River** map: fraction of gravel material in the river bed [-]\
+
+        * **D50_River** map: median sediment diameter of the river bed [mm]
+        * **ClayF_River** map: fraction of clay material in the river bed [-]
+        * **SiltF_River** map: fraction of silt material in the river bed [-]
+        * **SandF_River** map: fraction of sand material in the river bed [-]
+        * **GravelF_River** map: fraction of gravel material in the river bed [-]
 
         Parameters
         ----------
         bedsed_mapping_fn : str
             Path to a mapping csv file from streamorder to river bed particles characteristics.
-            
+
             * Required variable: ['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
 
         """

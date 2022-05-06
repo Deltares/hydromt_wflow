@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+----------
+
+Changed
+^^^^^^^
+- In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.
+
 v0.1.4 (18 February 2022)
 -------------------------
 
@@ -66,7 +73,7 @@ Added
 ^^^^^
 
 - Add results attributes for Wflow and read_results method (including test+example).
-- Add f_ parameter in soilgrids 
+- Add `f_` parameter in soilgrids 
 - Support soilgrids version 2020
 - Setup_areamap component to prepare maps of areas of interest to save Wflow outputs at.
 - Support Wflow_sediment with vito landuse.

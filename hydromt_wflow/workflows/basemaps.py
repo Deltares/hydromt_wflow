@@ -25,20 +25,22 @@ def hydrography(
     ftype: str = "infer",
     logger=logger,
 ):
-    """Returns hydrography maps (see list below) and FlwdirRaster object based on 
-    gridded flow direction and elevation data input. 
+    """Returns hydrography maps (see list below) and FlwdirRaster object based on
+    gridded flow direction and elevation data input.
 
-    The output maps are:\
-    - flwdir : flow direction [-]\
-    - basins : basin map [-]\
-    - uparea : upstream area [km2]\
-    - strord : stream order [-]\
+    The output maps are:
 
-    If the resolution is lower than the source resolution, the flow direction data is 
+    - flwdir : flow direction [-]
+    - basins : basin map [-]
+    - uparea : upstream area [km2]
+    - strord : stream order [-]
+
+    If the resolution is lower than the source resolution, the flow direction data is
     upscaled and river length and slope are based on subgrid flow paths and the following
-    maps are added:\
-    - subare : contributing area to each subgrid outlet pixel (unit catchment area) [km2]\
-    - subelv : elevation at subgrid outlet pixel [m+REF]\
+    maps are added:
+
+    - subare : contributing area to each subgrid outlet pixel (unit catchment area) [km2]
+    - subelv : elevation at subgrid outlet pixel [m+REF]
 
     Parameters
     ----------
@@ -53,7 +55,7 @@ def hydrography(
     ftype : {'d8', 'ldd', 'nextxy', 'nextidx', 'infer'}, optional
         name of flow direction type, infer from data if 'infer', by default is 'infer'
     flwdir_name, elevtn_name, uparea_name, basins_name, strord_name : str, optional
-        Name of flow direction [-], elevation [m], upstream area [km2], basin index [-] 
+        Name of flow direction [-], elevation [m], upstream area [km2], basin index [-]
         and stream order [-] variables in ds
 
     Returns
@@ -65,12 +67,13 @@ def hydrography(
 
     References
     ----------
-    .. [1] Eilander et al. (2021). A hydrography upscaling method for scale-invariant parametrization of distributed hydrological models. 
+    .. [1] Eilander et al. (2021). A hydrography upscaling method for scale-invariant parametrization of distributed hydrological models.
            Hydrology and Earth System Sciences, 25(9), 5287–5313. https://doi.org/10.5194/hess-25-5287-2021
 
     See Also
     --------
     pyflwdir.FlwdirRaster.upscale_flwdir
+
     """
     # TODO add check if flwdir in ds, calculate if not
     flwdir = None
