@@ -4,7 +4,7 @@
 Postprocessing and visualization
 ================================
 
-The Hydromt Wflow plugin provides several possibilities to postprocess and visalize the model data and model results:
+The Hydromt Wflow plugin provides several possibilities to postprocess and visualize the model data and model results:
 
 *   `Convert Wflow staticmaps netcdf to raster files <../_examples/convert_staticmaps_to_mapstack.ipynb>`_ for fruther processing and analyzation
 *   Plot `staticmaps <../_examples/plot_wflow_staticmaps.ipynb>`_, `forcing data <../_examples/plot_wflow_forcing.ipynb>`_ and

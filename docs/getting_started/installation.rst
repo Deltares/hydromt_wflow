@@ -29,7 +29,7 @@ To install HydroMT Wflow in a new environment called `hydromt-wflow` from the co
 
 .. code-block:: console
 
-  $ mamba create -n hydromt-wflow -c conda-forge hydromt_wflow
+  $ conda create -n hydromt-wflow -c conda-forge hydromt_wflow
 
 Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT Wflow:
 
@@ -66,7 +66,7 @@ Note that if some dependencies are not installed from conda-forge the installati
 
 .. code-block:: console
 
-   $ mamba install -c conda-forge hydromt_wflow
+   $ conda install -c conda-forge hydromt_wflow
 
 .. Note::
 

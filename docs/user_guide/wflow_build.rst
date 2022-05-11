@@ -8,7 +8,6 @@ data libraries are set, you can build a model by using:
 
 .. code-block:: console
 
-    activate hydromt-wflow
     hydromt build wflow path/to/built_model "{'basin': [x, y]}" -i wflow_build.ini -d data_sources.yml -vvv
 
 The recommended `region options <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_

@@ -22,14 +22,8 @@ file contained in the repository:
     $ conda env create -f envs/hydromt-wflow.yml
     $ conda activate hydromt-wflow
 
-Finally, for a fixed installation, build and install hydromt_wflow using pip.
-
-.. code-block:: console
-
-    $ pip install .
-
 If you wish to make changes in hydromt_wflow, you should make an editable install of HydroMT.
-This is possible using the `flit <https://flit.readthedocs.io/en/latest/>`_ package and install command.
+This is possible using the `flit install <https://flit.pypa.io/en/latest/cmdline.html#flit-install>`_ command.
 
 For Windows:
 

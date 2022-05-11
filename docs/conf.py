@@ -231,6 +231,7 @@ intersphinx_mapping = {
     "rasterio": ("https://rasterio.readthedocs.io/en/latest", None),
     "geopandas": ("https://geopandas.org/en/stable", None),
     "xarray": ("https://xarray.pydata.org/en/stable", None),
+    "hydromt": ("https://deltares.github.io/hydromt/latest/", None),
 }
 
 # -- NBSPHINX --------------------------------------------------------------
