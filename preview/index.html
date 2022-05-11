@@ -169,11 +169,6 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#hydromt-core">
-   HydroMT core
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#how-to-cite">
    How to cite?
   </a>
@@ -206,43 +201,35 @@
                 
   <section id="hydromt-wflow-wflow-plugin-for-hydromt">
 <span id="readme"></span><h1>HydroMT-Wflow: Wflow plugin for HydroMT<a class="headerlink" href="#hydromt-wflow-wflow-plugin-for-hydromt" title="Permalink to this headline">#</a></h1>
-<p><a class="reference external" href="https://pypi.org/project/hydromt_wflow/"><img alt="Latest PyPI version" src="https://badge.fury.io/py/hydromt_wflow.svg" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/hydromt_wflow"><img alt="conda_forge" src="https://anaconda.org/conda-forge/hydromt/badges/installer/conda.svg" /></a> <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest"><img alt="Latest developers docs" src="https://img.shields.io/badge/docs-latest-brightgreen.svg" /></a> <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable"><img alt="Stable docs last release" src="https://img.shields.io/badge/docs-stable-brightgreen.svg" /></a> <a class="reference external" href="https://codecov.io/gh/Deltares/hydromt_wflow"><img alt="codecov" src="https://codecov.io/gh/Deltares/hydromt_wflow/branch/main/graph/badge.svg?token=ss3EgmwHhH" /></a> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Deltares/hydromt_wflow" /></a> <a class="reference external" href="https://zenodo.org/record/6221375#.YlbkcItByUk"><img alt="Zenodo" src="https://zenodo.org/badge/348020332.svg" /></a> <a class="reference external" href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples"><img alt="binder" src="https://mybinder.org/badge_logo.svg" /></a></p>
+<p><a class="reference external" href="https://pypi.org/project/hydromt_wflow/"><img alt="Latest PyPI version" src="https://badge.fury.io/py/hydromt_wflow.svg" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/hydromt_wflow"><img alt="conda_forge" src="https://anaconda.org/conda-forge/hydromt/badges/installer/conda.svg" /></a> <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest"><img alt="Latest developers docs" src="https://img.shields.io/badge/docs-latest-brightgreen.svg" /></a> <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable"><img alt="Stable docs last release" src="https://img.shields.io/badge/docs-stable-brightgreen.svg" /></a> <a class="reference external" href="https://codecov.io/gh/Deltares/hydromt_wflow"><img alt="codecov" src="https://codecov.io/gh/Deltares/hydromt_wflow/branch/main/graph/badge.svg?token=ss3EgmwHhH" /></a> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Deltares/hydromt_wflow" /></a> <a class="reference external" href="https://zenodo.org/badge/latestdoi/356210291"><img alt="Zenodo" src="https://zenodo.org/badge/356210291.svg" /></a> <a class="reference external" href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples"><img alt="binder" src="https://mybinder.org/badge_logo.svg" /></a></p>
 <section id="what-is-the-hydromt-wflow-plugin">
 <h2>What is the HydroMT-Wflow plugin<a class="headerlink" href="#what-is-the-hydromt-wflow-plugin" title="Permalink to this headline">#</a></h2>
 <p><a class="reference external" href="https://deltares.github.io/hydromt/preview/">HydroMT</a> (Hydro Model Tools) is an open-source Python package that facilitates the process of
 building and analyzing spatial geoscientific models with a focus on water system models.
 It does so by automating the workflow to go from raw data to a complete model instance which
-is ready to run and to analyse model results once the simulation has finished. This plugin provides an implementation
-of the model API for the <a class="reference external" href="https://github.com/Deltares/Wflow.jl">wflow</a> model.</p>
+is ready to run and to analyze model results once the simulation has finished.
+This plugin provides an implementation of the model API for the <a class="reference external" href="https://github.com/Deltares/Wflow.jl">wflow</a> model.</p>
 </section>
 <section id="why-hydromt-wflow">
 <h2>Why HydroMT-Wflow?<a class="headerlink" href="#why-hydromt-wflow" title="Permalink to this headline">#</a></h2>
-<p>Setting up spatial geoscientific models typically requires many (manual) steps
+<p>Setting up distributed hydrological models typically requires many (manual) steps
 to process input data and might therefore be time consuming and hard to reproduce.
 Especially improving models based on global geospatial datasets, which are
 rapidly becoming available at increasingly high resolutions, might be challenging.
-Furthermore, analyzing model schematization and results from different models,
-which often use model-specific peculiar data formats, can be time consuming.
-HydroMT aims to make the model building process <strong>fast</strong>, <strong>modular</strong> and <strong>reproducible</strong>
-by configuring the model building process from a single <em>ini</em> configuration file
-and <strong>model- and data-agnostic</strong> through a common model and data interface.
-The HydroMT-Wflow plugin enables the application if those principles to the hyrological model Wflow.</p>
+HydroMT-Wflow aims to make the model building process <strong>fast</strong>, <strong>modular</strong> and <strong>reproducible</strong>
+and to facilitate the analysis of Wflow model results</p>
 </section>
 <section id="how-to-use-hydromt-wflow">
 <h2>How to use HydroMT-Wflow?<a class="headerlink" href="#how-to-use-hydromt-wflow" title="Permalink to this headline">#</a></h2>
 <p>The HydroMT-Wflow plugin can be used as a <strong>command line</strong> application, which provides commands to <em>build</em>,
 <em>update</em> and <em>clip</em> the Wflow model with a single line, or <strong>from python</strong> to exploit its rich interface.
-You can learn more about how to use HydroMT-Wflow in its <a class="reference external" href="file:///C:/Users/marth/Projects/HydroMT/Software/wflow/hydromt_wflow/docs/_build/html/index.html">online documentation.</a>
+You can learn more about how to use HydroMT-Wflow in its <a class="reference external" href="docs_getting_started">online documentation.</a>
 For a smooth installing experience we recommend installing HydroMT-Wflow and its dependencies
-from conda-forge in a clean environment, see <a class="reference external" href="file:///C:/Users/marth/Projects/HydroMT/Software/wflow/hydromt_wflow/docs/_build/html/getting_started/installation.html">installation guide.</a></p>
-</section>
-<section id="hydromt-core">
-<h2>HydroMT core<a class="headerlink" href="#hydromt-core" title="Permalink to this headline">#</a></h2>
-<p>The implementation of the base API is handled in the <a class="reference external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core.</a></p>
+from conda-forge in a clean environment, see <a class="reference external" href="docs_install">installation guide.</a></p>
 </section>
 <section id="how-to-cite">
 <h2>How to cite?<a class="headerlink" href="#how-to-cite" title="Permalink to this headline">#</a></h2>
-<p>For publications, please cite our work using the DOI provided in the Zenodo badge <a class="reference external" href="https://zenodo.org/record/6221375#.YlbkcItByUk"><img alt="Zenodo" src="https://zenodo.org/badge/348020332.svg" /></a> that points to the latest release.</p>
+<p>For publications, please cite our work using the DOI provided in the Zenodo badge <a class="reference external" href="https://zenodo.org/badge/latestdoi/356210291"><img alt="Zenodo" src="https://zenodo.org/badge/356210291.svg" /></a> that points to the latest release.</p>
 </section>
 <section id="how-to-contribute">
 <h2>How to contribute?<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">#</a></h2>
