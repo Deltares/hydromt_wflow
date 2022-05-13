@@ -3,8 +3,8 @@
 User guide
 ==========
 
-With the **Hydromt Wflow plugin**, users can easily benefit from the rich set of tools of the
-`HydroMT package <https://deltares.github.io/hydromt/preview/index.html>`_ to build and update
+With the **Hydromt-Wflow plugin**, users can easily benefit from the rich set of tools of the
+`HydroMT package <https://deltares.github.io/hydromt/latest/index.html>`_ to build and update
 `Wflow <https://deltares.github.io/Wflow.jl/stable/>`_ models from available global and local data.
 
 This plugin assists the Wflow modeller in:
@@ -14,6 +14,11 @@ This plugin assists the Wflow modeller in:
 - Adjusting and updating components of a Wflow model and their associated parameters in a consistent way
 - Clipping existing Wflow models for a smaller extent
 - Analysing Wflow model outputs
+
+Two Wflow Model classes are currently available:
+
+- ``wflow `` (WflowModel): class for the wflow_sbm + kinematic and wflow_sbm + local inertial concepts
+- ``wflow_sediment`` (WflowSedimentModel): class for the wflow_sediment concept 
 
 .. toctree::
    :caption: Table of Contents

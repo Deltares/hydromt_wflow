@@ -10,7 +10,7 @@ data libraries are set, you can build a model by using:
 
     hydromt build wflow path/to/built_model "{'basin': [x, y]}" -i wflow_build.ini -d data_sources.yml -vvv
 
-The recommended `region options <https://deltares.github.io/hydromt/preview/user_guide/model_region>`_
+The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
 for a proper implementation of this model are:
 
 - basin
@@ -21,7 +21,7 @@ for a proper implementation of this model are:
 Configuration file
 ------------------
 Settings to build or update a Wflow model are managed in a configuration file. In this file,
-every option from each :ref:`model component <model_methods>` can be changed by the user
+every option from each :ref:`model method <model_methods>` can be changed by the user
 in its corresponding section.
 
 Note that the order in which the components are listed in the ini file is important:
@@ -46,10 +46,10 @@ are three ways for the user to select which data libraries to use:
   `hydromt-artifacts <https://github.com/DirkEilander/hydromt-artifacts>`_
   which contains an extract of global data for a small region around the Piave river in Northern Italy.
 - Another options for Deltares users is to select the deltares-data library (requires access to the Deltares
-  P-drive). In the command lines examples below, this is done by adding either **-dd** or **--deltares-data**
+  P-drive). In the command lines examples below, this is done by adding either **--dd** or **--deltares-data**
   to the build / update command line.
 - Finally, the user can prepare its own yaml libary (or libraries) (see
-  `HydroMT documentation <https://deltares.github.io/hydromt/preview/index>`_ to check the guidelines).
+  `HydroMT documentation <https://deltares.github.io/hydromt/latest/index>`_ to check the guidelines).
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
 

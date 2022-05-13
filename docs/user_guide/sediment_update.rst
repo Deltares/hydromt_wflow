@@ -2,10 +2,30 @@
 
 Updating a model
 ----------------
-This plugin allows to update any components from a Wflow Sediment model. To do so, list the components to update in a configuration file,
-if needed edit your data library with new data sources required for the update and use the command:
+To add or change one or more components of an existing Wflow Sediment model the ``update`` method can be used.
+
+**Steps in brief:**
+
+1) You have an **existing model** schematization. This model does not have to be complete.
+2) Prepare or use a pre-defined **data catalog** with all the required data sources, see :ref:`working with data <https://deltares.github.io/hydromt/latest/user_guide/data_main.html>`
+3) Prepare a **model configuration** with the methods that you want to use to add or change components of your model: see :ref:`model configuration <https://deltares.github.io/hydromt/latest/user_guide/model_config.html>`.
+4) **Update** your model using the CLI or Python interface
 
 .. code-block:: console
 
     activate hydromt-wflow
     hydromt update wflow_sediment path/to/model_to_update -o path/to/updated_model -i wflow_sediment_update.ini -d data_sources.yml -vvv
+
+.. NOTE::
+
+    By default, the updated model will overwrite your existing one. To save the updated model in a different 
+    folder, use the -o path/to/updated_model option of the CLI.
+
+.. TIP::
+
+    By default all model data is written at the end of the update method. If your update however 
+    only affects a certain model data (e.g. staticmaps or forcing) you can add a write_* method 
+    (e.g. `write_staticmaps`, `write_forcing`) to the .ini file and only these data will be written.
+    
+    Note that the model config is often changed as part of the a model method and `write_config` 
+    should thus be added to the .ini file to keep the model data and config consistent.

@@ -1,7 +1,7 @@
 ============================
 Working with the Wflow model
 ============================
-With the Hydromt Wflow plugin, you can easily work with Wflow (SBM) models.
+With the Hydromt-Wflow plugin, you can easily work with Wflow SBM models.
 This plugin contains relevant functions for setting up or adjusting models:
 
 * :ref:`building a model <wflow_build>`: building a model from scratch.

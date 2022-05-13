@@ -2,10 +2,10 @@
 
 Developer's environment
 =======================
-If you want to download the Wflow plugin directly from git to easily have access to the latest developments or
+If you want to download the HydroMT-Wflow plugin directly from git to easily have access to the latest developments or
 make changes to the code you can use the following steps.
 
-First, clone the HydroMT Wflow plugin ``git`` repo from
+First, clone the HydroMT-Wflow plugin ``git`` repo from
 `github <https://github.com/Deltares/hydromt_wflow>`_, then navigate into the
 the code folder (where the envs folder and pyproject.toml are located):
 
@@ -22,7 +22,7 @@ file contained in the repository:
     $ conda env create -f envs/hydromt-wflow.yml
     $ conda activate hydromt-wflow
 
-If you wish to make changes in hydromt_wflow, you should make an editable install of HydroMT.
+If you wish to make changes in HydroMT-Wflow, you should make an editable install of the plugin.
 This is possible using the `flit install <https://flit.pypa.io/en/latest/cmdline.html#flit-install>`_ command.
 
 For Windows:
