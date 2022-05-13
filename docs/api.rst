@@ -92,6 +92,8 @@ General methods
    WflowModel.read_staticmaps
    WflowModel.write_staticmaps
    WflowModel.clip_staticmaps
+   WflowModel.read_staticmaps_pcr
+   WflowModel.write_staticmaps_pcr
 
    WflowModel.set_staticgeoms
    WflowModel.read_staticgeoms
