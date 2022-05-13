@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Update a wflow model: forcing &#8212; HydroMT Wflow  documentation</title>
+    <title>Update a Wflow model: forcing &#8212; HydroMT Wflow  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -37,8 +37,8 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Update a wflow model: gauging stations" href="update_model_gauges.html" />
-    <link rel="prev" title="Update a wflow model: landuse" href="update_model_landuse.html" />
+    <link rel="next" title="Update a Wflow model: gauging stations" href="update_model_gauges.html" />
+    <link rel="prev" title="Update a Wflow model: landuse" href="update_model_landuse.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -328,13 +328,13 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#hydroMT-CLI-update-interface">
-   hydroMT CLI update interface
+  <a class="reference internal nav-link" href="#HydroMT-CLI-update-interface">
+   HydroMT CLI update interface
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Update-wflow-forcing-layers">
-   Update wflow forcing layers
+  <a class="reference internal nav-link" href="#Update-Wflow-forcing-layers">
+   Update Wflow forcing layers
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -617,8 +617,8 @@ div.rendered_html tbody tr:hover {
     For an interactive online version click here:
     <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/update_model_forcing.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
 </div></div>
-<section id="Update-a-wflow-model:-forcing">
-<h1>Update a wflow model: forcing<a class="headerlink" href="#Update-a-wflow-model:-forcing" title="Permalink to this headline">#</a></h1>
+<section id="Update-a-Wflow-model:-forcing">
+<h1>Update a Wflow model: forcing<a class="headerlink" href="#Update-a-Wflow-model:-forcing" title="Permalink to this headline">#</a></h1>
 <p>Once you have a <strong>Wflow</strong> model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.</p>
 <p>With HydroMT, you can easily read your model and update one or several components of your model using the <strong>update</strong> function of the command line interface (CLI). Here are the steps and some examples on how to <strong>update the model forcing</strong>.</p>
 <p>All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more feedback.</p>
@@ -637,9 +637,9 @@ div.rendered_html tbody tr:hover {
 </section>
 <section id="Model-setup-configuration">
 <h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Permalink to this headline">#</a></h2>
-<p>Updating landuse is an easy step with the command line but sometimes, for example with forcing, you want to update several things at the same time. This is possible by preparing a <strong>configuration file</strong> that includes every components and settings that you want to do during your update.</p>
-<p>The ini-file contains the model setup configuration and determines which components are updated and in which sequence and sets optional arguments for each component. This configuration is passed to hydromt using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_ini_file&gt;</span></code>.</p>
-<p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_precip_forcing]</span></code>) corresponds with a model component which are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/preview/user_guide/wflow_model_setup.html">docs (model components)</a>.</p>
+<p>Updating landuse is an easy step with the command line but sometimes, for example with forcing, you want to update several things at the same time. This is possible by preparing a <strong>configuration file</strong> that includes every methods and settings that you want to do during your update.</p>
+<p>The ini-file contains the model setup configuration and determines which methods are updated and in which sequence and sets optional arguments for each method. This configuration is passed to hydromt using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_ini_file&gt;</span></code>.</p>
+<p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_precip_forcing]</span></code>) corresponds with a model method which are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/preview/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
 <p>Let’s open the example configuration file <strong>wflow_update_forcing.ini</strong> from the model repository [examples folder] and have a look at the settings.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -677,18 +677,18 @@ skip_pet        = False         # if True, only temperature is prepared.
 
 </pre></div></div>
 </div>
-<p>Here we can see that to fully update wflow forcing, we will run three components of <strong>Wflow</strong>:</p>
+<p>Here we can see that to fully update wflow forcing, we will run three methods of <strong>Wflow</strong>:</p>
 <ul class="simple">
 <li><p><strong>setup_config</strong>: modifies the Wflow TOML configuration file and tells hydroMT what are the start, end, timestep of the forcing data we want to prepare. Note that you can change any options in the TOML file here, including for example the name of the output forcing file with the option <em>input.path_forcing</em>.</p></li>
 <li><p><strong>setup_precip_forcing</strong>: tells hydroMT how to prepare precipitation data including from which data source and with or without downscaling.</p></li>
 <li><p><strong>setup_temp_pet_forcing</strong>: tells hydroMT how to prepare temperature and potential evapotranspiration data including which data source, which computation method for PET and with or without downscaling.</p></li>
 </ul>
-<p>You can find more information on the different components and their options in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/preview/user_guide/wflow_model_setup.html">docs (model components)</a>.</p>
+<p>You can find more information on the different methods and their options in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
 <p>Here we can see that we will prepare daily forcing for 10 days in February 2010 using CHIRPS for precipitation and ERA5 for temperature and potential evapotranspiration.</p>
 </section>
-<section id="hydroMT-CLI-update-interface">
-<h2>hydroMT CLI update interface<a class="headerlink" href="#hydroMT-CLI-update-interface" title="Permalink to this headline">#</a></h2>
-<p>Using the <code class="docutils literal notranslate"><span class="pre">hydroMT</span> <span class="pre">build</span></code> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
+<section id="HydroMT-CLI-update-interface">
+<h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Permalink to this headline">#</a></h2>
+<p>Using the <strong>HydroMT build</strong> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -738,8 +738,8 @@ Options:
 </pre></div></div>
 </div>
 </section>
-<section id="Update-wflow-forcing-layers">
-<h2>Update wflow forcing layers<a class="headerlink" href="#Update-wflow-forcing-layers" title="Permalink to this headline">#</a></h2>
+<section id="Update-Wflow-forcing-layers">
+<h2>Update Wflow forcing layers<a class="headerlink" href="#Update-Wflow-forcing-layers" title="Permalink to this headline">#</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -754,39 +754,39 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-05-13 16:12:48,495 - update - log - INFO - HydroMT version: 0.4.5
-2022-05-13 16:12:48,496 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-05-13 16:12:48,496 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-05-13 16:12:48,496 - update - main - INFO - User settings:
-2022-05-13 16:12:48,506 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
-2022-05-13 16:12:48,509 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-05-13 16:12:48,564 - update - wflow - INFO - Reading model intbl files.
-2022-05-13 16:12:48,565 - update - wflow - INFO - Reading model staticgeom files.
-2022-05-13 16:12:48,636 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-05-13 16:12:48,645 - update - wflow - INFO - Model read
-2022-05-13 16:12:48,648 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2022-05-13 16:12:48,649 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2022-05-13 16:12:48,649 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2022-05-13 16:12:48,652 - update - data_adapter - INFO - Adding sample data v0.0.6 from artifacts
-2022-05-13 16:12:48,720 - update - data_adapter - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/chirps_global.nc
-2022-05-13 16:12:48,786 - update - model_api - WARNING - Replacing forcing: precip
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2022-05-13 16:12:48,786 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2022-05-13 16:12:48,790 - update - data_adapter - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5.nc
-2022-05-13 16:12:48,848 - update - data_adapter - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5_orography.nc
-2022-05-13 16:12:49,087 - update - model_api - WARNING - Replacing forcing: pet
-2022-05-13 16:12:49,089 - update - model_api - WARNING - Replacing forcing: temp
-2022-05-13 16:12:49,089 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-05-13 16:12:49,093 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2022-05-13 16:12:49,279 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2022-05-13 16:12:49,703 - update - wflow - INFO - Writing model staticgeom to file.
-2022-05-13 16:12:49,857 - update - wflow - INFO - Write forcing file
-2022-05-13 16:12:49,876 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
+2022-05-13 16:32:07,465 - update - log - INFO - HydroMT version: 0.4.5
+2022-05-13 16:32:07,465 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2022-05-13 16:32:07,465 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-05-13 16:32:07,465 - update - main - INFO - User settings:
+2022-05-13 16:32:07,475 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
+2022-05-13 16:32:07,477 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2022-05-13 16:32:07,530 - update - wflow - INFO - Reading model intbl files.
+2022-05-13 16:32:07,530 - update - wflow - INFO - Reading model staticgeom files.
+2022-05-13 16:32:07,598 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2022-05-13 16:32:07,606 - update - wflow - INFO - Model read
+2022-05-13 16:32:07,610 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2022-05-13 16:32:07,610 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2022-05-13 16:32:07,610 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2022-05-13 16:32:07,613 - update - data_adapter - INFO - Adding sample data v0.0.6 from artifacts
+2022-05-13 16:32:07,670 - update - data_adapter - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/chirps_global.nc
+2022-05-13 16:32:07,734 - update - model_api - WARNING - Replacing forcing: precip
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2022-05-13 16:32:07,734 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2022-05-13 16:32:07,738 - update - data_adapter - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5.nc
+2022-05-13 16:32:07,794 - update - data_adapter - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5_orography.nc
+2022-05-13 16:32:08,016 - update - model_api - WARNING - Replacing forcing: pet
+2022-05-13 16:32:08,018 - update - model_api - WARNING - Replacing forcing: temp
+2022-05-13 16:32:08,018 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-05-13 16:32:08,022 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2022-05-13 16:32:08,178 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2022-05-13 16:32:08,556 - update - wflow - INFO - Writing model staticgeom to file.
+2022-05-13 16:32:08,705 - update - wflow - INFO - Write forcing file
+2022-05-13 16:32:08,722 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
 [########################################] | 100% Completed |  0.1s
 
 </pre></div></div>
@@ -887,13 +887,13 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Update a wflow model: landuse</p>
+            <p class="prev-next-title">Update a Wflow model: landuse</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="update_model_gauges.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Update a wflow model: gauging stations</p>
+        <p class="prev-next-title">Update a Wflow model: gauging stations</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

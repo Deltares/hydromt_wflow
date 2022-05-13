@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Plot Wflow forcing" href="plot_wflow_forcing.html" />
-    <link rel="prev" title="Convert wflow staticmaps netcdf to raster files" href="convert_staticmaps_to_mapstack.html" />
+    <link rel="prev" title="Convert Wflow staticmaps netcdf to raster files" href="convert_staticmaps_to_mapstack.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -609,10 +609,10 @@ div.rendered_html tbody tr:hover {
 </div></div>
 <section id="Plot-Wflow-static-maps">
 <h1>Plot Wflow static maps<a class="headerlink" href="#Plot-Wflow-static-maps" title="Permalink to this headline">#</a></h1>
-<p><strong>hydroMT</strong> provides a simple interface to model schematization from which we can make beautiful plots:</p>
+<p><strong>HydroMT</strong> provides a simple interface to model schematization from which we can make beautiful plots:</p>
 <ul class="simple">
-<li><p>Raster layers are saved to the model <code class="docutils literal notranslate"><span class="pre">staticmaps</span></code> attribute as a <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></p></li>
-<li><p>Vector layers are saved to the model <code class="docutils literal notranslate"><span class="pre">staticgeoms</span></code> attribute as a <code class="docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code>. Note that in case of Wflow these are not used by the model engine, but only for analysis and visualization purposes.</p></li>
+<li><p>Raster layers are saved to the model <code class="docutils literal notranslate"><span class="pre">staticmaps</span></code> component as a <code class="docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></p></li>
+<li><p>Vector layers are saved to the model <code class="docutils literal notranslate"><span class="pre">staticgeoms</span></code> component as a <code class="docutils literal notranslate"><span class="pre">geopandas.GeoDataFrame</span></code>. Note that in case of Wflow these are not used by the model engine, but only for analysis and visualization purposes.</p></li>
 </ul>
 <p>We use the <a class="reference external" href="https://scitools.org.uk/cartopy/docs/latest/">cartopy</a> package to plot maps. This packages provides a simple interface to plot geographic data and add background satellite imagery.</p>
 <section id="Load-dependencies">
@@ -792,7 +792,7 @@ div.rendered_html tbody tr:hover {
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Convert wflow staticmaps netcdf to raster files</p>
+            <p class="prev-next-title">Convert Wflow staticmaps netcdf to raster files</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="plot_wflow_forcing.html" title="next page">

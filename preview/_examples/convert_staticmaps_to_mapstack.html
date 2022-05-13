@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Convert wflow staticmaps netcdf to raster files &#8212; HydroMT Wflow  documentation</title>
+    <title>Convert Wflow staticmaps netcdf to raster files &#8212; HydroMT Wflow  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -338,8 +338,8 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Update-wflow-staticmaps-manually-using-hydroMT">
-   Update wflow staticmaps manually using hydroMT
+  <a class="reference internal nav-link" href="#Update-Wflow-staticmaps-manually-using-HydroMT">
+   Update Wflow staticmaps manually using HydroMT
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
@@ -348,8 +348,8 @@
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Create-a-new-wflow-model-based-on-the-updated-PCRaster-mapstack">
-     Create a new wflow model based on the updated PCRaster mapstack
+    <a class="reference internal nav-link" href="#Create-a-new-Wflow-model-based-on-the-updated-PCRaster-mapstack">
+     Create a new Wflow model based on the updated PCRaster mapstack
     </a>
    </li>
   </ul>
@@ -629,9 +629,9 @@ div.rendered_html tbody tr:hover {
     For an interactive online version click here:
     <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/convert_staticmaps_to_mapstack.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
 </div></div>
-<section id="Convert-wflow-staticmaps-netcdf-to-raster-files">
-<h1>Convert wflow staticmaps netcdf to raster files<a class="headerlink" href="#Convert-wflow-staticmaps-netcdf-to-raster-files" title="Permalink to this headline">#</a></h1>
-<p>In order to inspect or (manually) modify wflow staticmaps it is convenient to export the maps to a raster format. Here we show how to read the model maps and save to a so-called mapstack (i.e.: a set of raster files with identical grid) using hydromt.</p>
+<section id="Convert-Wflow-staticmaps-netcdf-to-raster-files">
+<h1>Convert Wflow staticmaps netcdf to raster files<a class="headerlink" href="#Convert-Wflow-staticmaps-netcdf-to-raster-files" title="Permalink to this headline">#</a></h1>
+<p>In order to inspect or (manually) modify Wflow staticmaps it is convenient to export the maps to a raster format. Here we show how to read the model maps and save to a so-called mapstack (i.e.: a set of raster files with identical grid) using HydroMT.</p>
 <section id="Load-dependencies">
 <h2>Load dependencies<a class="headerlink" href="#Load-dependencies" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
@@ -648,7 +648,7 @@ div.rendered_html tbody tr:hover {
 </section>
 <section id="Read-wflow-staticmaps">
 <h2>Read wflow staticmaps<a class="headerlink" href="#Read-wflow-staticmaps" title="Permalink to this headline">#</a></h2>
-<p>hydroMT provides an easy method to read the model schematization trought the Model API.</p>
+<p>HydroMT provides an easy method to read the model schematization trought the Model API.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -770,8 +770,8 @@ Data variables: (12/86)
 </div>
 </div>
 </section>
-<section id="Update-wflow-staticmaps-manually-using-hydroMT">
-<h2>Update wflow staticmaps manually using hydroMT<a class="headerlink" href="#Update-wflow-staticmaps-manually-using-hydroMT" title="Permalink to this headline">#</a></h2>
+<section id="Update-Wflow-staticmaps-manually-using-HydroMT">
+<h2>Update Wflow staticmaps manually using HydroMT<a class="headerlink" href="#Update-Wflow-staticmaps-manually-using-HydroMT" title="Permalink to this headline">#</a></h2>
 <p>The previous steps show you how you can easily save a model staticmaps to a GeoTIFF mapstacks and read it again using hydroMT functions <strong>to_mapstack</strong> and <strong>open_mfraster</strong>.</p>
 <p>However in order to have a fully ready-to-run wflow model, the mapstacks that we create needs to be processed a little more:</p>
 <ul class="simple">
@@ -813,8 +813,8 @@ Data variables: (12/86)
 </div>
 </div>
 </section>
-<section id="Create-a-new-wflow-model-based-on-the-updated-PCRaster-mapstack">
-<h3>Create a new wflow model based on the updated PCRaster mapstack<a class="headerlink" href="#Create-a-new-wflow-model-based-on-the-updated-PCRaster-mapstack" title="Permalink to this headline">#</a></h3>
+<section id="Create-a-new-Wflow-model-based-on-the-updated-PCRaster-mapstack">
+<h3>Create a new Wflow model based on the updated PCRaster mapstack<a class="headerlink" href="#Create-a-new-Wflow-model-based-on-the-updated-PCRaster-mapstack" title="Permalink to this headline">#</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
