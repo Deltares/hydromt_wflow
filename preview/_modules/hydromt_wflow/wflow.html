@@ -1822,7 +1822,7 @@
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></div>
         <span class="c1"># self.write_staticmaps_pcr()</span>
 
-    <span class="k">def</span> <span class="nf">read_staticmaps_pcr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.read_staticmaps_pcr"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_staticmaps_pcr.html#hydromt_wflow.WflowModel.read_staticmaps_pcr">[docs]</a>    <span class="k">def</span> <span class="nf">read_staticmaps_pcr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read and staticmaps at &lt;root/staticmaps&gt; and parse to xarray&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read</span> <span class="ow">and</span> <span class="s2">&quot;chunks&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">chunks</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">})</span>
@@ -1858,9 +1858,9 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">crs</span> <span class="o">=</span> <span class="mi">4326</span>  <span class="c1"># default to 4326</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">write_staticmaps_pcr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.write_staticmaps_pcr"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_staticmaps_pcr.html#hydromt_wflow.WflowModel.write_staticmaps_pcr">[docs]</a>    <span class="k">def</span> <span class="nf">write_staticmaps_pcr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -1887,7 +1887,7 @@
             <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;PCRaster&quot;</span><span class="p">,</span>
             <span class="n">pcr_vs_map</span><span class="o">=</span><span class="n">pcr_vs_map</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowModel.read_staticgeoms"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_staticgeoms.html#hydromt_wflow.WflowModel.read_staticgeoms">[docs]</a>    <span class="k">def</span> <span class="nf">read_staticgeoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read and staticgeoms at &lt;root/staticgeoms&gt; and parse to geopandas&quot;&quot;&quot;</span>

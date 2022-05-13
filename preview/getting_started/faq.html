@@ -294,7 +294,7 @@ where you can specify which TOML file to use using the <em>config_fn</em> argume
 <div class="line"><strong>Q</strong>: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?</div>
 </div>
 </div></blockquote>
-<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <code class="xref py py-func docutils literal notranslate"><span class="pre">read_staticmaps_pcr()</span></code>.
+<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.read_staticmaps_pcr.html#hydromt_wflow.WflowModel.read_staticmaps_pcr" title="hydromt_wflow.WflowModel.read_staticmaps_pcr"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_staticmaps_pcr()</span></code></a>.
 So actually just a read and write of your python model will do most of the job :) The intbl are however not taken into account so if
 you have single values intbl, you can use the <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a> method. For lakes and reservoirs parameters,
 the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating

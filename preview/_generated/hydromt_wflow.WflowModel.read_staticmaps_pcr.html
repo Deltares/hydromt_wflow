@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>hydromt_wflow.WflowModel.set_config &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.WflowModel.read_staticmaps_pcr &#8212; HydroMT Wflow  documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -35,8 +35,8 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.read_config" href="hydromt_wflow.WflowModel.read_config.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.get_config" href="hydromt_wflow.WflowModel.get_config.html" />
+    <link rel="next" title="hydromt_wflow.WflowModel.write_staticmaps_pcr" href="hydromt_wflow.WflowModel.write_staticmaps_pcr.html" />
+    <link rel="prev" title="hydromt_wflow.WflowModel.clip_staticmaps" href="hydromt_wflow.WflowModel.clip_staticmaps.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -321,8 +321,8 @@
    hydromt_wflow.WflowModel.get_config
   </a>
  </li>
- <li class="toctree-l1 current active">
-  <a class="current reference internal" href="#">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_config.html">
    hydromt_wflow.WflowModel.set_config
   </a>
  </li>
@@ -356,8 +356,8 @@
    hydromt_wflow.WflowModel.clip_staticmaps
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="hydromt_wflow.WflowModel.read_staticmaps_pcr.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    hydromt_wflow.WflowModel.read_staticmaps_pcr
   </a>
  </li>
@@ -819,24 +819,12 @@
               
               <div>
                 
-  <section id="hydromt-wflow-wflowmodel-set-config">
-<h1>hydromt_wflow.WflowModel.set_config<a class="headerlink" href="#hydromt-wflow-wflowmodel-set-config" title="Permalink to this headline">#</a></h1>
+  <section id="hydromt-wflow-wflowmodel-read-staticmaps-pcr">
+<h1>hydromt_wflow.WflowModel.read_staticmaps_pcr<a class="headerlink" href="#hydromt-wflow-wflowmodel-read-staticmaps-pcr" title="Permalink to this headline">#</a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.set_config">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">set_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowModel.set_config" title="Permalink to this definition">#</a></dt>
-<dd><p>Update the config dictionary at key(s) with values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>key</em><em>(</em><em>s</em><em>)</em><em>, </em><em>value tuple</em><em>, </em><em>with minimal length of two</em>) – keys can given by multiple args: (‘key1’, ‘key2’, ‘value’)
-or a string with ‘.’ indicating a new level: (‘key1.key2’, ‘value’)</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p>&gt;&gt; # self.config = {‘a’: 1, ‘b’: {‘c’: {‘d’: 2}}}</p>
-<p>&gt;&gt; set_config(‘a’, 99)
-&gt;&gt; {‘a’: 99, ‘b’: {‘c’: {‘d’: 2}}}</p>
-<p>&gt;&gt; set_config(‘b’, ‘c’, ‘d’, 99) # identical to set_config(‘b.d.e’, 99)
-&gt;&gt; {‘a’: 1, ‘b’: {‘c’: {‘d’: 99}}}</p>
+<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.read_staticmaps_pcr">
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">read_staticmaps_pcr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4326</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.read_staticmaps_pcr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.read_staticmaps_pcr" title="Permalink to this definition">#</a></dt>
+<dd><p>Read and staticmaps at &lt;root/staticmaps&gt; and parse to xarray</p>
 </dd></dl>
 
 </section>
@@ -847,17 +835,17 @@ or a string with ‘.’ indicating a new level: (‘key1.key2’, ‘value’)<
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="hydromt_wflow.WflowModel.get_config.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="hydromt_wflow.WflowModel.clip_staticmaps.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">hydromt_wflow.WflowModel.get_config</p>
+            <p class="prev-next-title">hydromt_wflow.WflowModel.clip_staticmaps</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="hydromt_wflow.WflowModel.read_config.html" title="next page">
+    <a class='right-next' id="next-link" href="hydromt_wflow.WflowModel.write_staticmaps_pcr.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.read_config</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.write_staticmaps_pcr</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
