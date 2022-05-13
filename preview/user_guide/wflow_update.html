@@ -97,7 +97,7 @@
 
     
     <li class="nav-item">
-        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
     </li>
     
 </ul>
@@ -333,11 +333,30 @@
                 
   <section id="updating-a-model">
 <span id="wflow-update"></span><h1>Updating a model<a class="headerlink" href="#updating-a-model" title="Permalink to this headline">#</a></h1>
-<p>This plugin allows to update any components from a Wflow model. To do so, list the components to update in a configuration file,
-if needed edit your data library with new data sources required for the update and use the command:</p>
+<p>To add or change one or more components of an existing Wflow model the <code class="docutils literal notranslate"><span class="pre">update</span></code> method can be used.</p>
+<p><strong>Steps in brief:</strong></p>
+<ol class="arabic simple">
+<li><p>You have an <strong>existing model</strong> schematization. This model does not have to be complete.</p></li>
+<li><p>Prepare or use a pre-defined <strong>data catalog</strong> with all the required data sources, see <span class="xref std std-ref">working with data</span></p></li>
+<li><p>Prepare a <strong>model configuration</strong> with the methods that you want to use to add or change components of your model: see <span class="xref std std-ref">model configuration</span>.</p></li>
+<li><p><strong>Update</strong> your model using the CLI or Python interface</p></li>
+</ol>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
 <span class="go">hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.ini -d data_sources.yml -vvv</span>
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, the updated model will overwrite your existing one. To save the updated model in a different
+folder, use the -o path/to/updated_model option of the CLI.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>By default all model data is written at the end of the update method. If your update however
+only affects a certain model data (e.g. staticmaps or forcing) you can add a write_* method
+(e.g. <cite>write_staticmaps</cite>, <cite>write_forcing</cite>) to the .ini file and only these data will be written.</p>
+<p>Note that the model config is often changed as part of the a model method and <cite>write_config</cite>
+should thus be added to the .ini file to keep the model data and config consistent.</p>
 </div>
 <div class="toctree-wrapper compound">
 </div>

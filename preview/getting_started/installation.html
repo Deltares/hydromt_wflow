@@ -97,7 +97,7 @@
 
     
     <li class="nav-item">
-        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
     </li>
     
 </ul>
@@ -149,8 +149,13 @@
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference external" href="https://deltares.github.io/hydromt/preview/getting_started/user_stories">
+  <a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">
    User's stories
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="faq.html">
+   Frequently asked questions
   </a>
  </li>
 </ul>
@@ -187,13 +192,13 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#install-hydromt-in-a-new-environment">
-     Install HydroMT in a new environment
+    <a class="reference internal nav-link" href="#install-hydromt-wflow-in-a-new-environment">
+     Install HydroMT-Wflow in a new environment
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#install-hydromt-in-an-existing-environment">
-     Install HydroMT in an existing environment
+    <a class="reference internal nav-link" href="#install-hydromt-wflow-in-an-existing-environment">
+     Install HydroMT-Wflow in an existing environment
     </a>
    </li>
   </ul>
@@ -228,28 +233,34 @@
 <span id="id1"></span><h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Permalink to this headline">#</a></h1>
 <section id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">#</a></h2>
-<p>For more information about the prerequisites for an installation of the HydroMT Wflow package please visit the
-documentation of the <a class="reference external" href="https://deltares.github.io/hydromt/preview/getting_started/installation.html#installation-guide">HydroMT core</a></p>
+<p>For more information about the prerequisites for an installation of the HydroMT package and related dependencies, please visit the
+documentation of <a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide">HydroMT core</a></p>
+<p>Compared to HydroMT, HydroMT-Wflow has additionnal dependencies, namely:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/uiri/toml">toml</a></p></li>
+<li><p><a class="reference external" href="https://pcraster.geo.uu.nl">pcraster</a> (optional)</p></li>
+<li><p><a class="reference external" href="https://github.com/openearth/hydro-engine">hydroengine</a> (optional)</p></li>
+</ul>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">#</a></h2>
-<p>HydroMT Wflow is available from pypi and conda-forge, but we recommend installing from conda-forge in a new conda environment.</p>
+<p>HydroMT-Wflow is available from pypi and conda-forge, but we recommend installing from conda-forge in a new conda environment.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In the commands below you can exchange <cite>mamba</cite> for <cite>conda</cite>, see
-<a class="reference external" href="https://deltares.github.io/hydromt/preview/getting_started/installation.html#installation-guide">here</a> for the difference between both.</p>
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide">here</a> for the difference between both.</p>
 </div>
-<section id="install-hydromt-in-a-new-environment">
-<h3>Install HydroMT in a new environment<a class="headerlink" href="#install-hydromt-in-a-new-environment" title="Permalink to this headline">#</a></h3>
+<section id="install-hydromt-wflow-in-a-new-environment">
+<h3>Install HydroMT-Wflow in a new environment<a class="headerlink" href="#install-hydromt-wflow-in-a-new-environment" title="Permalink to this headline">#</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>This is our recommended way of installing HydroMT Wflow!</p>
+<p>This is our recommended way of installing HydroMT-Wflow!</p>
 </div>
-<p>To install HydroMT Wflow in a new environment called <cite>hydromt-wflow</cite> from the conda-forge channel do:</p>
+<p>To install HydroMT-Wflow in a new environment called <cite>hydromt-wflow</cite> from the conda-forge channel do:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda create -n hydromt-wflow -c conda-forge hydromt_wflow
 </pre></div>
 </div>
-<p>Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT Wflow:</p>
+<p>Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda activate hydromt-wflow</span>
 </pre></div>
 </div>
@@ -271,9 +282,9 @@ as the model plugins <strong>Wflow</strong> and <strong>Wflow Sediment</strong>.
 </pre></div>
 </div>
 </section>
-<section id="install-hydromt-in-an-existing-environment">
-<h3>Install HydroMT in an existing environment<a class="headerlink" href="#install-hydromt-in-an-existing-environment" title="Permalink to this headline">#</a></h3>
-<p>To install HydroMT Wflow <strong>using mamba or conda</strong> execute the command below after activating the correct environment.
+<section id="install-hydromt-wflow-in-an-existing-environment">
+<h3>Install HydroMT-Wflow in an existing environment<a class="headerlink" href="#install-hydromt-wflow-in-an-existing-environment" title="Permalink to this headline">#</a></h3>
+<p>To install HydroMT-Wflow <strong>using mamba or conda</strong> execute the command below after activating the correct environment.
 Note that if some dependencies are not installed from conda-forge the installation may fail.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install -c conda-forge hydromt_wflow
 </pre></div>
@@ -290,7 +301,7 @@ Note that if some dependencies are not installed from conda-forge the installati
 </section>
 <section id="developer-install">
 <h2>Developer install<a class="headerlink" href="#developer-install" title="Permalink to this headline">#</a></h2>
-<p>To be able to test and develop the HydroMT package see instructions in the <a class="reference internal" href="../dev_guide/dev_install.html#dev-env"><span class="std std-ref">Developer installation guide</span></a>.</p>
+<p>To be able to test and develop the HydroMT-Wflow package see instructions in the <a class="reference internal" href="../dev_guide/dev_install.html#dev-env"><span class="std std-ref">Developer installation guide</span></a>.</p>
 </section>
 </section>
 

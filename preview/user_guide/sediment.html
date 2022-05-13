@@ -97,7 +97,7 @@
 
     
     <li class="nav-item">
-        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
     </li>
     
 </ul>
@@ -309,19 +309,9 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage mt-5 pt-1 pb-3">
-    <i class="fas fa-list"></i> On this page
-</div>
 
 <nav id="bd-toc-nav">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#extending-a-wflow-model-with-a-wflow-sediment-model">
-   Extending a Wflow model with a Wflow Sediment model
-  </a>
- </li>
-</ul>
-
+    
 </nav>
               </div>
               
@@ -343,51 +333,7 @@
                 
   <section id="working-with-the-wflow-sediment-model">
 <h1>Working with the Wflow Sediment model<a class="headerlink" href="#working-with-the-wflow-sediment-model" title="Permalink to this headline">#</a></h1>
-<section id="extending-a-wflow-model-with-a-wflow-sediment-model">
-<h2>Extending a Wflow model with a Wflow Sediment model<a class="headerlink" href="#extending-a-wflow-model-with-a-wflow-sediment-model" title="Permalink to this headline">#</a></h2>
-<p>If you already have a Wflow model and you want to extend it in order to include sediment as well, then you do not need to build the
-Wflow Sediment from scratch. You can instead <code class="docutils literal notranslate"><span class="pre">update</span></code> the Wflow model with the additional components needed by Wflow Sediment.
-These components are available in a template <a class="reference download internal" download="" href="../_downloads/e3cf09121caf4e6b245d64ae5d2617ac/wflow_extend_sediment.ini"><code class="xref download docutils literal notranslate"><span class="pre">.ini</span> <span class="pre">file</span></code></a> and shown below. The corresponding
-command line would be:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
-<span class="go">hydromt update wflow_sediment path/to/wflow_model_to_extend -i wflow_extend_sediment.ini -d data_sources.yml -vvv</span>
-</pre></div>
-</div>
-<div class="highlight-Ini notranslate"><div class="highlight"><pre><span></span><span class="k">[global]</span><span class="w"></span>
-<span class="na">data_libs</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">[]               # add optional paths to data yml files</span><span class="w"></span>
-
-<span class="k">[setup_config]</span><span class="w"></span>
-<span class="c1"># model.dolake = True               # uncomment if there are lakes in the wflow model</span><span class="w"></span>
-<span class="c1"># model.doreservoir = True          # uncomment if there are reservoirs in the wflow model</span><span class="w"></span>
-
-<span class="k">[setup_riverbedsed]</span><span class="w"></span>
-<span class="na">bedsed_mapping_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">None             # path to a mapping csv file from streamorder to river bed particles characteristics</span><span class="w"></span>
-
-<span class="k">[setup_lulcmaps]</span><span class="w"></span>
-<span class="na">lulc_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">globcover        # source for lulc maps: {globcover, vito, corine}</span><span class="w"></span>
-
-<span class="k">[setup_canopymaps]</span><span class="w"></span>
-<span class="na">canopy_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">simard           # source for vegetation canopy height: {simard}</span><span class="w"></span>
-
-<span class="k">[setup_soilmaps]</span><span class="w"></span>
-<span class="na">soil_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">soilgrids        # source for soilmaps: {soilgrids}</span><span class="w"></span>
-<span class="na">usleK_method</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">renard           # method to compute the USLE K factor: {renard, epic}</span><span class="w"></span>
-
-<span class="k">[setup_gauges]</span><span class="w"></span>
-<span class="na">gauges_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">grdc             # If not None add gaugemap. Either a path or known gauges_fn: {grdc}</span><span class="w"></span>
-<span class="na">snap_to_river</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">True             # If True snaps gauges from source to river</span><span class="w"></span>
-<span class="na">derive_subcatch</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">False            # if True derive subcatch map based on gauges.</span><span class="w"></span>
-
-<span class="na">[setup_constant_pars]               # constant parameters values</span><span class="w"></span>
-<span class="na">c_Bagnold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.0000175</span><span class="w"></span>
-<span class="na">eros_expo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.5</span><span class="w"></span>
-<span class="na">eros_ov</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.9</span><span class="w"></span>
-<span class="na">eros_spl_EUROSEM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2.0</span><span class="w"></span>
-<span class="na">exp_Bagnold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.4</span><span class="w"></span>
-<span class="na">ResTrapEff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span><span class="w"></span>
-</pre></div>
-</div>
-<p>With the Hydromt Wflow plugin, you can easily work with Wflow Sediment models.
+<p>With the Hydromt-Wflow plugin, you can easily work with Wflow Sediment models.
 This plugin contains as well relevant functions for setting up or adjusting Wflow Sediment models:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="sediment_build.html#sediment-build"><span class="std std-ref">building a model</span></a>: building a model from scratch.</p></li>
@@ -396,7 +342,6 @@ This plugin contains as well relevant functions for setting up or adjusting Wflo
 </ul>
 <div class="toctree-wrapper compound">
 </div>
-</section>
 </section>
 
 

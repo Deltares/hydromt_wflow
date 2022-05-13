@@ -97,7 +97,7 @@
 
     
     <li class="nav-item">
-        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/preview/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
     </li>
     
 </ul>
@@ -149,7 +149,7 @@
   </a>
  </li>
  <li class="toctree-l1">
-  <a class="reference external" href="https://deltares.github.io/hydromt/preview/dev/contributing">
+  <a class="reference external" href="https://deltares.github.io/hydromt/latest/dev/contributing">
    Developer's guide
   </a>
  </li>
@@ -180,9 +180,46 @@
               
               <div class="toc-item">
                 
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
 
 <nav id="bd-toc-nav">
-    
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#ambition">
+   Ambition
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#short-term-plans">
+   Short-term plans
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#support-for-additionnal-wflow-concepts">
+     Support for additionnal Wflow concepts
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#connection-to-delft-fews">
+     Connection to Delft-FEWS
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#projected-wflow-models">
+     Projected Wflow models
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#better-data-processing-workflow">
+     Better data processing workflow
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
 </nav>
               </div>
               
@@ -204,7 +241,40 @@
                 
   <section id="roadmap">
 <span id="id1"></span><h1>Roadmap<a class="headerlink" href="#roadmap" title="Permalink to this headline">#</a></h1>
-<p>Here the roadmap for the HydroMT Wflow plugin will be presented.</p>
+<section id="ambition">
+<h2>Ambition<a class="headerlink" href="#ambition" title="Permalink to this headline">#</a></h2>
+<p>This package aims to make the building process of Wflow models <strong>fast</strong>, <strong>scalable</strong> <strong>modular</strong> and <strong>reproducible</strong>
+by making the best use of <a class="reference external" href="https://deltares.github.io/hydromt/latest/dev/roadmap.html">current and future methods developped in HydroMT core</a>.</p>
+</section>
+<section id="short-term-plans">
+<h2>Short-term plans<a class="headerlink" href="#short-term-plans" title="Permalink to this headline">#</a></h2>
+<section id="support-for-additionnal-wflow-concepts">
+<h3>Support for additionnal Wflow concepts<a class="headerlink" href="#support-for-additionnal-wflow-concepts" title="Permalink to this headline">#</a></h3>
+<p>Currently only support for the SBM (kinematic wave / local inertial) and Sediment concepts are available.
+Work is now carried out to also support:</p>
+<ul class="simple">
+<li><p>SBM + groundwater flow concept in the WflowModel class, see <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/56">https://github.com/Deltares/hydromt_wflow/pull/56</a></p></li>
+<li><p>Flextopo concept in the new WflowFlextopoMocel class, see <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/45">https://github.com/Deltares/hydromt_wflow/pull/45</a></p></li>
+</ul>
+</section>
+<section id="connection-to-delft-fews">
+<h3>Connection to Delft-FEWS<a class="headerlink" href="#connection-to-delft-fews" title="Permalink to this headline">#</a></h3>
+<p>New functios are being implemented in order to be able to directly export and run a Wflow model into a
+Delft-FEWS configuration. See <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/81">https://github.com/Deltares/hydromt_wflow/pull/81</a></p>
+</section>
+<section id="projected-wflow-models">
+<h3>Projected Wflow models<a class="headerlink" href="#projected-wflow-models" title="Permalink to this headline">#</a></h3>
+<p>Wflow models can currently only be built in the global EPSG:4326 CRS. Additionnal developments are needed to also be able to
+build models in other (projected) CRS. See https://github.com/Deltares/hydromt_wflow/issues/66</p>
+</section>
+<section id="better-data-processing-workflow">
+<h3>Better data processing workflow<a class="headerlink" href="#better-data-processing-workflow" title="Permalink to this headline">#</a></h3>
+<p>There are a lot of ideas on how to improve the current Wflow methods to improve processing of different types of
+data (gauges, lakes, reservoirs, forcing…). These ideas are listed in the <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/issues">issue board</a>
+of HydroMT-Wflow and you can also add your own ideas there as well using the {bdg-info}`enhancement` badge when creating
+your issue.</p>
+</section>
+</section>
 </section>
 
 
