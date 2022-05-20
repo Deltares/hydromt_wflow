@@ -37,15 +37,15 @@ Added
 - setup_hydrodem method for hydrological conditioned elevation used with "local-inertial" routing
 - workflow.river.river_bathymetry method to derive river width and depth estimates. 
   Note that the new river width estimates are different and result in different model results.
-- moved basemaps workflows (hydrography and topography) from hydromt core. Note that hydromt_wflow v0.1.3 there should be used together with hydromt v0.4.4 (not newer!)
+- moved basemaps workflows (hydrography and topography) from HydroMT core. Note that HydroMT_Wflow v0.1.3 there should be used together with HydroMT v0.4.4 (not newer!)
 - new ID columns for the outlets staticgeoms
-- new ``index_col`` attribute to setup_gauges to choose a specific column of gauges_fn as ID for wflow_gauges
+- new ``index_col`` attribute to setup_gauges to choose a specific column of gauges_fn as ID for Wflow_gauges
 
 Fixed
 ^^^^^
 - Calculation of lake_b parameter in setup_lakes.
 - Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.
-- When writting several forcing files instead of one, their time_units should be the same to get one wflow run (time_units option in write_forcing)
+- When writting several forcing files instead of one, their time_units should be the same to get one Wflow run (time_units option in write_forcing)
 - Filter gauges that could not be snapped to river (if snap_to_river is True) in setup_gauges
 - Avoid duplicates in the toml csv column for gauges
 - Fill missing values in landslope with zeros within the basin mask
@@ -71,7 +71,7 @@ Fixed
 ^^^^^
  - pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope
  - Fixed docs with rtd v1.0
- - Wrong dtype for wflow_gauges
+ - Wrong dtype for Wflow_gauges
  - Removed unnecessary glacier/lake/reservoir lines from the TOML, fixes a bug if missing glacier
 
 v0.1.2 (1 September 2021)
@@ -81,37 +81,37 @@ This release implements the new results attributes for Wflow.
 Added
 ^^^^^
 
-- Add results attributes for wflow and read_results method (including test+example).
-- Add f_ parameter in soilgrids 
+- Add results attributes for Wflow and read_results method (including test+example).
+- Add `f_` parameter in soilgrids 
 - Support soilgrids version 2020
-- Setup_areamap component to prepare maps of areas of interest to save wflow outputs at.
-- Support wflow_sediment with vito landuse.
-- New utils.py script for low_level wflow methods.
+- Setup_areamap component to prepare maps of areas of interest to save Wflow outputs at.
+- Support Wflow_sediment with vito landuse.
+- New utils.py script for low_level Wflow methods.
 
 Changed
 ^^^^^^^
 
 - wfow_sbm.toml remove netcdf output.
-- wflow_soil map is now based on soil texture calculated directly from soilgrids data
-- test cases change toml and wflow_soil.map
-- wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.
+- Wflow_soil map is now based on soil texture calculated directly from soilgrids data
+- test cases change toml and Wflow_soil.map
+- Wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.
 
 Fixed
 ^^^^^
 
 - Fix f parameter in soilgrids
-- Full reading and writing of wflow filepaths depending on the toml file (including subfolders).
-- The wflow_gauges now contains river outlets only (instead of all outlets).
+- Full reading and writing of Wflow filepaths depending on the toml file (including subfolders).
+- The Wflow_gauges now contains river outlets only (instead of all outlets).
 
 Documentation
 ^^^^^^^^^^^^^
 
-- Added wflow_plot_results example.
+- Added Wflow_plot_results example.
 - Fixed staticmaps_to_mapstack example.
 
 v0.1.1 (21 May 2021)
 --------------------
-This release adds more functionnality for saving forcing data for wflow and fixes several bugs for some parameter values and soilgrids workflow.
+This release adds more functionnality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.
 
 Added
 ^^^^^
@@ -128,7 +128,7 @@ Changed
 Fixed
 ^^^^^
 
-- Fixed a mistake in the computation of the lake_b parameter for wflow.
+- Fixed a mistake in the computation of the lake_b parameter for Wflow.
 - Missing no data values for soilgrids workflows.
 - Streamorder reclass function for Manning roughness.
 - New behavior of apply_ufunc from an update of xarray for passing attributes (need to specify keep_attrs=True).
@@ -145,18 +145,18 @@ Tests
 
 v0.1.0 (28 April 2021)
 ----------------------
-Initial open source release of hydroMT wflow plugin, also published on pypi. Noticeable changes are listed below.
+Initial open source release of HydroMT Wflow plugin, also published on pypi. Noticeable changes are listed below.
 
 Added
 ^^^^^
 
-- Minimum hydroMT plugin template in the **plugin-boilerplate** branch.
-- Default filename for the forcing file created by hydromt (when the one in config already exists).
+- Minimum HydroMT plugin template in the **plugin-boilerplate** branch.
+- Default filename for the forcing file created by HydroMT (when the one in config already exists).
 
 Changed
 ^^^^^^^
 
-- Implement new get_basin_geometry from hydromt core.
+- Implement new get_basin_geometry from HydroMT core.
 - Consistent setup functions arguments for data sources ('_fn').
 - Rename **hydrom_merit** source to **merit_hydro** (updated version of data-artifacts).
 
@@ -176,7 +176,7 @@ Documentation
 Tests
 ^^^^^
 
-- Initial tests for wflow and wflow_sediment.
+- Initial tests for Wflow and Wflow_sediment.
 
 .. _Keep a Changelog: https://keepachangelog.com/en/1.0.0/
 .. _Semantic Versioning: https://semver.org/spec/v2.0.0.html
