@@ -1,0 +1,935 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>hydromt_wflow.WflowSedimentModel.setup_rivers &#8212; HydroMT Wflow  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="hydromt_wflow.WflowSedimentModel.setup_lakes" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_basemaps" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">HydroMT Wflow</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started/intro.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../user_guide/intro.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../api.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../dev_guide/intro.html">
+  Developments
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.html">
+   hydromt_wflow.WflowModel
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">
+   hydromt_wflow.WflowModel.setup_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">
+   hydromt_wflow.WflowModel.setup_basemaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">
+   hydromt_wflow.WflowModel.setup_rivers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">
+   hydromt_wflow.WflowModel.setup_lakes
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">
+   hydromt_wflow.WflowModel.setup_reservoirs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">
+   hydromt_wflow.WflowModel.setup_glaciers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">
+   hydromt_wflow.WflowModel.setup_lulcmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">
+   hydromt_wflow.WflowModel.setup_laimaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">
+   hydromt_wflow.WflowModel.setup_soilmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html">
+   hydromt_wflow.WflowModel.setup_hydrodem
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">
+   hydromt_wflow.WflowModel.setup_gauges
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">
+   hydromt_wflow.WflowModel.setup_areamap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">
+   hydromt_wflow.WflowModel.setup_precip_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">
+   hydromt_wflow.WflowModel.setup_temp_pet_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_constant_pars.html">
+   hydromt_wflow.WflowModel.setup_constant_pars
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.region.html">
+   hydromt_wflow.WflowModel.region
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.crs.html">
+   hydromt_wflow.WflowModel.crs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.res.html">
+   hydromt_wflow.WflowModel.res
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.root.html">
+   hydromt_wflow.WflowModel.root
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.config.html">
+   hydromt_wflow.WflowModel.config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html">
+   hydromt_wflow.WflowModel.staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.staticgeoms.html">
+   hydromt_wflow.WflowModel.staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.forcing.html">
+   hydromt_wflow.WflowModel.forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.states.html">
+   hydromt_wflow.WflowModel.states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.results.html">
+   hydromt_wflow.WflowModel.results
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.flwdir.html">
+   hydromt_wflow.WflowModel.flwdir
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.basins.html">
+   hydromt_wflow.WflowModel.basins
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.rivers.html">
+   hydromt_wflow.WflowModel.rivers
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read.html">
+   hydromt_wflow.WflowModel.read
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write.html">
+   hydromt_wflow.WflowModel.write
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.build.html">
+   hydromt_wflow.WflowModel.build
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.update.html">
+   hydromt_wflow.WflowModel.update
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_root.html">
+   hydromt_wflow.WflowModel.set_root
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">
+   hydromt_wflow.WflowModel.setup_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.get_config.html">
+   hydromt_wflow.WflowModel.get_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_config.html">
+   hydromt_wflow.WflowModel.set_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_config.html">
+   hydromt_wflow.WflowModel.read_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write_config.html">
+   hydromt_wflow.WflowModel.write_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_staticmaps.html">
+   hydromt_wflow.WflowModel.set_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_staticmaps.html">
+   hydromt_wflow.WflowModel.read_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write_staticmaps.html">
+   hydromt_wflow.WflowModel.write_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.clip_staticmaps.html">
+   hydromt_wflow.WflowModel.clip_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_staticmaps_pcr.html">
+   hydromt_wflow.WflowModel.read_staticmaps_pcr
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write_staticmaps_pcr.html">
+   hydromt_wflow.WflowModel.write_staticmaps_pcr
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_staticgeoms.html">
+   hydromt_wflow.WflowModel.set_staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_staticgeoms.html">
+   hydromt_wflow.WflowModel.read_staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write_staticgeoms.html">
+   hydromt_wflow.WflowModel.write_staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_forcing.html">
+   hydromt_wflow.WflowModel.set_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_forcing.html">
+   hydromt_wflow.WflowModel.read_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write_forcing.html">
+   hydromt_wflow.WflowModel.write_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.clip_forcing.html">
+   hydromt_wflow.WflowModel.clip_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_states.html">
+   hydromt_wflow.WflowModel.set_states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_states.html">
+   hydromt_wflow.WflowModel.read_states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.write_states.html">
+   hydromt_wflow.WflowModel.write_states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_results.html">
+   hydromt_wflow.WflowModel.set_results
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.read_results.html">
+   hydromt_wflow.WflowModel.read_results
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowModel.set_flwdir.html">
+   hydromt_wflow.WflowModel.set_flwdir
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">
+   hydromt_wflow.WflowSedimentModel
+  </a>
+ </li>
+</ul>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">
+   hydromt_wflow.WflowSedimentModel.setup_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">
+   hydromt_wflow.WflowSedimentModel.setup_basemaps
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   hydromt_wflow.WflowSedimentModel.setup_rivers
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html">
+   hydromt_wflow.WflowSedimentModel.setup_lakes
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html">
+   hydromt_wflow.WflowSedimentModel.setup_reservoirs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html">
+   hydromt_wflow.WflowSedimentModel.setup_lulcmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_laimaps.html">
+   hydromt_wflow.WflowSedimentModel.setup_laimaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_canopymaps.html">
+   hydromt_wflow.WflowSedimentModel.setup_canopymaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html">
+   hydromt_wflow.WflowSedimentModel.setup_soilmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverwidth.html">
+   hydromt_wflow.WflowSedimentModel.setup_riverwidth
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html">
+   hydromt_wflow.WflowSedimentModel.setup_riverbedsed
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_gauges.html">
+   hydromt_wflow.WflowSedimentModel.setup_gauges
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html">
+   hydromt_wflow.WflowSedimentModel.setup_areamap
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">
+   hydromt_wflow.WflowSedimentModel.setup_constant_pars
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">
+   hydromt_wflow.WflowSedimentModel.region
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.crs.html">
+   hydromt_wflow.WflowSedimentModel.crs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.res.html">
+   hydromt_wflow.WflowSedimentModel.res
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.root.html">
+   hydromt_wflow.WflowSedimentModel.root
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.config.html">
+   hydromt_wflow.WflowSedimentModel.config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.staticmaps.html">
+   hydromt_wflow.WflowSedimentModel.staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.staticgeoms.html">
+   hydromt_wflow.WflowSedimentModel.staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.forcing.html">
+   hydromt_wflow.WflowSedimentModel.forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.states.html">
+   hydromt_wflow.WflowSedimentModel.states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.results.html">
+   hydromt_wflow.WflowSedimentModel.results
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.flwdir.html">
+   hydromt_wflow.WflowSedimentModel.flwdir
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.basins.html">
+   hydromt_wflow.WflowSedimentModel.basins
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.rivers.html">
+   hydromt_wflow.WflowSedimentModel.rivers
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read.html">
+   hydromt_wflow.WflowSedimentModel.read
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write.html">
+   hydromt_wflow.WflowSedimentModel.write
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.build.html">
+   hydromt_wflow.WflowSedimentModel.build
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.update.html">
+   hydromt_wflow.WflowSedimentModel.update
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_root.html">
+   hydromt_wflow.WflowSedimentModel.set_root
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">
+   hydromt_wflow.WflowSedimentModel.setup_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.get_config.html">
+   hydromt_wflow.WflowSedimentModel.get_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_config.html">
+   hydromt_wflow.WflowSedimentModel.set_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_config.html">
+   hydromt_wflow.WflowSedimentModel.read_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_config.html">
+   hydromt_wflow.WflowSedimentModel.write_config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_staticmaps.html">
+   hydromt_wflow.WflowSedimentModel.set_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_staticmaps.html">
+   hydromt_wflow.WflowSedimentModel.read_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_staticmaps.html">
+   hydromt_wflow.WflowSedimentModel.write_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.clip_staticmaps.html">
+   hydromt_wflow.WflowSedimentModel.clip_staticmaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_staticgeoms.html">
+   hydromt_wflow.WflowSedimentModel.set_staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_staticgeoms.html">
+   hydromt_wflow.WflowSedimentModel.read_staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_staticgeoms.html">
+   hydromt_wflow.WflowSedimentModel.write_staticgeoms
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_forcing.html">
+   hydromt_wflow.WflowSedimentModel.set_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_forcing.html">
+   hydromt_wflow.WflowSedimentModel.read_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_forcing.html">
+   hydromt_wflow.WflowSedimentModel.write_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.clip_forcing.html">
+   hydromt_wflow.WflowSedimentModel.clip_forcing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_states.html">
+   hydromt_wflow.WflowSedimentModel.set_states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_states.html">
+   hydromt_wflow.WflowSedimentModel.read_states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_states.html">
+   hydromt_wflow.WflowSedimentModel.write_states
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_results.html">
+   hydromt_wflow.WflowSedimentModel.set_results
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_results.html">
+   hydromt_wflow.WflowSedimentModel.read_results
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_flwdir.html">
+   hydromt_wflow.WflowSedimentModel.set_flwdir
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.hydrography.html">
+   hydromt_wflow.workflows.hydrography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.topography.html">
+   hydromt_wflow.workflows.topography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.river.html">
+   hydromt_wflow.workflows.river
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html">
+   hydromt_wflow.workflows.river_bathymetry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.landuse.html">
+   hydromt_wflow.workflows.landuse
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">
+   hydromt_wflow.workflows.soilgrids
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">
+   hydromt_wflow.workflows.soilgrids_sediment
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">
+   hydromt_wflow.workflows.waterbodymaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">
+   hydromt_wflow.workflows.reservoirattrs
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.glaciermaps.html">
+   hydromt_wflow.workflows.glaciermaps
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">
+   hydromt_wflow.workflows.glacierattrs
+  </a>
+ </li>
+</ul>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hydromt_wflow.read_csv_results.html">
+   hydromt_wflow.read_csv_results
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="hydromt-wflow-wflowsedimentmodel-setup-rivers">
+<h1>hydromt_wflow.WflowSedimentModel.setup_rivers<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-rivers" title="Permalink to this headline">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_rivers">
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_rivers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_geom_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rivdph_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'powlaw'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivlen_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivdph</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivwth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth_len</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rivman_mapping_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow/N_river_mapping.csv'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_rivers" title="Permalink to this definition">#</a></dt>
+<dd><p>This component sets the all river parameter maps.</p>
+<p>The river mask is defined by all cells with a mimimum upstream area threshold
+<cite>river_upa</cite> [km2].</p>
+<p>The river length is defined as the distance from the subgrid outlet pixel to
+the next upstream subgrid outlet pixel.</p>
+<p>The river slope is derived from the subgrid elevation difference between pixels at a
+half distance <cite>slope_len</cite> [m] up- and downstream from the subgrid outlet pixel.</p>
+<p>The river manning roughness coefficient is derived based on reclassification
+of the streamorder map using a lookup table <cite>rivman_mapping_fn</cite>.</p>
+<p>The river width is derived from the nearest river segment in <cite>river_geom_fn</cite>.
+Data gaps are filled by the nearest valid upstream value and averaged along
+the flow directions over a length <cite>smooth_len</cite> [m]</p>
+<p>The river depth is calculated using the <cite>rivdph_method</cite>, by default powlaw:
+h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
+segment in <cite>river_geom_fn</cite> and takes optional arguments for the hc
+(default = 0.27) and hp (default = 0.30) parameters. For other methods see
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">hydromt.workflows.river_depth()</span></code>.</p>
+<p>Adds model layers:</p>
+<ul class="simple">
+<li><p><strong>wflow_river</strong> map: river mask [-]</p></li>
+<li><p><strong>wflow_riverlength</strong> map: river length [m]</p></li>
+<li><p><strong>wflow_riverwidth</strong> map: river width [m]</p></li>
+<li><p><strong>RiverDepth</strong> map: bankfull river depth [m]</p></li>
+<li><p><strong>RiverSlope</strong> map: river slope [m/m]</p></li>
+<li><p><strong>N_River</strong> map: Manning coefficient for river cells [s.m^1/3]</p></li>
+<li><p><strong>rivers</strong> geom: river vector based on wflow_river mask</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data.
+Must be same as setup_basemaps for consistent results.</p>
+<ul>
+<li><p>Required variables: [‘flwdir’, ‘uparea’, ‘elevtn’]</p></li>
+<li><p>Optional variables: [‘rivwth’, ‘qbankfull’]</p></li>
+</ul>
+</p></li>
+<li><p><strong>river_geom_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>optional</em>) – <p>Name of data source for river data.</p>
+<ul>
+<li><p>Required variables: [‘rivwth’, ‘qbankfull’]</p></li>
+</ul>
+</p></li>
+<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum upstream area threshold for the river map [km2]</p></li>
+<li><p><strong>slope_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – length over which the river slope is calculated [km]</p></li>
+<li><p><strong>min_rivlen_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum global river length to avg. cell resolution ratio, by default 0.1</p></li>
+<li><p><strong>rivdph_method</strong> (<em>{'gvf'</em><em>, </em><em>'manning'</em><em>, </em><em>'powlaw'}</em>) – see py:meth:<cite>hydromt.workflows.river_depth</cite> for details, by default “powlaw”</p></li>
+<li><p><strong>smooth_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Length [m] over which to smooth the output river width and depth, by default 5e3</p></li>
+<li><p><strong>min_rivdph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum river depth [m], by default 1.0</p></li>
+<li><p><strong>min_rivwth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum river width [m], by default 30.0</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html#hydromt_wflow.workflows.river_bathymetry" title="hydromt_wflow.workflows.river_bathymetry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.river_bathymetry</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.river_depth</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.river_depth</span></code></p>
+</div>
+</dd></dl>
+
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_basemaps</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_lakes</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Deltares.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

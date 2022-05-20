@@ -1,444 +1,395 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wflow &mdash; hydromt_wflow  documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="../_static/js/theme.js"></script>
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Working with the Wflow model &#8212; HydroMT Wflow  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.wflow.WflowModel.setup_config" href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html" />
-    <link rel="prev" title="Plot Wflow results" href="../examples/examples/plot_wflow_results.html" /> 
-</head>
+    <link rel="next" title="Model methods and components" href="wflow_model_setup.html" />
+    <link rel="prev" title="User guide" href="intro.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> hydromt_wflow
-          </a>
-              <div class="version">
-                0.1.5.dev
-              </div>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Wflow</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#wflow-model-components">Wflow model components</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html">hydromt_wflow.wflow.WflowModel.setup_config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_basemaps.html">hydromt_wflow.wflow.WflowModel.setup_basemaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_rivers.html">hydromt_wflow.wflow.WflowModel.setup_rivers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_lakes.html">hydromt_wflow.wflow.WflowModel.setup_lakes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.wflow.WflowModel.setup_reservoirs</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_glaciers.html">hydromt_wflow.wflow.WflowModel.setup_glaciers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.wflow.WflowModel.setup_lulcmaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_laimaps.html">hydromt_wflow.wflow.WflowModel.setup_laimaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.wflow.WflowModel.setup_hydrodem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_gauges.html">hydromt_wflow.wflow.WflowModel.setup_gauges</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_areamap.html">hydromt_wflow.wflow.WflowModel.setup_areamap</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#wflow-datamodel">Wflow datamodel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#wflow-configuration">Wflow configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#selecting-data">Selecting data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#building-a-model">Building a model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#updating-a-model">Updating a model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#clipping-a-model">Clipping a model</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="sediment.html">Wflow Sediment</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../api/api.html">API reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../changelog.html">What’s new</a></li>
-</ul>
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
 
-        </div>
-      </div>
-    </nav>
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../index.html">hydromt_wflow</a>
-      </nav>
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">HydroMT Wflow</p>
+</a>
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Wflow</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/user_guide/wflow.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
   
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="wflow">
-<h1>Wflow<a class="headerlink" href="#wflow" title="Permalink to this headline"></a></h1>
-<p>With the hydromt_wflow plugin, you can easily work with wflow (SBM) models. This plugin helps you preparing or updating
-several <a class="reference internal" href="#model-components"><span class="std std-ref">components</span></a> of a wflow model such as topography information, landuse, soil or forcing.
-The <a class="reference internal" href="#model-config"><span class="std std-ref">main interactions</span></a> are available from the HydroMT Command Line Interface and allow you to configure
-HydroMT in order to build or update or clip wflow models.</p>
-<p>When building or updating a model from command line a model <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options">region</a>; a model setup
-configuration (.ini file) with model components and options and, optionally,
-a <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data.html">data</a> sources (.yml) file should be prepared.</p>
-<p>Note that the order in which the components are listed in the ini file is important:</p>
-<ul class="simple">
-<li><p><cite>setup_basemaps</cite> should always be run first to determine the model domain</p></li>
-<li><p><cite>setup_rivers</cite> should be run right after <cite>setup_basemaps</cite> as it influences several other setup components (lakes, reservoirs, riverwidth, gauges)</p></li>
-</ul>
-<p>For python users all Wflow attributes and methods are available, see <a class="reference internal" href="../api/api.html#api-model"><span class="std std-ref">Wflow model class</span></a></p>
-<section id="wflow-model-components">
-<span id="model-components"></span><h2>Wflow model components<a class="headerlink" href="#wflow-model-components" title="Permalink to this headline"></a></h2>
-<p>An overview of the available WflowModel setup components
-is provided in the table below. When using hydromt from the command line only the
-setup components are exposed. Click on
-a specific method see its documentation.</p>
-<table class="autosummary longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html#hydromt_wflow.wflow.WflowModel.setup_config" title="hydromt_wflow.wflow.WflowModel.setup_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_config</span></code></a></p></td>
-<td><p>Update config with a dictionary</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_basemaps.html#hydromt_wflow.wflow.WflowModel.setup_basemaps" title="hydromt_wflow.wflow.WflowModel.setup_basemaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basemaps</span></code></a></p></td>
-<td><p>This component sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code> (resolution in degrees) of the model.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_rivers.html#hydromt_wflow.wflow.WflowModel.setup_rivers" title="hydromt_wflow.wflow.WflowModel.setup_rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rivers</span></code></a></p></td>
-<td><p>This component sets the all river parameter maps.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_lakes.html#hydromt_wflow.wflow.WflowModel.setup_lakes" title="hydromt_wflow.wflow.WflowModel.setup_lakes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lakes</span></code></a></p></td>
-<td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.wflow.WflowModel.setup_reservoirs" title="hydromt_wflow.wflow.WflowModel.setup_reservoirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_reservoirs</span></code></a></p></td>
-<td><p>This component generates maps of reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_glaciers.html#hydromt_wflow.wflow.WflowModel.setup_glaciers" title="hydromt_wflow.wflow.WflowModel.setup_glaciers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_glaciers</span></code></a></p></td>
-<td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice convertion fraction.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.wflow.WflowModel.setup_lulcmaps" title="hydromt_wflow.wflow.WflowModel.setup_lulcmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lulcmaps</span></code></a></p></td>
-<td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_laimaps.html#hydromt_wflow.wflow.WflowModel.setup_laimaps" title="hydromt_wflow.wflow.WflowModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a></p></td>
-<td><p>This component sets leaf area index (LAI) climatology maps per month.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_soilmaps</span></code></a></p></td>
-<td><p>This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_hydrodem.html#hydromt_wflow.wflow.WflowModel.setup_hydrodem" title="hydromt_wflow.wflow.WflowModel.setup_hydrodem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_hydrodem</span></code></a></p></td>
-<td><p>This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_gauges.html#hydromt_wflow.wflow.WflowModel.setup_gauges" title="hydromt_wflow.wflow.WflowModel.setup_gauges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_gauges</span></code></a></p></td>
-<td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.wflow.WflowModel.setup_areamap.html#hydromt_wflow.wflow.WflowModel.setup_areamap" title="hydromt_wflow.wflow.WflowModel.setup_areamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_areamap</span></code></a></p></td>
-<td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="wflow-datamodel">
-<h2>Wflow datamodel<a class="headerlink" href="#wflow-datamodel" title="Permalink to this headline"></a></h2>
-<p>The following table provides an overview of which <a class="reference internal" href="../generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel" title="hydromt_wflow.WflowModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">WflowModel</span></code></a>
-attribute contains which Wflow in- and output files. The files are read and written with the associated
-read- and write- methods, i.e. <code class="xref py py-func docutils literal notranslate"><span class="pre">read_config()</span></code>
-and <code class="xref py py-func docutils literal notranslate"><span class="pre">write_config()</span></code> for the
-<code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>  attribute.</p>
-<table class="colwidths-given docutils align-default" id="id2">
-<caption><span class="caption-text">WflowModel data</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
-<colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel" title="hydromt_wflow.WflowModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">WflowModel</span></code></a> attribute</p></th>
-<th class="head"><p>Wflow files</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.config.html#hydromt_wflow.WflowModel.config" title="hydromt_wflow.WflowModel.config"><code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code></a></p></td>
-<td><p>wflow_sbm.toml</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.staticmaps.html#hydromt_wflow.WflowModel.staticmaps" title="hydromt_wflow.WflowModel.staticmaps"><code class="xref py py-attr docutils literal notranslate"><span class="pre">staticmaps</span></code></a></p></td>
-<td><p>staticmaps.nc</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.staticgeoms.html#hydromt_wflow.WflowModel.staticgeoms" title="hydromt_wflow.WflowModel.staticgeoms"><code class="xref py py-attr docutils literal notranslate"><span class="pre">staticgeoms</span></code></a></p></td>
-<td><p>geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.forcing.html#hydromt_wflow.WflowModel.forcing" title="hydromt_wflow.WflowModel.forcing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">forcing</span></code></a></p></td>
-<td><p>inmaps.nc</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.states.html#hydromt_wflow.WflowModel.states" title="hydromt_wflow.WflowModel.states"><code class="xref py py-attr docutils literal notranslate"><span class="pre">states</span></code></a></p></td>
-<td><p>instates.nc</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="../generated/hydromt_wflow.WflowModel.results.html#hydromt_wflow.WflowModel.results" title="hydromt_wflow.WflowModel.results"><code class="xref py py-attr docutils literal notranslate"><span class="pre">results</span></code></a></p></td>
-<td><p>output.nc, output_scalar.nc, output.csv</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="wflow-configuration">
-<span id="model-config"></span><h2>Wflow configuration<a class="headerlink" href="#wflow-configuration" title="Permalink to this headline"></a></h2>
-<p>This HydroMT plugin provides an implementation for the wflow model in order to build, update or clip from
-command line. Specific details on the HydroMT CLI methods can be found in
-<a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html">https://deltares.github.io/hydromt/latest/user_guide/cli.html</a></p>
-<section id="configuration-file">
-<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline"></a></h3>
-<p>Settings to build or update a wflow model are managed in a configuration file. In this file,
-every option from each <a class="reference internal" href="#model-components"><span class="std std-ref">model component</span></a> can be changed by the user
-in its corresponding section.</p>
-<p>Below is an example of ini file that can be used to build a complete wflow model
-<a class="reference download internal" download="" href="../_downloads/60b86a58abda443f0e331fd37e54fcaa/wflow_build.ini"><code class="xref download docutils literal notranslate"><span class="pre">.ini</span> <span class="pre">file</span></code></a>. Each section corresponds
-to a model component with the same name.</p>
-<div class="highlight-Ini notranslate"><div class="highlight"><pre><span></span><span class="k">[global]</span><span class="w"></span>
-<span class="na">data_libs</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">[]            # add optional paths to data yml files</span><span class="w"></span>
-
-<span class="na">[setup_config]                  # options parsed to wflow ini file &lt;section&gt;.&lt;option&gt;</span><span class="w"></span>
-<span class="na">starttime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2010-01-01T00:00:00</span><span class="w"></span>
-<span class="na">endtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2010-03-31T00:00:00</span><span class="w"></span>
-<span class="na">timestepsecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">86400</span><span class="w"></span>
-<span class="na">input.path_forcing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">inmaps-era5-2010.nc</span><span class="w"></span>
-
-<span class="k">[setup_basemaps]</span><span class="w"></span>
-<span class="na">hydrography_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro   # source hydrography data {merit_hydro, merit_hydro_1k}</span><span class="w"></span>
-<span class="na">basin_index_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro_index # source of basin index corresponding to hydrography_fn</span><span class="w"></span>
-<span class="na">upscale_method</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">ihu           # upscaling method for flow direction data, by default &#39;ihu&#39;</span><span class="w"></span>
-
-<span class="k">[setup_rivers]</span><span class="w"></span>
-<span class="na">hydrography_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span><span class="w"></span>
-<span class="na">river_geom_fn</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">rivers_lin2019_v1 # river source data with river width and bankfull discharge</span><span class="w"></span>
-<span class="na">river_upa</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">30               # minimum upstream area threshold for the river map [km2]</span><span class="w"></span>
-<span class="na">rivdph_method</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">powlaw           # method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span><span class="w"></span>
-<span class="na">min_rivdph</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">1                # minimum river depth [m]</span><span class="w"></span>
-<span class="na">min_rivwth</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">30               # minimum river width [m]</span><span class="w"></span>
-<span class="na">slope_len</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">2000             # length over which tp calculate river slope [m]</span><span class="w"></span>
-<span class="na">smooth_len</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">5000             # length over which to smooth river depth and river width [m]</span><span class="w"></span>
-
-<span class="c1"># [setup_hydrodem]                  # uncomment for river and/or land local-inertial routing.</span><span class="w"></span>
-<span class="c1"># elevtn_map      = dem_subgrid     # {&#39;dem_subgrid&#39;, &#39;wflow_dem&#39;}</span><span class="w"></span>
-<span class="c1"># river_routing   = local-inertial  # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span><span class="w"></span>
-<span class="c1"># land_routing    = kinematic-wave  # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span><span class="w"></span>
-
-<span class="k">[setup_reservoirs]</span><span class="w"></span>
-<span class="na">reservoirs_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_reservoirs  # source for reservoirs based on GRAND: {hydro_reservoirs}; None to skip</span><span class="w"></span>
-<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0           # minimum lake area to consider [km2]</span><span class="w"></span>
-<span class="na">priority_jrc</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">True          # if True then JRC data from hydroengine is used to calculate some reservoir attributes instead of the GRanD and HydroLAKES db.   </span><span class="w"></span>
-
-<span class="k">[setup_lakes]</span><span class="w"></span>
-<span class="na">lakes_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_lakes   # source for lakes based on hydroLAKES: {hydro_lakes}; None to skip</span><span class="w"></span>
-<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">10.0          # minimum reservoir area to consider [km2]</span><span class="w"></span>
-
-<span class="k">[setup_glaciers]</span><span class="w"></span>
-<span class="na">glaciers_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}; None to skip</span><span class="w"></span>
-<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0           # minimum glacier area to consider [km2]</span><span class="w"></span>
-
-<span class="k">[setup_lulcmaps]</span><span class="w"></span>
-<span class="na">lulc_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">globcover     # source for lulc maps: {globcover, vito, corine}</span><span class="w"></span>
-
-<span class="k">[setup_laimaps]</span><span class="w"></span>
-<span class="na">lai_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">modis_lai     # source for LAI: {modis_lai}</span><span class="w"></span>
-
-<span class="k">[setup_soilmaps]</span><span class="w"></span>
-<span class="na">soil_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">soilgrids     # source for soilmaps: {soilgrids}</span><span class="w"></span>
-<span class="na">ptf_ksatver</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">brakensiek    # pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}</span><span class="w"></span>
-
-<span class="k">[setup_gauges]</span><span class="w"></span>
-<span class="na">gauges_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">grdc          # if not None add gaugemap. Either a path or known gauges_fn: {grdc}</span><span class="w"></span>
-<span class="na">snap_to_river</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">True          # if True snaps gauges from source to river</span><span class="w"></span>
-<span class="na">derive_subcatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False         # if True derive subcatch map based on gauges.</span><span class="w"></span>
-
-<span class="k">[setup_precip_forcing]</span><span class="w"></span>
-<span class="na">precip_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">era5          # source for precipitation.</span><span class="w"></span>
-<span class="na">precip_clim_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">None          # source for high resolution climatology to correct precipitation.</span><span class="w"></span>
-
-<span class="k">[setup_temp_pet_forcing]</span><span class="w"></span>
-<span class="na">temp_pet_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">era5          # source for temperature and potential evapotranspiration.</span><span class="w"></span>
-<span class="na">press_correction</span><span class="o">=</span><span class="w"> </span><span class="s">True          # if True temperature is corrected with elevation lapse rate.</span><span class="w"></span>
-<span class="na">temp_correction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True          # if True pressure is corrected with elevation lapse rate.</span><span class="w"></span>
-<span class="na">dem_forcing_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.</span><span class="w"></span>
-<span class="na">pet_method</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">debruin       # method to compute PET: {debruin, makkink}</span><span class="w"></span>
-<span class="na">skip_pet</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">False         # if True, only temperature is prepared.</span><span class="w"></span>
-
-<span class="k">[setup_constant_pars]</span><span class="w"></span>
-<span class="na">KsatHorFrac</span><span class="o">=</span><span class="s">100</span><span class="w"></span>
-<span class="na">Cfmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.75653</span><span class="w"></span>
-<span class="na">cf_soil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.038</span><span class="w"></span>
-<span class="na">EoverR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.11</span><span class="w"></span>
-<span class="na">InfiltCapPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span><span class="w"></span>
-<span class="na">InfiltCapSoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600 </span><span class="w"></span>
-<span class="na">MaxLeakage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span><span class="w"></span>
-<span class="na">rootdistpar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-500</span><span class="w"></span>
-<span class="na">TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span><span class="w"></span>
-<span class="na">TTI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span><span class="w"></span>
-<span class="na">TTM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span><span class="w"></span>
-<span class="na">WHC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span><span class="w"></span>
-<span class="na">G_Cfmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.3</span><span class="w"></span>
-<span class="na">G_SIfrac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.002</span><span class="w"></span>
-<span class="na">G_TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.3</span><span class="w"></span>
-</pre></div>
-</div>
-</section>
-<section id="selecting-data">
-<h3>Selecting data<a class="headerlink" href="#selecting-data" title="Permalink to this headline"></a></h3>
-<p>Data sources in HydroMT are provided in one of several yaml libraries. These libraries contain required
-information on the different data sources so that HydroMT can process them for the different models. There
-are three ways for the user to select which data libraries to use:</p>
-<ul class="simple">
-<li><p>If no yaml file is selected, HydroMT will use the data stored in the
-<a class="reference external" href="https://github.com/DirkEilander/hydromt-artifacts">hydromt-artifacts</a>
-which contains an extract of global data for a small region around the Piave river in Northern Italy.</p></li>
-<li><p>Another options for Deltares users is to select the deltares-data library (requires access to the Deltares
-P-drive). In the command lines examples below, this is done by adding either <strong>-dd</strong> or <strong>–deltares-data</strong>
-to the build / update command line.</p></li>
-<li><p>Finally, the user can prepare its own yaml libary (or libraries) (see
-<a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data.html">HydroMT documentation</a> to check the guidelines).
-These user libraries can be added either in the command line using the <strong>-d</strong> option and path/to/yaml or in the <strong>ini file</strong>
-with the <strong>data_libs</strong> option in the [global] sections.</p></li>
-</ul>
-</section>
-<section id="building-a-model">
-<h3>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this headline"></a></h3>
-<p>This plugin allows to build a complete model from available data. Once the configuration and
-data libraries are set, you can build a model by using:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
-<span class="go">hydromt build wflow path/to/built_model &quot;{&#39;basin&#39;: [x, y]}&quot; -i wflow_build.ini -d data_sources.yml -vvv</span>
-</pre></div>
-</div>
-<p>The recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options">region options</a>
-for a proper implementation of this model are:</p>
-<ul class="simple">
-<li><p>basin</p></li>
-<li><p>subbasin</p></li>
-</ul>
-</section>
-<section id="updating-a-model">
-<h3>Updating a model<a class="headerlink" href="#updating-a-model" title="Permalink to this headline"></a></h3>
-<p>This plugin allows to update any components from a wflow model. To do so, list the components to update in a configuration file,
-if needed edit your data library with new data sources required for the update and use the command:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
-<span class="go">hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.ini -d data_sources.yml -vvv</span>
-</pre></div>
-</div>
-</section>
-<section id="clipping-a-model">
-<h3>Clipping a model<a class="headerlink" href="#clipping-a-model" title="Permalink to this headline"></a></h3>
-<p>This plugin allows to clip the following parts of an existing model for a smaller region from command line:</p>
-<ul class="simple">
-<li><p>staticmaps</p></li>
-<li><p>forcing</p></li>
-</ul>
-<p>To clip a smaller model from an existing one use:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
-<span class="go">hydromt clip wflow path/to/model_to_clip path/to/clipped_model &quot;{&#39;basin&#39; [1001]}&quot; -vvv</span>
-</pre></div>
-</div>
-<p>As for building, the recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options">region options</a>
-for a proper implementation of the clipped model are:</p>
-<ul class="simple">
-<li><p>basin</p></li>
-<li><dl class="simple">
-<dt>subbasin</dt><dd><p>~WflowModel.setup_precip_forcing
-~WflowModel.setup_temp_pet_forcing
-~WflowModel.setup_constant_pars</p>
-</dd>
-</dl>
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started/intro.html">
+  Getting started
+ </a>
 </li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="intro.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../api.html">
+  API reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../dev_guide/intro.html">
+  Developments
+ </a>
+</li>
+
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
 </ul>
-</section>
-</section>
-</section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../examples/examples/plot_wflow_results.html" class="btn btn-neutral float-left" title="Plot Wflow results" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../generated/hydromt_wflow.wflow.WflowModel.setup_config.html" class="btn btn-neutral float-right" title="hydromt_wflow.wflow.WflowModel.setup_config" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      </div>
+      
     </div>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright Deltares.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+      </ul>
       </div>
-    </section>
+      
+    </div>
   </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+</div>
+    </nav>
+    
 
-</body>
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Table of Contents
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="current reference internal" href="#">
+   Working with the Wflow model
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="wflow_model_setup.html">
+     Model methods and components
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="wflow_build.html">
+     Building a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+    <label for="toctree-checkbox-2">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/build_model.html">
+       Example: Build Wflow model
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="wflow_update.html">
+     Updating a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
+    <label for="toctree-checkbox-3">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/update_model_landuse.html">
+       Example: Update Wflow model (landuse)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/update_model_forcing.html">
+       Example: Update Wflow model (forcing)
+      </a>
+     </li>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/update_model_gauges.html">
+       Example: Update Wflow model (gauges)
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="wflow_clip.html">
+     Clipping a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
+    <label for="toctree-checkbox-4">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/clip_model.html">
+       Example: Clip Wflow model
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="sediment.html">
+   Working with the Wflow Sediment model
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
+  <label for="toctree-checkbox-5">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="sediment_model_setup.html">
+     Model methods and components
+    </a>
+   </li>
+   <li class="toctree-l2 has-children">
+    <a class="reference internal" href="sediment_build.html">
+     Building a model
+    </a>
+    <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
+    <label for="toctree-checkbox-6">
+     <i class="fas fa-chevron-down">
+     </i>
+    </label>
+    <ul>
+     <li class="toctree-l3">
+      <a class="reference internal" href="../_examples/build_sediment.html">
+       Example: Build Wflow Sediment model
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="sediment_update.html">
+     Updating a model
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="sediment_clip.html">
+     Clipping a model
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="process_analyze.html">
+   Postprocessing and visualization
+  </a>
+  <input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
+  <label for="toctree-checkbox-7">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">
+     Example: Convert wflow staticmaps netcdf to raster files
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">
+     Example: Plot Wflow staticmaps
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/plot_wflow_forcing.html">
+     Example: Plot Wflow forcing data
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../_examples/plot_wflow_results.html">
+     Example: Plot Wflow results data
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="working-with-the-wflow-model">
+<h1>Working with the Wflow model<a class="headerlink" href="#working-with-the-wflow-model" title="Permalink to this headline">#</a></h1>
+<p>With the Hydromt-Wflow plugin, you can easily work with Wflow SBM models.
+This plugin contains relevant functions for setting up or adjusting models:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="wflow_build.html#wflow-build"><span class="std std-ref">building a model</span></a>: building a model from scratch.</p></li>
+<li><p><a class="reference internal" href="wflow_update.html#wflow-update"><span class="std std-ref">updating a model</span></a>: updating an existing model (e.g. update datafeeds).</p></li>
+<li><p><a class="reference internal" href="wflow_clip.html#wflow-clip"><span class="std std-ref">clipping a model</span></a>: changing the spatial domain of an existing model (e.g. select subbasins from a larger model).</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="intro.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">User guide</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="wflow_model_setup.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model methods and components</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Deltares.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
 </html>

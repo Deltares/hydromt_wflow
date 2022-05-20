@@ -1,185 +1,288 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HydroMT plugin: Wflow &mdash; hydromt_wflow  documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-  <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="_static/js/theme.js"></script>
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>HydroMT-Wflow: Wflow plugin for HydroMT &#8212; HydroMT Wflow  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/theme-deltares.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="intro.html" /> 
-</head>
+    <link rel="next" title="Getting started" href="getting_started/intro.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
 
-<body class="wy-body-for-nav"> 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-            <a href="#" class="icon icon-home"> hydromt_wflow
-          </a>
-              <div class="version">
-                0.1.5.dev
-              </div>
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Examples</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="user_guide/wflow.html">Wflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_guide/sediment.html">Wflow Sediment</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">References &amp; Help</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api/api.html">API reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">What’s new</a></li>
-</ul>
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
 
-        </div>
-      </div>
-    </nav>
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">hydromt_wflow</a>
-      </nav>
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="#">
+<p class="title">HydroMT Wflow</p>
+</a>
 
-      <div class="wy-nav-content">
-        <div class="rst-content">
-          <div role="navigation" aria-label="Page navigation">
-  <ul class="wy-breadcrumbs">
-      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
-      <li>HydroMT plugin: Wflow</li>
-      <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
-      </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
-             
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
   
-<style>
-/* CSS overrides for sphinx_rtd_theme */
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="getting_started/intro.html">
+  Getting started
+ </a>
+</li>
 
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="user_guide/intro.html">
+  User guide
+ </a>
+</li>
 
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="api.html">
+  API reference
+ </a>
+</li>
 
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="dev_guide/intro.html">
+  Developments
+ </a>
+</li>
 
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="hydromt-plugin-wflow">
-<h1>HydroMT plugin: Wflow<a class="headerlink" href="#hydromt-plugin-wflow" title="Permalink to this headline"></a></h1>
-<p><a class="reference external" href="https://github.com/Deltares/hydromt">HydroMT</a> is a python package, developed by Deltares, to build, update
-and analyse water systems models. It provides a generic model api with attributes to access the model schematization,
-(dynamic) forcing data, results and states.</p>
-<p>This plugin provides an implementation for the
-<a class="reference external" href="https://github.com/Deltares/Wflow.jl">Wflow</a> hydrological modelling framework. It details the different steps and explains how to
-use HydroMT to easily get started and work on your own Wflow model.</p>
-<p>For detailed information on HydroMT itself, you can visit the <a class="reference external" href="https://deltares.github.io/hydromt/latest/index.html">core documentation</a>.</p>
-<section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline"></a></h2>
-<p><strong>Getting Started</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="intro.html"><span class="doc">Introduction</span></a></p></li>
-<li><p><a class="reference internal" href="installation.html"><span class="doc">Installation</span></a></p></li>
-<li><p><a class="reference internal" href="examples/index.html"><span class="doc">Examples</span></a></p></li>
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
 </ul>
-<div class="toctree-wrapper compound">
-</div>
-<p><strong>User Guide</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="user_guide/wflow.html"><span class="doc">Wflow</span></a></p></li>
-<li><p><a class="reference internal" href="user_guide/sediment.html"><span class="doc">Wflow Sediment</span></a></p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<p><strong>References &amp; Help</strong></p>
-<ul class="simple">
-<li><p><a class="reference internal" href="api/api.html"><span class="doc">API reference</span></a></p></li>
-<li><p><a class="reference internal" href="contributing.html"><span class="doc">Contributing</span></a></p></li>
-<li><p><a class="reference internal" href="changelog.html"><span class="doc">What’s new</span></a></p></li>
-</ul>
-<div class="toctree-wrapper compound">
-</div>
-<section id="license">
-<h3>License<a class="headerlink" href="#license" title="Permalink to this headline"></a></h3>
-<p>Copyright (c) 2021, Deltares</p>
-<p>This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
-License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.</p>
-<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p>
-<p>You can find the full terms of the GNU General Public License at &lt;<a class="reference external" href="https://www.gnu.org/licenses/">https://www.gnu.org/licenses/</a>&gt;.</p>
-</section>
-</section>
-</section>
-
-
-           </div>
-          </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="intro.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      </div>
+      
     </div>
 
-  <hr/>
-
-  <div role="contentinfo">
-    <p>&#169; Copyright Deltares.</p>
-  </div>
-
-  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    provided by <a href="https://readthedocs.org">Read the Docs</a>.
-   
-
-</footer>
-        </div>
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+      </ul>
       </div>
-    </section>
+      
+    </div>
   </div>
-  <script>
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script> 
+</div>
+    </nav>
+    
 
-</body>
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#what-is-the-hydromt-wflow-plugin">
+   What is the HydroMT-Wflow plugin
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#why-hydromt-wflow">
+   Why HydroMT-Wflow?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#how-to-use-hydromt-wflow">
+   How to use HydroMT-Wflow?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#how-to-cite">
+   How to cite?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#how-to-contribute">
+   How to contribute?
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="hydromt-wflow-wflow-plugin-for-hydromt">
+<span id="readme"></span><h1>HydroMT-Wflow: Wflow plugin for HydroMT<a class="headerlink" href="#hydromt-wflow-wflow-plugin-for-hydromt" title="Permalink to this headline">#</a></h1>
+<p><a class="reference external" href="https://pypi.org/project/hydromt_wflow/"><img alt="PyPI" src="https://img.shields.io/pypi/v/hydromt_wflow.svg?style=flat" /></a> <a class="reference external" href="https://anaconda.org/conda-forge/hydromt_wflow"><img alt="Conda-Forge" src="https://anaconda.org/conda-forge/hydromt_wflow/badges/installer/conda.svg" /></a> <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest"><img alt="Latest developers docs" src="https://img.shields.io/badge/docs-latest-brightgreen.svg" /></a> <a class="reference external" href="https://deltares.github.io/hydromt_wflow/stable"><img alt="Stable docs last release" src="https://img.shields.io/badge/docs-stable-brightgreen.svg" /></a> <a class="reference external" href="https://codecov.io/gh/Deltares/hydromt_wflow"><img alt="codecov" src="https://codecov.io/gh/Deltares/hydromt_wflow/branch/main/graph/badge.svg?token=ss3EgmwHhH" /></a> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/Deltares/hydromt_wflow" /></a> <a class="reference external" href="https://zenodo.org/badge/latestdoi/356210291"><img alt="Zenodo" src="https://zenodo.org/badge/356210291.svg" /></a> <a class="reference external" href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples"><img alt="binder" src="https://mybinder.org/badge_logo.svg" /></a></p>
+<section id="what-is-the-hydromt-wflow-plugin">
+<h2>What is the HydroMT-Wflow plugin<a class="headerlink" href="#what-is-the-hydromt-wflow-plugin" title="Permalink to this headline">#</a></h2>
+<p><a class="reference external" href="https://deltares.github.io/hydromt/latest/">HydroMT</a> (Hydro Model Tools) is an open-source Python package that facilitates the process of
+building and analyzing spatial geoscientific models with a focus on water system models.
+It does so by automating the workflow to go from raw data to a complete model instance which
+is ready to run and to analyze model results once the simulation has finished.
+This plugin provides an implementation of the model API for the <a class="reference external" href="https://github.com/Deltares/Wflow.jl">Wflow</a> model.</p>
+</section>
+<section id="why-hydromt-wflow">
+<h2>Why HydroMT-Wflow?<a class="headerlink" href="#why-hydromt-wflow" title="Permalink to this headline">#</a></h2>
+<p>Setting up distributed hydrological models typically requires many (manual) steps
+to process input data and might therefore be time consuming and hard to reproduce.
+Especially improving models based on global-local geospatial datasets, which are
+rapidly becoming available at increasingly high resolutions, might be challenging.
+HydroMT-Wflow aims to make the Wflow model building and updating processes <strong>fast</strong>, <strong>modular</strong> and <strong>reproducible</strong>
+and to facilitate the analysis of the model results.</p>
+</section>
+<section id="how-to-use-hydromt-wflow">
+<h2>How to use HydroMT-Wflow?<a class="headerlink" href="#how-to-use-hydromt-wflow" title="Permalink to this headline">#</a></h2>
+<p>The HydroMT-Wflow plugin can be used as a <strong>command line</strong> application, which provides commands to <em>build</em>,
+<em>update</em> and <em>clip</em> a Wflow model with a single line, or <strong>from python</strong> to exploit its rich interface.
+You can learn more about how to use HydroMT-Wflow in its <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/getting_started/intro">online documentation.</a>
+For a smooth installing experience we recommend installing HydroMT-Wflow and its dependencies
+from conda-forge in a clean environment, see <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/getting_started/installation">installation guide.</a></p>
+</section>
+<section id="how-to-cite">
+<h2>How to cite?<a class="headerlink" href="#how-to-cite" title="Permalink to this headline">#</a></h2>
+<p>For publications, please cite our work using the DOI provided in the Zenodo badge <a class="reference external" href="https://zenodo.org/badge/latestdoi/356210291"><img alt="Zenodo" src="https://zenodo.org/badge/356210291.svg" /></a> that points to the latest release.</p>
+</section>
+<section id="how-to-contribute">
+<h2>How to contribute?<a class="headerlink" href="#how-to-contribute" title="Permalink to this headline">#</a></h2>
+<p>If you find any issues in the code or documentation feel free to leave an issue on the <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/issues">github issue tracker.</a>
+You can find information about how to contribute to the HydroMT project at our <a class="reference external" href="https://deltares.github.io/hydromt/latest/dev/contributing">contributing page.</a></p>
+<p>HydroMT seeks active contribution from the (hydro) geoscientific community.
+So far, it has been developed and tested with a range of <a class="reference external" href="https://www.deltares.nl/en/">Deltares</a> models, but
+we believe it is applicable to a much wider set of geoscientific models and are
+happy to discuss how it can be implemented for your model.</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='right-next' id="next-link" href="getting_started/intro.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Getting started</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright Deltares.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
 </html>
