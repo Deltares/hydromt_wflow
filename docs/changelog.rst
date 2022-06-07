@@ -8,6 +8,10 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ----------
 
+Added
+^^^^^
+- add options to calculate daily Penman-Monteith potential evaporation using the pyeto package. Depending on the available variables, two options are defined ``penman-monteith_era5`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'rh', 'kin', 'press_msl']) and ``penman-monteith_nasanex`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
+
 Fixed
 ^^^^^
 - correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)
