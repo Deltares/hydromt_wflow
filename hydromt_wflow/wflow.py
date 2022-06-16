@@ -1785,7 +1785,7 @@ class WflowModel(Model):
         fews_template: str, Path, optional
             Path to a FEWS config template for initialisation. If None, download from url.
         wflow_template: str, Path, optional
-            Path to a folder containing all wflow template files. If None download from url.
+            Path to a folder containing all wflow template files (xml). If None download from url.
         """
         if self._read:
             self.read()
@@ -1892,7 +1892,7 @@ class WflowModel(Model):
             model_source=model_name, model_templates=wflow_template
         )
         # Updating csv locs files
-        fews.add_locationsfiles(model_source=model_name)
+        fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template) # FIXME this does not write correctly
 
         # Close logger, Zip the model and erase the unzipped copy
         self.logger.info("Zipping wflow model")
