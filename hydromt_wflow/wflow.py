@@ -25,6 +25,12 @@ from hydromt import flw
 from hydromt.io import open_mfraster
 
 from . import utils, workflows, DATADIR
+from typing import Union
+from pathlib import Path
+
+RasterDatasetSource = Union[str, Path]
+GeoDatasetSource = Union[str, Path]
+GeoDataframeSource = Union[str, Path]
 
 
 __all__ = ["WflowModel"]
@@ -113,8 +119,8 @@ class WflowModel(Model):
         self,
         region,
         res=1 / 120.0,
-        hydrography_fn="merit_hydro",
-        basin_index_fn="merit_hydro_index",
+        hydrography_fn: RasterDatasetSource ="merit_hydro",
+        basin_index_fn: GeoDatasetSource ="merit_hydro_index",
         upscale_method="ihu",
     ):
         """
@@ -237,8 +243,8 @@ class WflowModel(Model):
 
     def setup_rivers(
         self,
-        hydrography_fn,
-        river_geom_fn=None,
+        hydrography_fn: RasterDatasetSource,
+        river_geom_fn: GeoDatasetSource =None,
         river_upa=30,
         rivdph_method="powlaw",
         slope_len=2e3,
@@ -484,8 +490,8 @@ class WflowModel(Model):
         fill=False,
         fit=False,
         min_wth=1.0,
-        precip_fn="chelsa",
-        climate_fn="koppen_geiger",
+        precip_fn: RasterDatasetSource ="chelsa",
+        climate_fn: RasterDatasetSource ="koppen_geiger",
         **kwargs,
     ):
         """
@@ -638,7 +644,7 @@ class WflowModel(Model):
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_staticmaps(ds_lulc_maps.rename(rmdict))
 
-    def setup_laimaps(self, lai_fn="model_lai"):
+    def setup_laimaps(self, lai_fn: RasterDatasetSource ="model_lai"):
         """
         This component sets leaf area index (LAI) climatology maps per month.
 
@@ -675,8 +681,8 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        gauges_fn="grdc",
-        source_gdf=None,
+        gauges_fn: GeoDatasetSource ="grdc",
+        source_gdf: GeoDataframeSource =None,
         index_col=None,
         snap_to_river=True,
         mask=None,
@@ -874,7 +880,7 @@ class WflowModel(Model):
 
     def setup_areamap(
         self,
-        area_fn: str,
+        area_fn: GeoDatasetSource,
         col2raster: str,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
@@ -909,7 +915,7 @@ class WflowModel(Model):
             )
         self.set_staticmaps(da_area.rename(area_fn))
 
-    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
+    def setup_lakes(self, lakes_fn: GeoDatasetSource ="hydro_lakes", min_area=10.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
 
@@ -1016,7 +1022,7 @@ class WflowModel(Model):
 
     def setup_reservoirs(
         self,
-        reservoirs_fn="hydro_reservoirs",
+        reservoirs_fn: GeoDatasetSource ="hydro_reservoirs",
         min_area=1.0,
         priority_jrc=True,
         **kwargs,
@@ -1161,7 +1167,7 @@ class WflowModel(Model):
             for option in res_toml:
                 self.set_config(option, res_toml[option])
 
-    def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0):
+    def _setup_waterbodies(self, waterbodies_fn: GeoDatasetSource, wb_type, min_area=0.0):
         """Helper method with the common workflow of setup_lakes and setup_reservoir.
         See specific methods for more info about the arguments."""
         # retrieve data for basin
@@ -1214,7 +1220,7 @@ class WflowModel(Model):
         # rasterize points polygons in raster.rasterize -- you need staticmaps to nkow the grid
         return gdf_org, ds_waterbody
 
-    def setup_soilmaps(self, soil_fn="soilgrids", ptf_ksatver="brakensiek"):
+    def setup_soilmaps(self, soil_fn: RasterDatasetSource ="soilgrids", ptf_ksatver="brakensiek"):
         """
         This component derives several (layered) soil parameters based on a database with
         physical soil properties using available point-scale (pedo)transfer functions (PTFs)
@@ -1273,7 +1279,7 @@ class WflowModel(Model):
         ).reset_coords(drop=True)
         self.set_staticmaps(dsout)
 
-    def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
+    def setup_glaciers(self, glaciers_fn: GeoDatasetSource ="rgi", min_area=1):
         """
         This component generates maps of glacier areas, area fraction and volume fraction,
         as well as tables with temperature threshold, melting factor and snow-to-ice
@@ -1379,8 +1385,8 @@ class WflowModel(Model):
 
     def setup_precip_forcing(
         self,
-        precip_fn: str = "era5",
-        precip_clim_fn: Optional[str] = None,
+        precip_fn: RasterDatasetSource = "era5",
+        precip_clim_fn: RasterDatasetSource = None,
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
@@ -1451,11 +1457,11 @@ class WflowModel(Model):
 
     def setup_temp_pet_forcing(
         self,
-        temp_pet_fn: str = "era5",
+        temp_pet_fn: RasterDatasetSource = "era5",
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
-        dem_forcing_fn: str = "era5_orography",
+        dem_forcing_fn: RasterDatasetSource = "era5_orography",
         skip_pet: str = False,
         chunksize: Optional[int] = None,
         **kwargs,
@@ -1775,7 +1781,7 @@ class WflowModel(Model):
 
     def write_forcing(
         self,
-        fn_out=None,
+        fn_out: RasterDatasetSource =None,
         freq_out=None,
         chunksize=1,
         decimals=2,
