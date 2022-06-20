@@ -1816,8 +1816,8 @@ class WflowModel(Model):
             "state.path_output": "run_default/outstate/outstates.nc",
             "input.path_static": "staticmaps.nc",
             "output.path": "run_default/output.nc",
-            "netcdf.path": "run_default/output_scalar.nc",
-            "csv": "run_default/output.csv",
+            # "netcdf.path": "run_default/output_scalar.nc", # do not need scalar data yet
+            # "csv": "run_default/output.csv",  # do not need scalar data yet --> gives an error in model
         }
         for option in toml_opt:
             self.set_config(option, toml_opt[option])
@@ -1846,13 +1846,14 @@ class WflowModel(Model):
         # Write states in ColdStateFiles folder
         if not self._states:
             self.setup_cold_states()
-        states_fn = os.path.join(
+        states_root = states_fn = os.path.join(
             fews.state_path,
-            f"scheme.{scheme_version}",
-            f"wflow.{region_name}.{model_version}",
+            f"run_wflow.{region_name}.{model_version} Default")
+        states_fn = os.path.join(
+            states_root,
             "instates.nc",
         )
-        self.write_states(fn_out=states_fn)
+        self.write_states(fn_out=states_fn) 
 
         # Write forcing and wflow_dem in another folder
         import_path = os.path.join(
@@ -1871,8 +1872,8 @@ class WflowModel(Model):
 
         # Update fews times and write in toml_template folder
         toml_opt = {
-            "starttime": "%START_DATE_TIME%",
-            "endtime": "%END_DATE_TIME%",
+            "starttime": "%START_DATE_TIME(date)%T%START_DATE_TIME(time)%",
+            "endtime": "%END_DATE_TIME(date)%T%END_DATE_TIME(time)%",
             "input.path_forcing": "inmaps.nc",
             "state.path_input": "instate/instates.nc",
         }
@@ -1894,14 +1895,17 @@ class WflowModel(Model):
         # Updating csv locs files
         fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template) # FIXME this does not write correctly
 
-        # Close logger, Zip the model and erase the unzipped copy
+        # Close logger, Zip the model and state, and erase the unzipped copy
         self.logger.info("Zipping wflow model")
         wflow_root_zip = wflow_root
         shutil.make_archive(wflow_root_zip, "zip", wflow_root)
+        states_root_zip = states_root
+        shutil.make_archive(states_root_zip, "zip", states_root)
         for handler in self.logger.handlers[:]:
             handler.close()
             logger.removeHandler(handler)
         shutil.rmtree(wflow_root)
+        shutil.rmtree(states_root)
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
