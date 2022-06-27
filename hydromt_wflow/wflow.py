@@ -243,6 +243,8 @@ class WflowModel(Model):
         rivdph_method="powlaw",
         slope_len=2e3,
         min_rivlen_ratio=0.1,
+        min_rivlen=None,
+        smooth_cells=3,
         min_rivdph=1,
         min_rivwth=30,
         smooth_len=5e3,
@@ -334,9 +336,13 @@ class WflowModel(Model):
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
+            min_rivlen=min_rivlen,
+            smooth_cells=smooth_cells,
             logger=self.logger,
         )[0]
         dvars = ["rivmsk", "rivlen", "rivslp"]
+        if min_rivlen != None:
+            dvars.append("wflow_riverlength_smooth")
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 

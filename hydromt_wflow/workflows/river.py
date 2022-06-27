@@ -31,6 +31,8 @@ def river(
     river_upa=30.0,
     slope_len=2e3,
     min_rivlen_ratio=0.1,
+    min_rivlen=None,
+    smooth_cells=3,
     channel_dir="up",
     logger=logger,
 ):
@@ -121,7 +123,16 @@ def river(
     # set mean length at pits when taking the downstream length
     if channel_dir == "down":
         rivlen.flat[flwdir.idxs_pit] = rivlen_avg
-
+    # smooth river length if min_rivlen is set
+    if min_rivlen != None:
+        logger.debug(f"Smooth river length (min length: {min_rivlen:.0f} m).")
+        flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=True)
+        rivlen_s = flwdir_model.smooth_rivlen(
+            rivlen=rivlen, 
+            min_rivlen=min_rivlen,
+            smooth_cells=smooth_cells, 
+            mask=riv_mask,
+        )    
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
@@ -143,6 +154,9 @@ def river(
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
     ds_out["rivslp"] = xr.Variable(dims, rivslp, attrs=attrs)
+    if min_rivlen != None:
+        attrs = dict(_FillValue=-9999, unit="m")
+        ds_out["wflow_riverlength_smooth"] = xr.Variable(dims, rivlen_s, attrs=attrs)
 
     for name in ["rivwth", "qbankfull"]:
         if name in ds:
