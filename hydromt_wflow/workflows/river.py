@@ -137,7 +137,10 @@ def river(
             min_rivlen=min_rivlen,
             smooth_cells=smooth_cells, 
             mask=riv_mask,
-        )    
+        )
+        assert_equal = np.isclose(np.sum(rivlen_s[rivlen_s!=-9999]), np.sum(rivlen[rivlen!=-9999]))
+        if not assert_equal:
+            raise AssertionError("Total river length (subgrid) not equal to total smoothed river length")
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
