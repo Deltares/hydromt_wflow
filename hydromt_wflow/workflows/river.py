@@ -41,6 +41,7 @@ def river(
     The output maps are:\
     - rivmsk : river mask based on upstream area threshold on upstream area\
     - rivlen : river length [m], minimum set to 1/4 cell res\
+    - wflow_riverlength_smooth : smoothed river length [m] derived from rivlen
     - rivslp : smoothed river slope [m/m]\
     - rivzs : elevation of the river bankfull height based on pixel outlet 
     - rivwth : river width at pixel outlet (if in ds)
@@ -60,6 +61,10 @@ def river(
         minimum length over which to calculate the river slope, by default 1000 [m]
     min_rivlen_ratio: float
         minimum global river length to avg. cell resolution ratio, by default 0.1
+    min_rivlen: float, optional
+        minimum river length [m] threshold within a river branch for smoothing subgrid river length (avg.), by default None
+    smooth_cells: int, optional
+        minimum number of river cells (upstream to downstream) over which to smooth the subgrid river length, by default 3
     channel_dir: {"up", "down"}
         flow direcition in which to calculate (subgrid) river length and width
     
