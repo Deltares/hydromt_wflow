@@ -1479,8 +1479,8 @@ class WflowModel(Model):
 
             * Required variables for Makkink reference evapotranspiration: ['temp', 'press_msl', 'kin']
 
-            * Required variables for daily Penman-Monteith reference evapotranspiration: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] and optional additional ['press_msl', "wind_u", "wind_v"]
-        pet_method : {'debruin', 'makkink', 'penman-monteith_era5', 'penman-monteith_nasanex'}, optional
+            * Required variables for daily Penman-Monteith reference evapotranspiration: either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 'wind', 'kin', 'press_msl', "wind_u", "wind_v"] for 'penman-monteith_tdew' (these are the variables available in ERA5)
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
         press_correction, temp_correction : bool, optional
              If True pressure, temperature are corrected using elevation lapse rate,
@@ -1510,12 +1510,25 @@ class WflowModel(Model):
                 variables += ["press_msl", "kin", "kout"]
             elif pet_method == "makkink":
                 variables += ["press_msl", "kin"]
-            elif pet_method == "penman-monteith_nasanex":
-                variables += ["temp", "temp_min", "temp_max", "wind", "rh", "kin"]
-            elif pet_method == "penman-monteith_era5":
-                variables += ["temp", "temp_min", "temp_max", "wind_u", "wind_v", "rh", "kin", "press_msl"]
+            elif pet_method == "penman-monteith_rh_simple":
+                variables += ["temp_min", "temp_max", "wind", "rh", "kin"]
+            elif pet_method == "penman-monteith_tdew":
+                variables += [
+                    "temp_min",
+                    "temp_max",
+                    "wind_u",
+                    "wind_v",
+                    "temp_dew",
+                    "kin",
+                    "press_msl",
+                ]
             else:
-                methods = ["debruin", "makking", "penman-monteith_nasanex", "penman-monteith_era5"]
+                methods = [
+                    "debruin",
+                    "makking",
+                    "penman-monteith_rh_simple",
+                    "penman-monteith_tdew",
+                ]
                 ValueError(f"Unknown pet method {pet_method}, select from {methods}")
 
         ds = self.data_catalog.get_rasterdataset(
@@ -1538,7 +1551,7 @@ class WflowModel(Model):
                 buffer=2,
                 variables=["elevtn"],
             ).squeeze()
-        
+
         temp_in = hydromt.workflows.forcing.temp(
             ds["temp"],
             dem_model=self.staticmaps[self._MAPS["elevtn"]],
@@ -1549,7 +1562,9 @@ class WflowModel(Model):
             **kwargs,
         )
 
-        if "penman-monteith" in pet_method: #also downscaled temp_min and temp_max for Penman needed
+        if (
+            "penman-monteith" in pet_method
+        ):  # also downscaled temp_min and temp_max for Penman needed
             temp_max_in = hydromt.workflows.forcing.temp(
                 ds["temp_max"],
                 dem_model=self.staticmaps[self._MAPS["elevtn"]],
@@ -1594,9 +1609,9 @@ class WflowModel(Model):
             pet_out.attrs.update(opt_attr)
             self.set_forcing(pet_out.where(mask), name="pet")
 
-        #make sure only temp is written to netcdf
+        # make sure only temp is written to netcdf
         if "penman-monteith" in pet_method:
-           temp_in = temp_in["temp"]
+            temp_in = temp_in["temp"]
         # resample temp after pet workflow
         temp_out = hydromt.workflows.forcing.resample_time(
             temp_in,
