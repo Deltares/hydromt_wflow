@@ -1848,7 +1848,7 @@ class WflowModel(Model):
             self.setup_cold_states()
         states_root = states_fn = os.path.join(
             fews.state_path,
-            f"run_wflow.{region_name}.{model_version} Default")
+            f"run_update_wflow.{region_name}.{model_version} Default")
         states_fn = os.path.join(
             states_root,
             "instates.nc",
@@ -1893,7 +1893,13 @@ class WflowModel(Model):
             model_source=model_name, model_templates=wflow_template
         )
         # Updating csv locs files
-        fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template) # FIXME this does not write correctly
+        fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template)
+
+        # updating SpatialDisplay.xml
+        fews.add_spatialplots(model_source=model_name)
+
+        # updating Topology.xml
+        # fews.add_topologygroup(model_source=model_name)
 
         # Close logger, Zip the model and state, and erase the unzipped copy
         self.logger.info("Zipping wflow model")
