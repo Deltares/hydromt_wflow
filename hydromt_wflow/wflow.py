@@ -1887,11 +1887,15 @@ class WflowModel(Model):
             config_name="wflow_sbm_template.toml",
         )
 
-        # Add FEWS config file for the model
+        # Add FEWS config files for the model
         self.logger.info("Adding FEWS template files for Wflow")
         fews.add_template_configfiles(
             model_source=model_name, model_templates=wflow_template
         )
+
+        # update FEWS config files for the model
+        self.logger.info("Updating FEWS config files for Wflow")
+
         # Updating csv locs files
         fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template)
 
@@ -1899,7 +1903,7 @@ class WflowModel(Model):
         fews.add_spatialplots(model_source=model_name)
 
         # updating Topology.xml
-        # fews.add_topologygroup(model_source=model_name)
+        fews.add_topologygroups(model_source=model_name)
 
         # Close logger, Zip the model and state, and erase the unzipped copy
         self.logger.info("Zipping wflow model")
@@ -1912,6 +1916,8 @@ class WflowModel(Model):
             logger.removeHandler(handler)
         shutil.rmtree(wflow_root)
         shutil.rmtree(states_root)
+
+
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
