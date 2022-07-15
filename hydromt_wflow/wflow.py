@@ -869,7 +869,7 @@ class WflowModel(Model):
                     )[0]
                     mapname = self._MAPS["basins"] + "_" + basename
                     self.set_staticmaps(da_basins, name=mapname)
-                    gdf_basins = da_basins.raster.vectorize()
+                    gdf_basins = self.staticmaps[mapname].raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
