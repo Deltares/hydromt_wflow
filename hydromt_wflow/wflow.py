@@ -214,7 +214,10 @@ class WflowModel(Model):
                 data=data,
                 coords=ds_base.raster.coords,
                 dims=ds_base.raster.dims,
-                attrs=dict(long_name="ldd flow direction", _FillValue=core_ldd._mv,),
+                attrs=dict(
+                    long_name="ldd flow direction",
+                    _FillValue=core_ldd._mv,
+                ),
             )
             ds_base["flwdir"] = da_flwdir
         # Rename and add to staticmaps
@@ -258,8 +261,8 @@ class WflowModel(Model):
         the next upstream subgrid outlet pixel.
 
         The optional smooth river length is derived by taking the average of the input
-        subgrid river length per river branch (or a minimum river cells of `smooth_cells`) 
-        with a subgrid river length <= `min_rivlen`. This map can be used to speed up 
+        subgrid river length per river branch (or a minimum river cells of `smooth_cells`)
+        with a subgrid river length <= `min_rivlen`. This map can be used to speed up
         calculations (increase short river lengths).
 
         The river slope is derived from the subgrid elevation difference between pixels at a
@@ -677,7 +680,11 @@ class WflowModel(Model):
         # retrieve data for region
         self.logger.info(f"Preparing LAI maps.")
         da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
-        da_lai = workflows.lai(da=da, ds_like=self.staticmaps, logger=self.logger,)
+        da_lai = workflows.lai(
+            da=da,
+            ds_like=self.staticmaps,
+            logger=self.logger,
+        )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
         self.set_staticmaps(da_lai.rename(rmdict), name="LAI")
@@ -882,7 +889,9 @@ class WflowModel(Model):
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
-        self, area_fn: str, col2raster: str,
+        self,
+        area_fn: str,
+        col2raster: str,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
@@ -909,7 +918,10 @@ class WflowModel(Model):
             return
         else:
             da_area = self.staticmaps.raster.rasterize(
-                gdf=gdf_org, col_name=col2raster, nodata=0, all_touched=True,
+                gdf=gdf_org,
+                col_name=col2raster,
+                nodata=0,
+                all_touched=True,
             )
         self.set_staticmaps(da_area.rename(area_fn))
 
@@ -1269,7 +1281,11 @@ class WflowModel(Model):
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids(
-            dsin, self.staticmaps, ptf_ksatver, soil_fn, logger=self.logger,
+            dsin,
+            self.staticmaps,
+            ptf_ksatver,
+            soil_fn,
+            logger=self.logger,
         ).reset_coords(drop=True)
         self.set_staticmaps(dsout)
 
@@ -1427,7 +1443,10 @@ class WflowModel(Model):
         clim = None
         if precip_clim_fn != None:
             clim = self.data_catalog.get_rasterdataset(
-                precip_clim_fn, geom=precip.raster.box, buffer=2, variables=["precip"],
+                precip_clim_fn,
+                geom=precip.raster.box,
+                buffer=2,
+                variables=["precip"],
             )
 
         precip_out = hydromt.workflows.forcing.precip(
@@ -2094,7 +2113,11 @@ class WflowModel(Model):
         return gdf
 
     def clip_staticmaps(
-        self, region, buffer=0, align=None, crs=4326,
+        self,
+        region,
+        buffer=0,
+        align=None,
+        crs=4326,
     ):
         """Clip staticmaps to subbasin.
 
