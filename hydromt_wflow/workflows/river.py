@@ -111,10 +111,7 @@ def river(
     # get river length based on on-between distance between two outlet pixels
     logger.debug("Derive river length.")
     rivlen = flwdir.subgrid_rivlen(
-        idxs_out=idxs_out,
-        mask=riv_mask_org,
-        direction=channel_dir,
-        unit="m",
+        idxs_out=idxs_out, mask=riv_mask_org, direction=channel_dir, unit="m",
     )
     xres, yres = ds_model.raster.res
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
@@ -133,14 +130,18 @@ def river(
         logger.debug(f"Smooth river length (min length: {min_rivlen:.0f} m).")
         flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=True)
         rivlen_s = flwdir_model.smooth_rivlen(
-            rivlen=rivlen, 
+            rivlen=rivlen,
             min_rivlen=min_rivlen,
-            smooth_cells=smooth_cells, 
+            smooth_cells=smooth_cells,
             mask=riv_mask,
         )
-        assert_equal = np.isclose(np.sum(rivlen_s[rivlen_s!=-9999]), np.sum(rivlen[rivlen!=-9999]))
+        assert_equal = np.isclose(
+            np.sum(rivlen_s[rivlen_s != -9999]), np.sum(rivlen[rivlen != -9999])
+        )
         if not assert_equal:
-            raise AssertionError("Total river length (subgrid) not equal to total smoothed river length")
+            raise AssertionError(
+                "Total river length (subgrid) not equal to total smoothed river length"
+            )
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
@@ -419,11 +420,7 @@ def river_width(
 
 
 def _width_fit(
-    wth,
-    val,
-    mask,
-    p0=[0.15, 0.65],
-    logger=logger,  # rhine uparea based
+    wth, val, mask, p0=[0.15, 0.65], logger=logger,  # rhine uparea based
 ):
     outliers = np.full(np.sum(mask), False, dtype=np.bool)
     a, b = None, None
@@ -506,7 +503,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     scaling_factor_1 = np.round(da_precip.raster.res[0] / ds_like.raster.res[0], 4)
     scaling_factor_2 = np.round(da_precip.raster.res[1] / ds_like.raster.res[1], 4)
     scaling_factor = (scaling_factor_1 + scaling_factor_2) / 2
-    precip = precip / scaling_factor**2
+    precip = precip / scaling_factor ** 2
 
     # derive cell areas (m2)
     lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
