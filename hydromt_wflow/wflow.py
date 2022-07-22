@@ -1350,6 +1350,180 @@ class WflowModel(Model):
                 f"Skipping glacier procedures!"
             )
 
+    def setup_domestic_demand(
+        self, 
+        domestic_demand_fn: str = "pcrglob_domestic_demand",
+        fillna: bool = True,
+        fillna_value: float = 0.0,
+        ):
+        """
+        Reads domestic water demand data, and sets
+
+        Adds model layers:
+
+        * **name** map: description [unit]
+        
+        Parameters
+        ----------
+        domestic_demand_fn : {'pcrglob_domestic_demand'}
+            Name of data source for domestic demand, see data/data_sources.yml.
+        fillna : Bool
+            Optional: flag defining whether to fill missing values with zeroes (True) or not \
+                (False). By default = True
+        fillna_value : float
+            Value to use when fillna=True. By default = 0.0 
+
+        """
+        if domestic_demand_fn not in self.data_catalog:
+            self.logger.warning(f"Invalid source '{domestic_demand_fn}', skipping setup_domestic_demand.")
+            return
+        # retrieve data for region
+        da = self.data_catalog.get_rasterdataset(domestic_demand_fn, geom=self.region, buffer=2)
+
+        # Remove nodata values, and assume no water demand is here
+        if fillna:
+            nodata = da.raster.nodata
+            da = da.astype(np.float32)
+            da = da.where(da.values != nodata).fillna(
+                fillna_value
+            )
+
+        # Reproject to model grid
+        ds_like = self.staticmaps
+        da_out = da.raster.reproject_like(ds_like, method="average")
+
+        # Rename the first dimension to time
+        rmdict = {da_out.dims[0]: "time"}
+        self.set_staticmaps(da_out.rename(rmdict), name="domestic_demand")
+
+    def setup_industry_demand(self, industry_demand_fn: str):
+        # retrieve data for region
+        da = self.data_catalog.get_rasterdataset(industry_demand_fn, geom=self.region, buffer=2)
+
+    def setup_irrigation_demand(
+            self,
+            irrigation_area_fn: str = "mirca2000",
+            cropfactor_fn: str = "None",
+        ):
+        """
+        Reads irrigated area maps per crop, and add those to the staticmaps. This maps can be identified for
+        different crop types, and also includes a total irrigated area map (sum of all crop types). Additionally,
+        it sets the weighted crop factor for each pixel, weighted by the relative irrigated area of each crop. 
+        The crop factors are defined in a csv, with the crop index as index, and a `crop_factor` column containing 
+        the values. 
+
+        Adds model layers:
+
+        * **name** map: description [unit]
+        * **irr_area_cropXX**: map with (per pixel) area of irrigated area of crop XX
+        * **irr_area_crop**: map with (per pixel) area of total irrigated area, summed over all crops
+        * **irr_crop_factor**: map with crop factor values, weighted to the relative irrigated area of each crop
+        
+        Parameters
+        ----------
+        irrigation_area_fn : {'mirca2000'}
+            Name of data source for irrigated area maps, with values per crop type, see data/data_sources.yml.
+        cropfactor_fn : str
+            Path to .csv containing crop factor values for each of the crop types defined in irrigation_area_fn. 
+            Note: it is important that both files use the same indices to indentify the same crops.
+        
+        """    
+
+        # Get the irrigated areas per subbasin/area
+        ds_irr = self.data_catalog.get_rasterdataset(
+            irrigation_area_fn,
+            geom=self.region,
+            buffer=2,
+        )
+        months = np.arange(1, 13, dtype=int)
+
+        self.logger.info(
+            f"Processing {irrigation_area_fn}: mutiple crops and/or month definition"
+        )
+        # If needed create month dim
+        if "month" not in ds_irr.coords:
+            crops = list(ds_irr.data_vars)
+            if "_" in crops[0] and "m" in crops[0].split("_")[1]:
+                crops = np.unique([x.split("_")[0] for x in crops])
+                # Set flag if multiple crops are provided
+                multiple_crops = True if len(crops) > 1 else False
+                ds_irr = ds_irr.assign_coords(month=months)
+                # Merge layer per cropname and month
+                for var in crops:
+                    da_crop = []
+                    for i in months:
+                        da_crop.append(ds_irr[f"{var}_m{i}"])
+                        ds_irr = ds_irr.drop_vars(f"{var}_m{i}")
+                    da = xr.concat(
+                        da_crop,
+                        pd.Index(months, name="month"),
+                    ).transpose("month", ...)
+                    da.name = var
+                    ds_irr[f"irr_area_{var}"] = da
+            else:
+                self.logger.warning(
+                    f"{irrigation_area_fn} must contains either a 'month' dimension or month ID in the variable name as '*_m1' to '*_m12', skipping."
+                )
+                return
+        # Sum over all type of crops
+        # import pdb; pdb.set_trace()
+        if multiple_crops:
+            da_month = []
+            for i in ds_irr.month:
+                da_month.append(ds_irr.sel(month=i).to_array().sum("variable"))
+            da = xr.concat(
+                da_month,
+                pd.Index(months, name="month"),
+            ).transpose("month", ...)
+            da.name = "crop"
+            ds_irr["irr_area_crop"] = da
+        elif len(ds_irr.data_vars) == 1:
+            ds_irr.rename({list(ds_irr.data_vars)[0]: "crop"})
+        elif "crop" not in ds_irr.data_vars:
+            self.logger.warning(
+                f"{irrigation_area_fn} contains more variables than just total irrigated areas. Rename the corresponding variable to 'crop' in the data catalog, skipping"
+            )
+            return
+
+        # Reproject to fraction of pixel covered by irrigation
+        ds_irr_rel = ds_irr / ds_irr.raster.area_grid()
+
+        # Reproject to model grid
+        ds_like = self.staticmaps
+        ds_out = ds_irr_rel.raster.reproject_like(ds_like, method="average")
+        
+        # Convert back to m2
+        ds_out *= ds_out.raster.area_grid()
+        ds_out.attrs.update(unit="m2")
+
+        ### Add crop factor map
+        # Prepare variable
+        crop_factor_map = None
+
+        # Extract total irrigated area
+        total_crop_area = ds_out["irr_area_crop"]
+
+        # Read table with cropfactor data
+        cropfactor = pd.read_csv(cropfactor_fn, index_col=0)
+
+        # Loop through crops
+        for crop_id in range(len(ds_out) - 1):
+            crop_id += 1
+            crop_area = ds_out[f"irr_area_crop{crop_id}"]
+
+            weighted_area = crop_area / total_crop_area
+
+            if crop_factor_map is None:
+                crop_factor_map = cropfactor.loc[crop_id, "crop_factor"] * (weighted_area)
+            else:
+                crop_factor_map += cropfactor.loc[crop_id, "crop_factor"] * (weighted_area)
+
+        # Add to ds_out
+        ds_out["irr_crop_factor"] = crop_factor_map
+
+        # Add maps to staticmaps
+        self.set_staticmaps(ds_out)
+
     def setup_constant_pars(self, dtype="float32", nodata=-999, **kwargs):
         """Setup constant parameter maps for all active model cells.
 
