@@ -1780,6 +1780,7 @@ class WflowModel(Model):
         model_version: int,
         fews_template: Optional[str] = None,
         wflow_template: Optional[str] = None,
+        fews_binaries: Optional[str] = None,
     ) -> None:
         """
         Method to write and export the complete model schematization and configuration to a Delft-FEWS configuration.
@@ -1805,6 +1806,8 @@ class WflowModel(Model):
             Path to a FEWS config template for initialisation. If None, download from url.
         wflow_template: str, Path, optional
             Path to a folder containing all wflow template files (xml). If None download from url.
+        fews_binaries: str, Path, optional
+            Path to a folder containing the FEWS binaries. Id None, assume FEWS bin folder in fews root.
         """
         # if self._read: # normally done by model_api in update mode
         #    self.read()
@@ -1964,6 +1967,9 @@ class WflowModel(Model):
             logger.removeHandler(handler)
         shutil.rmtree(wflow_root)
         shutil.rmtree(states_root)
+
+        # create shortcut
+        fews.create_cf_link(fews_binaries=fews_binaries)
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
