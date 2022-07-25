@@ -1914,10 +1914,29 @@ class WflowModel(Model):
             config_name="wflow_sbm_template.toml",
         )
 
+        # Get list of output variables from toml
+        outputvars = []
+        if self.get_config("output.vertical"):
+            outputvars.extend([i for i in self.get_config("output.vertical")])
+        if self.get_config("output.lateral.river"):
+            outputvars.extend(
+                [f"river.{i}" for i in self.get_config("output.lateral.river")]
+            )
+        if self.get_config("output.lateral.land"):
+            outputvars.extend(
+                [f"land.{i}" for i in self.get_config("output.lateral.land")]
+            )
+        if self.get_config("output.lateral.subsurface"):
+            outputvars.extend(
+                [f"land.{i}" for i in self.get_config("output.lateral.subsurface")]
+            )
+
         # Add FEWS config files for the model
         self.logger.info("Adding FEWS template files for Wflow")
         fews.add_template_configfiles(
-            model_source=model_name, model_templates=wflow_template
+            model_source=model_name,
+            model_templates=wflow_template,
+            variables=outputvars,
         )
 
         # update FEWS config files for the model
