@@ -17,6 +17,7 @@ import codecs
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
+from typing import List
 
 # from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
@@ -676,17 +677,18 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        gauges_fn="grdc",
-        source_gdf=None,
-        index_col=None,
-        snap_to_river=True,
+        gauges_fn: str = "grdc",
+        source_gdf: gpd.GeoDataFrame = None,
+        index_col: str = None,
+        snap_to_river: bool = True,
         mask=None,
-        derive_subcatch=False,
-        derive_outlet=True,
-        basename=None,
-        update_toml=True,
-        gauge_toml_header=None,
-        gauge_toml_param=None,
+        derive_subcatch: bool = False,
+        derive_outlet: bool = True,
+        basename: str = None,
+        update_toml: bool = True,
+        gauge_toml_type: str = "csv",
+        gauge_toml_header: List = None,
+        gauge_toml_param: List = None,
         **kwargs,
     ):
         """This components sets the default gauge map based on basin outlets and additional
@@ -728,7 +730,9 @@ class WflowModel(Model):
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
         update_toml : boolean, optional
-            Update [outputcsv] section of wflow toml file.
+            Update [csv.column] or [netcdf.variable] section of wflow toml file, based on update_toml_type.
+        gauge_toml_type : str, optional
+            Specify in which toml section to save the gauge ouputs. Either "csv" (default) or "netcdf".
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines the header of the csv file./
             By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
@@ -851,16 +855,31 @@ class WflowModel(Model):
 
                 if update_toml:
                     self.set_config(f"input.gauges_{basename}", f"{mapname}")
-                    if self.get_config("csv") is not None:
+                    if self.get_config("csv") is not None and gauge_toml_type == "csv":
                         for o in range(len(gauge_toml_param)):
                             gauge_toml_dict = {
                                 "header": gauge_toml_header[o],
                                 "map": f"gauges_{basename}",
                                 "parameter": gauge_toml_param[o],
                             }
-                            # If the gauge outcsv column already exists skip writting twice
+                            # If the gauge csv column already exists skip writting twice
                             if gauge_toml_dict not in self.config["csv"]["column"]:
                                 self.config["csv"]["column"].append(gauge_toml_dict)
+                    elif (
+                        self.get_config("netcdf") is not None
+                        and gauge_toml_type == "netcdf"
+                    ):
+                        for o in range(len(gauge_toml_param)):
+                            gauge_toml_dict = {
+                                "name": gauge_toml_header[o],
+                                "map": f"gauges_{basename}",
+                                "parameter": gauge_toml_param[o],
+                            }
+                            # If the gauge netdcf variable already exists skip writting twice
+                            if gauge_toml_dict not in self.config["netdcf"]["variable"]:
+                                self.config["netcdf"]["variable"].append(
+                                    gauge_toml_dict
+                                )
                     self.logger.info(f"Gauges map from {basename} added.")
 
                 # add subcatch
@@ -1816,8 +1835,8 @@ class WflowModel(Model):
             "state.path_output": "run_default/outstate/outstates.nc",
             "input.path_static": "staticmaps.nc",
             "output.path": "run_default/output.nc",
-            # "netcdf.path": "run_default/output_scalar.nc", # do not need scalar data yet
-            # "csv": "run_default/output.csv",  # do not need scalar data yet --> gives an error in model
+            "netcdf.path": "run_default/output_scalar.nc",
+            "csv.path": "run_default/output.csv",
         }
         for option in toml_opt:
             self.set_config(option, toml_opt[option])
@@ -1846,14 +1865,14 @@ class WflowModel(Model):
         # Write states in ColdStateFiles folder
         if not self._states:
             self.setup_cold_states()
-        states_root = states_fn = os.path.join(
-            fews.state_path,
-            f"run_update_wflow.{region_name}.{model_version} Default")
+        states_root = os.path.join(
+            fews.state_path, f"run_update_wflow.{region_name}.{model_version} Default"
+        )
         states_fn = os.path.join(
             states_root,
             "instates.nc",
         )
-        self.write_states(fn_out=states_fn) 
+        self.write_states(fn_out=states_fn)
 
         # Write forcing and wflow_dem in another folder
         import_path = os.path.join(
@@ -1916,8 +1935,6 @@ class WflowModel(Model):
             logger.removeHandler(handler)
         shutil.rmtree(wflow_root)
         shutil.rmtree(states_root)
-
-
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
