@@ -1809,8 +1809,8 @@ class WflowModel(Model):
         fews_binaries: str, Path, optional
             Path to a folder containing the FEWS binaries. Id None, assume FEWS bin folder in fews root.
         """
-        # if self._read: # normally done by model_api in update mode
-        #    self.read()
+        if self._read:  # force the function to read forcing
+            self.read_forcing()
         self.logger.info(f"Setting FEWS config at {fews_root}")
         fews = FewsUtils(fews_root, template_path=fews_template)
         # Instantiate the wflow model in fews object
