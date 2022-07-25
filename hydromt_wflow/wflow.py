@@ -1932,6 +1932,8 @@ class WflowModel(Model):
         # updating Topology.xml
         fews.add_topologygroups(model_source=model_name)
 
+        # updating Explorer.xml
+        fews.update_explorer(model_source=model_name)
         # Close logger, Zip the model and state, and erase the unzipped copy
         self.logger.info("Zipping wflow model")
         wflow_root_zip = wflow_root
