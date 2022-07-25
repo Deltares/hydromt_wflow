@@ -1821,6 +1821,7 @@ class WflowModel(Model):
             crs=self.crs,
             shape=self.staticmaps.raster.shape,
             bounds=self.staticmaps.raster.bounds,
+            T0=self.get_config("starttime"),
         )
         # Update and write wflow model components in specific FEWS folders and format
         self.logger.info(f"Write model data to {fews_root}")
@@ -1956,6 +1957,10 @@ class WflowModel(Model):
 
         # updating Explorer.xml
         fews.update_explorer(model_source=model_name)
+        # update global.properties
+        fews.update_globalproperties(
+            model_source=model_name, model_templates=wflow_template
+        )
         # Close logger, Zip the model and state, and erase the unzipped copy
         self.logger.info("Zipping wflow model")
         wflow_root_zip = wflow_root
