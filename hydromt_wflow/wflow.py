@@ -1778,8 +1778,8 @@ class WflowModel(Model):
         scheme_version: int,
         region_name: str,
         model_version: int,
-        fews_template: str = None,
-        wflow_template: str = None,
+        fews_template: Optional[str] = None,
+        wflow_template: Optional[str] = None,
     ) -> None:
         """
         Method to write and export the complete model schematization and configuration to a Delft-FEWS configuration.
@@ -1806,8 +1806,8 @@ class WflowModel(Model):
         wflow_template: str, Path, optional
             Path to a folder containing all wflow template files (xml). If None download from url.
         """
-        if self._read:
-            self.read()
+        # if self._read: # normally done by model_api in update mode
+        #    self.read()
         self.logger.info(f"Setting FEWS config at {fews_root}")
         fews = FewsUtils(fews_root, template_path=fews_template)
         # Instantiate the wflow model in fews object
@@ -1819,9 +1819,9 @@ class WflowModel(Model):
             shape=self.staticmaps.raster.shape,
             bounds=self.staticmaps.raster.bounds,
         )
-
         # Update and write wflow model components in specific FEWS folders and format
         self.logger.info(f"Write model data to {fews_root}")
+        old_root = self.root
         # Location of wflow model
         wflow_root = os.path.join(
             fews.module_path,
@@ -1829,6 +1829,14 @@ class WflowModel(Model):
             f"wflow.{region_name}.{model_version}",
         )
         self.set_root(wflow_root, mode="w")
+        # In build mode, check if empty root folder (no staticmaps) was created and if yes remove
+        if not isfile(join(old_root, "staticmaps.nc")):
+            self.logger.info(
+                "Wflow model only saved directly in FEWS. To get a copy in {old_root}, use the 'write' function before 'write_fews'."
+            )
+            # Delete empty folder at self.root
+            shutil.rmtree(old_root)
+
         # Use standard ouput filenames
         toml_opt = {
             "state.path_input": "instate/instates.nc",
