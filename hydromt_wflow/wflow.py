@@ -1676,11 +1676,6 @@ class WflowModel(Model):
             self.logger.warning(f"No staticmaps found at {fn}")
             return
         self._staticmaps = open_mfraster(fns, **kwargs)
-        for name in self.staticmaps.raster.vars:
-            if PCR_VS_MAP.get(name, "scalar") == "bool":
-                self._staticmaps[name] = self._staticmaps[name] == 1
-                # a nodata value is required when writing
-                self._staticmaps[name].raster.set_nodata(0)
         path = join(self.root, "staticmaps", "clim", f"LAI*")
         if len(glob.glob(path)) > 0:
             da_lai = open_mfraster(

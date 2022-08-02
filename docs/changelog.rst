@@ -19,7 +19,7 @@ Changed
 - uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
 - except for coordinates (incl *x_out* and *y_out*) all variables are saved with at most 32 bit depth
 - new dtype and nodata arguments in **setup_constant_pars**
-
+- read boolean PCRaster maps with int type to be consistent with netcdf based maps
 
 v0.1.4 (18 February 2022)
 -------------------------
