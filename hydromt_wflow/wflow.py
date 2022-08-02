@@ -1316,7 +1316,7 @@ class WflowModel(Model):
         # retrieve data for basin
         self.logger.info(f"Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            glaciers_fn, geom=self.basins, predicate="contains"
+            glaciers_fn, geom=self.basins, predicate="intersects"
         )
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
