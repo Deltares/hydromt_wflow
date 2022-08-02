@@ -4,15 +4,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Update a Wflow model: forcing &#8212; HydroMT Wflow  documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
 
-    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
   <link rel="stylesheet"
     href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
   <link rel="preload" as="font" type="font/woff2" crossorigin
@@ -23,13 +27,14 @@
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
-    
+
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -39,32 +44,40 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Update a Wflow model: gauging stations" href="update_model_gauges.html" />
     <link rel="prev" title="Update a Wflow model: landuse" href="update_model_landuse.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en">
-    
-
-    <!-- Google Analytics -->
-    
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
 
     
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
 
   <div id="navbar-start">
     
     
-<a class="navbar-brand" href="../index.html">
-<p class="title">HydroMT Wflow</p>
-</a>
+  
 
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">HydroMT Wflow  documentation</p>
+  
+</a>
     
   </div>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
+    <span class="fas fa-bars"></span>
   </button>
 
   
@@ -110,6 +123,14 @@
     <div id="navbar-end">
       
       <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
           <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
@@ -123,13 +144,13 @@
     </nav>
     
 
-    <div class="container-xl">
-      <div class="row">
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
           
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
@@ -298,19 +319,20 @@
 
   </div>
 </nav>
-              </div>
-              <div class="sidebar-end-items">
-              </div>
-            </div>
-            
-          
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
 
           
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
-            
-              
-              <div class="toc-item">
-                
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
 <div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
@@ -345,23 +367,21 @@
 </ul>
 
 </nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
-            
-          </div>
-          
+    </div>
+    
+    <div class="toc-item">
+      
+    </div>
+    
+  
+</div>
+
 
           
           
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+          <div class="bd-content col-12 col-md-9 col-xl-7">
               
-              <div>
+              <article class="bd-article" role="main">
                 
   
 <style>
@@ -578,6 +598,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -586,10 +607,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -601,12 +626,15 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
@@ -618,12 +646,12 @@ div.rendered_html tbody tr:hover {
     <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/update_model_forcing.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
 </div></div>
 <section id="Update-a-Wflow-model:-forcing">
-<h1>Update a Wflow model: forcing<a class="headerlink" href="#Update-a-Wflow-model:-forcing" title="Permalink to this headline">#</a></h1>
+<h1>Update a Wflow model: forcing<a class="headerlink" href="#Update-a-Wflow-model:-forcing" title="Permalink to this heading">#</a></h1>
 <p>Once you have a <strong>Wflow</strong> model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.</p>
 <p>With HydroMT, you can easily read your model and update one or several components of your model using the <strong>update</strong> function of the command line interface (CLI). Here are the steps and some examples on how to <strong>update the model forcing</strong>.</p>
 <p>All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more feedback.</p>
 <section id="Import-packages">
-<h2>Import packages<a class="headerlink" href="#Import-packages" title="Permalink to this headline">#</a></h2>
+<h2>Import packages<a class="headerlink" href="#Import-packages" title="Permalink to this heading">#</a></h2>
 <p>In this notebook, we will use some functions of HydroMT to plot the precipitation from the original and updated models. Here are the libraries to import to realize these steps.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -636,7 +664,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Model-setup-configuration">
-<h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Permalink to this headline">#</a></h2>
+<h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Permalink to this heading">#</a></h2>
 <p>Updating landuse is an easy step with the command line but sometimes, for example with forcing, you want to update several things at the same time. This is possible by preparing a <strong>configuration file</strong> that includes every methods and settings that you want to do during your update.</p>
 <p>The ini-file contains the model setup configuration and determines which methods are updated and in which sequence and sets optional arguments for each method. This configuration is passed to hydromt using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_ini_file&gt;</span></code>.</p>
 <p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_precip_forcing]</span></code>) corresponds with a model method which are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
@@ -687,7 +715,7 @@ skip_pet        = False         # if True, only temperature is prepared.
 <p>Here we can see that we will prepare daily forcing for 10 days in February 2010 using CHIRPS for precipitation and ERA5 for temperature and potential evapotranspiration.</p>
 </section>
 <section id="HydroMT-CLI-update-interface">
-<h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Permalink to this headline">#</a></h2>
+<h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Permalink to this heading">#</a></h2>
 <p>Using the <strong>HydroMT build</strong> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -711,19 +739,19 @@ Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
   Example usage:
   --------------
 
-  Update (overwrite) landuse-landcover maps in a wflow model
-  hydromt update wflow /path/to/model_root -c setup_lulcmaps --opt source_name=vito
+  Update (overwrite!) landuse-landcover based maps in a Wflow model
+  hydromt update wflow /path/to/model_root -c setup_lulcmaps --opt lulc_fn=vito -d /path/to/data_catalog.yaml -v
 
-  Update reservoir maps based on default settings in a wflow model and write to new directory
-  hydromt update wflow /path/to/model_root -o /path/to/model_out -c setup_reservoirs
+  Update Wflow model components outlined in an .ini configuration file and write the model to a directory
+  hydromt update wflow /path/to/model_root -o /path/to/model_out -i /path/to/wflow_config.ini -d /path/to/data_catalog.yaml -v
 
 Options:
   -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
                              overwritten if left empty.
-  -c, --components TEXT      Model components from ini file to run
-  --opt TEXT                 Component specific keyword arguments, see the
-                             setup_&lt;component&gt; method of the specific model
-                             for more information about the arguments.
+  -c, --components TEXT      Model methods from ini file to run
+  --opt TEXT                 Method specific keyword arguments, see the method
+                             documentation of the specific model for more
+                             information about the arguments.
   -i, --config PATH          Path to hydroMT configuration file, for the model
                              specific implementation.
   -d, --data PATH            File path to yml data sources file. See
@@ -739,7 +767,7 @@ Options:
 </div>
 </section>
 <section id="Update-Wflow-forcing-layers">
-<h2>Update Wflow forcing layers<a class="headerlink" href="#Update-Wflow-forcing-layers" title="Permalink to this headline">#</a></h2>
+<h2>Update Wflow forcing layers<a class="headerlink" href="#Update-Wflow-forcing-layers" title="Permalink to this heading">#</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
@@ -754,40 +782,45 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-05-20 08:55:28,764 - update - log - INFO - HydroMT version: 0.4.5
-2022-05-20 08:55:28,764 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-05-20 08:55:28,764 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-05-20 08:55:28,764 - update - main - INFO - User settings:
-2022-05-20 08:55:28,774 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
-2022-05-20 08:55:28,777 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-05-20 08:55:28,831 - update - wflow - INFO - Reading model intbl files.
-2022-05-20 08:55:28,832 - update - wflow - INFO - Reading model staticgeom files.
-2022-05-20 08:55:28,901 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-05-20 08:55:28,909 - update - wflow - INFO - Model read
-2022-05-20 08:55:28,913 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2022-05-20 08:55:28,913 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2022-05-20 08:55:28,913 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2022-05-20 08:55:28,916 - update - data_adapter - INFO - Adding sample data v0.0.6 from artifacts
-2022-05-20 08:55:28,984 - update - data_adapter - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/chirps_global.nc
-2022-05-20 08:55:29,047 - update - model_api - WARNING - Replacing forcing: precip
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2022-05-20 08:55:29,048 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2022-05-20 08:55:29,051 - update - data_adapter - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5.nc
-2022-05-20 08:55:29,109 - update - data_adapter - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5_orography.nc
-2022-05-20 08:55:29,342 - update - model_api - WARNING - Replacing forcing: pet
-2022-05-20 08:55:29,344 - update - model_api - WARNING - Replacing forcing: temp
-2022-05-20 08:55:29,344 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-05-20 08:55:29,348 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2022-05-20 08:55:29,532 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2022-05-20 08:55:29,949 - update - wflow - INFO - Writing model staticgeom to file.
-2022-05-20 08:55:30,103 - update - wflow - INFO - Write forcing file
-2022-05-20 08:55:30,122 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
-[########################################] | 100% Completed |  0.1s
+2022-08-02 13:51:26,142 - update - log - INFO - HydroMT version: 0.4.6.dev
+2022-08-02 13:51:26,142 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2022-08-02 13:51:26,142 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-08-02 13:51:26,142 - update - main - INFO - User settings:
+2022-08-02 13:51:26,149 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
+2022-08-02 13:51:26,152 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2022-08-02 13:51:26,211 - update - wflow - INFO - Reading model intbl files.
+2022-08-02 13:51:26,212 - update - wflow - INFO - Reading model staticgeom files.
+2022-08-02 13:51:26,299 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2022-08-02 13:51:26,308 - update - wflow - INFO - Model read
+2022-08-02 13:51:26,338 - update - model_api - ERROR - missing required argument cfdict for setup_config
+2022-08-02 13:51:26,338 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2022-08-02 13:51:26,338 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2022-08-02 13:51:26,338 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2022-08-02 13:51:26,342 - update - data_catalog - INFO - Adding sample data v0.0.6 from artifacts
+2022-08-02 13:51:26,485 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/chirps_global.nc
+No numerical nodata value found, skipping set_nodata
+2022-08-02 13:51:26,561 - update - model_api - WARNING - Replacing forcing: precip
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2022-08-02 13:51:26,561 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2022-08-02 13:51:26,565 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5.nc
+No numerical nodata value found, skipping set_nodata
+2022-08-02 13:51:26,631 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5_orography.nc
+No numerical nodata value found, skipping set_nodata
+No numerical nodata value found, skipping set_nodata
+2022-08-02 13:51:26,912 - update - model_api - WARNING - Replacing forcing: pet
+2022-08-02 13:51:26,914 - update - model_api - WARNING - Replacing forcing: temp
+2022-08-02 13:51:26,915 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-08-02 13:51:26,918 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2022-08-02 13:51:27,044 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2022-08-02 13:51:27,480 - update - wflow - INFO - Writing model staticgeom to file.
+2022-08-02 13:51:27,648 - update - wflow - INFO - Write forcing file
+2022-08-02 13:51:27,665 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
+[########################################] | 100% Completed | 102.02 ms
 
 </pre></div></div>
 </div>
@@ -801,7 +834,7 @@ Options:
 </ul>
 </section>
 <section id="Model-comparison">
-<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">#</a></h2>
+<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this heading">#</a></h2>
 <p>From the information above, you can see that the different forcing variables where updated. Compared to the original model, the temperature and potential evapotranspiration still come from the ERA5 data source but now the precipitation are using CHIRPS data.</p>
 <p>Using the script from the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_examples/plot_wflow_forcing.html">plot example</a>, we can compare the two precipitation datasets together (here <em>basin average</em> values).</p>
 <div class="nbinput nblast docutils container">
@@ -878,51 +911,55 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
 </section>
 
 
-              </div>
+              </article>
               
-              
-              <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="update_model_landuse.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Update a Wflow model: landuse</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="update_model_gauges.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Update a Wflow model: gauging stations</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
-</div>
-              
-          </main>
-          
 
+              
+              <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="update_model_landuse.html" title="previous page">
+      <i class="fas fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Update a Wflow model: landuse</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="update_model_gauges.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Update a Wflow model: gauging stations</p>
+  </div>
+  <i class="fas fa-angle-right"></i>
+  </a>
+</div>
+              </footer>
+              
+          </div>
+          
       </div>
     </div>
+
+  
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
     &copy; Copyright Deltares.<br>
 </p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
   </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+  </div>
+  
+</div>
 </footer>
   </body>
 </html>
