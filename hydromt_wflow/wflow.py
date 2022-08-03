@@ -904,7 +904,7 @@ class WflowModel(Model):
             da_area = self.staticmaps.raster.rasterize(
                 gdf=gdf_org,
                 col_name=col2raster,
-                nodata=0,
+                nodata=-999,
                 all_touched=True,
             )
         self.set_staticmaps(da_area.rename(area_fn))
