@@ -1420,6 +1420,18 @@ class WflowModel(Model):
             time_tuple=(starttime, endtime),
             variables=["precip"],
         )
+        # Check if all dates between (starttime, endtime) are in precip
+        times = precip.time.values
+        if (pd.to_datetime(starttime) != pd.to_datetime(times[0])) or (
+            pd.to_datetime(endtime) != pd.to_datetime(times[-1])
+        ):
+            start = pd.to_datetime(times[0]).to_pydatetime()
+            end = pd.to_datetime(times[-1]).to_pydatetime()
+            self.logger.warning(
+                f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
+            )
+            self.set_config("starttime", start)
+            self.set_config("endtime", end)
 
         if chunksize is not None:
             precip = precip.chunk({"time": chunksize})
@@ -1520,6 +1532,18 @@ class WflowModel(Model):
             variables=variables,
             single_var_as_array=False,  # always return dataset
         )
+        # Check if all dates between (starttime, endtime) are in ds
+        times = ds.time.values
+        if (pd.to_datetime(starttime) != pd.to_datetime(times[0])) or (
+            pd.to_datetime(endtime) != pd.to_datetime(times[-1])
+        ):
+            start = pd.to_datetime(times[0]).to_pydatetime
+            end = pd.to_datetime(times[-1]).to_pydatetime()
+            self.logger.warning(
+                f"Not all dates found in temp_pet_fn changing starttime to {start} and endtime to {end} in the toml."
+            )
+            self.set_config("starttime", start)
+            self.set_config("endtime", end)
 
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
