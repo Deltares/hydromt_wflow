@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-----------
+v0.2.0 (5 August 2022)
+----------------------
+We now use rioxarray to read raster data. We recommend reinstalling your hydromt and hydromt_wflow environment including the rioxarray package.
+This enables the writting of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
+Following an update in xarray, hydromt version should be >= 0.5.0.
 
 Fixed
 ^^^^^
