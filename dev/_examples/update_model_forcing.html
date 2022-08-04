@@ -740,10 +740,10 @@ Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
   --------------
 
   Update (overwrite!) landuse-landcover based maps in a Wflow model
-  hydromt update wflow /path/to/model_root -c setup_lulcmaps --opt lulc_fn=vito -d /path/to/data_catalog.yaml -v
+  hydromt update wflow /path/to/model_root -c setup_lulcmaps --opt lulc_fn=vito -d /path/to/data_catalog.yml -v
 
   Update Wflow model components outlined in an .ini configuration file and write the model to a directory
-  hydromt update wflow /path/to/model_root -o /path/to/model_out -i /path/to/wflow_config.ini -d /path/to/data_catalog.yaml -v
+  hydromt update wflow /path/to/model_root -o /path/to/model_out -i /path/to/wflow_config.ini -d /path/to/data_catalog.yml -v
 
 Options:
   -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
@@ -754,11 +754,9 @@ Options:
                              information about the arguments.
   -i, --config PATH          Path to hydroMT configuration file, for the model
                              specific implementation.
-  -d, --data PATH            File path to yml data sources file. See
-                             documentation for required yml file format.
-  --dd, --deltares-data      Parse default deltares data yml from
-                             https://github.com/DirkEilander/hydromt-
-                             artifacts/releases
+  -d, --data TEXT            Path to local yaml data catalog file OR name of
+                             predefined data catalog.
+  --dd, --deltares-data      Shortcut to add the &#34;deltares_data&#34; catalog
   -q, --quiet                Decrease verbosity.
   -v, --verbose              Increase verbosity.
   --help                     Show this message and exit.
@@ -782,45 +780,42 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-08-02 13:57:08,076 - update - log - INFO - HydroMT version: 0.4.6.dev
-2022-08-02 13:57:08,076 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-08-02 13:57:08,076 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-08-02 13:57:08,076 - update - main - INFO - User settings:
-2022-08-02 13:57:08,084 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
-2022-08-02 13:57:08,087 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-08-02 13:57:08,156 - update - wflow - INFO - Reading model intbl files.
-2022-08-02 13:57:08,157 - update - wflow - INFO - Reading model staticgeom files.
-2022-08-02 13:57:08,261 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-08-02 13:57:08,271 - update - wflow - INFO - Model read
-2022-08-02 13:57:08,304 - update - model_api - ERROR - missing required argument cfdict for setup_config
-2022-08-02 13:57:08,304 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2022-08-02 13:57:08,304 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2022-08-02 13:57:08,304 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2022-08-02 13:57:08,308 - update - data_catalog - INFO - Adding sample data v0.0.6 from artifacts
-2022-08-02 13:57:08,474 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/chirps_global.nc
-No numerical nodata value found, skipping set_nodata
-2022-08-02 13:57:08,560 - update - model_api - WARNING - Replacing forcing: precip
-2022-08-02 13:57:08,560 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2022-08-02 13:57:08,561 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2022-08-02 13:57:08,561 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2022-08-02 13:57:08,561 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2022-08-02 13:57:08,561 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2022-08-02 13:57:08,561 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2022-08-02 13:57:08,561 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2022-08-02 13:57:08,565 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5.nc
-No numerical nodata value found, skipping set_nodata
-2022-08-02 13:57:08,641 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/data/v0.0.6/era5_orography.nc
-No numerical nodata value found, skipping set_nodata
-No numerical nodata value found, skipping set_nodata
-2022-08-02 13:57:08,971 - update - model_api - WARNING - Replacing forcing: pet
-2022-08-02 13:57:08,973 - update - model_api - WARNING - Replacing forcing: temp
-2022-08-02 13:57:08,973 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-08-02 13:57:08,977 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2022-08-02 13:57:09,118 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2022-08-02 13:57:09,632 - update - wflow - INFO - Writing model staticgeom to file.
-2022-08-02 13:57:09,844 - update - wflow - INFO - Write forcing file
-2022-08-02 13:57:09,862 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
-[########################################] | 100% Completed | 103.33 ms
+2022-08-04 14:40:08,468 - update - log - INFO - HydroMT version: 0.5.1.dev
+2022-08-04 14:40:08,469 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2022-08-04 14:40:08,469 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-08-04 14:40:08,469 - update - main - INFO - User settings:
+2022-08-04 14:40:08,477 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
+2022-08-04 14:40:08,480 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2022-08-04 14:40:08,552 - update - wflow - INFO - Reading model intbl files.
+2022-08-04 14:40:08,552 - update - wflow - INFO - Reading model staticgeom files.
+2022-08-04 14:40:08,662 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2022-08-04 14:40:08,673 - update - wflow - INFO - Model read
+2022-08-04 14:40:08,708 - update - model_api - ERROR - missing required argument cfdict for setup_config
+2022-08-04 14:40:08,709 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2022-08-04 14:40:08,709 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2022-08-04 14:40:08,709 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2022-08-04 14:40:08,756 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
+2022-08-04 14:40:08,757 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
+2022-08-04 14:40:08,930 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/chirps_global.nc
+2022-08-04 14:40:09,022 - update - model_api - WARNING - Replacing forcing: precip
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2022-08-04 14:40:09,027 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5.nc
+2022-08-04 14:40:09,106 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5_orography.nc
+2022-08-04 14:40:09,447 - update - model_api - WARNING - Replacing forcing: pet
+2022-08-04 14:40:09,449 - update - model_api - WARNING - Replacing forcing: temp
+2022-08-04 14:40:09,449 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-08-04 14:40:09,455 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2022-08-04 14:40:09,598 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2022-08-04 14:40:10,117 - update - wflow - INFO - Writing model staticgeom to file.
+2022-08-04 14:40:10,334 - update - wflow - INFO - Write forcing file
+2022-08-04 14:40:10,353 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
+[########################################] | 100% Completed | 103.30 ms
 
 </pre></div></div>
 </div>

@@ -977,7 +977,7 @@
 <td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap" title="hydromt_wflow.WflowModel.setup_areamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_areamap</span></code></a>(area_fn, col2raster)</p></td>
-<td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
+<td><p>Setup area map from vector data to save wflow outputs for specific area. Adds model layer: * <strong>area_fn</strong> map:  output area data map :param area_fn: Name of vector data corresponding to wflow output area. :type area_fn: str :param col2raster: Name of the column from the vector file to rasterize. :type col2raster: str :param nodata: Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1. :type nodata: int/float, optional.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_precip_forcing</span></code></a>([precip_fn, ...])</p></td>
 <td><p>Setup gridded precipitation forcing at model resolution.</p></td>
@@ -1192,7 +1192,7 @@
 <td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.setup_areamap</span></code></a>(area_fn, ...)</p></td>
-<td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
+<td><p>Setup area map from vector data to save wflow outputs for specific area. Adds model layer: * <strong>area_fn</strong> map:  output area data map :param area_fn: Name of vector data corresponding to wflow output area. :type area_fn: str :param col2raster: Name of the column from the vector file to rasterize. :type col2raster: str :param nodata: Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1. :type nodata: int/float, optional.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.setup_constant_pars.html#hydromt_wflow.WflowSedimentModel.setup_constant_pars" title="hydromt_wflow.WflowSedimentModel.setup_constant_pars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.setup_constant_pars</span></code></a>([...])</p></td>
 <td><p>Setup constant parameter maps for all active model cells.</p></td>

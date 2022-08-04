@@ -179,7 +179,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">isdir</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -1052,6 +1052,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">area_fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">col2raster</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup area map from vector data to save wflow outputs for specific area.</span>
 <span class="sd">        Adds model layer:</span>
@@ -1062,6 +1063,9 @@
 <span class="sd">            Name of vector data corresponding to wflow output area.</span>
 <span class="sd">        col2raster : str</span>
 <span class="sd">            Name of the column from the vector file to rasterize.</span>
+<span class="sd">        nodata : int/float, optional</span>
+<span class="sd">            Nodata value to use when rasterizing. Should match the dtype of col2raster.</span>
+<span class="sd">            By default -1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">area_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_areamap.&quot;</span><span class="p">)</span>
@@ -1080,7 +1084,7 @@
             <span class="n">da_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
                 <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span>
                 <span class="n">col_name</span><span class="o">=</span><span class="n">col2raster</span><span class="p">,</span>
-                <span class="n">nodata</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
                 <span class="n">all_touched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">area_fn</span><span class="p">))</span></div>

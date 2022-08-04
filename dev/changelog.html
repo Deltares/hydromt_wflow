@@ -223,6 +223,11 @@
      Changed
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#added">
+     Added
+    </a>
+   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -236,12 +241,12 @@
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#added">
+    <a class="reference internal nav-link" href="#id2">
      Added
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id2">
+    <a class="reference internal nav-link" href="#id3">
      Fixed
     </a>
    </li>
@@ -253,17 +258,17 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id3">
+    <a class="reference internal nav-link" href="#id4">
      Added
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id4">
+    <a class="reference internal nav-link" href="#id5">
      Changed
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id5">
+    <a class="reference internal nav-link" href="#id6">
      Fixed
     </a>
    </li>
@@ -275,17 +280,17 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id6">
+    <a class="reference internal nav-link" href="#id7">
      Added
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id7">
+    <a class="reference internal nav-link" href="#id8">
      Changed
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id8">
+    <a class="reference internal nav-link" href="#id9">
      Fixed
     </a>
    </li>
@@ -302,22 +307,22 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id9">
+    <a class="reference internal nav-link" href="#id10">
      Added
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id10">
+    <a class="reference internal nav-link" href="#id11">
      Changed
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id11">
+    <a class="reference internal nav-link" href="#id12">
      Fixed
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id12">
+    <a class="reference internal nav-link" href="#id13">
      Documentation
     </a>
    </li>
@@ -334,27 +339,27 @@
   </a>
   <ul class="nav section-nav flex-column">
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id13">
+    <a class="reference internal nav-link" href="#id14">
      Added
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id14">
+    <a class="reference internal nav-link" href="#id15">
      Changed
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id15">
+    <a class="reference internal nav-link" href="#id16">
      Fixed
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id16">
+    <a class="reference internal nav-link" href="#id17">
      Documentation
     </a>
    </li>
    <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#id17">
+    <a class="reference internal nav-link" href="#id18">
      Tests
     </a>
    </li>
@@ -407,6 +412,12 @@
 <li><p>in <strong>setup_reservoirs</strong> and <strong>setup_lakes</strong> the predicate ‘contains’ to open data is now officially used after a bugfix in hydromt core (cf #150).</p></li>
 </ul>
 </section>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>nodata argument to <strong>setup_areamap</strong> with a default of -1 (was 0 and not user defined).</p></li>
+</ul>
+</section>
 </section>
 <section id="v0-1-4-18-february-2022">
 <h2>v0.1.4 (18 February 2022)<a class="headerlink" href="#v0-1-4-18-february-2022" title="Permalink to this heading">#</a></h2>
@@ -419,8 +430,8 @@
 <li><p>Possibility to use any dataset and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers. See the documentation for data requirements.</p></li>
 </ul>
 </section>
-<section id="added">
-<h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
+<section id="id2">
+<h3>Added<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Possibility to write_forcing in several files based on time frequency (fn_freq argument).</p></li>
 <li><p>setup_hydrodem method for hydrological conditioned elevation used with “local-inertial” routing</p></li>
@@ -431,8 +442,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>new <code class="docutils literal notranslate"><span class="pre">index_col</span></code> attribute to setup_gauges to choose a specific column of gauges_fn as ID for Wflow_gauges</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Fixed<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<section id="id3">
+<h3>Fixed<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Calculation of lake_b parameter in setup_lakes.</p></li>
 <li><p>Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.</p></li>
@@ -447,8 +458,8 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-3-4-october-2021">
 <h2>v0.1.3 (4 October 2021)<a class="headerlink" href="#v0-1-3-4-october-2021" title="Permalink to this heading">#</a></h2>
 <p>This release adds pyflwdir v0.5 compatibility and a data_catalog of the used data to the write_method.</p>
-<section id="id3">
-<h3>Added<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<section id="id4">
+<h3>Added<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>write data_catalog with the used data when writing model</p></li>
@@ -456,14 +467,14 @@ Note that the new river width estimates are different and result in different mo
 </ul>
 </div></blockquote>
 </section>
-<section id="id4">
-<h3>Changed<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<section id="id5">
+<h3>Changed<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>TOML files only contains reservoir/lake/glacier lines when they are setup and present in the model region.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Fixed<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<section id="id6">
+<h3>Fixed<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope</p></li>
@@ -477,8 +488,8 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-2-1-september-2021">
 <h2>v0.1.2 (1 September 2021)<a class="headerlink" href="#v0-1-2-1-september-2021" title="Permalink to this heading">#</a></h2>
 <p>This release implements the new results attributes for Wflow.</p>
-<section id="id6">
-<h3>Added<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add results attributes for Wflow and read_results method (including test+example).</p></li>
 <li><p>Add <cite>f_</cite> parameter in soilgrids</p></li>
@@ -488,8 +499,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>New utils.py script for low_level Wflow methods.</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Changed<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>wfow_sbm.toml remove netcdf output.</p></li>
 <li><p>Wflow_soil map is now based on soil texture calculated directly from soilgrids data</p></li>
@@ -497,8 +508,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>Wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3>Fixed<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<section id="id9">
+<h3>Fixed<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix f parameter in soilgrids</p></li>
 <li><p>Full reading and writing of Wflow filepaths depending on the toml file (including subfolders).</p></li>
@@ -516,22 +527,22 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-1-21-may-2021">
 <h2>v0.1.1 (21 May 2021)<a class="headerlink" href="#v0-1-1-21-may-2021" title="Permalink to this heading">#</a></h2>
 <p>This release adds more functionnality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.</p>
-<section id="id9">
-<h3>Added<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<section id="id10">
+<h3>Added<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Write the forcing with user defined chunking on time (default is 1) and none on the lat/lon dimensions (makes Wflow.jl run much faster).</p></li>
 <li><p>Rounding of the forcing data with user defined number of decimals (by default 2).</p></li>
 <li><p>Progress bar when writing the forcing file.</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Changed<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<section id="id11">
+<h3>Changed<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Remove unused imports.</p></li>
 </ul>
 </section>
-<section id="id11">
-<h3>Fixed<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<section id="id12">
+<h3>Fixed<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed a mistake in the computation of the lake_b parameter for Wflow.</p></li>
 <li><p>Missing no data values for soilgrids workflows.</p></li>
@@ -539,8 +550,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>New behavior of apply_ufunc from an update of xarray for passing attributes (need to specify keep_attrs=True).</p></li>
 </ul>
 </section>
-<section id="id12">
-<h3>Documentation<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<section id="id13">
+<h3>Documentation<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added changelog.</p></li>
 </ul>
@@ -555,29 +566,29 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-0-28-april-2021">
 <h2>v0.1.0 (28 April 2021)<a class="headerlink" href="#v0-1-0-28-april-2021" title="Permalink to this heading">#</a></h2>
 <p>Initial open source release of HydroMT Wflow plugin, also published on pypi. Noticeable changes are listed below.</p>
-<section id="id13">
-<h3>Added<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
+<section id="id14">
+<h3>Added<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Minimum HydroMT plugin template in the <strong>plugin-boilerplate</strong> branch.</p></li>
 <li><p>Default filename for the forcing file created by HydroMT (when the one in config already exists).</p></li>
 </ul>
 </section>
-<section id="id14">
-<h3>Changed<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<section id="id15">
+<h3>Changed<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Implement new get_basin_geometry from HydroMT core.</p></li>
 <li><p>Consistent setup functions arguments for data sources (‘_fn’).</p></li>
 <li><p>Rename <strong>hydrom_merit</strong> source to <strong>merit_hydro</strong> (updated version of data-artifacts).</p></li>
 </ul>
 </section>
-<section id="id15">
-<h3>Fixed<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<section id="id16">
+<h3>Fixed<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Bugs using the clip functions</p></li>
 </ul>
 </section>
-<section id="id16">
-<h3>Documentation<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<section id="id17">
+<h3>Documentation<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Initial version of the documentation on github-pages.</p></li>
 <li><p><strong>Latest</strong> and <strong>stable</strong> version of the documentation.</p></li>
@@ -585,8 +596,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>Add examples notebooks for the documentation.</p></li>
 </ul>
 </section>
-<section id="id17">
-<h3>Tests<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
+<section id="id18">
+<h3>Tests<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Initial tests for Wflow and Wflow_sediment.</p></li>
 </ul>
