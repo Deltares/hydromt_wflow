@@ -25,6 +25,10 @@ Changed
 - in **setup_glaciers** predicate to intersects glacier data with model region is 'intersects' (the old 'contains' was not used anyway due to a bug in core).
 - in **setup_reservoirs** and **setup_lakes** the predicate 'contains' to open data is now officially used after a bugfix in hydromt core (cf #150).
 
+Added
+^^^^^
+- nodata argument to **setup_areamap** with a default of -1 (was 0 and not user defined).
+
 v0.1.4 (18 February 2022)
 -------------------------
 

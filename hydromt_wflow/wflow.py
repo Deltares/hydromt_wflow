@@ -3,7 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
-from typing import Optional
+from typing import Union, Optional
 import glob
 import numpy as np
 import pandas as pd
@@ -876,6 +876,7 @@ class WflowModel(Model):
         self,
         area_fn: str,
         col2raster: str,
+        nodata: Union[int, float] = -1,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
@@ -886,6 +887,9 @@ class WflowModel(Model):
             Name of vector data corresponding to wflow output area.
         col2raster : str
             Name of the column from the vector file to rasterize.
+        nodata : int/float, optional
+            Nodata value to use when rasterizing. Should match the dtype of col2raster.
+            By default -1.
         """
         if area_fn not in self.data_catalog:
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
@@ -904,7 +908,7 @@ class WflowModel(Model):
             da_area = self.staticmaps.raster.rasterize(
                 gdf=gdf_org,
                 col_name=col2raster,
-                nodata=-999,
+                nodata=nodata,
                 all_touched=True,
             )
         self.set_staticmaps(da_area.rename(area_fn))
