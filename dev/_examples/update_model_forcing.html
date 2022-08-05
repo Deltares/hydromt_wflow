@@ -8,7 +8,7 @@
 
     <title>Update a Wflow model: forcing &#8212; HydroMT Wflow  documentation</title>
 <script>
-  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
   document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
 </script>
 
@@ -49,7 +49,7 @@
   </head>
   
   
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="light">
     <div class="bd-header-announcement container-fluid" id="banner">
       
 
@@ -69,8 +69,11 @@
   
   
   
+    <img src="../_static/hydromt-logo.jpg" class="logo__image only-light" alt="Logo image">
+    <img src="../_static/hydromt-logo.jpg" class="logo__image only-dark" alt="Logo image">
   
-    <p class="title logo__title">HydroMT Wflow  documentation</p>
+  
+    <p class="title logo__title">HydroMT Wflow</p>
   
 </a>
     
@@ -123,17 +126,15 @@
     <div id="navbar-end">
       
       <div class="navbar-end-item">
-        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
-    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
-    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
-    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
-</span>
-      </div>
-      
-      <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-white.svg" class="icon-link-image" alt="Deltares"/></a>
+          <a class="nav-link" href="https://github.com/Deltares/hydromt_wflow" rel="noopener" target="_blank" title="GitHub"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://deltares.github.io/Wflow.jl/dev/" rel="noopener" target="_blank" title="Wflow"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://www.deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
       </ul>
       </div>
@@ -371,6 +372,13 @@
     
     <div class="toc-item">
       
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/update_model_forcing.ipynb">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
     </div>
     
   
@@ -780,43 +788,44 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-08-04 14:40:08,468 - update - log - INFO - HydroMT version: 0.5.1.dev
-2022-08-04 14:40:08,469 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-08-04 14:40:08,469 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-08-04 14:40:08,469 - update - main - INFO - User settings:
-2022-08-04 14:40:08,477 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
-2022-08-04 14:40:08,480 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-08-04 14:40:08,552 - update - wflow - INFO - Reading model intbl files.
-2022-08-04 14:40:08,552 - update - wflow - INFO - Reading model staticgeom files.
-2022-08-04 14:40:08,662 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-08-04 14:40:08,673 - update - wflow - INFO - Model read
-2022-08-04 14:40:08,708 - update - model_api - ERROR - missing required argument cfdict for setup_config
-2022-08-04 14:40:08,709 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2022-08-04 14:40:08,709 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2022-08-04 14:40:08,709 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2022-08-04 14:40:08,756 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
-2022-08-04 14:40:08,757 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
-2022-08-04 14:40:08,930 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/chirps_global.nc
-2022-08-04 14:40:09,022 - update - model_api - WARNING - Replacing forcing: precip
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2022-08-04 14:40:09,022 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2022-08-04 14:40:09,027 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5.nc
-2022-08-04 14:40:09,106 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5_orography.nc
-2022-08-04 14:40:09,447 - update - model_api - WARNING - Replacing forcing: pet
-2022-08-04 14:40:09,449 - update - model_api - WARNING - Replacing forcing: temp
-2022-08-04 14:40:09,449 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-08-04 14:40:09,455 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2022-08-04 14:40:09,598 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2022-08-04 14:40:10,117 - update - wflow - INFO - Writing model staticgeom to file.
-2022-08-04 14:40:10,334 - update - wflow - INFO - Write forcing file
-2022-08-04 14:40:10,353 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
-[########################################] | 100% Completed | 103.30 ms
-
+2022-08-05 11:27:41,004 - update - log - INFO - HydroMT version: 0.5.1.dev
+2022-08-05 11:27:41,004 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2022-08-05 11:27:41,004 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-08-05 11:27:41,004 - update - main - INFO - User settings:
+2022-08-05 11:27:41,012 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.1.5.dev0).
+2022-08-05 11:27:41,015 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2022-08-05 11:27:41,084 - update - wflow - INFO - Reading model intbl files.
+2022-08-05 11:27:41,085 - update - wflow - INFO - Reading model staticgeom files.
+2022-08-05 11:27:41,194 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2022-08-05 11:27:41,204 - update - wflow - INFO - Model read
+2022-08-05 11:27:41,239 - update - model_api - ERROR - missing required argument cfdict for setup_config
+2022-08-05 11:27:41,239 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2022-08-05 11:27:41,239 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2022-08-05 11:27:41,239 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2022-08-05 11:27:41,288 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
+2022-08-05 11:27:41,288 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
+2022-08-05 11:27:41,466 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/chirps_global.nc
+2022-08-05 11:27:41,555 - update - model_api - WARNING - Replacing forcing: precip
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2022-08-05 11:27:41,555 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2022-08-05 11:27:41,560 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5.nc
+2022-08-05 11:27:41,636 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5_orography.nc
+2022-08-05 11:27:41,961 - update - model_api - WARNING - Replacing forcing: pet
+2022-08-05 11:27:41,963 - update - model_api - WARNING - Replacing forcing: temp
+2022-08-05 11:27:41,963 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2022-08-05 11:27:41,968 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2022-08-05 11:27:42,107 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2022-08-05 11:27:42,613 - update - wflow - INFO - Writing model staticgeom to file.
+2022-08-05 11:27:42,827 - update - wflow - INFO - Write forcing file
+2022-08-05 11:27:42,846 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps-2010.nc
+[########################################] | 100% Completed | 102.58 ms
+corrupted double-linked list
+Aborted (core dumped)
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
