@@ -52,9 +52,6 @@ if os.path.isdir("_examples"):
 os.makedirs("_examples")
 copy_tree("../examples", "_examples")
 
-# TODO remove when notbook error regarding xarray is fixed
-nbsphinx_allow_errors = True
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -139,6 +136,12 @@ html_theme_options = {
             "type": "url",
         },
         {
+            "name": "Wflow",
+            "url": "https://deltares.github.io/Wflow.jl/dev/",
+            "icon": "_static/wflow_logo.png",
+            "type": "local",
+        },
+        {
             "name": "Deltares",
             "url": "https://www.deltares.nl/en/",
             "icon": "_static/deltares-blue.svg",
@@ -158,7 +161,6 @@ html_theme_options = {
 }
 
 html_context = {
-    "github_url": "https://github.com",  # or your GitHub Enterprise interprise
     "github_url": "https://github.com",  # or your GitHub Enterprise interprise
     "github_user": "Deltares",
     "github_repo": "hydromt_wflow",

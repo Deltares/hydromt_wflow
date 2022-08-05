@@ -888,8 +888,7 @@ class WflowModel(Model):
         col2raster : str
             Name of the column from the vector file to rasterize.
         nodata : int/float, optional
-            Nodata value to use when rasterizing. Should match the dtype of col2raster.
-            By default -1.
+            Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1.
         """
         if area_fn not in self.data_catalog:
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
