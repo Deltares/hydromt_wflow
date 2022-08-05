@@ -3,7 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
-from typing import Optional
+from typing import Union, Optional
 import glob
 import numpy as np
 import pandas as pd
@@ -869,13 +869,14 @@ class WflowModel(Model):
                     )[0]
                     mapname = self._MAPS["basins"] + "_" + basename
                     self.set_staticmaps(da_basins, name=mapname)
-                    gdf_basins = da_basins.raster.vectorize()
+                    gdf_basins = self.staticmaps[mapname].raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
         self,
         area_fn: str,
         col2raster: str,
+        nodata: Union[int, float] = -1,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
@@ -886,6 +887,9 @@ class WflowModel(Model):
             Name of vector data corresponding to wflow output area.
         col2raster : str
             Name of the column from the vector file to rasterize.
+        nodata : int/float, optional
+            Nodata value to use when rasterizing. Should match the dtype of col2raster.
+            By default -1.
         """
         if area_fn not in self.data_catalog:
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
@@ -904,7 +908,7 @@ class WflowModel(Model):
             da_area = self.staticmaps.raster.rasterize(
                 gdf=gdf_org,
                 col_name=col2raster,
-                nodata=0,
+                nodata=nodata,
                 all_touched=True,
             )
         self.set_staticmaps(da_area.rename(area_fn))
@@ -1316,7 +1320,7 @@ class WflowModel(Model):
         # retrieve data for basin
         self.logger.info(f"Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            glaciers_fn, geom=self.basins, predicate="contains"
+            glaciers_fn, geom=self.basins, predicate="intersects"
         )
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
@@ -1676,11 +1680,6 @@ class WflowModel(Model):
             self.logger.warning(f"No staticmaps found at {fn}")
             return
         self._staticmaps = open_mfraster(fns, **kwargs)
-        for name in self.staticmaps.raster.vars:
-            if PCR_VS_MAP.get(name, "scalar") == "bool":
-                self._staticmaps[name] = self._staticmaps[name] == 1
-                # a nodata value is required when writing
-                self._staticmaps[name].raster.set_nodata(0)
         path = join(self.root, "staticmaps", "clim", f"LAI*")
         if len(glob.glob(path)) > 0:
             da_lai = open_mfraster(

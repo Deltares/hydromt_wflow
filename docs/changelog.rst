@@ -12,6 +12,7 @@ Fixed
 ^^^^^
 - correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)
 - write **CF-compliant** staticmaps.nc and inmaps.nc
+- CRS issue when deriving subcatch for user defined gauges in setup_gauges
 
 Changed
 ^^^^^^^
@@ -19,7 +20,14 @@ Changed
 - uint8 dtype *wflow_rivers* and *wflow_streamorder* maps
 - except for coordinates (incl *x_out* and *y_out*) all variables are saved with at most 32 bit depth
 - new dtype and nodata arguments in **setup_constant_pars**
+- read boolean PCRaster maps with int type to be consistent with netcdf based maps
+- use latest hydromt github version for the test environment files.
+- in **setup_glaciers** predicate to intersects glacier data with model region is 'intersects' (the old 'contains' was not used anyway due to a bug in core).
+- in **setup_reservoirs** and **setup_lakes** the predicate 'contains' to open data is now officially used after a bugfix in hydromt core (cf #150).
 
+Added
+^^^^^
+- nodata argument to **setup_areamap** with a default of -1 (was 0 and not user defined).
 
 v0.1.4 (18 February 2022)
 -------------------------
