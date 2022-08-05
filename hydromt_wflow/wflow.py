@@ -1420,18 +1420,6 @@ class WflowModel(Model):
             time_tuple=(starttime, endtime),
             variables=["precip"],
         )
-        # Check if all dates between (starttime, endtime) are in precip
-        times = precip.time.values
-        if (pd.to_datetime(starttime) != pd.to_datetime(times[0])) or (
-            pd.to_datetime(endtime) != pd.to_datetime(times[-1])
-        ):
-            start = pd.to_datetime(times[0]).to_pydatetime()
-            end = pd.to_datetime(times[-1]).to_pydatetime()
-            self.logger.warning(
-                f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
-            )
-            self.set_config("starttime", start)
-            self.set_config("endtime", end)
 
         if chunksize is not None:
             precip = precip.chunk({"time": chunksize})
@@ -1532,19 +1520,6 @@ class WflowModel(Model):
             variables=variables,
             single_var_as_array=False,  # always return dataset
         )
-        # Check if all dates between (starttime, endtime) are in ds
-        times = ds.time.values
-        if (pd.to_datetime(starttime) != pd.to_datetime(times[0])) or (
-            pd.to_datetime(endtime) != pd.to_datetime(times[-1])
-        ):
-            start = pd.to_datetime(times[0]).to_pydatetime
-            end = pd.to_datetime(times[-1]).to_pydatetime()
-            self.logger.warning(
-                f"Not all dates found in temp_pet_fn changing starttime to {start} and endtime to {end} in the toml."
-            )
-            self.set_config("starttime", start)
-            self.set_config("endtime", end)
-
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
 
@@ -1883,24 +1858,39 @@ class WflowModel(Model):
                         self.write_config()  # re-write config
                         fn_out = fn_default_path
 
+            # Check if all dates between (starttime, endtime) are in all da forcing
+            start = pd.to_datetime(self.get_config("starttime"))
+            end = pd.to_datetime(self.get_config("endtime"))
+            missings = False
+            for da in self.forcing.values():
+                if "time" in da.coords:
+                    times = da.time.values
+                    if pd.to_datetime(start) < pd.to_datetime(times[0]):
+                        start = pd.to_datetime(times[0])
+                        missings = True
+                    if pd.to_datetime(end) > pd.to_datetime(times[-1]):
+                        end = pd.to_datetime(times[-1])
+                        missings = True
+                        start = pd.to_datetime(times[0]).to_pydatetime()
+                        end = pd.to_datetime(times[-1]).to_pydatetime()
+            # Send warning and update config with new start and end time
+            if missings:
+                self.logger.warning(
+                    f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
+                )
+                self.set_config("starttime", start.to_pydatetime())
+                self.set_config("endtime", end.to_pydatetime())
+                self.write_config()
+
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
+            ds.raster.set_crs(self.crs)
+            ds = ds.sel({"time": slice(start, end)})
             if decimals is not None:
                 ds = ds.round(decimals)
             # clean-up forcing and write CRS according to CF-conventions
-            # TODO replace later with hydromt.raster.gdal_compliant method after core release
-            crs = self.staticmaps.raster.crs
-            # TODO?!
-            # if ds.raster.res[1] < 0: # write data with South -> North orientation
-            #     ds = ds.raster.flipud()
-            x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
-            ds = ds.rename({ds.raster.x_dim: x_dim, ds.raster.y_dim: y_dim})
-            ds[x_dim].attrs.update(x_attrs)
-            ds[y_dim].attrs.update(y_attrs)
-            ds = ds.drop_vars(["mask", "spatial_ref", "idx_out"], errors="ignore")
-            ds.rio.write_crs(crs, inplace=True)
-            ds.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
-            ds.raster.set_spatial_dims()
+            ds = ds.raster.gdal_compliant(rename_dims=True, force_sn=False)
+            ds = ds.drop_vars(["mask", "idx_out"], errors="ignore")
 
             # write with output chunksizes with single timestep and complete
             # spatial grid to speed up the reading from wflow.jl

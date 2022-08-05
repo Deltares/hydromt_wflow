@@ -13,7 +13,7 @@ Fixed
 - correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)
 - write **CF-compliant** staticmaps.nc and inmaps.nc
 - CRS issue when deriving subcatch for user defined gauges in setup_gauges
-- update times in config depending on forcing date range availability in setup_*forcing methods #97
+- update times in config depending on forcing date range availability in **write_forcing** methods #97
 
 Changed
 ^^^^^^^
