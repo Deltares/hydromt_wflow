@@ -1865,15 +1865,16 @@ class WflowModel(Model):
             for da in self.forcing.values():
                 if "time" in da.coords:
                     times = da.time.values
-                    if pd.to_datetime(start) < pd.to_datetime(times[0]):
+                    if start < pd.to_datetime(times[0]):
                         start = pd.to_datetime(times[0])
                         missings = True
-                    if pd.to_datetime(end) > pd.to_datetime(times[-1]):
+                    if end > pd.to_datetime(times[-1]):
                         end = pd.to_datetime(times[-1])
                         missings = True
-                        start = pd.to_datetime(times[0]).to_pydatetime()
-                        end = pd.to_datetime(times[-1]).to_pydatetime()
-            # Send warning and update config with new start and end time
+            # merge, process and write forcing
+            ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
+            ds.raster.set_crs(self.crs)
+            # Send warning, slice ds and update config with new start and end time
             if missings:
                 self.logger.warning(
                     f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
@@ -1881,11 +1882,8 @@ class WflowModel(Model):
                 self.set_config("starttime", start.to_pydatetime())
                 self.set_config("endtime", end.to_pydatetime())
                 self.write_config()
+                ds = ds.sel({"time": slice(start, end)})
 
-            # merge, process and write forcing
-            ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
-            ds.raster.set_crs(self.crs)
-            ds = ds.sel({"time": slice(start, end)})
             if decimals is not None:
                 ds = ds.round(decimals)
             # clean-up forcing and write CRS according to CF-conventions
