@@ -23,9 +23,9 @@ import hydromt
 from hydromt.models.model_api import Model
 from hydromt import flw
 from hydromt.io import open_mfraster
+from hydromt.data_adapter import RasterDatasetSource, GeoDatasetSource, GeoDataframeSource
 
 from . import utils, workflows, DATADIR
-from hydromt import RasterDatasetSource, GeoDatasetSource, GeoDataframeSource
 
 
 
