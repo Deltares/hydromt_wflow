@@ -3,7 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
-from typing import Optional
+from typing import Optional, Union
 import glob
 import numpy as np
 import pandas as pd
@@ -25,12 +25,9 @@ from hydromt import flw
 from hydromt.io import open_mfraster
 
 from . import utils, workflows, DATADIR
-from typing import Union
-from pathlib import Path
+from hydromt import RasterDatasetSource, GeoDatasetSource, GeoDataframeSource
 
-RasterDatasetSource = Union[str, Path]
-GeoDatasetSource = Union[str, Path]
-GeoDataframeSource = Union[str, Path]
+
 
 
 __all__ = ["WflowModel"]
@@ -117,11 +114,11 @@ class WflowModel(Model):
     # COMPONENTS
     def setup_basemaps(
         self,
-        region,
-        res=1 / 120.0,
+        region: dict,
+        res: float =1 / 120.0,
         hydrography_fn: RasterDatasetSource ="merit_hydro",
         basin_index_fn: GeoDatasetSource ="merit_hydro_index",
-        upscale_method="ihu",
+        upscale_method: str ="ihu",
     ):
         """
         This component sets the ``region`` of interest and ``res`` (resolution in degrees) of the
@@ -244,15 +241,15 @@ class WflowModel(Model):
     def setup_rivers(
         self,
         hydrography_fn: RasterDatasetSource,
-        river_geom_fn: GeoDatasetSource =None,
-        river_upa=30,
-        rivdph_method="powlaw",
-        slope_len=2e3,
-        min_rivlen_ratio=0.1,
-        min_rivdph=1,
-        min_rivwth=30,
-        smooth_len=5e3,
-        rivman_mapping_fn=join(DATADIR, "wflow", "N_river_mapping.csv"),
+        river_geom_fn: GeoDataframeSource =None,
+        river_upa: float =30,
+        rivdph_method: str ="powlaw",
+        slope_len: float =2e3,
+        min_rivlen_ratio: float =0.1,
+        min_rivdph: float =1,
+        min_rivwth: float =30,
+        smooth_len: float =5e3,
+        rivman_mapping_fn: str =join(DATADIR, "wflow", "N_river_mapping.csv"), 
         **kwargs,
     ):
         """
@@ -395,9 +392,9 @@ class WflowModel(Model):
 
     def setup_hydrodem(
         self,
-        elevtn_map="wflow_dem",
-        river_routing="local-inertial",
-        land_routing="kinematic-wave",
+        elevtn_map: str ="wflow_dem",
+        river_routing: str ="local-inertial",
+        land_routing: str ="kinematic-wave",
     ):
         """This component adds a hydrologically conditioned elevation (hydrodem) map for
         river and/or land local-inertial routing.
@@ -486,10 +483,10 @@ class WflowModel(Model):
 
     def setup_riverwidth(
         self,
-        predictor="discharge",
-        fill=False,
-        fit=False,
-        min_wth=1.0,
+        predictor: str ="discharge",
+        fill: bool =False,
+        fit: bool =False,
+        min_wth: float =1.0,
         precip_fn: RasterDatasetSource ="chelsa",
         climate_fn: RasterDatasetSource ="koppen_geiger",
         **kwargs,
@@ -577,9 +574,9 @@ class WflowModel(Model):
 
     def setup_lulcmaps(
         self,
-        lulc_fn="globcover",
-        lulc_mapping_fn=None,
-        lulc_vars=[
+        lulc_fn: str ="globcover",
+        lulc_mapping_fn: str =None,
+        lulc_vars: list =[
             "landuse",
             "Kext",
             "N",
@@ -681,17 +678,17 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        gauges_fn: GeoDatasetSource ="grdc",
+        gauges_fn: GeoDataframeSource ="grdc",
         source_gdf: GeoDataframeSource =None,
-        index_col=None,
-        snap_to_river=True,
-        mask=None,
-        derive_subcatch=False,
-        derive_outlet=True,
-        basename=None,
-        update_toml=True,
-        gauge_toml_header=None,
-        gauge_toml_param=None,
+        index_col: str =None,
+        snap_to_river: bool =True,
+        mask: np.bool_ =None,
+        derive_subcatch: bool =False,
+        derive_outlet: bool =True,
+        basename: str =None,
+        update_toml: bool =True,
+        gauge_toml_header: list =None,
+        gauge_toml_param: list =None,
         **kwargs,
     ):
         """This components sets the default gauge map based on basin outlets and additional
@@ -880,7 +877,7 @@ class WflowModel(Model):
 
     def setup_areamap(
         self,
-        area_fn: GeoDatasetSource,
+        area_fn: GeoDataframeSource,
         col2raster: str,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
@@ -915,7 +912,7 @@ class WflowModel(Model):
             )
         self.set_staticmaps(da_area.rename(area_fn))
 
-    def setup_lakes(self, lakes_fn: GeoDatasetSource ="hydro_lakes", min_area=10.0):
+    def setup_lakes(self, lakes_fn: GeoDatasetSource ="hydro_lakes", min_area: float =10.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
 
@@ -1023,8 +1020,8 @@ class WflowModel(Model):
     def setup_reservoirs(
         self,
         reservoirs_fn: GeoDatasetSource ="hydro_reservoirs",
-        min_area=1.0,
-        priority_jrc=True,
+        min_area: float=1.0,
+        priority_jrc: bool =True,
         **kwargs,
     ):
         """This component generates maps of reservoir areas and outlets as well as parameters
@@ -1167,7 +1164,7 @@ class WflowModel(Model):
             for option in res_toml:
                 self.set_config(option, res_toml[option])
 
-    def _setup_waterbodies(self, waterbodies_fn: GeoDatasetSource, wb_type, min_area=0.0):
+    def _setup_waterbodies(self, waterbodies_fn: GeoDataframeSource, wb_type: str, min_area: float =0.0):
         """Helper method with the common workflow of setup_lakes and setup_reservoir.
         See specific methods for more info about the arguments."""
         # retrieve data for basin
@@ -1220,7 +1217,7 @@ class WflowModel(Model):
         # rasterize points polygons in raster.rasterize -- you need staticmaps to nkow the grid
         return gdf_org, ds_waterbody
 
-    def setup_soilmaps(self, soil_fn: RasterDatasetSource ="soilgrids", ptf_ksatver="brakensiek"):
+    def setup_soilmaps(self, soil_fn: RasterDatasetSource ="soilgrids", ptf_ksatver: str ="brakensiek"):
         """
         This component derives several (layered) soil parameters based on a database with
         physical soil properties using available point-scale (pedo)transfer functions (PTFs)
@@ -1279,7 +1276,7 @@ class WflowModel(Model):
         ).reset_coords(drop=True)
         self.set_staticmaps(dsout)
 
-    def setup_glaciers(self, glaciers_fn: GeoDatasetSource ="rgi", min_area=1):
+    def setup_glaciers(self, glaciers_fn: GeoDataframeSource ="rgi", min_area: float =1):
         """
         This component generates maps of glacier areas, area fraction and volume fraction,
         as well as tables with temperature threshold, melting factor and snow-to-ice
@@ -1356,7 +1353,7 @@ class WflowModel(Model):
                 f"Skipping glacier procedures!"
             )
 
-    def setup_constant_pars(self, dtype="float32", nodata=-999, **kwargs):
+    def setup_constant_pars(self, dtype: str ="float32", nodata: float =-999, **kwargs):
         """Setup constant parameter maps for all active model cells.
 
         Adds model layer:
@@ -1387,7 +1384,7 @@ class WflowModel(Model):
         self,
         precip_fn: RasterDatasetSource = "era5",
         precip_clim_fn: RasterDatasetSource = None,
-        chunksize: Optional[int] = None,
+        chunksize: int = None,
         **kwargs,
     ) -> None:
         """Setup gridded precipitation forcing at model resolution.
@@ -1463,7 +1460,7 @@ class WflowModel(Model):
         temp_correction: bool = True,
         dem_forcing_fn: RasterDatasetSource = "era5_orography",
         skip_pet: str = False,
-        chunksize: Optional[int] = None,
+        chunksize: int = None,
         **kwargs,
     ) -> None:
         """Setup gridded reference evapotranspiration forcing at model resolution.
@@ -1672,7 +1669,7 @@ class WflowModel(Model):
         ds_out.to_netcdf(fn)
         # self.write_staticmaps_pcr()
 
-    def read_staticmaps_pcr(self, crs=4326, **kwargs):
+    def read_staticmaps_pcr(self, crs: int =4326, **kwargs):
         """Read and staticmaps at <root/staticmaps> and parse to xarray"""
         if self._read and "chunks" not in kwargs:
             kwargs.update(chunks={"y": -1, "x": -1})
@@ -1781,11 +1778,11 @@ class WflowModel(Model):
 
     def write_forcing(
         self,
-        fn_out: RasterDatasetSource =None,
-        freq_out=None,
-        chunksize=1,
-        decimals=2,
-        time_units="days since 1900-01-01T00:00:00",
+        fn_out: str =None,
+        freq_out: str =None,
+        chunksize: int =1,
+        decimals: int =2,
+        time_units: str ="days since 1900-01-01T00:00:00",
         **kwargs,
     ):
         """write forcing at `fn_out` in model ready format.
@@ -2022,7 +2019,7 @@ class WflowModel(Model):
                 fn_out = join(self.root, "intbl", f"{name}.tbl")
                 self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
 
-    def set_intbl(self, df, name):
+    def set_intbl(self, df: pd.DataFrame, name: str):
         """Add intbl <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
             raise ValueError("df type not recognized, should be pandas.DataFrame.")
@@ -2033,12 +2030,12 @@ class WflowModel(Model):
                 self.logger.warning(f"Overwriting intbl: {name}")
         self._intbl[name] = df
 
-    def _configread(self, fn):
+    def _configread(self, fn: str):
         with codecs.open(fn, "r", encoding="utf-8") as f:
             fdict = toml.load(f)
         return fdict
 
-    def _configwrite(self, fn):
+    def _configwrite(self, fn: str):
         with codecs.open(fn, "w", encoding="utf-8") as f:
             toml.dump(self.config, f)
 
@@ -2058,7 +2055,7 @@ class WflowModel(Model):
             self.set_flwdir()
         return self._flwdir
 
-    def set_flwdir(self, ftype="infer"):
+    def set_flwdir(self, ftype: str ="infer"):
         """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd"""
         flwdir_name = flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
@@ -2104,10 +2101,10 @@ class WflowModel(Model):
 
     def clip_staticmaps(
         self,
-        region,
-        buffer=0,
-        align=None,
-        crs=4326,
+        region: dict,
+        buffer: int =0,
+        align: float =None,
+        crs: int =4326,
     ):
         """Clip staticmaps to subbasin.
 
@@ -2231,7 +2228,7 @@ class WflowModel(Model):
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
 
-    def clip_forcing(self, crs=4326, **kwargs):
+    def clip_forcing(self, crs: int =4326, **kwargs):
         """Return clippped forcing for subbasin.
 
         Returns
