@@ -243,8 +243,6 @@ class WflowModel(Model):
         rivdph_method="powlaw",
         slope_len=2e3,
         min_rivlen_ratio=0.1,
-        min_rivlen=None,
-        smooth_cells=3,
         min_rivdph=1,
         min_rivwth=30,
         smooth_len=5e3,
@@ -258,12 +256,9 @@ class WflowModel(Model):
         `river_upa` [km2].
 
         The river length is defined as the distance from the subgrid outlet pixel to
-        the next upstream subgrid outlet pixel.
-
-        The optional smooth river length is derived by taking the average of the input
-        subgrid river length per river branch (or a minimum river cells of `smooth_cells`)
-        with a subgrid river length <= `min_rivlen`. This map can be used to speed up
-        calculations (increase short river lengths).
+        the next upstream subgrid outlet pixel. The `min_rivlen_ratio` is the minimum
+        global river length to avg. cell resolution ratio and is used as a threshold in
+        window based smoothing of river length.
 
         The river slope is derived from the subgrid elevation difference between pixels at a
         half distance `slope_len` [m] up- and downstream from the subgrid outlet pixel.
@@ -285,7 +280,6 @@ class WflowModel(Model):
 
         * **wflow_river** map: river mask [-]
         * **wflow_riverlength** map: river length [m]
-        * **wflow_riverlength_smooth** map (optional): smoothed river length [m]
         * **wflow_riverwidth** map: river width [m]
         * **RiverDepth** map: bankfull river depth [m]
         * **RiverSlope** map: river slope [m/m]
@@ -309,11 +303,7 @@ class WflowModel(Model):
         slope_len : float
             length over which the river slope is calculated [km]
         min_rivlen_ratio: float
-            minimum global river length to avg. cell resolution ratio, by default 0.1
-        min_rivlen: float, optional
-            minimum river length [m] threshold within a river branch for smoothing subgrid river length (avg.), by default None
-        smooth_cells: int, optional
-            minimum number of river cells (upstream to downstream) over which to smooth the sugrid river length, by default 3
+            minimum global river length to avg. cell resolution ratio used as threshold in window based smoothing of river length, by default 0.1
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
         smooth_len : float, optional
@@ -346,13 +336,9 @@ class WflowModel(Model):
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
-            min_rivlen=min_rivlen,
-            smooth_cells=smooth_cells,
             logger=self.logger,
         )[0]
         dvars = ["rivmsk", "rivlen", "rivslp"]
-        if min_rivlen != None:
-            dvars.append("wflow_riverlength_smooth")
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 

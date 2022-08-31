@@ -31,8 +31,6 @@ def river(
     river_upa=30.0,
     slope_len=2e3,
     min_rivlen_ratio=0.1,
-    min_rivlen=None,
-    smooth_cells=3,
     channel_dir="up",
     logger=logger,
 ):
@@ -40,8 +38,7 @@ def river(
 
     The output maps are:\
     - rivmsk : river mask based on upstream area threshold on upstream area\
-    - rivlen : river length [m], minimum set to 1/4 cell res\
-    - wflow_riverlength_smooth : smoothed river length [m] derived from rivlen
+    - rivlen : river length [m]\
     - rivslp : smoothed river slope [m/m]\
     - rivzs : elevation of the river bankfull height based on pixel outlet 
     - rivwth : river width at pixel outlet (if in ds)
@@ -60,11 +57,7 @@ def river(
     slope_len: float
         minimum length over which to calculate the river slope, by default 1000 [m]
     min_rivlen_ratio: float
-        minimum global river length to avg. cell resolution ratio, by default 0.1
-    min_rivlen: float, optional
-        minimum river length [m] threshold within a river branch for smoothing subgrid river length (avg.), by default None
-    smooth_cells: int, optional
-        minimum number of river cells (upstream to downstream) over which to smooth the subgrid river length, by default 3
+        minimum global river length to avg. cell resolution ratio used as threshold in window based smoothing of river length, by default 0.1
     channel_dir: {"up", "down"}
         flow direcition in which to calculate (subgrid) river length and width
     
@@ -121,30 +114,19 @@ def river(
         lat_avg = ds_model.raster.ycoords.values.mean()
         xres, yres = gis_utils.cellres(lat_avg, xres, yres)
     res = np.mean(np.abs([xres, yres]))
-    # minimum river length equal 10% of cellsize
-    min_len = res * min_rivlen_ratio
-    rivlen = np.where(riv_mask.values, np.maximum(rivlen, min_len), -9999)
+    rivlen = np.where(riv_mask.values, rivlen, -9999)
     rivlen_avg = np.mean(rivlen[riv_mask.values])
     # set mean length at pits when taking the downstream length
     if channel_dir == "down":
         rivlen.flat[flwdir.idxs_pit] = rivlen_avg
-    # smooth river length if min_rivlen is set
-    if min_rivlen != None:
-        logger.debug(f"Smooth river length (min length: {min_rivlen:.0f} m).")
-        flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=True)
-        rivlen_s = flwdir_model.smooth_rivlen(
-            rivlen=rivlen,
-            min_rivlen=min_rivlen,
-            smooth_cells=smooth_cells,
-            mask=riv_mask,
-        )
-        assert_equal = np.isclose(
-            np.sum(rivlen_s[rivlen_s != -9999]), np.sum(rivlen[rivlen != -9999])
-        )
-        if not assert_equal:
-            raise AssertionError(
-                "Total river length (subgrid) not equal to total smoothed river length"
-            )
+    # smooth river length based on minimum river length (default 10% of cellsize)
+    min_len = res * min_rivlen_ratio
+    logger.debug(f"Smooth river length (min length: {min_len:.0f} m).")
+    flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=True)
+    rivlen = flwdir_model.smooth_rivlen(
+        rivlen,
+        min_len,
+    )
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
@@ -166,9 +148,6 @@ def river(
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
     ds_out["rivslp"] = xr.Variable(dims, rivslp, attrs=attrs)
-    if min_rivlen != None:
-        attrs = dict(_FillValue=-9999, unit="m")
-        ds_out["wflow_riverlength_smooth"] = xr.Variable(dims, rivlen_s, attrs=attrs)
 
     for name in ["rivwth", "qbankfull"]:
         if name in ds:
