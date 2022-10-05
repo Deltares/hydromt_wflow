@@ -17,6 +17,7 @@ Changed
 
 Fixed
 -----
+- write_forcing with time of type cftime.DatetimeNoLeap #109
 
 Deprecated
 ----------
