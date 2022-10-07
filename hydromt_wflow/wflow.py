@@ -586,17 +586,17 @@ class WflowModel(Model):
     ):
         """
         This component derives several wflow maps are derived based on landuse-
-        landcover (LULC) data. 
-        
+        landcover (LULC) data.
+
         Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
         value, unless noted differently.
-        
+
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]     
+        * **landuse** map: Landuse class [-]
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]
         * **Swood** map: Fraction of wood in the vegetation/plant [-]
@@ -2112,6 +2112,7 @@ class WflowModel(Model):
         buffer=0,
         align=None,
         crs=4326,
+        reverse_clip=False
     ):
         """Clip staticmaps to subbasin.
 
@@ -2150,6 +2151,9 @@ class WflowModel(Model):
                 flwdir_name=flwdir_name,
                 **region,
             )
+        # Remove upstream part from model
+        if reverse_clip:
+            geom = self.basins.overlay(geom, how='difference')
         # clip based on subbasin args, geom or bbox
         if geom is not None:
             ds_staticmaps = self.staticmaps.raster.clip_geom(
