@@ -7,57 +7,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Plot Wflow results &#8212; HydroMT Wflow  documentation</title>
-<script>
-  document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
-  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
-</script>
-
+  <script>
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+  <link href="../_static/styles/theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
 
-
+  
   <link rel="stylesheet"
-    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    href="../_static/vendor/fontawesome/6.1.2/css/all.min.css">
   <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
   <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
-
+  
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_examples/plot_wflow_results';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="API reference" href="../api.html" />
     <link rel="prev" title="Plot Wflow forcing" href="plot_wflow_forcing.html" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="docsearch:language" content="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
   </head>
   
   
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="light">
-    <div class="bd-header-announcement container-fluid" id="banner">
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
       
-
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
     </div>
+  </div>
 
-    
-    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
-
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
   <div id="navbar-start">
     
     
@@ -65,9 +88,15 @@
 
 
 <a class="navbar-brand logo" href="../index.html">
+
   
   
   
+  
+  
+  
+  
+
   
     <img src="../_static/hydromt-logo.jpg" class="logo__image only-light" alt="Logo image">
     <img src="../_static/hydromt-logo.jpg" class="logo__image only-dark" alt="Logo image">
@@ -79,313 +108,289 @@
     
   </div>
 
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="fas fa-bars"></span>
-  </button>
-
   
-  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+  <div class="col-lg-9 navbar-header-items">
     <div id="navbar-center" class="mr-auto">
       
       <div class="navbar-center-item">
-        <ul id="navbar-main-elements" class="navbar-nav">
-    <li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../getting_started/intro.html">
-  Getting started
- </a>
-</li>
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../getting_started/intro.html">
+                        Getting started
+                    </a>
+                </li>
+                
 
-<li class="toctree-l1 current active nav-item">
- <a class="reference internal nav-link" href="../user_guide/intro.html">
-  User guide
- </a>
-</li>
+                <li class="nav-item current active">
+                    <a class="nav-link" href="../user_guide/intro.html">
+                        User guide
+                    </a>
+                </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../api.html">
-  API reference
- </a>
-</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../api.html">
+                        API reference
+                    </a>
+                </li>
+                
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../dev_guide/intro.html">
-  Developments
- </a>
-</li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../dev_guide/intro.html">
+                        Developments
+                    </a>
+                </li>
+                
 
-    
-    <li class="nav-item">
-        <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fas fa-external-link-alt"></i></a>
-    </li>
-    
-</ul>
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fa-solid fa-up-right-from-square"></i></a>
+            </li>
+    </ul>
+</nav>
       </div>
       
     </div>
 
     <div id="navbar-end">
+      <div class="navbar-end-item navbar-end__search-button-container">
+        
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+      </div>
       
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/Deltares/hydromt_wflow" rel="noopener" target="_blank" title="GitHub"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://deltares.github.io/Wflow.jl/dev/" rel="noopener" target="_blank" title="Wflow"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://www.deltares.nl/en/" rel="noopener" target="_blank" title="Deltares"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
       </ul>
       </div>
       
     </div>
   </div>
-</div>
-    </nav>
-    
-
-    <div class="bd-container container-xl">
-      <div class="bd-container__inner row">
-          
-
-<!-- Only show if we have sidebars configured, else just a small margin  -->
-<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
-  <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  <div class="bd-toc-item active">
-    <p aria-level="2" class="caption" role="heading">
- <span class="caption-text">
-  Table of Contents
- </span>
-</p>
-<ul class="current nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../user_guide/wflow.html">
-   Working with the Wflow model
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../user_guide/wflow_model_setup.html">
-     Model methods and components
-    </a>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../user_guide/wflow_build.html">
-     Building a model
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-    <label for="toctree-checkbox-2">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="build_model.html">
-       Example: Build Wflow model
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../user_guide/wflow_update.html">
-     Updating a model
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/>
-    <label for="toctree-checkbox-3">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="update_model_landuse.html">
-       Example: Update Wflow model (landuse)
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="update_model_forcing.html">
-       Example: Update Wflow model (forcing)
-      </a>
-     </li>
-     <li class="toctree-l3">
-      <a class="reference internal" href="update_model_gauges.html">
-       Example: Update Wflow model (gauges)
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../user_guide/wflow_clip.html">
-     Clipping a model
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/>
-    <label for="toctree-checkbox-4">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="clip_model.html">
-       Example: Clip Wflow model
-      </a>
-     </li>
-    </ul>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../user_guide/sediment.html">
-   Working with the Wflow Sediment model
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/>
-  <label for="toctree-checkbox-5">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../user_guide/sediment_model_setup.html">
-     Model methods and components
-    </a>
-   </li>
-   <li class="toctree-l2 has-children">
-    <a class="reference internal" href="../user_guide/sediment_build.html">
-     Building a model
-    </a>
-    <input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/>
-    <label for="toctree-checkbox-6">
-     <i class="fas fa-chevron-down">
-     </i>
-    </label>
-    <ul>
-     <li class="toctree-l3">
-      <a class="reference internal" href="build_sediment.html">
-       Example: Build Wflow Sediment model
-      </a>
-     </li>
-    </ul>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../user_guide/sediment_update.html">
-     Updating a model
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../user_guide/sediment_clip.html">
-     Clipping a model
-    </a>
-   </li>
-  </ul>
- </li>
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../user_guide/process_analyze.html">
-   Postprocessing and visualization
-  </a>
-  <input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/>
-  <label for="toctree-checkbox-7">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2">
-    <a class="reference internal" href="convert_staticmaps_to_mapstack.html">
-     Example: Convert wflow staticmaps netcdf to raster files
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="plot_wflow_staticmaps.html">
-     Example: Plot Wflow staticmaps
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="plot_wflow_forcing.html">
-     Example: Plot Wflow forcing data
-    </a>
-   </li>
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
-     Example: Plot Wflow results data
-    </a>
-   </li>
-  </ul>
- </li>
-</ul>
-
-  </div>
-</nav>
-  </div>
-  <div class="sidebar-end-items">
-  </div>
-</div>
 
 
-          
-
-
-<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
   
-    
-    <div class="toc-item">
-      
-<div class="tocsection onthispage mt-5 pt-1 pb-3">
-    <i class="fas fa-list"></i> On this page
-</div>
+  <div class="search-button-container--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+  </div>
 
-<nav id="bd-toc-nav">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Load-dependencies">
-   Load dependencies
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Read-the-model-run(s)-results">
-   Read the model run(s) results
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Read-observations">
-   Read observations
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Plot-model-results">
-   Plot model results
-  </a>
- </li>
-</ul>
-
-</nav>
-    </div>
-    
-    <div class="toc-item">
-      
-
-<div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/plot_wflow_results.ipynb">
-        <i class="fas fa-pencil-alt"></i> Edit this page
-    </a>
-</div>
-
-    </div>
-    
   
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
 </div>
+  </nav>
+  
 
-
-          
-          
-          <div class="bd-content col-12 col-md-9 col-xl-7">
-              
-              <article class="bd-article" role="main">
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../getting_started/intro.html">
+                        Getting started
+                    </a>
+                </li>
                 
+
+                <li class="nav-item current active">
+                    <a class="nav-link" href="../user_guide/intro.html">
+                        User guide
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../api.html">
+                        API reference
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../dev_guide/intro.html">
+                        Developments
+                    </a>
+                </li>
+                
+
+            <li class="nav-item">
+                <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fa-solid fa-up-right-from-square"></i></a>
+            </li>
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/wflow.html">Working with the Wflow model</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_build.html">Building a model</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_model.html">Example: Build Wflow model</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_update.html">Updating a model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_clip.html">Clipping a model</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="clip_model.html">Example: Clip Wflow model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/sediment.html">Working with the Wflow Sediment model</a><input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/sediment_build.html">Building a model</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_sediment.html">Example: Build Wflow Sediment model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_clip.html">Clipping a model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide/process_analyze.html">Postprocessing and visualization</a><input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Example: Plot Wflow results data</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+      </div>
+      <main class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
   
 <style>
 /* CSS for nbsphinx extension */
@@ -1230,23 +1235,23 @@ Coordinates: (12/27)
     x              (index) float64 12.22 12.52 12.12
     y              (index) float64 46.43 46.53 46.6
     t_end          (index) int64 2008 2008 2008
-    m_miss         (index) object None None None
-    ...             ...
-    m_yrs          (index) object None None None
-    lta_discharge  (index) float64 9.461 10.36 2.256
-    d_end          (index) int64 2008 2008 2008
     d_start        (index) int64 1930 1932 1943
-    r_height_yr    (index) float64 953.2 915.5 867.6
-    spatial_ref    int64 0</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'gauges_grdc'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>index</span>: 3</li><li><span class='xr-has-index'>time</span>: 9</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-e999389f-062b-4ffd-8a29-bb11ec3a7664' class='xr-array-in' type='checkbox' checked><label for='section-e999389f-062b-4ffd-8a29-bb11ec3a7664' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>14.21 20.64 26.22 29.67 32.16 32.26 ... 11.93 11.23 10.51 9.883 9.312</span></div><div class='xr-array-data'><pre>array([[14.21117463, 20.63727294, 26.21875575, 29.66606831, 32.1589512 ,
+    ...             ...
+    sub_reg        (index) int64 49 49 49
+    m_yrs          (index) object None None None
+    altitude       (index) float64 818.0 848.0 1.33e+03
+    d_miss         (index) float64 36.77 33.53 51.14
+    lta_discharge  (index) float64 9.461 10.36 2.256
+    spatial_ref    int64 0</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'gauges_grdc'</div><ul class='xr-dim-list'><li><span class='xr-has-index'>index</span>: 3</li><li><span class='xr-has-index'>time</span>: 9</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-bf3eb312-5fac-4afc-9b4a-eb06be1d5ba9' class='xr-array-in' type='checkbox' checked><label for='section-bf3eb312-5fac-4afc-9b4a-eb06be1d5ba9' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>14.21 20.64 26.22 29.67 32.16 32.26 ... 11.93 11.23 10.51 9.883 9.312</span></div><div class='xr-array-data'><pre>array([[14.21117463, 20.63727294, 26.21875575, 29.66606831, 32.1589512 ,
         32.26008825, 31.09006663, 29.99882382, 29.10063939],
        [23.14968045, 40.4367125 , 54.46918112, 59.2240498 , 59.21861451,
         57.43010672, 54.0491823 , 50.84542554, 48.09354881],
        [ 4.65726064,  9.23746886, 11.94857033, 12.4642965 , 11.93064957,
-        11.23056571, 10.51420303,  9.88308009,  9.31225629]])</pre></div></div></li><li class='xr-section-item'><input id='section-ab4f8ada-7579-43ba-a66b-ce858f7afd65' class='xr-section-summary-in' type='checkbox'  ><label for='section-ab4f8ada-7579-43ba-a66b-ce858f7afd65' class='xr-section-summary' >Coordinates: <span>(27)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2010-02-02 ... 2010-02-10</div><input id='attrs-7742e021-d295-4820-9a54-1fa2c498051b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-7742e021-d295-4820-9a54-1fa2c498051b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-46ef3660-0c7b-4d52-9158-3ba4d09e8f6e' class='xr-var-data-in' type='checkbox'><label for='data-46ef3660-0c7b-4d52-9158-3ba4d09e8f6e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2010-02-02T00:00:00.000000000&#x27;, &#x27;2010-02-03T00:00:00.000000000&#x27;,
+        11.23056571, 10.51420303,  9.88308009,  9.31225629]])</pre></div></div></li><li class='xr-section-item'><input id='section-ddb81814-57d5-4251-9133-8b2794474960' class='xr-section-summary-in' type='checkbox'  ><label for='section-ddb81814-57d5-4251-9133-8b2794474960' class='xr-section-summary' >Coordinates: <span>(27)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>2010-02-02 ... 2010-02-10</div><input id='attrs-3fdf125c-4a12-4628-938e-faa477cc876d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3fdf125c-4a12-4628-938e-faa477cc876d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a032a563-ff02-4b29-93de-4b51291bad51' class='xr-var-data-in' type='checkbox'><label for='data-a032a563-ff02-4b29-93de-4b51291bad51' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;2010-02-02T00:00:00.000000000&#x27;, &#x27;2010-02-03T00:00:00.000000000&#x27;,
        &#x27;2010-02-04T00:00:00.000000000&#x27;, &#x27;2010-02-05T00:00:00.000000000&#x27;,
        &#x27;2010-02-06T00:00:00.000000000&#x27;, &#x27;2010-02-07T00:00:00.000000000&#x27;,
        &#x27;2010-02-08T00:00:00.000000000&#x27;, &#x27;2010-02-09T00:00:00.000000000&#x27;,
-       &#x27;2010-02-10T00:00:00.000000000&#x27;], dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>index</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>6349410 6349400 6349411</div><input id='attrs-1c91bbb9-5023-4b7b-8e96-a5ef2e012ca6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1c91bbb9-5023-4b7b-8e96-a5ef2e012ca6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8735f7bd-8e8f-4215-978f-d22ebd429521' class='xr-var-data-in' type='checkbox'><label for='data-8735f7bd-8e8f-4215-978f-d22ebd429521' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([6349410, 6349400, 6349411])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>x</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>12.22 12.52 12.12</div><input id='attrs-b143e485-ce5a-44f8-9d01-39036c0e4dd8' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b143e485-ce5a-44f8-9d01-39036c0e4dd8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e17f4c1a-a27e-4f5e-99c0-467ac2e31f42' class='xr-var-data-in' type='checkbox'><label for='data-e17f4c1a-a27e-4f5e-99c0-467ac2e31f42' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([12.216667, 12.516667, 12.116667])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>y</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>46.43 46.53 46.6</div><input id='attrs-1c630d6c-04ad-4a0d-8dd5-730fc9ecbc01' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1c630d6c-04ad-4a0d-8dd5-730fc9ecbc01' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ea369c0e-4554-47d9-a1fa-cc49695f2779' class='xr-var-data-in' type='checkbox'><label for='data-ea369c0e-4554-47d9-a1fa-cc49695f2779' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([46.433333, 46.533333, 46.6     ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t_end</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>2008 2008 2008</div><input id='attrs-72ac67e1-418a-43e8-8e02-660c8fc851fa' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-72ac67e1-418a-43e8-8e02-660c8fc851fa' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-09da050b-d981-4aa5-82dd-60660b1c7690' class='xr-var-data-in' type='checkbox'><label for='data-09da050b-d981-4aa5-82dd-60660b1c7690' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([2008, 2008, 2008])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_miss</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-cb7e6f74-c6ed-44a7-a8e8-fadf7148f107' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-cb7e6f74-c6ed-44a7-a8e8-fadf7148f107' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9a744afe-92c1-45da-8d6e-7bd6fd8231bb' class='xr-var-data-in' type='checkbox'><label for='data-9a744afe-92c1-45da-8d6e-7bd6fd8231bb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sub_reg</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>49 49 49</div><input id='attrs-f9cd572b-a5cc-4dc6-bc9b-1ab8a4e10de9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f9cd572b-a5cc-4dc6-bc9b-1ab8a4e10de9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-87edd0ad-17c8-41c8-bab3-a2f9497721d4' class='xr-var-data-in' type='checkbox'><label for='data-87edd0ad-17c8-41c8-bab3-a2f9497721d4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([49, 49, 49])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>river</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>&#x27;BOITE, TORRENTE&#x27; ... &#x27;BOITE, TO...</div><input id='attrs-5a423a94-b3aa-4d5d-b250-089fd20adfea' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-5a423a94-b3aa-4d5d-b250-089fd20adfea' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c2f32901-818d-41e8-8c70-869f2e5afbbf' class='xr-var-data-in' type='checkbox'><label for='data-c2f32901-818d-41e8-8c70-869f2e5afbbf' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;BOITE, TORRENTE&#x27;, &#x27;PIAVE, FIUME&#x27;, &#x27;BOITE, TORRENTE&#x27;], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>country</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>&#x27;IT&#x27; &#x27;IT&#x27; &#x27;IT&#x27;</div><input id='attrs-46478124-e8a8-4460-b17e-5471b20c6490' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-46478124-e8a8-4460-b17e-5471b20c6490' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-54c1e96e-885a-477b-9115-ad7046386359' class='xr-var-data-in' type='checkbox'><label for='data-54c1e96e-885a-477b-9115-ad7046386359' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;IT&#x27;, &#x27;IT&#x27;, &#x27;IT&#x27;], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>area</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>313.0 357.0 82.0</div><input id='attrs-3c860d6b-7251-4005-be33-d4c71f6ccb98' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3c860d6b-7251-4005-be33-d4c71f6ccb98' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7a86984a-085c-44ac-a8af-30fce93e4791' class='xr-var-data-in' type='checkbox'><label for='data-7a86984a-085c-44ac-a8af-30fce93e4791' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([313., 357.,  82.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>station</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>&#x27;CANCIA&#x27; ... &#x27;PODESTAGNO&#x27;</div><input id='attrs-e07a7570-92bf-45e3-829d-92905780e66c' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-e07a7570-92bf-45e3-829d-92905780e66c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-92edd321-1022-41a5-80e1-e4028fa66616' class='xr-var-data-in' type='checkbox'><label for='data-92edd321-1022-41a5-80e1-e4028fa66616' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;CANCIA&#x27;, &#x27;PONTE DELLA IASTA&#x27;, &#x27;PODESTAGNO&#x27;], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t_start</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1930 1932 1943</div><input id='attrs-95370218-e248-49c9-9466-e43a66c199a7' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-95370218-e248-49c9-9466-e43a66c199a7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-679b37f4-915a-4353-b2de-2df449e9334d' class='xr-var-data-in' type='checkbox'><label for='data-679b37f4-915a-4353-b2de-2df449e9334d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1930, 1932, 1943])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_yrs</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>79 77 66</div><input id='attrs-363b5453-3062-46e4-93f6-f51651c02f0a' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-363b5453-3062-46e4-93f6-f51651c02f0a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fc2d8dd9-20d3-43b4-b1af-ac6d3dcef808' class='xr-var-data-in' type='checkbox'><label for='data-fc2d8dd9-20d3-43b4-b1af-ac6d3dcef808' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([79, 77, 66])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_start</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-a908865d-1ec2-4c8e-b200-74877e99032e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a908865d-1ec2-4c8e-b200-74877e99032e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f60ba665-f56e-4aa5-af79-ba001a2e15ac' class='xr-var-data-in' type='checkbox'><label for='data-f60ba665-f56e-4aa5-af79-ba001a2e15ac' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>r_volume_yr</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.2984 0.3268 0.07115</div><input id='attrs-8331808d-e7c0-425e-8419-a2511f6a2a6e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8331808d-e7c0-425e-8419-a2511f6a2a6e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b93b86fa-4579-4c18-b047-1126c4bd18c1' class='xr-var-data-in' type='checkbox'><label for='data-b93b86fa-4579-4c18-b047-1126c4bd18c1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0.2983621 , 0.3268391 , 0.07114522])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_miss</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>36.77 33.53 51.14</div><input id='attrs-d3119244-a782-4b95-9394-9bddcfeadc51' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d3119244-a782-4b95-9394-9bddcfeadc51' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-495ff4a9-3002-4a8f-a194-1bb9f6fe4fee' class='xr-var-data-in' type='checkbox'><label for='data-495ff4a9-3002-4a8f-a194-1bb9f6fe4fee' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([36.77005718, 33.53244444, 51.14282159])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_end</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-06ae22fe-de1d-4c65-a5c4-c351df667834' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-06ae22fe-de1d-4c65-a5c4-c351df667834' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5bcc0854-98b6-4428-b51d-95373dc1f196' class='xr-var-data-in' type='checkbox'><label for='data-5bcc0854-98b6-4428-b51d-95373dc1f196' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>wmo_reg</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>6 6 6</div><input id='attrs-189fbac1-a5a3-455b-8452-edec68b515f9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-189fbac1-a5a3-455b-8452-edec68b515f9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7c1559c9-9f00-4d46-a161-536b63036421' class='xr-var-data-in' type='checkbox'><label for='data-7c1559c9-9f00-4d46-a161-536b63036421' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([6, 6, 6])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t_yrs</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>79 77 66</div><input id='attrs-8e898fa1-d777-4595-8a56-40f1b3a2386c' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8e898fa1-d777-4595-8a56-40f1b3a2386c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e1f5e41b-f83a-4f0c-810f-4b4ad27bf3ae' class='xr-var-data-in' type='checkbox'><label for='data-e1f5e41b-f83a-4f0c-810f-4b4ad27bf3ae' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([79, 77, 66])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>altitude</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>818.0 848.0 1.33e+03</div><input id='attrs-47bd7560-59b0-4e9c-bc88-f5ac71ce9a7e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-47bd7560-59b0-4e9c-bc88-f5ac71ce9a7e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-02fa4c42-dce6-4dc4-8fae-6f3dbfecb515' class='xr-var-data-in' type='checkbox'><label for='data-02fa4c42-dce6-4dc4-8fae-6f3dbfecb515' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 818.,  848., 1330.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>grdc_no</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>6349410 6349400 6349411</div><input id='attrs-1ec93131-ce3d-4518-9fa4-73190730a76a' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1ec93131-ce3d-4518-9fa4-73190730a76a' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-54d8c161-5904-4b56-9623-01003d2e3717' class='xr-var-data-in' type='checkbox'><label for='data-54d8c161-5904-4b56-9623-01003d2e3717' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([6349410, 6349400, 6349411])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_yrs</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-06552f18-e230-45aa-a471-7eea7b42678b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-06552f18-e230-45aa-a471-7eea7b42678b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-57b5fa16-f59d-4b6f-8ce8-d8344e1aa546' class='xr-var-data-in' type='checkbox'><label for='data-57b5fa16-f59d-4b6f-8ce8-d8344e1aa546' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lta_discharge</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>9.461 10.36 2.256</div><input id='attrs-02174130-83c7-4197-bcf2-8346b3f64382' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-02174130-83c7-4197-bcf2-8346b3f64382' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c8be5c3c-8c50-4c24-bd2e-75f89971353b' class='xr-var-data-in' type='checkbox'><label for='data-c8be5c3c-8c50-4c24-bd2e-75f89971353b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 9.461, 10.364,  2.256])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_end</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>2008 2008 2008</div><input id='attrs-3e7ebf44-f937-4b6a-8fa1-0ff554a78ad2' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3e7ebf44-f937-4b6a-8fa1-0ff554a78ad2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-aa1be2c9-71e9-42f7-9915-28d7467f54c9' class='xr-var-data-in' type='checkbox'><label for='data-aa1be2c9-71e9-42f7-9915-28d7467f54c9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([2008, 2008, 2008])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_start</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1930 1932 1943</div><input id='attrs-09e7fd6d-a1bf-4598-b9fd-6877de6d28b0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-09e7fd6d-a1bf-4598-b9fd-6877de6d28b0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-55d65c8f-fa11-4e5e-9d10-31d782901326' class='xr-var-data-in' type='checkbox'><label for='data-55d65c8f-fa11-4e5e-9d10-31d782901326' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1930, 1932, 1943])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>r_height_yr</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>953.2 915.5 867.6</div><input id='attrs-a78f8bad-3345-4f2c-91fb-68be92ec7acf' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a78f8bad-3345-4f2c-91fb-68be92ec7acf' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-22f88ac8-efe5-4913-889b-889929b94d0f' class='xr-var-data-in' type='checkbox'><label for='data-22f88ac8-efe5-4913-889b-889929b94d0f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([953.23353355, 915.51569748, 867.62458537])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>spatial_ref</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0</div><input id='attrs-b106d273-88d6-454f-b8e8-51b1a2cfec17' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b106d273-88d6-454f-b8e8-51b1a2cfec17' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6f8602af-2ce4-486d-8cbd-3601b6ece938' class='xr-var-data-in' type='checkbox'><label for='data-6f8602af-2ce4-486d-8cbd-3601b6ece938' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>crs_wkt :</span></dt><dd>GEOGCS[&quot;WGS 84&quot;,DATUM[&quot;WGS_1984&quot;,SPHEROID[&quot;WGS 84&quot;,6378137,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;degree&quot;,0.0174532925199433,AUTHORITY[&quot;EPSG&quot;,&quot;9122&quot;]],AXIS[&quot;Latitude&quot;,NORTH],AXIS[&quot;Longitude&quot;,EAST],AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</dd><dt><span>semi_major_axis :</span></dt><dd>6378137.0</dd><dt><span>semi_minor_axis :</span></dt><dd>6356752.314245179</dd><dt><span>inverse_flattening :</span></dt><dd>298.257223563</dd><dt><span>reference_ellipsoid_name :</span></dt><dd>WGS 84</dd><dt><span>longitude_of_prime_meridian :</span></dt><dd>0.0</dd><dt><span>prime_meridian_name :</span></dt><dd>Greenwich</dd><dt><span>geographic_crs_name :</span></dt><dd>WGS 84</dd><dt><span>grid_mapping_name :</span></dt><dd>latitude_longitude</dd><dt><span>spatial_ref :</span></dt><dd>GEOGCS[&quot;WGS 84&quot;,DATUM[&quot;WGS_1984&quot;,SPHEROID[&quot;WGS 84&quot;,6378137,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;degree&quot;,0.0174532925199433,AUTHORITY[&quot;EPSG&quot;,&quot;9122&quot;]],AXIS[&quot;Latitude&quot;,NORTH],AXIS[&quot;Longitude&quot;,EAST],AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</dd></dl></div><div class='xr-var-data'><pre>array(0)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-4200449b-2d08-41e6-a7ee-aa5e089acec4' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-4200449b-2d08-41e6-a7ee-aa5e089acec4' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+       &#x27;2010-02-10T00:00:00.000000000&#x27;], dtype=&#x27;datetime64[ns]&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>index</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>6349410 6349400 6349411</div><input id='attrs-6de49104-6d8b-462c-a5cf-4b65d92fc1a5' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6de49104-6d8b-462c-a5cf-4b65d92fc1a5' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-86a531b8-ca5b-47c0-9432-a5ca42cb1771' class='xr-var-data-in' type='checkbox'><label for='data-86a531b8-ca5b-47c0-9432-a5ca42cb1771' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([6349410, 6349400, 6349411])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>x</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>12.22 12.52 12.12</div><input id='attrs-3ff732af-6f1e-4509-866b-44793ea59d3e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3ff732af-6f1e-4509-866b-44793ea59d3e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0711a364-ebb8-426a-b822-bb6f47b68d8f' class='xr-var-data-in' type='checkbox'><label for='data-0711a364-ebb8-426a-b822-bb6f47b68d8f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([12.216667, 12.516667, 12.116667])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>y</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>46.43 46.53 46.6</div><input id='attrs-d32e71fd-17d0-44bf-9ae4-72cef87bcd5d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d32e71fd-17d0-44bf-9ae4-72cef87bcd5d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c4ba3dca-bdd6-47e0-90d7-cfaf1401d088' class='xr-var-data-in' type='checkbox'><label for='data-c4ba3dca-bdd6-47e0-90d7-cfaf1401d088' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([46.433333, 46.533333, 46.6     ])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t_end</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>2008 2008 2008</div><input id='attrs-c4220afa-17ba-4e8d-b38d-fbd3051d6050' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c4220afa-17ba-4e8d-b38d-fbd3051d6050' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7fabd29a-6506-447d-bdc1-c0b1d80a312a' class='xr-var-data-in' type='checkbox'><label for='data-7fabd29a-6506-447d-bdc1-c0b1d80a312a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([2008, 2008, 2008])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_start</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1930 1932 1943</div><input id='attrs-8b46b13c-96a5-4f22-9637-38873e87ae5d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8b46b13c-96a5-4f22-9637-38873e87ae5d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f4546b3a-4322-46a1-a3a4-5aff4cbfa674' class='xr-var-data-in' type='checkbox'><label for='data-f4546b3a-4322-46a1-a3a4-5aff4cbfa674' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1930, 1932, 1943])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>wmo_reg</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>6 6 6</div><input id='attrs-a0079ca4-bc1d-4770-a0a3-fbbe4c931679' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a0079ca4-bc1d-4770-a0a3-fbbe4c931679' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-23aa7362-b968-4cdf-9c91-6c16f014a9d5' class='xr-var-data-in' type='checkbox'><label for='data-23aa7362-b968-4cdf-9c91-6c16f014a9d5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([6, 6, 6])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>station</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>&#x27;CANCIA&#x27; ... &#x27;PODESTAGNO&#x27;</div><input id='attrs-22430445-2765-4405-94c0-0aa50d102c44' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-22430445-2765-4405-94c0-0aa50d102c44' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-091633a5-c05c-444c-af4b-d3f30ca038f7' class='xr-var-data-in' type='checkbox'><label for='data-091633a5-c05c-444c-af4b-d3f30ca038f7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;CANCIA&#x27;, &#x27;PONTE DELLA IASTA&#x27;, &#x27;PODESTAGNO&#x27;], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_end</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-dbf9de85-2ef8-4041-8caf-4969521906b0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-dbf9de85-2ef8-4041-8caf-4969521906b0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0fed0795-051d-477f-a8a6-10e5dfc862b2' class='xr-var-data-in' type='checkbox'><label for='data-0fed0795-051d-477f-a8a6-10e5dfc862b2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_miss</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-737e8b33-cda1-42ad-86c7-73fac1bcb8a8' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-737e8b33-cda1-42ad-86c7-73fac1bcb8a8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2901354f-143b-4b07-a390-5227e82e7c56' class='xr-var-data-in' type='checkbox'><label for='data-2901354f-143b-4b07-a390-5227e82e7c56' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>grdc_no</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>6349410 6349400 6349411</div><input id='attrs-95f5ec85-a99b-4629-81a0-ad51eaeb2dad' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-95f5ec85-a99b-4629-81a0-ad51eaeb2dad' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-caba1ef9-d1a4-47fe-9036-ed1e5822d640' class='xr-var-data-in' type='checkbox'><label for='data-caba1ef9-d1a4-47fe-9036-ed1e5822d640' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([6349410, 6349400, 6349411])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>r_height_yr</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>953.2 915.5 867.6</div><input id='attrs-ce1dc80d-f068-4196-9ddd-b018413c5b78' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ce1dc80d-f068-4196-9ddd-b018413c5b78' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-45a90620-2d3d-4d48-9da1-ed203ac087b1' class='xr-var-data-in' type='checkbox'><label for='data-45a90620-2d3d-4d48-9da1-ed203ac087b1' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([953.23353355, 915.51569748, 867.62458537])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_start</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-6e831b7f-dbe5-435e-9e5a-2ca310967587' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6e831b7f-dbe5-435e-9e5a-2ca310967587' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2cb775fd-0cce-4848-8d1d-cfe3025f8d27' class='xr-var-data-in' type='checkbox'><label for='data-2cb775fd-0cce-4848-8d1d-cfe3025f8d27' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>river</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>&#x27;BOITE, TORRENTE&#x27; ... &#x27;BOITE, TO...</div><input id='attrs-b5ca251a-d052-4acf-adaf-9aa2fc1945ca' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b5ca251a-d052-4acf-adaf-9aa2fc1945ca' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1548195d-74ef-41d7-8b03-721e47ce6076' class='xr-var-data-in' type='checkbox'><label for='data-1548195d-74ef-41d7-8b03-721e47ce6076' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;BOITE, TORRENTE&#x27;, &#x27;PIAVE, FIUME&#x27;, &#x27;BOITE, TORRENTE&#x27;], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>r_volume_yr</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.2984 0.3268 0.07115</div><input id='attrs-8705ea63-f458-4294-939d-374aa51a3928' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8705ea63-f458-4294-939d-374aa51a3928' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8cbb0047-55c3-4d5b-8397-a4993e5f6f5c' class='xr-var-data-in' type='checkbox'><label for='data-8cbb0047-55c3-4d5b-8397-a4993e5f6f5c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0.2983621 , 0.3268391 , 0.07114522])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>area</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>313.0 357.0 82.0</div><input id='attrs-8cc91d21-a840-4817-9790-9a7e46d7ab2b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8cc91d21-a840-4817-9790-9a7e46d7ab2b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e2829d71-2961-428a-8f3e-521dba8fd3b5' class='xr-var-data-in' type='checkbox'><label for='data-e2829d71-2961-428a-8f3e-521dba8fd3b5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([313., 357.,  82.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_yrs</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>79 77 66</div><input id='attrs-8931e796-56a9-4fdc-87cd-e6f03581489e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8931e796-56a9-4fdc-87cd-e6f03581489e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-12f5b2d9-3db2-4d1b-ba90-5e5bf9222478' class='xr-var-data-in' type='checkbox'><label for='data-12f5b2d9-3db2-4d1b-ba90-5e5bf9222478' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([79, 77, 66])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t_start</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>1930 1932 1943</div><input id='attrs-aff2fcfd-4dcd-41f3-b416-c4d1a1be35c4' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-aff2fcfd-4dcd-41f3-b416-c4d1a1be35c4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-802ab79c-8807-4131-903b-cd2f77b30f51' class='xr-var-data-in' type='checkbox'><label for='data-802ab79c-8807-4131-903b-cd2f77b30f51' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([1930, 1932, 1943])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>t_yrs</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>79 77 66</div><input id='attrs-b2f2e71c-9d44-4f46-accc-893523dfaada' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b2f2e71c-9d44-4f46-accc-893523dfaada' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-dcfd3cee-fe3f-4d5e-966c-433aebda06d4' class='xr-var-data-in' type='checkbox'><label for='data-dcfd3cee-fe3f-4d5e-966c-433aebda06d4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([79, 77, 66])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>country</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>&#x27;IT&#x27; &#x27;IT&#x27; &#x27;IT&#x27;</div><input id='attrs-15a8e7e4-5f82-434f-8f90-b6fa92de4bc0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-15a8e7e4-5f82-434f-8f90-b6fa92de4bc0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-79404a10-ebe4-45bc-812c-67e6d60bda02' class='xr-var-data-in' type='checkbox'><label for='data-79404a10-ebe4-45bc-812c-67e6d60bda02' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;IT&#x27;, &#x27;IT&#x27;, &#x27;IT&#x27;], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_end</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>2008 2008 2008</div><input id='attrs-cb97ce6a-5f49-4d91-a56f-f60c3ffb98d3' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-cb97ce6a-5f49-4d91-a56f-f60c3ffb98d3' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-013af49e-ed4a-4ee4-b231-f0255255b910' class='xr-var-data-in' type='checkbox'><label for='data-013af49e-ed4a-4ee4-b231-f0255255b910' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([2008, 2008, 2008])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>sub_reg</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>49 49 49</div><input id='attrs-aee032c8-b595-4a68-9932-bdfaac006b97' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-aee032c8-b595-4a68-9932-bdfaac006b97' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ff2f7f9e-57a3-42d5-a6ec-b089bb3b151d' class='xr-var-data-in' type='checkbox'><label for='data-ff2f7f9e-57a3-42d5-a6ec-b089bb3b151d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([49, 49, 49])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>m_yrs</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>object</div><div class='xr-var-preview xr-preview'>None None None</div><input id='attrs-a27b3503-82a0-4b3e-8d80-9cf34744547b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a27b3503-82a0-4b3e-8d80-9cf34744547b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9c7715e0-0643-4495-860a-aac40a7dcd46' class='xr-var-data-in' type='checkbox'><label for='data-9c7715e0-0643-4495-860a-aac40a7dcd46' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([None, None, None], dtype=object)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>altitude</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>818.0 848.0 1.33e+03</div><input id='attrs-a35a80cd-4530-4a52-b656-2c80e6ffcd5b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a35a80cd-4530-4a52-b656-2c80e6ffcd5b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-63b85f56-e593-4210-b32a-b85d0da2efb0' class='xr-var-data-in' type='checkbox'><label for='data-63b85f56-e593-4210-b32a-b85d0da2efb0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 818.,  848., 1330.])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>d_miss</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>36.77 33.53 51.14</div><input id='attrs-3bdf130f-a6f0-4602-8a12-b929e2e61e80' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3bdf130f-a6f0-4602-8a12-b929e2e61e80' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d0e2ae14-fe4f-4f0d-80b6-d33787af424c' class='xr-var-data-in' type='checkbox'><label for='data-d0e2ae14-fe4f-4f0d-80b6-d33787af424c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([36.77005718, 33.53244444, 51.14282159])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lta_discharge</span></div><div class='xr-var-dims'>(index)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>9.461 10.36 2.256</div><input id='attrs-00477673-be31-47f5-aa31-898965540855' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-00477673-be31-47f5-aa31-898965540855' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7cda75d1-9916-4ed3-8118-806b49c18283' class='xr-var-data-in' type='checkbox'><label for='data-7cda75d1-9916-4ed3-8118-806b49c18283' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 9.461, 10.364,  2.256])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>spatial_ref</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0</div><input id='attrs-bb0888fe-ee29-47b2-bf96-6cf801463e43' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-bb0888fe-ee29-47b2-bf96-6cf801463e43' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-be2d2fcf-2106-4745-8629-ebb4fc10a8df' class='xr-var-data-in' type='checkbox'><label for='data-be2d2fcf-2106-4745-8629-ebb4fc10a8df' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>crs_wkt :</span></dt><dd>GEOGCS[&quot;WGS 84&quot;,DATUM[&quot;WGS_1984&quot;,SPHEROID[&quot;WGS 84&quot;,6378137,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;degree&quot;,0.0174532925199433,AUTHORITY[&quot;EPSG&quot;,&quot;9122&quot;]],AXIS[&quot;Latitude&quot;,NORTH],AXIS[&quot;Longitude&quot;,EAST],AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</dd><dt><span>semi_major_axis :</span></dt><dd>6378137.0</dd><dt><span>semi_minor_axis :</span></dt><dd>6356752.314245179</dd><dt><span>inverse_flattening :</span></dt><dd>298.257223563</dd><dt><span>reference_ellipsoid_name :</span></dt><dd>WGS 84</dd><dt><span>longitude_of_prime_meridian :</span></dt><dd>0.0</dd><dt><span>prime_meridian_name :</span></dt><dd>Greenwich</dd><dt><span>geographic_crs_name :</span></dt><dd>WGS 84</dd><dt><span>grid_mapping_name :</span></dt><dd>latitude_longitude</dd><dt><span>spatial_ref :</span></dt><dd>GEOGCS[&quot;WGS 84&quot;,DATUM[&quot;WGS_1984&quot;,SPHEROID[&quot;WGS 84&quot;,6378137,298.257223563]],PRIMEM[&quot;Greenwich&quot;,0],UNIT[&quot;degree&quot;,0.0174532925199433,AUTHORITY[&quot;EPSG&quot;,&quot;9122&quot;]],AXIS[&quot;Latitude&quot;,NORTH],AXIS[&quot;Longitude&quot;,EAST],AUTHORITY[&quot;EPSG&quot;,&quot;4326&quot;]]</dd></dl></div><div class='xr-var-data'><pre>array(0)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-3f6f9838-6eb1-42a0-a95e-ee12cffd5a1e' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-3f6f9838-6eb1-42a0-a95e-ee12cffd5a1e' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 </section>
 <section id="Plot-model-results">
@@ -1353,15 +1358,15 @@ Coordinates: (12/27)
 </section>
 
 
-              </article>
-              
-
-              
-              <footer class="bd-footer-article">
-                  <!-- Previous / next buttons -->
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
 <div class='prev-next-area'>
   <a class='left-prev' id="prev-link" href="plot_wflow_forcing.html" title="previous page">
-      <i class="fas fa-angle-left"></i>
+      <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
           <p class="prev-next-title">Plot Wflow forcing</p>
@@ -1372,36 +1377,115 @@ Coordinates: (12/27)
       <p class="prev-next-subtitle">next</p>
       <p class="prev-next-title">API reference</p>
   </div>
-  <i class="fas fa-angle-right"></i>
+  <i class="fa-solid fa-angle-right"></i>
   </a>
 </div>
-              </footer>
-              
+            </footer>
+            
           </div>
           
-      </div>
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-dependencies">
+   Load dependencies
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Read-the-model-run(s)-results">
+   Read the model run(s) results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Read-observations">
+   Read observations
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Plot-model-results">
+   Plot model results
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/plot_wflow_results.ipynb">
+        <i class="fa-solid fa-pencil"></i> Edit this page
+    </a>
+</div>
+
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../_sources/_examples/plot_wflow_results.ipynb.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
     </div>
+  </div>
 
   
-  
+    
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536"></script>
 
-<footer class="bd-footer"><div class="bd-footer__inner container">
+  <footer class="bd-footer"><div class="bd-footer__inner container">
   
   <div class="footer-item">
-    <p class="copyright">
+    
+<p class="copyright">
+
     &copy; Copyright Deltares.<br>
+
 </p>
+
   </div>
   
   <div class="footer-item">
-    <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.2.3.<br>
 </p>
+
   </div>
   
 </div>
-</footer>
+  </footer>
   </body>
 </html>
