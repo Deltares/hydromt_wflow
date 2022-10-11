@@ -1870,7 +1870,7 @@ class WflowModel(Model):
             missings = False
             for da in self.forcing.values():
                 if "time" in da.coords:
-                    if not isinstance(da.indexes["time"], pd.DatetimeIndex):
+                    if hasattr(da.indexes["time"], "to_datetimeindex"):
                         times = da.indexes["time"].to_datetimeindex().values
                     else:
                         times = da.time.values
