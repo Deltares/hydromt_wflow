@@ -763,9 +763,6 @@ class WflowModel(Model):
                     # try to get epsg number directly, important when writting back data_catalog
                     if hasattr(self.crs, "to_epsg"):
                         code = self.crs.to_epsg()
-                    elif hasattr(self.crs, "is_epsg_code"):
-                        if self.crs.is_epsg_code:
-                            code = int(self.crs["init"].lstrip("epsg:"))
                     else:
                         code = self.crs
                     kwargs.update(crs=code)
