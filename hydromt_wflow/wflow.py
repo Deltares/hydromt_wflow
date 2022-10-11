@@ -761,8 +761,8 @@ class WflowModel(Model):
                 kwargs = {}
                 if isfile(gauges_fn):
                     # try to get epsg number directly, important when writting back data_catalog
-                    if self.crs.is_epsg_code:
-                        code = int(self.crs["init"].lstrip("epsg:"))
+                    if hasattr(self.crs, "to_epsg"):
+                        code = self.crs.to_epsg()
                     else:
                         code = self.crs
                     kwargs.update(crs=code)
@@ -1867,7 +1867,10 @@ class WflowModel(Model):
             missings = False
             for da in self.forcing.values():
                 if "time" in da.coords:
-                    times = da.time.values
+                    if hasattr(da.indexes["time"], "to_datetimeindex"):
+                        times = da.indexes["time"].to_datetimeindex().values
+                    else:
+                        times = da.time.values
                     if start < pd.to_datetime(times[0]):
                         start = pd.to_datetime(times[0])
                         missings = True
@@ -2089,6 +2092,7 @@ class WflowModel(Model):
         """Returns a river geometry as a geopandas.GeoDataFrame. If available, the
         stream order and upstream area values are added to the geometry properties.
         """
+        # import pdb; pdb.set_trace()
         if "rivers" in self.staticgeoms:
             gdf = self.staticgeoms["rivers"]
         elif self._MAPS["rivmsk"] in self.staticmaps:
@@ -2101,9 +2105,9 @@ class WflowModel(Model):
                 gdf = gpd.GeoDataFrame.from_features(feats)
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
                 self.set_staticgeoms(gdf, name="rivers")
-            else:
-                self.logger.warning("No river cells detected in the selected basin.")
-                gdf = None
+        else:
+            self.logger.warning("No river cells detected in the selected basin.")
+            gdf = None
         return gdf
 
     def clip_staticmaps(

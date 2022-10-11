@@ -17,6 +17,9 @@ Changed
 
 Fixed
 -----
+- write_forcing with time of type cftime.DatetimeNoLeap #109
+- bug in setup_gauges in update mode with crs.is_epsg_code #108
+- bug in self.rivers if no staticgeoms and rivmsk is found #113
 
 Deprecated
 ----------
