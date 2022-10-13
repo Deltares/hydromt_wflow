@@ -30,7 +30,7 @@ def river(
     ds_model=None,
     river_upa=30.0,
     slope_len=2e3,
-    min_rivlen_ratio=0.1,
+    min_rivlen_ratio=0.0,
     channel_dir="up",
     logger=logger,
 ):
@@ -57,7 +57,9 @@ def river(
     slope_len: float
         minimum length over which to calculate the river slope, by default 1000 [m]
     min_rivlen_ratio: float
-        minimum global river length to avg. cell resolution ratio used as threshold in window based smoothing of river length, by default 0.1
+        minimum global river length to avg. Cell resolution ratio used as threshold 
+        in window based smoothing of river length, by default 0.0. 
+        The smoothing is skipped if min_riverlen_ratio = 0.
     channel_dir: {"up", "down"}
         flow direcition in which to calculate (subgrid) river length and width
     
@@ -113,20 +115,23 @@ def river(
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
         lat_avg = ds_model.raster.ycoords.values.mean()
         xres, yres = gis_utils.cellres(lat_avg, xres, yres)
-    res = np.mean(np.abs([xres, yres]))
     rivlen = np.where(riv_mask.values, rivlen, -9999)
-    rivlen_avg = np.mean(rivlen[riv_mask.values])
-    # set mean length at pits when taking the downstream length
-    if channel_dir == "down":
-        rivlen.flat[flwdir.idxs_pit] = rivlen_avg
-    # smooth river length based on minimum river length (default 10% of cellsize)
-    min_len = res * min_rivlen_ratio
-    logger.debug(f"Smooth river length (min length: {min_len:.0f} m).")
-    flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=True)
-    rivlen = flwdir_model.smooth_rivlen(
-        rivlen,
-        min_len,
-    )
+    # set mean length at most downstream (if channel_dir=down) or upstream (if channel_dir=up) river lengths
+    if np.any(rivlen == 0):
+        rivlen[rivlen == 0] = np.mean(rivlen[rivlen > 0])
+    # smooth river length based on minimum river length
+    if min_rivlen_ratio > 0:
+        res = np.mean(np.abs([xres, yres]))
+        min_len = res * min_rivlen_ratio
+        flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
+        rivlen2 = flwdir_model.smooth_rivlen(rivlen, min_len, nodata=-9999)
+        min_len2 = rivlen2[riv_mask].min()
+        pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
+        logger.debug(
+            f"River length smoothed (min length: {min_len:.0f} m; cells modified: {pmod:.1f})%."
+        )
+        rivlen = rivlen2
+
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
     rivslp = flwdir.subgrid_rivslp(
