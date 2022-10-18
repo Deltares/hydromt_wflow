@@ -2181,9 +2181,25 @@ class WflowModel(Model):
         self._flwdir = None  # make sure old flwdir object is removed
         self.staticmaps[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
+        # Reinitiliase staticgeoms and re-create basins/rivers
         self._staticgeoms = dict()
-        self.basins
-        self.rivers
+        # self.basins
+        # self.rivers
+        # now staticgeoms links to geoms which does not exist in every hydromt version
+        # remove when updating wflow to new objects
+        basins = flw.basin_shape(
+            self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+        )
+        self.set_staticgeoms(basins, name="basins")
+        rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
+        # Check if there are river cells in the model before continuing
+        if np.any(rivmsk):
+            # add stream order 'strord' column
+            strord = self.flwdir.stream_order(mask=rivmsk)
+            feats = self.flwdir.streams(mask=rivmsk, strord=strord)
+            gdf = gpd.GeoDataFrame.from_features(feats)
+            gdf.crs = pyproj.CRS.from_user_input(self.crs)
+            self.set_staticgeoms(gdf, name="rivers")
 
         # Update reservoir and lakes
         remove_reservoir = False
