@@ -2520,9 +2520,25 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># make sure old flwdir object is removed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">to_array</span><span class="p">(</span><span class="s2">&quot;ldd&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Reinitiliase staticgeoms and re-create basins/rivers</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_staticgeoms</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>
+        <span class="c1"># self.basins</span>
+        <span class="c1"># self.rivers</span>
+        <span class="c1"># now staticgeoms links to geoms which does not exist in every hydromt version</span>
+        <span class="c1"># remove when updating wflow to new objects</span>
+        <span class="n">basins</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">basin_shape</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span> <span class="n">basin_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span>
+        <span class="n">rivmsk</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="c1"># Check if there are river cells in the model before continuing</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">rivmsk</span><span class="p">):</span>
+            <span class="c1"># add stream order &#39;strord&#39; column</span>
+            <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">stream_order</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="n">rivmsk</span><span class="p">)</span>
+            <span class="n">feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">streams</span><span class="p">(</span><span class="n">mask</span><span class="o">=</span><span class="n">rivmsk</span><span class="p">,</span> <span class="n">strord</span><span class="o">=</span><span class="n">strord</span><span class="p">)</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rivers&quot;</span><span class="p">)</span>
 
         <span class="c1"># Update reservoir and lakes</span>
         <span class="n">remove_reservoir</span> <span class="o">=</span> <span class="kc">False</span>
@@ -2658,7 +2674,7 @@
   <div class="footer-item">
     
 <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.2.3.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
 </p>
 
   </div>
