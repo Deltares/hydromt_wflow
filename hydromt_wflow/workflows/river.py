@@ -120,7 +120,7 @@ def river(
     if np.any(rivlen == 0):
         rivlen[rivlen == 0] = np.mean(rivlen[rivlen > 0])
     # smooth river length based on minimum river length
-    if min_rivlen_ratio > 0:
+    if min_rivlen_ratio > 0 and hasattr(flwdir, 'smooth_rivlen'):
         res = np.mean(np.abs([xres, yres]))
         min_len = res * min_rivlen_ratio
         flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
@@ -131,6 +131,8 @@ def river(
             f"River length smoothed (min length: {min_len:.0f} m; cells modified: {pmod:.1f})%."
         )
         rivlen = rivlen2
+    elif min_rivlen_ratio > 0:
+        logger.warning("River length smoothing skipped as it requires newer version of pyflwdir.")
 
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
