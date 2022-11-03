@@ -3,7 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
-from typing import Optional
+from typing import Union, Optional
 import glob
 import numpy as np
 import pandas as pd
@@ -766,8 +766,8 @@ class WflowModel(Model):
                 kwargs = {}
                 if isfile(gauges_fn):
                     # try to get epsg number directly, important when writting back data_catalog
-                    if self.crs.is_epsg_code:
-                        code = int(self.crs["init"].lstrip("epsg:"))
+                    if hasattr(self.crs, "to_epsg"):
+                        code = self.crs.to_epsg()
                     else:
                         code = self.crs
                     kwargs.update(crs=code)
@@ -874,13 +874,14 @@ class WflowModel(Model):
                     )[0]
                     mapname = self._MAPS["basins"] + "_" + basename
                     self.set_staticmaps(da_basins, name=mapname)
-                    gdf_basins = da_basins.raster.vectorize()
+                    gdf_basins = self.staticmaps[mapname].raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
         self,
         area_fn: str,
         col2raster: str,
+        nodata: Union[int, float] = -1,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
@@ -891,6 +892,8 @@ class WflowModel(Model):
             Name of vector data corresponding to wflow output area.
         col2raster : str
             Name of the column from the vector file to rasterize.
+        nodata : int/float, optional
+            Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1.
         """
         if area_fn not in self.data_catalog:
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
@@ -909,7 +912,7 @@ class WflowModel(Model):
             da_area = self.staticmaps.raster.rasterize(
                 gdf=gdf_org,
                 col_name=col2raster,
-                nodata=0,
+                nodata=nodata,
                 all_touched=True,
             )
         self.set_staticmaps(da_area.rename(area_fn))
@@ -1321,7 +1324,7 @@ class WflowModel(Model):
         # retrieve data for basin
         self.logger.info(f"Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            glaciers_fn, geom=self.basins, predicate="contains"
+            glaciers_fn, geom=self.basins, predicate="intersects"
         )
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
@@ -1525,7 +1528,6 @@ class WflowModel(Model):
             variables=variables,
             single_var_as_array=False,  # always return dataset
         )
-
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
 
@@ -1681,11 +1683,6 @@ class WflowModel(Model):
             self.logger.warning(f"No staticmaps found at {fn}")
             return
         self._staticmaps = open_mfraster(fns, **kwargs)
-        for name in self.staticmaps.raster.vars:
-            if PCR_VS_MAP.get(name, "scalar") == "bool":
-                self._staticmaps[name] = self._staticmaps[name] == 1
-                # a nodata value is required when writing
-                self._staticmaps[name].raster.set_nodata(0)
         path = join(self.root, "staticmaps", "clim", f"LAI*")
         if len(glob.glob(path)) > 0:
             da_lai = open_mfraster(
@@ -1869,24 +1866,40 @@ class WflowModel(Model):
                         self.write_config()  # re-write config
                         fn_out = fn_default_path
 
+            # Check if all dates between (starttime, endtime) are in all da forcing
+            start = pd.to_datetime(self.get_config("starttime"))
+            end = pd.to_datetime(self.get_config("endtime"))
+            missings = False
+            for da in self.forcing.values():
+                if "time" in da.coords:
+                    if hasattr(da.indexes["time"], "to_datetimeindex"):
+                        times = da.indexes["time"].to_datetimeindex().values
+                    else:
+                        times = da.time.values
+                    if start < pd.to_datetime(times[0]):
+                        start = pd.to_datetime(times[0])
+                        missings = True
+                    if end > pd.to_datetime(times[-1]):
+                        end = pd.to_datetime(times[-1])
+                        missings = True
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
+            ds.raster.set_crs(self.crs)
+            # Send warning, slice ds and update config with new start and end time
+            if missings:
+                self.logger.warning(
+                    f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
+                )
+                self.set_config("starttime", start.to_pydatetime())
+                self.set_config("endtime", end.to_pydatetime())
+                self.write_config()
+                ds = ds.sel({"time": slice(start, end)})
+
             if decimals is not None:
                 ds = ds.round(decimals)
             # clean-up forcing and write CRS according to CF-conventions
-            # TODO replace later with hydromt.raster.gdal_compliant method after core release
-            crs = self.staticmaps.raster.crs
-            # TODO?!
-            # if ds.raster.res[1] < 0: # write data with South -> North orientation
-            #     ds = ds.raster.flipud()
-            x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
-            ds = ds.rename({ds.raster.x_dim: x_dim, ds.raster.y_dim: y_dim})
-            ds[x_dim].attrs.update(x_attrs)
-            ds[y_dim].attrs.update(y_attrs)
-            ds = ds.drop_vars(["mask", "spatial_ref", "idx_out"], errors="ignore")
-            ds.rio.write_crs(crs, inplace=True)
-            ds.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
-            ds.raster.set_spatial_dims()
+            ds = ds.raster.gdal_compliant(rename_dims=True, force_sn=False)
+            ds = ds.drop_vars(["mask", "idx_out"], errors="ignore")
 
             # write with output chunksizes with single timestep and complete
             # spatial grid to speed up the reading from wflow.jl
@@ -2084,6 +2097,7 @@ class WflowModel(Model):
         """Returns a river geometry as a geopandas.GeoDataFrame. If available, the
         stream order and upstream area values are added to the geometry properties.
         """
+        # import pdb; pdb.set_trace()
         if "rivers" in self.staticgeoms:
             gdf = self.staticgeoms["rivers"]
         elif self._MAPS["rivmsk"] in self.staticmaps:
@@ -2096,9 +2110,9 @@ class WflowModel(Model):
                 gdf = gpd.GeoDataFrame.from_features(feats)
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
                 self.set_staticgeoms(gdf, name="rivers")
-            else:
-                self.logger.warning("No river cells detected in the selected basin.")
-                gdf = None
+        else:
+            self.logger.warning("No river cells detected in the selected basin.")
+            gdf = None
         return gdf
 
     def clip_staticmaps(
@@ -2172,9 +2186,25 @@ class WflowModel(Model):
         self._flwdir = None  # make sure old flwdir object is removed
         self.staticmaps[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
+        # Reinitiliase staticgeoms and re-create basins/rivers
         self._staticgeoms = dict()
-        self.basins
-        self.rivers
+        # self.basins
+        # self.rivers
+        # now staticgeoms links to geoms which does not exist in every hydromt version
+        # remove when updating wflow to new objects
+        basins = flw.basin_shape(
+            self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+        )
+        self.set_staticgeoms(basins, name="basins")
+        rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
+        # Check if there are river cells in the model before continuing
+        if np.any(rivmsk):
+            # add stream order 'strord' column
+            strord = self.flwdir.stream_order(mask=rivmsk)
+            feats = self.flwdir.streams(mask=rivmsk, strord=strord)
+            gdf = gpd.GeoDataFrame.from_features(feats)
+            gdf.crs = pyproj.CRS.from_user_input(self.crs)
+            self.set_staticgeoms(gdf, name="rivers")
 
         # Update reservoir and lakes
         remove_reservoir = False

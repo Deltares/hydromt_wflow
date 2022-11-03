@@ -1,25 +1,21 @@
-name: hydromt-wflow
+name: hydromt-wflow-min
 
 channels:
   - conda-forge
 
+# note that these are the developer dependencies
 dependencies:
   - affine
   - click
   - black
   - bottleneck
-  - cartopy # to run examples
   - dask
-  - descartes # to run examples
   - entrypoints
   - flit>=3.4
   - gdal>=3.1
   - geopandas>=0.10
-  - hydromt>=0.5.0
-  - hydromt_wflow
-  - jupyter # to run examples
+  - hydromt >= 0.5.0
   - netcdf4
-  - matplotlib # to run examples
   - numba
   - numpy
   - openpyxl
@@ -36,6 +32,4 @@ dependencies:
   - toml
   - xarray
   - zarr
-  - pip:
-    - hydroengine
 
