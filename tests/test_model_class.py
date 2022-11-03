@@ -115,7 +115,7 @@ def test_model_build(tmpdir, model):
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
     logger = setuplog(__name__, join(root, "hydromt.log"), log_level=10)
-    mod1 = _model["model"](root=root, mode="w", logger=logger)
+    mod1 = _model["model"](root=root, mode="w") #, logger=logger)
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],
@@ -133,7 +133,7 @@ def test_model_build(tmpdir, model):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = _model["model"](root=root, mode="r", logger=logger)
+    mod1 = _model["model"](root=root, mode="r") #, logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, _model["example"])
     mod0 = _model["model"](root=root, mode="r")
@@ -157,7 +157,7 @@ def test_model_clip(tmpdir):
     }
 
     # Clip workflow
-    mod1 = WflowModel(root=root, mode="r", logger=logger)
+    mod1 = WflowModel(root=root, mode="r") #, logger=logger)
     mod1.read()
     mod1.set_root(destination, mode="w")
     mod1.clip_staticmaps(region)
@@ -169,7 +169,7 @@ def test_model_clip(tmpdir):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = WflowModel(root=destination, mode="r", logger=logger)
+    mod1 = WflowModel(root=destination, mode="r") #, logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, "wflow_piave_clip")
     mod0 = WflowModel(root=root, mode="r")
@@ -186,7 +186,7 @@ def test_model_results():
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
 
     # Initialize model and read results
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn, logger=logger)
+    mod = WflowModel(root=root, mode="r", config_fn=config_fn) #, logger=logger)
 
     # Tests on results
     # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
