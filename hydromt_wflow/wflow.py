@@ -638,7 +638,7 @@ class WflowModel(Model):
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_staticmaps(ds_lulc_maps.rename(rmdict))
 
-    def setup_laimaps(self, lai_fn="model_lai"):
+    def setup_laimaps(self, lai_fn="modis_lai"):
         """
         This component sets leaf area index (LAI) climatology maps per month.
 

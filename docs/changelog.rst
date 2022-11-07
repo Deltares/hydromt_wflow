@@ -23,6 +23,7 @@ Fixed
 - bug in self.rivers if no staticgeoms and rivmsk is found #113
 - bug in wflow_build_sediment.ini template in examples
 - temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms). 
+- fix wrong default value for lai_fn in setup_laimaps #119
 
 Deprecated
 ----------
