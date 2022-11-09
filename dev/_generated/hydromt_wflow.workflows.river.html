@@ -516,9 +516,9 @@
 and optional “rivwth” and “qbankfull” variable</p></li>
 <li><p><strong>ds_model</strong> (<em>xr.Dataset</em><em>, </em><em>optional</em>) – model dataset with output grid, must contain “uparea”, for subgrid rivlen/slp
 must contain “x_out”, “y_out”. If None, ds is assumed to be the model grid</p></li>
-<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum threshold to define river cell &amp; pixels, by default 30 [km2]</p></li>
-<li><p><strong>slope_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum length over which to calculate the river slope, by default 1000 [m]</p></li>
-<li><p><strong>min_rivlen_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum global river length to avg. cell resolution ratio, by default 0.1</p></li>
+<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum threshold to define river cell &amp; pixels, by default 30 [km2]</p></li>
+<li><p><strong>slope_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum length over which to calculate the river slope, by default 1000 [m]</p></li>
+<li><p><strong>min_rivlen_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum global river length to avg. cell resolution ratio, by default 0.1</p></li>
 <li><p><strong>channel_dir</strong> (<em>{&quot;up&quot;</em><em>, </em><em>&quot;down&quot;}</em>) – flow direcition in which to calculate (subgrid) river length and width</p></li>
 <li><p><strong>Returns</strong> – </p></li>
 <li><p><strong>ds_out</strong> (<em>xr.Dataset</em>) – Dataset with output river attributes</p></li>

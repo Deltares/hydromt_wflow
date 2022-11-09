@@ -528,16 +528,16 @@ Users can also supply their own elevation and flow direction data. Note that onl
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – <p>Name of data source for basemap parameters.</p>
+<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Name of data source for basemap parameters.</p>
 <ul>
 <li><p>Required variables: [‘flwdir’, ‘uparea’, ‘basins’, ‘strord’, ‘elevtn’]</p></li>
 <li><p>Optional variables: [‘lndslp’, ‘mask’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>basin_index_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a>) – Name of data source for basin_index data linked to hydrography_fn.</p></li>
-<li><p><strong>region</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)"><em>dict</em></a>) – Dictionary describing region of interest.
+<li><p><strong>basin_index_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of data source for basin_index data linked to hydrography_fn.</p></li>
+<li><p><strong>region</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Dictionary describing region of interest.
 See :py:function:~basin_mask.parse_region for all options</p></li>
-<li><p><strong>res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – Output model resolution</p></li>
+<li><p><strong>res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Output model resolution</p></li>
 <li><p><strong>upscale_method</strong> (<em>{'ihu'</em><em>, </em><em>'eam'</em><em>, </em><em>'dmm'}</em>) – Upscaling method for flow direction data, by default ‘ihu’.</p></li>
 </ul>
 </dd>

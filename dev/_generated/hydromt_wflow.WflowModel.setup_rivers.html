@@ -535,25 +535,25 @@ segment in <cite>river_geom_fn</cite> and takes optional arguments for the hc
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data.
+<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data.
 Must be same as setup_basemaps for consistent results.</p>
 <ul>
 <li><p>Required variables: [‘flwdir’, ‘uparea’, ‘elevtn’]</p></li>
 <li><p>Optional variables: [‘rivwth’, ‘qbankfull’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>river_geom_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>optional</em>) – <p>Name of data source for river data.</p>
+<li><p><strong>river_geom_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>optional</em>) – <p>Name of data source for river data.</p>
 <ul>
 <li><p>Required variables: [‘rivwth’, ‘qbankfull’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum upstream area threshold for the river map [km2]</p></li>
-<li><p><strong>slope_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – length over which the river slope is calculated [km]</p></li>
-<li><p><strong>min_rivlen_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a>) – minimum global river length to avg. cell resolution ratio, by default 0.1</p></li>
+<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum upstream area threshold for the river map [km2]</p></li>
+<li><p><strong>slope_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – length over which the river slope is calculated [km]</p></li>
+<li><p><strong>min_rivlen_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum global river length to avg. cell resolution ratio, by default 0.1</p></li>
 <li><p><strong>rivdph_method</strong> (<em>{'gvf'</em><em>, </em><em>'manning'</em><em>, </em><em>'powlaw'}</em>) – see py:meth:<cite>hydromt.workflows.river_depth</cite> for details, by default “powlaw”</p></li>
-<li><p><strong>smooth_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Length [m] over which to smooth the output river width and depth, by default 5e3</p></li>
-<li><p><strong>min_rivdph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum river depth [m], by default 1.0</p></li>
-<li><p><strong>min_rivwth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.10)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum river width [m], by default 30.0</p></li>
+<li><p><strong>smooth_len</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Length [m] over which to smooth the output river width and depth, by default 5e3</p></li>
+<li><p><strong>min_rivdph</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum river depth [m], by default 1.0</p></li>
+<li><p><strong>min_rivwth</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum river width [m], by default 30.0</p></li>
 </ul>
 </dd>
 </dl>
