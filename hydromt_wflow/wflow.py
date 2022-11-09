@@ -13,6 +13,7 @@ from shapely.geometry import box
 import pyproj
 import toml
 import codecs
+import pyflwdir
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
@@ -386,6 +387,53 @@ class WflowModel(Model):
         self.logger.debug(f"Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
+
+    def setup_river_floodplain(
+        self, hydrography_fn, river_upa=30, flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5]
+    ):
+        """
+        This component adds a map with floodplain volume per flood depth,
+        which is used in the wflow 1D floodplain schematisation.
+
+        Requires `setup_rivers` to be executed beforehand.
+
+        Adds model layers:
+
+        * **floodplain_volume** map: river mask [-]
+
+        Parameters
+        ----------
+        hydrography_fn : str, Path
+            Name of data source for hydrography data.
+            Must be same as setup_basemaps for consistent results.
+
+            * Required variables: ['flwdir', 'uparea', 'elevtn']
+        river_upa : float
+            minimum upstream area threshold for drain in the HAND.
+        flood_depths : tuple of float, optional
+            flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]
+        """
+        if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
+            self.logger.warning("This method requires pyflwdir >= 0.5.6")
+            return
+
+        self.logger.info("Preparing 1D river floodplain_volume map.")
+
+        # read data
+        ds_hydro = self.data_catalog.get_rasterdataset(
+            hydrography_fn, geom=self.region, buffer=10
+        )
+
+        # get river floodplain volume
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        da_fldpln = workflows.river_floodplain_volume(
+            ds=ds_hydro,
+            ds_model=self.staticmaps.rename(inv_rename),
+            river_upa=river_upa,
+            flood_depths=flood_depths,
+            logger=self.logger,
+        )
+        self.set_staticmaps(da_fldpln, "floodplain_volume")
 
     def setup_hydrodem(
         self,

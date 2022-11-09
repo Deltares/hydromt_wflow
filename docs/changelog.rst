@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
+- New setup_river_floodplain method `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
 
 Changed
 -------

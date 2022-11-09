@@ -15,7 +15,7 @@ from hydromt_wflow import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["river", "river_bathymetry", "river_width"]
+__all__ = ["river", "river_bathymetry", "river_width", "river_floodplain_volume"]
 
 RESAMPLING = {"climate": "nearest", "precip": "average"}
 NODATA = {"discharge": -9999}
@@ -59,7 +59,7 @@ def river(
     min_rivlen_ratio: float
         minimum global river length to avg. cell resolution ratio, by default 0.1
     channel_dir: {"up", "down"}
-        flow direcition in which to calculate (subgrid) river length and width
+        flow direction in which to calculate (subgrid) river length and width
     
     Returns:
     ds_out: xr.Dataset
@@ -72,7 +72,7 @@ def river(
         raise ValueError(f"One or more variables missing from ds: {dvars}.")
     if ds_model is not None and not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
-    # sort sugrid
+    # sort subgrid
     subgrid = True
     if ds_model is None or not np.all([v in ds_model for v in ["x_out", "y_out"]]):
         subgrid = False
@@ -291,6 +291,86 @@ def river_bathymetry(
     return ds_model[["rivwth", "rivdph"]]
 
 
+def river_floodplain_volume(
+    ds,
+    ds_model,
+    river_upa=30,
+    flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5],
+    logger=logger,
+):
+    """Calculate the floodplain volume at given flood depths based on a (subgrid) HAND map.
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        hydrography dataset containing "flwdir", "uparea", "elevtn" variables;
+    ds_model: xr.Dataset, optional
+        Model dataset with output grid, must contain "rivmsk", "rivwth", "rivlen"
+        for subgrid must contain "x_out", "y_out".
+    river_upa: float
+        minimum threshold to define the river when calculating HAND, by default 30 [km2]
+    flood_depths : list of float, optional
+        flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]
+    """
+    if not ds.raster.crs == ds_model.raster.crs:
+        raise ValueError("Hydrography dataset CRS does not match model CRS")
+
+    # check data variables.
+    dvars = ["flwdir", "elevtn", "uparea"]
+    dvars_model = ["rivmsk", "rivwth", "rivlen"]
+    if not np.all([v in ds for v in dvars]):
+        raise ValueError(f"One or more variables missing from ds: {dvars}.")
+    if not np.all([v in ds_model for v in dvars_model]):
+        raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
+
+    # initialize flood directions
+    flwdir = flw.flwdir_from_da(ds["flwdir"], mask=None)
+
+    # get river cell coordinates
+    riv_mask = ds_model["rivmsk"].values > 0
+    if "x_out" in ds_model and "y_out" in ds_model:  # use subgrid
+        idxs_out = ds.raster.xy_to_idx(
+            xs=ds_model["x_out"].values,
+            ys=ds_model["y_out"].values,
+            mask=riv_mask,
+            nodata=flwdir._mv,
+        )
+    else:
+        # get cell index of river cells
+        idxs_out = np.arange(ds_model.raster.size).reshape(ds_model.raster.shape)
+        idxs_out = np.where(riv_mask, idxs_out, flwdir._mv)
+
+    # calculate hand
+    hand = flwdir.hand(
+        drain=ds["uparea"].values >= river_upa, elevtn=ds["elevtn"].values
+    )
+
+    # calculate volume at user defined flood depths
+    # note that the ucat_map is not save currently but is required if
+    # we want to create a flood map by postprocessing
+    flood_depths = np.atleast_1d(flood_depths).ravel().astype(np.float32)  # force 1D
+    _, ucat_vol = flwdir.ucat_volume(idxs_out=idxs_out, hand=hand, depths=flood_depths)
+    # force minimum volume based on river width * length
+    min_vol = (
+        ds_model["rivwth"].values[None, ...]
+        * ds_model["rivlen"].values[None, ...]
+        * flood_depths[:, None, None]
+    )
+    ucat_vol = np.where(riv_mask, np.maximum(ucat_vol, min_vol), -9999)
+
+    # return xarray DataArray
+    da_out = xr.DataArray(
+        coords={"flood_depth": flood_depths, **ds_model.raster.coords},
+        dims=("flood_depth", *ds_model.raster.dims),
+        data=ucat_vol,
+    ).reset_coords(drop=True)
+    da_out.raster.set_nodata(-9999)
+    da_out.raster.set_crs(ds_model.raster.crs)
+
+    # TODO return a second dataset with hand and ucat_map variables for postprocessing
+    return da_out
+
+
 # TODO: methods below are redundant after version v0.1.4 and will be removed in
 # future versions
 
@@ -315,9 +395,7 @@ def river_width(
 ):
     nopars = a is None or b is None  # no manual a, b parameters
     fit = fit or (nopars and predictor not in ["discharge"])  # fit power-law on the fly
-    nowth = (
-        f"{rivwth_name}{obs_postfix}" not in ds_like
-    )  # no obseved with in staticmaps
+    nowth = f"{rivwth_name}{obs_postfix}" not in ds_like  # no observed width
     fill = fill and nowth == False  # fill datagaps and masked areas (lakes/res) in obs
 
     if nowth and fit:
