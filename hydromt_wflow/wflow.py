@@ -3,7 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
-from typing import Union, Optional
+from typing import Union, Optional, List
 import glob
 import numpy as np
 import pandas as pd
@@ -389,7 +389,11 @@ class WflowModel(Model):
         self.rivers  # add new rivers to staticgeoms
 
     def setup_river_floodplain(
-        self, hydrography_fn, river_upa=30, flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5]
+        self,
+        hydrography_fn,
+        river_upa: float = 30,
+        flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5],
+        floodplain_1d: bool = True,
     ):
         """
         This component adds a map with floodplain volume per flood depth,
@@ -412,6 +416,8 @@ class WflowModel(Model):
             minimum upstream area threshold for drain in the HAND.
         flood_depths : tuple of float, optional
             flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]
+        floodplain_1d : bool
+            Value for model.floodplain_1d setting in toml file, by default True.
         """
         if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
             self.logger.warning("This method requires pyflwdir >= 0.5.6")
@@ -434,6 +440,11 @@ class WflowModel(Model):
             logger=self.logger,
         )
         self.set_staticmaps(da_fldpln, "floodplain_volume")
+
+        # update config
+        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
+        self.set_config("model.floodplain_1d", floodplain_1d)
+        self.set_config("input.lateral.river.floodplain.volume", "floodplain_volume")
 
     def setup_hydrodem(
         self,

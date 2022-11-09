@@ -296,6 +296,7 @@ def river_floodplain_volume(
     ds_model,
     river_upa=30,
     flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5],
+    dtype=np.float64,
     logger=logger,
 ):
     """Calculate the floodplain volume at given flood depths based on a (subgrid) HAND map.
@@ -311,6 +312,13 @@ def river_floodplain_volume(
         minimum threshold to define the river when calculating HAND, by default 30 [km2]
     flood_depths : list of float, optional
         flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]
+    dtype: numpy.dtype, optional
+        output dtype
+
+    Returns
+    -------
+    da_out : xr.DataArray with dims (flood_depth, y, x)
+        Floodplain volume [m3]
     """
     if not ds.raster.crs == ds_model.raster.crs:
         raise ValueError("Hydrography dataset CRS does not match model CRS")
@@ -348,7 +356,7 @@ def river_floodplain_volume(
     # calculate volume at user defined flood depths
     # note that the ucat_map is not save currently but is required if
     # we want to create a flood map by postprocessing
-    flood_depths = np.atleast_1d(flood_depths).ravel().astype(np.float32)  # force 1D
+    flood_depths = np.atleast_1d(flood_depths).ravel().astype(dtype)  # force 1D
     _, ucat_vol = flwdir.ucat_volume(idxs_out=idxs_out, hand=hand, depths=flood_depths)
     # force minimum volume based on river width * length
     min_vol = (
@@ -356,7 +364,10 @@ def river_floodplain_volume(
         * ds_model["rivlen"].values[None, ...]
         * flood_depths[:, None, None]
     )
-    ucat_vol = np.where(riv_mask, np.maximum(ucat_vol, min_vol), -9999)
+    ucat_vol = (
+        np.where(riv_mask, np.maximum(ucat_vol, min_vol), -9999)
+        .round(0)
+    )
 
     # return xarray DataArray
     da_out = xr.DataArray(

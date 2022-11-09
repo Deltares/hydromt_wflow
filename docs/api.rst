@@ -30,6 +30,7 @@ Setup components
    WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
+   WflowModel.setup_river_floodplain
    WflowModel.setup_lakes
    WflowModel.setup_reservoirs
    WflowModel.setup_glaciers

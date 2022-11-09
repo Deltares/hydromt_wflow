@@ -38,6 +38,8 @@ a specific method see its documentation.
       - This component sets the region of interest and res (resolution in degrees) of the model.
     * - :py:func:`~WflowModel.setup_rivers`
       - This component sets the all river parameter maps.
+    * - :py:func:`~WflowModel.setup_river_floodplain`
+        This component sets a map with floodplain volume per flood depth.
     * - :py:func:`~WflowModel.setup_lakes`
       - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
     * - :py:func:`~WflowModel.setup_reservoirs`
