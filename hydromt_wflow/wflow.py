@@ -1769,7 +1769,7 @@ class WflowModel(Model):
             ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
-        elif fn.match("*"):
+        elif "*" in str(fn):
             self.logger.info(f"Read multiple forcing files using {fn}")
             fns = list(fn.parent.glob(fn.name))
             if len(fns) == 0:
