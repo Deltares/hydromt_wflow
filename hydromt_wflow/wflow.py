@@ -1769,6 +1769,14 @@ class WflowModel(Model):
             ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
+        elif fn.match("*"):
+            self.logger.info(f"Read multiple forcing files using {fn}")
+            fns = list(fn.parent.glob(fn.name))
+            if len(fns) == 0:
+                raise IOError(f"No forcing files found using {fn}")
+            ds = xr.open_mfdataset(fns, chunks={"time": 30}, decode_coords="all")
+            for v in ds.data_vars:
+                self.set_forcing(ds[v])
 
     def write_forcing(
         self,
