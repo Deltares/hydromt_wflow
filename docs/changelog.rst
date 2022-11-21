@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
+- New **setup_staticmaps_from_raster** method. `PR #128 <https://github.com/Deltares/hydromt_wflow/issues/111>`_
 
 Changed
 -------
