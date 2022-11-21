@@ -5,6 +5,8 @@ import pandas as pd
 import xarray as xr
 import geopandas as gp
 import logging
+import shapely
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -120,14 +122,15 @@ def waterbodymaps(
 
 def reservoirattrs(
     gdf,
-    priorityJRC=False,
+    priorityEO=False,
     perc_norm=50,
     perc_min=20,
-    usehe=True,
+    EOsource='gww',
     logger=logger,
 ):
     """Returns reservoir attributes (see list below) needed for modelling. 
-    For some attributes, download data from the JRC database (Peker, 2016) using hydroengine.
+    When specified, some of the reservoir attributes can be derived from earth observation data. 
+    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) and 2. JRC (Peker, 2016)
 
     The following reservoir attributes are calculated:\
     - resmaxvolume : reservoir maximum volume [m3]\
@@ -141,14 +144,14 @@ def reservoirattrs(
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs geometries and attributes.
-    priorityJRC : boolean, optional
-        Specify if attributes are more reliable from the gdf attributes or from the JRC database.
+    priorityEO : boolean, optional
+        Specify if attributes are more reliable from the gdf attributes or from earth observation data.
     perc_norm : int, optional
         Percentile for normal (operational) surface area
     perc_min: int, optional 
         Percentile for minimal (operational) surface area
-    usehe : bool, optional
-        If True use hydroengine to get reservoir timeseries
+    EOsource : str, optional
+        Specify which source to use to get earth observation data. Either "gww" or "jrc"
 
     Returns
     -------
@@ -157,13 +160,25 @@ def reservoirattrs(
     df_plot : pandas.DataFrame
         DataFrame containing debugging values for reservoir building.
     """
-    if usehe:
+    if EOsource.lower() not in ['jrc', 'gww']:
+        logger.debug(
+                "No valid EO source provided: using default reservoir attributes"
+            )
+
+    if EOsource.lower() == 'jrc':
         try:
             import hydroengine as he
         except ImportError:
-            usehe = False
             logger.debug(
                 "HydroEngine package not found, using default reservoir attribute values."
+            )
+    
+    if EOsource.lower() == 'gww':
+        try:
+            from gwwapi import client as cli
+        except ImportError:
+            logger.debug(
+                "gwwapi not found, using default reservoir attribute values."
             )
 
     # Initialize output DataFrame with empty values and reservoir ID
@@ -183,12 +198,12 @@ def reservoirattrs(
     )
     df_out["resid"] = gdf["waterbody_id"].values
 
-    # Create similar dataframe for JRC timeseries
-    df_JRC = pd.DataFrame(
+    # Create similar dataframe for EO timeseries
+    df_EO = pd.DataFrame(
         index=range(len(gdf["waterbody_id"])),
         columns=(["resid", "maxarea", "normarea", "minarea", "capmin", "capmax"]),
     )
-    df_JRC["resid"] = gdf["waterbody_id"].values
+    df_EO["resid"] = gdf["waterbody_id"].values
 
     # Create dtaframe for accuracy plots
     df_plot = pd.DataFrame(
@@ -197,12 +212,12 @@ def reservoirattrs(
     )
     df_plot["resid"] = gdf["waterbody_id"].values
 
-    # Get JRC data for each reservoir from hydroengine
-    df_JRC.loc[:, "maxarea"] = np.nan
-    df_JRC.loc[:, "normarea"] = np.nan
-    df_JRC.loc[:, "minarea"] = np.nan
+    # Get EO data for each reservoir 
+    df_EO.loc[:, "maxarea"] = np.nan
+    df_EO.loc[:, "normarea"] = np.nan
+    df_EO.loc[:, "minarea"] = np.nan
 
-    if usehe:
+    if EOsource == 'jrc':
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
             try:
@@ -212,16 +227,47 @@ def reservoirattrs(
                 )
                 area_series = np.array(time_series["water_area"])  # [m2]
                 area_series_nozeros = area_series[area_series > 0]
-                df_JRC.loc[i, "maxarea"] = area_series_nozeros.max()
-                df_JRC.loc[i, "normarea"] = np.percentile(
+                df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
+                df_EO.loc[i, "normarea"] = np.percentile(
                     area_series_nozeros, perc_norm, axis=0
                 )
-                df_JRC.loc[i, "minarea"] = np.percentile(
+                df_EO.loc[i, "minarea"] = np.percentile(
                     area_series_nozeros, perc_min, axis=0
                 )
             except:
                 logger.warning(
                     f"No HydroEngine time series available for reservoir {ids}!"
+                )
+    
+    if EOsource == 'gww':
+
+        gdf_bounds = shapely.geometry.box(*gdf.total_bounds, ccw=True)
+        gdf_bounds_json =json.dumps(shapely.geometry.mapping(gdf_bounds))
+        
+        gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds_json).json()
+        gww_reservoirs_gpd = cli.to_geopandas(gww_reservoirs)
+        idlink = gww_reservoirs_gpd.loc[:,['source_id', 'id']].set_index('source_id')
+        idlink = idlink.to_dict()['id']                
+
+        for i in range(len(gdf["waterbody_id"])):
+            ids = str(gdf["waterbody_id"].iloc[i])
+            try:
+                logger.debug(f"Downloading Global Water Watch timeseries for reservoir {ids}")
+                time_series = cli.get_reservoir_ts(
+                    idlink[int(gdf["Hylak_id"].iloc[i])]
+                ).json()
+                area_series = cli.to_timeseries(time_series)['area'].to_numpy()
+                area_series_nozeros = area_series[area_series > 0]
+                df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
+                df_EO.loc[i, "normarea"] = np.percentile(
+                    area_series_nozeros, perc_norm, axis=0
+                )
+                df_EO.loc[i, "minarea"] = np.percentile(
+                    area_series_nozeros, perc_min, axis=0
+                )
+            except:
+                logger.warning(
+                    f"No GWW time series available for reservoir {ids}!"
                 )
 
     # Compute resdemand and resmaxrelease either from average discharge
@@ -229,19 +275,19 @@ def reservoirattrs(
         df_out["resdemand"] = gdf["Dis_avg"].values * 0.5
         df_out["resmaxrelease"] = gdf["Dis_avg"].values * 4.0
 
-    # Get resarea either from JRC or database depending on priorityJRC
+    # Get resarea either from EO or database depending on priorityEO
     if "Area_avg" in gdf.columns:
         df_out["resarea"] = gdf["Area_avg"].values
-        if priorityJRC:
-            df_out.loc[pd.notna(df_JRC["maxarea"]), "resarea"] = df_JRC["maxarea"][
-                pd.notna(df_JRC["maxarea"])
+        if priorityEO:
+            df_out.loc[pd.notna(df_EO["maxarea"]), "resarea"] = df_EO["maxarea"][
+                pd.notna(df_EO["maxarea"])
             ].values
         else:
-            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_JRC["maxarea"][
+            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
                 pd.isna(df_out["resarea"])
             ].values
     else:
-        df_out["resarea"] = df_JRC["maxarea"].values
+        df_out["resarea"] = df_EO["maxarea"].values
 
     # Get resmaxvolume from database
     if "Vol_avg" in gdf.columns:
@@ -256,8 +302,9 @@ def reservoirattrs(
         df_out["resfullfrac"] = gdf["Capacity_norm"].values / df_out["resmaxvolume"]
         df_plot["accuracy_norm"] = np.repeat(1.0, len(df_plot["accuracy_norm"]))
 
-    # Then compute from JRC data and fill or replace the previous values depending on priorityJRC
+    # Then compute from EO data and fill or replace the previous values depending on priorityEO
     # TODO for now assumes that the reservoir-db is used (combination of GRanD and HydroLAKES)
+    gdf = gdf.fillna(value=np.nan)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
         # import pdb; pdb.set_trace()
@@ -265,9 +312,9 @@ def reservoirattrs(
         max_level = np.nanmax([gdf["Depth_avg"].iloc[i], 0.0])
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])
         max_cap = np.nanmax([df_out["resmaxvolume"].iloc[i], 0.0])
-        norm_area = np.nanmax([df_JRC["normarea"].iloc[i], 0.0])
+        norm_area = np.nanmax([df_EO["normarea"].iloc[i], 0.0])
         norm_cap = np.nanmax([gdf["Capacity_norm"].iloc[i], 0.0])
-        min_area = np.nanmax([df_JRC["minarea"].iloc[i], 0.0])
+        min_area = np.nanmax([df_EO["minarea"].iloc[i], 0.0])
         min_cap = np.nanmax([gdf["Capacity_min"].iloc[i], 0.0])
         mv = 0.0
 
@@ -385,23 +432,23 @@ def reservoirattrs(
             accuracy_min = 5
 
         # Resume results
-        df_JRC.loc[i, "capmin"] = min_cap_f
-        df_JRC.loc[i, "capmax"] = norm_cap_f
+        df_EO.loc[i, "capmin"] = min_cap_f
+        df_EO.loc[i, "capmax"] = norm_cap_f
         df_plot.loc[i, "factor"] = factor_shape
         df_plot.loc[i, "accuracy_min"] = accuracy_min
         df_plot.loc[i, "accuracy_norm"] = accuracy_norm
 
-    # Depending on priority JRC update fullfrac and min frac
-    if priorityJRC:
-        df_out.resminfrac = df_JRC["capmin"].values / df_out["resmaxvolume"].values
-        df_out.resfullfrac = df_JRC["capmax"].values / df_out["resmaxvolume"].values
+    # Depending on priority EO update fullfrac and min frac
+    if priorityEO:
+        df_out.resminfrac = df_EO["capmin"].values / df_out["resmaxvolume"].values
+        df_out.resfullfrac = df_EO["capmax"].values / df_out["resmaxvolume"].values
     else:
         df_out.loc[pd.isna(df_out["resminfrac"]), "resminfrac"] = (
-            df_JRC.loc[pd.isna(df_out["resminfrac"]), "capmin"].values
+            df_EO.loc[pd.isna(df_out["resminfrac"]), "capmin"].values
             / df_out.loc[pd.isna(df_out["resminfrac"]), "resmaxvolume"].values
         )
         df_out.loc[pd.isna(df_out["resfullfrac"]), "resfullfrac"] = (
-            df_JRC.loc[pd.isna(df_out["resfullfrac"]), "capmax"].values
+            df_EO.loc[pd.isna(df_out["resfullfrac"]), "capmax"].values
             / df_out.loc[pd.isna(df_out["resfullfrac"]), "resmaxvolume"].values
         )
 
