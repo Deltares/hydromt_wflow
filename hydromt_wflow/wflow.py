@@ -1936,6 +1936,7 @@ class WflowModel(Model):
                 fns_out = os.path.relpath(fn_out, self.root)
                 fns_out = f"{str(fns_out)[0:-3]}_*.nc"
                 self.set_config("input.path_forcing", fns_out)
+                self.write_config()  # re-write config
                 for label, ds_gr in ds.resample(time=freq_out):
                     # ds_gr = group[1]
                     start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
