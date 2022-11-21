@@ -1021,7 +1021,7 @@ class WflowModel(Model):
         self,
         reservoirs_fn="hydro_reservoirs",
         min_area=1.0,
-        priority_jrc=True,
+        priorityEO=True,
         **kwargs,
     ):
         """This component generates maps of reservoir areas and outlets as well as parameters
@@ -1074,8 +1074,8 @@ class WflowModel(Model):
             * Required variables for computation without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
-        priority_jrc : boolean, optional
-            If True, use JRC water occurrence (Pekel,2016) data from GEE to calculate
+        priorityEO : boolean, optional
+            If True, use EO data to calculate
             and overwrite the reservoir volume/areas of the data source.
         """
         # rename to wflow naming convention
@@ -1127,8 +1127,8 @@ class WflowModel(Model):
             else:
                 intbl_reservoirs, reservoir_accuracy = workflows.reservoirattrs(
                     gdf=gdf_org,
-                    priorityJRC=priority_jrc,
-                    usehe=kwargs.get("usehe", True),
+                    priorityEO=priorityEO,
+                    EOsource=kwargs.get("EOsource", 'gww'),
                     logger=self.logger,
                 )
                 intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)

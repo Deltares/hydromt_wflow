@@ -96,7 +96,7 @@ class WflowSedimentModel(WflowModel):
         self,
         reservoirs_fn="hydro_reservoirs",
         min_area=1.0,
-        priority_jrc=True,
+        priorityEO=True,
         **kwargs,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
@@ -131,14 +131,14 @@ class WflowSedimentModel(WflowModel):
             * Required variables without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
-        priority_jrc : boolean, optional
-            If True, use JRC water occurence (Pekel,2016) data from GEE to calculate
+        priorityEO : boolean, optional
+            If True, use EO data to calculate
             and overwrite the reservoir volume/areas of the data source.
         """
         super().setup_reservoirs(
             reservoirs_fn=reservoirs_fn,
             min_area=min_area,
-            priority_jrc=priority_jrc,
+            priorityEO=priorityEO,
             **kwargs,
         )
         # Update the toml to match wflow_sediment and not wflow_sbm
