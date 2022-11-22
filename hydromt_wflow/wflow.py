@@ -591,17 +591,17 @@ class WflowModel(Model):
     ):
         """
         This component derives several wflow maps are derived based on landuse-
-        landcover (LULC) data. 
-        
+        landcover (LULC) data.
+
         Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
         value, unless noted differently.
-        
+
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]     
+        * **landuse** map: Landuse class [-]
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]
         * **Swood** map: Fraction of wood in the vegetation/plant [-]
@@ -1852,6 +1852,14 @@ class WflowModel(Model):
             ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
             for v in ds.data_vars:
                 self.set_forcing(ds[v])
+        elif "*" in str(fn):
+            self.logger.info(f"Read multiple forcing files using {fn}")
+            fns = list(fn.parent.glob(fn.name))
+            if len(fns) == 0:
+                raise IOError(f"No forcing files found using {fn}")
+            ds = xr.open_mfdataset(fns, chunks={"time": 30}, decode_coords="all")
+            for v in ds.data_vars:
+                self.set_forcing(ds[v])
 
     def write_forcing(
         self,
@@ -1881,7 +1889,7 @@ class WflowModel(Model):
             For more options, see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
         chunksize: int, optional
             Chunksize on time dimension when saving to disk. By default 1.
-        decimals, int, optional
+        decimals: int, optional
             Round the ouput data to the given number of decimals.
         time_units: str, optional
             Common time units when writting several netcdf forcing files. By default "days since 1900-01-01T00:00:00".
@@ -2011,6 +2019,7 @@ class WflowModel(Model):
                 fns_out = os.path.relpath(fn_out, self.root)
                 fns_out = f"{str(fns_out)[0:-3]}_*.nc"
                 self.set_config("input.path_forcing", fns_out)
+                self.write_config()  # re-write config
                 for label, ds_gr in ds.resample(time=freq_out):
                     # ds_gr = group[1]
                     start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()

@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- update forcing example with multiple forcing files #122
 - New window smoothing algorithm in `setup_rivers` to avoid cells with small river length. 
   Set the min_rivlen_ratio argument to a value larger than zero to apply the smoothing.
   Note: requires pyflwdir v0.5.6 `PR #92 <https://github.com/Deltares/hydromt_wflow/pull/92>`_
@@ -23,9 +24,12 @@ Changed
 Fixed
 -----
 - write_forcing with time of type cftime.DatetimeNoLeap #109
+- write_forcing: re-write config in case of multiple forcing files
+- read_forcing with multiple files (* key in toml)
 - bug in setup_gauges in update mode with crs.is_epsg_code #108
 - bug in self.rivers if no staticgeoms and rivmsk is found #113
 - bug in wflow_build_sediment.ini template in examples
+- wrong defaults in wflow_build.ini teamplate in examples #116
 - temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms). 
 - fix wrong default value for lai_fn in setup_laimaps #119
 
