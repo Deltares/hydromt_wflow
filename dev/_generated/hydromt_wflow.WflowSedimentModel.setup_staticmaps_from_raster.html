@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>hydromt_wflow.WflowModel.setup_gauges &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_gauges';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.setup_areamap" href="hydromt_wflow.WflowModel.setup_areamap.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.setup_hydrodem" href="hydromt_wflow.WflowModel.setup_hydrodem.html" />
+    <link rel="next" title="hydromt_wflow.WflowSedimentModel.region" href="hydromt_wflow.WflowSedimentModel.region.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_constant_pars" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="docsearch:language" content="en">
   </head>
@@ -342,7 +342,7 @@
     <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.html">hydromt_wflow.WflowModel</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
@@ -353,7 +353,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_gauges</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">hydromt_wflow.WflowModel.setup_temp_pet_forcing</a></li>
@@ -411,7 +411,7 @@
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">hydromt_wflow.WflowSedimentModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">hydromt_wflow.WflowSedimentModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html">hydromt_wflow.WflowSedimentModel.setup_rivers</a></li>
@@ -426,7 +426,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_gauges.html">hydromt_wflow.WflowSedimentModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html">hydromt_wflow.WflowSedimentModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -520,46 +520,36 @@
             
             <article class="bd-article" role="main">
               
-  <section id="hydromt-wflow-wflowmodel-setup-gauges">
-<h1>hydromt_wflow.WflowModel.setup_gauges<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-gauges" title="Permalink to this heading">#</a></h1>
+  <section id="hydromt-wflow-wflowsedimentmodel-setup-staticmaps-from-raster">
+<h1>hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-staticmaps-from-raster" title="Permalink to this heading">#</a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_gauges">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_gauges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gauges_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grdc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_gdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snap_to_river</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">derive_subcatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">derive_outlet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_toml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_gauges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_gauges" title="Permalink to this definition">#</a></dt>
-<dd><p>This components sets the default gauge map based on basin outlets and additional
-gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p>
-<p>Supported gauge datasets include “grdc”
-or “&lt;path_to_source&gt;” for user supplied csv or geometry files with gauge locations.
-If a csv file is provided, a “x” or “lon” and “y” or “lat” column is required
-and the first column will be used as IDs in the map. If <code class="docutils literal notranslate"><span class="pre">snap_to_river</span></code> is set
-to True, the gauge location will be snapped to the boolean river mask. If
-<code class="docutils literal notranslate"><span class="pre">derive_subcatch</span></code> is set to True, an additional subcatch map is derived from
-the gauge locations.</p>
-<p>Adds model layers:</p>
-<ul class="simple">
-<li><p><strong>wflow_gauges</strong> map: gauge IDs map from catchment outlets [-]</p></li>
-<li><p><strong>wflow_gauges_source</strong> map: gauge IDs map from source [-] (if gauges_fn)</p></li>
-<li><p><strong>wflow_subcatch_source</strong> map: subcatchment based on gauge locations [-] (if derive_subcatch)</p></li>
-<li><p><strong>gauges</strong> geom: polygon of catchment outlets</p></li>
-<li><p><strong>gauges_source</strong> geom: polygon of gauges from source</p></li>
-<li><p><strong>subcatch_source</strong> geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)</p></li>
-</ul>
+<dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster">
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_staticmaps_from_raster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raster_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">reproject_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wflow_variables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><span class="pre">Optional</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster" title="Permalink to this definition">#</a></dt>
+<dd><p>This component adds data variable(s) from <code class="docutils literal notranslate"><span class="pre">raster_fn</span></code> to staticmaps object.
+If raster is a dataset, all variables will be added unless <code class="docutils literal notranslate"><span class="pre">variables</span></code> list is specified.
+The config toml can also be updated to include the new maps using <code class="docutils literal notranslate"><span class="pre">wflow_variables</span></code>.</p>
+<p>Adds model layers:
+* <strong>raster.name</strong> or <strong>variables</strong> staticmaps: data from raster_fn</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gauges_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>{&quot;grdc&quot;}</em><em>, </em><em>optional</em>) – Known source name or path to gauges file geometry file, by default None.</p></li>
-<li><p><strong>source_gdf</strong> (<em>geopandas.GeoDataFame</em><em>, </em><em>optional</em>) – Direct gauges file geometry, by default None.</p></li>
-<li><p><strong>index_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Column in gauges_fn to use for ID values, by default None (use the default index column)</p></li>
-<li><p><strong>snap_to_river</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Snap point locations to the closest downstream river cell, by default True</p></li>
-<li><p><strong>mask</strong> (<em>np.boolean</em><em>, </em><em>optional</em>) – If provided snaps to the mask, else snaps to the river (default).</p></li>
-<li><p><strong>derive_subcatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Derive subcatch map for gauges, by default False</p></li>
-<li><p><strong>derive_outlet</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Derive gaugemap based on catchment outlets, by default True</p></li>
-<li><p><strong>basename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.</p></li>
-<li><p><strong>update_toml</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Update [outputcsv] section of wflow toml file.</p></li>
-<li><p><strong>gauge_toml_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – Save specific model parameters in csv section. This option defines the header of the csv file./
-By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).</p></li>
-<li><p><strong>gauge_toml_param</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
-names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).</p></li>
+<li><p><strong>raster_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Source name of raster data in data_catalog.</p></li>
+<li><p><strong>reproject_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Reprojection method from rasterio.enums.Resampling.
+Available methods: [‘nearest’, ‘bilinear’, ‘cubic’, ‘cubic_spline’, ‘lanczos’, ‘average’, ‘mode’,
+‘gauss’, ‘max’, ‘min’, ‘med’, ‘q1’, ‘q3’, ‘sum’, ‘rms’]</p></li>
+<li><p><strong>variables</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – List of variables to add to staticmaps from raster_fn. By default all.</p></li>
+<li><p><strong>wflow_variables</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – List of corresponding wflow variables to update the config toml (e.g: [“input.vertical.altitude”]).
+Should match the variables list. variables list should be provided unless raster_fn contains
+a single variable (len 1).</p></li>
+<li><p><strong>fill_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – If specified, fills nodata values using fill_nodata method.
+Available methods are {‘linear’, ‘nearest’, ‘cubic’, ‘rio_idw’}.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Names of added model staticmap layers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)">list</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -574,17 +564,17 @@ names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vert
             <footer class="bd-footer-article">
                 <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="hydromt_wflow.WflowModel.setup_hydrodem.html" title="previous page">
+  <a class='left-prev' id="prev-link" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html" title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
           <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">hydromt_wflow.WflowModel.setup_hydrodem</p>
+          <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_constant_pars</p>
       </div>
   </a>
-  <a class='right-next' id="next-link" href="hydromt_wflow.WflowModel.setup_areamap.html" title="next page">
+  <a class='right-next' id="next-link" href="hydromt_wflow.WflowSedimentModel.region.html" title="next page">
   <div class="prev-next-info">
       <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">hydromt_wflow.WflowModel.setup_areamap</p>
+      <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.region</p>
   </div>
   <i class="fa-solid fa-angle-right"></i>
   </a>
@@ -605,10 +595,10 @@ names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vert
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.setup_gauges">
+  <a class="reference internal nav-link" href="#hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster">
    <code class="docutils literal notranslate">
     <span class="pre">
-     WflowModel.setup_gauges()
+     WflowSedimentModel.setup_staticmaps_from_raster()
     </span>
    </code>
   </a>
@@ -627,7 +617,7 @@ names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vert
   
 
 <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.setup_gauges.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster.rst">
         <i class="fa-solid fa-pencil"></i> Edit this page
     </a>
 </div>
@@ -637,7 +627,7 @@ names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vert
 <div class="toc-item">
   
 <div class="tocsection sourcelink">
-    <a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_gauges.rst.txt">
+    <a href="../_sources/_generated/hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster.rst.txt">
         <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
 </div>

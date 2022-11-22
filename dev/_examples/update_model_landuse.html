@@ -7,31 +7,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Update a Wflow model: landuse &#8212; HydroMT Wflow  documentation</title>
-  <script>
+  
+  
+  
+  <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
+  <link href="../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
 
   
-  <link rel="stylesheet"
-    href="../_static/vendor/fontawesome/6.1.2/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536">
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
@@ -54,6 +55,10 @@
   
   
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="light">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
   
   <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
@@ -119,37 +124,40 @@
     </p>
     <ul id="navbar-main-elements" class="navbar-nav">
         
-                <li class="nav-item">
-                    <a class="nav-link" href="../getting_started/intro.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/intro.html">
                         Getting started
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item current active">
-                    <a class="nav-link" href="../user_guide/intro.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../user_guide/intro.html">
                         User guide
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item">
-                    <a class="nav-link" href="../api.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api.html">
                         API reference
-                    </a>
-                </li>
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+                        Developments
+                      </a>
+                    </li>
                 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="../dev_guide/intro.html">
-                        Developments
-                    </a>
+                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+                    HydroMT core
+                  </a>
                 </li>
                 
-
-            <li class="nav-item">
-                <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fa-solid fa-up-right-from-square"></i></a>
-            </li>
     </ul>
 </nav>
       </div>
@@ -157,12 +165,14 @@
     </div>
 
     <div id="navbar-end">
-      <div class="navbar-end-item navbar-end__search-button-container">
-        
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
   <i class="fa-solid fa-magnifying-glass"></i>
 </button>
-      </div>
+        </div>
+      
       
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
@@ -204,11 +214,13 @@
 
 
   
-  <div class="search-button-container--mobile">
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
   <i class="fa-solid fa-magnifying-glass"></i>
 </button>
-  </div>
+    </div>
+  
 
   
   <label class="sidebar-toggle secondary-toggle" for="__secondary">
@@ -238,37 +250,40 @@
     </p>
     <ul id="navbar-main-elements" class="navbar-nav">
         
-                <li class="nav-item">
-                    <a class="nav-link" href="../getting_started/intro.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/intro.html">
                         Getting started
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item current active">
-                    <a class="nav-link" href="../user_guide/intro.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../user_guide/intro.html">
                         User guide
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item">
-                    <a class="nav-link" href="../api.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api.html">
                         API reference
-                    </a>
-                </li>
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+                        Developments
+                      </a>
+                    </li>
                 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="../dev_guide/intro.html">
-                        Developments
-                    </a>
+                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+                    HydroMT core
+                  </a>
                 </li>
                 
-
-            <li class="nav-item">
-                <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fa-solid fa-up-right-from-square"></i></a>
-            </li>
     </ul>
 </nav>
       </div>
@@ -377,8 +392,11 @@
     </div>
   </div>
 
+  
+  <div id="rtd-footer-container"></div>
+
       </div>
-      <main class="bd-main">
+      <main id="main-content" class="bd-main">
         
         
         <div class="bd-content">
@@ -501,10 +519,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -792,45 +811,45 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-11-09 05:43:00,650 - update - log - INFO - HydroMT version: 0.6.1.dev
-2022-11-09 05:43:00,650 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-11-09 05:43:00,650 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2022-11-09 05:43:00,650 - update - main - INFO - User settings:
-2022-11-09 05:43:00,671 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.1.dev0).
-2022-11-09 05:43:00,675 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-11-09 05:43:00,747 - update - wflow - INFO - Reading model intbl files.
-2022-11-09 05:43:00,748 - update - wflow - INFO - Reading model staticgeom files.
-2022-11-09 05:43:00,858 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-11-09 05:43:00,868 - update - wflow - INFO - Model read
-2022-11-09 05:43:00,904 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2022-11-09 05:43:00,904 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2022-11-09 05:43:00,904 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2022-11-09 05:43:00,904 - update - wflow - INFO - Preparing LULC parameter maps.
-2022-11-09 05:43:00,959 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
-2022-11-09 05:43:00,959 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
-2022-11-09 05:43:01,037 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.6/corine.tif
-2022-11-09 05:43:01,193 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2022-11-09 05:43:01,345 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2022-11-09 05:43:01,491 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2022-11-09 05:43:01,636 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2022-11-09 05:43:01,780 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2022-11-09 05:43:01,923 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2022-11-09 05:43:02,068 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2022-11-09 05:43:02,212 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2022-11-09 05:43:02,353 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
-2022-11-09 05:43:02,357 - update - model_api - WARNING - Replacing staticmap: Kext
-2022-11-09 05:43:02,360 - update - model_api - WARNING - Replacing staticmap: N
-2022-11-09 05:43:02,363 - update - model_api - WARNING - Replacing staticmap: PathFrac
-2022-11-09 05:43:02,365 - update - model_api - WARNING - Replacing staticmap: RootingDepth
-2022-11-09 05:43:02,368 - update - model_api - WARNING - Replacing staticmap: Sl
-2022-11-09 05:43:02,370 - update - model_api - WARNING - Replacing staticmap: Swood
-2022-11-09 05:43:02,373 - update - model_api - WARNING - Replacing staticmap: WaterFrac
-2022-11-09 05:43:02,376 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2022-11-09 05:43:02,377 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
-2022-11-09 05:43:02,516 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
-2022-11-09 05:43:03,111 - update - wflow - INFO - Write forcing file
-2022-11-09 05:43:03,140 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 101.76 ms
+2022-11-22 01:52:59,645 - update - log - INFO - HydroMT version: 0.6.1.dev
+2022-11-22 01:52:59,645 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2022-11-22 01:52:59,645 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2022-11-22 01:52:59,645 - update - main - INFO - User settings:
+2022-11-22 01:52:59,662 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.1.dev0).
+2022-11-22 01:52:59,664 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2022-11-22 01:52:59,723 - update - wflow - INFO - Reading model intbl files.
+2022-11-22 01:52:59,724 - update - wflow - INFO - Reading model staticgeom files.
+2022-11-22 01:52:59,810 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2022-11-22 01:52:59,818 - update - wflow - INFO - Model read
+2022-11-22 01:52:59,849 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2022-11-22 01:52:59,849 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2022-11-22 01:52:59,849 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2022-11-22 01:52:59,849 - update - wflow - INFO - Preparing LULC parameter maps.
+2022-11-22 01:52:59,884 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
+2022-11-22 01:52:59,884 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
+2022-11-22 01:52:59,952 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.6/corine.tif
+2022-11-22 01:53:00,087 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2022-11-22 01:53:00,207 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,320 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,432 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,546 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,659 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,770 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,882 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2022-11-22 01:53:00,995 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
+2022-11-22 01:53:00,998 - update - model_api - WARNING - Replacing staticmap: Kext
+2022-11-22 01:53:01,000 - update - model_api - WARNING - Replacing staticmap: N
+2022-11-22 01:53:01,003 - update - model_api - WARNING - Replacing staticmap: PathFrac
+2022-11-22 01:53:01,005 - update - model_api - WARNING - Replacing staticmap: RootingDepth
+2022-11-22 01:53:01,007 - update - model_api - WARNING - Replacing staticmap: Sl
+2022-11-22 01:53:01,010 - update - model_api - WARNING - Replacing staticmap: Swood
+2022-11-22 01:53:01,012 - update - model_api - WARNING - Replacing staticmap: WaterFrac
+2022-11-22 01:53:01,014 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2022-11-22 01:53:01,015 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+2022-11-22 01:53:01,141 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2022-11-22 01:53:01,647 - update - wflow - INFO - Write forcing file
+2022-11-22 01:53:01,673 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 101.33 ms
 
 </pre></div></div>
 </div>
@@ -1044,7 +1063,8 @@ Options:
   
     
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
 
   <footer class="bd-footer"><div class="bd-footer__inner container">
   
@@ -1056,6 +1076,16 @@ Options:
 
 </p>
 
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
   </div>
   
   <div class="footer-item">

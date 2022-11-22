@@ -7,31 +7,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Update a Wflow model: gauging stations &#8212; HydroMT Wflow  documentation</title>
-  <script>
+  
+  
+  
+  <script data-cfasync="false">
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1e1de1a1873e13ef5536" rel="stylesheet">
+  <link href="../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
 
   
-  <link rel="stylesheet"
-    href="../_static/vendor/fontawesome/6.1.2/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536">
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
@@ -54,6 +55,10 @@
   
   
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="light">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
 
   
   <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
@@ -119,37 +124,40 @@
     </p>
     <ul id="navbar-main-elements" class="navbar-nav">
         
-                <li class="nav-item">
-                    <a class="nav-link" href="../getting_started/intro.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/intro.html">
                         Getting started
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item current active">
-                    <a class="nav-link" href="../user_guide/intro.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../user_guide/intro.html">
                         User guide
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item">
-                    <a class="nav-link" href="../api.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api.html">
                         API reference
-                    </a>
-                </li>
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+                        Developments
+                      </a>
+                    </li>
                 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="../dev_guide/intro.html">
-                        Developments
-                    </a>
+                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+                    HydroMT core
+                  </a>
                 </li>
                 
-
-            <li class="nav-item">
-                <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fa-solid fa-up-right-from-square"></i></a>
-            </li>
     </ul>
 </nav>
       </div>
@@ -157,12 +165,14 @@
     </div>
 
     <div id="navbar-end">
-      <div class="navbar-end-item navbar-end__search-button-container">
-        
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
   <i class="fa-solid fa-magnifying-glass"></i>
 </button>
-      </div>
+        </div>
+      
       
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
@@ -204,11 +214,13 @@
 
 
   
-  <div class="search-button-container--mobile">
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" data-toggle="tooltip">
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
   <i class="fa-solid fa-magnifying-glass"></i>
 </button>
-  </div>
+    </div>
+  
 
   
   <label class="sidebar-toggle secondary-toggle" for="__secondary">
@@ -238,37 +250,40 @@
     </p>
     <ul id="navbar-main-elements" class="navbar-nav">
         
-                <li class="nav-item">
-                    <a class="nav-link" href="../getting_started/intro.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/intro.html">
                         Getting started
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item current active">
-                    <a class="nav-link" href="../user_guide/intro.html">
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../user_guide/intro.html">
                         User guide
-                    </a>
-                </li>
+                      </a>
+                    </li>
                 
 
-                <li class="nav-item">
-                    <a class="nav-link" href="../api.html">
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api.html">
                         API reference
-                    </a>
-                </li>
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+                        Developments
+                      </a>
+                    </li>
                 
 
                 <li class="nav-item">
-                    <a class="nav-link" href="../dev_guide/intro.html">
-                        Developments
-                    </a>
+                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+                    HydroMT core
+                  </a>
                 </li>
                 
-
-            <li class="nav-item">
-                <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">HydroMT core<i class="fa-solid fa-up-right-from-square"></i></a>
-            </li>
     </ul>
 </nav>
       </div>
@@ -377,8 +392,11 @@
     </div>
   </div>
 
+  
+  <div id="rtd-footer-container"></div>
+
       </div>
-      <main class="bd-main">
+      <main id="main-content" class="bd-main">
         
         
         <div class="bd-content">
@@ -501,10 +519,11 @@ div.nboutput.container div.prompt > div {
     }
 }
 
-/* disable scrollbars on prompts */
+/* disable scrollbars and line breaks on prompts */
 div.nbinput.container div.prompt pre,
 div.nboutput.container div.prompt pre {
     overflow: hidden;
+    white-space: pre;
 }
 
 /* input/output area */
@@ -778,44 +797,44 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-11-09 05:42:37,536 - update - log - INFO - HydroMT version: 0.6.1.dev
-2022-11-09 05:42:37,536 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-11-09 05:42:37,536 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2022-11-09 05:42:37,536 - update - main - INFO - User settings:
-2022-11-09 05:42:37,555 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.1.dev0).
-2022-11-09 05:42:37,558 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-11-09 05:42:37,626 - update - wflow - INFO - Reading model intbl files.
-2022-11-09 05:42:37,627 - update - wflow - INFO - Reading model staticgeom files.
-2022-11-09 05:42:37,733 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-11-09 05:42:37,743 - update - wflow - INFO - Model read
-2022-11-09 05:42:37,776 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2022-11-09 05:42:37,776 - update - model_api - INFO - setup_gauges.source_gdf: None
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.index_col: None
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.mask: None
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.derive_outlet: True
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.basename: test-flow
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.update_toml: True
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.gauge_toml_header: None
-2022-11-09 05:42:37,777 - update - model_api - INFO - setup_gauges.gauge_toml_param: None
-2022-11-09 05:42:37,777 - update - wflow - INFO - Gauges locations set based on river outlets.
-2022-11-09 05:42:38,930 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
-2022-11-09 05:42:38,937 - update - model_api - WARNING - Replacing geom: gauges
-2022-11-09 05:42:38,937 - update - wflow - INFO - Gauges map based on catchment river outlets added.
-2022-11-09 05:42:38,979 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
-2022-11-09 05:42:38,979 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
-2022-11-09 05:42:39,054 - update - data_catalog - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2022-11-09 05:42:39,058 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2022-11-09 05:42:39,077 - update - wflow - INFO - 3 test-flow gauge locations found within domain
-2022-11-09 05:42:40,182 - update - wflow - INFO - Gauges map from test-flow added.
-2022-11-09 05:42:40,183 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2022-11-09 05:42:40,184 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-2022-11-09 05:42:40,321 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2022-11-09 05:42:40,890 - update - wflow - INFO - Writing model staticgeom to file.
-2022-11-09 05:42:41,111 - update - wflow - INFO - Write forcing file
-2022-11-09 05:42:41,139 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
-[########################################] | 100% Completed | 101.88 ms
+2022-11-22 01:52:40,739 - update - log - INFO - HydroMT version: 0.6.1.dev
+2022-11-22 01:52:40,739 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2022-11-22 01:52:40,739 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2022-11-22 01:52:40,739 - update - main - INFO - User settings:
+2022-11-22 01:52:40,756 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.1.dev0).
+2022-11-22 01:52:40,758 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2022-11-22 01:52:40,818 - update - wflow - INFO - Reading model intbl files.
+2022-11-22 01:52:40,818 - update - wflow - INFO - Reading model staticgeom files.
+2022-11-22 01:52:40,905 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2022-11-22 01:52:40,914 - update - wflow - INFO - Model read
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.source_gdf: None
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.index_col: None
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.mask: None
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.derive_outlet: True
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.basename: test-flow
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.update_toml: True
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.gauge_toml_header: None
+2022-11-22 01:52:40,945 - update - model_api - INFO - setup_gauges.gauge_toml_param: None
+2022-11-22 01:52:40,945 - update - wflow - INFO - Gauges locations set based on river outlets.
+2022-11-22 01:52:41,951 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
+2022-11-22 01:52:41,958 - update - model_api - WARNING - Replacing geom: gauges
+2022-11-22 01:52:41,958 - update - wflow - INFO - Gauges map based on catchment river outlets added.
+2022-11-22 01:52:41,993 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
+2022-11-22 01:52:41,993 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
+2022-11-22 01:52:42,060 - update - data_catalog - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2022-11-22 01:52:42,063 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2022-11-22 01:52:42,080 - update - wflow - INFO - 3 test-flow gauge locations found within domain
+2022-11-22 01:52:43,058 - update - wflow - INFO - Gauges map from test-flow added.
+2022-11-22 01:52:43,058 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2022-11-22 01:52:43,059 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
+2022-11-22 01:52:43,189 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2022-11-22 01:52:43,697 - update - wflow - INFO - Writing model staticgeom to file.
+2022-11-22 01:52:43,872 - update - wflow - INFO - Write forcing file
+2022-11-22 01:52:43,897 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
+[########################################] | 100% Completed | 101.01 ms
 
 </pre></div></div>
 </div>
@@ -853,40 +872,40 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-11-09 05:42:44,204 - update - log - INFO - HydroMT version: 0.6.1.dev
-2022-11-09 05:42:44,204 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
-2022-11-09 05:42:44,204 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2022-11-09 05:42:44,204 - update - main - INFO - User settings:
-2022-11-09 05:42:44,224 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.1.dev0).
-2022-11-09 05:42:44,228 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.source_gdf: None
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.index_col: None
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.snap_to_river: False
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.mask: None
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.derive_outlet: True
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.basename: test-rain
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.update_toml: True
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
-2022-11-09 05:42:44,336 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
-2022-11-09 05:42:44,337 - update - wflow - INFO - Reading model staticgeom files.
-2022-11-09 05:42:44,448 - update - wflow - INFO - Gauges locations set based on river outlets.
-2022-11-09 05:42:45,656 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
-2022-11-09 05:42:45,664 - update - model_api - WARNING - Replacing geom: gauges
-2022-11-09 05:42:45,664 - update - wflow - INFO - Gauges map based on catchment river outlets added.
-2022-11-09 05:42:45,707 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
-2022-11-09 05:42:45,707 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
-2022-11-09 05:42:45,784 - update - data_catalog - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2022-11-09 05:42:45,788 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2022-11-09 05:42:45,808 - update - wflow - INFO - 3 test-rain gauge locations found within domain
-2022-11-09 05:42:45,827 - update - wflow - INFO - Gauges map from test-rain added.
-2022-11-09 05:42:45,828 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2022-11-09 05:42:45,828 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
-2022-11-09 05:42:45,829 - update - data_catalog - WARNING - Overwriting data source test_stations.
-2022-11-09 05:42:45,830 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-2022-11-09 05:42:45,975 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2022-11-09 05:42:46,596 - update - wflow - INFO - Writing model staticgeom to file.
+2022-11-22 01:52:46,323 - update - log - INFO - HydroMT version: 0.6.1.dev
+2022-11-22 01:52:46,323 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
+2022-11-22 01:52:46,323 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2022-11-22 01:52:46,323 - update - main - INFO - User settings:
+2022-11-22 01:52:46,340 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.1.dev0).
+2022-11-22 01:52:46,343 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2022-11-22 01:52:46,434 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.source_gdf: None
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.index_col: None
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.snap_to_river: False
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.mask: None
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.derive_outlet: True
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.basename: test-rain
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.update_toml: True
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
+2022-11-22 01:52:46,435 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
+2022-11-22 01:52:46,435 - update - wflow - INFO - Reading model staticgeom files.
+2022-11-22 01:52:46,525 - update - wflow - INFO - Gauges locations set based on river outlets.
+2022-11-22 01:52:47,532 - update - model_api - WARNING - Replacing staticmap: wflow_gauges
+2022-11-22 01:52:47,538 - update - model_api - WARNING - Replacing geom: gauges
+2022-11-22 01:52:47,538 - update - wflow - INFO - Gauges map based on catchment river outlets added.
+2022-11-22 01:52:47,575 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
+2022-11-22 01:52:47,575 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
+2022-11-22 01:52:47,642 - update - data_catalog - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
+2022-11-22 01:52:47,646 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2022-11-22 01:52:47,663 - update - wflow - INFO - 3 test-rain gauge locations found within domain
+2022-11-22 01:52:47,678 - update - wflow - INFO - Gauges map from test-rain added.
+2022-11-22 01:52:47,678 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2022-11-22 01:52:47,678 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
+2022-11-22 01:52:47,679 - update - data_catalog - WARNING - Overwriting data source test_stations.
+2022-11-22 01:52:47,680 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
+2022-11-22 01:52:47,810 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2022-11-22 01:52:48,331 - update - wflow - INFO - Writing model staticgeom to file.
 
 </pre></div></div>
 </div>
@@ -1128,7 +1147,8 @@ Options:
   
     
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1e1de1a1873e13ef5536"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
 
   <footer class="bd-footer"><div class="bd-footer__inner container">
   
@@ -1140,6 +1160,16 @@ Options:
 
 </p>
 
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
   </div>
   
   <div class="footer-item">
