@@ -12,10 +12,14 @@ Unreleased
 Added
 -----
 - Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
+- New **setup_staticmaps_from_raster** method. `PR #128 <https://github.com/Deltares/hydromt_wflow/issues/111>`_
 
 Changed
 -------
 - update forcing example with multiple forcing files #122
+- New window smoothing algorithm in `setup_rivers` to avoid cells with small river length. 
+  Set the min_rivlen_ratio argument to a value larger than zero to apply the smoothing.
+  Note: requires pyflwdir v0.5.6 `PR #92 <https://github.com/Deltares/hydromt_wflow/pull/92>`_
 
 Fixed
 -----
