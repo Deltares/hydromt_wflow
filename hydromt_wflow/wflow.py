@@ -3,7 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
-from typing import Union, Optional
+from typing import Union, Optional, List
 import glob
 import numpy as np
 import pandas as pd
@@ -1380,6 +1380,84 @@ class WflowModel(Model):
             da_param = da_param.rename(key)
             self.set_staticmaps(da_param)
 
+    def setup_staticmaps_from_raster(
+        self,
+        raster_fn: str,
+        reproject_method: str,
+        variables: Optional[List] = None,
+        wflow_variables: Optional[List] = None,
+        fill_method: Optional[str] = None,
+    ) -> List[str]:
+        """
+        This component adds data variable(s) from ``raster_fn`` to staticmaps object.
+        If raster is a dataset, all variables will be added unless ``variables`` list is specified.
+        The config toml can also be updated to include the new maps using ``wflow_variables``.
+
+        Adds model layers:
+        * **raster.name** or **variables** staticmaps: data from raster_fn
+
+        Parameters
+        ----------
+        raster_fn: str
+            Source name of raster data in data_catalog.
+        reproject_method: str
+            Reprojection method from rasterio.enums.Resampling.
+            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', 'lanczos', 'average', 'mode',
+            'gauss', 'max', 'min', 'med', 'q1', 'q3', 'sum', 'rms']
+        variables: list, optional
+            List of variables to add to staticmaps from raster_fn. By default all.
+        wflow_variables: list, optional
+            List of corresponding wflow variables to update the config toml (e.g: ["input.vertical.altitude"]).
+            Should match the variables list. variables list should be provided unless raster_fn contains
+            a single variable (len 1).
+        fill_method : str, optional
+            If specified, fills nodata values using fill_nodata method.
+            Available methods are {'linear', 'nearest', 'cubic', 'rio_idw'}.
+
+        Returns
+        -------
+        list
+            Names of added model staticmap layers.
+        """
+        self.logger.info(f"Preparing staticmaps data from raster source {raster_fn}")
+        # Read raster data and select variables
+        ds = self.data_catalog.get_rasterdataset(
+            raster_fn,
+            geom=self.region,
+            buffer=2,
+            variables=variables,
+            single_var_as_array=False,
+        )
+        # Fill nodata
+        if fill_method is not None:
+            ds = ds.raster.interpolate_na(method=fill_method)
+        # Reprojection
+        ds_out = ds.raster.reproject_like(self.staticmaps, method=reproject_method)
+        # Add to staticmaps
+        self.set_staticmaps(ds_out)
+
+        # Update config
+        if wflow_variables is not None:
+            self.logger.info(
+                f"Updating the config for wflow_variables: {wflow_variables}"
+            )
+            if variables is None:
+                if len(ds_out.data_vars) == 1:
+                    variables = list(ds_out.data_vars.keys())
+                else:
+                    raise ValueError(
+                        f"Cannot update the toml if raster_fn has more than one variable and variables list is not provided."
+                    )
+
+            # Check on len
+            if len(wflow_variables) != len(variables):
+                raise ValueError(
+                    f"Length of variables {variables} do not match wflow_variables {wflow_variables}. Cannot update the toml."
+                )
+            else:
+                for i in range(len(variables)):
+                    self.set_config(wflow_variables[i], variables[i])
+
     def setup_precip_forcing(
         self,
         precip_fn: str = "era5",
@@ -2092,7 +2170,6 @@ class WflowModel(Model):
         """Returns a river geometry as a geopandas.GeoDataFrame. If available, the
         stream order and upstream area values are added to the geometry properties.
         """
-        # import pdb; pdb.set_trace()
         if "rivers" in self.staticgeoms:
             gdf = self.staticgeoms["rivers"]
         elif self._MAPS["rivmsk"] in self.staticmaps:
