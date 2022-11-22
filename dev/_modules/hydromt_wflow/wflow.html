@@ -599,7 +599,7 @@
         <span class="n">river_upa</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
         <span class="n">rivdph_method</span><span class="o">=</span><span class="s2">&quot;powlaw&quot;</span><span class="p">,</span>
         <span class="n">slope_len</span><span class="o">=</span><span class="mf">2e3</span><span class="p">,</span>
-        <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
         <span class="n">min_rivdph</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="n">min_rivwth</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
         <span class="n">smooth_len</span><span class="o">=</span><span class="mf">5e3</span><span class="p">,</span>
@@ -613,7 +613,9 @@
 <span class="sd">        `river_upa` [km2].</span>
 
 <span class="sd">        The river length is defined as the distance from the subgrid outlet pixel to</span>
-<span class="sd">        the next upstream subgrid outlet pixel.</span>
+<span class="sd">        the next upstream subgrid outlet pixel. The `min_rivlen_ratio` is the minimum</span>
+<span class="sd">        global river length to avg. cell resolution ratio and is used as a threshold in</span>
+<span class="sd">        window based smoothing of river length.</span>
 
 <span class="sd">        The river slope is derived from the subgrid elevation difference between pixels at a</span>
 <span class="sd">        half distance `slope_len` [m] up- and downstream from the subgrid outlet pixel.</span>
@@ -658,7 +660,10 @@
 <span class="sd">        slope_len : float</span>
 <span class="sd">            length over which the river slope is calculated [km]</span>
 <span class="sd">        min_rivlen_ratio: float</span>
-<span class="sd">            minimum global river length to avg. cell resolution ratio, by default 0.1</span>
+<span class="sd">            Ratio of cell resolution used minimum length threshold in a moving</span>
+<span class="sd">            window based smoothing of river length, by default 0.0</span>
+<span class="sd">            The river length smoothing is skipped if min_riverlen_ratio = 0.</span>
+<span class="sd">            For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`</span>
 <span class="sd">        rivdph_method : {&#39;gvf&#39;, &#39;manning&#39;, &#39;powlaw&#39;}</span>
 <span class="sd">            see py:meth:`hydromt.workflows.river_depth` for details, by default &quot;powlaw&quot;</span>
 <span class="sd">        smooth_len : float, optional</span>
