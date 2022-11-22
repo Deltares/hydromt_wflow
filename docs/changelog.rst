@@ -6,8 +6,10 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v0.2.1 (22 November 2022)
+=========================
+New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
+deprecated staticmaps and staticgeoms objects in hydromt core to work with the new 0.6.0 release.
 
 Added
 -----
