@@ -242,7 +242,7 @@ class WflowModel(Model):
         river_upa=30,
         rivdph_method="powlaw",
         slope_len=2e3,
-        min_rivlen_ratio=0.1,
+        min_rivlen_ratio=0.0,
         min_rivdph=1,
         min_rivwth=30,
         smooth_len=5e3,
@@ -256,7 +256,9 @@ class WflowModel(Model):
         `river_upa` [km2].
 
         The river length is defined as the distance from the subgrid outlet pixel to
-        the next upstream subgrid outlet pixel.
+        the next upstream subgrid outlet pixel. The `min_rivlen_ratio` is the minimum
+        global river length to avg. cell resolution ratio and is used as a threshold in
+        window based smoothing of river length.
 
         The river slope is derived from the subgrid elevation difference between pixels at a
         half distance `slope_len` [m] up- and downstream from the subgrid outlet pixel.
@@ -301,7 +303,10 @@ class WflowModel(Model):
         slope_len : float
             length over which the river slope is calculated [km]
         min_rivlen_ratio: float
-            minimum global river length to avg. cell resolution ratio, by default 0.1
+            Ratio of cell resolution used minimum length threshold in a moving
+            window based smoothing of river length, by default 0.0
+            The river length smoothing is skipped if min_riverlen_ratio = 0.
+            For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
         smooth_len : float, optional
