@@ -463,16 +463,16 @@ to a model component with the same name.</p>
 <span class="c1"># land_routing    = kinematic-wave  # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span><span class="w"></span>
 
 <span class="k">[setup_reservoirs]</span><span class="w"></span>
-<span class="na">reservoirs_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_reservoirs  # source for reservoirs based on GRAND: {hydro_reservoirs}; None to skip</span><span class="w"></span>
+<span class="na">reservoirs_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_reservoirs  # source for reservoirs based on GRAND: {hydro_reservoirs}</span><span class="w"></span>
 <span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0           # minimum lake area to consider [km2]</span><span class="w"></span>
-<span class="na">priority_jrc</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">True          # if True then JRC data from hydroengine is used to calculate some reservoir attributes instead of the GRanD and HydroLAKES db.   </span><span class="w"></span>
+<span class="na">priority_jrc</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">True          # if True then JRC data from hydroengine is used to calculate some reservoir attributes instead of the GRanD and HydroLAKES db.</span><span class="w"></span>
 
 <span class="k">[setup_lakes]</span><span class="w"></span>
-<span class="na">lakes_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_lakes   # source for lakes based on hydroLAKES: {hydro_lakes}; None to skip</span><span class="w"></span>
+<span class="na">lakes_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_lakes   # source for lakes based on hydroLAKES: {hydro_lakes}</span><span class="w"></span>
 <span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">10.0          # minimum reservoir area to consider [km2]</span><span class="w"></span>
 
 <span class="k">[setup_glaciers]</span><span class="w"></span>
-<span class="na">glaciers_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}; None to skip</span><span class="w"></span>
+<span class="na">glaciers_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}</span><span class="w"></span>
 <span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0           # minimum glacier area to consider [km2]</span><span class="w"></span>
 
 <span class="k">[setup_lulcmaps]</span><span class="w"></span>
@@ -508,7 +508,7 @@ to a model component with the same name.</p>
 <span class="na">cf_soil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.038</span><span class="w"></span>
 <span class="na">EoverR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.11</span><span class="w"></span>
 <span class="na">InfiltCapPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span><span class="w"></span>
-<span class="na">InfiltCapSoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600 </span><span class="w"></span>
+<span class="na">InfiltCapSoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600</span><span class="w"></span>
 <span class="na">MaxLeakage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span><span class="w"></span>
 <span class="na">rootdistpar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-500</span><span class="w"></span>
 <span class="na">TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span><span class="w"></span>
