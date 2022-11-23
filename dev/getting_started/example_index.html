@@ -379,16 +379,41 @@
   <section id="examples">
 <span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading">#</a></h1>
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples"><img alt="https://mybinder.org/badge_logo.svg" src="https://mybinder.org/badge_logo.svg" /></a>
-<p>This folder contains several ipython notebook examples for <strong>HydroMT-wflow</strong>.</p>
-<p>To run these examples start with the <strong>binder</strong> badge above.</p>
-<p>To run these examples on your local machine create a conda e nvironment based on the
-environment.yml in the root of this repository and than start jupyer notebook.
-Run the following steps the examples folder:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">conda env create -f ../environment.yml</span>
-<span class="go">conda activate hydromt-wflow</span>
-<span class="go">jupyter notebook</span>
+<p>This folder contains several iPython notebook examples for <strong>HydroMT-wflow</strong>.</p>
+<p>These examples can be run online or on your local machine.
+To run these examples online press the <strong>binder</strong> badge above.</p>
+<section id="local-installation">
+<h2>Local installation<a class="headerlink" href="#local-installation" title="Permalink to this heading">#</a></h2>
+<p>To run these examples on your local machine you need a copy of the examples folder
+of the repository and an installation of HydroMT-Wflow including some additional
+packages required to run the notebooks.</p>
+<section id="install-hydromt-wflow">
+<h3>1 - Install HydroMT-wflow<a class="headerlink" href="#install-hydromt-wflow" title="Permalink to this heading">#</a></h3>
+<p>The first step is to install HydroMT-Wflow and the other Python dependencies in a separate environment,
+see the <strong>Install HydroMT-Wflow in a new environment</strong> section in the
+<a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/getting_started/installation.html">installation guide</a></p>
+</section>
+<section id="download-the-content-of-the-hydromt-github-repository">
+<h3>2 - Download the content of the HydroMT github repository<a class="headerlink" href="#download-the-content-of-the-hydromt-github-repository" title="Permalink to this heading">#</a></h3>
+<p>To run the examples locally, you will need to download the content of the examples folder in the HydroMT-Wflow repository.
+You can either do a <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/archive/refs/heads/main.zip">manual download</a>
+and extract the content of the downloaded ZIP folder <strong>or</strong> clone the repository locally (this requires git):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone https://github.com/Deltares/hydromt.git
 </pre></div>
 </div>
+</section>
+<section id="running-the-examples">
+<h3>3 - Running the examples<a class="headerlink" href="#running-the-examples" title="Permalink to this heading">#</a></h3>
+<p>Finally, start a jupyter lab server inside the <strong>examples</strong> folder
+after activating the <strong>hydromt-wflow</strong> environment, see below.</p>
+<p>Alternatively, you can run the notebooks from <a class="reference external" href="https://code.visualstudio.com/download">Visual Studio Code</a>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda activate hydromt-wflow
+<span class="gp">$ </span><span class="nb">cd</span> hydromt-wflow/examples
+<span class="gp">$ </span>jupyter lab
+</pre></div>
+</div>
+</section>
+</section>
 <section id="list-of-examples">
 <h2>List of examples<a class="headerlink" href="#list-of-examples" title="Permalink to this heading">#</a></h2>
 <p>For a static (non-interactive) view of the examples follow one of the links below:</p>
@@ -455,6 +480,28 @@ Run the following steps the examples folder:</p>
 </div>
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#local-installation">
+   Local installation
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#install-hydromt-wflow">
+     1 - Install HydroMT-wflow
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-the-content-of-the-hydromt-github-repository">
+     2 - Download the content of the HydroMT github repository
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#running-the-examples">
+     3 - Running the examples
+    </a>
+   </li>
+  </ul>
+ </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#list-of-examples">
    List of examples
