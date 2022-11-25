@@ -1584,6 +1584,34 @@ class WflowModel(Model):
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    def setup_rootzoneclim(
+        self,
+        run_fn: str = "run_obs",
+        forcing_obs_fn: str = "inmaps",
+        forcing_cc_hist_fn: Optional[str] = "inmaps_cc_hist",
+        forcing_cc_fut_fn: Optional[str] = "inmaps_cc_fut",
+        # chunksize: Optional[int] = None,
+        **kwargs,
+    ) -> None:
+        """Setup climate based root-zone storage capacity"""
+        self.logger.info(f"Preparing climate based root zone storage parameter maps.")
+        # TODO add variables list with required variable names
+        dsin = self.data_catalog.get_rasterdataset(
+            forcing_obs_fn, geom=self.region, buffer=2
+        )
+        dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False)
+        # TODO add fn interception
+        # import pdb; pdb.set_trace()
+
+        dsout = workflows.rootzoneclim(
+            dsin,
+            dsrun,
+            self.staticmaps,
+            self.flwdir,
+            logger=self.logger,
+        )  # .reset_coords(drop=True)
+        self.set_staticmaps(dsout)
+
     # I/O
     def read(self):
         """Method to read the complete model schematization and configuration from file."""
