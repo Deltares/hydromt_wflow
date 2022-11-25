@@ -93,8 +93,10 @@ __all__ = ["rootzoneclim"]
 
 def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     """
-    Returns root zone storage parameter based on climate and observed streamflow data. Calculated per subcatchment and converted to gridded map at model resolution.
-    add paper ref
+    Returns root zone storage parameter for current and (optionally for) future
+    climate based on climate and observed streamflow data. 
+    The root zone storage parameter is calculated per subcatchment and is 
+    converted to a gridded map at model resolution.
 
     The following maps are calculated:\
     - `rootzone_storage`                  : maximum root zone storage capacity [mm]\
@@ -105,10 +107,10 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     ----------
     ds : xarray.Dataset
         Dataset with forcing data.
-    ds_like : xarray.DataArray
-        Dataset at model resolution.
     dsrun : str
         Geodataset with streamflow locations and timeseries.
+    ds_like : xarray.DataArray
+        Dataset at model resolution.
     flwdir : FlwDirRaster
         flwdir object
 
@@ -116,15 +118,21 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     -------
     ds_out : xarray.Dataset
         Dataset containing root zone storage capacity.
+        
+    References
+    ----------
+    TODO: add paper reference
     """
-
+    # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
-    # make basin map from geodataset of observed streamflow
+    # Make a basin map containing all subcatchments from geodataset of observed 
+    # streamflow
     x, y = dsrun.x.values, dsrun.y.values
     ds_basin = flw.basin_map(ds_like, flwdir, ids=dsrun.index.values, xy=(x, y))[0]
     gdf_basins = pd.DataFrame()
-    # loop over basins
+    # Loop over basins and get per gauge location a polygon of the upstream
+    # area.
     for i, id in enumerate(dsrun.index.values):
         ds_basin_single = flw.basin_map(
             ds_like,
@@ -137,14 +145,38 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
         ds_basin_single.raster.set_crs(ds_like.raster.crs)
         gdf_basin_single = ds_basin_single.raster.vectorize()
         gdf_basins = pd.concat([gdf_basins, gdf_basin_single])
-    # set index to catchment id
-    gdf_basins.index = gdf_basins.value
+    # Set index to catchment id
+    gdf_basins.index = gdf_basins.value.astype("int")
+    
+    #TODO: remove this, but for now a way to save the geodataset as shapefile
+    # for inspection in GIS programs    
+    import os   
+    import geopandas
+    outfile = "c:\\Users\\imhof_rn\\OneDrive - Stichting Deltares\\Documents\\SITO\\Root_zone_storage\\geodataset_inspection\\basins_check.shp" 
+    # Export the data
+    geopandas.GeoDataFrame(geometry=gdf_basins['geometry']).to_file(outfile,driver='ESRI Shapefile') 
+    
+    # Add the catchment area to gdf_basins and sort in a descending order
+    # Note that we first have to reproject to a cylindircal equal area in
+    # order to preserve the area measure. 
+    gdf_basins_copy = gdf_basins.copy()
+    gdf_basins['area'] = gdf_basins_copy['geometry'].to_crs({'proj':'cea'}).area
+    gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
+    gdf_basins_copy = None 
 
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds.raster.zonal_stats(gdf_basins, stats=["mean"])
-
-    ds_sub
-
+    
+    #TODO: Get per location the specific discharge (mm/timestep)
+    #TODO: add dsrun to ds_sub
+    # Add the discharge per location-index value to ds_sub
+    # First, sort dsrun based on descending subcatchment area (which is already
+    # done in ds_sub)
+    dsrun = dsrun.sel(index=ds_sub.index.values)
+        
+    
+    #TODO: determine discharge coefficient
+    
     # import pdb; pdb.set_trace()
 
     # da_basins = flw.basin_map(
@@ -156,8 +188,13 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     #                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     logger.info("calculate rootzone storage capacity")
-
+    
+    # Scale the Srmax to the model resolution
     # srmax = srmax.raster.reproject_like(ds_like, method="average")
+    
+    # Store the Srmax fur the current and future climate in ds_out
     # ds_out["rootzone_storage"] = srmax.astype(np.float32)
+    #TODO: make optional
+    # ds_out["rootzone_storage_climate"] = srmax.astype(np.float32)
 
     return ds_out

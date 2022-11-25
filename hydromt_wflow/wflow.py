@@ -1593,9 +1593,33 @@ class WflowModel(Model):
         # chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
-        """Setup climate based root-zone storage capacity"""
+        """
+        Setup climate based root-zone storage capacity
+
+        Parameters
+        ----------
+        run_fn : str, optional
+            Timeseries with discharge per x,y location. The default is "run_obs".
+        forcing_obs_fn : str, optional
+            Gridded timeseries with the obsered forcing. The default is "inmaps".
+        forcing_cc_hist_fn : Optional[str], optional
+            Gridded timeseries with the simulated historical forcing, based on a climate
+            model. The default is "inmaps_cc_hist".
+        forcing_cc_fut_fn : Optional[str], optional
+            Gridded timeseries with the simulated climate forcing, based on a
+            climate model. The default is "inmaps_cc_fut".
+        # chunksize : Optional[int], optional #TODO! 
+            DESCRIPTION. The default is None.
+
+        Returns
+        -------
+        An update from self
+
+        """
+
         self.logger.info(f"Preparing climate based root zone storage parameter maps.")
         # TODO add variables list with required variable names
+        #TODO: make sure the forcing and discharge data have the same time step
         dsin = self.data_catalog.get_rasterdataset(
             forcing_obs_fn, geom=self.region, buffer=2
         )
