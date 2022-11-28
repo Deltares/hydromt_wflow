@@ -73,6 +73,30 @@ __all__ = ["rootzoneclim"]
 #     ds['Sr_gumbel'] = ((coords_var1, coords_var2, 'RP'), np.zeros((len(ds[coords_var1]), len(ds[coords_var2]), len(ds.RP))))
 #     ds['Sr_gumbel'] = u + alpha * ds['yt']
 
+def determine_omega(ds_sub_annual):
+    """
+    Determine the omega value (Fu et al., 1981) from the aridity index and
+    evaporative index.
+
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        xarray dataset containing the ardity index and evaporative index for a
+        set of subcatchments.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Same as above, but with the omega value added.
+    
+    References
+    ----------
+    #TODO: Add Fu et al. reference here.
+    """
+    # Do something here..
+    
+    return ds_sub_annual
+
 # def Zhang(omega, Ep_over_P, Ea_over_P):
 #     """
 #     This is the Zhang formula with omega as in Teuling et al 2019
@@ -91,10 +115,47 @@ __all__ = ["rootzoneclim"]
 #     return RC_future
 
 
+def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
+    """
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        xarray dataset containing per subcatchment the annual precipitation, 
+        potential evaporation and specific discharge sums.
+    ds_sub_annual_count: xarray dataset
+        xarray dataset containing per subcatchment the number of days, per year,
+        that contain data.
+    threshold: int
+        Required minimum number of days in a year containing data to take the
+        year into account for the calculation.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Similar to input, but containing the discharge coefficient, aridity 
+        index and the evaporative index as long term averages.
+
+    """
+    #TODO: Threshold is only used on Q availability, should it also be done on 
+    # the other variables?
+    ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time')
+    ds_sub_annual['aridity_index'] = ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']
+    ds_sub_annual['evap_index'] = 1 - ds_sub_annual['discharge_coeff']
+    
+    # Make sure Ea = P - Q < Ep. If not, we will not use that subcatchment for
+    # the calculations.
+    #TODO: What do we do when the largest "subcatchment", which covers all other subcatchments, has Ea > Ep?
+    ds_sub_annual['discharge_coeff'] = ds_sub_annual['discharge_coeff'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
+    ds_sub_annual['aridity_index'] = ds_sub_annual['aridity_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
+    ds_sub_annual['evap_index'] = ds_sub_annual['evap_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
+    
+    return ds_sub_annual
+
+
 def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     """
-    Returns root zone storage parameter for current and (optionally for) future
-    climate based on climate and observed streamflow data. 
+    Returns root zone storage parameter for current observed and (optionally 
+    for) future climate-based streamflow data. 
     The root zone storage parameter is calculated per subcatchment and is 
     converted to a gridded map at model resolution.
 
@@ -123,13 +184,15 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     ----------
     TODO: add paper reference
     """
+    #TODO: Add the future climate implementations
+    
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
     # Make a basin map containing all subcatchments from geodataset of observed 
     # streamflow
     x, y = dsrun.x.values, dsrun.y.values
-    ds_basin = flw.basin_map(ds_like, flwdir, ids=dsrun.index.values, xy=(x, y))[0]
+    # ds_basin = flw.basin_map(ds_like, flwdir, ids=dsrun.index.values, xy=(x, y))[0] #TODO: remove?
     gdf_basins = pd.DataFrame()
     # Loop over basins and get per gauge location a polygon of the upstream
     # area.
@@ -148,13 +211,13 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     # Set index to catchment id
     gdf_basins.index = gdf_basins.value.astype("int")
     
-    #TODO: remove this, but for now a way to save the geodataset as shapefile
-    # for inspection in GIS programs    
-    import os   
-    import geopandas
-    outfile = "c:\\Users\\imhof_rn\\OneDrive - Stichting Deltares\\Documents\\SITO\\Root_zone_storage\\geodataset_inspection\\basins_check.shp" 
-    # Export the data
-    geopandas.GeoDataFrame(geometry=gdf_basins['geometry']).to_file(outfile,driver='ESRI Shapefile') 
+    # #TODO: remove this, but for now a way to save the geodataset as shapefile
+    # # for inspection in GIS programs    
+    # import os   
+    # import geopandas
+    # outfile = "c:\\Users\\imhof_rn\\OneDrive - Stichting Deltares\\Documents\\SITO\\Root_zone_storage\\geodataset_inspection\\basins_check.shp" 
+    # # Export the data
+    # geopandas.GeoDataFrame(geometry=gdf_basins['geometry']).to_file(outfile,driver='ESRI Shapefile') 
     
     # Add the catchment area to gdf_basins and sort in a descending order
     # Note that we first have to reproject to a cylindircal equal area in
@@ -167,15 +230,59 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds.raster.zonal_stats(gdf_basins, stats=["mean"])
     
-    #TODO: Get per location the specific discharge (mm/timestep)
-    #TODO: add dsrun to ds_sub
     # Add the discharge per location-index value to ds_sub
     # First, sort dsrun based on descending subcatchment area (which is already
     # done in ds_sub)
     dsrun = dsrun.sel(index=ds_sub.index.values)
-        
+    # Get the specific discharge (mm/timestep) per location in order to have
+    # everything in mm/timestep
+    #TODO: add check for time interval - time interval ds_sub and dsrun should
+    # be the same, otherwise we should adjust it.
+    time_interval = (ds_sub.time[1].values - ds_sub.time[0].values).astype('timedelta64[s]').astype(np.int32)
+    #TODO: should we fix the variable name to "run" or should we make this
+    # adjustable? In the first case, we should raise an error if that is missing.
+    dsrun = dsrun.assign(
+        specific_Q=dsrun["run"]/np.array(gdf_basins["area"]) * time_interval * 1000.0
+        )
+    # Add dsrun to ds_sub
+    if dsrun["specific_Q"].dims == ("time", "index"):
+        ds_sub = ds_sub.assign(specific_Q = dsrun["specific_Q"].transpose())
+    elif dsrun["specific_Q"].dims == ("index", "time"):
+        ds_sub = ds_sub.assign(specific_Q = dsrun["specific_Q"])
+    else:
+        raise ValueError(
+            "run_fn, the timeseries with discharge per x,y location, has not the right dimensions. Dimensions (time, index) or (index, time) expected"
+            )
     
-    #TODO: determine discharge coefficient
+    # Get year sums of ds_sub
+    #TODO: what do we do with October as start of the hydrolgoical year?
+    ds_sub_annual = ds_sub.resample(time = 'AS-Oct').sum('time', skipna=True)
+    # A counter will be used and a threshold, to only use years with sufficient
+    # days containing data in the subsequent calculations
+    ds_sub_annual_count = ds_sub.resample(time = 'AS-Oct').count('time')
+    missing_threshold = 330
+    
+    # Determine discharge coefficient, the aridity index and the evaporative
+    # index
+    ds_sub_annual = determine_budyko_curve_terms(ds_sub_annual, 
+                                                 ds_sub_annual_count, 
+                                                 threshold=missing_threshold,
+                                                 )
+    
+    # Determine omega
+    ds_sub_annual = determine_omega(ds_sub_annual)
+    
+    # Determine effective precipitation
+    
+    # Determine long-term tranpsiration
+    
+    # Determine storage deficit
+    
+    # From the storage deficit, determine the root-zone storage capacity using
+    # a Gumbel distribution.
+    
+    logger.info("calculate rootzone storage capacity")
+    #TODO: future climate
     
     # import pdb; pdb.set_trace()
 
@@ -186,11 +293,11 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
     #                     self.set_staticmaps(da_basins, name=mapname)
     #                     gdf_basins = self.staticmaps[mapname].raster.vectorize()
     #                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
-
-    logger.info("calculate rootzone storage capacity")
-    
+   
     # Scale the Srmax to the model resolution
     # srmax = srmax.raster.reproject_like(ds_like, method="average")
+    
+    #TODO: Do something with the nans here when adding all subcatchments
     
     # Store the Srmax fur the current and future climate in ds_out
     # ds_out["rootzone_storage"] = srmax.astype(np.float32)
