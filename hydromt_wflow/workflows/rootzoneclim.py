@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import xarray as xr
+import logging
 import numpy as np
 import pandas as pd
-import logging
+from scipy import optimize
+import xarray as xr
+
 from hydromt import flw
 
 
@@ -12,37 +14,64 @@ logger = logging.getLogger(__name__)
 __all__ = ["rootzoneclim"]
 
 
-# def runModel_Minterception_explicit(ds, Imax, P_var = 'prec_subcatch', Ep_var = 'epot_subcatch', delT = 1,  LAI = None):
+#TODO: Find a way to make this also possible for variable Imax values, e.g. from
+# wflow_sbm LAI.
+def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
+    """
+    Function to determine the effective precipitation, interception evaporation
+    and canopy storage based on (daily) values of precipitation and potential
+    evaporation.
 
-#     nT = len(ds.time)
+    Parameters
+    ----------
+    ds_sub : xarray dataset
+        xarray dataset containing precipitation and potential evaporation
+        (precip_mean and pet_mean).
+    Imax : float
+        The maximum interception storage capacity [mm].
+    LAI : xarray datarray, optional
+        Xarray dataarray from staticmaps containing the LAI values for a number
+        of time steps, e.g. every month. If present, this is used to determine
+        Imax per time step. The default is None.
 
-#     #add new variables that are image of Precpitation varibale
-#     ds = ds.assign(Ei = lambda ds: ds[P_var] * np.nan)
-#     ds = ds.assign(Pe = lambda ds: ds[P_var] * np.nan)
-#     ds = ds.assign(Si = lambda ds: ds[P_var] * np.nan)
-# #    ds = ds.assign(Si = lambda ds: ds[P_var] * 0) #initialize with zero all time steps if missing at start?
+    Returns
+    -------
+    ds_sub : xarray datset
+        same as above, but with effective precipitation, interception evaporation
+        and canopy storage added.
+    """
 
-#     #initialize with empty Si
-#     ds['Si'].loc[dict(time = ds.time[0])] = 0
+    nr_time_steps = len(ds_sub.time)
 
-#     for i in range(0,nT):
-#         #could implement Imax as function of LAI
-#     #        Imax = LAI.iloc[i]
+    # Add new empty variables to the output
+    ds_sub = ds_sub.assign(evap_interception = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
+    ds_sub = ds_sub.assign(precip_effective = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
+    ds_sub = ds_sub.assign(canopy_storage = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
 
-#         Epdt = ds[Ep_var].isel(time = i) * delT
-#         Pdt  = ds[P_var].isel(time = i) * delT
+    #initialize with empty canopy_storage
+    ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[0])] = 0
 
-#         # Interception Reservoir - most simple
-#         ds['Si'].loc[dict(time = ds.time[i])] = ds['Si'].isel(time = i) + Pdt
-#         ds['Pe'].loc[dict(time = ds.time[i])] = np.maximum(0, ds['Si'].isel(time = i) - Imax)
-#         ds['Si'].loc[dict(time = ds.time[i])] = ds['Si'].isel(time = i) - ds['Pe'].isel(time = i)
-#         ds['Ei'].loc[dict(time = ds.time[i])] = np.minimum(Epdt, ds['Si'].isel(time = i))
-#         ds['Si'].loc[dict(time = ds.time[i])] = ds['Si'].isel(time = i) - ds['Ei'].isel(time = i)
+    # Loop through the time steps and determine the variables per time step.
+    for i in range(0, nr_time_steps):
+        #TODO: implement Imax as function of LAI
+        # Imax = LAI.iloc[i]
+        
+        # Determine epot and precip for this time step
+        Epdt = ds_sub["pet_mean"].isel(time = i)
+        Pdt  = ds_sub["precip_mean"].isel(time = i)
 
-#         if i<nT-1:
-#             ds['Si'].loc[dict(time = ds.time[i+1])] = ds['Si'].isel(time = i)
+        # Determine the variables with a simple interception reservoir approach
+        ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) + Pdt
+        ds_sub['precip_effective'].loc[dict(time = ds_sub.time[i])] = np.maximum(0, ds_sub['canopy_storage'].isel(time = i) - Imax)
+        ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) - ds_sub['precip_effective'].isel(time = i)
+        ds_sub['evap_interception'].loc[dict(time = ds_sub.time[i])] = np.minimum(Epdt, ds_sub['canopy_storage'].isel(time = i))
+        ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) - ds_sub['evap_interception'].isel(time = i)
+        
+        # Add the new canopy storage to the next time step
+        if i < nr_time_steps - 1:
+            ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i+1])] = ds_sub['canopy_storage'].isel(time = i)
 
-#     return ds
+    return ds_sub
 
 # def gumbel_su_calc_xr(ds, name_col = 'Sr_def', coords_var1 = 'runs', coords_var2 = 'catchments', time = 'time'):
 #     """
@@ -73,37 +102,32 @@ __all__ = ["rootzoneclim"]
 #     ds['Sr_gumbel'] = ((coords_var1, coords_var2, 'RP'), np.zeros((len(ds[coords_var1]), len(ds[coords_var2]), len(ds.RP))))
 #     ds['Sr_gumbel'] = u + alpha * ds['yt']
 
-def determine_omega(ds_sub_annual):
+
+def Zhang(omega, Ep_over_P, Ea_over_P):
     """
-    Determine the omega value (Fu et al., 1981) from the aridity index and
-    evaporative index.
+    This is the Zhang equation with omega as in Teuling et al., 2019.
+    This function is used to get omega for historical situations when 
+    Ep_over_P and Ea_over_P are known (assuming Ea_over_P = 1 - Q_over_P).
+    This equation is solved for Zhang eq = 0.
 
     Parameters
     ----------
-    ds_sub_annual : xarray dataset
-        xarray dataset containing the ardity index and evaporative index for a
-        set of subcatchments.
+    omega : TYPE
+        DESCRIPTION.
+    Ep_over_P : TYPE
+        The aridity index.
+    Ea_over_P : TYPE
+        The evaporative index.
 
     Returns
     -------
-    ds_sub_annual : xarray dataset
-        Same as above, but with the omega value added.
-    
+    Value 0.
+        
     References
     ----------
-    #TODO: Add Fu et al. reference here.
+    #TODO: Add Fu et al., Zhang and Teuling et al. references here.
     """
-    # Do something here..
-    
-    return ds_sub_annual
-
-# def Zhang(omega, Ep_over_P, Ea_over_P):
-#     """
-#     This is the Zhang formula with omega as in Teuling et al 2019
-#     this function is used to get omega for historical situations when Ep_over_P and Ea_over_P are known (we assume Ea_over_P = 1 - Q_over_P)
-#     Zhang eq = 0
-#     """
-#     return 1 + Ep_over_P - (1 + Ep_over_P**omega)**(1/omega) - Ea_over_P
+    return 1 + Ep_over_P - (1 + Ep_over_P**omega)**(1/omega) - Ea_over_P
 
 # def Zhang_future(omega, Ep_over_P_future):
 #     """
@@ -138,8 +162,8 @@ def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
     """
     #TODO: Threshold is only used on Q availability, should it also be done on 
     # the other variables?
-    ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time')
-    ds_sub_annual['aridity_index'] = ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']
+    ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time', skipna=True)
+    ds_sub_annual['aridity_index'] = (ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']).mean('time', skipna=True)
     ds_sub_annual['evap_index'] = 1 - ds_sub_annual['discharge_coeff']
     
     # Make sure Ea = P - Q < Ep. If not, we will not use that subcatchment for
@@ -152,7 +176,7 @@ def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
     return ds_sub_annual
 
 
-def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
+def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     """
     Returns root zone storage parameter for current observed and (optionally 
     for) future climate-based streamflow data. 
@@ -174,6 +198,8 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
         Dataset at model resolution.
     flwdir : FlwDirRaster
         flwdir object
+    Imax : float, optional
+        The maximum interception storage capacity [mm]. The default is 2.0 mm.
 
     Returns
     -------
@@ -270,9 +296,28 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, logger=logger):
                                                  )
     
     # Determine omega
-    ds_sub_annual = determine_omega(ds_sub_annual)
+    logger.info("Calculating the omega values, this can take a while") #TODO: Can we speed this up?
+    ds_sub_annual = ds_sub_annual.assign(omega = lambda ds_sub_annual: ds_sub_annual['discharge_coeff'] * np.nan)
+    counter=0
+    tot_count = len(ds_sub_annual["index"].values)
+    for subcatch_index in ds_sub_annual["index"].values:
+        counter += 1
+        print(f"Calculating omega for subcatchment {counter} out of {tot_count}")
+        omega = optimize.brentq(
+            Zhang, 
+            1, 
+            8, 
+            args=(ds_sub_annual.sel(index=subcatch_index)["aridity_index"].values, 
+                  ds_sub_annual.sel(index=subcatch_index)["evap_index"].values)
+            )
+        ds_sub_annual["omega"].loc[dict(index = subcatch_index)] = omega 
     
-    # Determine effective precipitation
+    #TODO: Add future climate values here
+    
+    # Determine effective precipitation, interception evporation and canopy 
+    # storage
+    #TODO: Add time variable Imax (based on LAI)
+    ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
     
     # Determine long-term tranpsiration
     

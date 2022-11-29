@@ -1618,8 +1618,9 @@ class WflowModel(Model):
         """
 
         self.logger.info(f"Preparing climate based root zone storage parameter maps.")
-        # TODO add variables list with required variable names
+        #TODO: add variables list with required variable names (for precip, epot, etc.)
         #TODO: make sure the forcing and discharge data have the same time step
+        #TODO: make sure that forcing data has unit mm. 
         dsin = self.data_catalog.get_rasterdataset(
             forcing_obs_fn, geom=self.region, buffer=2
         )
