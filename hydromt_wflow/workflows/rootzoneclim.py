@@ -71,7 +71,28 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
     
     return ds_sub
 
-# def gumbel_su_calc_xr(ds, name_col = 'Sr_def', coords_var1 = 'runs', coords_var2 = 'catchments', time = 'time'):
+
+# def gumbel_su_calc_xr(year_min_storage_deficit, year_min_count, threshold):
+#     """
+#     Function to determine the Gumbel distribution for a set of return periods.
+
+#     Parameters
+#     ----------
+#     year_min_storage_deficit : TYPE
+#         DESCRIPTION.
+#     year_min_count : TYPE
+#         DESCRIPTION.
+#     threshold : TYPE
+#         DESCRIPTION.
+
+#     Returns
+#     -------
+#     gumbel : array-like
+#         Array containing .
+
+#     """
+    
+    
 #     """
 #     ds is a dataset with the minimum deficit per year as a positive value
 #     name_col is the name of the variable containing the deficit
@@ -84,6 +105,7 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
 #     #gumbel calculation
 # #    import pdb; pdb.set_trace()
 #     annual_mean = ds[name_col].mean(time)#.values #step2: mean
+#     (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time', skipna=True)
 #     annual_std = ds[name_col].std(time)#.values #step3: st dev
 
 #     #calc alpha and mu
@@ -100,6 +122,7 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
 #     ds['Sr_gumbel'] = ((coords_var1, coords_var2, 'RP'), np.zeros((len(ds[coords_var1]), len(ds[coords_var2]), len(ds.RP))))
 #     ds['Sr_gumbel'] = u + alpha * ds['yt']
 
+#     return gumbel
 
 def Zhang(omega, Ep_over_P, Ea_over_P):
     """
@@ -370,8 +393,16 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     # Determine storage deficit
     ds_sub["storage_deficit"] = determine_storage_deficit(ds_sub)
     
-    # From the storage deficit, determine the root-zone storage capacity using
+    # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
+    # #TODO: approach now expects start of drying season in April, make this adjustable
+    # # First, determine the yearly minima in storage deficit
+    # year_min_storage_deficit = - ds_sub["storage_deficit"].resample(time='AS-Apr').min('time').to_dataset() 
+    # # A counter will be used to only use years with sufficient days containing 
+    # # data for the Gumbel distribution
+    # year_min_count = ds_sub["storage_deficit"].resample(time='AS-Oct').count('time')
+    # # Subsequently, determine the Gumbel distribution
+    # gumbel = gumbel_su_calc_xr(sy_su, name_col = 'Sr_def', coords_var1 = 'runs', coords_var2 = 'catchments', time = 'time')
     
     # Determine the rootzone storage capacity
     logger.info("calculate rootzone storage capacity")
