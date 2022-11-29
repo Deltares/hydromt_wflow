@@ -1591,6 +1591,7 @@ class WflowModel(Model):
         forcing_cc_hist_fn: Optional[str] = "inmaps_cc_hist",
         forcing_cc_fut_fn: Optional[str] = "inmaps_cc_fut",
         # chunksize: Optional[int] = None,
+        Imax: Optional[float] = 2.0,
         **kwargs,
     ) -> None:
         """
@@ -1610,6 +1611,8 @@ class WflowModel(Model):
             climate model. The default is "inmaps_cc_fut".
         # chunksize : Optional[int], optional #TODO! 
             DESCRIPTION. The default is None.
+        Imax : float, optional
+            The maximum interception storage capacity [mm]. The default is 2.0 mm.
 
         Returns
         -------
@@ -1633,6 +1636,7 @@ class WflowModel(Model):
             dsrun,
             self.staticmaps,
             self.flwdir,
+            Imax=Imax,
             logger=self.logger,
         )  # .reset_coords(drop=True)
         self.set_staticmaps(dsout)

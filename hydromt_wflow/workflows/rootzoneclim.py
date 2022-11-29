@@ -51,26 +51,24 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
     #initialize with empty canopy_storage
     ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[0])] = 0
 
+    #TODO: make this faster
     # Loop through the time steps and determine the variables per time step.
     for i in range(0, nr_time_steps):
         #TODO: implement Imax as function of LAI
         # Imax = LAI.iloc[i]
-        
         # Determine epot and precip for this time step
         Epdt = ds_sub["pet_mean"].isel(time = i)
         Pdt  = ds_sub["precip_mean"].isel(time = i)
-
         # Determine the variables with a simple interception reservoir approach
         ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) + Pdt
         ds_sub['precip_effective'].loc[dict(time = ds_sub.time[i])] = np.maximum(0, ds_sub['canopy_storage'].isel(time = i) - Imax)
         ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) - ds_sub['precip_effective'].isel(time = i)
         ds_sub['evap_interception'].loc[dict(time = ds_sub.time[i])] = np.minimum(Epdt, ds_sub['canopy_storage'].isel(time = i))
         ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) - ds_sub['evap_interception'].isel(time = i)
-        
         # Add the new canopy storage to the next time step
         if i < nr_time_steps - 1:
             ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i+1])] = ds_sub['canopy_storage'].isel(time = i)
-
+    
     return ds_sub
 
 # def gumbel_su_calc_xr(ds, name_col = 'Sr_def', coords_var1 = 'runs', coords_var2 = 'catchments', time = 'time'):
@@ -176,6 +174,42 @@ def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
     return ds_sub_annual
 
 
+def determine_storage_deficit(ds_sub):
+    """
+    Function to determine the storage deficit for every time step, subcatchment
+    location and datset in ds_sub.
+
+    Parameters
+    ----------
+    ds_sub : xarray dataset
+        xarray dataset containing the daily or higher-resolution data.
+
+    Returns
+    -------
+    ds_sub : xarray dataset
+        Same as above but with the storage deficit added.
+
+    """
+    # Initialize the storage deficit variable and start with an empty storage
+    # deficit
+    ds_sub = ds_sub.assign(storage_deficit = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
+    ds_sub['storage_deficit'].loc[dict(time = ds_sub.time[0])] = 0
+    
+    # Calculate the storage deficit 
+    for i in range(1, len(ds_sub.time)):
+        # The storage deficit is either 0 or negative (so capped to zero)
+        ds_sub['storage_deficit'].loc[dict(time = ds_sub.time[i])] = np.minimum(
+            0, 
+            ds_sub['storage_deficit'].isel(time = i-1) + ds_sub['precip_effective'].isel(time = i) - ds_sub['transpiration'].isel(time = i)
+            )
+    
+    #TODO: add climate projections here
+    # #add difference in deficit between +2K and ref to E-OBS and calculate gumbel of that bias-corrected series.
+    # # in runs 'KNMI_+2K_min_ref'
+    # ds_i['Sr_def'].loc[dict(runs = 'KNMI_+2K_min_ref')] = ds_i['Sr_def'].sel(runs = 'E-OBS') + np.minimum(0,ds_i['Sr_def'].sel(runs = ['KNMI ref', 'KNMI +2K']).diff('runs').sel(runs = 'KNMI +2K'))
+    
+    return ds_sub
+
 def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     """
     Returns root zone storage parameter for current observed and (optionally 
@@ -280,6 +314,11 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
             "run_fn, the timeseries with discharge per x,y location, has not the right dimensions. Dimensions (time, index) or (index, time) expected"
             )
     
+    # Determine effective precipitation, interception evporation and canopy 
+    # storage
+    #TODO: Add time variable Imax (based on LAI)
+    ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
+ 
     # Get year sums of ds_sub
     #TODO: what do we do with October as start of the hydrolgoical year?
     ds_sub_annual = ds_sub.resample(time = 'AS-Oct').sum('time', skipna=True)
@@ -302,30 +341,39 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     tot_count = len(ds_sub_annual["index"].values)
     for subcatch_index in ds_sub_annual["index"].values:
         counter += 1
-        print(f"Calculating omega for subcatchment {counter} out of {tot_count}")
-        omega = optimize.brentq(
-            Zhang, 
-            1, 
-            8, 
-            args=(ds_sub_annual.sel(index=subcatch_index)["aridity_index"].values, 
-                  ds_sub_annual.sel(index=subcatch_index)["evap_index"].values)
-            )
-        ds_sub_annual["omega"].loc[dict(index = subcatch_index)] = omega 
+        logger.info(f"Calculating omega for subcatchment {counter} out of {tot_count}")
+        try:
+            omega = optimize.brentq(
+                Zhang, 
+                1, 
+                8, 
+                args=(ds_sub_annual.sel(index=subcatch_index)["aridity_index"].values, 
+                      ds_sub_annual.sel(index=subcatch_index)["evap_index"].values)
+                )
+            ds_sub_annual["omega"].loc[dict(index = subcatch_index)] = omega 
+        #TODO: check this (possible error that occurs: "ValueError: f(a) and f(b) must have different signs")
+        except ValueError:
+            pass
     
     #TODO: Add future climate values here
     
-    # Determine effective precipitation, interception evporation and canopy 
-    # storage
-    #TODO: Add time variable Imax (based on LAI)
-    ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
+    # Determine long-term interception, potential evaporation and tranpsiration; 
+    # use runoff coefficient instead of Qobs to calculate actual evaporation for 
+    # each climate projection
+    transpiration_long_term = ds_sub_annual['precip_effective'].mean('time') -  ds_sub_annual['precip_mean'].mean('time') * ds_sub_annual['discharge_coeff'] #ds_annual['Qobs_mm'].mean('time')
+    interception_long_term = ds_sub_annual['evap_interception'].mean('time') 
+    pet_long_term = ds_sub_annual['pet_mean'].mean('time') 
     
-    # Determine long-term tranpsiration
+    # Determine the transpiration on the finer time step (e.g. daily)
+    ds_sub['transpiration'] = (ds_sub['pet_mean'] - ds_sub['evap_interception']) * transpiration_long_term / (pet_long_term - interception_long_term)
     
     # Determine storage deficit
+    ds_sub["storage_deficit"] = determine_storage_deficit(ds_sub)
     
     # From the storage deficit, determine the root-zone storage capacity using
     # a Gumbel distribution.
     
+    # Determine the rootzone storage capacity
     logger.info("calculate rootzone storage capacity")
     #TODO: future climate
     
