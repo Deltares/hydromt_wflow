@@ -40,7 +40,6 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
         same as above, but with effective precipitation, interception evaporation
         and canopy storage added.
     """
-
     nr_time_steps = len(ds_sub.time)
 
     # Add new empty variables to the output
@@ -50,79 +49,83 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
 
     #initialize with empty canopy_storage
     ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[0])] = 0
+    canopy_storage_temp = ds_sub['canopy_storage'].isel(time = 0)
 
-    #TODO: make this faster
+    #TODO: make this faster (first steps taken with "canopy_storage_temp", but it should still be faster)
     # Loop through the time steps and determine the variables per time step.
     for i in range(0, nr_time_steps):
+        print(i)
         #TODO: implement Imax as function of LAI
         # Imax = LAI.iloc[i]
         # Determine epot and precip for this time step
         Epdt = ds_sub["pet_mean"].isel(time = i)
         Pdt  = ds_sub["precip_mean"].isel(time = i)
         # Determine the variables with a simple interception reservoir approach
-        ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) + Pdt
-        ds_sub['precip_effective'].loc[dict(time = ds_sub.time[i])] = np.maximum(0, ds_sub['canopy_storage'].isel(time = i) - Imax)
-        ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) - ds_sub['precip_effective'].isel(time = i)
-        ds_sub['evap_interception'].loc[dict(time = ds_sub.time[i])] = np.minimum(Epdt, ds_sub['canopy_storage'].isel(time = i))
-        ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i])] = ds_sub['canopy_storage'].isel(time = i) - ds_sub['evap_interception'].isel(time = i)
-        # Add the new canopy storage to the next time step
+        canopy_storage_temp = canopy_storage_temp + Pdt
+        ds_sub['precip_effective'].data[:,i] = np.maximum(0, canopy_storage_temp - Imax)
+        canopy_storage_temp = canopy_storage_temp - ds_sub['precip_effective'].isel(time = i)
+        ds_sub['evap_interception'].data[:,i] = np.minimum(Epdt, canopy_storage_temp)
+        ds_sub['canopy_storage'].data[:,i] = canopy_storage_temp - ds_sub['evap_interception'].isel(time = i)
+        Epdt = None
+        Pdt = None
+        # Update Si for the next time step
         if i < nr_time_steps - 1:
-            ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[i+1])] = ds_sub['canopy_storage'].isel(time = i)
+            canopy_storage_temp = ds_sub['canopy_storage'].isel(time = i)
     
     return ds_sub
 
 
-# def gumbel_su_calc_xr(year_min_storage_deficit, year_min_count, threshold):
-#     """
-#     Function to determine the Gumbel distribution for a set of return periods.
+def gumbel_su_calc_xr(ds_sub_annual, ds_sub_annual_count, threshold):
+    """
+    Function to determine the Gumbel distribution for a set of return periods.
 
-#     Parameters
-#     ----------
-#     year_min_storage_deficit : TYPE
-#         DESCRIPTION.
-#     year_min_count : TYPE
-#         DESCRIPTION.
-#     threshold : TYPE
-#         DESCRIPTION.
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        xarray dataset with the minimum deficit per year as a positive value.
+    ds_sub_annual_count : xarray dataset
+        xarray dataset containing the number of days with data per year. This
+        indicates on how many days a minimum in year_min_storage_deficit is
+        based.
+    threshold : int
+        Required minimum number of days in a year containing data to take the
+        year into account for the calculation..
 
-#     Returns
-#     -------
-#     gumbel : array-like
-#         Array containing .
+    Returns
+    -------
+    gumbel : xarray dataset
+        xarray dataset, similar to year_min_storage_deficit, but containing the
+        root-zone storage capacity per return period.
 
-#     """
+    """
+    # Only take the years into account that contain more than [threshold] days
+    # of data.
+    ds_sub_annual["storage_deficit"] = ds_sub_annual["storage_deficit"].where(ds_sub_annual_count["storage_deficit"] > threshold) 
+        
+    # Calculate the mean and standard deviation for the Gumbel distribution
+    annual_mean = ds_sub_annual["storage_deficit"].mean('time', skipna=True)
+    annual_std = ds_sub_annual["storage_deficit"].std('time', skipna=True)
     
+    # Calculate alpha and mu
+    alpha = (np.sqrt(6.0) * annual_std) / np.pi
+    mu = annual_mean - 0.5772 * alpha
+
+    # Create the output dataset
+    #TODO: make ready for multiple runs (climate data)
+    gumbel = ds_sub_annual["storage_deficit"].to_dataset()
+    gumbel["rootzone_storage"] = (('index', 'RP'), np.zeros((len(gumbel["index"]), len(gumbel["RP"]))))
+
+    # Set the return periods #TODO: hard coded?
+    RP = [2,3,5,10,15,20,25,50,60,100]
+    gumbel['RP'] = RP
     
-#     """
-#     ds is a dataset with the minimum deficit per year as a positive value
-#     name_col is the name of the variable containing the deficit
-#     coords_var 1 is the first coordinate alon which gumbel needs to be calculated i.e. runs
-#     coords_var 2 is the first coordinate alon which gumbel needs to be calculated i.e. different catchments
-#     time is the name of the time variable
+    # Determine the root zone storage for different return periods using alpha 
+    #and mu
+    gumbel['yt'] = -np.log(-np.log(1 - (1 / gumbel['RP'])))
+    gumbel['rootzone_storage'] = mu + alpha * gumbel['yt']
 
-#     ds outcome includes Sr,wb for different return periods
-#     """
-#     #gumbel calculation
-# #    import pdb; pdb.set_trace()
-#     annual_mean = ds[name_col].mean(time)#.values #step2: mean
-#     (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time', skipna=True)
-#     annual_std = ds[name_col].std(time)#.values #step3: st dev
+    return gumbel
 
-#     #calc alpha and mu
-#     alpha = (sp.sqrt(6) * annual_std) / sp.pi #step4: alpha
-#     u = annual_mean - 0.5772 * alpha #step5: u
-
-#     #determine Su for different return periods using alpha and mu
-#     RP = [2,3,5,10,15,20,25,50,60,100]
-#     ds['RP'] = RP
-
-#     yt = -np.log(-np.log(1-(1/ds['RP'])))
-#     ds['yt'] = yt
-
-#     ds['Sr_gumbel'] = ((coords_var1, coords_var2, 'RP'), np.zeros((len(ds[coords_var1]), len(ds[coords_var2]), len(ds.RP))))
-#     ds['Sr_gumbel'] = u + alpha * ds['yt']
-
-#     return gumbel
 
 def Zhang(omega, Ep_over_P, Ea_over_P):
     """
@@ -275,7 +278,6 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     # Make a basin map containing all subcatchments from geodataset of observed 
     # streamflow
     x, y = dsrun.x.values, dsrun.y.values
-    # ds_basin = flw.basin_map(ds_like, flwdir, ids=dsrun.index.values, xy=(x, y))[0] #TODO: remove?
     gdf_basins = pd.DataFrame()
     # Loop over basins and get per gauge location a polygon of the upstream
     # area.
@@ -309,6 +311,7 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     gdf_basins['area'] = gdf_basins_copy['geometry'].to_crs({'proj':'cea'}).area
     gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
     gdf_basins_copy = None 
+    #TODO: gebruik staticmaps? --> hoe zit dit in setup basemaps?
 
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds.raster.zonal_stats(gdf_basins, stats=["mean"])
@@ -322,7 +325,8 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     #TODO: add check for time interval - time interval ds_sub and dsrun should
     # be the same, otherwise we should adjust it.
     time_interval = (ds_sub.time[1].values - ds_sub.time[0].values).astype('timedelta64[s]').astype(np.int32)
-    #TODO: should we fix the variable name to "run" or should we make this
+    #TODO: check if the time step is in day - otherwise resample
+    #TODO: should we fix the variable name to "run" or should we make this --> Use name conventions!
     # adjustable? In the first case, we should raise an error if that is missing.
     dsrun = dsrun.assign(
         specific_Q=dsrun["run"]/np.array(gdf_basins["area"]) * time_interval * 1000.0
@@ -340,6 +344,9 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     # Determine effective precipitation, interception evporation and canopy 
     # storage
     #TODO: Add time variable Imax (based on LAI)
+    logger.info("Determine effective precipitation, interception evporation and canopy storage")
+    # First, rechunk data #TODO: perform chunking based on given chunks in wflow.py?
+    ds_sub = ds_sub.chunk(chunks={'index': 40, 'time': 1000})
     ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
  
     # Get year sums of ds_sub
@@ -395,19 +402,39 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     
     # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
-    # #TODO: approach now expects start of drying season in April, make this adjustable
-    # # First, determine the yearly minima in storage deficit
-    # year_min_storage_deficit = - ds_sub["storage_deficit"].resample(time='AS-Apr').min('time').to_dataset() 
-    # # A counter will be used to only use years with sufficient days containing 
-    # # data for the Gumbel distribution
-    # year_min_count = ds_sub["storage_deficit"].resample(time='AS-Oct').count('time')
-    # # Subsequently, determine the Gumbel distribution
-    # gumbel = gumbel_su_calc_xr(sy_su, name_col = 'Sr_def', coords_var1 = 'runs', coords_var2 = 'catchments', time = 'time')
-    
-    # Determine the rootzone storage capacity
-    logger.info("calculate rootzone storage capacity")
+    logger.info("Calculating the Gumbel distribution and rootzone storage capacity")
+    #TODO: approach now expects start of drying season in April, make this adjustable
+    # First, determine the yearly minima in storage deficit
+    ds_sub_annual["storage_deficit"] = - ds_sub["storage_deficit"].resample(time='AS-Apr').min('time', skipna=True) 
+    # A counter will be used to only use years with sufficient days containing 
+    # data for the Gumbel distribution
+    ds_sub_annual_count["storage_deficit"] = ds_sub["storage_deficit"].resample(time='AS-Apr').count('time')
+    # Subsequently, determine the Gumbel distribution
+    gumbel = gumbel_su_calc_xr(ds_sub_annual, 
+                               ds_sub_annual_count, 
+                               threshold=missing_threshold,
+                               )
+
     #TODO: future climate
     
+    #TODO: pick the rootzone storage based on the requested return period
+    
+    #TODO: Do something here to combine all root zone storage per subcatchment
+   
+    #TODO: Rasterize this (from large subcatchments to small ones)
+    #TODO: Do something with the nans here when adding all subcatchments
+   
+    #TODO:
+    # Scale the Srmax to the model resolution
+    # srmax = srmax.raster.reproject_like(ds_like, method="average")
+    
+    #TODO:
+    # Store the Srmax fur the current and future climate in ds_out
+    # ds_out["rootzone_storage"] = srmax.astype(np.float32)
+    #TODO: make optional
+    # ds_out["rootzone_storage_climate"] = srmax.astype(np.float32)
+    #TODO: Also store as optional rootingdepth for wflow_sbm
+
     # import pdb; pdb.set_trace()
 
     # da_basins = flw.basin_map(
@@ -417,15 +444,7 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     #                     self.set_staticmaps(da_basins, name=mapname)
     #                     gdf_basins = self.staticmaps[mapname].raster.vectorize()
     #                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
-   
-    # Scale the Srmax to the model resolution
-    # srmax = srmax.raster.reproject_like(ds_like, method="average")
     
-    #TODO: Do something with the nans here when adding all subcatchments
-    
-    # Store the Srmax fur the current and future climate in ds_out
-    # ds_out["rootzone_storage"] = srmax.astype(np.float32)
-    #TODO: make optional
-    # ds_out["rootzone_storage_climate"] = srmax.astype(np.float32)
-
     return ds_out
+
+

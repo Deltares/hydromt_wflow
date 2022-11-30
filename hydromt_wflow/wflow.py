@@ -1593,6 +1593,8 @@ class WflowModel(Model):
         # chunksize: Optional[int] = None,
         Imax: Optional[float] = 2.0,
         **kwargs,
+        #TODO: add start of hydrological year - default is january
+        #TODO: add start of wet season - default is January
     ) -> None:
         """
         Setup climate based root-zone storage capacity
