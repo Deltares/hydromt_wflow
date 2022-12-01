@@ -340,14 +340,26 @@ def rootzoneclim(ds,
     # geopandas.GeoDataFrame(geometry=gdf_basins['geometry']).to_file(outfile,driver='ESRI Shapefile') 
     
     # Add the catchment area to gdf_basins and sort in a descending order
-    # Note that we first have to reproject to a cylindircal equal area in
-    # order to preserve the area measure. 
-    gdf_basins_copy = gdf_basins.copy()
-    gdf_basins['area'] = gdf_basins_copy['geometry'].to_crs({'proj':'cea'}).area
+    # # Note that we first have to reproject to a cylindircal equal area in #TODO: new method added, which one do we keep?
+    # # order to preserve the area measure. 
+    # gdf_basins_copy = gdf_basins.copy()
+    # gdf_basins['area'] = gdf_basins_copy['geometry'].to_crs({'proj':'cea'}).area
+    # gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
+    # gdf_basins_copy = None 
+    # Calculate the catchment area based on the upstream area in the
+    # staticmaps
+    areas = []
+    for index in gdf_basins.index:
+        areas.append(
+            ds_like["wflow_uparea"].sel(
+                lat=dsrun.sel(index=index)["y"].values, 
+                lon=dsrun.sel(index=index)["x"].values, 
+                method="nearest"
+                ).values * 1e6
+            )
+    gdf_basins["area"] = areas
     gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
-    gdf_basins_copy = None 
-    #TODO: gebruik staticmaps? --> hoe zit dit in setup basemaps?
-
+    
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds.raster.zonal_stats(gdf_basins, stats=["mean"])
     
