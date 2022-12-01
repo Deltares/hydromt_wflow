@@ -24,7 +24,7 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
 
     Parameters
     ----------
-    ds_sub : xarray dataset
+    ds_sub : xarray datase
         xarray dataset containing precipitation and potential evaporation
         (precip_mean and pet_mean).
     Imax : float
@@ -42,35 +42,34 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
     """
     nr_time_steps = len(ds_sub.time)
 
-    # Add new empty variables to the output
-    ds_sub = ds_sub.assign(evap_interception = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
-    ds_sub = ds_sub.assign(precip_effective = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
-    ds_sub = ds_sub.assign(canopy_storage = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
-
-    #initialize with empty canopy_storage
-    ds_sub['canopy_storage'].loc[dict(time = ds_sub.time[0])] = 0
-    canopy_storage_temp = ds_sub['canopy_storage'].isel(time = 0)
-
-    #TODO: make this faster (first steps taken with "canopy_storage_temp", but it should still be faster)
+    # Add new empty variables that will be filled in the loop
+    evap_interception = np.zeros((len(ds_sub["index"]), len(ds_sub["time"])))
+    precip_effective = np.zeros((len(ds_sub["index"]), len(ds_sub["time"])))
+    canopy_storage = np.zeros((len(ds_sub["index"]), len(ds_sub["time"])))
+   
+    # Load the potential evaporation and precipitation into memory to speed up
+    # the subsequent for loop
+    print("Load pet and precipitation into memory to speed up for loop. This can take a while")
+    Epdt = ds_sub["pet_mean"].values
+    Pdt = ds_sub["precip_mean"].values
+    print("Loading finished, start loop")
     # Loop through the time steps and determine the variables per time step.
     for i in range(0, nr_time_steps):
-        print(i)
         #TODO: implement Imax as function of LAI
         # Imax = LAI.iloc[i]
-        # Determine epot and precip for this time step
-        Epdt = ds_sub["pet_mean"].isel(time = i)
-        Pdt  = ds_sub["precip_mean"].isel(time = i)
         # Determine the variables with a simple interception reservoir approach
-        canopy_storage_temp = canopy_storage_temp + Pdt
-        ds_sub['precip_effective'].data[:,i] = np.maximum(0, canopy_storage_temp - Imax)
-        canopy_storage_temp = canopy_storage_temp - ds_sub['precip_effective'].isel(time = i)
-        ds_sub['evap_interception'].data[:,i] = np.minimum(Epdt, canopy_storage_temp)
-        ds_sub['canopy_storage'].data[:,i] = canopy_storage_temp - ds_sub['evap_interception'].isel(time = i)
-        Epdt = None
-        Pdt = None
+        canopy_storage[:,i] = canopy_storage[:,i] + Pdt[:,i]
+        precip_effective[:,i] = np.maximum(0, canopy_storage[:,i] - Imax)
+        canopy_storage[:,i] = canopy_storage[:,i] - precip_effective[:,i]
+        evap_interception[:,i] = np.minimum(Epdt[:,i], canopy_storage[:,i])
+        canopy_storage[:,i] = canopy_storage[:,i] - evap_interception[:,i]
         # Update Si for the next time step
         if i < nr_time_steps - 1:
-            canopy_storage_temp = ds_sub['canopy_storage'].isel(time = i)
+            canopy_storage[:,i+1] = canopy_storage[:,i]
+    
+    ds_sub["evap_interception"] = (('index', 'time'), evap_interception)
+    ds_sub["precip_effective"] = (('index', 'time'), precip_effective)
+    ds_sub["canopy_storage"] = (('index', 'time'), canopy_storage)    
     
     return ds_sub
 
@@ -340,14 +339,15 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
         raise ValueError(
             "run_fn, the timeseries with discharge per x,y location, has not the right dimensions. Dimensions (time, index) or (index, time) expected"
             )
-    
+       
     # Determine effective precipitation, interception evporation and canopy 
     # storage
     #TODO: Add time variable Imax (based on LAI)
     logger.info("Determine effective precipitation, interception evporation and canopy storage")
-    # First, rechunk data #TODO: perform chunking based on given chunks in wflow.py?
-    ds_sub = ds_sub.chunk(chunks={'index': 40, 'time': 1000})
     ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
+ 
+    # Rechunk data #TODO: perform chunking based on given chunks in wflow.py?
+    ds_sub = ds_sub.chunk(chunks={'index': 40, 'time': 1000})
  
     # Get year sums of ds_sub
     #TODO: what do we do with October as start of the hydrolgoical year?
@@ -419,7 +419,7 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     
     #TODO: pick the rootzone storage based on the requested return period
     
-    #TODO: Do something here to combine all root zone storage per subcatchment
+    #TODO: Do something here to combine all root zone storages per subcatchment
    
     #TODO: Rasterize this (from large subcatchments to small ones)
     #TODO: Do something with the nans here when adding all subcatchments
