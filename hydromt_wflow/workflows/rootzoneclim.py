@@ -235,7 +235,14 @@ def determine_storage_deficit(ds_sub):
     
     return ds_sub
 
-def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
+def rootzoneclim(ds, 
+                 dsrun, 
+                 ds_like, 
+                 flwdir, 
+                 Imax, 
+                 start_hydro_year,
+                 start_field_capacity,
+                 logger=logger):
     """
     Returns root zone storage parameter for current observed and (optionally 
     for) future climate-based streamflow data. 
@@ -257,9 +264,16 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
         Dataset at model resolution.
     flwdir : FlwDirRaster
         flwdir object
-    Imax : float, optional
-        The maximum interception storage capacity [mm]. The default is 2.0 mm.
-
+    Imax : float
+        The maximum interception storage capacity [mm].
+    start_hydro_year : str
+        The start month (abreviated to the first three letters of the month,
+        starting with a capital letter) of the hydrological year. 
+    start_field_capacity : str
+        The end of the wet season / commencement of dry season. This is the
+        moment when the soil is at field capacity, i.e. there is no storage
+        deficit yet. 
+        
     Returns
     -------
     ds_out : xarray.Dataset
@@ -269,6 +283,28 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     ----------
     TODO: add paper reference
     """
+    # Start with some initial checks
+    list_of_months = ["Jan", 
+                      "Feb", 
+                      "Mar", 
+                      "Apr", 
+                      "May", 
+                      "Jun", 
+                      "Jul", 
+                      "Aug", 
+                      "Sep", 
+                      "Oct", 
+                      "Nov", 
+                      "Dec"]
+    if start_hydro_year not in list_of_months:
+        raise ValueError(
+            f"start_hydro_year not in {list_of_months}: provide a valid month"
+            )
+    if start_field_capacity not in list_of_months:
+        raise ValueError(
+            f"start_field_capacity not in {list_of_months}: provide a valid month"
+            )
+    
     #TODO: Add the future climate implementations
     
     # Set the output dataset at model resolution
@@ -350,11 +386,10 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     ds_sub = ds_sub.chunk(chunks={'index': 40, 'time': 1000})
  
     # Get year sums of ds_sub
-    #TODO: what do we do with October as start of the hydrolgoical year?
-    ds_sub_annual = ds_sub.resample(time = 'AS-Oct').sum('time', skipna=True)
+    ds_sub_annual = ds_sub.resample(time = f'AS-{start_hydro_year}').sum('time', skipna=True)
     # A counter will be used and a threshold, to only use years with sufficient
     # days containing data in the subsequent calculations
-    ds_sub_annual_count = ds_sub.resample(time = 'AS-Oct').count('time')
+    ds_sub_annual_count = ds_sub.resample(time = f'AS-{start_hydro_year}').count('time')
     missing_threshold = 330
     
     # Determine discharge coefficient, the aridity index and the evaporative
@@ -403,12 +438,11 @@ def rootzoneclim(ds, dsrun, ds_like, flwdir, Imax=2.0, logger=logger):
     # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
     logger.info("Calculating the Gumbel distribution and rootzone storage capacity")
-    #TODO: approach now expects start of drying season in April, make this adjustable
     # First, determine the yearly minima in storage deficit
-    ds_sub_annual["storage_deficit"] = - ds_sub["storage_deficit"].resample(time='AS-Apr').min('time', skipna=True) 
+    ds_sub_annual["storage_deficit"] = - ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').min('time', skipna=True) 
     # A counter will be used to only use years with sufficient days containing 
     # data for the Gumbel distribution
-    ds_sub_annual_count["storage_deficit"] = ds_sub["storage_deficit"].resample(time='AS-Apr').count('time')
+    ds_sub_annual_count["storage_deficit"] = ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').count('time')
     # Subsequently, determine the Gumbel distribution
     gumbel = gumbel_su_calc_xr(ds_sub_annual, 
                                ds_sub_annual_count, 

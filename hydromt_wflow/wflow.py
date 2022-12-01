@@ -1592,9 +1592,9 @@ class WflowModel(Model):
         forcing_cc_fut_fn: Optional[str] = "inmaps_cc_fut",
         # chunksize: Optional[int] = None,
         Imax: Optional[float] = 2.0,
+        start_hydro_year: Optional[str] = "Jan",
+        start_field_capacity: Optional[str] = "Jan",
         **kwargs,
-        #TODO: add start of hydrological year - default is january
-        #TODO: add start of wet season - default is January
     ) -> None:
         """
         Setup climate based root-zone storage capacity
@@ -1615,6 +1615,14 @@ class WflowModel(Model):
             DESCRIPTION. The default is None.
         Imax : float, optional
             The maximum interception storage capacity [mm]. The default is 2.0 mm.
+        start_hydro_year : str, optional
+            The start month (abreviated to the first three letters of the month,
+            starting with a capital letter) of the hydrological year. The 
+            default is 'Jan'.
+        start_field_capacity : str, optional
+            The end of the wet season / commencement of dry season. This is the
+            moment when the soil is at field capacity, i.e. there is no storage
+            deficit yet. The default is 'Jan'. 
 
         Returns
         -------
@@ -1639,6 +1647,8 @@ class WflowModel(Model):
             self.staticmaps,
             self.flwdir,
             Imax=Imax,
+            start_hydro_year=start_hydro_year,
+            start_field_capacity=start_field_capacity,
             logger=self.logger,
         )  # .reset_coords(drop=True)
         self.set_staticmaps(dsout)
