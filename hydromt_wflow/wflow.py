@@ -1588,8 +1588,8 @@ class WflowModel(Model):
         self,
         run_fn: str = "run_obs",
         forcing_obs_fn: str = "inmaps",
-        forcing_cc_hist_fn: Optional[str] = "inmaps_cc_hist",
-        forcing_cc_fut_fn: Optional[str] = "inmaps_cc_fut",
+        forcing_cc_hist_fn: Optional[str] = None,
+        forcing_cc_fut_fn: Optional[str] = None,
         # chunksize: Optional[int] = None,
         Imax: Optional[float] = 2.0,
         start_hydro_year: Optional[str] = "Jan",
@@ -1607,10 +1607,10 @@ class WflowModel(Model):
             Gridded timeseries with the obsered forcing. The default is "inmaps".
         forcing_cc_hist_fn : Optional[str], optional
             Gridded timeseries with the simulated historical forcing, based on a climate
-            model. The default is "inmaps_cc_hist".
+            model. The default is None.
         forcing_cc_fut_fn : Optional[str], optional
             Gridded timeseries with the simulated climate forcing, based on a
-            climate model. The default is "inmaps_cc_fut".
+            climate model. The default is None.
         # chunksize : Optional[int], optional #TODO! 
             DESCRIPTION. The default is None.
         Imax : float, optional
@@ -1630,22 +1630,33 @@ class WflowModel(Model):
 
         """
 
-        self.logger.info(f"Preparing climate based root zone storage parameter maps.")
-        #TODO: add variables list with required variable names (for precip, epot, etc.)
-        #TODO: make sure the forcing and discharge data have the same time step
+        self.logger.info("Preparing climate based root zone storage parameter maps.")
         #TODO: make sure that forcing data has unit mm. 
-        dsin = self.data_catalog.get_rasterdataset(
+        # Open the data sets
+        ds_obs = self.data_catalog.get_rasterdataset(
             forcing_obs_fn, geom=self.region, buffer=2
         )
+        ds_cc_hist = None
+        if forcing_cc_hist_fn != None:
+            ds_cc_hist = self.data_catalog.get_rasterdataset(
+                forcing_cc_hist_fn, geom=self.region, buffer=2
+            )        
+        ds_cc_fut = None
+        if forcing_cc_fut_fn != None:
+            ds_cc_fut = self.data_catalog.get_rasterdataset(
+                forcing_cc_fut_fn, geom=self.region, buffer=2
+            ) 
         dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False)
         # TODO add fn interception
         # import pdb; pdb.set_trace()
-
+        # Run the rootzone clim workflow
         dsout = workflows.rootzoneclim(
-            dsin,
-            dsrun,
-            self.staticmaps,
-            self.flwdir,
+            ds_obs=ds_obs,
+            ds_cc_hist=ds_cc_hist,
+            ds_cc_fut=ds_cc_fut,
+            dsrun=dsrun,
+            ds_like = self.staticmaps,
+            flwdir = self.flwdir,
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,

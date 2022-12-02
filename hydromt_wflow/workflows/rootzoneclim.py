@@ -40,36 +40,67 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
         same as above, but with effective precipitation, interception evaporation
         and canopy storage added.
     """
-    nr_time_steps = len(ds_sub.time)
-
-    # Add new empty variables that will be filled in the loop
-    evap_interception = np.zeros((len(ds_sub["index"]), len(ds_sub["time"])))
-    precip_effective = np.zeros((len(ds_sub["index"]), len(ds_sub["time"])))
-    canopy_storage = np.zeros((len(ds_sub["index"]), len(ds_sub["time"])))
-   
-    # Load the potential evaporation and precipitation into memory to speed up
-    # the subsequent for loop
-    print("Load pet and precipitation into memory to speed up for loop. This can take a while")
-    Epdt = ds_sub["pet_mean"].values
-    Pdt = ds_sub["precip_mean"].values
-    print("Loading finished, start loop")
-    # Loop through the time steps and determine the variables per time step.
-    for i in range(0, nr_time_steps):
-        #TODO: implement Imax as function of LAI
-        # Imax = LAI.iloc[i]
-        # Determine the variables with a simple interception reservoir approach
-        canopy_storage[:,i] = canopy_storage[:,i] + Pdt[:,i]
-        precip_effective[:,i] = np.maximum(0, canopy_storage[:,i] - Imax)
-        canopy_storage[:,i] = canopy_storage[:,i] - precip_effective[:,i]
-        evap_interception[:,i] = np.minimum(Epdt[:,i], canopy_storage[:,i])
-        canopy_storage[:,i] = canopy_storage[:,i] - evap_interception[:,i]
-        # Update Si for the next time step
-        if i < nr_time_steps - 1:
-            canopy_storage[:,i+1] = canopy_storage[:,i]
+    # Make the output dataset ready for the output
+    ds_sub["evap_interception"] = (
+        ("index", "forcing_type", "time"),
+        np.zeros(
+            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
+            )
+        )
+    ds_sub["precip_effective"] = (
+        ("index", "forcing_type", "time"),
+        np.zeros(
+            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
+            )
+        )
+    ds_sub["canopy_storage"] = (
+        ("index", "forcing_type", "time"),
+        np.zeros(
+            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
+            )
+        )    
+    # Calculate it per forcing type
+    for forcing_type in ds_sub["forcing_type"].values:
+        print(forcing_type)
+        nr_time_steps = len(ds_sub.sel(forcing_type=forcing_type).time)
     
-    ds_sub["evap_interception"] = (('index', 'time'), evap_interception)
-    ds_sub["precip_effective"] = (('index', 'time'), precip_effective)
-    ds_sub["canopy_storage"] = (('index', 'time'), canopy_storage)    
+        # Add new empty variables that will be filled in the loop
+        evap_interception = np.zeros(
+            (len(ds_sub.sel(forcing_type=forcing_type)["index"]), 
+             len(ds_sub.sel(forcing_type=forcing_type)["time"]))
+            ) 
+        precip_effective = np.zeros(
+            (len(ds_sub.sel(forcing_type=forcing_type)["index"]), 
+             len(ds_sub.sel(forcing_type=forcing_type)["time"]))
+            ) 
+        canopy_storage = np.zeros(
+            (len(ds_sub.sel(forcing_type=forcing_type)["index"]), 
+             len(ds_sub.sel(forcing_type=forcing_type)["time"]))
+            )
+       
+        # Load the potential evaporation and precipitation into memory to speed up
+        # the subsequent for loop
+        print("Load pet and precipitation into memory to speed up for loop. This can take a while")
+        Epdt = ds_sub.sel(forcing_type=forcing_type)["pet_mean"].values
+        Pdt = ds_sub.sel(forcing_type=forcing_type)["precip_mean"].values
+        print("Loading finished, start loop")
+        # Loop through the time steps and determine the variables per time step.
+        for i in range(0, nr_time_steps):
+            #TODO: implement Imax as function of LAI
+            # Imax = LAI.iloc[i]
+            # Determine the variables with a simple interception reservoir approach
+            canopy_storage[:,i] = canopy_storage[:,i] + Pdt[:,i]
+            precip_effective[:,i] = np.maximum(0, canopy_storage[:,i] - Imax)
+            canopy_storage[:,i] = canopy_storage[:,i] - precip_effective[:,i]
+            evap_interception[:,i] = np.minimum(Epdt[:,i], canopy_storage[:,i])
+            canopy_storage[:,i] = canopy_storage[:,i] - evap_interception[:,i]
+            # Update Si for the next time step
+            if i < nr_time_steps - 1:
+                canopy_storage[:,i+1] = canopy_storage[:,i]
+        
+        ds_sub["evap_interception"].loc[dict(forcing_type=forcing_type)] = evap_interception
+        ds_sub["precip_effective"].loc[dict(forcing_type=forcing_type)] = precip_effective
+        ds_sub["canopy_storage"].loc[dict(forcing_type=forcing_type)] = canopy_storage    
     
     return ds_sub
 
@@ -162,7 +193,7 @@ def Zhang(omega, Ep_over_P, Ea_over_P):
 #     return RC_future
 
 
-def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
+def determine_budyko_curve_terms_current_clim(ds_sub_annual, ds_sub_annual_count, threshold):
     """
     Parameters
     ----------
@@ -183,8 +214,9 @@ def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
         index and the evaporative index as long term averages.
 
     """
-    #TODO: Threshold is only used on Q availability, should it also be done on 
-    # the other variables?
+    # Determine the terms (note that the discharge coefficient and evaporative
+    # index for the future climate, if present, are not correct yet and will
+    # be adjusted at a later stage)
     ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time', skipna=True)
     ds_sub_annual['aridity_index'] = (ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']).mean('time', skipna=True)
     ds_sub_annual['evap_index'] = 1 - ds_sub_annual['discharge_coeff']
@@ -235,54 +267,14 @@ def determine_storage_deficit(ds_sub):
     
     return ds_sub
 
-def rootzoneclim(ds, 
-                 dsrun, 
-                 ds_like, 
-                 flwdir, 
-                 Imax, 
-                 start_hydro_year,
-                 start_field_capacity,
-                 logger=logger):
-    """
-    Returns root zone storage parameter for current observed and (optionally 
-    for) future climate-based streamflow data. 
-    The root zone storage parameter is calculated per subcatchment and is 
-    converted to a gridded map at model resolution.
 
-    The following maps are calculated:\
-    - `rootzone_storage`                  : maximum root zone storage capacity [mm]\
-    - `rootzone_depth_climate`            : maximum root zone storage depth [mm]\
-                    
+def check_inputs(start_hydro_year,
+                 start_field_capacity,
+                 dsrun,
+                 ds_obs,
+                 ds_cc_hist,
+                 ds_cc_fut):
     
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset with forcing data.
-    dsrun : str
-        Geodataset with streamflow locations and timeseries.
-    ds_like : xarray.DataArray
-        Dataset at model resolution.
-    flwdir : FlwDirRaster
-        flwdir object
-    Imax : float
-        The maximum interception storage capacity [mm].
-    start_hydro_year : str
-        The start month (abreviated to the first three letters of the month,
-        starting with a capital letter) of the hydrological year. 
-    start_field_capacity : str
-        The end of the wet season / commencement of dry season. This is the
-        moment when the soil is at field capacity, i.e. there is no storage
-        deficit yet. 
-        
-    Returns
-    -------
-    ds_out : xarray.Dataset
-        Dataset containing root zone storage capacity.
-        
-    References
-    ----------
-    TODO: add paper reference
-    """
     # Start with some initial checks
     list_of_months = ["Jan", 
                       "Feb", 
@@ -310,18 +302,115 @@ def rootzoneclim(ds,
             "Variable run not in run_fn"
             )
     
-    if "precip" not in list(ds.keys()):
+    if "precip" not in list(ds_obs.keys()):
         raise ValueError(
             "Variable precip not in forcing_obs_fn"
             )
 
-    if "pet" not in list(ds.keys()):
+    if "pet" not in list(ds_obs.keys()):
         raise ValueError(
             "Variable pet not in forcing_obs_fn"
             )
+    if ds_cc_hist != None:
+        if "precip" not in list(ds_cc_hist.keys()):
+            raise ValueError(
+                "Variable precip not in forcing_cc_hist_fn"
+                )
     
-    #TODO: Add the future climate implementations
+        if "pet" not in list(ds_cc_hist.keys()):
+            raise ValueError(
+                "Variable pet not in forcing_cc_hist_fn"
+                )
+    if ds_cc_fut != None:
+        if "precip" not in list(ds_cc_fut.keys()):
+            raise ValueError(
+                "Variable precip not in forcing_cc_fut_fn"
+                )
     
+        if "pet" not in list(ds_cc_fut.keys()):
+            raise ValueError(
+                "Variable pet not in forcing_cc_fut_fn"
+                )
+            
+    return None
+
+
+def rootzoneclim(ds_obs,
+                 ds_cc_hist,
+                 ds_cc_fut,
+                 dsrun, 
+                 ds_like, 
+                 flwdir, 
+                 Imax, 
+                 start_hydro_year,
+                 start_field_capacity,
+                 logger=logger):
+    """
+    Returns root zone storage parameter for current observed and (optionally 
+    for) future climate-based streamflow data. 
+    The root zone storage parameter is calculated per subcatchment and is 
+    converted to a gridded map at model resolution.
+
+    The following maps are calculated:\
+    - `rootzone_storage`                  : maximum root zone storage capacity [mm]\
+    - `rootzone_depth_climate`            : maximum root zone storage depth [mm]\
+                    
+    
+    Parameters
+    ----------
+    ds_obs : xarray.Dataset
+        Dataset with the observed forcing data.
+    ds_cc_hist : xarray.Dataset
+        Dataset with the simulated historical forcing data, based on a climate
+        model.
+    ds_cc_fut : xarray.Dataset
+        Dataset with the simulated future climate forcing data, based on a 
+        climate model.
+    dsrun : str
+        Geodataset with streamflow locations and timeseries.
+    ds_like : xarray.DataArray
+        Dataset at model resolution.
+    flwdir : FlwDirRaster
+        flwdir object
+    Imax : float
+        The maximum interception storage capacity [mm].
+    start_hydro_year : str
+        The start month (abreviated to the first three letters of the month,
+        starting with a capital letter) of the hydrological year. 
+    start_field_capacity : str
+        The end of the wet season / commencement of dry season. This is the
+        moment when the soil is at field capacity, i.e. there is no storage
+        deficit yet.     
+        
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing root zone storage capacity.
+        
+    References
+    ----------
+    TODO: add paper reference
+    """
+    # Start with some initial checks
+    check_inputs(start_hydro_year, 
+                 start_field_capacity,
+                 dsrun,
+                 ds_obs,
+                 ds_cc_hist,
+                 ds_cc_fut)
+    
+    # Concatenate all forcing types (obs, cc_hist, cc_fut) into on xr dataset
+    if ds_cc_hist != None and ds_cc_fut != None:
+        ds_concat = xr.concat(
+            [ds_obs, ds_cc_hist, ds_cc_fut], 
+            pd.Index(["obs", "cc_hist", "cc_fut"], name="forcing_type")
+            )
+    else:
+        ds_concat = xr.concat(
+            [ds_obs], 
+            pd.Index(["obs"], name="forcing_type")
+            )
+        
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
@@ -376,7 +465,7 @@ def rootzoneclim(ds,
     gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
     
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
-    ds_sub = ds.raster.zonal_stats(gdf_basins, stats=["mean"])
+    ds_sub = ds_concat.raster.zonal_stats(gdf_basins, stats=["mean"])
     
     # Get the time step of the datasets and make sure they all have a daily
     # time step. If not, resample.
@@ -412,9 +501,10 @@ def rootzoneclim(ds,
     ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
  
     # Rechunk data #TODO: perform chunking based on given chunks in wflow.py?
-    ds_sub = ds_sub.chunk(chunks={'index': 40, 'time': 1000})
+    ds_sub = ds_sub.chunk(chunks={'index': 40, 'forcing_type': 1, 'time': 1000})
  
     # Get year sums of ds_sub
+    #TODO: check if this still works when different time periods are present (i.e. current and future climate)
     ds_sub_annual = ds_sub.resample(time = f'AS-{start_hydro_year}').sum('time', skipna=True)
     # A counter will be used and a threshold, to only use years with sufficient
     # days containing data in the subsequent calculations
@@ -423,10 +513,9 @@ def rootzoneclim(ds,
     
     # Determine discharge coefficient, the aridity index and the evaporative
     # index
-    ds_sub_annual = determine_budyko_curve_terms(ds_sub_annual, 
+    ds_sub_annual = determine_budyko_curve_terms_current_clim(ds_sub_annual, 
                                                  ds_sub_annual_count, 
-                                                 threshold=missing_threshold,
-                                                 )
+                                                 threshold=missing_threshold)
     
     # Determine omega
     logger.info("Calculating the omega values, this can take a while") #TODO: Can we speed this up?
