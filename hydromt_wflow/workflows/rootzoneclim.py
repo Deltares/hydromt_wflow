@@ -305,6 +305,21 @@ def rootzoneclim(ds,
             f"start_field_capacity not in {list_of_months}: provide a valid month"
             )
     
+    if "run" not in list(dsrun.keys()):
+        raise ValueError(
+            "Variable run not in run_fn"
+            )
+    
+    if "precip" not in list(ds.keys()):
+        raise ValueError(
+            "Variable precip not in forcing_obs_fn"
+            )
+
+    if "pet" not in list(ds.keys()):
+        raise ValueError(
+            "Variable pet not in forcing_obs_fn"
+            )
+    
     #TODO: Add the future climate implementations
     
     # Set the output dataset at model resolution
@@ -363,20 +378,22 @@ def rootzoneclim(ds,
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds.raster.zonal_stats(gdf_basins, stats=["mean"])
     
-    # Add the discharge per location-index value to ds_sub
+    # Get the time step of the datasets and make sure they all have a daily
+    # time step. If not, resample.
+    time_step = 86400 # in seconds
+    if (ds_sub.time[1].values - ds_sub.time[0].values).astype('timedelta64[s]').astype(np.int32) != time_step:
+        ds_sub = ds_sub.resample(time = "1D").sum('time', skipna=True)
+    if (dsrun.time[1].values - dsrun.time[0].values).astype('timedelta64[s]').astype(np.int32) != time_step:
+        dsrun = dsrun.resample(time = "1D").mean('time', skipna=True)
+        
+    # Add specific discharge per location-index value to ds_sub
     # First, sort dsrun based on descending subcatchment area (which is already
     # done in ds_sub)
     dsrun = dsrun.sel(index=ds_sub.index.values)
     # Get the specific discharge (mm/timestep) per location in order to have
     # everything in mm/timestep
-    #TODO: add check for time interval - time interval ds_sub and dsrun should
-    # be the same, otherwise we should adjust it.
-    time_interval = (ds_sub.time[1].values - ds_sub.time[0].values).astype('timedelta64[s]').astype(np.int32)
-    #TODO: check if the time step is in day - otherwise resample
-    #TODO: should we fix the variable name to "run" or should we make this --> Use name conventions!
-    # adjustable? In the first case, we should raise an error if that is missing.
     dsrun = dsrun.assign(
-        specific_Q=dsrun["run"]/np.array(gdf_basins["area"]) * time_interval * 1000.0
+        specific_Q=dsrun["run"]/np.array(gdf_basins["area"]) * time_step * 1000.0
         )
     # Add dsrun to ds_sub
     if dsrun["specific_Q"].dims == ("time", "index"):
