@@ -374,6 +374,26 @@ def determine_storage_deficit(ds_sub):
     return storage_deficit
 
 
+# def determine_Imax(ds_sub):
+#     """
+#     Function to determine the Imax per sub catchment and month, based on the 
+#     LAI, swood and sl from wflow_sbm.
+
+#     Parameters
+#     ----------
+#     ds_sub : xarray dataset
+#         Xarray dataset containing LAI (per month), swood and sl.
+
+#     Returns
+#     -------
+#     ds_sub : xarray dataset
+#         Same as above, but containing the Imax per sub catchment and per month.
+
+#     """
+#     ds_sub["Imax"] = ds_sub["LAI"] * ds_sub["swood"] + ds_sub["LAI"] * ds_sub["sl"]
+    
+#     return ds_sub
+
 def check_inputs(start_hydro_year,
                  start_field_capacity,
                  dsrun,
@@ -450,6 +470,7 @@ def rootzoneclim(ds_obs,
                  Imax, 
                  start_hydro_year,
                  start_field_capacity,
+                 LAI,
                  chunksize,
                  logger=logger):
     """
@@ -488,6 +509,8 @@ def rootzoneclim(ds_obs,
         The end of the wet season / commencement of dry season. This is the
         moment when the soil is at field capacity, i.e. there is no storage
         deficit yet.     
+    LAI : bool
+        Determine whether the LAI will be used to determine Imax.
     chunksize : int
         Chunksize on time dimension for processing data (not for saving to 
         disk!). If None, a chunksize of 1000 is used on the time dimension.
@@ -525,7 +548,12 @@ def rootzoneclim(ds_obs,
             [ds_obs], 
             pd.Index(["obs"], name="forcing_type")
             )
-        
+    
+    # if LAI == True:
+    #     ds_concat["LAI"] = ds_like["LAI"]
+    #     ds_concat["swood"] = ds_like["swood"]
+    #     ds_concat["sl"] = ds_like["sl"]
+    
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 

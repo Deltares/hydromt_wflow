@@ -1594,6 +1594,7 @@ class WflowModel(Model):
         Imax: Optional[float] = 2.0,
         start_hydro_year: Optional[str] = "Jan",
         start_field_capacity: Optional[str] = "Jan",
+        LAI: Optional[bool] = False,
         **kwargs,
     ) -> None:
         """
@@ -1605,13 +1606,13 @@ class WflowModel(Model):
             Timeseries with discharge per x,y location. The default is "run_obs".
         forcing_obs_fn : str, optional
             Gridded timeseries with the obsered forcing. The default is "inmaps".
-        forcing_cc_hist_fn : Optional[str], optional
+        forcing_cc_hist_fn : str, optional
             Gridded timeseries with the simulated historical forcing, based on a climate
             model. The default is None.
-        forcing_cc_fut_fn : Optional[str], optional
+        forcing_cc_fut_fn : str, optional
             Gridded timeseries with the simulated climate forcing, based on a
             climate model. The default is None.
-        chunksize : Optional[int], optional
+        chunksize : int, optional
             Chunksize on time dimension for processing data (not for saving to 
             disk!). If None, a chunksize of 1000 is used on the time dimension.
             The default is None.
@@ -1625,6 +1626,9 @@ class WflowModel(Model):
             The end of the wet season / commencement of dry season. This is the
             moment when the soil is at field capacity, i.e. there is no storage
             deficit yet. The default is 'Jan'. 
+        LAI : bool, optional
+            Determine whether the LAI will be used to determine Imax. The
+            default is False.
 
         Returns
         -------
@@ -1662,6 +1666,8 @@ class WflowModel(Model):
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
+            LAI=LAI,
+            chunksize=chunksize,
             logger=self.logger,
         )  # .reset_coords(drop=True)
         self.set_staticmaps(dsout)
