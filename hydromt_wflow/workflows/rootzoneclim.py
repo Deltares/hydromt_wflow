@@ -102,15 +102,15 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
     return ds_sub
 
 
-def gumbel_su_calc_xr(ds_sub_annual, ds_sub_annual_count, threshold):
+def gumbel_su_calc_xr(storage_deficit_annual, storage_deficit_count, threshold):
     """
     Function to determine the Gumbel distribution for a set of return periods.
 
     Parameters
     ----------
-    ds_sub_annual : xarray dataset
+    storage_deficit_annual : xarray dataset
         xarray dataset with the minimum deficit per year as a positive value.
-    ds_sub_annual_count : xarray dataset
+    storage_deficit_count : xarray dataset
         xarray dataset containing the number of days with data per year. This
         indicates on how many days a minimum in year_min_storage_deficit is
         based.
@@ -127,18 +127,18 @@ def gumbel_su_calc_xr(ds_sub_annual, ds_sub_annual_count, threshold):
     """
     # Only take the years into account that contain more than [threshold] days
     # of data.
-    ds_sub_annual["storage_deficit"] = ds_sub_annual["storage_deficit"].where(ds_sub_annual_count["storage_deficit"] > threshold) 
+    storage_deficit_annual = storage_deficit_annual.where(storage_deficit_count > threshold) 
         
     # Calculate the mean and standard deviation for the Gumbel distribution
-    annual_mean = ds_sub_annual["storage_deficit"].mean('time', skipna=True)
-    annual_std = ds_sub_annual["storage_deficit"].std('time', skipna=True)
+    annual_mean = storage_deficit_annual.mean('time', skipna=True)
+    annual_std = storage_deficit_annual.std('time', skipna=True)
     
     # Calculate alpha and mu
     alpha = (np.sqrt(6.0) * annual_std) / np.pi
     mu = annual_mean - 0.5772 * alpha
 
     # Create the output dataset
-    gumbel = ds_sub_annual["storage_deficit"].to_dataset()
+    gumbel = storage_deficit_annual.to_dataset(name="storage_deficit")
 
     # Set the return periods #TODO: hard coded?
     RP = [2,3,5,10,15,20,25,50,60,100]
@@ -344,38 +344,34 @@ def determine_storage_deficit(ds_sub):
 
     Returns
     -------
-    ds_sub : xarray dataset
-        Same as above but with the storage deficit added.
-
-    """
-    # Initialize the storage deficit variable and start with an empty storage
-    # deficit
-    ds_sub = ds_sub.assign(storage_deficit = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
+    storage_deficit : xarray dataarray
+        Xarray dataarray containing the storage deficits per time step for all
+        forcing types.
+    """   
+    # Determine the difference between precip_effective and 
+    diff_Pe_Er = ds_sub["precip_effective"] - ds_sub["transpiration"]
     
-    # Calculate the storage deficit 
-    for i in range(1, len(ds_sub.time)):
-        ds_sub["storage_deficit"].loc[dict(time=ds_sub.time[i])] = np.minimum(
-            0,
-            ds_sub.sel(time=ds_sub.time[i-1])["storage_deficit"] + ds_sub.sel(time=ds_sub.time[i])["precip_effective"] - ds_sub.sel(time=ds_sub.time[i])["transpiration"] 
-            )
+    # Set the temporal storage deficit (diff between (precip effective and 
+    # transpiration) for the first time step to 0.
+    diff_Pe_Er.loc[dict(time=ds_sub.time[0])] = diff_Pe_Er.sel(time=ds_sub.time[0]) * 0.0
     
-    # Set the storage deficit for the first time step to 0
-    
-    # Cumulative
+    # Determine the storage deficit (cumulative sum of diff_Pe_Er)
+    storage_deficit = diff_Pe_Er.cumsum()
     
     # Make sure the storage dificit cannot be larger than 0 (i.e., has to be 
     # negative or zero)
+    storage_deficit = storage_deficit.where(storage_deficit > 0.0, 0.0)
         
     # If there are climate projections present, adjust the storage deficit for
     # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
     # cc_hist remains as is (see Table S1)
     if len(ds_sub.forcing_type) > 1:
-        ds_sub["storage_deficit"].loc[dict(forcing_type="cc_fut")] = ds_sub.sel(forcing_type="obs")["storage_deficit"] + np.minimum(
-            0,
-            ds_sub.sel(forcing_type="obs")["cc_fut"] - ds_sub.sel(forcing_type="obs")["cc_hist"]
+        storage_deficit.loc[dict(forcing_type="cc_fut")] = storage_deficit.sel(forcing_type="obs") + np.minimum(
+            0.0,
+            storage_deficit.sel(forcing_type="cc_fut") - storage_deficit.sel(forcing_type="cc_hist")
             )        
     
-    return ds_sub
+    return storage_deficit
 
 
 def check_inputs(start_hydro_year,
@@ -454,6 +450,7 @@ def rootzoneclim(ds_obs,
                  Imax, 
                  start_hydro_year,
                  start_field_capacity,
+                 chunksize,
                  logger=logger):
     """
     Returns root zone storage parameter for current observed and (optionally 
@@ -491,6 +488,9 @@ def rootzoneclim(ds_obs,
         The end of the wet season / commencement of dry season. This is the
         moment when the soil is at field capacity, i.e. there is no storage
         deficit yet.     
+    chunksize : int
+        Chunksize on time dimension for processing data (not for saving to 
+        disk!). If None, a chunksize of 1000 is used on the time dimension.
         
     Returns
     -------
@@ -499,7 +499,12 @@ def rootzoneclim(ds_obs,
         
     References
     ----------
-    TODO: add paper reference
+    Bouaziz, L. J. E., Aalbers, E. E., Weerts, A. H., Hegnauer, M., Buiteveld, 
+    H., Lammersen, R., Stam, J., Sprokkereef, E., Savenije, H. H. G. and 
+    Hrachowitz, M. (2022). Ecosystem adaptation to climate change: the 
+    sensitivity of hydrological predictions to time-dynamic model parameters, 
+    Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI: 
+    10.5194/hess-26-1295-2022.
     """
     # Start with some initial checks
     check_inputs(start_hydro_year, 
@@ -610,8 +615,10 @@ def rootzoneclim(ds_obs,
     logger.info("Determine effective precipitation, interception evporation and canopy storage")
     ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
  
-    # Rechunk data #TODO: perform chunking based on given chunks in wflow.py?
-    ds_sub = ds_sub.chunk(chunks={'index': 40, 'forcing_type': 1, 'time': 1000})
+    # Rechunk data
+    if chunksize == None:
+        chunksize = 1000
+    ds_sub = ds_sub.chunk(chunks={'index': len(ds_sub.index), 'forcing_type': 1, 'time': chunksize})
  
     # Get year sums of ds_sub
     #TODO: check if this still works when different time periods are present (i.e. current and future climate)
@@ -651,23 +658,26 @@ def rootzoneclim(ds_obs,
     
     # Determine storage deficit
     logger.info("Determining the storage deficit, this can take a while")
-    ds_sub["storage_deficit"] = determine_storage_deficit(ds_sub)
+    storage_deficit = determine_storage_deficit(ds_sub)
     
     # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
     logger.info("Calculating the Gumbel distribution and rootzone storage capacity")
     # First, determine the yearly minima in storage deficit
-    ds_sub_annual["storage_deficit"] = - ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').min('time', skipna=True) 
+    storage_deficit_annual = -storage_deficit.resample(time=f'AS-{start_field_capacity}').min('time', skipna=True)
+    # Since everything has been summed, we have to subtract the maximum from
+    # the year before from the maximum for that year
+    storage_deficit_annual = storage_deficit_annual.diff("time")
+
     # A counter will be used to only use years with sufficient days containing 
     # data for the Gumbel distribution
-    ds_sub_annual_count["storage_deficit"] = ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').count('time')
+    storage_deficit_count = storage_deficit.resample(time=f'AS-{start_field_capacity}').count('time')
+    
     # Subsequently, determine the Gumbel distribution
-    gumbel = gumbel_su_calc_xr(ds_sub_annual, 
-                               ds_sub_annual_count, 
+    gumbel = gumbel_su_calc_xr(storage_deficit_annual, 
+                               storage_deficit_count.sel(time=storage_deficit_count.time[1:]), 
                                threshold=missing_threshold,
                                )
-
-    #TODO: future climate
     
     #TODO: pick the rootzone storage based on the requested return period
     
