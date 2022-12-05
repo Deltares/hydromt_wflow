@@ -1590,7 +1590,7 @@ class WflowModel(Model):
         forcing_obs_fn: str = "inmaps",
         forcing_cc_hist_fn: Optional[str] = None,
         forcing_cc_fut_fn: Optional[str] = None,
-        # chunksize: Optional[int] = None,
+        chunksize: Optional[int] = None,
         Imax: Optional[float] = 2.0,
         start_hydro_year: Optional[str] = "Jan",
         start_field_capacity: Optional[str] = "Jan",
@@ -1611,8 +1611,10 @@ class WflowModel(Model):
         forcing_cc_fut_fn : Optional[str], optional
             Gridded timeseries with the simulated climate forcing, based on a
             climate model. The default is None.
-        # chunksize : Optional[int], optional #TODO! 
-            DESCRIPTION. The default is None.
+        chunksize : Optional[int], optional
+            Chunksize on time dimension for processing data (not for saving to 
+            disk!). If None, a chunksize of 1000 is used on the time dimension.
+            The default is None.
         Imax : float, optional
             The maximum interception storage capacity [mm]. The default is 2.0 mm.
         start_hydro_year : str, optional

@@ -61,7 +61,6 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
         )    
     # Calculate it per forcing type
     for forcing_type in ds_sub["forcing_type"].values:
-        print(forcing_type)
         nr_time_steps = len(ds_sub.sel(forcing_type=forcing_type).time)
     
         # Add new empty variables that will be filled in the loop
@@ -80,10 +79,8 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
        
         # Load the potential evaporation and precipitation into memory to speed up
         # the subsequent for loop
-        print("Load pet and precipitation into memory to speed up for loop. This can take a while")
         Epdt = ds_sub.sel(forcing_type=forcing_type)["pet_mean"].values
         Pdt = ds_sub.sel(forcing_type=forcing_type)["precip_mean"].values
-        print("Loading finished, start loop")
         # Loop through the time steps and determine the variables per time step.
         for i in range(0, nr_time_steps):
             #TODO: implement Imax as function of LAI
@@ -141,13 +138,15 @@ def gumbel_su_calc_xr(ds_sub_annual, ds_sub_annual_count, threshold):
     mu = annual_mean - 0.5772 * alpha
 
     # Create the output dataset
-    #TODO: make ready for multiple runs (climate data)
     gumbel = ds_sub_annual["storage_deficit"].to_dataset()
-    gumbel["rootzone_storage"] = (('index', 'RP'), np.zeros((len(gumbel["index"]), len(gumbel["RP"]))))
 
     # Set the return periods #TODO: hard coded?
     RP = [2,3,5,10,15,20,25,50,60,100]
     gumbel['RP'] = RP
+    gumbel["rootzone_storage"] = (
+        ('index', 'forcing_type', 'RP'), 
+        np.zeros((len(gumbel["index"]), len(gumbel["forcing_type"]), len(gumbel["RP"])))
+        )
     
     # Determine the root zone storage for different return periods using alpha 
     #and mu
@@ -183,17 +182,119 @@ def Zhang(omega, Ep_over_P, Ea_over_P):
     """
     return 1 + Ep_over_P - (1 + Ep_over_P**omega)**(1/omega) - Ea_over_P
 
-# def Zhang_future(omega, Ep_over_P_future):
-#     """
-#     once omega has been derived for historical situations, it can be used to derive the new runoff coeff
-#     when future Ep_over_P is known
-#     it will allow the RC to shift over the same line as the historical situation.
-#     """
-#     RC_future = - (Ep_over_P_future - (1 + Ep_over_P_future**omega)**(1/omega))
-#     return RC_future
+
+def Zhang_future(omega, aridity_index):
+    """
+    Once omega has been derived for historical situations, it can be used to 
+    derive the new discharge coefficient when the future aridity index (Ep/P) 
+    is known. This will allow the discharge coeffcient to shift over the same 
+    line as the historical situation.
+
+    Parameters
+    ----------
+    omega : xarray datarray
+        Xarray datarray containing the future omega values per sub catchment.
+    aridity_index : xarray datarray
+        Xarray datarray containing the future aridity index values per sub 
+        catchment.
+
+    Returns
+    -------
+    xarray datarray containing the future discharge coefficient.
+    """  
+    return - (aridity_index - (1 + aridity_index**omega)**(1/omega))
 
 
-def determine_budyko_curve_terms_current_clim(ds_sub_annual, ds_sub_annual_count, threshold):
+def fut_discharge_coeff(ds_sub_annual):
+    """
+    Function to determine the future discharge coefficient, based on a given 
+    omega value (generally same as in the current-climate observations), the
+    aridity index of the future climate and the difference in Q and PET between
+    the simulated historical and simulated future climate.
+
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        Xarray dataset containing at least the future omega and aridity index.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Similar to previous, but containing the new future discharge coefficient
+        and evaporative index.
+    """
+    # Determine the delP and delEP for cc_fut
+    Ep = ds_sub_annual['pet_mean'].sel(forcing_type = "obs").mean("time")
+    P = ds_sub_annual['precip_mean'].sel(forcing_type = "obs").mean("time")
+    delP = (ds_sub_annual['precip_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
+    delEp = (ds_sub_annual['pet_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
+    
+    # Determine the difference in discharge between the observations and the 
+    # future climate simulations
+    Q_obs_mean = ds_sub_annual['specific_Q'].mean("time")
+    omega = ds_sub_annual["omega"].sel(forcing_type = "cc_fut")
+    aridity_index_fut = (Ep+delEp)/(P + delP)
+    change_Q_total = Zhang_future(omega, aridity_index_fut) * (P + delP) - Q_obs_mean
+        
+    # Determine the discharge coefficient for the future climate
+    ds_sub_annual['discharge_coeff'].loc[dict(forcing_type = 'cc_fut')] = (Q_obs_mean + change_Q_total) / (P + delP)
+    
+    return ds_sub_annual
+
+
+def determine_omega(ds_sub_annual):
+    """
+    This function uses the Zhang function to determine the omega parameter for
+    ds_sub_annual.
+
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        Xarray dataset containing at least the discharge coefficient, aridity
+        index and evaporative index for the different forcing types.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Same as above, but with the omega parameter added. The omega parameter
+        is the same for all forcing types and based on the observations.
+
+    """
+    # Constract the output variable in the dataset
+    ds_sub_annual = ds_sub_annual.assign(
+        omega = lambda ds_sub_annual: ds_sub_annual['discharge_coeff'] * np.nan
+        )
+    # Load the aridity index and evaporative index as np arrays (this saves
+    # calculation time in the loop below)
+    aridity_index = ds_sub_annual.sel(forcing_type="obs")["aridity_index"].values
+    evap_index = ds_sub_annual.sel(forcing_type="obs")["evap_index"].values
+    # Set the temporary omega variable
+    omega = np.zeros(
+        (len(ds_sub_annual.index), 
+         len(ds_sub_annual.forcing_type))
+        ) 
+       
+    for subcatch_index_nr in range(len(ds_sub_annual.index)):
+        try:
+            omega_temp = optimize.brentq(
+                Zhang, 
+                1, 
+                8, 
+                args=(aridity_index[subcatch_index_nr], 
+                      evap_index[subcatch_index_nr])
+                )
+            omega[subcatch_index_nr, :] = np.repeat(omega_temp, len(ds_sub_annual.forcing_type)) 
+        #TODO: check this (possible error that occurs: "ValueError: f(a) and f(b) must have different signs")
+        except ValueError:
+            omega[subcatch_index_nr, :] = np.repeat(np.NaN, len(ds_sub_annual.forcing_type)) 
+    
+    # Add omega to the xr dataset
+    ds_sub_annual["omega"] = (("index", "forcing_type"), omega)
+        
+    return ds_sub_annual
+
+
+def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
     """
     Parameters
     ----------
@@ -250,20 +351,29 @@ def determine_storage_deficit(ds_sub):
     # Initialize the storage deficit variable and start with an empty storage
     # deficit
     ds_sub = ds_sub.assign(storage_deficit = lambda ds_sub: ds_sub["precip_mean"] * np.nan)
-    ds_sub['storage_deficit'].loc[dict(time = ds_sub.time[0])] = 0
     
     # Calculate the storage deficit 
     for i in range(1, len(ds_sub.time)):
-        # The storage deficit is either 0 or negative (so capped to zero)
-        ds_sub['storage_deficit'].loc[dict(time = ds_sub.time[i])] = np.minimum(
-            0, 
-            ds_sub['storage_deficit'].isel(time = i-1) + ds_sub['precip_effective'].isel(time = i) - ds_sub['transpiration'].isel(time = i)
+        ds_sub["storage_deficit"].loc[dict(time=ds_sub.time[i])] = np.minimum(
+            0,
+            ds_sub.sel(time=ds_sub.time[i-1])["storage_deficit"] + ds_sub.sel(time=ds_sub.time[i])["precip_effective"] - ds_sub.sel(time=ds_sub.time[i])["transpiration"] 
             )
     
-    #TODO: add climate projections here
-    # #add difference in deficit between +2K and ref to E-OBS and calculate gumbel of that bias-corrected series.
-    # # in runs 'KNMI_+2K_min_ref'
-    # ds_i['Sr_def'].loc[dict(runs = 'KNMI_+2K_min_ref')] = ds_i['Sr_def'].sel(runs = 'E-OBS') + np.minimum(0,ds_i['Sr_def'].sel(runs = ['KNMI ref', 'KNMI +2K']).diff('runs').sel(runs = 'KNMI +2K'))
+    # Set the storage deficit for the first time step to 0
+    
+    # Cumulative
+    
+    # Make sure the storage dificit cannot be larger than 0 (i.e., has to be 
+    # negative or zero)
+        
+    # If there are climate projections present, adjust the storage deficit for
+    # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
+    # cc_hist remains as is (see Table S1)
+    if len(ds_sub.forcing_type) > 1:
+        ds_sub["storage_deficit"].loc[dict(forcing_type="cc_fut")] = ds_sub.sel(forcing_type="obs")["storage_deficit"] + np.minimum(
+            0,
+            ds_sub.sel(forcing_type="obs")["cc_fut"] - ds_sub.sel(forcing_type="obs")["cc_hist"]
+            )        
     
     return ds_sub
 
@@ -513,32 +623,18 @@ def rootzoneclim(ds_obs,
     
     # Determine discharge coefficient, the aridity index and the evaporative
     # index
-    ds_sub_annual = determine_budyko_curve_terms_current_clim(ds_sub_annual, 
+    ds_sub_annual = determine_budyko_curve_terms(ds_sub_annual, 
                                                  ds_sub_annual_count, 
                                                  threshold=missing_threshold)
+    ds_sub_annual_count = None
     
     # Determine omega
-    logger.info("Calculating the omega values, this can take a while") #TODO: Can we speed this up?
-    ds_sub_annual = ds_sub_annual.assign(omega = lambda ds_sub_annual: ds_sub_annual['discharge_coeff'] * np.nan)
-    counter=0
-    tot_count = len(ds_sub_annual["index"].values)
-    for subcatch_index in ds_sub_annual["index"].values:
-        counter += 1
-        logger.info(f"Calculating omega for subcatchment {counter} out of {tot_count}")
-        try:
-            omega = optimize.brentq(
-                Zhang, 
-                1, 
-                8, 
-                args=(ds_sub_annual.sel(index=subcatch_index)["aridity_index"].values, 
-                      ds_sub_annual.sel(index=subcatch_index)["evap_index"].values)
-                )
-            ds_sub_annual["omega"].loc[dict(index = subcatch_index)] = omega 
-        #TODO: check this (possible error that occurs: "ValueError: f(a) and f(b) must have different signs")
-        except ValueError:
-            pass
+    logger.info("Calculating the omega values, this can take a while")
+    ds_sub_annual = determine_omega(ds_sub_annual)
     
-    #TODO: Add future climate values here
+    # Determine future discharge ratio for cc_fut if ds_cc_fut exists
+    if ds_cc_fut != None:
+        ds_sub_annual = fut_discharge_coeff(ds_sub_annual)
     
     # Determine long-term interception, potential evaporation and tranpsiration; 
     # use runoff coefficient instead of Qobs to calculate actual evaporation for 
@@ -549,8 +645,12 @@ def rootzoneclim(ds_obs,
     
     # Determine the transpiration on the finer time step (e.g. daily)
     ds_sub['transpiration'] = (ds_sub['pet_mean'] - ds_sub['evap_interception']) * transpiration_long_term / (pet_long_term - interception_long_term)
+    transpiration_long_term = None
+    interception_long_term = None
+    pet_long_term = None
     
     # Determine storage deficit
+    logger.info("Determining the storage deficit, this can take a while")
     ds_sub["storage_deficit"] = determine_storage_deficit(ds_sub)
     
     # From the storage deficit, determine the rootzone storage capacity using
