@@ -664,7 +664,9 @@ def rootzoneclim(ds_obs,
     # a Gumbel distribution.
     logger.info("Calculating the Gumbel distribution and rootzone storage capacity")
     # First, determine the yearly minima in storage deficit
-    storage_deficit_annual = -storage_deficit.resample(time=f'AS-{start_field_capacity}').min('time', skipna=True)
+    storage_deficit_annual = (storage_deficit.resample(time=f'AS-{start_field_capacity}').min('time', skipna=True))
+    # Make sure the values are positive
+    storage_deficit_annual = storage_deficit_annual.where(storage_deficit_annual < 0.0, storage_deficit_annual * -1.0) 
     # Since everything has been summed, we have to subtract the maximum from
     # the year before from the maximum for that year
     storage_deficit_annual = storage_deficit_annual.diff("time")
