@@ -530,10 +530,10 @@ def rootzoneclim(ds_obs,
             pd.Index(["obs"], name="forcing_type")
             )
     
-    if LAI == True:
-        ds_concat["LAI"] = ds_like["LAI"]
-        ds_concat["swood"] = ds_like["swood"]
-        ds_concat["sl"] = ds_like["sl"]
+    # if LAI == True:
+    #     ds_concat["LAI"] = ds_like["LAI"]
+    #     ds_concat["swood"] = ds_like["swood"]
+    #     ds_concat["sl"] = ds_like["sl"]
     
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
@@ -591,9 +591,9 @@ def rootzoneclim(ds_obs,
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds_concat.raster.zonal_stats(gdf_basins, stats=["mean"])
     
-    # If LAI = True, determine the Imax for every time step in the LAI data
-    if LAI == True:
-        ds_sub["Imax"] = ds_sub["LAI"] * ds_sub["swood"] + ds_sub["LAI"] * ds_sub["sl"]
+    # # If LAI = True, determine the Imax for every time step in the LAI data
+    # if LAI == True:
+    #     ds_sub["Imax"] = ds_sub["LAI"] * ds_sub["swood"] + ds_sub["LAI"] * ds_sub["sl"]
     
     # Get the time step of the datasets and make sure they all have a daily
     # time step. If not, resample.
