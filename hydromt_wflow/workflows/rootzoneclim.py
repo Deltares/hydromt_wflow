@@ -208,18 +208,37 @@ def determine_storage_deficit(ds_sub):
         Same as above, but containing the storage deficits per time step for all
         forcing types.
     """      
-    # Create the storage deficit data array
-    ds_sub["storage_deficit"] = (('index', 'forcing_type', 'time'), np.zeros((len(ds_sub['index']), len(ds_sub['forcing_type']), len(ds_sub['time'])), dtype=np.float32))
-    ds_sub["storage_deficit"].loc[dict(time=ds_sub.time[0])] = 0
-    ds_sub = ds_sub.chunk(chunks={'index': len(ds_sub.index), 'forcing_type': 1, 'time': 1000})
+    
+    # transpiration = ds_sub["transpiration"]
+    # precip_effective = ds_sub["precip_effective"]
+    # storage_deficit = ds_sub["storage_deficit"]
+    # transpiration = transpiration.to_dataframe()
+    # precip_effective = precip_effective.to_dataframe()
+    # storage_deficit = storage_deficit.to_dataframe()
+    
+    
+    transpiration = ds_sub["transpiration"].values
+    precip_effective = ds_sub["precip_effective"].values
+    storage_deficit = np.zeros((
+        len(ds_sub['index']), 
+        len(ds_sub['forcing_type']), 
+        len(ds_sub['time'])
+        ))
     
     # Determine the storage deficit per time step
     for i in range(1,len(ds_sub.time)):
-        print(i)
-        ds_sub["storage_deficit"].loc[dict(time = ds_sub.time[i])] = np.minimum(
-            0, 
-            ds_sub["storage_deficit"].isel(time = i-1) + (ds_sub["precip_effective"].isel(time = i) - ds_sub["transpiration"]).isel(time = i)
+        # ds_sub["storage_deficit"].loc[dict(time = ds_sub.time[i])] = np.minimum(
+        #     0, 
+        #     ds_sub["storage_deficit"].isel(time = i-1) + (ds_sub["precip_effective"].isel(time = i) - ds_sub["transpiration"]).isel(time = i)
+        #     )
+        storage_deficit[:, :, i] = np.minimum(
+            0,
+            storage_deficit[:, :, i-1] + (precip_effective[:, :, i] - transpiration[:, :, i])
             )
+    
+    # Create the storage deficit data array
+    ds_sub["storage_deficit"] = (('index', 'forcing_type', 'time'), storage_deficit)
+        
         
     # If there are climate projections present, adjust the storage deficit for
     # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
@@ -540,6 +559,22 @@ def rootzoneclim(ds_obs,
     # streamflow
     x, y = dsrun.x.values, dsrun.y.values
     gdf_basins = pd.DataFrame()
+    
+    # #basin map with all catchments
+    # ds_basin_all = flw.basin_map(
+    #     ds_like,
+    #     flwdir,
+    #     ids=dsrun.index.values,
+    #     xy=(x, y),
+    #     stream=ds_like["wflow_river"],
+    # )[0]
+    # # ds_basin_all.name = int(dsrun.index.values)
+    # ds_basin_all.raster.set_crs(ds_like.raster.crs)
+    # gdf_basin_all = ds_basin_all.raster.vectorize()
+    # # Set index to catchment id
+    # gdf_basin_all.index = gdf_basin_all.value.astype("int")
+    
+    
     # Loop over basins and get per gauge location a polygon of the upstream
     # area.
     for i, id in enumerate(dsrun.index.values):
@@ -588,6 +623,8 @@ def rootzoneclim(ds_obs,
     
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds_concat.raster.zonal_stats(gdf_basins, stats=["mean"])
+    logger.info("Computing zonal statistics, this can take a while")
+    ds_sub = ds_sub.compute()
     
     # # If LAI = True, determine the Imax for every time step in the LAI data
     # if LAI == True:
@@ -628,7 +665,7 @@ def rootzoneclim(ds_obs,
  
     # Rechunk data
     if chunksize == None:
-        chunksize = 1000
+        chunksize = 100
     ds_sub = ds_sub.chunk(chunks={'index': len(ds_sub.index), 'forcing_type': 1, 'time': chunksize})
  
     # Get year sums of ds_sub
@@ -668,19 +705,15 @@ def rootzoneclim(ds_obs,
     pet_long_term = None
     
     # Determine storage deficit
-    logger.info("Determining the storage deficit, this can take a while")
+    logger.info("Determining the storage deficit")
     ds_sub = determine_storage_deficit(ds_sub)
     
     # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
     logger.info("Calculating the Gumbel distribution and rootzone storage capacity")
-    # First, determine the yearly minima in storage deficit
-    storage_deficit_annual = (ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').min('time', skipna=True))
-    # Make sure the values are positive
-    storage_deficit_annual = storage_deficit_annual.where(storage_deficit_annual < 0.0, storage_deficit_annual * -1.0) 
-    # Since everything has been summed, we have to subtract the maximum from
-    # the year before from the maximum for that year
-    storage_deficit_annual = storage_deficit_annual.diff("time")
+    # Determine the yearly minima in storage deficit (and make sure the values
+    # are positive)
+    storage_deficit_annual = - (ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').min('time', skipna=True))
 
     # A counter will be used to only use years with sufficient days containing 
     # data for the Gumbel distribution
