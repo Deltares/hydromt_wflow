@@ -14,6 +14,96 @@ logger = logging.getLogger(__name__)
 __all__ = ["rootzoneclim"]
 
 
+def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
+    """
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        xarray dataset containing per subcatchment the annual precipitation, 
+        potential evaporation and specific discharge sums.
+    ds_sub_annual_count: xarray dataset
+        xarray dataset containing per subcatchment the number of days, per year,
+        that contain data.
+    threshold: int
+        Required minimum number of days in a year containing data to take the
+        year into account for the calculation.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Similar to input, but containing the discharge coefficient, aridity 
+        index and the evaporative index as long term averages.
+
+    """
+    # Determine the terms (note that the discharge coefficient and evaporative
+    # index for the future climate, if present, are not correct yet and will
+    # be adjusted at a later stage)
+    ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time', skipna=True)
+    ds_sub_annual['aridity_index'] = (ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']).mean('time', skipna=True)
+    ds_sub_annual['evap_index'] = 1 - ds_sub_annual['discharge_coeff']
+    
+    # Make sure Ea = P - Q < Ep. If not, we will not use that subcatchment for
+    # the calculations.
+    #TODO: What do we do when the largest "subcatchment", which covers all other subcatchments, has Ea > Ep?
+    ds_sub_annual['discharge_coeff'] = ds_sub_annual['discharge_coeff'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
+    ds_sub_annual['aridity_index'] = ds_sub_annual['aridity_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
+    ds_sub_annual['evap_index'] = ds_sub_annual['evap_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
+    
+    return ds_sub_annual
+
+
+def determine_omega(ds_sub_annual):
+    """
+    This function uses the Zhang function to determine the omega parameter for
+    ds_sub_annual.
+
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        Xarray dataset containing at least the discharge coefficient, aridity
+        index and evaporative index for the different forcing types.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Same as above, but with the omega parameter added. The omega parameter
+        is the same for all forcing types and based on the observations.
+
+    """
+    # Constract the output variable in the dataset
+    ds_sub_annual = ds_sub_annual.assign(
+        omega = lambda ds_sub_annual: ds_sub_annual['discharge_coeff'] * np.nan
+        )
+    # Load the aridity index and evaporative index as np arrays (this saves
+    # calculation time in the loop below)
+    aridity_index = ds_sub_annual.sel(forcing_type="obs")["aridity_index"].values
+    evap_index = ds_sub_annual.sel(forcing_type="obs")["evap_index"].values
+    # Set the temporary omega variable
+    omega = np.zeros(
+        (len(ds_sub_annual.index), 
+         len(ds_sub_annual.forcing_type))
+        ) 
+       
+    for subcatch_index_nr in range(len(ds_sub_annual.index)):
+        try:
+            omega_temp = optimize.brentq(
+                Zhang, 
+                1, 
+                8, 
+                args=(aridity_index[subcatch_index_nr], 
+                      evap_index[subcatch_index_nr])
+                )
+            omega[subcatch_index_nr, :] = np.repeat(omega_temp, len(ds_sub_annual.forcing_type)) 
+        #TODO: check this (possible error that occurs: "ValueError: f(a) and f(b) must have different signs")
+        except ValueError:
+            omega[subcatch_index_nr, :] = np.repeat(np.NaN, len(ds_sub_annual.forcing_type)) 
+    
+    # Add omega to the xr dataset
+    ds_sub_annual["omega"] = (("index", "forcing_type"), omega)
+        
+    return ds_sub_annual
+
+
 #TODO: Find a way to make this also possible for variable Imax values, e.g. from
 # wflow_sbm LAI.
 def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
@@ -100,6 +190,86 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
         ds_sub["canopy_storage"].loc[dict(forcing_type=forcing_type)] = canopy_storage    
     
     return ds_sub
+
+
+def determine_storage_deficit(ds_sub):
+    """
+    Function to determine the storage deficit for every time step, subcatchment
+    location and datset in ds_sub.
+
+    Parameters
+    ----------
+    ds_sub : xarray dataset
+        xarray dataset containing the daily or higher-resolution data.
+
+    Returns
+    -------
+    storage_deficit : xarray dataarray
+        Xarray dataarray containing the storage deficits per time step for all
+        forcing types.
+    """   
+    # Determine the difference between precip_effective and the transpiration
+    diff_Pe_Er = ds_sub["precip_effective"] - ds_sub["transpiration"]
+    
+    # Set the temporal storage deficit (diff between precip effective and 
+    # transpiration) for the first time step to 0.
+    diff_Pe_Er.loc[dict(time=ds_sub.time[0])] = diff_Pe_Er.sel(time=ds_sub.time[0]) * 0.0
+    
+    # Determine the storage deficit (cumulative sum of diff_Pe_Er)
+    #TODO: cap at zero --> we probably should go back to the loop..
+    storage_deficit = diff_Pe_Er.cumsum()
+    
+    # Make sure the storage dificit cannot be larger than 0 (i.e., has to be 
+    # negative or zero)
+    storage_deficit = storage_deficit.where(storage_deficit > 0.0, 0.0)
+        
+    # If there are climate projections present, adjust the storage deficit for
+    # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
+    # cc_hist remains as is (see Table S1)
+    if len(ds_sub.forcing_type) > 1:
+        storage_deficit.loc[dict(forcing_type="cc_fut")] = storage_deficit.sel(forcing_type="obs") + np.minimum(
+            0.0,
+            storage_deficit.sel(forcing_type="cc_fut") - storage_deficit.sel(forcing_type="cc_hist")
+            )        
+    
+    return storage_deficit
+
+
+def fut_discharge_coeff(ds_sub_annual):
+    """
+    Function to determine the future discharge coefficient, based on a given 
+    omega value (generally same as in the current-climate observations), the
+    aridity index of the future climate and the difference in Q and PET between
+    the simulated historical and simulated future climate.
+
+    Parameters
+    ----------
+    ds_sub_annual : xarray dataset
+        Xarray dataset containing at least the future omega and aridity index.
+
+    Returns
+    -------
+    ds_sub_annual : xarray dataset
+        Similar to previous, but containing the new future discharge coefficient
+        and evaporative index.
+    """
+    # Determine the delP and delEP for cc_fut
+    Ep = ds_sub_annual['pet_mean'].sel(forcing_type = "obs").mean("time")
+    P = ds_sub_annual['precip_mean'].sel(forcing_type = "obs").mean("time")
+    delP = (ds_sub_annual['precip_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
+    delEp = (ds_sub_annual['pet_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
+    
+    # Determine the difference in discharge between the observations and the 
+    # future climate simulations
+    Q_obs_mean = ds_sub_annual['specific_Q'].mean("time")
+    omega = ds_sub_annual["omega"].sel(forcing_type = "cc_fut")
+    aridity_index_fut = (Ep+delEp)/(P + delP)
+    change_Q_total = Zhang_future(omega, aridity_index_fut) * (P + delP) - Q_obs_mean
+        
+    # Determine the discharge coefficient for the future climate
+    ds_sub_annual['discharge_coeff'].loc[dict(forcing_type = 'cc_fut')] = (Q_obs_mean + change_Q_total) / (P + delP)
+    
+    return ds_sub_annual
 
 
 def gumbel_su_calc_xr(storage_deficit_annual, storage_deficit_count, threshold):
@@ -204,195 +374,6 @@ def Zhang_future(omega, aridity_index):
     """  
     return - (aridity_index - (1 + aridity_index**omega)**(1/omega))
 
-
-def fut_discharge_coeff(ds_sub_annual):
-    """
-    Function to determine the future discharge coefficient, based on a given 
-    omega value (generally same as in the current-climate observations), the
-    aridity index of the future climate and the difference in Q and PET between
-    the simulated historical and simulated future climate.
-
-    Parameters
-    ----------
-    ds_sub_annual : xarray dataset
-        Xarray dataset containing at least the future omega and aridity index.
-
-    Returns
-    -------
-    ds_sub_annual : xarray dataset
-        Similar to previous, but containing the new future discharge coefficient
-        and evaporative index.
-    """
-    # Determine the delP and delEP for cc_fut
-    Ep = ds_sub_annual['pet_mean'].sel(forcing_type = "obs").mean("time")
-    P = ds_sub_annual['precip_mean'].sel(forcing_type = "obs").mean("time")
-    delP = (ds_sub_annual['precip_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
-    delEp = (ds_sub_annual['pet_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
-    
-    # Determine the difference in discharge between the observations and the 
-    # future climate simulations
-    Q_obs_mean = ds_sub_annual['specific_Q'].mean("time")
-    omega = ds_sub_annual["omega"].sel(forcing_type = "cc_fut")
-    aridity_index_fut = (Ep+delEp)/(P + delP)
-    change_Q_total = Zhang_future(omega, aridity_index_fut) * (P + delP) - Q_obs_mean
-        
-    # Determine the discharge coefficient for the future climate
-    ds_sub_annual['discharge_coeff'].loc[dict(forcing_type = 'cc_fut')] = (Q_obs_mean + change_Q_total) / (P + delP)
-    
-    return ds_sub_annual
-
-
-def determine_omega(ds_sub_annual):
-    """
-    This function uses the Zhang function to determine the omega parameter for
-    ds_sub_annual.
-
-    Parameters
-    ----------
-    ds_sub_annual : xarray dataset
-        Xarray dataset containing at least the discharge coefficient, aridity
-        index and evaporative index for the different forcing types.
-
-    Returns
-    -------
-    ds_sub_annual : xarray dataset
-        Same as above, but with the omega parameter added. The omega parameter
-        is the same for all forcing types and based on the observations.
-
-    """
-    # Constract the output variable in the dataset
-    ds_sub_annual = ds_sub_annual.assign(
-        omega = lambda ds_sub_annual: ds_sub_annual['discharge_coeff'] * np.nan
-        )
-    # Load the aridity index and evaporative index as np arrays (this saves
-    # calculation time in the loop below)
-    aridity_index = ds_sub_annual.sel(forcing_type="obs")["aridity_index"].values
-    evap_index = ds_sub_annual.sel(forcing_type="obs")["evap_index"].values
-    # Set the temporary omega variable
-    omega = np.zeros(
-        (len(ds_sub_annual.index), 
-         len(ds_sub_annual.forcing_type))
-        ) 
-       
-    for subcatch_index_nr in range(len(ds_sub_annual.index)):
-        try:
-            omega_temp = optimize.brentq(
-                Zhang, 
-                1, 
-                8, 
-                args=(aridity_index[subcatch_index_nr], 
-                      evap_index[subcatch_index_nr])
-                )
-            omega[subcatch_index_nr, :] = np.repeat(omega_temp, len(ds_sub_annual.forcing_type)) 
-        #TODO: check this (possible error that occurs: "ValueError: f(a) and f(b) must have different signs")
-        except ValueError:
-            omega[subcatch_index_nr, :] = np.repeat(np.NaN, len(ds_sub_annual.forcing_type)) 
-    
-    # Add omega to the xr dataset
-    ds_sub_annual["omega"] = (("index", "forcing_type"), omega)
-        
-    return ds_sub_annual
-
-
-def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
-    """
-    Parameters
-    ----------
-    ds_sub_annual : xarray dataset
-        xarray dataset containing per subcatchment the annual precipitation, 
-        potential evaporation and specific discharge sums.
-    ds_sub_annual_count: xarray dataset
-        xarray dataset containing per subcatchment the number of days, per year,
-        that contain data.
-    threshold: int
-        Required minimum number of days in a year containing data to take the
-        year into account for the calculation.
-
-    Returns
-    -------
-    ds_sub_annual : xarray dataset
-        Similar to input, but containing the discharge coefficient, aridity 
-        index and the evaporative index as long term averages.
-
-    """
-    # Determine the terms (note that the discharge coefficient and evaporative
-    # index for the future climate, if present, are not correct yet and will
-    # be adjusted at a later stage)
-    ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'].where(ds_sub_annual_count['specific_Q'] > threshold) / ds_sub_annual['precip_mean'].where(ds_sub_annual_count['specific_Q'] > threshold)).mean('time', skipna=True)
-    ds_sub_annual['aridity_index'] = (ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']).mean('time', skipna=True)
-    ds_sub_annual['evap_index'] = 1 - ds_sub_annual['discharge_coeff']
-    
-    # Make sure Ea = P - Q < Ep. If not, we will not use that subcatchment for
-    # the calculations.
-    #TODO: What do we do when the largest "subcatchment", which covers all other subcatchments, has Ea > Ep?
-    ds_sub_annual['discharge_coeff'] = ds_sub_annual['discharge_coeff'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
-    ds_sub_annual['aridity_index'] = ds_sub_annual['aridity_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
-    ds_sub_annual['evap_index'] = ds_sub_annual['evap_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
-    
-    return ds_sub_annual
-
-
-def determine_storage_deficit(ds_sub):
-    """
-    Function to determine the storage deficit for every time step, subcatchment
-    location and datset in ds_sub.
-
-    Parameters
-    ----------
-    ds_sub : xarray dataset
-        xarray dataset containing the daily or higher-resolution data.
-
-    Returns
-    -------
-    storage_deficit : xarray dataarray
-        Xarray dataarray containing the storage deficits per time step for all
-        forcing types.
-    """   
-    # Determine the difference between precip_effective and 
-    diff_Pe_Er = ds_sub["precip_effective"] - ds_sub["transpiration"]
-    
-    # Set the temporal storage deficit (diff between (precip effective and 
-    # transpiration) for the first time step to 0.
-    diff_Pe_Er.loc[dict(time=ds_sub.time[0])] = diff_Pe_Er.sel(time=ds_sub.time[0]) * 0.0
-    
-    # Determine the storage deficit (cumulative sum of diff_Pe_Er)
-    storage_deficit = diff_Pe_Er.cumsum()
-    
-    # Make sure the storage dificit cannot be larger than 0 (i.e., has to be 
-    # negative or zero)
-    storage_deficit = storage_deficit.where(storage_deficit > 0.0, 0.0)
-        
-    # If there are climate projections present, adjust the storage deficit for
-    # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
-    # cc_hist remains as is (see Table S1)
-    if len(ds_sub.forcing_type) > 1:
-        storage_deficit.loc[dict(forcing_type="cc_fut")] = storage_deficit.sel(forcing_type="obs") + np.minimum(
-            0.0,
-            storage_deficit.sel(forcing_type="cc_fut") - storage_deficit.sel(forcing_type="cc_hist")
-            )        
-    
-    return storage_deficit
-
-
-# def determine_Imax(ds_sub):
-#     """
-#     Function to determine the Imax per sub catchment and month, based on the 
-#     LAI, swood and sl from wflow_sbm.
-
-#     Parameters
-#     ----------
-#     ds_sub : xarray dataset
-#         Xarray dataset containing LAI (per month), swood and sl.
-
-#     Returns
-#     -------
-#     ds_sub : xarray dataset
-#         Same as above, but containing the Imax per sub catchment and per month.
-
-#     """
-#     ds_sub["Imax"] = ds_sub["LAI"] * ds_sub["swood"] + ds_sub["LAI"] * ds_sub["sl"]
-    
-#     return ds_sub
 
 def check_inputs(start_hydro_year,
                  start_field_capacity,
@@ -549,10 +530,10 @@ def rootzoneclim(ds_obs,
             pd.Index(["obs"], name="forcing_type")
             )
     
-    # if LAI == True:
-    #     ds_concat["LAI"] = ds_like["LAI"]
-    #     ds_concat["swood"] = ds_like["swood"]
-    #     ds_concat["sl"] = ds_like["sl"]
+    if LAI == True:
+        ds_concat["LAI"] = ds_like["LAI"]
+        ds_concat["swood"] = ds_like["swood"]
+        ds_concat["sl"] = ds_like["sl"]
     
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
@@ -609,6 +590,10 @@ def rootzoneclim(ds_obs,
     
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
     ds_sub = ds_concat.raster.zonal_stats(gdf_basins, stats=["mean"])
+    
+    # If LAI = True, determine the Imax for every time step in the LAI data
+    if LAI == True:
+        ds_sub["Imax"] = ds_sub["LAI"] * ds_sub["swood"] + ds_sub["LAI"] * ds_sub["sl"]
     
     # Get the time step of the datasets and make sure they all have a daily
     # time step. If not, resample.

@@ -1653,7 +1653,7 @@ class WflowModel(Model):
                 forcing_cc_fut_fn, geom=self.region, buffer=2
             ) 
         dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False)
-        # TODO add fn interception
+
         # import pdb; pdb.set_trace()
         # Run the rootzone clim workflow
         dsout = workflows.rootzoneclim(
