@@ -7,6 +7,7 @@ from scipy import optimize
 import xarray as xr
 
 from hydromt import flw
+import pyflwdir
 
 
 logger = logging.getLogger(__name__)
@@ -558,22 +559,7 @@ def rootzoneclim(ds_obs,
     # Make a basin map containing all subcatchments from geodataset of observed 
     # streamflow
     x, y = dsrun.x.values, dsrun.y.values
-    gdf_basins = pd.DataFrame()
-    
-    # #basin map with all catchments
-    # ds_basin_all = flw.basin_map(
-    #     ds_like,
-    #     flwdir,
-    #     ids=dsrun.index.values,
-    #     xy=(x, y),
-    #     stream=ds_like["wflow_river"],
-    # )[0]
-    # # ds_basin_all.name = int(dsrun.index.values)
-    # ds_basin_all.raster.set_crs(ds_like.raster.crs)
-    # gdf_basin_all = ds_basin_all.raster.vectorize()
-    # # Set index to catchment id
-    # gdf_basin_all.index = gdf_basin_all.value.astype("int")
-    
+    gdf_basins = pd.DataFrame()  
     
     # Loop over basins and get per gauge location a polygon of the upstream
     # area.
@@ -728,10 +714,53 @@ def rootzoneclim(ds_obs,
     #TODO: pick the rootzone storage based on the requested return period
     
     #TODO: Do something here to combine all root zone storages per subcatchment
+    #basin map with all catchments
+    ds_basins_all = flw.basin_map(
+        ds_like,
+        flwdir,
+        ids=dsrun.index.values,
+        xy=(x, y),
+        stream=ds_like["wflow_river"],
+    )[0]
+    # ds_basin_all.name = int(dsrun.index.values)
+    ds_basins_all.raster.set_crs(ds_like.raster.crs)
+    gdf_basins_all = ds_basins_all.raster.vectorize()
+    # Set index to catchment id
+    # Add the area and sort by area
+    areas = []
+    for index in gdf_basins_all.value:
+        areas.append(
+            ds_like["wflow_uparea"].sel(
+                lat=dsrun.sel(index=index)["y"].values, 
+                lon=dsrun.sel(index=index)["x"].values, 
+                method="nearest"
+                ).values * 1e6
+            )
+    gdf_basins_all["area"] = areas
+    gdf_basins_all = gdf_basins_all.sort_values(by="area", ascending=False)
+    
+    # Add the rootzone storage, per forcing type and return period, to
+    # gdf_basin_all
+    for return_period in gumbel.RP.values:
+        for forcing_type in gumbel.forcing_type.values:
+            gdf_basins_all[f"{forcing_type}_{str(return_period)}"] = gumbel["rootzone_storage"].sel(RP=return_period, forcing_type=forcing_type)
    
-    #TODO: Rasterize this (from large subcatchments to small ones)
-    #TODO: Do something with the nans here when adding all subcatchments
+   # #TODO: nans become 0.0 now, it seems.. 
    
+   #  #TODO: Rasterize this (from large subcatchments to small ones)
+   #  for return_period in gumbel.RP.values:
+   #      for forcing_type in gumbel.forcing_type.values:    
+   #          da_area = ds_like.raster.rasterize(
+   #                      gdf=gdf_basins_all,
+   #                      col_name=f"{forcing_type}_{str(return_period)}",
+   #                      nodata=-999,
+   #                      all_touched=True,
+   #                  )
+   #          ds_like.set_staticmaps(da_area.rename(f"{forcing_type}_{str(return_period)}"))
+    
+   #  #TODO: Do something with the nans here when adding all subcatchments
+   #  pyflwdir.FlwdirRaster.fillnodata(data, nodata=-999, direction='down', how='max')
+    
     #TODO:
     # Scale the Srmax to the model resolution
     # srmax = srmax.raster.reproject_like(ds_like, method="average")
@@ -742,16 +771,6 @@ def rootzoneclim(ds_obs,
     #TODO: make optional
     # ds_out["rootzone_storage_climate"] = srmax.astype(np.float32)
     #TODO: Also store as optional rootingdepth for wflow_sbm
-
-    # import pdb; pdb.set_trace()
-
-    # da_basins = flw.basin_map(
-    #                         self.staticmaps, self.flwdir, idxs=idxs, ids=ids
-    #                     )[0]
-    #                     mapname = self._MAPS["basins"] + "_" + basename
-    #                     self.set_staticmaps(da_basins, name=mapname)
-    #                     gdf_basins = self.staticmaps[mapname].raster.vectorize()
-    #                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
     
     return ds_out
 
