@@ -204,35 +204,33 @@ def determine_storage_deficit(ds_sub):
 
     Returns
     -------
-    storage_deficit : xarray dataarray
-        Xarray dataarray containing the storage deficits per time step for all
+    ds_sub : xarray dataset
+        Same as above, but containing the storage deficits per time step for all
         forcing types.
-    """   
-    # Determine the difference between precip_effective and the transpiration
-    diff_Pe_Er = ds_sub["precip_effective"] - ds_sub["transpiration"]
+    """      
+    # Create the storage deficit data array
+    ds_sub["storage_deficit"] = (('index', 'forcing_type', 'time'), np.zeros((len(ds_sub['index']), len(ds_sub['forcing_type']), len(ds_sub['time'])), dtype=np.float32))
+    ds_sub["storage_deficit"].loc[dict(time=ds_sub.time[0])] = 0
+    ds_sub = ds_sub.chunk(chunks={'index': len(ds_sub.index), 'forcing_type': 1, 'time': 1000})
     
-    # Set the temporal storage deficit (diff between precip effective and 
-    # transpiration) for the first time step to 0.
-    diff_Pe_Er.loc[dict(time=ds_sub.time[0])] = diff_Pe_Er.sel(time=ds_sub.time[0]) * 0.0
-    
-    # Determine the storage deficit (cumulative sum of diff_Pe_Er)
-    #TODO: cap at zero --> we probably should go back to the loop..
-    storage_deficit = diff_Pe_Er.cumsum()
-    
-    # Make sure the storage dificit cannot be larger than 0 (i.e., has to be 
-    # negative or zero)
-    storage_deficit = storage_deficit.where(storage_deficit > 0.0, 0.0)
+    # Determine the storage deficit per time step
+    for i in range(1,len(ds_sub.time)):
+        print(i)
+        ds_sub["storage_deficit"].loc[dict(time = ds_sub.time[i])] = np.minimum(
+            0, 
+            ds_sub["storage_deficit"].isel(time = i-1) + (ds_sub["precip_effective"].isel(time = i) - ds_sub["transpiration"]).isel(time = i)
+            )
         
     # If there are climate projections present, adjust the storage deficit for
     # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
     # cc_hist remains as is (see Table S1)
     if len(ds_sub.forcing_type) > 1:
-        storage_deficit.loc[dict(forcing_type="cc_fut")] = storage_deficit.sel(forcing_type="obs") + np.minimum(
+        ds_sub["storage_deficit"].loc[dict(forcing_type="cc_fut")] = ds_sub["storage_deficit"].sel(forcing_type="obs") + np.minimum(
             0.0,
-            storage_deficit.sel(forcing_type="cc_fut") - storage_deficit.sel(forcing_type="cc_hist")
+            ds_sub["storage_deficit"].sel(forcing_type="cc_fut") - ds_sub["storage_deficit"].sel(forcing_type="cc_hist")
             )        
     
-    return storage_deficit
+    return ds_sub
 
 
 def fut_discharge_coeff(ds_sub_annual):
@@ -671,13 +669,13 @@ def rootzoneclim(ds_obs,
     
     # Determine storage deficit
     logger.info("Determining the storage deficit, this can take a while")
-    storage_deficit = determine_storage_deficit(ds_sub)
+    ds_sub = determine_storage_deficit(ds_sub)
     
     # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
     logger.info("Calculating the Gumbel distribution and rootzone storage capacity")
     # First, determine the yearly minima in storage deficit
-    storage_deficit_annual = (storage_deficit.resample(time=f'AS-{start_field_capacity}').min('time', skipna=True))
+    storage_deficit_annual = (ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').min('time', skipna=True))
     # Make sure the values are positive
     storage_deficit_annual = storage_deficit_annual.where(storage_deficit_annual < 0.0, storage_deficit_annual * -1.0) 
     # Since everything has been summed, we have to subtract the maximum from
@@ -686,7 +684,7 @@ def rootzoneclim(ds_obs,
 
     # A counter will be used to only use years with sufficient days containing 
     # data for the Gumbel distribution
-    storage_deficit_count = storage_deficit.resample(time=f'AS-{start_field_capacity}').count('time')
+    storage_deficit_count = ds_sub["storage_deficit"].resample(time=f'AS-{start_field_capacity}').count('time')
     
     # Subsequently, determine the Gumbel distribution
     gumbel = gumbel_su_calc_xr(storage_deficit_annual, 
