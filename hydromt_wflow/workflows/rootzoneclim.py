@@ -713,8 +713,8 @@ def rootzoneclim(ds_obs,
     
     #TODO: pick the rootzone storage based on the requested return period
     
-    #TODO: Do something here to combine all root zone storages per subcatchment
-    #basin map with all catchments
+    # Create a new geopandas dataframe, which will be used to rasterize the
+    # results
     ds_basins_all = flw.basin_map(
         ds_like,
         flwdir,
@@ -725,8 +725,7 @@ def rootzoneclim(ds_obs,
     # ds_basin_all.name = int(dsrun.index.values)
     ds_basins_all.raster.set_crs(ds_like.raster.crs)
     gdf_basins_all = ds_basins_all.raster.vectorize()
-    # Set index to catchment id
-    # Add the area and sort by area
+    # Add the area and sort by area (from large to small)
     areas = []
     for index in gdf_basins_all.value:
         areas.append(
@@ -744,32 +743,39 @@ def rootzoneclim(ds_obs,
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:
             gdf_basins_all[f"{forcing_type}_{str(return_period)}"] = gumbel["rootzone_storage"].sel(RP=return_period, forcing_type=forcing_type)
+            # Make sure to give the NaNs a value, otherwise they will become 0.0
+            gdf_basins_all[f"{forcing_type}_{str(return_period)}"] = gdf_basins_all[f"{forcing_type}_{str(return_period)}"].fillna(-999)
    
-   # #TODO: nans become 0.0 now, it seems.. 
+    # Rasterize this (from large subcatchments to small ones)
+    for return_period in gumbel.RP.values:
+        for forcing_type in gumbel.forcing_type.values:    
+            da_area = ds_like.raster.rasterize(
+                gdf=gdf_basins_all,
+                col_name=f"{forcing_type}_{str(return_period)}",
+                nodata=-999,
+                all_touched=True,
+                ).to_dataset(name="rasterized_temp")
+            # Fill up the not a numbers with the data from a downstream point 
+            out_raster = pyflwdir.FlwdirRaster.fillnodata(
+                flwdir,
+                data=da_area["rasterized_temp"], 
+                nodata=-999, 
+                direction='up', 
+                how='max',
+                )
+            # Make sure to fill up full domain with value of most downstream point
+            fill_value = None
+            for value in gdf_basins_all[f"{forcing_type}_{str(return_period)}"]:
+                if value > 0.0:
+                    if fill_value == None:
+                        fill_value = value
+            out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
+            # Store the result in ds_out
+            ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                ("lat", "lon"), 
+                out_raster
+                )
    
-   #  #TODO: Rasterize this (from large subcatchments to small ones)
-   #  for return_period in gumbel.RP.values:
-   #      for forcing_type in gumbel.forcing_type.values:    
-   #          da_area = ds_like.raster.rasterize(
-   #                      gdf=gdf_basins_all,
-   #                      col_name=f"{forcing_type}_{str(return_period)}",
-   #                      nodata=-999,
-   #                      all_touched=True,
-   #                  )
-   #          ds_like.set_staticmaps(da_area.rename(f"{forcing_type}_{str(return_period)}"))
-    
-   #  #TODO: Do something with the nans here when adding all subcatchments
-   #  pyflwdir.FlwdirRaster.fillnodata(data, nodata=-999, direction='down', how='max')
-    
-    #TODO:
-    # Scale the Srmax to the model resolution
-    # srmax = srmax.raster.reproject_like(ds_like, method="average")
-    
-    #TODO:
-    # Store the Srmax fur the current and future climate in ds_out
-    # ds_out["rootzone_storage"] = srmax.astype(np.float32)
-    #TODO: make optional
-    # ds_out["rootzone_storage_climate"] = srmax.astype(np.float32)
     #TODO: Also store as optional rootingdepth for wflow_sbm
     
     return ds_out
