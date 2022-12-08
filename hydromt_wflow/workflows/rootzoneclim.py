@@ -470,6 +470,7 @@ def rootzoneclim(ds_obs,
                  start_hydro_year,
                  start_field_capacity,
                  LAI,
+                 rooting_depth,
                  chunksize,
                  logger=logger):
     """
@@ -507,7 +508,10 @@ def rootzoneclim(ds_obs,
     start_field_capacity : str
         The end of the wet season / commencement of dry season. This is the
         moment when the soil is at field capacity, i.e. there is no storage
-        deficit yet.     
+        deficit yet.
+    rooting_depth : bool
+        Boolean indicating whether also the rooting depth (rootzone storage / 
+        (theta_s - theta_r)) should be stored.
     LAI : bool
         Determine whether the LAI will be used to determine Imax.
     chunksize : int
@@ -771,12 +775,17 @@ def rootzoneclim(ds_obs,
                         fill_value = value
             out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
             # Store the result in ds_out
+            #TODO: perhaps we should use a mask here.
             ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
                 ("lat", "lon"), 
                 out_raster
                 )
-   
-    #TODO: Also store as optional rootingdepth for wflow_sbm
+            # Also store the RootingDepth if requested
+            if rooting_depth == True:
+                ds_out[f"RootingDepth_{forcing_type}_{str(return_period)}"] = (
+                    ("lat", "lon"), 
+                    out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values)
+                    )            
     
     return ds_out
 

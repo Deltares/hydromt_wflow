@@ -1595,6 +1595,7 @@ class WflowModel(Model):
         start_hydro_year: Optional[str] = "Jan",
         start_field_capacity: Optional[str] = "Jan",
         LAI: Optional[bool] = False,
+        rooting_depth: Optional[bool] = False,
         **kwargs,
     ) -> None:
         """
@@ -1629,7 +1630,10 @@ class WflowModel(Model):
         LAI : bool, optional
             Determine whether the LAI will be used to determine Imax. The
             default is False.
-
+        rooting_detph : bool, optional
+            Determines whether the rooting depth (rootzone storage / 
+            (theta_s - theta_r)) should be stored or not. The default is False.
+            
         Returns
         -------
         An update from self
@@ -1667,6 +1671,7 @@ class WflowModel(Model):
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
             LAI=LAI,
+            rooting_depth=rooting_depth,
             chunksize=chunksize,
             logger=self.logger,
         )  # .reset_coords(drop=True)
