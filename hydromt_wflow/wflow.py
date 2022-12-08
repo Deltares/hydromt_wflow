@@ -1591,6 +1591,7 @@ class WflowModel(Model):
         forcing_cc_hist_fn: Optional[str] = None,
         forcing_cc_fut_fn: Optional[str] = None,
         chunksize: Optional[int] = None,
+        return_period: Optional[list] = [2,3,5,10,15,20,25,50,60,100],
         Imax: Optional[float] = 2.0,
         start_hydro_year: Optional[str] = "Jan",
         start_field_capacity: Optional[str] = "Jan",
@@ -1617,6 +1618,10 @@ class WflowModel(Model):
             Chunksize on time dimension for processing data (not for saving to 
             disk!). If None, a chunksize of 1000 is used on the time dimension.
             The default is None.
+        return_period : list, optional
+            List with one or more values indiciating the return period(s) (in 
+            years) for wich the rootzone storage depth should be calculated. The
+            default is [2,3,5,10,15,20,25,50,60,100] years.
         Imax : float, optional
             The maximum interception storage capacity [mm]. The default is 2.0 mm.
         start_hydro_year : str, optional
@@ -1667,6 +1672,7 @@ class WflowModel(Model):
             dsrun=dsrun,
             ds_like = self.staticmaps,
             flwdir = self.flwdir,
+            return_period = return_period,
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,

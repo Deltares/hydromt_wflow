@@ -290,7 +290,10 @@ def fut_discharge_coeff(ds_sub_annual):
     return ds_sub_annual
 
 
-def gumbel_su_calc_xr(storage_deficit_annual, storage_deficit_count, threshold):
+def gumbel_su_calc_xr(storage_deficit_annual, 
+                      storage_deficit_count, 
+                      return_period, 
+                      threshold):
     """
     Function to determine the Gumbel distribution for a set of return periods.
 
@@ -302,6 +305,9 @@ def gumbel_su_calc_xr(storage_deficit_annual, storage_deficit_count, threshold):
         xarray dataset containing the number of days with data per year. This
         indicates on how many days a minimum in year_min_storage_deficit is
         based.
+    return_period : list
+        List with one or more values indiciating the return period(s) (in 
+        years) for wich the rootzone storage depth should be calculated.
     threshold : int
         Required minimum number of days in a year containing data to take the
         year into account for the calculation..
@@ -328,8 +334,8 @@ def gumbel_su_calc_xr(storage_deficit_annual, storage_deficit_count, threshold):
     # Create the output dataset
     gumbel = storage_deficit_annual.to_dataset(name="storage_deficit")
 
-    # Set the return periods #TODO: hard coded?
-    RP = [2,3,5,10,15,20,25,50,60,100]
+    # Set the return periods
+    RP = return_period
     gumbel['RP'] = RP
     gumbel["rootzone_storage"] = (
         ('index', 'forcing_type', 'RP'), 
@@ -466,6 +472,7 @@ def rootzoneclim(ds_obs,
                  dsrun, 
                  ds_like, 
                  flwdir, 
+                 return_period,
                  Imax, 
                  start_hydro_year,
                  start_field_capacity,
@@ -500,6 +507,9 @@ def rootzoneclim(ds_obs,
         Dataset at model resolution.
     flwdir : FlwDirRaster
         flwdir object
+    return_period : list
+        List with one or more values indiciating the return period(s) (in 
+        years) for wich the rootzone storage depth should be calculated.
     Imax : float
         The maximum interception storage capacity [mm].
     start_hydro_year : str
@@ -581,15 +591,7 @@ def rootzoneclim(ds_obs,
         gdf_basins = pd.concat([gdf_basins, gdf_basin_single])
     # Set index to catchment id
     gdf_basins.index = gdf_basins.value.astype("int")
-    
-    # #TODO: remove this, but for now a way to save the geodataset as shapefile
-    # # for inspection in GIS programs    
-    # import os   
-    # import geopandas
-    # outfile = "c:\\Users\\imhof_rn\\OneDrive - Stichting Deltares\\Documents\\SITO\\Root_zone_storage\\geodataset_inspection\\basins_check.shp" 
-    # # Export the data
-    # geopandas.GeoDataFrame(geometry=gdf_basins['geometry']).to_file(outfile,driver='ESRI Shapefile') 
-    
+
     # Add the catchment area to gdf_basins and sort in a descending order
     # # Note that we first have to reproject to a cylindircal equal area in #TODO: new method added, which one do we keep?
     # # order to preserve the area measure. 
