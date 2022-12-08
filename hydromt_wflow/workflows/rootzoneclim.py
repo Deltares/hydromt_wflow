@@ -45,7 +45,6 @@ def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
     
     # Make sure Ea = P - Q < Ep. If not, we will not use that subcatchment for
     # the calculations.
-    #TODO: What do we do when the largest "subcatchment", which covers all other subcatchments, has Ea > Ep?
     ds_sub_annual['discharge_coeff'] = ds_sub_annual['discharge_coeff'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
     ds_sub_annual['aridity_index'] = ds_sub_annual['aridity_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
     ds_sub_annual['evap_index'] = ds_sub_annual['evap_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
