@@ -104,9 +104,10 @@ def determine_omega(ds_sub_annual):
     return ds_sub_annual
 
 
-#TODO: Find a way to make this also possible for variable Imax values, e.g. from
-# wflow_sbm LAI.
-def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
+def determine_Peffective_Interception_explicit(ds_sub, 
+                                               Imax,  
+                                               intercep_vars_sub=None
+                                               ):
     """
     Function to determine the effective precipitation, interception evaporation
     and canopy storage based on (daily) values of precipitation and potential
@@ -114,15 +115,15 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
 
     Parameters
     ----------
-    ds_sub : xarray datase
+    ds_sub : xarray dataset
         xarray dataset containing precipitation and potential evaporation
         (precip_mean and pet_mean).
     Imax : float
         The maximum interception storage capacity [mm].
-    LAI : xarray datarray, optional
-        Xarray dataarray from staticmaps containing the LAI values for a number
+    intercep_vars_sub : xarray dataarray
+        Xarray dataarray from staticmaps containing the Imax values for a number
         of time steps, e.g. every month. If present, this is used to determine
-        Imax per time step. The default is None.
+        Imax per time step. The default is None.    
 
     Returns
     -------
@@ -173,8 +174,10 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, LAI = None):
         Pdt = ds_sub.sel(forcing_type=forcing_type)["precip_mean"].values
         # Loop through the time steps and determine the variables per time step.
         for i in range(0, nr_time_steps):
-            #TODO: implement Imax as function of LAI
-            # Imax = LAI.iloc[i]
+            if intercep_vars_sub != None:
+                #TODO: for now assumed that LAI contains monthly data, change this for future
+                month = pd.to_datetime(ds_sub.time[100].values).month
+                Imax = intercep_vars_sub["Imax"].sel(time=month)
             # Determine the variables with a simple interception reservoir approach
             canopy_storage[:,i] = canopy_storage[:,i] + Pdt[:,i]
             precip_effective[:,i] = np.maximum(0, canopy_storage[:,i] - Imax)
@@ -561,10 +564,10 @@ def rootzoneclim(ds_obs,
             pd.Index(["obs"], name="forcing_type")
             )
     
-    # if LAI == True:
-    #     ds_concat["LAI"] = ds_like["LAI"]
-    #     ds_concat["swood"] = ds_like["swood"]
-    #     ds_concat["sl"] = ds_like["sl"]
+    if LAI == True:
+        intercep_vars = ds_like.LAI.to_dataset(name = "LAI")
+        intercep_vars["Swood"] = ds_like["Swood"]
+        intercep_vars["Sl"] = ds_like["Sl"]
     
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
@@ -616,10 +619,14 @@ def rootzoneclim(ds_obs,
     ds_sub = ds_concat.raster.zonal_stats(gdf_basins, stats=["mean"])
     logger.info("Computing zonal statistics, this can take a while")
     ds_sub = ds_sub.compute()
-    
-    # # If LAI = True, determine the Imax for every time step in the LAI data
-    # if LAI == True:
-    #     ds_sub["Imax"] = ds_sub["LAI"] * ds_sub["swood"] + ds_sub["LAI"] * ds_sub["sl"]
+    # Also get the zonal statistics of the intercep_vars
+    if LAI == True:
+        intercep_vars_sub = intercep_vars.raster.zonal_stats(gdf_basins, stats=["mean"])
+        intercep_vars_sub = intercep_vars_sub.compute()
+        # Determine the Imax for every time step in the LAI data
+        intercep_vars_sub ["Imax"] = intercep_vars_sub ["LAI_mean"] * intercep_vars_sub ["Swood_mean"] + intercep_vars_sub ["LAI_mean"] * intercep_vars_sub ["Sl_mean"]
+    else: 
+        intercep_vars_sub == None
     
     # Get the time step of the datasets and make sure they all have a daily
     # time step. If not, resample.
@@ -650,9 +657,11 @@ def rootzoneclim(ds_obs,
        
     # Determine effective precipitation, interception evporation and canopy 
     # storage
-    #TODO: Add time variable Imax (based on LAI)
     logger.info("Determine effective precipitation, interception evporation and canopy storage")
-    ds_sub = determine_Peffective_Interception_explicit(ds_sub, Imax=Imax)
+    ds_sub = determine_Peffective_Interception_explicit(ds_sub, 
+                                                        Imax=Imax, 
+                                                        intercep_vars_sub=intercep_vars_sub
+                                                        )
  
     # Rechunk data
     if chunksize == None:
@@ -713,10 +722,9 @@ def rootzoneclim(ds_obs,
     # Subsequently, determine the Gumbel distribution
     gumbel = gumbel_su_calc_xr(storage_deficit_annual, 
                                storage_deficit_count.sel(time=storage_deficit_count.time[1:]), 
+                               return_period=return_period,
                                threshold=missing_threshold,
                                )
-    
-    #TODO: pick the rootzone storage based on the requested return period
     
     # Create a new geopandas dataframe, which will be used to rasterize the
     # results
