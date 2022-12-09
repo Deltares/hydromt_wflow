@@ -563,8 +563,6 @@ def rootzoneclim(ds_obs,
                  ds_obs,
                  ds_cc_hist,
                  ds_cc_fut)
-    ds_cc_hist = ds_cc_hist * 0.95
-    ds_cc_fut = ds_cc_fut * 1.2
     
     # Concatenate all forcing types (obs, cc_hist, cc_fut) into on xr dataset
     if ds_cc_hist != None and ds_cc_fut != None:
