@@ -49,6 +49,17 @@ def determine_budyko_curve_terms(ds_sub_annual, ds_sub_annual_count, threshold):
     ds_sub_annual['aridity_index'] = ds_sub_annual['aridity_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
     ds_sub_annual['evap_index'] = ds_sub_annual['evap_index'].where(ds_sub_annual["evap_index"] < ds_sub_annual["aridity_index"])
     
+    # Final check, if a coefficient < 0.0 or >>1.0, set to nan
+    ds_sub_annual['discharge_coeff'] = ds_sub_annual['discharge_coeff'].where(
+        ds_sub_annual['discharge_coeff'] < 10.0
+        ).where(ds_sub_annual['discharge_coeff'] > 0.0)
+    ds_sub_annual['aridity_index'] = ds_sub_annual['aridity_index'].where(
+        ds_sub_annual['aridity_index'] < 10.0
+        ).where(ds_sub_annual['aridity_index'] > 0.0)
+    ds_sub_annual['evap_index'] = ds_sub_annual['evap_index'].where(
+        ds_sub_annual['evap_index'] < 10.0
+        ).where(ds_sub_annual['evap_index'] > 0.0)
+    
     return ds_sub_annual
 
 
