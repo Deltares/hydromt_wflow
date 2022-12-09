@@ -210,16 +210,7 @@ def determine_storage_deficit(ds_sub):
     ds_sub : xarray dataset
         Same as above, but containing the storage deficits per time step for all
         forcing types.
-    """      
-    
-    # transpiration = ds_sub["transpiration"]
-    # precip_effective = ds_sub["precip_effective"]
-    # storage_deficit = ds_sub["storage_deficit"]
-    # transpiration = transpiration.to_dataframe()
-    # precip_effective = precip_effective.to_dataframe()
-    # storage_deficit = storage_deficit.to_dataframe()
-    
-    
+    """         
     transpiration = ds_sub["transpiration"].values
     precip_effective = ds_sub["precip_effective"].values
     storage_deficit = np.zeros((
@@ -230,10 +221,6 @@ def determine_storage_deficit(ds_sub):
     
     # Determine the storage deficit per time step
     for i in range(1,len(ds_sub.time)):
-        # ds_sub["storage_deficit"].loc[dict(time = ds_sub.time[i])] = np.minimum(
-        #     0, 
-        #     ds_sub["storage_deficit"].isel(time = i-1) + (ds_sub["precip_effective"].isel(time = i) - ds_sub["transpiration"]).isel(time = i)
-        #     )
         storage_deficit[:, :, i] = np.minimum(
             0,
             storage_deficit[:, :, i-1] + (precip_effective[:, :, i] - transpiration[:, :, i])
@@ -241,7 +228,6 @@ def determine_storage_deficit(ds_sub):
     
     # Create the storage deficit data array
     ds_sub["storage_deficit"] = (('index', 'forcing_type', 'time'), storage_deficit)
-        
         
     # If there are climate projections present, adjust the storage deficit for
     # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
@@ -374,7 +360,19 @@ def Zhang(omega, Ep_over_P, Ea_over_P):
         
     References
     ----------
-    #TODO: Add Fu et al., Zhang and Teuling et al. references here.
+    Fu, B.: On the calculation of the evaporation from land surface, 
+    Scientia Atmospherica Sinica, 5, 23–31, 1981 (in Chinese).
+    
+    Teuling, A. J., de Badts, E. A. G., Jansen, F. A., Fuchs, R., Buitink, J., 
+    Hoek van Dijke, A. J., and Sterling, S. M.: Climate change, reforestation/
+    afforestation, and urbanization impacts on evapotranspiration and streamflow 
+    in Europe, Hydrol. Earth Syst. Sci., 23, 3631–3652, 
+    https://doi.org/10.5194/hess-23-3631-2019, 2019.
+    
+    Zhang, L., Hickel, K., Dawes, W. R., Chiew, F. H., Western, A. W., and 
+    Briggs, P. R.: A rational function approach for estimating mean annual 
+    evapotranspiration, Water Resour. Res., 40, 1–14, 
+    https://doi.org/10.1029/2003WR002710, 2004.
     """
     return 1 + Ep_over_P - (1 + Ep_over_P**omega)**(1/omega) - Ea_over_P
 
@@ -486,11 +484,14 @@ def rootzoneclim(ds_obs,
     Returns root zone storage parameter for current observed and (optionally 
     for) future climate-based streamflow data. 
     The root zone storage parameter is calculated per subcatchment and is 
-    converted to a gridded map at model resolution.
+    converted to a gridded map at model resolution. Optionally, this function
+    can return the wflow_sbm parameter RootingDepth by dividing the root zone
+    storage parameter by (theta_s - theta_r).
 
     The following maps are calculated:\
     - `rootzone_storage`                  : maximum root zone storage capacity [mm]\
     - `rootzone_depth_climate`            : maximum root zone storage depth [mm]\
+    - `RootingDepth`                      : maximum rooting depth [mm]\  
                     
     
     Parameters
@@ -551,6 +552,8 @@ def rootzoneclim(ds_obs,
                  ds_obs,
                  ds_cc_hist,
                  ds_cc_fut)
+    ds_cc_hist = ds_cc_hist * 0.95
+    ds_cc_fut = ds_cc_fut * 1.2
     
     # Concatenate all forcing types (obs, cc_hist, cc_fut) into on xr dataset
     if ds_cc_hist != None and ds_cc_fut != None:
@@ -564,6 +567,7 @@ def rootzoneclim(ds_obs,
             pd.Index(["obs"], name="forcing_type")
             )
     
+    # If LAI = True, create a new xr dataset containing the interception pars
     if LAI == True:
         intercep_vars = ds_like.LAI.to_dataset(name = "LAI")
         intercep_vars["Swood"] = ds_like["Swood"]
@@ -735,7 +739,6 @@ def rootzoneclim(ds_obs,
         xy=(x, y),
         stream=ds_like["wflow_river"],
     )[0]
-    # ds_basin_all.name = int(dsrun.index.values)
     ds_basins_all.raster.set_crs(ds_like.raster.crs)
     gdf_basins_all = ds_basins_all.raster.vectorize()
     # Add the area and sort by area (from large to small)
@@ -751,8 +754,8 @@ def rootzoneclim(ds_obs,
     gdf_basins_all["area"] = areas
     gdf_basins_all = gdf_basins_all.sort_values(by="area", ascending=False)
     
-    # Add the rootzone storage, per forcing type and return period, to
-    # gdf_basin_all
+    # Add the rootzone storage to gdf_basins_all, per forcing type and return 
+    # period
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:
             gdf_basins_all[f"{forcing_type}_{str(return_period)}"] = gumbel["rootzone_storage"].sel(RP=return_period, forcing_type=forcing_type)
@@ -777,6 +780,7 @@ def rootzoneclim(ds_obs,
                 how='max',
                 )
             # Make sure to fill up full domain with value of most downstream point
+            # that contains values
             fill_value = None
             for value in gdf_basins_all[f"{forcing_type}_{str(return_period)}"]:
                 if value > 0.0:
