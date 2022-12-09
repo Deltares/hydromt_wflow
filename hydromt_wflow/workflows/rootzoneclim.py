@@ -641,7 +641,7 @@ def rootzoneclim(ds_obs,
         # Determine the Imax for every time step in the LAI data
         intercep_vars_sub ["Imax"] = intercep_vars_sub ["LAI_mean"] * intercep_vars_sub ["Swood_mean"] + intercep_vars_sub ["LAI_mean"] * intercep_vars_sub ["Sl_mean"]
     else: 
-        intercep_vars_sub == None
+        intercep_vars_sub = None
     
     # Get the time step of the datasets and make sure they all have a daily
     # time step. If not, resample.
