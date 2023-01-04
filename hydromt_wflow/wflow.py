@@ -1698,6 +1698,12 @@ class WflowModel(Model):
         """Read staticmaps"""
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+
+        if "dir_input" in self.config.keys():
+            input_dir = self.get_config("dir_input")
+            fn = fn.parent / input_dir / fn.name
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._staticmaps = xr.Dataset()
@@ -1844,6 +1850,12 @@ class WflowModel(Model):
         """Read forcing"""
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
+
+        if "dir_input" in self.config.keys():
+            input_dir = self.get_config("dir_input")
+            fn = fn.parent / input_dir / fn.name
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._forcing = dict()
