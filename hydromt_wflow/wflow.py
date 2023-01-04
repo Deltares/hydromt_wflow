@@ -1701,7 +1701,7 @@ class WflowModel(Model):
 
         if "dir_input" in self.config.keys():
             input_dir = self.get_config("dir_input")
-            fn = fn.parent / input_dir / fn.name
+            fn = fn.parent / input_dir / fn.name if fn is not None else fn
             self.logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
@@ -1853,7 +1853,7 @@ class WflowModel(Model):
 
         if "dir_input" in self.config.keys():
             input_dir = self.get_config("dir_input")
-            fn = fn.parent / input_dir / fn.name
+            fn = fn.parent / input_dir / fn.name if fn is not None else fn
             self.logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
