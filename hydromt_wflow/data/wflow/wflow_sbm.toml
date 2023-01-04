@@ -11,6 +11,7 @@ starttime = 2010-02-01T00:00:00
 endtime = 2010-02-10T00:00:00
 time_units = "days since 1900-01-01 00:00:00" 
 timestepsecs = 86400 
+dir_output = "run_default"
 
 [state]
 path_input = "instate/instates.nc" 
@@ -124,7 +125,7 @@ kw_land_tstep = 3600
 thicknesslayers = [100, 300, 800]
 
 [output]
-path = "run_default/output.nc"
+path = "output.nc"
 
 #[output.vertical]
 #satwaterdepth = "satwaterdepth"
@@ -146,7 +147,7 @@ q = "q_land"
 h = "h_land"
 
 [csv]
-path = "run_default/output.csv"
+path = "output.csv"
 
 [[csv.column]]
 header = "Q"
