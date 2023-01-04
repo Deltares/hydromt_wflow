@@ -1745,6 +1745,10 @@ class WflowModel(Model):
         # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        # Append inputdir if required
+        if "dir_input" in self.config.keys():
+            input_dir = self.get_config("dir_input")
+            fn = fn.parent / input_dir / fn.name
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
@@ -1923,6 +1927,10 @@ class WflowModel(Model):
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
+                if "dir_input" in self.config.keys():
+                    input_dir = self.get_config("dir_input")
+                    fn_out = fn_out.parent / input_dir / fn_out.name
+
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
                     self.logger.warning(
