@@ -2060,8 +2060,13 @@ class WflowModel(Model):
             # start fresh in read-only mode
             self._results = dict()
 
+        output_dir = ""
+        if "dir_output" in self.config.keys():
+            output_dir = self.get_config("dir_output")
+
         # Read gridded netcdf (output section)
         nc_fn = self.get_config("output.path", abs_path=True)
+        nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
@@ -2070,6 +2075,7 @@ class WflowModel(Model):
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("netcdf.path", abs_path=True)
+        ncs_fn = ncs_fn.parent / output_dir / ncs_fn.name  if ncs_fn is not None else ncs_fn
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
             ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
@@ -2077,6 +2083,7 @@ class WflowModel(Model):
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("csv.path", abs_path=True)
+        csv_fn = csv_fn.parent / output_dir / csv_fn.name  if csv_fn is not None else csv_fn
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
                 csv_fn, config=self.config, maps=self.staticmaps
