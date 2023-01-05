@@ -19,13 +19,13 @@ def waterbodymaps(
     uparea_name="uparea",
     logger=logger,
 ):
-    """Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded 
-    upstream area data input or outlet coordinates. 
+    """Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded
+    upstream area data input or outlet coordinates.
 
     The following waterbody maps are calculated:\
     - resareas/lakeareas : waterbody areas mask [ID]\
     - reslocs/lakelocs : waterbody outlets [ID]
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -33,7 +33,7 @@ def waterbodymaps(
     ds_like : xarray.DataArray
         Dataset at model resolution.
     uparea_name : str, optional
-        Name of uparea variable in ds_like. If None then database coordinates will be 
+        Name of uparea variable in ds_like. If None then database coordinates will be
         used to setup outlets
     wb_type : str, optional either "reservoir" or "lake"
         Option to change the name of the maps depending on reservoir or lake
@@ -53,11 +53,11 @@ def waterbodymaps(
         dtype=None,
         sindex=False,
     )
-    da_wbmask = da_wbmask.rename("resareas")
+    da_wbmask = da_wbmask.rename("res_areas")
     da_wbmask.attrs.update(_FillValue=-999)
     ds_out = da_wbmask.to_dataset()
-    if not np.all(np.isin(res_id, ds_out["resareas"])):
-        gdf = gdf.loc[np.isin(res_id, ds_out["resareas"])]
+    if not np.all(np.isin(res_id, ds_out["res_areas"])):
+        gdf = gdf.loc[np.isin(res_id, ds_out["res_areas"])]
         nskipped = res_id.size - gdf.index.size
         res_id = gdf["waterbody_id"].values
         logger.warning(
@@ -66,7 +66,7 @@ def waterbodymaps(
         )
 
     # Initialize the waterbody outlet map
-    ds_out["reslocs"] = xr.full_like(ds_out["resareas"], -999)
+    ds_out["res_outlet"] = xr.full_like(ds_out["res_areas"], -999)
     # If an upstream area map is present in the model, gets outlets coordinates using/
     # the maximum uparea in each waterbody mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
@@ -76,12 +76,12 @@ def waterbodymaps(
         ydim = ds_like.raster.y_dim
         xdim = ds_like.raster.x_dim
         for i in res_id:
-            res_acc = ds_like[uparea_name].where(ds_out["resareas"] == i)
+            res_acc = ds_like[uparea_name].where(ds_out["res_areas"] == i)
             # max_res_acc = np.amax(res_acc.values())
             max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
             yacc = max_res_acc[ydim].values
             xacc = max_res_acc[xdim].values
-            ds_out["reslocs"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
+            ds_out["res_outlet"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
             outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
             outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
         outgdf = gp.GeoDataFrame(
@@ -95,25 +95,25 @@ def waterbodymaps(
         outgdf = gp.GeoDataFrame(
             outdf, geometry=gp.points_from_xy(outdf.xout, outdf.yout)
         )
-        ds_out["reslocs"] = ds_like.raster.rasterize(
+        ds_out["res_outlet"] = ds_like.raster.rasterize(
             outgdf, col_name="waterbody_id", nodata=-999
         )
     # Else outlet map is equal to areas mask map
     else:
-        ds_out["reslocs"] = ds_out["resareas"]
+        ds_out["res_outlet"] = ds_out["res_areas"]
         logger.warning(
             f"Neither upstream area map nor {wb_type}'s outlet coordinates found. "
             f"Setting {wb_type} outlet map equal to the area map."
         )
         # dummy outgdf
         outgdf = gdf[["waterbody_id"]]
-    ds_out["reslocs"].attrs.update(_FillValue=-999)
+    ds_out["res_outlet"].attrs.update(_FillValue=-999)
     # fix dtypes
-    ds_out["reslocs"] = ds_out["reslocs"].astype("int32")
-    ds_out["resareas"] = ds_out["resareas"].astype("float32")
+    ds_out["res_outlet"] = ds_out["res_outlet"].astype("int32")
+    ds_out["res_areas"] = ds_out["res_areas"].astype("float32")
 
     if wb_type == "lake":
-        ds_out = ds_out.rename({"resareas": "lakeareas", "reslocs": "lakelocs"})
+        ds_out = ds_out.rename({"res_areas": "lake_areas", "res_outlet": "lake_outlet"})
 
     return ds_out, outgdf
 
@@ -126,7 +126,7 @@ def reservoirattrs(
     usehe=True,
     logger=logger,
 ):
-    """Returns reservoir attributes (see list below) needed for modelling. 
+    """Returns reservoir attributes (see list below) needed for modelling.
     For some attributes, download data from the JRC database (Peker, 2016) using hydroengine.
 
     The following reservoir attributes are calculated:\
@@ -136,7 +136,7 @@ def reservoirattrs(
     - resmaxrelease : reservoir maximum release flow [m3/s]\
     - resfullfrac : reservoir targeted full volume fraction [m3/m3]\
     - resminfrac : reservoir targeted minimum volume fraction [m3/m3]\
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -145,7 +145,7 @@ def reservoirattrs(
         Specify if attributes are more reliable from the gdf attributes or from the JRC database.
     perc_norm : int, optional
         Percentile for normal (operational) surface area
-    perc_min: int, optional 
+    perc_min: int, optional
         Percentile for minimal (operational) surface area
     usehe : bool, optional
         If True use hydroengine to get reservoir timeseries

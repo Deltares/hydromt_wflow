@@ -56,29 +56,85 @@ class WflowModel(Model):
     _CONF = "wflow_sbm.toml"
     _DATADIR = DATADIR
     _GEOMS = {}
+    # Mapping of hydromt internal names to wflow names
     _MAPS = {
+        # TODO: Update wflow_names when reading toml
         "flwdir": "wflow_ldd",
-        "elevtn": "wflow_dem",
+        "elevtn": "altitude",
         "subelv": "dem_subgrid",
         "uparea": "wflow_uparea",
         "strord": "wflow_streamorder",
-        "basins": "wflow_subcatch",
-        "rivlen": "wflow_riverlength",
-        "rivmsk": "wflow_river",
-        "rivwth": "wflow_riverwidth",
-        "lndslp": "Slope",
-        "rivslp": "RiverSlope",
-        "rivdph": "RiverDepth",
-        "rivman": "N_River",
-        "gauges": "wflow_gauges",
-        "landuse": "wflow_landuse",
-        "resareas": "wflow_reservoirareas",
-        "reslocs": "wflow_reservoirlocs",
-        "lakeareas": "wflow_lakeareas",
-        "lakelocs": "wflow_lakelocs",
-        "glacareas": "wflow_glacierareas",
-        "glacfracs": "wflow_glacierfrac",
-        "glacstore": "wflow_glacierstore",
+        "lndslp": "land_slope",
+        # Gauges and basins
+        "gauges": "gauges",
+        "basins": "subcatch",
+        # River maps
+        "rivmsk": "rivers",
+        "rivlen": "river_length",
+        "rivwth": "river_width",
+        "rivdph": "river_depth",
+        "rivslp": "river_slope",
+        "rivman": "river_n",
+        # Land use maps
+        "landuse": "landuse",
+        "kext": "kext",
+        "lndman": "land_n",
+        "pathfrac": "pathfrac",
+        "rootingdepth": "rootingdepth",
+        "specific_leaf": "specific_leaf",
+        "storage_wood": "storage_wood",
+        "waterfrac": "waterfrac",
+        "LAI": "LAI",
+        # Snow and glacier
+        "snow_cfmax": "cfmax",
+        "snow_tt": "tt",
+        "snow_tti": "tti",
+        "snow_ttm": "ttm",
+        "glac_areas": "glacier_areas",
+        "glac_fracs": "glacier_frac",
+        "glac_store": "glacier_store",
+        "glac_tt": "g_tt",
+        "glac_cfmax": "g_cfmax",
+        "glac_sifrac": "g_sifrac",
+        # Soil
+        "theta_r": "theta_r",
+        "theta_s": "theta_s",
+        "kv_0": "kv_0",
+        "soil_thickness": "soil_thickness",
+        "soil_minthickness": "soil_minthickness",
+        "soil_m": "m",
+        "soil_m_": "m_",
+        "soil_m_orig": "m_original",
+        "soil_m_orig_": "m_original_",
+        "soil_f": "f",
+        "soil_f_": "f_",
+        "soil_c": "c",
+        "soil_class": "soil_class", #was wflow_soil
+        # Forcing
+        "temp": "temp",
+        "precip": "precip",
+        "pet": "pet",
+        # Lakes
+        "lake_areas": "lake_areas", #TODO: rename to "lake locs" to avoid confusion with lake_area
+        "lake_outlet": "lake_outlet", #was lakelocs
+        "lake_area": "lake_area",
+        "lake_b": "lake_b",
+        "lake_e": "lake_e",
+        "lake_outflowfunc": "lake_outflowfunc",
+        "lake_storfunc": "lake_storfunc",
+        "lake_threshold": "lake_threshold",
+        "lake_linkedloc": "lake_linkedloc",
+        "lake_avglevel": "lake_avglevel",
+        "lake_avgout": "lake_avgout",
+        # Reservoirs
+        "res_areas": "reservoir_areas", #TODO: rename to "res locs" to avoid confusion with res_area
+        "res_outlet": "reservoir_outlet", #was reslocs
+        "res_area": "reservoir_area",
+        "res_maxvolume": "reservoir_maxvolume",
+        "res_targetmin": "reservoir_targetmin",
+        "res_targetmax": "reservoir_targetmax",
+        "res_demand": "reservoir_demand",
+        "res_maxrelease": "reservoir_maxrelease",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -563,7 +619,7 @@ class WflowModel(Model):
             fill=fill,
             fill_outliers=kwargs.pop("fill_outliers", fill),
             min_wth=min_wth,
-            mask_names=["lakeareas", "resareas", "glacareas"],
+            mask_names=["lake_areas", "res_areas", "glac_areas"],
             predictor=predictor,
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
@@ -580,13 +636,13 @@ class WflowModel(Model):
         lulc_mapping_fn=None,
         lulc_vars=[
             "landuse",
-            "Kext",
-            "N",
-            "PathFrac",
-            "RootingDepth",
-            "Sl",
-            "Swood",
-            "WaterFrac",
+            "kext",
+            "land_n",
+            "pathfrac",
+            "rootingdepth",
+            "specific_leaf",
+            "storage_wood",
+            "waterfrac",
         ],
     ):
         """
@@ -602,13 +658,13 @@ class WflowModel(Model):
         Adds model layers:
 
         * **landuse** map: Landuse class [-]
-        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
-        * **Sl** map: Specific leaf storage [mm]
-        * **Swood** map: Fraction of wood in the vegetation/plant [-]
-        * **RootingDepth** map: Length of vegetation roots [mm]
-        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **kext** map: Extinction coefficient in the canopy gap fraction equation [-]
+        * **specific_leaf** map: Specific leaf storage [mm]
+        * **storage_wood** map: Fraction of wood in the vegetation/plant [-]
+        * **rootingdepth** map: Length of vegetation roots [mm]
+        * **pathfrac** map: The fraction of compacted or urban area per grid cell [-]
+        * **waterfrac** map: The fraction of open water per grid cell [-]
+        * **land_n** map: Manning Roughness [-]
 
         Parameters
         ----------
@@ -618,7 +674,7 @@ class WflowModel(Model):
             Path to a mapping csv file from landuse in source name to parameter values in lulc_vars.
         lulc_vars : list
             List of landuse parameters to keep.\
-            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
+            By default ["landuse","kext","land_n","pathfrac","rootingdepth","specific_leaf","storage_wood","waterfrac"]
         """
         self.logger.info(f"Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -676,7 +732,7 @@ class WflowModel(Model):
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_staticmaps(da_lai.rename(rmdict), name="LAI")
+        self.set_staticmaps(da_lai.rename(rmdict), name=self._MAPS["LAI"])
 
     def setup_gauges(
         self,
@@ -872,7 +928,7 @@ class WflowModel(Model):
                     da_basins = flw.basin_map(
                         self.staticmaps, self.flwdir, idxs=idxs, ids=ids
                     )[0]
-                    mapname = self._MAPS["basins"] + "_" + basename
+                    mapname = f'{str(self._MAPS["basins"])}_{basename}'
                     self.set_staticmaps(da_basins, name=mapname)
                     gdf_basins = self.staticmaps[mapname].raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
@@ -948,16 +1004,16 @@ class WflowModel(Model):
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
-            "input.lateral.river.lake.area": "LakeArea",
-            "input.lateral.river.lake.areas": "wflow_lakeareas",
-            "input.lateral.river.lake.b": "Lake_b",
-            "input.lateral.river.lake.e": "Lake_e",
-            "input.lateral.river.lake.locs": "wflow_lakelocs",
-            "input.lateral.river.lake.outflowfunc": "LakeOutflowFunc",
-            "input.lateral.river.lake.storfunc": "LakeStorFunc",
-            "input.lateral.river.lake.threshold": "LakeThreshold",
-            "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
-            "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
+            "input.lateral.river.lake.area": self._MAPS["lake_area"],#"LakeArea",
+            "input.lateral.river.lake.areas": self._MAPS["lake_areas"],#"wflow_lakeareas",
+            "input.lateral.river.lake.b": self._MAPS["lake_b"],#"Lake_b",
+            "input.lateral.river.lake.e": self._MAPS["lake_e"],#"Lake_e",
+            "input.lateral.river.lake.locs": self._MAPS["lake_outlet"],#"wflow_lakelocs",
+            "input.lateral.river.lake.outflowfunc": self._MAPS["lake_outflowfunc"],#"LakeOutflowFunc",
+            "input.lateral.river.lake.storfunc": self._MAPS["lake_storfunc"],#"LakeStorFunc",
+            "input.lateral.river.lake.threshold": self._MAPS["lake_threshold"],#"LakeThreshold",
+            "input.lateral.river.lake.linkedlakelocs": self._MAPS["lake_linkedloc"],#"LinkedLakeLocs",
+            "input.lateral.river.lake.waterlevel": self._MAPS["lake_avglevel"],#"LakeAvgLevel",
         }
 
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
@@ -968,40 +1024,40 @@ class WflowModel(Model):
             # rename to param values
             gdf_org = gdf_org.rename(
                 columns={
-                    "Area_avg": "LakeArea",
-                    "Depth_avg": "LakeAvgLevel",
-                    "Dis_avg": "LakeAvgOut",
+                    "Area_avg":  self._MAPS["lake_area"],
+                    "Depth_avg": self._MAPS["lake_avglevel"],
+                    "Dis_avg":  self._MAPS["lake_avgout"],
                 }
             )
             # Minimum value for LakeAvgOut
-            LakeAvgOut = gdf_org["LakeAvgOut"].copy()
-            gdf_org["LakeAvgOut"] = np.maximum(gdf_org["LakeAvgOut"], 0.01)
-            gdf_org["Lake_b"] = gdf_org["LakeAvgOut"].values / (
-                gdf_org["LakeAvgLevel"].values
+            LakeAvgOut = gdf_org[self._MAPS["lake_avgout"]].copy()
+            gdf_org[self._MAPS["lake_avgout"]] = np.maximum(gdf_org[self._MAPS["lake_avgout"]], 0.01)
+            gdf_org[self._MAPS["lake_b"]] = gdf_org[self._MAPS["lake_avgout"]].values / (
+                gdf_org[self._MAPS["lake_avglevel"]].values
             ) ** (2)
-            gdf_org["Lake_e"] = 2
-            gdf_org["LakeStorFunc"] = 1
-            gdf_org["LakeOutflowFunc"] = 3
-            gdf_org["LakeThreshold"] = 0.0
-            gdf_org["LinkedLakeLocs"] = 0
+            gdf_org[self._MAPS["lake_e"]] = 2
+            gdf_org[self._MAPS["lake_storfunc"]] = 1
+            gdf_org[self._MAPS["lake_outflowfunc"]] = 3
+            gdf_org[self._MAPS["lake_threshold"]] = 0.0
+            gdf_org[self._MAPS["lake_linkedloc"]] = 0
 
             # Check if some LakeAvgOut values have been replaced
-            if not np.all(LakeAvgOut == gdf_org["LakeAvgOut"]):
+            if not np.all(LakeAvgOut == gdf_org[self._MAPS["lake_avgout"]]):
                 self.logger.warning(
                     "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
                 )
 
             lake_params = [
                 "waterbody_id",
-                "LakeArea",
-                "LakeAvgLevel",
-                "LakeAvgOut",
-                "Lake_b",
-                "Lake_e",
-                "LakeStorFunc",
-                "LakeOutflowFunc",
-                "LakeThreshold",
-                "LinkedLakeLocs",
+                self._MAPS["lake_area"],
+                self._MAPS["lake_avglevel"],
+                self._MAPS["lake_avgout"],
+                self._MAPS["lake_b"],
+                self._MAPS["lake_e"],
+                self._MAPS["lake_storfunc"],
+                self._MAPS["lake_outflowfunc"],
+                self._MAPS["lake_threshold"],
+                self._MAPS["lake_linkedloc"],
             ]
 
             gdf_org_points = gpd.GeoDataFrame(
@@ -1085,26 +1141,26 @@ class WflowModel(Model):
         """
         # rename to wflow naming convention
         tbls = {
-            "resarea": "ResSimpleArea",
-            "resdemand": "ResDemand",
-            "resfullfrac": "ResTargetFullFrac",
-            "resminfrac": "ResTargetMinFrac",
-            "resmaxrelease": "ResMaxRelease",
-            "resmaxvolume": "ResMaxVolume",
+            "resarea": self._MAPS["res_area"],
+            "resdemand": self._MAPS["res_demand"],
+            "resfullfrac": self._MAPS["res_targetmax"],
+            "resminfrac": self._MAPS["res_targetmin"],
+            "resmaxrelease": self._MAPS["res_maxrelease"],
+            "resmaxvolume": self._MAPS["res_maxvolume"],
             "resid": "expr1",
         }
 
         res_toml = {
             "model.reservoirs": True,
             "state.lateral.river.reservoir.volume": "volume_reservoir",
-            "input.lateral.river.reservoir.area": "ResSimpleArea",
-            "input.lateral.river.reservoir.areas": "wflow_reservoirareas",
-            "input.lateral.river.reservoir.demand": "ResDemand",
-            "input.lateral.river.reservoir.locs": "wflow_reservoirlocs",
-            "input.lateral.river.reservoir.maxrelease": "ResMaxRelease",
-            "input.lateral.river.reservoir.maxvolume": "ResMaxVolume",
-            "input.lateral.river.reservoir.targetfullfrac": "ResTargetFullFrac",
-            "input.lateral.river.reservoir.targetminfrac": "ResTargetMinFrac",
+            "input.lateral.river.reservoir.area": self._MAPS["res_area"], #ResSimpleArea",
+            "input.lateral.river.reservoir.areas": self._MAPS["res_areas"], #wflow_reservoirareas",
+            "input.lateral.river.reservoir.demand": self._MAPS["res_demand"], #ResDemand",
+            "input.lateral.river.reservoir.locs": self._MAPS["res_outlet"], #wflow_reservoirlocs",
+            "input.lateral.river.reservoir.maxrelease": self._MAPS["res_maxrelease"], #ResMaxRelease",
+            "input.lateral.river.reservoir.maxvolume": self._MAPS["res_maxvolume"], #ResMaxVolume",
+            "input.lateral.river.reservoir.targetfullfrac": self._MAPS["res_targetmax"], #ResTargetFullFrac",
+            "input.lateral.river.reservoir.targetminfrac": self._MAPS["res_targetmin"], #ResTargetMinFrac",
         }
 
         gdf_org, ds_res = self._setup_waterbodies(reservoirs_fn, "reservoir", min_area)
@@ -1118,12 +1174,12 @@ class WflowModel(Model):
             # if present use directly
             resattributes = [
                 "waterbody_id",
-                "ResSimpleArea",
-                "ResMaxVolume",
-                "ResTargetMinFrac",
-                "ResTargetFullFrac",
-                "ResDemand",
-                "ResMaxRelease",
+                self._MAPS["res_area"],
+                self._MAPS["res_maxvolume"],
+                self._MAPS["res_targetmin"],
+                self._MAPS["res_targetmax"],
+                self._MAPS["res_demand"],
+                self._MAPS["res_maxrelease"],
             ]
             if np.all(np.isin(resattributes, gdf_org.columns)):
                 intbl_reservoirs = gdf_org[resattributes]
@@ -1279,7 +1335,8 @@ class WflowModel(Model):
             soil_fn,
             logger=self.logger,
         ).reset_coords(drop=True)
-        self.set_staticmaps(dsout)
+        rmdict = {k: v for k, v in self._MAPS.items() if k in dsout.data_vars}
+        self.set_staticmaps(dsout.rename(rmdict))
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
@@ -1315,11 +1372,11 @@ class WflowModel(Model):
         glac_toml = {
             "model.glacier": True,
             "state.vertical.glacierstore": "glacierstore",
-            "input.vertical.glacierstore": "wflow_glacierstore",
-            "input.vertical.glacierfrac": "wflow_glacierfrac",
-            "input.vertical.g_cfmax": "G_Cfmax",
-            "input.vertical.g_tt": "G_TT",
-            "input.vertical.g_sifrac": "G_SIfrac",
+            "input.vertical.glacierstore": self._MAPS["glac_store"], #wflow_glacierstore",
+            "input.vertical.glacierfrac": self._MAPS["glac_fracs"], #wflow_glacierfrac",
+            "input.vertical.g_cfmax": self._MAPS["glac_cfmax"], #G_Cfmax",
+            "input.vertical.g_tt": self._MAPS["glac_tt"], #G_TT",
+            "input.vertical.g_sifrac": self._MAPS["glac_sifrac"], #G_SIfrac",
         }
         # retrieve data for basin
         self.logger.info(f"Preparing glacier maps.")
@@ -1375,6 +1432,10 @@ class WflowModel(Model):
             "param_name: value" pairs for constant staticmaps.
 
         """
+        # TODO: set values directly in toml (self.set_config("input.vertical.PARAM.value", value))
+        # 1. check if key already present in toml (without .value), throw warning if this is the case
+        # 2. check if key already present in toml (with .value), throw warning
+        # 3. add param.value = value to toml, in the correct section
         for key, value in kwargs.items():
             nodata = np.dtype(dtype).type(nodata)
             da_param = xr.where(
@@ -1753,6 +1814,7 @@ class WflowModel(Model):
 
     def read_staticmaps_pcr(self, crs=4326, **kwargs):
         """Read and staticmaps at <root/staticmaps> and parse to xarray"""
+        #TODO LAI and c names are currently fixed
         if self._read and "chunks" not in kwargs:
             kwargs.update(chunks={"y": -1, "x": -1})
         fn = join(self.root, "staticmaps", f"*.map")
@@ -1786,6 +1848,7 @@ class WflowModel(Model):
 
     def write_staticmaps_pcr(self):
         """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
+        #TODO LAI and c names are currently fixed
         if not self._write:
             raise IOError("Model opened in read-only mode")
         ds_out = self.staticmaps
@@ -2294,39 +2357,39 @@ class WflowModel(Model):
 
         # Update reservoir and lakes
         remove_reservoir = False
-        if self._MAPS["resareas"] in self.staticmaps:
-            reservoir = self.staticmaps[self._MAPS["resareas"]]
+        if self._MAPS["res_areas"] in self.staticmaps:
+            reservoir = self.staticmaps[self._MAPS["res_areas"]]
             if not np.any(reservoir > 0):
                 remove_reservoir = True
                 remove_maps = [
-                    self._MAPS["resareas"],
-                    self._MAPS["reslocs"],
-                    "ResSimpleArea",
-                    "ResDemand",
-                    "ResTargetFullFrac",
-                    "ResTargetMinFrac",
-                    "ResMaxRelease",
-                    "ResMaxVolume",
+                    self._MAPS["res_areas"],
+                    self._MAPS["res_outlet"],
+                    self._MAPS["res_area"],
+                    self._MAPS["res_demand"],
+                    self._MAPS["res_targetmax"],
+                    self._MAPS["res_targetmin"],
+                    self._MAPS["res_maxrelease"],
+                    self._MAPS["res_maxvolume"],
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
         remove_lake = False
-        if self._MAPS["lakeareas"] in self.staticmaps:
-            lake = self.staticmaps[self._MAPS["lakeareas"]]
+        if self._MAPS["lake_areas"] in self.staticmaps:
+            lake = self.staticmaps[self._MAPS["lake_areas"]]
             if not np.any(lake > 0):
                 remove_lake = True
                 remove_maps = [
-                    self._MAPS["lakeareas"],
-                    self._MAPS["lakelocs"],
-                    "LinkedLakeLocs",
-                    "LakeStorFunc",
-                    "LakeOutflowFunc",
-                    "LakeArea",
-                    "LakeAvgLevel",
-                    "LakeAvgOut",
-                    "LakeThreshold",
-                    "Lake_b",
-                    "Lake_e",
+                    self._MAPS["lake_areas"],
+                    self._MAPS["lake_outlet"],
+                    self._MAPS["lake_linkedloc"],
+                    self._MAPS["lake_storfunc"],
+                    self._MAPS["lake_outflowfunc"],
+                    self._MAPS["lake_area"],
+                    self._MAPS["lake_avglevel"],
+                    self._MAPS["lake_avgout"],
+                    self._MAPS["lake_threshold"],
+                    self._MAPS["lake_b"],
+                    self._MAPS["lake_e"],
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 

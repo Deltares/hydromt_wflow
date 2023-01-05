@@ -24,7 +24,7 @@ def glaciermaps(
     - wflow_glacierareas: glacier IDs [ID]\
     - wflow_glacierfrac: area fraction of glacier per cell [-]\
     - wflow_glacierstore: storage (volume) of glacier per cell [mm]\
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -48,7 +48,7 @@ def glaciermaps(
         dtype=None,
         sindex=False,
     ).astype("int32")
-    ds_out = ds_out.rename("glacareas")
+    ds_out = ds_out.rename("glac_areas")
     ds_out = ds_out.to_dataset()
 
     # Calculate glacier storage for each glacier
@@ -107,7 +107,7 @@ def glaciermaps(
 
     # reproject back to original projection
     # Create the rasterized glacier storage map
-    ds_out["glacstore"] = ds_like.raster.rasterize(
+    ds_out["glac_store"] = ds_like.raster.rasterize(
         gdf_grid,
         col_name="glacierstore",
         nodata=0,
@@ -117,7 +117,7 @@ def glaciermaps(
     ).astype("float32")
 
     # Create the rasterized glacier fraction map
-    ds_out["glacfracs"] = ds_like.raster.rasterize(
+    ds_out["glac_fracs"] = ds_like.raster.rasterize(
         gdf_grid,
         col_name="glacierfrac",
         nodata=0,
@@ -126,9 +126,9 @@ def glaciermaps(
         sindex=False,
     ).astype("float32")
 
-    ds_out["glacareas"].raster.set_nodata(0)
-    ds_out["glacstore"].raster.set_nodata(0)
-    ds_out["glacfracs"].raster.set_nodata(0)
+    ds_out["glac_areas"].raster.set_nodata(0)
+    ds_out["glac_store"].raster.set_nodata(0)
+    ds_out["glac_fracs"].raster.set_nodata(0)
     return ds_out
 
 

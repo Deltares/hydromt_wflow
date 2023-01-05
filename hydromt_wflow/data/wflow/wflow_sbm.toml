@@ -35,10 +35,10 @@ path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
 
 # these are not directly part of the model
-gauges = "wflow_gauges"
+gauges = "gauges"
 ldd = "wflow_ldd"
-river_location = "wflow_river"
-subcatchment = "wflow_subcatch"
+river_location = "rivers"
+subcatchment = "subcatch"
 
 # specify the internal IDs of the parameters which vary over time
 # the external name mapping needs to be below together with the other mappings
@@ -51,49 +51,49 @@ forcing = [
 cyclic = ["vertical.leaf_area_index"]
 
 [input.vertical]
-altitude = "wflow_dem"
+altitude = "altitude"
 c = "c"
 cf_soil = "cf_soil"
-cfmax = "Cfmax"
-e_r = "EoverR"
+cfmax = "cfmax"
+e_r = "e_r"
 f = "f"
-infiltcappath = "InfiltCapPath"
-infiltcapsoil = "InfiltCapSoil"
-kext = "Kext"
-"kv₀" = "KsatVer"
-leaf_area_index = "LAI" # TODO support cyclic
+infiltcappath = "infiltcappath"
+infiltcapsoil = "infiltcapsoil"
+kext = "kext"
+kv_0 = "kv_0"
+leaf_area_index = "LAI" # cyclic
 m = "M_"
-maxleakage = "MaxLeakage"
-pathfrac = "PathFrac"
+maxleakage = "maxleakage"
+pathfrac = "pathfrac"
 potential_evaporation = "pet" # forcing
 precipitation = "precip" # forcing
 rootdistpar = "rootdistpar"
-rootingdepth = "RootingDepth"
-soilminthickness = "SoilMinThickness"
-soilthickness = "SoilThickness"
-specific_leaf = "Sl"
-storage_wood = "Swood"
+rootingdepth = "rootingdepth"
+soilminthickness = "soilminthickness"
+soilthickness = "soilthickness"
+specific_leaf = "specific_leaf"
+storage_wood = "storage_wood"
 temperature = "temp" # forcing
-tt = "TT"
-tti = "TTI"
-ttm = "TTM"
-water_holding_capacity = "WHC"
-waterfrac = "WaterFrac"
-"θᵣ" = "thetaR"
-"θₛ" = "thetaS"
+tt = "tt"
+tti = "tti"
+ttm = "ttm"
+water_holding_capacity = "water_holding_capacity"
+waterfrac = "waterfrac"
+"θᵣ" = "theta_r"
+"θₛ" = "theta_s"
 
 [input.lateral.river]
-length = "wflow_riverlength"
-n = "N_River"
-slope = "RiverSlope"
-width = "wflow_riverwidth"
+length = "river_length"
+n = "river_n"
+slope = "river_slope"
+width = "river_width"
 
 [input.lateral.subsurface]
-ksathorfrac = "KsatHorFrac"
+ksathorfrac = "ksathorfrac"
 
 [input.lateral.land]
-n = "N"
-slope = "Slope"
+n = "land_n"
+slope = "land_slope"
 
 [state]
 path_input = "instate/instates.nc"
