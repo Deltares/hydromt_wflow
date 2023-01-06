@@ -933,6 +933,7 @@ class WflowModel(Model):
                         self.staticmaps, self.flwdir, idxs=idxs, ids=ids
                     )[0]
                     mapname = f'{str(self._MAPS["basins"][0])}_{basename}'
+                    self.set_config(f"input.subcatchment_{basename}", f"{mapname}") #TODO: check if works
                     self.set_staticmaps(da_basins, name=mapname)
                     gdf_basins = self.staticmaps[mapname].raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
