@@ -58,83 +58,84 @@ class WflowModel(Model):
     _GEOMS = {}
     # Mapping of hydromt internal names to wflow names
     _MAPS = {
+        # "hydromt_name": ["default_wflow_name": "wflow_toml_location"]
         # TODO: Update wflow_names when reading toml
-        "flwdir": "wflow_ldd",
-        "elevtn": "altitude",
-        "subelv": "dem_subgrid",
-        "uparea": "wflow_uparea",
-        "strord": "wflow_streamorder",
-        "lndslp": "land_slope",
+        "flwdir": ["wflow_ldd", "input.ldd"],
+        "elevtn": ["altitude", "input.vertical.altitude"],
+        "subelv": ["dem_subgrid", "none"],
+        "uparea": ["wflow_uparea", "none"],
+        "strord": ["wflow_streamorder", "none"],
+        "lndslp": ["land_slope", "input.lateral.land.slope"],
         # Gauges and basins
-        "gauges": "gauges",
-        "basins": "subcatch",
+        "gauges": ["gauges", "input.gauges"],
+        "basins": ["subcatch", "input.subcatchment"],
         # River maps
-        "rivmsk": "rivers",
-        "rivlen": "river_length",
-        "rivwth": "river_width",
-        "rivdph": "river_depth",
-        "rivslp": "river_slope",
-        "rivman": "river_n",
+        "rivmsk": ["river_location", "input.river_location"],
+        "rivlen": ["river_length", "input.lateral.river.length"],
+        "rivwth": ["river_width", "input.lateral.river.width"],
+        "rivdph": ["river_depth", "input.lateral.river.bankfull_depth"],
+        "rivslp": ["river_slope", "input.lateral.river.slope"],
+        "rivman": ["river_n", "input.lateral.river.n"],
         # Land use maps
-        "landuse": "landuse",
-        "kext": "kext",
-        "lndman": "land_n",
-        "pathfrac": "pathfrac",
-        "rootingdepth": "rootingdepth",
-        "specific_leaf": "specific_leaf",
-        "storage_wood": "storage_wood",
-        "waterfrac": "waterfrac",
-        "LAI": "LAI",
+        "landuse": ["landuse", "none"],
+        "kext": ["kext", "input.vertical.kext"],
+        "lndman": ["land_n", "input.lateral.land.n"],
+        "pathfrac": ["pathfrac", "input.vertical.pathfrac"],
+        "rootingdepth": ["rootingdepth", "input.vertical.rootingdepth"],
+        "specific_leaf": ["specific_leaf", "input.veritcal.specific_leaf"],
+        "storage_wood": ["storage_wood", "input.vertical.storage_wood"],
+        "waterfrac": ["waterfrac", "input.vertical.waterfrac"],
+        "LAI": ["LAI", "input.vertical.leaf_area_index"],
         # Snow and glacier
-        "snow_cfmax": "cfmax",
-        "snow_tt": "tt",
-        "snow_tti": "tti",
-        "snow_ttm": "ttm",
-        "glac_areas": "glacier_areas",
-        "glac_fracs": "glacier_frac",
-        "glac_store": "glacier_store",
-        "glac_tt": "g_tt",
-        "glac_cfmax": "g_cfmax",
-        "glac_sifrac": "g_sifrac",
+        "snow_cfmax": ["snow_cfmax", "input.vertical.cfmax"],
+        "snow_tt": ["snow_tt", "input.vertical.tt"],
+        "snow_tti": ["snow_tti", "input.vertical.tti"],
+        "snow_ttm": ["snow_ttm", "input.vertical.ttm"],
+        "glac_areas": ["glacier_areas", "none"],
+        "glac_fracs": ["glacier_frac", "input.vertical.glacierfrac"],
+        "glac_store": ["glacier_store", "input.vertical.glacierstore"],
+        "glac_tt": ["glacier_tt", "input.vertical.g_tt"],
+        "glac_cfmax": ["glacier_cfmax", "input.vertical.g_cfmax"],
+        "glac_sifrac": ["glacier_sifrac", "input.vertical.g_sifrac"],
         # Soil
-        "theta_r": "theta_r",
-        "theta_s": "theta_s",
-        "kv_0": "kv_0",
-        "soil_thickness": "soil_thickness",
-        "soil_minthickness": "soil_minthickness",
-        "soil_m": "m",
-        "soil_m_": "m_",
-        "soil_m_orig": "m_original",
-        "soil_m_orig_": "m_original_",
-        "soil_f": "f",
-        "soil_f_": "f_",
-        "soil_c": "c",
-        "soil_class": "soil_class", #was wflow_soil
+        "theta_r": ["theta_r", ["input.vertical.theta_r", "input.vertical.θᵣ"]],
+        "theta_s": ["theta_s", ["input.vertical.theta_s", "input.vertical.θₛ"]],
+        "kv_0": ["kv_0", ["input.vertical.kv_0", "input.vertical.kv₀"]],
+        "soil_thickness": ["soil_thickness", "input.vertical.soilthickness"],
+        "soil_minthickness": ["soil_minthickness", "input.vertical.soilminthickness"],
+        "soil_m": ["m", "none"],
+        "soil_m_": ["m_", "input.vertical.m"],
+        "soil_m_orig": ["m_original", "none"],
+        "soil_m_orig_": ["m_original_", "none"],
+        "soil_f": ["f", "input.vertical.f"],
+        "soil_f_": ["f_", "none"],
+        "soil_c": ["c", "input.vertical.c"],
+        "soil_class": ["soil_class", "none"], #was wflow_soil
         # Forcing
-        "temp": "temp",
-        "precip": "precip",
-        "pet": "pet",
+        "temp": ["temp", "input.vertical.temperature"],
+        "precip": ["precip", "input.vertical.precipitation"],
+        "pet": ["pet", "input.vertical.potential_evaporation"],
         # Lakes
-        "lake_areas": "lake_areas", #TODO: rename to "lake locs" to avoid confusion with lake_area
-        "lake_outlet": "lake_outlet", #was lakelocs
-        "lake_area": "lake_area",
-        "lake_b": "lake_b",
-        "lake_e": "lake_e",
-        "lake_outflowfunc": "lake_outflowfunc",
-        "lake_storfunc": "lake_storfunc",
-        "lake_threshold": "lake_threshold",
-        "lake_linkedloc": "lake_linkedloc",
-        "lake_avglevel": "lake_avglevel",
-        "lake_avgout": "lake_avgout",
+        "lake_areas": ["lake_areas", "input.lateral.river.lake.areas"], #TODO: rename to "lake locs" to avoid confusion with lake_area
+        "lake_outlet": ["lake_outlet", "input.lateral.river.lake.locs"], #was lakelocs
+        "lake_area": ["lake_area", "input.lateral.river.lake.area"],
+        "lake_b": ["lake_b", "input.lateral.river.lake.b"],
+        "lake_e": ["lake_e", "input.lateral.river.lake.e"],
+        "lake_outflowfunc": ["lake_outflowfunc", "input.lateral.river.lake.outflowfunc"],
+        "lake_storfunc": ["lake_storfunc", "input.lateral.river.lake.storfunc"],
+        "lake_threshold": ["lake_threshold", "input.lateral.river.lake.threshold"],
+        "lake_linkedloc": ["lake_linkedloc", "input.lateral.river.lake.linkedlakelocs"],
+        "lake_avglevel": ["lake_avglevel", "input.lateral.river.lake.waterlevel"],
+        "lake_avgout": ["lake_avgout", "none"],
         # Reservoirs
-        "res_areas": "reservoir_areas", #TODO: rename to "res locs" to avoid confusion with res_area
-        "res_outlet": "reservoir_outlet", #was reslocs
-        "res_area": "reservoir_area",
-        "res_maxvolume": "reservoir_maxvolume",
-        "res_targetmin": "reservoir_targetmin",
-        "res_targetmax": "reservoir_targetmax",
-        "res_demand": "reservoir_demand",
-        "res_maxrelease": "reservoir_maxrelease",
+        "res_areas": ["reservoir_areas", "input.lateral.river.reservoir.areas"], #TODO: rename to "res locs" to avoid confusion with res_area
+        "res_outlet": ["reservoir_outlet", "input.lateral.river.reservoir.locs"], #was reslocs
+        "res_area": ["reservoir_area", "input.lateral.river.reservoir.area"],
+        "res_maxvolume": ["reservoir_maxvolume", "input.lateral.river.reservoir.maxvolume"],
+        "res_targetmin": ["reservoir_targetmin", "input.lateral.river.reservoir.targetminfrac"],
+        "res_targetmax": ["reservoir_targetmax", "input.lateral.river.reservoir.targetfullfrac"],
+        "res_demand": ["reservoir_demand", "input.lateral.river.reservoir.demand"],
+        "res_maxrelease": ["reservoir_maxrelease", "input.lateral.river.reservoir.maxrelease"],
     }
     _FOLDERS = [
         "staticgeoms",
@@ -163,6 +164,9 @@ class WflowModel(Model):
         # wflow specific
         self._intbl = dict()
         self._flwdir = None
+
+        if mode != "w":
+            self._update_MAPS()
 
     # COMPONENTS
     def setup_basemaps(
@@ -277,7 +281,7 @@ class WflowModel(Model):
             )
             ds_base["flwdir"] = da_flwdir
         # Rename and add to staticmaps
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_base.data_vars}
+        rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_base.data_vars}
         self.set_staticmaps(ds_base.rename(rmdict))
 
         # setup topography maps
@@ -285,7 +289,7 @@ class WflowModel(Model):
             ds=ds_org, ds_like=self.staticmaps, method="average", logger=self.logger
         )
         ds_topo["lndslp"] = np.maximum(ds_topo["lndslp"], 0.0)
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
+        rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_topo.data_vars}
         self.set_staticmaps(ds_topo.rename(rmdict))
         # set basin geometry
         self.logger.debug(f"Adding region vector to staticgeoms.")
@@ -387,7 +391,7 @@ class WflowModel(Model):
 
         # get rivmsk, rivlen, rivslp
         # read model maps and revert wflow to hydromt map names
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        inv_rename = {v[0]: k for k, v in self._MAPS.items() if v[0] in self.staticmaps}
         ds_riv = workflows.river(
             ds=ds_hydro,
             ds_model=self.staticmaps.rename(inv_rename),
@@ -398,12 +402,12 @@ class WflowModel(Model):
             logger=self.logger,
         )[0]
         dvars = ["rivmsk", "rivlen", "rivslp"]
-        rmdict = {k: self._MAPS.get(k, k) for k in dvars}
+        rmdict = {k: self._MAPS.get(k, k)[0] for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 
         # TODO make separate workflows.river_manning  method
         # Make N_River map from csv file with mapping between streamorder and N_River value
-        strord = self.staticmaps[self._MAPS["strord"]].copy()
+        strord = self.staticmaps[self._MAPS["strord"][0]].copy()
         df = pd.read_csv(rivman_mapping_fn, index_col=0, sep=",|;", engine="python")
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
@@ -428,7 +432,7 @@ class WflowModel(Model):
                 river_geom_fn, geom=self.region
             )
             # reread model data to get river maps
-            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            inv_rename = {v[0]: k for k, v in self._MAPS.items() if v[0] in self.staticmaps}
             ds_riv1 = workflows.river_bathymetry(
                 ds_model=self.staticmaps.rename(inv_rename),
                 gdf_riv=gdf_riv,
@@ -439,10 +443,10 @@ class WflowModel(Model):
                 logger=self.logger,
                 **kwargs,
             )
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
+            rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
             self.set_staticmaps(ds_riv1.rename(rmdict))
             # update config
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"][0])
 
         self.logger.debug(f"Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
@@ -508,9 +512,9 @@ class WflowModel(Model):
         name = f"hydrodem{postfix}_D{connectivity}"
         self.logger.info(f"Preparing {name} map for routing.")
         ds_out = flw.dem_adjust(
-            da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+            da_flwdir=self.staticmaps[self._MAPS["flwdir"][0]],
             da_elevtn=self.staticmaps[elevtn_map],
-            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"][0]],
             flwdir=self.flwdir,
             connectivity=connectivity,
             river_d8=True,
@@ -524,7 +528,7 @@ class WflowModel(Model):
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
         if river_routing == "local-inertial":
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"][0])
             self.set_config("input.lateral.river.bankfull_elevation", name)
         if land_routing == "local-inertial":
             self.set_config("input.lateral.land.elevation", name)
@@ -591,7 +595,7 @@ class WflowModel(Model):
             'The "setup_riverwidth" method has been deprecated and will soon be removed. '
             'You can now use the "setup_river" method for all river parameters.'
         )
-        if not self._MAPS["rivmsk"] in self.staticmaps:
+        if not self._MAPS["rivmsk"][0] in self.staticmaps:
             raise ValueError(
                 'The "setup_riverwidth" method requires to run setup_river method first.'
             )
@@ -611,7 +615,7 @@ class WflowModel(Model):
             da_climate.name = climate_fn
             data["da_climate"] = da_climate
 
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        inv_rename = {v[0]: k for k, v in self._MAPS.items() if v[0] in self.staticmaps}
         da_rivwth = workflows.river_width(
             ds_like=self.staticmaps.rename(inv_rename),
             flwdir=self.flwdir,
@@ -628,7 +632,7 @@ class WflowModel(Model):
             **kwargs,
         )
 
-        self.set_staticmaps(da_rivwth, name=self._MAPS["rivwth"])
+        self.set_staticmaps(da_rivwth, name=self._MAPS["rivwth"][0])
 
     def setup_lulcmaps(
         self,
@@ -696,7 +700,7 @@ class WflowModel(Model):
             params=lulc_vars,
             logger=self.logger,
         )
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
+        rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_staticmaps(ds_lulc_maps.rename(rmdict))
 
     def setup_laimaps(self, lai_fn="modis_lai"):
@@ -732,7 +736,7 @@ class WflowModel(Model):
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_staticmaps(da_lai.rename(rmdict), name=self._MAPS["LAI"])
+        self.set_staticmaps(da_lai.rename(rmdict), name=self._MAPS["LAI"][0])
 
     def setup_gauges(
         self,
@@ -803,10 +807,10 @@ class WflowModel(Model):
             self.logger.info(f"Gauges locations set based on river outlets.")
             da, idxs, ids = flw.gauge_map(self.staticmaps, idxs=self.flwdir.idxs_pit)
             # Only keep river outlets for gauges
-            da = da.where(self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"][0]] != 0, da.raster.nodata)
             ids_da = np.unique(da.values[da.values > 0])
             idxs_da = idxs[np.isin(ids, ids_da)]
-            self.set_staticmaps(da, name=self._MAPS["gauges"])
+            self.set_staticmaps(da, name=self._MAPS["gauges"][0])
             points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
             gdf = gpd.GeoDataFrame(
                 index=ids_da.astype(np.int32), geometry=points, crs=self.crs
@@ -861,7 +865,7 @@ class WflowModel(Model):
                 ids = gdf.index.values
 
                 if snap_to_river and mask is None:
-                    mask = self.staticmaps[self._MAPS["rivmsk"]].values
+                    mask = self.staticmaps[self._MAPS["rivmsk"][0]].values
                 da, idxs, ids = flw.gauge_map(
                     self.staticmaps,
                     idxs=idxs,
@@ -874,13 +878,13 @@ class WflowModel(Model):
                 if snap_to_river:
                     ids_old = ids.copy()
                     da = da.where(
-                        self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
+                        self.staticmaps[self._MAPS["rivmsk"][0]] != 0, da.raster.nodata
                     )
                     ids_new = np.unique(da.values[da.values > 0])
                     idxs = idxs[np.isin(ids_old, ids_new)]
                     ids = da.values.flat[idxs]
                 # Add to staticmaps
-                mapname = f'{str(self._MAPS["gauges"])}_{basename}'
+                mapname = f'{str(self._MAPS["gauges"][0])}_{basename}'
                 self.set_staticmaps(da, name=mapname)
 
                 # geoms
@@ -928,7 +932,7 @@ class WflowModel(Model):
                     da_basins = flw.basin_map(
                         self.staticmaps, self.flwdir, idxs=idxs, ids=ids
                     )[0]
-                    mapname = f'{str(self._MAPS["basins"])}_{basename}'
+                    mapname = f'{str(self._MAPS["basins"][0])}_{basename}'
                     self.set_staticmaps(da_basins, name=mapname)
                     gdf_basins = self.staticmaps[mapname].raster.vectorize()
                     self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
@@ -1004,60 +1008,60 @@ class WflowModel(Model):
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
-            "input.lateral.river.lake.area": self._MAPS["lake_area"],#"LakeArea",
-            "input.lateral.river.lake.areas": self._MAPS["lake_areas"],#"wflow_lakeareas",
-            "input.lateral.river.lake.b": self._MAPS["lake_b"],#"Lake_b",
-            "input.lateral.river.lake.e": self._MAPS["lake_e"],#"Lake_e",
-            "input.lateral.river.lake.locs": self._MAPS["lake_outlet"],#"wflow_lakelocs",
-            "input.lateral.river.lake.outflowfunc": self._MAPS["lake_outflowfunc"],#"LakeOutflowFunc",
-            "input.lateral.river.lake.storfunc": self._MAPS["lake_storfunc"],#"LakeStorFunc",
-            "input.lateral.river.lake.threshold": self._MAPS["lake_threshold"],#"LakeThreshold",
-            "input.lateral.river.lake.linkedlakelocs": self._MAPS["lake_linkedloc"],#"LinkedLakeLocs",
-            "input.lateral.river.lake.waterlevel": self._MAPS["lake_avglevel"],#"LakeAvgLevel",
+            "input.lateral.river.lake.area": self._MAPS["lake_area"][0],#"LakeArea",
+            "input.lateral.river.lake.areas": self._MAPS["lake_areas"][0],#"wflow_lakeareas",
+            "input.lateral.river.lake.b": self._MAPS["lake_b"][0],#"Lake_b",
+            "input.lateral.river.lake.e": self._MAPS["lake_e"][0],#"Lake_e",
+            "input.lateral.river.lake.locs": self._MAPS["lake_outlet"][0],#"wflow_lakelocs",
+            "input.lateral.river.lake.outflowfunc": self._MAPS["lake_outflowfunc"][0],#"LakeOutflowFunc",
+            "input.lateral.river.lake.storfunc": self._MAPS["lake_storfunc"][0],#"LakeStorFunc",
+            "input.lateral.river.lake.threshold": self._MAPS["lake_threshold"][0],#"LakeThreshold",
+            "input.lateral.river.lake.linkedlakelocs": self._MAPS["lake_linkedloc"][0],#"LinkedLakeLocs",
+            "input.lateral.river.lake.waterlevel": self._MAPS["lake_avglevel"][0],#"LakeAvgLevel",
         }
 
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
+            rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
             self.set_staticmaps(ds_lakes.rename(rmdict))
             # add waterbody parameters
             # rename to param values
             gdf_org = gdf_org.rename(
                 columns={
-                    "Area_avg":  self._MAPS["lake_area"],
-                    "Depth_avg": self._MAPS["lake_avglevel"],
-                    "Dis_avg":  self._MAPS["lake_avgout"],
+                    "Area_avg":  self._MAPS["lake_area"][0],
+                    "Depth_avg": self._MAPS["lake_avglevel"][0],
+                    "Dis_avg":  self._MAPS["lake_avgout"][0],
                 }
             )
             # Minimum value for LakeAvgOut
-            LakeAvgOut = gdf_org[self._MAPS["lake_avgout"]].copy()
-            gdf_org[self._MAPS["lake_avgout"]] = np.maximum(gdf_org[self._MAPS["lake_avgout"]], 0.01)
-            gdf_org[self._MAPS["lake_b"]] = gdf_org[self._MAPS["lake_avgout"]].values / (
-                gdf_org[self._MAPS["lake_avglevel"]].values
+            LakeAvgOut = gdf_org[self._MAPS["lake_avgout"][0]].copy()
+            gdf_org[self._MAPS["lake_avgout"][0]] = np.maximum(gdf_org[self._MAPS["lake_avgout"][0]], 0.01)
+            gdf_org[self._MAPS["lake_b"][0]] = gdf_org[self._MAPS["lake_avgout"][0]].values / (
+                gdf_org[self._MAPS["lake_avglevel"][0]].values
             ) ** (2)
-            gdf_org[self._MAPS["lake_e"]] = 2
-            gdf_org[self._MAPS["lake_storfunc"]] = 1
-            gdf_org[self._MAPS["lake_outflowfunc"]] = 3
-            gdf_org[self._MAPS["lake_threshold"]] = 0.0
-            gdf_org[self._MAPS["lake_linkedloc"]] = 0
+            gdf_org[self._MAPS["lake_e"][0]] = 2
+            gdf_org[self._MAPS["lake_storfunc"][0]] = 1
+            gdf_org[self._MAPS["lake_outflowfunc"][0]] = 3
+            gdf_org[self._MAPS["lake_threshold"][0]] = 0.0
+            gdf_org[self._MAPS["lake_linkedloc"][0]] = 0
 
             # Check if some LakeAvgOut values have been replaced
-            if not np.all(LakeAvgOut == gdf_org[self._MAPS["lake_avgout"]]):
+            if not np.all(LakeAvgOut == gdf_org[self._MAPS["lake_avgout"][0]]):
                 self.logger.warning(
                     "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
                 )
 
             lake_params = [
                 "waterbody_id",
-                self._MAPS["lake_area"],
-                self._MAPS["lake_avglevel"],
-                self._MAPS["lake_avgout"],
-                self._MAPS["lake_b"],
-                self._MAPS["lake_e"],
-                self._MAPS["lake_storfunc"],
-                self._MAPS["lake_outflowfunc"],
-                self._MAPS["lake_threshold"],
-                self._MAPS["lake_linkedloc"],
+                self._MAPS["lake_area"][0],
+                self._MAPS["lake_avglevel"][0],
+                self._MAPS["lake_avgout"][0],
+                self._MAPS["lake_b"][0],
+                self._MAPS["lake_e"][0],
+                self._MAPS["lake_storfunc"][0],
+                self._MAPS["lake_outflowfunc"][0],
+                self._MAPS["lake_threshold"][0],
+                self._MAPS["lake_linkedloc"][0],
             ]
 
             gdf_org_points = gpd.GeoDataFrame(
@@ -1141,45 +1145,45 @@ class WflowModel(Model):
         """
         # rename to wflow naming convention
         tbls = {
-            "resarea": self._MAPS["res_area"],
-            "resdemand": self._MAPS["res_demand"],
-            "resfullfrac": self._MAPS["res_targetmax"],
-            "resminfrac": self._MAPS["res_targetmin"],
-            "resmaxrelease": self._MAPS["res_maxrelease"],
-            "resmaxvolume": self._MAPS["res_maxvolume"],
+            "resarea": self._MAPS["res_area"][0],
+            "resdemand": self._MAPS["res_demand"][0],
+            "resfullfrac": self._MAPS["res_targetmax"][0],
+            "resminfrac": self._MAPS["res_targetmin"][0],
+            "resmaxrelease": self._MAPS["res_maxrelease"][0],
+            "resmaxvolume": self._MAPS["res_maxvolume"][0],
             "resid": "expr1",
         }
 
         res_toml = {
             "model.reservoirs": True,
             "state.lateral.river.reservoir.volume": "volume_reservoir",
-            "input.lateral.river.reservoir.area": self._MAPS["res_area"], #ResSimpleArea",
-            "input.lateral.river.reservoir.areas": self._MAPS["res_areas"], #wflow_reservoirareas",
-            "input.lateral.river.reservoir.demand": self._MAPS["res_demand"], #ResDemand",
-            "input.lateral.river.reservoir.locs": self._MAPS["res_outlet"], #wflow_reservoirlocs",
-            "input.lateral.river.reservoir.maxrelease": self._MAPS["res_maxrelease"], #ResMaxRelease",
-            "input.lateral.river.reservoir.maxvolume": self._MAPS["res_maxvolume"], #ResMaxVolume",
-            "input.lateral.river.reservoir.targetfullfrac": self._MAPS["res_targetmax"], #ResTargetFullFrac",
-            "input.lateral.river.reservoir.targetminfrac": self._MAPS["res_targetmin"], #ResTargetMinFrac",
+            "input.lateral.river.reservoir.area": self._MAPS["res_area"][0], #ResSimpleArea",
+            "input.lateral.river.reservoir.areas": self._MAPS["res_areas"][0], #wflow_reservoirareas",
+            "input.lateral.river.reservoir.demand": self._MAPS["res_demand"][0], #ResDemand",
+            "input.lateral.river.reservoir.locs": self._MAPS["res_outlet"][0], #wflow_reservoirlocs",
+            "input.lateral.river.reservoir.maxrelease": self._MAPS["res_maxrelease"][0], #ResMaxRelease",
+            "input.lateral.river.reservoir.maxvolume": self._MAPS["res_maxvolume"][0], #ResMaxVolume",
+            "input.lateral.river.reservoir.targetfullfrac": self._MAPS["res_targetmax"][0], #ResTargetFullFrac",
+            "input.lateral.river.reservoir.targetminfrac": self._MAPS["res_targetmin"][0], #ResTargetMinFrac",
         }
 
         gdf_org, ds_res = self._setup_waterbodies(reservoirs_fn, "reservoir", min_area)
         # TODO: check if there are missing values in the above columns of the parameters tbls =
         # if everything is present, skip calculate reservoirattrs() and directly make the maps
         if ds_res is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
+            rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_res.data_vars}
             self.set_staticmaps(ds_res.rename(rmdict))
 
             # add attributes
             # if present use directly
             resattributes = [
                 "waterbody_id",
-                self._MAPS["res_area"],
-                self._MAPS["res_maxvolume"],
-                self._MAPS["res_targetmin"],
-                self._MAPS["res_targetmax"],
-                self._MAPS["res_demand"],
-                self._MAPS["res_maxrelease"],
+                self._MAPS["res_area"][0],
+                self._MAPS["res_maxvolume"][0],
+                self._MAPS["res_targetmin"][0],
+                self._MAPS["res_targetmax"][0],
+                self._MAPS["res_demand"][0],
+                self._MAPS["res_maxrelease"][0],
             ]
             if np.all(np.isin(resattributes, gdf_org.columns)):
                 intbl_reservoirs = gdf_org[resattributes]
@@ -1250,7 +1254,7 @@ class WflowModel(Model):
                 f"{nb_wb} {wb_type}(s) of sufficient size found within region."
             )
             # add waterbody maps
-            uparea_name = self._MAPS["uparea"]
+            uparea_name = self._MAPS["uparea"][0]
             if uparea_name not in self.staticmaps.data_vars:
                 self.logger.warning(
                     f"Upstream area map for {wb_type} outlet setup not found. "
@@ -1335,7 +1339,7 @@ class WflowModel(Model):
             soil_fn,
             logger=self.logger,
         ).reset_coords(drop=True)
-        rmdict = {k: v for k, v in self._MAPS.items() if k in dsout.data_vars}
+        rmdict = {k: v[0] for k, v in self._MAPS.items() if k in dsout.data_vars}
         self.set_staticmaps(dsout.rename(rmdict))
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
@@ -1372,11 +1376,11 @@ class WflowModel(Model):
         glac_toml = {
             "model.glacier": True,
             "state.vertical.glacierstore": "glacierstore",
-            "input.vertical.glacierstore": self._MAPS["glac_store"], #wflow_glacierstore",
-            "input.vertical.glacierfrac": self._MAPS["glac_fracs"], #wflow_glacierfrac",
-            "input.vertical.g_cfmax": self._MAPS["glac_cfmax"], #G_Cfmax",
-            "input.vertical.g_tt": self._MAPS["glac_tt"], #G_TT",
-            "input.vertical.g_sifrac": self._MAPS["glac_sifrac"], #G_SIfrac",
+            "input.vertical.glacierstore": self._MAPS["glac_store"][0], #wflow_glacierstore",
+            "input.vertical.glacierfrac": self._MAPS["glac_fracs"][0], #wflow_glacierfrac",
+            "input.vertical.g_cfmax": self._MAPS["glac_cfmax"][0], #G_Cfmax",
+            "input.vertical.g_tt": self._MAPS["glac_tt"][0], #G_TT",
+            "input.vertical.g_sifrac": self._MAPS["glac_sifrac"][0], #G_SIfrac",
         }
         # retrieve data for basin
         self.logger.info(f"Preparing glacier maps.")
@@ -1398,11 +1402,11 @@ class WflowModel(Model):
                 gdf=gdf_org,
                 ds_like=self.staticmaps,
                 id_column="simple_id",
-                elevtn_name=self._MAPS["elevtn"],
+                elevtn_name=self._MAPS["elevtn"][0],
                 logger=self.logger,
             )
 
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
+            rmdict = {k: v[0] for k, v in self._MAPS.items() if k in ds_glac.data_vars}
             self.set_staticmaps(ds_glac.rename(rmdict))
 
             self.set_staticgeoms(gdf_org, name="glaciers")
@@ -1439,7 +1443,7 @@ class WflowModel(Model):
         for key, value in kwargs.items():
             nodata = np.dtype(dtype).type(nodata)
             da_param = xr.where(
-                self.staticmaps[self._MAPS["basins"]], value, nodata
+                self.staticmaps[self._MAPS["basins"][0]], value, nodata
             ).astype(dtype)
             da_param.raster.set_nodata(nodata)
 
@@ -1558,7 +1562,7 @@ class WflowModel(Model):
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
-        mask = self.staticmaps[self._MAPS["basins"]].values > 0
+        mask = self.staticmaps[self._MAPS["basins"][0]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
             precip_fn,
@@ -1582,7 +1586,7 @@ class WflowModel(Model):
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
-            da_like=self.staticmaps[self._MAPS["elevtn"]],
+            da_like=self.staticmaps[self._MAPS["elevtn"][0]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
@@ -1647,7 +1651,7 @@ class WflowModel(Model):
         endtime = self.get_config("endtime")
         timestep = self.get_config("timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
-        mask = self.staticmaps[self._MAPS["basins"]].values > 0
+        mask = self.staticmaps[self._MAPS["basins"][0]].values > 0
 
         variables = ["temp"]
         if not skip_pet:
@@ -1681,7 +1685,7 @@ class WflowModel(Model):
 
         temp_in = hydromt.workflows.forcing.temp(
             ds["temp"],
-            dem_model=self.staticmaps[self._MAPS["elevtn"]],
+            dem_model=self.staticmaps[self._MAPS["elevtn"][0]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
             logger=self.logger,
@@ -1692,7 +1696,7 @@ class WflowModel(Model):
         if not skip_pet:
             pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_model=self.staticmaps[self._MAPS["elevtn"][0]],
                 temp=temp_in,
                 method=pet_method,
                 press_correction=press_correction,
@@ -1804,7 +1808,7 @@ class WflowModel(Model):
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
         self.logger.info(f"Write staticmaps to {fn}")
-        mask = ds_out[self._MAPS["basins"]] > 0
+        mask = ds_out[self._MAPS["basins"][0]] > 0
         for v in ds_out.data_vars:
             # nodata is required for all but boolean fields
             if ds_out[v].dtype != "bool":
@@ -2204,6 +2208,28 @@ class WflowModel(Model):
         with codecs.open(fn, "w", encoding="utf-8") as f:
             toml.dump(self.config, f)
 
+    def _update_MAPS(self):
+
+        # config = self.config
+        _MAPS = self._MAPS.copy()
+        for k, v in self._MAPS.items():
+            wflow_key = v[1]
+            if isinstance(wflow_key, list):
+                for alias in wflow_key:
+                    custom_name = self.get_config(alias)
+                    if custom_name is not None:
+                        v[0] = custom_name
+                        _MAPS[k] = v
+            elif isinstance(wflow_key, str) and wflow_key != "none":
+                custom_name = self.get_config(wflow_key)
+                if custom_name is not None:
+                    v[0] = custom_name
+                    _MAPS[k] = v
+        return _MAPS
+
+
+
+
     ## WFLOW specific data and methods
 
     @property
@@ -2222,12 +2248,12 @@ class WflowModel(Model):
 
     def set_flwdir(self, ftype="infer"):
         """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd"""
-        flwdir_name = flwdir_name = self._MAPS["flwdir"]
+        flwdir_name = flwdir_name = self._MAPS["flwdir"][0]
         self._flwdir = flw.flwdir_from_da(
             self.staticmaps[flwdir_name],
             ftype=ftype,
             check_ftype=True,
-            mask=(self.staticmaps[self._MAPS["basins"]] > 0),
+            mask=(self.staticmaps[self._MAPS["basins"][0]] > 0),
         )
 
     @property
@@ -2237,7 +2263,7 @@ class WflowModel(Model):
             gdf = self.staticgeoms["basins"]
         else:
             gdf = flw.basin_shape(
-                self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+                self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"][0]
             )
             self.set_staticgeoms(gdf, name="basins")
         return gdf
@@ -2249,8 +2275,8 @@ class WflowModel(Model):
         """
         if "rivers" in self.staticgeoms:
             gdf = self.staticgeoms["rivers"]
-        elif self._MAPS["rivmsk"] in self.staticmaps:
-            rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
+        elif self._MAPS["rivmsk"][0] in self.staticmaps:
+            rivmsk = self.staticmaps[self._MAPS["rivmsk"][0]].values != 0
             # Check if there are river cells in the model before continuing
             if np.any(rivmsk):
                 # add stream order 'strord' column
@@ -2289,8 +2315,8 @@ class WflowModel(Model):
         xarray.DataSet
             Clipped staticmaps.
         """
-        basins_name = self._MAPS["basins"]
-        flwdir_name = self._MAPS["flwdir"]
+        basins_name = self._MAPS["basins"][0]
+        flwdir_name = self._MAPS["flwdir"][0]
 
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         # translate basin and outlet kinds to geom
@@ -2333,7 +2359,7 @@ class WflowModel(Model):
 
         # add pits at edges after clipping
         self._flwdir = None  # make sure old flwdir object is removed
-        self.staticmaps[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
+        self.staticmaps[self._MAPS["flwdir"][0]].data = self.flwdir.to_array("ldd")
 
         # Reinitiliase staticgeoms and re-create basins/rivers
         self._staticgeoms = dict()
@@ -2342,10 +2368,10 @@ class WflowModel(Model):
         # now staticgeoms links to geoms which does not exist in every hydromt version
         # remove when updating wflow to new objects
         basins = flw.basin_shape(
-            self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+            self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"][0]
         )
         self.set_staticgeoms(basins, name="basins")
-        rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
+        rivmsk = self.staticmaps[self._MAPS["rivmsk"][0]].values != 0
         # Check if there are river cells in the model before continuing
         if np.any(rivmsk):
             # add stream order 'strord' column
@@ -2357,39 +2383,39 @@ class WflowModel(Model):
 
         # Update reservoir and lakes
         remove_reservoir = False
-        if self._MAPS["res_areas"] in self.staticmaps:
-            reservoir = self.staticmaps[self._MAPS["res_areas"]]
+        if self._MAPS["res_areas"][0] in self.staticmaps:
+            reservoir = self.staticmaps[self._MAPS["res_areas"][0]]
             if not np.any(reservoir > 0):
                 remove_reservoir = True
                 remove_maps = [
-                    self._MAPS["res_areas"],
-                    self._MAPS["res_outlet"],
-                    self._MAPS["res_area"],
-                    self._MAPS["res_demand"],
-                    self._MAPS["res_targetmax"],
-                    self._MAPS["res_targetmin"],
-                    self._MAPS["res_maxrelease"],
-                    self._MAPS["res_maxvolume"],
+                    self._MAPS["res_areas"][0],
+                    self._MAPS["res_outlet"][0],
+                    self._MAPS["res_area"][0],
+                    self._MAPS["res_demand"][0],
+                    self._MAPS["res_targetmax"][0],
+                    self._MAPS["res_targetmin"][0],
+                    self._MAPS["res_maxrelease"][0],
+                    self._MAPS["res_maxvolume"][0],
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
         remove_lake = False
-        if self._MAPS["lake_areas"] in self.staticmaps:
-            lake = self.staticmaps[self._MAPS["lake_areas"]]
+        if self._MAPS["lake_areas"][0] in self.staticmaps:
+            lake = self.staticmaps[self._MAPS["lake_areas"][0]]
             if not np.any(lake > 0):
                 remove_lake = True
                 remove_maps = [
-                    self._MAPS["lake_areas"],
-                    self._MAPS["lake_outlet"],
-                    self._MAPS["lake_linkedloc"],
-                    self._MAPS["lake_storfunc"],
-                    self._MAPS["lake_outflowfunc"],
-                    self._MAPS["lake_area"],
-                    self._MAPS["lake_avglevel"],
-                    self._MAPS["lake_avgout"],
-                    self._MAPS["lake_threshold"],
-                    self._MAPS["lake_b"],
-                    self._MAPS["lake_e"],
+                    self._MAPS["lake_areas"][0],
+                    self._MAPS["lake_outlet"][0],
+                    self._MAPS["lake_linkedloc"][0],
+                    self._MAPS["lake_storfunc"][0],
+                    self._MAPS["lake_outflowfunc"][0],
+                    self._MAPS["lake_area"][0],
+                    self._MAPS["lake_avglevel"][0],
+                    self._MAPS["lake_avgout"][0],
+                    self._MAPS["lake_threshold"][0],
+                    self._MAPS["lake_b"][0],
+                    self._MAPS["lake_e"][0],
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
 
