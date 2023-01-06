@@ -1442,14 +1442,68 @@ class WflowModel(Model):
         # 2. check if key already present in toml (with .value), throw warning
         # 3. add param.value = value to toml, in the correct section
         for key, value in kwargs.items():
-            nodata = np.dtype(dtype).type(nodata)
-            da_param = xr.where(
-                self.staticmaps[self._MAPS["basins"][0]], value, nodata
-            ).astype(dtype)
-            da_param.raster.set_nodata(nodata)
 
-            da_param = da_param.rename(key)
-            self.set_staticmaps(da_param)
+            if self.get_config(key) is not None:
+                logger.warning(
+                    f"Parameter {key} already present in TOML, overwriting with fixed value of {value}")
+                # print(f"{key} found")
+                tmpdict = self.config
+                keylist = key.split(".")
+                for foo in keylist[:-1]:
+                    tmpdict = tmpdict[foo]
+                tmpdict.pop(keylist[-1])
+            if self.get_config(f"{key}.value") is not None:
+                logger.warning(
+                    f"Parameter {key}.value already present in TOML, overwriting with fixed value of {value}")
+                # print(f"{key}.value found")
+                tmpdict = self.config
+                keylist = key.split(".")
+                for foo in keylist[:-1]:
+                    tmpdict = tmpdict[foo]
+                tmpdict.pop(f"{keylist[-1]}.value")
+
+            logger.info(f"Setting {key} to constant value of {value}")
+            self.set_config(f"{key}.value", value)
+
+    def set_config(self, *args):
+        """Update the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        args : key(s), value tuple, with minimal length of two
+            keys can given by multiple args: ('key1', 'key2', 'value')
+            or a string with '.' indicating a new level: ('key1.key2', 'value')
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> set_config('a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+        >> set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+        """
+        if len(args) < 2:
+            raise TypeError("set_config() requires a least one key and one value.")
+        args = list(args)
+        value = args.pop(-1)
+        if len(args) == 1 and "." in args[0]:
+            args = args[0].split(".") + args[1:]
+        # Check for value in args (to add in the same line for wflow TOML)
+        value_flag = False
+        if "value" in args:
+            args.remove("value")
+            value_flag = True
+        branch = self.config  # reads config at first call
+        for key in args[:-1]:
+            if not key in branch or not isinstance(branch[key], dict):
+                branch[key] = {}
+            branch = branch[key]
+        if value_flag: #
+            branch[f"{args[-1]}.value"] = value #
+        else: #
+            branch[args[-1]] = value
 
     def setup_staticmaps_from_raster(
         self,
