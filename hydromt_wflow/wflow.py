@@ -1699,9 +1699,9 @@ class WflowModel(Model):
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
 
-        if "dir_input" in self.config.keys():
-            input_dir = self.get_config("dir_input")
-            fn = fn.parent / input_dir / fn.name if fn is not None else fn
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(input_dir, self.get_config("input.path_static", fallback=fn_default))
             self.logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
@@ -1746,9 +1746,9 @@ class WflowModel(Model):
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
         # Append inputdir if required
-        if "dir_input" in self.config.keys():
-            input_dir = self.get_config("dir_input")
-            fn = fn.parent / input_dir / fn.name
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(input_dir, self.get_config("input.path_static", fallback=fn_default))
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
@@ -1855,9 +1855,9 @@ class WflowModel(Model):
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
 
-        if "dir_input" in self.config.keys():
-            input_dir = self.get_config("dir_input")
-            fn = fn.parent / input_dir / fn.name if fn is not None else fn
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(input_dir, self.get_config("input.path_forcing", fallback=fn_default))
             self.logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
@@ -1927,9 +1927,9 @@ class WflowModel(Model):
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
-                if "dir_input" in self.config.keys():
-                    input_dir = self.get_config("dir_input")
-                    fn_out = fn_out.parent / input_dir / fn_out.name
+                if self.get_config("dir_input") is not None:
+                    input_dir = self.get_config("dir_input", abs_path=True)
+                    fn_out = join(input_dir, fn_out)
 
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
@@ -2081,7 +2081,7 @@ class WflowModel(Model):
             self._results = dict()
 
         output_dir = ""
-        if "dir_output" in self.config.keys():
+        if self.get_config("dir_output") is not None:
             output_dir = self.get_config("dir_output")
 
         # Read gridded netcdf (output section)
