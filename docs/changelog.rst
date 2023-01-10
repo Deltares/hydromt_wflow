@@ -9,6 +9,17 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ==========
 
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+- write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)
+- write_forcing automatic adjustment of starttime and endtime based on forcing content
+
 v0.2.1 (22 November 2022)
 =========================
 New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 

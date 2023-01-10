@@ -1953,9 +1953,10 @@ class WflowModel(Model):
                         fn_out = fn_default_path
 
             # Check if all dates between (starttime, endtime) are in all da forcing
+            # Check if starttime and endtime timestamps are correct
             start = pd.to_datetime(self.get_config("starttime"))
             end = pd.to_datetime(self.get_config("endtime"))
-            missings = False
+            correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
                     if hasattr(da.indexes["time"], "to_datetimeindex"):
@@ -1964,22 +1965,27 @@ class WflowModel(Model):
                         times = da.time.values
                     if start < pd.to_datetime(times[0]):
                         start = pd.to_datetime(times[0])
-                        missings = True
+                        correct_times = True
+                    elif start not in times:
+                        start = pd.to_datetime(times[times >= start][0])
+                        correct_times = True
                     if end > pd.to_datetime(times[-1]):
                         end = pd.to_datetime(times[-1])
-                        missings = True
+                        correct_times = True
+                    elif end not in times:
+                        end = pd.to_datetime(times[times <= end][-1])
+                        correct_times = True
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
             ds.raster.set_crs(self.crs)
-            # Send warning, slice ds and update config with new start and end time
-            if missings:
+            # Send warning, and update config with new start and end time
+            if correct_times:
                 self.logger.warning(
                     f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
                 )
                 self.set_config("starttime", start.to_pydatetime())
                 self.set_config("endtime", end.to_pydatetime())
                 self.write_config()
-                ds = ds.sel({"time": slice(start, end)})
 
             if decimals is not None:
                 ds = ds.round(decimals)
