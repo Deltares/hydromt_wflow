@@ -119,7 +119,6 @@ def waterbodymaps(
 
     return ds_out, outgdf
 
-
 def reservoirattrs(
     gdf,
     priorityEO=False,
@@ -160,10 +159,6 @@ def reservoirattrs(
     df_plot : pandas.DataFrame
         DataFrame containing debugging values for reservoir building.
     """
-    if EOsource.lower() not in ['jrc', 'gww']:
-        logger.debug(
-                "No valid EO source provided: using default reservoir attributes"
-            )
 
     if EOsource.lower() == 'jrc':
         try:
@@ -173,12 +168,17 @@ def reservoirattrs(
                 "HydroEngine package not found, using default reservoir attribute values."
             )
     
-    if EOsource.lower() == 'gww':
+    elif EOsource.lower() == 'gww':
         try:
             from gwwapi import client as cli
+            from gwwapi import utils 
         except ImportError:
             logger.debug(
                 "gwwapi not found, using default reservoir attribute values."
+            )
+    else: 
+        logger.debug(
+                "No valid EO source provided (provide either jrc or gww): using default reservoir attributes"
             )
 
     # Initialize output DataFrame with empty values and reservoir ID
@@ -217,7 +217,7 @@ def reservoirattrs(
     df_EO.loc[:, "normarea"] = np.nan
     df_EO.loc[:, "minarea"] = np.nan
 
-    if EOsource == 'jrc':
+    if EOsource.lower() == 'jrc':
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
             try:
@@ -239,15 +239,15 @@ def reservoirattrs(
                     f"No HydroEngine time series available for reservoir {ids}!"
                 )
     
-    if EOsource == 'gww':
+    if EOsource.lower() == 'gww':
 
         gdf_bounds = shapely.geometry.box(*gdf.total_bounds, ccw=True)
         gdf_bounds_json =json.dumps(shapely.geometry.mapping(gdf_bounds))
         
-        gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds_json).json()
-        gww_reservoirs_gpd = cli.to_geopandas(gww_reservoirs)
+        gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds_json)
+        gww_reservoirs_gpd = utils.to_geopandas(gww_reservoirs)
         idlink = gww_reservoirs_gpd.loc[:,['source_id', 'id']].set_index('source_id')
-        idlink = idlink.to_dict()['id']                
+        idlink = idlink.to_dict()['id']
 
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
@@ -256,7 +256,7 @@ def reservoirattrs(
                 time_series = cli.get_reservoir_ts(
                     idlink[int(gdf["Hylak_id"].iloc[i])]
                 ).json()
-                area_series = cli.to_timeseries(time_series)['area'].to_numpy()
+                area_series = utils.to_timeseries(time_series)['area'].to_numpy()
                 area_series_nozeros = area_series[area_series > 0]
                 df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
                 df_EO.loc[i, "normarea"] = np.percentile(
