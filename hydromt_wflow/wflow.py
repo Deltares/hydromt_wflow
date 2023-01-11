@@ -1020,8 +1020,10 @@ class WflowModel(Model):
     def setup_reservoirs(
         self,
         reservoirs_fn="hydro_reservoirs",
+        #timeseries_fn = 'gww' or None or 'jrc' 
         min_area=1.0,
-        priorityEO=True,
+        #priorityEO=True,
+        
         **kwargs,
     ):
         """This component generates maps of reservoir areas and outlets as well as parameters
