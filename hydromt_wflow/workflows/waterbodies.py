@@ -176,11 +176,6 @@ def reservoirattrs(
             logger.debug(
                 "gwwapi not found, using default reservoir attribute values."
             )
-    
-    else: 
-        logger.debug(
-                "No valid EO source provided (provide either jrc or gww): using default reservoir attributes"
-            )
 
     # Initialize output DataFrame with empty values and reservoir ID
     df_out = pd.DataFrame(
