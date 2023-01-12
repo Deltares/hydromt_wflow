@@ -152,9 +152,6 @@ def river(
     # save as uint8 as bool is not supported in nc and tif files
     ds_out["rivmsk"] = riv_mask.astype(np.uint8)
     ds_out["rivmsk"].raster.set_nodata(0)
-    # riv_mask = riv_mask.astype(np.uint8)
-    # riv_mask.raster.set_nodata(0)
-    # ds_out["rivmsk"] = riv_mask
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
