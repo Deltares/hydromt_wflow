@@ -9,6 +9,23 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ==========
 
+
+Added
+-----
+
+
+Changed
+-------
+
+
+Fixed
+-----
+- Bugfix with wrong indexing in the hydrography method that could cause memory issues `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
+
+Deprecated
+----------
+
+
 v0.2.1 (22 November 2022)
 =========================
 New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
