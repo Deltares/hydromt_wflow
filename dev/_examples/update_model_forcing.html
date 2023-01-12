@@ -845,48 +845,48 @@ import geopandas
 
 In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
   from . import raster, vector, gis_utils, merge
-2023-01-12 08:13:23,640 - update - log - INFO - HydroMT version: 0.6.1.dev
-2023-01-12 08:13:23,640 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-01-12 08:13:23,640 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2023-01-12 08:13:23,640 - update - main - INFO - User settings:
-2023-01-12 08:13:23,667 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2023-01-12 08:13:23,671 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-01-12 08:13:23,765 - update - wflow - INFO - Reading model intbl files.
-2023-01-12 08:13:23,766 - update - wflow - INFO - Reading model staticgeom files.
-2023-01-12 08:13:23,896 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-01-12 08:13:23,909 - update - wflow - INFO - Model read
-2023-01-12 08:13:23,957 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2023-01-12 08:13:23,957 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2023-01-12 08:13:23,957 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2023-01-12 08:13:24,020 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.7 from archive
-2023-01-12 08:13:24,020 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.7/data_catalog.yml
-2023-01-12 08:13:24,120 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/chirps_global.nc
-2023-01-12 08:13:24,229 - update - model_api - WARNING - Replacing forcing: precip
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2023-01-12 08:13:24,236 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/era5.nc
-2023-01-12 08:13:24,333 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/era5_orography.nc
-2023-01-12 08:13:24,771 - update - model_api - WARNING - Replacing forcing: pet
-2023-01-12 08:13:24,773 - update - model_api - WARNING - Replacing forcing: temp
-2023-01-12 08:13:24,774 - update - model_api - INFO - write_forcing.fn_out: None
-2023-01-12 08:13:24,774 - update - model_api - INFO - write_forcing.freq_out: M
-2023-01-12 08:13:24,774 - update - model_api - INFO - write_forcing.chunksize: 1
-2023-01-12 08:13:24,775 - update - model_api - INFO - write_forcing.decimals: 2
-2023-01-12 08:13:24,775 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
-2023-01-12 08:13:24,775 - update - wflow - INFO - Write forcing file
-2023-01-12 08:13:24,802 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
-2023-01-12 08:13:24,802 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2023-01-12 08:13:24,821 - update - wflow - INFO - Writting several forcing with freq M
-2023-01-12 08:13:24,822 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2023-01-12 08:13:24,831 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
-[########################################] | 100% Completed | 102.58 ms
-2023-01-12 08:13:25,310 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2023-01-12 08:13:25,776 - update - wflow - INFO - Writing model staticgeom to file.
+2023-01-12 08:24:46,368 - update - log - INFO - HydroMT version: 0.6.1.dev
+2023-01-12 08:24:46,368 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-01-12 08:24:46,369 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2023-01-12 08:24:46,369 - update - main - INFO - User settings:
+2023-01-12 08:24:46,396 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-01-12 08:24:46,399 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-01-12 08:24:46,491 - update - wflow - INFO - Reading model intbl files.
+2023-01-12 08:24:46,492 - update - wflow - INFO - Reading model staticgeom files.
+2023-01-12 08:24:46,614 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-01-12 08:24:46,626 - update - wflow - INFO - Model read
+2023-01-12 08:24:46,670 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2023-01-12 08:24:46,670 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2023-01-12 08:24:46,670 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2023-01-12 08:24:46,746 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.7 from archive
+2023-01-12 08:24:46,746 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.7/data_catalog.yml
+2023-01-12 08:24:46,827 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/chirps_global.nc
+2023-01-12 08:24:46,922 - update - model_api - WARNING - Replacing forcing: precip
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2023-01-12 08:24:46,922 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2023-01-12 08:24:46,928 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/era5.nc
+2023-01-12 08:24:47,022 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/era5_orography.nc
+2023-01-12 08:24:47,418 - update - model_api - WARNING - Replacing forcing: pet
+2023-01-12 08:24:47,421 - update - model_api - WARNING - Replacing forcing: temp
+2023-01-12 08:24:47,421 - update - model_api - INFO - write_forcing.fn_out: None
+2023-01-12 08:24:47,421 - update - model_api - INFO - write_forcing.freq_out: M
+2023-01-12 08:24:47,421 - update - model_api - INFO - write_forcing.chunksize: 1
+2023-01-12 08:24:47,421 - update - model_api - INFO - write_forcing.decimals: 2
+2023-01-12 08:24:47,421 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
+2023-01-12 08:24:47,422 - update - wflow - INFO - Write forcing file
+2023-01-12 08:24:47,448 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
+2023-01-12 08:24:47,448 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2023-01-12 08:24:47,467 - update - wflow - INFO - Writting several forcing with freq M
+2023-01-12 08:24:47,467 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2023-01-12 08:24:47,476 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
+[########################################] | 100% Completed | 102.61 ms
+2023-01-12 08:24:47,943 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2023-01-12 08:24:48,384 - update - wflow - INFO - Writing model staticgeom to file.
 
 </pre></div></div>
 </div>
