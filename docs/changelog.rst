@@ -20,7 +20,8 @@ Changed
 
 Fixed
 -----
-- Bugfix with wrong indexing in the hydrography method that could cause memory issues `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
+- Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
+- Bugfix with wrong indexing in the river method that could cause memory issues `PR #147 <https://github.com/Deltares/hydromt_wflow/pull/147>`_
 
 Deprecated
 ----------
