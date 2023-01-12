@@ -391,7 +391,7 @@ and related dependencies, please visit the documentation of
 </ul>
 <p>If you already have a python &amp; conda installation but do not yet have mamba installed,
 we recommend installing it into your <em>base</em> environment using:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda install mamba -n base -c conda-forge
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>mamba<span class="w"> </span>-n<span class="w"> </span>base<span class="w"> </span>-c<span class="w"> </span>conda-forge
 </pre></div>
 </div>
 </section>
@@ -409,7 +409,7 @@ for the difference between both.</p>
 <h3>Install HydroMT-Wflow in a new environment (recommended!)<a class="headerlink" href="#install-hydromt-wflow-in-a-new-environment-recommended" title="Permalink to this heading">#</a></h3>
 <p>You can install HydroMT-Wflow in a new environment called <cite>hydromt-wflow</cite> together with
 all optional (see above) and a few additional dependencies with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba env create -f https://raw.githubusercontent.com/Deltares/hydromt_wflow/main/environment.yml
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>https://raw.githubusercontent.com/Deltares/hydromt_wflow/main/environment.yml
 </pre></div>
 </div>
 <p>Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:</p>
@@ -429,14 +429,14 @@ by adding <cite>-n &lt;name&gt;</cite> to the line below.</p>
 where you replace <cite>&lt;environment_name&gt;</cite> with the name of the existing environment.
 Note that if some dependencies are not installed from conda-forge but from other
 channels the installation may fail.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba install -c conda-forge hydromt_wflow -n &lt;environment_name&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow<span class="w"> </span>-n<span class="w"> </span>&lt;environment_name&gt;
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The hydroengine package is not available from conda and therefore has to be installed from pypi separately.</p>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install hydroengine
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
 </pre></div>
 </div>
 <p>For <strong>Using pip</strong> from pypi (not recommended) see above</p>

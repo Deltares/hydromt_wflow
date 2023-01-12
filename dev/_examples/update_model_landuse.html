@@ -680,7 +680,7 @@ div.rendered_html tbody tr:hover {
 <section id="Import-packages">
 <h2>Import packages<a class="headerlink" href="#Import-packages" title="Permalink to this heading">#</a></h2>
 <p>In this notebook, we will use some functions of HydroMT to check available datasets and also to plot the landuse maps from the original and updated models. Here are the libraries to import to realize these steps.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -697,6 +697,29 @@ div.rendered_html tbody tr:hover {
 <span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>  <span class="c1"># plot projection</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+</pre></div></div>
 </div>
 </section>
 <section id="Searching-the-data-catalog-for-landuse">
@@ -753,7 +776,7 @@ Name: source_url, dtype: object
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the options available from the update command</span>
-<span class="o">!</span> hydromt update --help
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>--help
 </pre></div>
 </div>
 </div>
@@ -762,6 +785,22 @@ Name: source_url, dtype: object
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
 Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
 
   Update a specific component of a model. Set an output directory to copy the
@@ -802,7 +841,7 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span> hydromt update wflow wflow_piave_subbasin -o ./wflow_piave_corine -c setup_lulcmaps --opt <span class="nv">lulc_fn</span><span class="o">=</span>corine -v
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_corine<span class="w"> </span>-c<span class="w"> </span>setup_lulcmaps<span class="w"> </span>--opt<span class="w"> </span><span class="nv">lulc_fn</span><span class="o">=</span>corine<span class="w"> </span>-v
 </pre></div>
 </div>
 </div>
@@ -811,45 +850,61 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-11-23 17:19:27,625 - update - log - INFO - HydroMT version: 0.6.1.dev
-2022-11-23 17:19:27,625 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-11-23 17:19:27,625 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2022-11-23 17:19:27,626 - update - main - INFO - User settings:
-2022-11-23 17:19:27,643 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2022-11-23 17:19:27,646 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-11-23 17:19:27,708 - update - wflow - INFO - Reading model intbl files.
-2022-11-23 17:19:27,708 - update - wflow - INFO - Reading model staticgeom files.
-2022-11-23 17:19:27,803 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-11-23 17:19:27,812 - update - wflow - INFO - Model read
-2022-11-23 17:19:27,842 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2022-11-23 17:19:27,842 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2022-11-23 17:19:27,842 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2022-11-23 17:19:27,842 - update - wflow - INFO - Preparing LULC parameter maps.
-2022-11-23 17:19:27,870 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
-2022-11-23 17:19:27,870 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
-2022-11-23 17:19:27,941 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.6/corine.tif
-2022-11-23 17:19:28,080 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2022-11-23 17:19:28,214 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2022-11-23 17:19:28,340 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2022-11-23 17:19:28,464 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2022-11-23 17:19:28,589 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2022-11-23 17:19:28,715 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2022-11-23 17:19:28,841 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2022-11-23 17:19:28,966 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2022-11-23 17:19:29,090 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
-2022-11-23 17:19:29,095 - update - model_api - WARNING - Replacing staticmap: Kext
-2022-11-23 17:19:29,097 - update - model_api - WARNING - Replacing staticmap: N
-2022-11-23 17:19:29,099 - update - model_api - WARNING - Replacing staticmap: PathFrac
-2022-11-23 17:19:29,102 - update - model_api - WARNING - Replacing staticmap: RootingDepth
-2022-11-23 17:19:29,104 - update - model_api - WARNING - Replacing staticmap: Sl
-2022-11-23 17:19:29,106 - update - model_api - WARNING - Replacing staticmap: Swood
-2022-11-23 17:19:29,109 - update - model_api - WARNING - Replacing staticmap: WaterFrac
-2022-11-23 17:19:29,111 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2022-11-23 17:19:29,112 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
-2022-11-23 17:19:29,235 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
-2022-11-23 17:19:29,757 - update - wflow - INFO - Write forcing file
-2022-11-23 17:19:29,783 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 101.49 ms
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+2023-01-12 08:14:05,384 - update - log - INFO - HydroMT version: 0.6.1.dev
+2023-01-12 08:14:05,385 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-01-12 08:14:05,385 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-01-12 08:14:05,385 - update - main - INFO - User settings:
+2023-01-12 08:14:05,409 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-01-12 08:14:05,412 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-01-12 08:14:05,506 - update - wflow - INFO - Reading model intbl files.
+2023-01-12 08:14:05,507 - update - wflow - INFO - Reading model staticgeom files.
+2023-01-12 08:14:05,626 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-01-12 08:14:05,637 - update - wflow - INFO - Model read
+2023-01-12 08:14:05,676 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2023-01-12 08:14:05,676 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-01-12 08:14:05,676 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2023-01-12 08:14:05,676 - update - wflow - INFO - Preparing LULC parameter maps.
+2023-01-12 08:14:05,739 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.7 from archive
+2023-01-12 08:14:05,740 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.7/data_catalog.yml
+2023-01-12 08:14:05,830 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.7/corine.tif
+2023-01-12 08:14:05,987 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2023-01-12 08:14:06,152 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-01-12 08:14:06,311 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-01-12 08:14:06,467 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-01-12 08:14:06,627 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2023-01-12 08:14:06,786 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-01-12 08:14:06,937 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-01-12 08:14:07,095 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-01-12 08:14:07,252 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
+2023-01-12 08:14:07,256 - update - model_api - WARNING - Replacing staticmap: Kext
+2023-01-12 08:14:07,258 - update - model_api - WARNING - Replacing staticmap: N
+2023-01-12 08:14:07,261 - update - model_api - WARNING - Replacing staticmap: PathFrac
+2023-01-12 08:14:07,263 - update - model_api - WARNING - Replacing staticmap: RootingDepth
+2023-01-12 08:14:07,266 - update - model_api - WARNING - Replacing staticmap: Sl
+2023-01-12 08:14:07,270 - update - model_api - WARNING - Replacing staticmap: Swood
+2023-01-12 08:14:07,273 - update - model_api - WARNING - Replacing staticmap: WaterFrac
+2023-01-12 08:14:07,275 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-01-12 08:14:07,277 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+2023-01-12 08:14:07,441 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2023-01-12 08:14:08,078 - update - wflow - INFO - Write forcing file
+2023-01-12 08:14:08,108 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 101.50 ms
 
 </pre></div></div>
 </div>

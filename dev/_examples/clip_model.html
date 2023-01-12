@@ -684,7 +684,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>hydromt clip --help
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>hydromt<span class="w"> </span>clip<span class="w"> </span>--help
 </pre></div>
 </div>
 </div>
@@ -693,6 +693,22 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
 Usage: hydromt clip [OPTIONS] MODEL MODEL_ROOT MODEL_DESTINATION REGION
 
   Create a new model based on clipped region of an existing model. If the
@@ -727,7 +743,7 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span>hydromt clip wflow <span class="s2">&quot;wflow_piave_subbasin&quot;</span> <span class="s2">&quot;./wflow_test_clip&quot;</span> <span class="s2">&quot;{&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}&quot;</span> -v
+<span class="o">!</span>hydromt<span class="w"> </span>clip<span class="w"> </span>wflow<span class="w"> </span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="w"> </span><span class="s2">&quot;./wflow_test_clip&quot;</span><span class="w"> </span><span class="s2">&quot;{&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}&quot;</span><span class="w"> </span>-v
 </pre></div>
 </div>
 </div>
@@ -736,32 +752,48 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-11-23 17:18:01,784 - clip - log - INFO - HydroMT version: 0.6.1.dev
-2022-11-23 17:18:01,784 - clip - main - INFO - Clipping instance of wflow model.
-2022-11-23 17:18:01,784 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2022-11-23 17:18:01,802 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2022-11-23 17:18:01,803 - clip - main - INFO - Reading model to clip
-2022-11-23 17:18:01,805 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-11-23 17:18:01,872 - clip - wflow - INFO - Reading model intbl files.
-2022-11-23 17:18:01,872 - clip - wflow - INFO - Reading model staticgeom files.
-2022-11-23 17:18:01,970 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-11-23 17:18:01,980 - clip - wflow - INFO - Model read
-2022-11-23 17:18:01,980 - clip - main - INFO - Clipping staticmaps
-2022-11-23 17:18:05,476 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2022-11-23 17:18:06,128 - clip - model_api - WARNING - Replacing geom: basins
-2022-11-23 17:18:07,172 - clip - model_api - WARNING - Replacing geom: rivers
-2022-11-23 17:18:07,174 - clip - main - INFO - Clipping forcing
-2022-11-23 17:18:07,174 - clip - wflow - INFO - Clipping NetCDF forcing..
-2022-11-23 17:18:07,183 - clip - model_api - WARNING - Replacing forcing: precip
-2022-11-23 17:18:07,183 - clip - model_api - WARNING - Replacing forcing: pet
-2022-11-23 17:18:07,183 - clip - model_api - WARNING - Replacing forcing: temp
-2022-11-23 17:18:07,183 - clip - main - INFO - Writting clipped model
-2022-11-23 17:18:07,183 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2022-11-23 17:18:07,183 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
-2022-11-23 17:18:07,305 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
-2022-11-23 17:18:07,727 - clip - wflow - INFO - Write forcing file
-2022-11-23 17:18:07,762 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
-[########################################] | 100% Completed | 101.49 ms
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+2023-01-12 08:12:18,396 - clip - log - INFO - HydroMT version: 0.6.1.dev
+2023-01-12 08:12:18,396 - clip - main - INFO - Clipping instance of wflow model.
+2023-01-12 08:12:18,396 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2023-01-12 08:12:18,420 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-01-12 08:12:18,420 - clip - main - INFO - Reading model to clip
+2023-01-12 08:12:18,423 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-01-12 08:12:18,512 - clip - wflow - INFO - Reading model intbl files.
+2023-01-12 08:12:18,513 - clip - wflow - INFO - Reading model staticgeom files.
+2023-01-12 08:12:18,634 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-01-12 08:12:18,646 - clip - wflow - INFO - Model read
+2023-01-12 08:12:18,646 - clip - main - INFO - Clipping staticmaps
+2023-01-12 08:12:23,243 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2023-01-12 08:12:24,086 - clip - model_api - WARNING - Replacing geom: basins
+2023-01-12 08:12:25,412 - clip - model_api - WARNING - Replacing geom: rivers
+2023-01-12 08:12:25,414 - clip - main - INFO - Clipping forcing
+2023-01-12 08:12:25,414 - clip - wflow - INFO - Clipping NetCDF forcing..
+2023-01-12 08:12:25,425 - clip - model_api - WARNING - Replacing forcing: precip
+2023-01-12 08:12:25,425 - clip - model_api - WARNING - Replacing forcing: pet
+2023-01-12 08:12:25,425 - clip - model_api - WARNING - Replacing forcing: temp
+2023-01-12 08:12:25,425 - clip - main - INFO - Writting clipped model
+2023-01-12 08:12:25,425 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2023-01-12 08:12:25,426 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2023-01-12 08:12:25,584 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2023-01-12 08:12:26,130 - clip - wflow - INFO - Write forcing file
+2023-01-12 08:12:26,172 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+[########################################] | 100% Completed | 101.52 ms
 
 </pre></div></div>
 </div>
@@ -793,7 +825,7 @@ Options:
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
@@ -802,6 +834,29 @@ Options:
 <span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:

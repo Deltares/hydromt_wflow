@@ -755,7 +755,7 @@ freq_out        = M             # Set frequency at which forcing files are writt
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the options available from the update command</span>
-<span class="o">!</span> hydromt update --help
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>--help
 </pre></div>
 </div>
 </div>
@@ -764,6 +764,22 @@ freq_out        = M             # Set frequency at which forcing files are writt
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
 Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
 
   Update a specific component of a model. Set an output directory to copy the
@@ -804,7 +820,7 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span> hydromt update wflow wflow_piave_subbasin -o ./wflow_piave_forcing -i wflow_update_forcing.ini -v
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_forcing<span class="w"> </span>-i<span class="w"> </span>wflow_update_forcing.ini<span class="w"> </span>-v
 </pre></div>
 </div>
 </div>
@@ -813,48 +829,64 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2022-11-23 17:18:54,013 - update - log - INFO - HydroMT version: 0.6.1.dev
-2022-11-23 17:18:54,014 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2022-11-23 17:18:54,014 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2022-11-23 17:18:54,014 - update - main - INFO - User settings:
-2022-11-23 17:18:54,033 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2022-11-23 17:18:54,035 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2022-11-23 17:18:54,099 - update - wflow - INFO - Reading model intbl files.
-2022-11-23 17:18:54,100 - update - wflow - INFO - Reading model staticgeom files.
-2022-11-23 17:18:54,194 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2022-11-23 17:18:54,203 - update - wflow - INFO - Model read
-2022-11-23 17:18:54,234 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2022-11-23 17:18:54,234 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2022-11-23 17:18:54,234 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2022-11-23 17:18:54,258 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.6 from archive
-2022-11-23 17:18:54,258 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.6/data_catalog.yml
-2022-11-23 17:18:54,325 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/chirps_global.nc
-2022-11-23 17:18:54,405 - update - model_api - WARNING - Replacing forcing: precip
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2022-11-23 17:18:54,405 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2022-11-23 17:18:54,410 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5.nc
-2022-11-23 17:18:54,485 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.6/era5_orography.nc
-2022-11-23 17:18:54,791 - update - model_api - WARNING - Replacing forcing: pet
-2022-11-23 17:18:54,793 - update - model_api - WARNING - Replacing forcing: temp
-2022-11-23 17:18:54,793 - update - model_api - INFO - write_forcing.fn_out: None
-2022-11-23 17:18:54,793 - update - model_api - INFO - write_forcing.freq_out: M
-2022-11-23 17:18:54,793 - update - model_api - INFO - write_forcing.chunksize: 1
-2022-11-23 17:18:54,793 - update - model_api - INFO - write_forcing.decimals: 2
-2022-11-23 17:18:54,793 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
-2022-11-23 17:18:54,794 - update - wflow - INFO - Write forcing file
-2022-11-23 17:18:54,815 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
-2022-11-23 17:18:54,815 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2022-11-23 17:18:54,828 - update - wflow - INFO - Writting several forcing with freq M
-2022-11-23 17:18:54,829 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2022-11-23 17:18:54,836 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
-[########################################] | 100% Completed | 102.26 ms
-2022-11-23 17:18:55,192 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2022-11-23 17:18:55,602 - update - wflow - INFO - Writing model staticgeom to file.
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+2023-01-12 08:13:23,640 - update - log - INFO - HydroMT version: 0.6.1.dev
+2023-01-12 08:13:23,640 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-01-12 08:13:23,640 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2023-01-12 08:13:23,640 - update - main - INFO - User settings:
+2023-01-12 08:13:23,667 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-01-12 08:13:23,671 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-01-12 08:13:23,765 - update - wflow - INFO - Reading model intbl files.
+2023-01-12 08:13:23,766 - update - wflow - INFO - Reading model staticgeom files.
+2023-01-12 08:13:23,896 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-01-12 08:13:23,909 - update - wflow - INFO - Model read
+2023-01-12 08:13:23,957 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2023-01-12 08:13:23,957 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2023-01-12 08:13:23,957 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2023-01-12 08:13:24,020 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.7 from archive
+2023-01-12 08:13:24,020 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.7/data_catalog.yml
+2023-01-12 08:13:24,120 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/chirps_global.nc
+2023-01-12 08:13:24,229 - update - model_api - WARNING - Replacing forcing: precip
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2023-01-12 08:13:24,229 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2023-01-12 08:13:24,236 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/era5.nc
+2023-01-12 08:13:24,333 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.7/era5_orography.nc
+2023-01-12 08:13:24,771 - update - model_api - WARNING - Replacing forcing: pet
+2023-01-12 08:13:24,773 - update - model_api - WARNING - Replacing forcing: temp
+2023-01-12 08:13:24,774 - update - model_api - INFO - write_forcing.fn_out: None
+2023-01-12 08:13:24,774 - update - model_api - INFO - write_forcing.freq_out: M
+2023-01-12 08:13:24,774 - update - model_api - INFO - write_forcing.chunksize: 1
+2023-01-12 08:13:24,775 - update - model_api - INFO - write_forcing.decimals: 2
+2023-01-12 08:13:24,775 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
+2023-01-12 08:13:24,775 - update - wflow - INFO - Write forcing file
+2023-01-12 08:13:24,802 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
+2023-01-12 08:13:24,802 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2023-01-12 08:13:24,821 - update - wflow - INFO - Writting several forcing with freq M
+2023-01-12 08:13:24,822 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2023-01-12 08:13:24,831 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
+[########################################] | 100% Completed | 102.58 ms
+2023-01-12 08:13:25,310 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2023-01-12 08:13:25,776 - update - wflow - INFO - Writing model staticgeom to file.
 
 </pre></div></div>
 </div>
@@ -871,7 +903,7 @@ Options:
 <h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this heading">#</a></h2>
 <p>From the information above, you can see that the different forcing variables where updated. Compared to the original model, the temperature and potential evapotranspiration still come from the ERA5 data source but now the precipitation are using CHIRPS data.</p>
 <p>Using the script from the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/_examples/plot_wflow_forcing.html">plot example</a>, we can compare the two precipitation datasets together (here <em>basin average</em> values).</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
@@ -882,6 +914,29 @@ Options:
 <span class="n">mod1</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_forcing&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/wflow.py:10: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:

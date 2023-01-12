@@ -376,7 +376,7 @@
 
 
 <div class="viewcode-block" id="WflowSedimentModel"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel">[docs]</a><span class="k">class</span> <span class="nc">WflowSedimentModel</span><span class="p">(</span><span class="n">WflowModel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This is the wflow sediment model class, a subclass of WflowModel&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;This is the wflow sediment model class, a subclass of WflowModel&quot;&quot;&quot;</span>
 
     <span class="n">_NAME</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment&quot;</span>
     <span class="n">_CONF</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment.toml&quot;</span>
@@ -409,7 +409,7 @@
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lakes"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average lake area, depth a discharge values.</span>
 
 <span class="sd">        The data is generated from features with ``min_area`` [km2] from a database with</span>
@@ -456,7 +456,7 @@
         <span class="n">priority_jrc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average reservoir area, demand, min and max target storage capacities and</span>
 <span class="sd">        discharge capacity values.</span>
 
@@ -525,7 +525,7 @@
         <span class="n">gauge_toml_param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets and additional</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets and additional</span>
 <span class="sd">        gauge maps based on ``gauges_fn`` data.</span>
 
 <span class="sd">        Supported gauge datasets include &quot;grdc&quot;</span>
@@ -603,7 +603,7 @@
             <span class="s2">&quot;WaterFrac&quot;</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This component derives several wflow maps are derived based on landuse-</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This component derives several wflow maps are derived based on landuse-</span>
 <span class="sd">        landcover (LULC) data. </span>
 <span class="sd">        </span>
 <span class="sd">        Currently, ``lulc_fn`` can be set to the &quot;vito&quot;, &quot;globcover&quot;</span>
@@ -643,7 +643,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Setup sediments based river bed characteristics maps.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup sediments based river bed characteristics maps.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -690,7 +690,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">canopy_fn</span><span class="o">=</span><span class="s2">&quot;simard&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Setup sediments based canopy height maps.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup sediments based canopy height maps.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -725,7 +725,7 @@
         <span class="n">soil_fn</span><span class="o">=</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
         <span class="n">usleK_method</span><span class="o">=</span><span class="s2">&quot;renard&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Setup sediments based soil parameter maps.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup sediments based soil parameter maps.</span>
 
 <span class="sd">        Adds model layers:</span>
 

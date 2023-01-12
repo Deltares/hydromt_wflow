@@ -682,7 +682,7 @@ div.rendered_html tbody tr:hover {
 <p>We use the <a class="reference external" href="https://scitools.org.uk/cartopy/docs/latest/">cartopy</a> package to plot maps. This packages provides a simple interface to plot geographic data and add background satellite imagery.</p>
 <section id="Load-dependencies">
 <h2>Load dependencies<a class="headerlink" href="#Load-dependencies" title="Permalink to this heading">#</a></h2>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -692,6 +692,29 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/workflows/basin_mask.py:9: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  import geopandas as gpd
+/usr/share/miniconda/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/io.py:14: UserWarning: Shapely 2.0 is installed, but because PyGEOS is also installed, GeoPandas will still use PyGEOS by default for now. To force to use and test Shapely 2.0, you have to set the environment variable USE_PYGEOS=0. You can do this before starting the Python process, or in your code before importing geopandas:
+
+import os
+os.environ[&#39;USE_PYGEOS&#39;] = &#39;0&#39;
+import geopandas
+
+In a future release, GeoPandas will switch to using Shapely by default. If you are using PyGEOS directly (calling PyGEOS functions on geometries from GeoPandas), this will then stop working and you are encouraged to migrate from PyGEOS to Shapely 2.0 (https://shapely.readthedocs.io/en/latest/migration_pygeos.html).
+  from . import raster, vector, gis_utils, merge
+</pre></div></div>
 </div>
 </section>
 <section id="Read-the-model">

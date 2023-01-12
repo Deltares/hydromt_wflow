@@ -391,7 +391,7 @@
 
 
 <span class="k">def</span> <span class="nf">average_soillayers_block</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine the weighted average of soil property at different depths over soil thickness,</span>
 <span class="sd">    assuming that the properties are computed at the mid-point of the interval and are considered</span>
 <span class="sd">    constant over the whole depth interval (Sousa et al., 2020). https://doi.org/10.5194/soil-2020-65</span>
@@ -441,7 +441,7 @@
 
 <span class="k">def</span> <span class="nf">average_soillayers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine weighted average of soil property at different depths over soil thickness,</span>
 <span class="sd">    using the trapezoidal rule.</span>
 <span class="sd">    See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda,</span>
@@ -494,7 +494,7 @@
 
 <span class="k">def</span> <span class="nf">pore_size_distrution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine pore size distribution index per soil layer depth based on PTF.</span>
 
 <span class="sd">    Parameters</span>
@@ -529,7 +529,7 @@
 
 <span class="k">def</span> <span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth based on PTF.</span>
 
 <span class="sd">    Parameters</span>
@@ -577,7 +577,7 @@
 
 
 <span class="k">def</span> <span class="nf">do_linalg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply np.linalg.lstsq and return fitted parameter.</span>
 
 <span class="sd">    Parameters</span>
@@ -598,7 +598,7 @@
 
 
 <span class="k">def</span> <span class="nf">do_curve_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply scipy.optimize.curve_fit and return fitted parameter. If least-squares minimization</span>
 <span class="sd">    fails with an inital guess p0 of 1e-3, and 1e-4, np.linalg.lstsq is used for curve fitting.</span>
 
@@ -635,7 +635,7 @@
 
 
 <span class="k">def</span> <span class="nf">constrain_M</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">popt_0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Constrain M parameter with the value M_minmax&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constrain M parameter with the value M_minmax&quot;&quot;&quot;</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">M</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">popt_0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">M</span> <span class="o">&gt;</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">M</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
@@ -643,7 +643,7 @@
 
 
 <div class="viewcode-block" id="soilgrids"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids">[docs]</a><span class="k">def</span> <span class="nf">soilgrids</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">ptfKsatVer</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns soil parameter maps at model resolution based on soil properties from SoilGrids datasets.</span>
 <span class="sd">    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties at 7 specific depths, while soilgrids_2020 provides soil properties averaged over 6 depth intervals. </span>
 <span class="sd">    Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda, </span>
@@ -910,7 +910,7 @@
 
 <div class="viewcode-block" id="soilgrids_sediment"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment">[docs]</a><span class="k">def</span> <span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns soil parameter maps for sediment modelling at model resolution based on soil </span>
 <span class="sd">    properties from SoilGrids dataset.</span>
 
