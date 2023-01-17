@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy import optimize
 import xarray as xr
+import hydromt
 
 from hydromt import flw
 import pyflwdir
@@ -99,13 +100,13 @@ def determine_omega(ds_sub_annual):
         try:
             omega_temp = optimize.brentq(
                 Zhang, 
-                1, 
-                8, 
+                0.000000000001, 
+                100, 
                 args=(aridity_index[subcatch_index_nr], 
                       evap_index[subcatch_index_nr])
                 )
             omega[subcatch_index_nr, :] = np.repeat(omega_temp, len(ds_sub_annual.forcing_type)) 
-        #TODO: check this (possible error that occurs: "ValueError: f(a) and f(b) must have different signs")
+        #possible error that occurs: "ValueError: f(a) and f(b) must have different signs") -- increase a and b range solves the issue. 
         except ValueError:
             omega[subcatch_index_nr, :] = np.repeat(np.NaN, len(ds_sub_annual.forcing_type)) 
     
@@ -180,14 +181,15 @@ def determine_Peffective_Interception_explicit(ds_sub,
             )
        
         # Load the potential evaporation and precipitation into memory to speed up
-        # the subsequent for loop
-        Epdt = ds_sub.sel(forcing_type=forcing_type)["pet_mean"].values
-        Pdt = ds_sub.sel(forcing_type=forcing_type)["precip_mean"].values
+        # the subsequent for loop.
+        #make sure order of coord is the same. 
+        Epdt = ds_sub.sel(forcing_type=forcing_type)["pet_mean"].transpose("index", "time").values
+        Pdt = ds_sub.sel(forcing_type=forcing_type)["precip_mean"].transpose("index", "time").values
         # Loop through the time steps and determine the variables per time step.
         for i in range(0, nr_time_steps):
             if intercep_vars_sub != None:
                 #TODO: for now assumed that LAI contains monthly data, change this for future
-                month = pd.to_datetime(ds_sub.time[100].values).month
+                month = pd.to_datetime(ds_sub.time[i].values).month
                 Imax = intercep_vars_sub["Imax"].sel(time=month)
             # Determine the variables with a simple interception reservoir approach
             canopy_storage[:,i] = canopy_storage[:,i] + Pdt[:,i]
@@ -195,6 +197,7 @@ def determine_Peffective_Interception_explicit(ds_sub,
             canopy_storage[:,i] = canopy_storage[:,i] - precip_effective[:,i]
             evap_interception[:,i] = np.minimum(Epdt[:,i], canopy_storage[:,i])
             canopy_storage[:,i] = canopy_storage[:,i] - evap_interception[:,i]
+
             # Update Si for the next time step
             if i < nr_time_steps - 1:
                 canopy_storage[:,i+1] = canopy_storage[:,i]
@@ -206,7 +209,7 @@ def determine_Peffective_Interception_explicit(ds_sub,
     return ds_sub
 
 
-def determine_storage_deficit(ds_sub):
+def determine_storage_deficit(ds_sub, correct_cc_deficit):
     """
     Function to determine the storage deficit for every time step, subcatchment
     location and datset in ds_sub.
@@ -222,8 +225,10 @@ def determine_storage_deficit(ds_sub):
         Same as above, but containing the storage deficits per time step for all
         forcing types.
     """         
-    transpiration = ds_sub["transpiration"].values
-    precip_effective = ds_sub["precip_effective"].values
+    #make sure the order of the coordinates is always the same. 
+    transpiration = ds_sub["transpiration"].transpose("index", "forcing_type", "time").values
+    precip_effective = ds_sub["precip_effective"].transpose("index", "forcing_type", "time").values
+    
     storage_deficit = np.zeros((
         len(ds_sub['index']), 
         len(ds_sub['forcing_type']), 
@@ -243,7 +248,7 @@ def determine_storage_deficit(ds_sub):
     # If there are climate projections present, adjust the storage deficit for
     # the future projections based on Table S1 in Bouaziz et al., 2002, HESS.
     # cc_hist remains as is (see Table S1)
-    if len(ds_sub.forcing_type) > 1:
+    if (len(ds_sub.forcing_type) > 1) & (correct_cc_deficit==True):
         ds_sub["storage_deficit"].loc[dict(forcing_type="cc_fut")] = ds_sub["storage_deficit"].sel(forcing_type="obs") + np.minimum(
             0.0,
             ds_sub["storage_deficit"].sel(forcing_type="cc_fut") - ds_sub["storage_deficit"].sel(forcing_type="cc_hist")
@@ -273,8 +278,8 @@ def fut_discharge_coeff(ds_sub_annual):
     # Determine the delP and delEP for cc_fut
     Ep = ds_sub_annual['pet_mean'].sel(forcing_type = "obs").mean("time")
     P = ds_sub_annual['precip_mean'].sel(forcing_type = "obs").mean("time")
-    delP = (ds_sub_annual['precip_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
-    delEp = (ds_sub_annual['pet_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('runs')).sel(forcing_type = 'cc_fut')
+    delP = ds_sub_annual['precip_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('forcing_type').sel(forcing_type="cc_fut")
+    delEp = ds_sub_annual['pet_mean'].sel(forcing_type = ['cc_hist', 'cc_fut']).mean('time').diff('forcing_type').sel(forcing_type="cc_fut")
     
     # Determine the difference in discharge between the observations and the 
     # future climate simulations
@@ -349,20 +354,20 @@ def gumbel_su_calc_xr(storage_deficit_annual,
     return gumbel
 
 
-def Zhang(omega, Ep_over_P, Ea_over_P):
+def Zhang(omega, aridity_index, evap_index):
     """
     This is the Zhang equation with omega as in Teuling et al., 2019.
     This function is used to get omega for historical situations when 
-    Ep_over_P and Ea_over_P are known (assuming Ea_over_P = 1 - Q_over_P).
+    aridity_index and evap_index are known (assuming evap_index = 1 - discharge_coeff).
     This equation is solved for Zhang eq = 0.
 
     Parameters
     ----------
-    omega : TYPE
-        DESCRIPTION.
-    Ep_over_P : TYPE
+    omega : float
+        Parameter of the Budyko curve.
+    aridity_index : float
         The aridity index.
-    Ea_over_P : TYPE
+    evap_index : float
         The evaporative index.
 
     Returns
@@ -385,7 +390,7 @@ def Zhang(omega, Ep_over_P, Ea_over_P):
     evapotranspiration, Water Resour. Res., 40, 1–14, 
     https://doi.org/10.1029/2003WR002710, 2004.
     """
-    return 1 + Ep_over_P - (1 + Ep_over_P**omega)**(1/omega) - Ea_over_P
+    return 1 + aridity_index - (1 + aridity_index**omega)**(1/omega) - evap_index
 
 
 def Zhang_future(omega, aridity_index):
@@ -489,6 +494,7 @@ def rootzoneclim(ds_obs,
                  start_field_capacity,
                  LAI,
                  rooting_depth,
+                 correct_cc_deficit,
                  chunksize,
                  logger=logger):
     """
@@ -517,6 +523,8 @@ def rootzoneclim(ds_obs,
         climate model.
     dsrun : str
         Geodataset with streamflow locations and timeseries.
+        The geodataset expects the coordinate names "index" (for each station id), 
+        "x" (for x coord) and "y" for y coord. 
     ds_like : xarray.DataArray
         Dataset at model resolution.
     flwdir : FlwDirRaster
@@ -535,17 +543,24 @@ def rootzoneclim(ds_obs,
         deficit yet.
     rooting_depth : bool
         Boolean indicating whether also the rooting depth (rootzone storage / 
-        (theta_s - theta_r)) should be stored.
+        (theta_s - theta_r)) should be stored. Requires to have run setup_soilmaps.
     LAI : bool
         Determine whether the LAI will be used to determine Imax.
     chunksize : int
         Chunksize on time dimension for processing data (not for saving to 
-        disk!). If None, a chunksize of 1000 is used on the time dimension.
+        disk!). A default value of 100 is used on the time dimension.
+    correct_cc_deficit : bool
+        Determines whether a bias-correction of the future deficit should be 
+        applied. If the climate change scenario and hist period are bias-corrected,
+        this should probably set to False. 
         
     Returns
     -------
     ds_out : xarray.Dataset
-        Dataset containing root zone storage capacity.
+        Dataset containing root zone storage capacity and RootingDepth (optional).
+    gdf_basins_all : GeoDataFrame
+        Geodataframe containing the root zone storage capacity values for each basin before filling NaN. 
+    
         
     References
     ----------
@@ -564,17 +579,7 @@ def rootzoneclim(ds_obs,
                  ds_cc_hist,
                  ds_cc_fut)
     
-    # Concatenate all forcing types (obs, cc_hist, cc_fut) into on xr dataset
-    if ds_cc_hist != None and ds_cc_fut != None:
-        ds_concat = xr.concat(
-            [ds_obs, ds_cc_hist, ds_cc_fut], 
-            pd.Index(["obs", "cc_hist", "cc_fut"], name="forcing_type")
-            )
-    else:
-        ds_concat = xr.concat(
-            [ds_obs], 
-            pd.Index(["obs"], name="forcing_type")
-            )
+
     
     # If LAI = True, create a new xr dataset containing the interception pars
     if LAI == True:
@@ -584,10 +589,12 @@ def rootzoneclim(ds_obs,
     
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
+    x_dim = ds_out.raster.x_dim
+    y_dim = ds_out.raster.y_dim
 
     # Make a basin map containing all subcatchments from geodataset of observed 
     # streamflow
-    x, y = dsrun.x.values, dsrun.y.values
+    x, y, ids = dsrun.x.values, dsrun.y.values, dsrun.index.values 
     gdf_basins = pd.DataFrame()  
     
     # Loop over basins and get per gauge location a polygon of the upstream
@@ -596,7 +603,7 @@ def rootzoneclim(ds_obs,
         ds_basin_single = flw.basin_map(
             ds_like,
             flwdir,
-            ids=dsrun.index.values[i],
+            ids=ids[i], 
             xy=(x[i], y[i]),
             stream=ds_like["wflow_river"],
         )[0]
@@ -608,36 +615,52 @@ def rootzoneclim(ds_obs,
     gdf_basins.index = gdf_basins.value.astype("int")
 
     # Add the catchment area to gdf_basins and sort in a descending order
-    # # Note that we first have to reproject to a cylindircal equal area in #TODO: new method added, which one do we keep?
-    # # order to preserve the area measure. 
-    # gdf_basins_copy = gdf_basins.copy()
-    # gdf_basins['area'] = gdf_basins_copy['geometry'].to_crs({'proj':'cea'}).area
-    # gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
-    # gdf_basins_copy = None 
-    # Calculate the catchment area based on the upstream area in the
-    # staticmaps
-    areas = []
-    for index in gdf_basins.index:
-        areas.append(
-            ds_like["wflow_uparea"].sel(
-                lat=dsrun.sel(index=index)["y"].values, 
-                lon=dsrun.sel(index=index)["x"].values, 
-                method="nearest"
-                ).values * 1e6
-            )
-    gdf_basins["area"] = areas
+    # make sure to also snap to river when retrieving areas 
+    idxs_gauges = flwdir.snap(xy=(x, y), mask=ds_like["wflow_river"].values)[0]
+    areas_uparea = ds_like['wflow_uparea'].values.flat[idxs_gauges]
+    df_areas = pd.DataFrame(index=ids, data=areas_uparea*1e6, columns=["area"])
+    gdf_basins = pd.concat([gdf_basins, df_areas],axis=1)
     gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
+
     
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
-    ds_sub = ds_concat.raster.zonal_stats(gdf_basins, stats=["mean"])
-    logger.info("Computing zonal statistics, this can take a while")
-    ds_sub = ds_sub.compute()
+    # loop over ds_obs, ds_cc_hist and ds_cc_fut as they might have different coordinate systems and then merge. 
+    ds_sub_obs = ds_obs.raster.zonal_stats(gdf_basins, stats=["mean"])
+    logger.info("Computing zonal statistics for obs, this can take a while")
+    ds_sub_obs = ds_sub_obs.compute()
+
+    if ds_cc_hist != None: 
+        ds_sub_cc_hist = ds_cc_hist.raster.zonal_stats(gdf_basins, stats=["mean"])
+        logger.info("Computing zonal statistics for cc_hist, this can take a while")
+        ds_sub_cc_hist = ds_sub_cc_hist.compute()
+
+    if ds_cc_fut != None:
+        ds_sub_cc_fut = ds_cc_fut.raster.zonal_stats(gdf_basins, stats=["mean"])
+        logger.info("Computing zonal statistics for cc_fut, this can take a while")
+        ds_sub_cc_fut = ds_sub_cc_fut.compute()
+    
+    # Concatenate all forcing types (obs, cc_hist, cc_fut) into an xr dataset after zonal stats
+    #TODO: this needs to be checked if the time period of the future period is in the future (not set to histoircal period.) 
+    if ds_cc_hist != None and ds_cc_fut != None:
+        ds_sub = xr.concat(
+            [ds_sub_obs, ds_sub_cc_hist, ds_sub_cc_fut], 
+            pd.Index(["obs", "cc_hist", "cc_fut"], name="forcing_type")
+            )
+    else:
+        ds_sub = xr.concat(
+            [ds_sub_obs], 
+            pd.Index(["obs"], name="forcing_type")
+            )
+    
+    # dropna to make sure that the same period of time is available for all forcing_types
+    ds_sub = ds_sub.dropna("time")
+
     # Also get the zonal statistics of the intercep_vars
     if LAI == True:
         intercep_vars_sub = intercep_vars.raster.zonal_stats(gdf_basins, stats=["mean"])
         intercep_vars_sub = intercep_vars_sub.compute()
         # Determine the Imax for every time step in the LAI data
-        intercep_vars_sub ["Imax"] = intercep_vars_sub ["LAI_mean"] * intercep_vars_sub ["Swood_mean"] + intercep_vars_sub ["LAI_mean"] * intercep_vars_sub ["Sl_mean"]
+        intercep_vars_sub["Imax"] = intercep_vars_sub["Swood_mean"] + intercep_vars_sub["LAI_mean"] * intercep_vars_sub["Sl_mean"]
     else: 
         intercep_vars_sub = None
     
@@ -648,7 +671,16 @@ def rootzoneclim(ds_obs,
         ds_sub = ds_sub.resample(time = "1D").sum('time', skipna=True)
     if (dsrun.time[1].values - dsrun.time[0].values).astype('timedelta64[s]').astype(np.int32) != time_step:
         dsrun = dsrun.resample(time = "1D").mean('time', skipna=True)
-        
+
+    # Determine effective precipitation, interception evporation and canopy 
+    # storage
+    logger.info("Determine effective precipitation, interception evporation and canopy storage")
+    ds_sub = determine_Peffective_Interception_explicit(ds_sub, 
+                                                        Imax=Imax, 
+                                                        intercep_vars_sub=intercep_vars_sub
+                                                        )
+
+
     # Add specific discharge per location-index value to ds_sub
     # First, sort dsrun based on descending subcatchment area (which is already
     # done in ds_sub)
@@ -667,18 +699,12 @@ def rootzoneclim(ds_obs,
         raise ValueError(
             "run_fn, the timeseries with discharge per x,y location, has not the right dimensions. Dimensions (time, index) or (index, time) expected"
             )
-       
-    # Determine effective precipitation, interception evporation and canopy 
-    # storage
-    logger.info("Determine effective precipitation, interception evporation and canopy storage")
-    ds_sub = determine_Peffective_Interception_explicit(ds_sub, 
-                                                        Imax=Imax, 
-                                                        intercep_vars_sub=intercep_vars_sub
-                                                        )
+    #replace lines above by below?
+    # ds_sub = xr.merge([ds_sub, dsrun["specific_Q"].to_dataset()], compat= "override")
+
+
  
     # Rechunk data
-    if chunksize == None:
-        chunksize = 100
     ds_sub = ds_sub.chunk(chunks={'index': len(ds_sub.index), 'forcing_type': 1, 'time': chunksize})
  
     # Get year sums of ds_sub
@@ -687,23 +713,31 @@ def rootzoneclim(ds_obs,
     # A counter will be used and a threshold, to only use years with sufficient
     # days containing data in the subsequent calculations
     ds_sub_annual_count = ds_sub.resample(time = f'AS-{start_hydro_year}').count('time')
-    missing_threshold = 330
+    missing_threshold = 330 #TODO: make this an input option as a percentage of days per year where data can be missing 
     
+    ds_sub_annual = ds_sub_annual.where(ds_sub_annual_count>missing_threshold)
+
     # Determine discharge coefficient, the aridity index and the evaporative
     # index
     ds_sub_annual = determine_budyko_curve_terms(ds_sub_annual, 
                                                  ds_sub_annual_count, 
+                                                 
                                                  threshold=missing_threshold)
-    ds_sub_annual_count = None
+
+    # TODO check if this only applies when correct_cc_deficit == True:
+    # set runoff coefficient of cc_hist equal to runoff coeff of obs
+    ds_sub_annual["discharge_coeff"].loc[dict(forcing_type="cc_hist")] = ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
     
     # Determine omega
     logger.info("Calculating the omega values, this can take a while")
     ds_sub_annual = determine_omega(ds_sub_annual)
-    
+
     # Determine future discharge ratio for cc_fut if ds_cc_fut exists
     if ds_cc_fut != None:
         ds_sub_annual = fut_discharge_coeff(ds_sub_annual)
     
+    ds_sub_annual_count = None
+
     # Determine long-term interception, potential evaporation and tranpsiration; 
     # use runoff coefficient instead of Qobs to calculate actual evaporation for 
     # each climate projection
@@ -719,7 +753,7 @@ def rootzoneclim(ds_obs,
     
     # Determine storage deficit
     logger.info("Determining the storage deficit")
-    ds_sub = determine_storage_deficit(ds_sub)
+    ds_sub = determine_storage_deficit(ds_sub, correct_cc_deficit)
     
     # From the storage deficit, determine the rootzone storage capacity using
     # a Gumbel distribution.
@@ -744,39 +778,33 @@ def rootzoneclim(ds_obs,
     ds_basins_all = flw.basin_map(
         ds_like,
         flwdir,
-        ids=dsrun.index.values,
+        ids=ids, 
         xy=(x, y),
         stream=ds_like["wflow_river"],
     )[0]
     ds_basins_all.raster.set_crs(ds_like.raster.crs)
     gdf_basins_all = ds_basins_all.raster.vectorize()
+    gdf_basins_all.index = gdf_basins_all.value.astype("int")
+    
     # Add the area and sort by area (from large to small)
-    areas = []
-    for index in gdf_basins_all.value:
-        areas.append(
-            ds_like["wflow_uparea"].sel(
-                lat=dsrun.sel(index=index)["y"].values, 
-                lon=dsrun.sel(index=index)["x"].values, 
-                method="nearest"
-                ).values * 1e6
-            )
-    gdf_basins_all["area"] = areas
+    #use previous df
+    gdf_basins_all = pd.concat([gdf_basins_all, df_areas],axis=1)
     gdf_basins_all = gdf_basins_all.sort_values(by="area", ascending=False)
     
     # Add the rootzone storage to gdf_basins_all, per forcing type and return 
     # period
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:
-            gdf_basins_all[f"{forcing_type}_{str(return_period)}"] = gumbel["rootzone_storage"].sel(RP=return_period, forcing_type=forcing_type)
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = gumbel["rootzone_storage"].sel(RP=return_period, forcing_type=forcing_type)
             # Make sure to give the NaNs a value, otherwise they will become 0.0
-            gdf_basins_all[f"{forcing_type}_{str(return_period)}"] = gdf_basins_all[f"{forcing_type}_{str(return_period)}"].fillna(-999)
-   
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"].fillna(-999)
+    
     # Rasterize this (from large subcatchments to small ones)
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:    
             da_area = ds_like.raster.rasterize(
                 gdf=gdf_basins_all,
-                col_name=f"{forcing_type}_{str(return_period)}",
+                col_name=f"rootzone_storage_{forcing_type}_{str(return_period)}",
                 nodata=-999,
                 all_touched=True,
                 ).to_dataset(name="rasterized_temp")
@@ -791,24 +819,24 @@ def rootzoneclim(ds_obs,
             # Make sure to fill up full domain with value of most downstream point
             # that contains values
             fill_value = None
-            for value in gdf_basins_all[f"{forcing_type}_{str(return_period)}"]:
+            for value in gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"]:
                 if value > 0.0:
                     if fill_value == None:
                         fill_value = value
             out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
             # Store the result in ds_out
-            #TODO: perhaps we should use a mask here.
+            #TODO: we should use a mask here. -- happens in write staticmaps? check!
             ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
-                ("lat", "lon"), 
+                (y_dim, x_dim), 
                 out_raster
                 )
             # Also store the RootingDepth if requested
             if rooting_depth == True:
                 ds_out[f"RootingDepth_{forcing_type}_{str(return_period)}"] = (
-                    ("lat", "lon"), 
+                    (y_dim, x_dim), 
                     out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values)
                     )            
     
-    return ds_out
+    return ds_out, gdf_basins_all
 
 

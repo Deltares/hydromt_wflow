@@ -1590,13 +1590,15 @@ class WflowModel(Model):
         forcing_obs_fn: str = "inmaps",
         forcing_cc_hist_fn: Optional[str] = None,
         forcing_cc_fut_fn: Optional[str] = None,
-        chunksize: Optional[int] = None,
+        chunksize: Optional[int] = 100, 
         return_period: Optional[list] = [2,3,5,10,15,20,25,50,60,100],
         Imax: Optional[float] = 2.0,
         start_hydro_year: Optional[str] = "Jan",
         start_field_capacity: Optional[str] = "Jan",
         LAI: Optional[bool] = False,
-        rooting_depth: Optional[bool] = False,
+        rooting_depth: Optional[bool] = True,
+        correct_cc_deficit: Optional[bool] = True,
+        time_tuple: Optional[tuple] = None,
         **kwargs,
     ) -> None:
         """
@@ -1605,19 +1607,23 @@ class WflowModel(Model):
         Parameters
         ----------
         run_fn : str, optional
-            Timeseries with discharge per x,y location. The default is "run_obs".
+            Geodataset with timeseries with discharge per x,y location. 
+            The geodataset expects the coordinate names "index" (for each station id), 
+            "x" (for x coord) and "y" for y coord. 
+            The default is "run_obs".
         forcing_obs_fn : str, optional
-            Gridded timeseries with the obsered forcing. The default is "inmaps".
+            Gridded timeseries with the observed forcing. The default is "inmaps".
+            Expects to have variables "precip" and "pet".
         forcing_cc_hist_fn : str, optional
             Gridded timeseries with the simulated historical forcing, based on a climate
-            model. The default is None.
+            model. Expects to have variables "precip" and "pet". The default is None.
         forcing_cc_fut_fn : str, optional
             Gridded timeseries with the simulated climate forcing, based on a
-            climate model. The default is None.
+            climate model. Expects to have variables "precip" and "pet". 
+            The default is None.
         chunksize : int, optional
             Chunksize on time dimension for processing data (not for saving to 
-            disk!). If None, a chunksize of 1000 is used on the time dimension.
-            The default is None.
+            disk!). The default is 100.
         return_period : list, optional
             List with one or more values indiciating the return period(s) (in 
             years) for wich the rootzone storage depth should be calculated. The
@@ -1635,13 +1641,25 @@ class WflowModel(Model):
         LAI : bool, optional
             Determine whether the LAI will be used to determine Imax. The
             default is False.
-        rooting_detph : bool, optional
+        rooting_depth : bool, optional
             Determines whether the rooting depth (rootzone storage / 
-            (theta_s - theta_r)) should be stored or not. The default is False.
+            (theta_s - theta_r)) should be stored or not. The default is True. 
+            If set to True, requires to have run setup_soilmaps. 
+        correct_cc_deficit : bool, optional
+            Determines whether a bias-correction of the future deficit should be 
+            applied. If the climate change scenario and hist period are bias-corrected,
+            this should probably set to False. The default is True.
+        time_tuple: tuple, optional
+            Select which time period to read from all the forcing files. There should be some overlap
+            between the time period available in the forcing files for the historical period and in the observed streamflow data.
             
         Returns
         -------
-        An update from self
+        An update from self which: 
+        Adds RootingDepth_{forcing}_{RP} and rootzone_storage_{forcing}_{RP} layers to the staticmaps; 
+        Adds rootzone_storage_{forcing}_{RP} layers to the staticgeoms which contains the rootzone storage 
+        capacities estimated for each catchment before filling the missings with data from 
+        downstream catchments
 
         """
 
@@ -1649,23 +1667,36 @@ class WflowModel(Model):
         #TODO: make sure that forcing data has unit mm. 
         # Open the data sets
         ds_obs = self.data_catalog.get_rasterdataset(
-            forcing_obs_fn, geom=self.region, buffer=2
+            forcing_obs_fn, geom=self.region, buffer=2,
+            variables=["pet", "precip"],
+            time_tuple=time_tuple,
         )
         ds_cc_hist = None
         if forcing_cc_hist_fn != None:
             ds_cc_hist = self.data_catalog.get_rasterdataset(
-                forcing_cc_hist_fn, geom=self.region, buffer=2
+                forcing_cc_hist_fn, geom=self.region, buffer=2,
+                variables=["pet", "precip"],
+                time_tuple=time_tuple,
             )        
         ds_cc_fut = None
         if forcing_cc_fut_fn != None:
             ds_cc_fut = self.data_catalog.get_rasterdataset(
-                forcing_cc_fut_fn, geom=self.region, buffer=2
+                forcing_cc_fut_fn, geom=self.region, buffer=2,
+                variables=["pet", "precip"],
+                time_tuple=time_tuple,
             ) 
-        dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False)
+        dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False, time_tuple=time_tuple)
+        
+        #make sure dsrun overlaps with ds_obs, otherwise give error
+        if dsrun.time[0] < ds_obs.time[0]:
+            dsrun = dsrun.sel(time=slice(ds_obs.time[0], None))
+        if dsrun.time[-1] > ds_obs.time[-1]:
+            dsrun = dsrun.sel(time=slice(None, ds_obs.time[-1]))
+        if len(dsrun.time) == 0:
+            self.logger.error("No overlapping period between the meteo and observed streamflow data")
 
-        # import pdb; pdb.set_trace()
         # Run the rootzone clim workflow
-        dsout = workflows.rootzoneclim(
+        dsout, gdf = workflows.rootzoneclim(
             ds_obs=ds_obs,
             ds_cc_hist=ds_cc_hist,
             ds_cc_fut=ds_cc_fut,
@@ -1678,10 +1709,12 @@ class WflowModel(Model):
             start_field_capacity=start_field_capacity,
             LAI=LAI,
             rooting_depth=rooting_depth,
+            correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
             logger=self.logger,
         )  # .reset_coords(drop=True)
         self.set_staticmaps(dsout)
+        self.set_staticgeoms(gdf, name="rootzone_storage")
 
     # I/O
     def read(self):
