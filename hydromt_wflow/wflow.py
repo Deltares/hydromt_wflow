@@ -1597,8 +1597,10 @@ class WflowModel(Model):
         start_field_capacity: Optional[str] = "Jan",
         LAI: Optional[bool] = False,
         rooting_depth: Optional[bool] = True,
-        correct_cc_deficit: Optional[bool] = True,
+        correct_cc_deficit: Optional[bool] = False,
         time_tuple: Optional[tuple] = None,
+        time_tuple_fut: Optional[tuple] = None,
+        missing_days_threshold: Optional[int] = 330,
         **kwargs,
     ) -> None:
         """
@@ -1647,8 +1649,9 @@ class WflowModel(Model):
             If set to True, requires to have run setup_soilmaps. 
         correct_cc_deficit : bool, optional
             Determines whether a bias-correction of the future deficit should be 
-            applied. If the climate change scenario and hist period are bias-corrected,
-            this should probably set to False. The default is True.
+            applied using the cc_hist deficit. Only works if the time periods of cc_hist and 
+            cc_fut are the same. If the climate change scenario and hist period are bias-corrected,
+            this should probably set to False. The default is False.
         time_tuple: tuple, optional
             Select which time period to read from all the forcing files. There should be some overlap
             between the time period available in the forcing files for the historical period and in the observed streamflow data.
@@ -1683,7 +1686,7 @@ class WflowModel(Model):
             ds_cc_fut = self.data_catalog.get_rasterdataset(
                 forcing_cc_fut_fn, geom=self.region, buffer=2,
                 variables=["pet", "precip"],
-                time_tuple=time_tuple,
+                time_tuple=time_tuple_fut,
             ) 
         dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False, time_tuple=time_tuple)
         
@@ -1711,6 +1714,7 @@ class WflowModel(Model):
             rooting_depth=rooting_depth,
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
+            missing_days_threshold=missing_days_threshold,
             logger=self.logger,
         )  # .reset_coords(drop=True)
         self.set_staticmaps(dsout)
