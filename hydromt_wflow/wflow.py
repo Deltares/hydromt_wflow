@@ -1455,6 +1455,9 @@ class WflowModel(Model):
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
+        wind_correction: bool = True, 
+        wind_altitude: int = 10,
+        reproj_method: str = "nearest_index",
         dem_forcing_fn: str = "era5_orography",
         skip_pet: str = False,
         chunksize: Optional[int] = None,
@@ -1471,7 +1474,7 @@ class WflowModel(Model):
         ----------
         temp_pet_fn : str, optional
             Name or path of data source with variables to calculate temperature and reference evapotranspiration,
-            see data/forcing_sources.yml, by default 'era5'.
+            see data/forcing_sources.yml, by default 'era5_daily_zarr'.
 
             * Required variable for temperature: ['temp']
 
@@ -1479,9 +1482,10 @@ class WflowModel(Model):
 
             * Required variables for Makkink reference evapotranspiration: ['temp', 'press_msl', 'kin']
 
-            * Required variables for daily Penman-Monteith reference evapotranspiration: either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 'wind', 'kin', 'press_msl', "wind_u", "wind_v"] for 'penman-monteith_tdew' (these are the variables available in ERA5)
+            * Required variables for daily Penman-Monteith reference evapotranspiration: either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 'wind', 'kin', 'press_msl', "wind10_u", "wind10_v"] for 'penman-monteith_tdew' (these are the variables available in ERA5)
         pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
+            If penman-monteith is used, requires the installation of the pyet package.
         press_correction, temp_correction : bool, optional
              If True pressure, temperature are corrected using elevation lapse rate,
              by default False.
@@ -1516,8 +1520,8 @@ class WflowModel(Model):
                 variables += [
                     "temp_min",
                     "temp_max",
-                    "wind_u",
-                    "wind_v",
+                    "wind10_u",
+                    "wind10_v",
                     "temp_dew",
                     "kin",
                     "press_msl",
@@ -1592,10 +1596,13 @@ class WflowModel(Model):
         if not skip_pet:
             pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 temp=temp_in,
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 method=pet_method,
                 press_correction=press_correction,
+                wind_correction=wind_correction,
+                wind_altitude=wind_altitude,
+                reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
                 logger=self.logger,
