@@ -1541,7 +1541,7 @@ class WflowModel(Model):
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
-        wind_correction: bool = True, 
+        wind_correction: bool = True,
         wind_altitude: int = 10,
         reproj_method: str = "nearest_index",
         dem_forcing_fn: str = "era5_orography",
