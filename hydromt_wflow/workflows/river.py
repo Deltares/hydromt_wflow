@@ -128,7 +128,7 @@ def river(
         min_len2 = rivlen2[riv_mask].min()
         pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
         logger.debug(
-            f"River length smoothed (min length: {min_len:.0f} m; cells modified: {pmod:.1f})%."
+            f"River length smoothed (min length: {min_len2:.0f} m; cells modified: {pmod:.1f})%."
         )
         rivlen = rivlen2
     elif min_rivlen_ratio > 0:
@@ -150,9 +150,8 @@ def river(
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
     dims = ds_model.raster.dims
     # save as uint8 as bool is not supported in nc and tif files
-    riv_mask = riv_mask.astype(np.uint8)
-    riv_mask.raster.set_nodata(0)
-    ds_out["rivmsk"] = riv_mask
+    ds_out["rivmsk"] = riv_mask.astype(np.uint8)
+    ds_out["rivmsk"].raster.set_nodata(0)
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
