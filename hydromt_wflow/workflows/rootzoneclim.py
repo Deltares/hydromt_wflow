@@ -84,7 +84,12 @@ def determine_omega(ds_sub_annual):
     # Load the aridity index and evaporative index as np arrays (this saves
     # calculation time in the loop below)
     #calculate omega for "obs" and "cc_hist":
-    for forcing_type in ["obs", "cc_hist"]:
+    if "cc_hist" in ds_sub_annual.forcing_type:
+        forcing_types = ["obs", "cc_hist"]
+    else:
+        forcing_types = ["obs"]
+        
+    for forcing_type in forcing_types:
         aridity_index = ds_sub_annual.sel(forcing_type=forcing_type)["aridity_index"].values
         evap_index = ds_sub_annual.sel(forcing_type=forcing_type)["evap_index"].values
         
