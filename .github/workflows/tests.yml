@@ -24,7 +24,7 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
-          miniforge-variant: Mambaforge
+          mamba-version: "*"
           channels: conda-forge,defaults
           channel-priority: strict
           environment-file: envs/test_env.yml
