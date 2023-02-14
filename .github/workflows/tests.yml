@@ -24,9 +24,9 @@ jobs:
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
-          mamba-version: "*"
+          miniforge-variant: Mambaforge
           channels: conda-forge,defaults
-          channel-priority: true
+          channel-priority: strict
           environment-file: envs/test_env.yml
           activate-environment: hydromt-wflow
 
