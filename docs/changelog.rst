@@ -12,9 +12,12 @@ Unreleased
 Added
 -----
 - Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
+- In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
+- In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
 
 Changed
 -------
+- in [setup_reservoirs]: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default Global Water Watch is used for downloading reservoir timeseries.
 
 Fixed
 -----
@@ -24,6 +27,7 @@ Fixed
 - bug in wflow_build_sediment.ini template in examples
 - temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms). 
 - fix wrong default value for lai_fn in setup_laimaps #119
+- fix error in **setup_reservoirs** when gdf contains no data in np.nanmax calculation for i.e. damheight #35
 
 Deprecated
 ----------

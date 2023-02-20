@@ -95,8 +95,8 @@ class WflowSedimentModel(WflowModel):
     def setup_reservoirs(
         self,
         reservoirs_fn="hydro_reservoirs",
+        timeseries_fn="gww",
         min_area=1.0,
-        priorityEO=True,
         **kwargs,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
@@ -125,20 +125,17 @@ class WflowSedimentModel(WflowModel):
         ----------
         reservoirs_fn : {'hydro_reservoirs'}
             Name of data source for reservoir parameters, see data/data_sources.yml.
-
-            * Required variables with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
-
-            * Required variables without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+            * Required variables with timeseries_fn defined: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+            * Required variables without timeseries_fn defined: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+        timeseries_fn: {'gww'}
+            Name of the source to get reservoir surface area time series from. 
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
-        priorityEO : boolean, optional
-            If True, use EO data to calculate
-            and overwrite the reservoir volume/areas of the data source.
         """
         super().setup_reservoirs(
             reservoirs_fn=reservoirs_fn,
+            timeseries_fn=timeseries_fn,
             min_area=min_area,
-            priorityEO=priorityEO,
             **kwargs,
         )
         # Update the toml to match wflow_sediment and not wflow_sbm

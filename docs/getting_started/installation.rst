@@ -13,6 +13,7 @@ Compared to HydroMT, HydroMT-Wflow has additionnal dependencies, namely:
 
 - `toml <https://github.com/uiri/toml>`_
 - `pcraster <https://pcraster.geo.uu.nl>`_ (optional)
+- `gwwapi <https://github.com/global-water-watch/gww-api>`_ (optional)
 - `hydroengine <https://github.com/openearth/hydro-engine>`_ (optional)
 
 Installation
@@ -44,15 +45,17 @@ Then, activate the environment (as stated by mamba/conda) to start making use of
   conda activate hydromt-wflow
 
 This will install **almost** all dependencies including the core HydroMT library and the model API as well
-as the model plugins **Wflow** and **Wflow Sediment**. To complete the installation, add manually the hydroengine dependency:
+as the model plugins **Wflow** and **Wflow Sediment**. To complete the installation, add manually the gwwapi (recommended) or hydroengine dependency:
 
 .. Note::
 
-    The hydroengine package is not available from conda and therefore has to be installed from pypi separately.
+    The gwwapi and hydroengine packages are not available from conda and therefore has to be installed from pypi separately.
 
 .. code-block:: console
 
+  $ pip install gwwapi
   $ pip install hydroengine
+
 
 **Alternatively** to install hydromt_wflow using pip do (not recommended):
 
@@ -76,10 +79,11 @@ Note that if some dependencies are not installed from conda-forge the installati
 
 .. Note::
 
-    Take also here into account that hydroengine package is not available from conda and therefore has to be installed from pypi separately.
+    Please take into account that gwwapi and hydroengine packages are not available from conda and therefore have to be installed from pypi separately.
 
 .. code-block:: console
 
+  $ pip install gwwapi
   $ pip install hydroengine
 
 For **Using pip** from pypi (not recommended) see above

@@ -1020,11 +1020,9 @@ class WflowModel(Model):
     def setup_reservoirs(
         self,
         reservoirs_fn="hydro_reservoirs",
-        #timeseries_fn = 'gww' or None or 'jrc' 
-        min_area=1.0,
-        #priorityEO=True,
-        
-        **kwargs,
+        timeseries_fn = "gww", 
+        min_area=1.0,       
+        **kwargs
     ):
         """This component generates maps of reservoir areas and outlets as well as parameters
         with average reservoir area, demand, min and max target storage capacities and
@@ -1039,13 +1037,13 @@ class WflowModel(Model):
         and 'ResTargetMaxFrac' [-], the average water demand ResDemand [m3/s] and the maximum release of
         the reservoir before spilling 'ResMaxRelease' [m3/s].
 
-        In case the wflow parameters are not directly available they can be computed by HydroMT using other
-        reservoir characteristics. If not enough characteristics are available, the hydroengine tool will be
-        used to download additionnal timeseries from the JRC database.
-        The required variables for computation of the parameters with hydroengine are reservoir ID 'waterbody_id',
+        In case the wflow parameters are not directly available they can be computed by HydroMT based on time series of reservoir surface water area. 
+        These time series can be retreived from either the hydroengine or the gwwapi, based on the Hylak_id the reservoir, found in the GrandD database. 
+        
+        The required variables for computation of the parameters with time series data are reservoir ID 'waterbody_id',
         reservoir ID in the HydroLAKES database 'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg'
         [m], average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
-        To compute parameters without using hydroengine, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
+        To compute parameters without using time series data, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
         average area 'Area_avg' [m2], average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge 'Dis_avg'
         [m3/s] and dam height 'Dam_height' [m] and minimum / normal / maximum storage capacity of the dam 'Capacity_min',
         'Capacity_norm', 'Capacity_max' [m3].
@@ -1076,9 +1074,8 @@ class WflowModel(Model):
             * Required variables for computation without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
-        priorityEO : boolean, optional
-            If True, use EO data to calculate
-            and overwrite the reservoir volume/areas of the data source.
+        timeseries_fn : str, optional 
+            Use time series of reservoir surface water area to calculate and overwrite the reservoir volume/areas of the data source.            
         """
         # rename to wflow naming convention
         tbls = {
@@ -1127,11 +1124,10 @@ class WflowModel(Model):
                 reservoir_accuracy = None
             # else compute
             else:
-                intbl_reservoirs, reservoir_accuracy = workflows.reservoirattrs(
+                intbl_reservoirs, reservoir_accuracy, reservoir_timeseries = workflows.reservoirattrs(
                     gdf=gdf_org,
-                    priorityEO=priorityEO,
-                    EOsource=kwargs.get("EOsource", 'gww'),
-                    logger=self.logger,
+                    timeseries_fn=timeseries_fn,
+                    logger=self.logger    
                 )
                 intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
@@ -1163,6 +1159,9 @@ class WflowModel(Model):
             if reservoir_accuracy is not None:
                 reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
 
+            if reservoir_timeseries is not None:
+                reservoir_timeseries.to_csv(join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv"))
+                
             for option in res_toml:
                 self.set_config(option, res_toml[option])
 
