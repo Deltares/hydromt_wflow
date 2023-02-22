@@ -415,7 +415,6 @@
     <span class="n">d</span> <span class="o">=</span> <span class="n">soilthickness</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">sl</span><span class="p">:</span>
-
         <span class="n">da_sum</span> <span class="o">=</span> <span class="n">da_sum</span> <span class="o">+</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">soildepth_cm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">soildepth_cm</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
             <span class="o">*</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
@@ -440,7 +439,6 @@
 
 
 <span class="k">def</span> <span class="nf">average_soillayers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine weighted average of soil property at different depths over soil thickness,</span>
 <span class="sd">    using the trapezoidal rule.</span>
@@ -468,7 +466,6 @@
     <span class="n">d</span> <span class="o">=</span> <span class="n">soilthickness</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sl</span><span class="p">)):</span>  <span class="c1"># range(1, 7):</span>
-
         <span class="n">da_sum</span> <span class="o">=</span> <span class="n">da_sum</span> <span class="o">+</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">soildepth_cm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">soildepth_cm</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
             <span class="o">*</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">i</span><span class="p">)</span> <span class="o">+</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
@@ -493,7 +490,6 @@
 
 
 <span class="k">def</span> <span class="nf">pore_size_distrution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine pore size distribution index per soil layer depth based on PTF.</span>
 
@@ -528,7 +524,6 @@
 
 
 <span class="k">def</span> <span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth based on PTF.</span>
 
@@ -814,7 +809,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># for soilgrids 2017, keep the direct mapping calculation.</span>
         <span class="n">da_c</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sl_ind</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c_sl_index</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sl_ind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c_sl_index</span><span class="p">):</span>
             <span class="n">da_c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">lambda_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">sl_ind</span><span class="p">)))</span>
         <span class="n">ds_c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
             <span class="n">da_c</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c_sl_index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;layer&quot;</span><span class="p">)</span>
@@ -909,7 +904,6 @@
 
 
 <div class="viewcode-block" id="soilgrids_sediment"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment">[docs]</a><span class="k">def</span> <span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns soil parameter maps for sediment modelling at model resolution based on soil </span>
 <span class="sd">    properties from SoilGrids dataset.</span>
