@@ -372,23 +372,27 @@ def river_floodplain_volume(
     flood_depths = np.atleast_1d(flood_depths).ravel().astype(dtype)  # force 1D
     _, ucat_vol = flwdir.ucat_volume(idxs_out=idxs_out, hand=hand, depths=flood_depths)
     # force minimum volume based on river width * length
-    min_vol = (
-        ds_model["rivwth"].values[None, ...]
-        * ds_model["rivlen"].values[None, ...]
-        * flood_depths[:, None, None]
-    )
-    ucat_vol = (
-        np.where(riv_mask, np.maximum(ucat_vol, min_vol), -9999)
-        .round(0)
-    )
+    rivlen = np.maximum(ds_model["rivlen"].values, 1)  # avoid zero division errors
+    min_vol = ds_model["rivwth"].values * rivlen * flood_depths[0]
+    ucat_vol[0, :, :] = np.maximum(ucat_vol[0, :, :], min_vol).round(0)
+    fldwth = ucat_vol[0, :, :] / rivlen / flood_depths[0]
+    for i in range(1, ucat_vol.shape[0]):
+        dh = flood_depths[i] - flood_depths[i - 1]
+        min_vol = ucat_vol[i - 1, ...] + (fldwth * rivlen * dh)
+        ucat_vol[i, :, :] = np.maximum(ucat_vol[i, :, :], min_vol).round(0)
+        fldwth = (ucat_vol[i, :, :] - ucat_vol[i - 1, :, :]) / rivlen / dh
 
     # return xarray DataArray
-    da_out = xr.DataArray(
-        coords={"flood_depth": flood_depths, **ds_model.raster.coords},
-        dims=("flood_depth", *ds_model.raster.dims),
-        data=ucat_vol,
-    ).reset_coords(drop=True)
-    da_out.raster.set_nodata(-9999)
+    da_out = (
+        xr.DataArray(
+            coords={"flood_depth": flood_depths, **ds_model.raster.coords},
+            dims=("flood_depth", *ds_model.raster.dims),
+            data=ucat_vol,
+        )
+        .reset_coords(drop=True)
+        .where(ds_model["rivmsk"] > 0, -9999.0)
+    )
+    da_out.raster.set_nodata(-9999.0)
     da_out.raster.set_crs(ds_model.raster.crs)
 
     # TODO return a second dataset with hand and ucat_map variables for postprocessing

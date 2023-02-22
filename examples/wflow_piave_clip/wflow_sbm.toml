@@ -34,6 +34,7 @@ kw_land_tstep = 3600
 thicknesslayers = [ 100, 300, 800,]
 river_routing = "local-inertial"
 land_routing = "local-inertial"
+floodplain_1d = true
 
 [output]
 path = "run_default/output.nc"
@@ -136,6 +137,9 @@ q_av = "q_river"
 
 [output.lateral.land]
 h = "h_land"
+
+[input.lateral.river.floodplain]
+volume = "floodplain_volume"
 
 [input.lateral.river.reservoir]
 area = "ResSimpleArea"
