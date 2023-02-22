@@ -26,7 +26,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           mamba-version: "*"
           channels: conda-forge,defaults
-          channel-priority: strict
+          channel-priority: true
           environment-file: envs/test_env.yml
           activate-environment: hydromt-wflow
 
