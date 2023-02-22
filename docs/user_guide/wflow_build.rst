@@ -13,7 +13,7 @@ data libraries are set, you can build a model by using:
 
 .. Note::
   From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or --region flag.
-  The resolution (-r) argument has been moved to the setup_basemaps section in the .ini configuration file.
+  The resolution (previously -r) argument has been moved to the setup_basemaps section in the .ini configuration file.
 
 The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
 for a proper implementation of this model are:

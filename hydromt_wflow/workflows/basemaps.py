@@ -235,7 +235,7 @@ def hydrography(
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
-    ds_out = ds_out.raster.clip_mask(mask=ds_out[basins_name])
+    ds_out = ds_out.raster.clip_mask(ds_out[basins_name])
     ds_out.raster.set_crs(ds.raster.crs)
     logger.debug(
         f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."
