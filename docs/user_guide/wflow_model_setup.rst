@@ -64,6 +64,8 @@ a specific method see its documentation.
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
+    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+      -  Setup staticmaps from raster to add parameters from direct data.
 
 
 .. _model_components:

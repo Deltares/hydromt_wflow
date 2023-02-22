@@ -9,9 +9,9 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ==========
 
+
 Added
 -----
-- Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
 - New setup_river_floodplain method `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
 
 Changed
@@ -19,11 +19,41 @@ Changed
 
 Fixed
 -----
+- Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
+- Bugfix with wrong indexing in the river method that could cause memory issues `PR #147 <https://github.com/Deltares/hydromt_wflow/pull/147>`_
+
+Deprecated
+----------
+
+
+v0.2.1 (22 November 2022)
+=========================
+New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
+deprecated staticmaps and staticgeoms objects in hydromt core to work with the new 0.6.0 release.
+
+Added
+-----
+- Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
+- New **setup_staticmaps_from_raster** method. `PR #128 <https://github.com/Deltares/hydromt_wflow/issues/111>`_
+
+Changed
+-------
+- update forcing example with multiple forcing files #122
+- New window smoothing algorithm in `setup_rivers` to avoid cells with small river length. 
+  Set the min_rivlen_ratio argument to a value larger than zero to apply the smoothing.
+  Note: requires pyflwdir v0.5.6 `PR #92 <https://github.com/Deltares/hydromt_wflow/pull/92>`_
+
+Fixed
+-----
 - write_forcing with time of type cftime.DatetimeNoLeap #109
+- write_forcing: re-write config in case of multiple forcing files
+- read_forcing with multiple files (* key in toml)
 - bug in setup_gauges in update mode with crs.is_epsg_code #108
 - bug in self.rivers if no staticgeoms and rivmsk is found #113
 - bug in wflow_build_sediment.ini template in examples
+- wrong defaults in wflow_build.ini teamplate in examples #116
 - temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms). 
+- fix wrong default value for lai_fn in setup_laimaps #119
 
 Deprecated
 ----------
