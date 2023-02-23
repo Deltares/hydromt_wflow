@@ -647,6 +647,8 @@ def rootzoneclim(ds_obs,
     df_areas = pd.DataFrame(index=ids, data=areas_uparea*1e6, columns=["area"])
     gdf_basins = pd.concat([gdf_basins, df_areas],axis=1)
     gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
+    #drop basins where area is NaN. 
+    gdf_basins = gdf_basins[(gdf_basins["area"]>=0)]
 
     
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
@@ -710,7 +712,7 @@ def rootzoneclim(ds_obs,
     # Get the specific discharge (mm/timestep) per location in order to have
     # everything in mm/timestep
     dsrun = dsrun.assign(
-        specific_Q=dsrun["run"]/np.array(gdf_basins["area"]) * time_step * 1000.0
+        specific_Q=dsrun["run"].transpose("time", "index")/np.array(gdf_basins["area"]) * time_step * 1000.0
         )
     # Add dsrun to ds_sub
     # if dsrun["specific_Q"].dims == ("time", "index"):
@@ -801,7 +803,9 @@ def rootzoneclim(ds_obs,
     #use previous df
     gdf_basins_all = pd.concat([gdf_basins_all, df_areas],axis=1)
     gdf_basins_all = gdf_basins_all.sort_values(by="area", ascending=False)
-    
+    #again drop basins where area is NaN
+    gdf_basins_all = gdf_basins_all[(gdf_basins_all["area"]>=0)]
+
     # Add the rootzone storage to gdf_basins_all, per forcing type and return 
     # period
     for return_period in gumbel.RP.values:
