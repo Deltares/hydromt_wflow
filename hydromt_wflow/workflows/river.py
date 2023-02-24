@@ -374,12 +374,12 @@ def river_floodplain_volume(
     # force minimum volume based on river width * length
     rivlen = np.maximum(ds_model["rivlen"].values, 1)  # avoid zero division errors
     min_vol = ds_model["rivwth"].values * rivlen * flood_depths[0]
-    ucat_vol[0, :, :] = np.maximum(ucat_vol[0, :, :], min_vol).round(0)
+    ucat_vol[0, :, :] = np.maximum(ucat_vol[0, :, :], min_vol)
     fldwth = ucat_vol[0, :, :] / rivlen / flood_depths[0]
     for i in range(1, ucat_vol.shape[0]):
         dh = flood_depths[i] - flood_depths[i - 1]
         min_vol = ucat_vol[i - 1, ...] + (fldwth * rivlen * dh)
-        ucat_vol[i, :, :] = np.maximum(ucat_vol[i, :, :], min_vol).round(0)
+        ucat_vol[i, :, :] = np.maximum(ucat_vol[i, :, :], min_vol)
         fldwth = (ucat_vol[i, :, :] - ucat_vol[i - 1, :, :]) / rivlen / dh
 
     # return xarray DataArray
