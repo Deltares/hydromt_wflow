@@ -1537,7 +1537,7 @@ class WflowModel(Model):
 
     def setup_temp_pet_forcing(
         self,
-        temp_pet_fn: str = "era5",
+        temp_pet_fn: str = "era5", 
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
