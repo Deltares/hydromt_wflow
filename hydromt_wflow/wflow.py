@@ -106,6 +106,7 @@ class WflowModel(Model):
 
         # wflow specific
         self._intbl = dict()
+        self._tables = dict()
         self._flwdir = None
 
     # COMPONENTS
@@ -917,7 +918,12 @@ class WflowModel(Model):
             )
         self.set_staticmaps(da_area.rename(area_fn))
 
-    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
+    def setup_lakes(
+        self,
+        lakes_fn="hydro_lakes",
+        rating_curve_fn=None,
+        min_area=10.0,
+    ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
 
@@ -933,6 +939,8 @@ class WflowModel(Model):
         * **LakeAvgLevel** map: lake average water level [m]
         * **LakeAvgOut** map: lake average discharge [m3/s]
         * **Lake_b** map: lake rating curve coefficient [-]
+        * **LakeOutflowFunc** map: option to compute rating curve [-]
+        * **LakeStorFunc** map: option to compute storage curve [-]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
         Parameters
@@ -941,6 +949,11 @@ class WflowModel(Model):
             Name of data source for lake parameters, see data/data_sources.yml.
 
             * Required variables: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
+        rating_curve_fn: str
+            Data catalog entry containing rating curve values for lakes. If None then will be derived from
+            properties of lakes_fn.
+
+            * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
             Minimum lake area threshold [km2], by default 1.0 km2.
         """
@@ -980,16 +993,84 @@ class WflowModel(Model):
                 gdf_org["LakeAvgLevel"].values
             ) ** (2)
             gdf_org["Lake_e"] = 2
-            gdf_org["LakeStorFunc"] = 1
-            gdf_org["LakeOutflowFunc"] = 3
             gdf_org["LakeThreshold"] = 0.0
             gdf_org["LinkedLakeLocs"] = 0
+            gdf_org["LakeStorFunc"] = 1
+            gdf_org["LakeOutflowFunc"] = 3
 
             # Check if some LakeAvgOut values have been replaced
             if not np.all(LakeAvgOut == gdf_org["LakeAvgOut"]):
                 self.logger.warning(
                     "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
                 )
+
+            # If rating_curve_fn prepare rating curve values
+            if rating_curve_fn is not None:
+                self.logger.info(
+                    f"Preparing lake rating curve data from {rating_curve_fn}"
+                )
+                # assume lake index will be in the path
+                rating_path = self.data_catalog[rating_curve_fn].path
+                key_str = "{" + "index" + "}"
+                if key_str in rating_path:
+                    # Assume one rating curve per lake index
+                    for id in gdf_org["waterbody_id"].values:
+                        # TODO: can index be moved to core as one of the known keys like year month?
+                        # Update path based on current waterbody_id
+                        fmt = {"index": id}
+                        path = rating_path.format(**fmt)
+                        self.data_catalog[rating_curve_fn].path = path
+                        # Read data
+                        if isfile(path):
+                            df_rate = self.data_catalog.get_dataframe(rating_curve_fn)
+                            # Reset path to original
+                            self.data_catalog[rating_curve_fn].path = rating_path
+
+                            # Prepare the right tables for wflow
+                            # Update LakeStor and LakeOutflowFunc
+                            # Storage
+                            if "volume" in df_rate.columns:
+                                gdf_org.loc[
+                                    gdf_org["waterbody_id"] == id, "LakeStorFunc"
+                                ] = 2
+                                df_stor = df_rate[["elevtn", "volume"]].dropna(
+                                    subset=["elevtn", "volume"]
+                                )
+                                df_stor.rename(
+                                    columns={"elevtn": "H", "volume": "S"}, inplace=True
+                                )
+                                self.set_tables(df_stor, name=f"lake_sh_{id}")
+                            else:
+                                self.logger.warning(
+                                    f"Storage data not available for lake {id}. Using default S=AH"
+                                )
+                            # Rating
+                            if "discharge" in df_rate.columns:
+                                gdf_org.loc[
+                                    gdf_org["waterbody_id"] == id, "LakeOutflowFunc"
+                                ] = 1
+                                df_rate = df_rate[["elevtn", "discharge"]].dropna(
+                                    subset=["elevtn", "discharge"]
+                                )
+                                df_rate.rename(
+                                    columns={"elevtn": "H", "discharge": "Q"},
+                                    inplace=True,
+                                )
+                                # Repeat Q for the 365 JDOY
+                                df_q = pd.concat(
+                                    [df_rate.Q] * (366), axis=1, ignore_index=True
+                                )
+                                df_q[0] = df_rate["H"]
+                                df_q.rename(columns={0: "H"}, inplace=True)
+                                self.set_tables(df_q, name=f"lake_hq_{id}")
+                            else:
+                                self.logger.warning(
+                                    f"Rating data not available for lake {id}. Using default Modified Puls Approach"
+                                )
+                        else:
+                            self.logger.warning(
+                                f"Rating curve file {path} not found for lake with id {id}. Using default storage/outflow function parameters."
+                            )
 
             lake_params = [
                 "waterbody_id",
@@ -1673,6 +1754,7 @@ class WflowModel(Model):
         self.read_config()
         self.read_staticmaps()
         self.read_intbl()
+        self.read_tables()
         self.read_staticgeoms()
         self.read_forcing()
         self.logger.info("Model read")
@@ -1689,6 +1771,8 @@ class WflowModel(Model):
             self.write_config()
         if self._staticmaps:
             self.write_staticmaps()
+        if self._tables:
+            self.write_tables()
         if self._staticgeoms:
             self.write_staticgeoms()
         if self._forcing:
@@ -2132,6 +2216,40 @@ class WflowModel(Model):
                 self.logger.warning(f"Overwriting intbl: {name}")
         self._intbl[name] = df
 
+    def read_tables(self, **kwargs):
+        """Read table files at <root> and parse to dict of dataframes"""
+        if not self._write:
+            self._tables = dict()  # start fresh in read-only mode
+
+        self.logger.info("Reading model table files.")
+        fns = glob.glob(join(self.root, f"*.csv"))
+        if len(fns) > 0:
+            for fn in fns:
+                name = basename(fn).split(".")[0]
+                tbl = pd.read_csv(fn)
+                self.set_tables(tbl, name=name)
+
+    def write_tables(self):
+        """Write tables at <root>."""
+        if not self._write:
+            raise IOError("Model opened in read-only mode")
+        if self.tables:
+            self.logger.info("Writing table files.")
+            for name in self.tables:
+                fn_out = join(self.root, f"{name}.csv")
+                self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
+
+    def set_tables(self, df, name):
+        """Add table <pandas.DataFrame> to model."""
+        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
+            raise ValueError("df type not recognized, should be pandas.DataFrame.")
+        if name in self._tables:
+            if not self._write:
+                raise IOError(f"Cannot overwrite table {name} in read-only mode")
+            elif self._read:
+                self.logger.warning(f"Overwriting table: {name}")
+        self._tables[name] = df
+
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
             fdict = toml.load(f)
@@ -2149,6 +2267,14 @@ class WflowModel(Model):
         if not self._intbl:
             self.read_intbl()
         return self._intbl
+
+    @property
+    # Move to core Model API ?
+    def tables(self):
+        """Returns a dictionary of pandas.DataFrames representing the wflow intbl files."""
+        if not self._tables:
+            self.read_tables()
+        return self._tables
 
     @property
     def flwdir(self):
@@ -2329,6 +2455,14 @@ class WflowModel(Model):
                     "Lake_e",
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
+
+            # Update tables
+            ids = np.unique(lake)
+            self._tables = {
+                k: v
+                for k, v in self._tables.items()
+                if not any([str(x) in k for x in ids])
+            }
 
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
