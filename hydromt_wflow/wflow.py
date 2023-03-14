@@ -85,14 +85,15 @@ class WflowModel(GridModel):
         "instate",
         "run_default",
     ]
+    # tell hydroMT which methods should receive the res and region arguments
+    _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
 
     def __init__(
         self,
-        root=None,
-        mode="w",
-        config_fn=None,
-        data_libs=None,
-        deltares_data=False,
+        root: str = None,
+        mode: str = "w",
+        config_fn: str = None,
+        data_libs: List[str] = None,
         logger=logger,
     ):
         super().__init__(
@@ -100,7 +101,6 @@ class WflowModel(GridModel):
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
-            deltares_data=deltares_data,
             logger=logger,
         )
 
@@ -1721,7 +1721,7 @@ class WflowModel(GridModel):
             self.logger.info(f"Input directory found {input_dir}")
 
         if isfile(join(self.root, fn)):
-            kwargs = kwargs.update({"decode_coords": "all"})
+            kwargs.update({"decode_coords": "all"})
             for ds in self._read_nc(fn, **kwargs).values():
                 # make sure internally maps are always North -> South oriented
                 if ds.raster.res[1] > 0:
@@ -1755,6 +1755,8 @@ class WflowModel(GridModel):
 
             ds_out = self.grid.raster.gdal_compliant(rename_dims=True, force_sn=False)
             ds_out = ds_out.drop_vars(["mask", "ls"], errors="ignore")
+            ds_out = ds_out.reset_coords()
+
             mask = ds_out[self._MAPS["basins"]] > 0
             for v in ds_out.data_vars:
                 # nodata is required for all but boolean fields
@@ -1833,14 +1835,14 @@ class WflowModel(GridModel):
         fn = "geoms/*.geojson"
         if self.get_config("dir_input") is not None:
             fn = f"{self.get_config('dir_input', abs_path=False)}/geoms/*.geojson"
-        super.read_geoms(fn)
+        super().read_geoms(fn)
 
     def write_geoms(self):
         """Write geoms at <root/geoms> in model ready format"""
-        fn = "geoms/*.geojson"
+        fn = "geoms/{name}.geojson"
         if self.get_config("dir_input") is not None:
-            fn = f"{self.get_config('dir_input', abs_path=False)}/geoms/*.geojson"
-        super.write_geoms(fn, driver="GeoJSON")
+            fn = self.get_config("dir_input", abs_path=False) + "/geoms/{name}.geojson"
+        super().write_geoms(fn, driver="GeoJSON")
 
     def read_forcing(self):
         """Read forcing"""

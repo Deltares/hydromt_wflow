@@ -2,6 +2,7 @@
 
 import os
 from os.path import join
+from typing import Union, Optional, List
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -35,11 +36,10 @@ class WflowSedimentModel(WflowModel):
 
     def __init__(
         self,
-        root=None,
-        mode="w",
-        config_fn=None,
-        data_libs=None,
-        deltares_data=False,
+        root: str = None,
+        mode: str = "w",
+        config_fn: str = None,
+        data_libs: List[str] = None,
         logger=logger,
     ):
         super().__init__(
@@ -47,7 +47,6 @@ class WflowSedimentModel(WflowModel):
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
-            deltares_data=deltares_data,
             logger=logger,
         )
 
