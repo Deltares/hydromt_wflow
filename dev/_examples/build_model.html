@@ -1,7 +1,10 @@
 
+
 <!DOCTYPE html>
 
-<html lang="en">
+
+<html lang="en" data-theme="light">
+
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
@@ -16,23 +19,24 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link href="../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
@@ -49,81 +53,93 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Updating a model" href="../user_guide/wflow_update.html" />
     <link rel="prev" title="Building a model" href="../user_guide/wflow_build.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="docsearch:language" content="en">
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
   </head>
   
   
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="light">
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
 
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
-
   
-  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
   <label class="overlay overlay-primary" for="__primary"></label>
-
   
-  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
   <label class="overlay overlay-secondary" for="__secondary"></label>
-
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
     <div class="search-button__search-container">
-      
-<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form>
-    </div>
+</form></div>
   </div>
-
   
-  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
   <label class="sidebar-toggle primary-toggle" for="__primary">
-      <span class="fa-solid fa-bars"></span>
+    <span class="fa-solid fa-bars"></span>
   </label>
-  <div id="navbar-start">
-    
-    
   
-
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
 
 <a class="navbar-brand logo" href="../index.html">
-
   
   
   
   
-  
-  
-  
-
-  
-    <img src="../_static/hydromt-logo.jpg" class="logo__image only-light" alt="Logo image">
-    <img src="../_static/hydromt-logo.jpg" class="logo__image only-dark" alt="Logo image">
+    
+    
+    
+    <img src="../_static/hydromt-logo.jpg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/hydromt-logo.jpg" class="logo__image only-dark" alt="Logo image"/>`);</script>
   
   
     <p class="title logo__title">HydroMT Wflow</p>
   
-</a>
+</a></div>
     
   </div>
-
+  
   
   <div class="col-lg-9 navbar-header-items">
-    <div id="navbar-center" class="mr-auto">
+    
+    <div class="me-auto navbar-header-items__center">
       
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
-        
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../getting_started/intro.html">
                         Getting started
@@ -158,24 +174,28 @@
                   </a>
                 </li>
                 
-    </ul>
-</nav>
-      </div>
+  </ul>
+</nav></div>
       
     </div>
-
-    <div id="navbar-end">
+    
+    
+    <div class="navbar-header-items__end">
       
-        <div class="navbar-end-item navbar-persistent--container">
+        <div class="navbar-item navbar-persistent--container">
           
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
         </div>
       
       
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -184,7 +204,8 @@
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
         </li>
         <li class="nav-item">
           
@@ -194,7 +215,8 @@
           
           
           
-          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
         </li>
         <li class="nav-item">
           
@@ -204,52 +226,57 @@
           
           
           
-          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
-      </ul>
-      </div>
+</ul></div>
       
     </div>
+    
   </div>
-
-
   
   
     <div class="navbar-persistent--mobile">
-<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
-  <i class="fa-solid fa-magnifying-glass"></i>
-</button>
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
     </div>
   
 
   
-  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
       <span class="fa-solid fa-outdent"></span>
-  </label>
+    </label>
   
-
 </div>
-  </nav>
-  
 
+    </nav>
+  
   <div class="bd-container">
     <div class="bd-container__inner bd-page-width">
       
       <div class="bd-sidebar-primary bd-sidebar">
         
+
   
   <div class="sidebar-header-items sidebar-primary__section">
     
     
       <div class="sidebar-header-items__center">
-      
-      <div class="navbar-center-item">
-        <nav class="navbar-nav">
-    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
-        Site Navigation
-    </p>
-    <ul id="navbar-main-elements" class="navbar-nav">
         
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
                     <li class="nav-item">
                       <a class="nav-link nav-internal" href="../getting_started/intro.html">
                         Getting started
@@ -284,19 +311,17 @@
                   </a>
                 </li>
                 
-    </ul>
-</nav>
+  </ul>
+</nav></div>
+        
       </div>
-      
-      </div>
-    
-
     
     
-    <div class="sidebar-header-items__end">
-      
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
         <li class="nav-item">
           
           
@@ -305,7 +330,8 @@
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
         </li>
         <li class="nav-item">
           
@@ -315,7 +341,8 @@
           
           
           
-          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
         </li>
         <li class="nav-item">
           
@@ -325,23 +352,20 @@
           
           
           
-          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
         </li>
-      </ul>
+</ul></div>
+        
       </div>
-      
-    </div>
     
   </div>
-
   
-  <div class="sidebar-start-items sidebar-primary__section">
-    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
-  <p class="bd-links__title" role="heading" aria-level="1">
-    Section Navigation
-  </p>
-  <div class="bd-toc-item navbar-nav">
-    <p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide/wflow.html">Working with the Wflow model</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow_model_setup.html">Model methods and components</a></li>
@@ -379,294 +403,71 @@
 </ul>
 </li>
 </ul>
-
-  </div>
-</nav>
+</div>
+</nav></div>
     </div>
-  </div>
   
-
   
-  <div class="sidebar-end-items sidebar-primary__section">
-    <div class="sidebar-end-items__item">
-    </div>
+  <div class="sidebar-primary-items__end sidebar-primary__section">
   </div>
-
   
   <div id="rtd-footer-container"></div>
 
+
       </div>
+      
       <main id="main-content" class="bd-main">
         
         
-        <div class="bd-content">
-          <div class="bd-article-container">
-            
-            <div class="bd-header-article">
-                
-            </div>
-            
-            
-            <article class="bd-article" role="main">
+          <div class="bd-content">
+            <div class="bd-article-container">
               
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
   
-<style>
-/* CSS for nbsphinx extension */
-
-/* remove conflicting styling from Sphinx themes */
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt *,
-div.nbinput.container div.input_area pre,
-div.nboutput.container div.output_area pre,
-div.nbinput.container div.input_area .highlight,
-div.nboutput.container div.output_area .highlight {
-    border: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: none;
-}
-
-div.nbinput.container > div[class*=highlight],
-div.nboutput.container > div[class*=highlight] {
-    margin: 0;
-}
-
-div.nbinput.container div.prompt *,
-div.nboutput.container div.prompt * {
-    background: none;
-}
-
-div.nboutput.container div.output_area .highlight,
-div.nboutput.container div.output_area pre {
-    background: unset;
-}
-
-div.nboutput.container div.output_area div.highlight {
-    color: unset;  /* override Pygments text color */
-}
-
-/* avoid gaps between output lines */
-div.nboutput.container div[class*=highlight] pre {
-    line-height: normal;
-}
-
-/* input/output containers */
-div.nbinput.container,
-div.nboutput.container {
-    display: -webkit-flex;
-    display: flex;
-    align-items: flex-start;
-    margin: 0;
-    width: 100%;
-}
-@media (max-width: 540px) {
-    div.nbinput.container,
-    div.nboutput.container {
-        flex-direction: column;
-    }
-}
-
-/* input container */
-div.nbinput.container {
-    padding-top: 5px;
-}
-
-/* last container */
-div.nblast.container {
-    padding-bottom: 5px;
-}
-
-/* input prompt */
-div.nbinput.container div.prompt pre {
-    color: #307FC1;
-}
-
-/* output prompt */
-div.nboutput.container div.prompt pre {
-    color: #BF5B3D;
-}
-
-/* all prompts */
-div.nbinput.container div.prompt,
-div.nboutput.container div.prompt {
-    width: 4.5ex;
-    padding-top: 5px;
-    position: relative;
-    user-select: none;
-}
-
-div.nbinput.container div.prompt > div,
-div.nboutput.container div.prompt > div {
-    position: absolute;
-    right: 0;
-    margin-right: 0.3ex;
-}
-
-@media (max-width: 540px) {
-    div.nbinput.container div.prompt,
-    div.nboutput.container div.prompt {
-        width: unset;
-        text-align: left;
-        padding: 0.4em;
-    }
-    div.nboutput.container div.prompt.empty {
-        padding: 0;
-    }
-
-    div.nbinput.container div.prompt > div,
-    div.nboutput.container div.prompt > div {
-        position: unset;
-    }
-}
-
-/* disable scrollbars and line breaks on prompts */
-div.nbinput.container div.prompt pre,
-div.nboutput.container div.prompt pre {
-    overflow: hidden;
-    white-space: pre;
-}
-
-/* input/output area */
-div.nbinput.container div.input_area,
-div.nboutput.container div.output_area {
-    -webkit-flex: 1;
-    flex: 1;
-    overflow: auto;
-}
-@media (max-width: 540px) {
-    div.nbinput.container div.input_area,
-    div.nboutput.container div.output_area {
-        width: 100%;
-    }
-}
-
-/* input area */
-div.nbinput.container div.input_area {
-    border: 1px solid #e0e0e0;
-    border-radius: 2px;
-    /*background: #f5f5f5;*/
-}
-
-/* override MathJax center alignment in output cells */
-div.nboutput.container div[class*=MathJax] {
-    text-align: left !important;
-}
-
-/* override sphinx.ext.imgmath center alignment in output cells */
-div.nboutput.container div.math p {
-    text-align: left;
-}
-
-/* standard error */
-div.nboutput.container div.output_area.stderr {
-    background: #fdd;
-}
-
-/* ANSI colors */
-.ansi-black-fg { color: #3E424D; }
-.ansi-black-bg { background-color: #3E424D; }
-.ansi-black-intense-fg { color: #282C36; }
-.ansi-black-intense-bg { background-color: #282C36; }
-.ansi-red-fg { color: #E75C58; }
-.ansi-red-bg { background-color: #E75C58; }
-.ansi-red-intense-fg { color: #B22B31; }
-.ansi-red-intense-bg { background-color: #B22B31; }
-.ansi-green-fg { color: #00A250; }
-.ansi-green-bg { background-color: #00A250; }
-.ansi-green-intense-fg { color: #007427; }
-.ansi-green-intense-bg { background-color: #007427; }
-.ansi-yellow-fg { color: #DDB62B; }
-.ansi-yellow-bg { background-color: #DDB62B; }
-.ansi-yellow-intense-fg { color: #B27D12; }
-.ansi-yellow-intense-bg { background-color: #B27D12; }
-.ansi-blue-fg { color: #208FFB; }
-.ansi-blue-bg { background-color: #208FFB; }
-.ansi-blue-intense-fg { color: #0065CA; }
-.ansi-blue-intense-bg { background-color: #0065CA; }
-.ansi-magenta-fg { color: #D160C4; }
-.ansi-magenta-bg { background-color: #D160C4; }
-.ansi-magenta-intense-fg { color: #A03196; }
-.ansi-magenta-intense-bg { background-color: #A03196; }
-.ansi-cyan-fg { color: #60C6C8; }
-.ansi-cyan-bg { background-color: #60C6C8; }
-.ansi-cyan-intense-fg { color: #258F8F; }
-.ansi-cyan-intense-bg { background-color: #258F8F; }
-.ansi-white-fg { color: #C5C1B4; }
-.ansi-white-bg { background-color: #C5C1B4; }
-.ansi-white-intense-fg { color: #A1A6B2; }
-.ansi-white-intense-bg { background-color: #A1A6B2; }
-
-.ansi-default-inverse-fg { color: #FFFFFF; }
-.ansi-default-inverse-bg { background-color: #000000; }
-
-.ansi-bold { font-weight: bold; }
-.ansi-underline { text-decoration: underline; }
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
 
 
-div.nbinput.container div.input_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight] > pre,
-div.nboutput.container div.output_area div[class*=highlight].math,
-div.nboutput.container div.output_area.rendered_html,
-div.nboutput.container div.output_area > div.output_javascript,
-div.nboutput.container div.output_area:not(.rendered_html) > img{
-    padding: 5px;
-    margin: 0;
-}
 
-/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
-div.nbinput.container div.input_area > div[class^='highlight'],
-div.nboutput.container div.output_area > div[class^='highlight']{
-    overflow-y: hidden;
-}
 
-/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt .copybtn {
-    display: none;
-}
 
-/* Some additional styling taken form the Jupyter notebook CSS */
-.jp-RenderedHTMLCommon table,
-div.rendered_html table {
-  border: none;
-  border-collapse: collapse;
-  border-spacing: 0;
-  color: black;
-  font-size: 12px;
-  table-layout: fixed;
-}
-.jp-RenderedHTMLCommon thead,
-div.rendered_html thead {
-  border-bottom: 1px solid black;
-  vertical-align: bottom;
-}
-.jp-RenderedHTMLCommon tr,
-.jp-RenderedHTMLCommon th,
-.jp-RenderedHTMLCommon td,
-div.rendered_html tr,
-div.rendered_html th,
-div.rendered_html td {
-  text-align: right;
-  vertical-align: middle;
-  padding: 0.5em 0.5em;
-  line-height: normal;
-  white-space: normal;
-  max-width: none;
-  border: none;
-}
-.jp-RenderedHTMLCommon th,
-div.rendered_html th {
-  font-weight: bold;
-}
-.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
-div.rendered_html tbody tr:nth-child(odd) {
-  background: #f5f5f5;
-}
-.jp-RenderedHTMLCommon tbody tr:hover,
-div.rendered_html tbody tr:hover {
-  background: rgba(66, 165, 245, 0.2);
-}
-</style>
-<div class="admonition tip">
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../user_guide/intro.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><i class="fa-solid fa-ellipsis"></i></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide/wflow_build.html" class="nav-link">Building a model</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Build a Wflow model from scratch</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <div>
     For an interactive online version click here:
@@ -770,30 +571,30 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-02-23 05:20:32,847 - build - log - INFO - HydroMT version: 0.7.1.dev
-2023-02-23 05:20:32,847 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base.
-2023-02-23 05:20:32,847 - build - main - INFO - User settings:
-2023-02-23 05:20:33,197 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2023-02-23 05:20:33,197 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
-2023-02-23 05:20:33,197 - build - model_api - INFO - setup_basemaps.res: 0.008333333333333333
-2023-02-23 05:20:33,197 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
-2023-02-23 05:20:33,198 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
-2023-02-23 05:20:33,198 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
-2023-02-23 05:20:33,198 - build - wflow - INFO - Preparing base hydrography basemaps.
-2023-02-23 05:20:33,423 - build - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
-2023-02-23 05:20:38,300 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-02-23 05:20:38,425 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
-2023-02-23 05:20:42,534 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
-2023-02-23 05:20:42,787 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
-2023-02-23 05:20:58,586 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base
-2023-02-23 05:20:58,589 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base/wflow_sbm.toml
-2023-02-23 05:20:58,618 - build - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base/staticmaps.nc
+2023-03-14 02:46:34,821 - build - log - INFO - HydroMT version: 0.7.1.dev
+2023-03-14 02:46:34,821 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base.
+2023-03-14 02:46:34,821 - build - main - INFO - User settings:
+2023-03-14 02:46:35,181 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-03-14 02:46:35,181 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2023-03-14 02:46:35,181 - build - model_api - INFO - setup_basemaps.res: 0.008333333333333333
+2023-03-14 02:46:35,181 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2023-03-14 02:46:35,181 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2023-03-14 02:46:35,181 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2023-03-14 02:46:35,181 - build - wflow - INFO - Preparing base hydrography basemaps.
+2023-03-14 02:46:35,419 - build - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
+2023-03-14 02:46:38,666 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-03-14 02:46:38,741 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2023-03-14 02:46:43,062 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2023-03-14 02:46:43,319 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2023-03-14 02:46:59,508 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base
+2023-03-14 02:46:59,512 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base/wflow_sbm.toml
+2023-03-14 02:46:59,539 - build - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_base/staticmaps.nc
 
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt build</strong> with:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">wflow</span></code> : i.e. build a Wflow model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow</span></code> : i.e. build a Wflow model</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">./wflow_test_base</span></code> : output model folder</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&quot;{'subbasin':</span> <span class="pre">[12.2051,</span> <span class="pre">45.8331],</span> <span class="pre">'strord':</span> <span class="pre">4,</span> <span class="pre">'bounds':</span> <span class="pre">[11.70,</span> <span class="pre">45.35,</span> <span class="pre">12.95,</span> <span class="pre">46.70]}&quot;</span></code> : derive a subbasin with its outlet at the given x,y coordinates and within the given bounds [xmin, ymin, xmax, ymax] (WGS84) snapped to a river with minimum stream order (strord) of 4. All <em>REGION</em> options are described in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">docs</a></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-vv</span></code> : give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
@@ -804,7 +605,7 @@ Options:
 <h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Permalink to this heading">#</a></h2>
 <p>The ini-file contains the model setup configuration and determines which methods are used to prepare the different components of a Wflow model and in which order and optionally sets non-default arguments for each method. This configuration is passed to HydroMT using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_ini_file&gt;</span></code>. We have prepared several example ini-files which are available in the model repository <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/tree/main/examples">examples folder</a> and from the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_build">docs (building a
 model)</a>.</p>
-<p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_basemaps]</span></code>) corresponds to a model method. All model methods are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model components)</a>.</p>
+<p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_basemaps]</span></code>) corresponds to a model method. All model methods are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model components)</a>.</p>
 <p>We will load the default wflow build ini file for inspection:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -922,7 +723,7 @@ G_TT = 1.3
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span>hydromt<span class="w"> </span>build<span class="w"> </span>wflow<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;./wflow_test_full&quot;</span><span class="w"> </span><span class="s2">&quot;{&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.70, 45.35, 12.95, 46.70]}&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_build.ini<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
+<span class="o">!</span>hydromt<span class="w"> </span>build<span class="w"> </span>wflow<span class="w"> </span><span class="s2">&quot;./wflow_test_full&quot;</span><span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;{&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.70, 45.35, 12.95, 46.70]}&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_build.ini<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
 </pre></div>
 </div>
 </div>
@@ -931,39 +732,203 @@ G_TT = 1.3
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Traceback (most recent call last):
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/bin/hydromt&#34;, line 8, in &lt;module&gt;
-    sys.exit(main())
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 1130, in __call__
-    return self.main(*args, **kwargs)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 1055, in main
-    rv = self.invoke(ctx)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 1655, in invoke
-    sub_ctx = cmd.make_context(cmd_name, args, parent=ctx)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 920, in make_context
-    self.parse_args(ctx, args)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 1378, in parse_args
-    value, args = param.handle_parse_result(ctx, opts, args)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 2360, in handle_parse_result
-    value = self.process_value(ctx, value)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/click/core.py&#34;, line 2322, in process_value
-    value = self.callback(ctx, self, value)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt/cli/cli_utils.py&#34;, line 66, in parse_json
-    elif type(literal_eval(value)) in (float, int):
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/ast.py&#34;, line 62, in literal_eval
-    node_or_string = parse(node_or_string, mode=&#39;eval&#39;)
-  File &#34;/usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/ast.py&#34;, line 50, in parse
-    return compile(source, filename, mode, flags,
-  File &#34;&lt;unknown&gt;&#34;, line 1
-    ./wflow_test_full
-    ^
-SyntaxError: invalid syntax
+2023-03-14 02:47:01,713 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/hydromt.log.
+2023-03-14 02:47:01,713 - build - log - INFO - HydroMT version: 0.7.1.dev
+2023-03-14 02:47:01,713 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full.
+2023-03-14 02:47:01,714 - build - main - INFO - User settings:
+2023-03-14 02:47:02,201 - build - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
+2023-03-14 02:47:02,202 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-03-14 02:47:02,276 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-03-14 02:47:02,276 - build - model_api - DEBUG - Setting model config options.
+2023-03-14 02:47:02,278 - build - model_api - DEBUG - Default config read from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow/wflow_sbm.toml
+2023-03-14 02:47:02,278 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2023-03-14 02:47:02,278 - build - model_api - INFO - setup_basemaps.res: 0.00833
+2023-03-14 02:47:02,278 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2023-03-14 02:47:02,278 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2023-03-14 02:47:02,278 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2023-03-14 02:47:02,278 - build - wflow - INFO - Preparing base hydrography basemaps.
+2023-03-14 02:47:02,278 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2023-03-14 02:47:02,404 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
+2023-03-14 02:47:06,430 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2023-03-14 02:47:06,503 - build - wflow - DEBUG - Adding basins vector to staticgeoms.
+2023-03-14 02:47:06,503 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
+2023-03-14 02:47:06,504 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
+2023-03-14 02:47:06,645 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
+2023-03-14 02:47:06,689 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2023-03-14 02:47:22,106 - build - basemaps - DEBUG - Derive stream order.
+2023-03-14 02:47:22,279 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
+2023-03-14 02:47:22,279 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
+2023-03-14 02:47:22,530 - build - wflow - DEBUG - Adding region vector to staticgeoms.
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.river_geom_fn: rivers_lin2019_v1
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.river_upa: 30
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.slope_len: 2000
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.min_rivlen_ratio: 0.0
+2023-03-14 02:47:22,534 - build - model_api - INFO - setup_rivers.min_rivdph: 1
+2023-03-14 02:47:22,535 - build - model_api - INFO - setup_rivers.min_rivwth: 30
+2023-03-14 02:47:22,535 - build - model_api - INFO - setup_rivers.smooth_len: 5000
+2023-03-14 02:47:22,535 - build - model_api - INFO - setup_rivers.rivman_mapping_fn: /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow/N_river_mapping.csv
+2023-03-14 02:47:22,535 - build - wflow - INFO - Preparing river maps.
+2023-03-14 02:47:22,535 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2023-03-14 02:47:22,654 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.778, 45.807, 12.745, 46.690]
+2023-03-14 02:47:22,669 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2023-03-14 02:47:22,869 - build - river - DEBUG - Derive river length.
+2023-03-14 02:47:29,399 - build - river - DEBUG - Derive river slope.
+2023-03-14 02:47:30,172 - build - river - DEBUG - Derive rivwth from hydrography dataset.
+2023-03-14 02:47:30,191 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
+2023-03-14 02:47:30,202 - build - data_catalog - INFO - DataCatalog: Getting rivers_lin2019_v1 GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/rivers_lin2019_v1.gpkg
+2023-03-14 02:47:30,203 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.778, 45.807, 12.745, 46.690].
+2023-03-14 02:47:30,474 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
+2023-03-14 02:47:30,554 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
+2023-03-14 02:47:32,721 - build - wflow - DEBUG - Adding rivers vector to staticgeoms.
+2023-03-14 02:47:33,505 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
+2023-03-14 02:47:33,505 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
+2023-03-14 02:47:33,505 - build - model_api - INFO - setup_reservoirs.priority_jrc: True
+2023-03-14 02:47:33,505 - build - wflow - INFO - Preparing reservoir maps.
+2023-03-14 02:47:33,506 - build - data_catalog - INFO - DataCatalog: Getting hydro_reservoirs GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_reservoirs.gpkg
+2023-03-14 02:47:33,509 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-03-14 02:47:33,542 - build - geodataframe - DEBUG - GeoDataFrame: Convert units for 5 columns.
+2023-03-14 02:47:33,545 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
+2023-03-14 02:47:33,546 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
+2023-03-14 02:47:33,546 - build - model_api - INFO - setup_lakes.min_area: 10.0
+2023-03-14 02:47:33,546 - build - wflow - INFO - Preparing lake maps.
+2023-03-14 02:47:33,546 - build - data_catalog - INFO - DataCatalog: Getting hydro_lakes GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_lakes.gpkg
+2023-03-14 02:47:33,549 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-03-14 02:47:33,576 - build - geodataframe - DEBUG - GeoDataFrame: Convert units for 1 columns.
+2023-03-14 02:47:33,577 - build - wflow - WARNING - No lakes of sufficient size found within region! Skipping lake procedures!
+2023-03-14 02:47:33,578 - build - model_api - INFO - setup_glaciers.glaciers_fn: rgi
+2023-03-14 02:47:33,578 - build - model_api - INFO - setup_glaciers.min_area: 1.0
+2023-03-14 02:47:33,578 - build - wflow - INFO - Preparing glacier maps.
+2023-03-14 02:47:33,578 - build - data_catalog - INFO - DataCatalog: Getting rgi GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/rgi.gpkg
+2023-03-14 02:47:33,581 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-03-14 02:47:33,620 - build - wflow - INFO - 1 glaciers of sufficient size found within region.
+2023-03-14 02:47:33,634 - build - glaciers - DEBUG - Creating vector grid for calculating glacier fraction and storage per grid cell
+2023-03-14 02:47:34,254 - build - glaciers - DEBUG - Setting glacierfrac and store values per glacier.
+2023-03-14 02:47:36,425 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
+2023-03-14 02:47:36,425 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-03-14 02:47:36,425 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2023-03-14 02:47:36,425 - build - wflow - INFO - Preparing LULC parameter maps.
+2023-03-14 02:47:36,426 - build - data_catalog - INFO - DataCatalog: Getting globcover RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
+2023-03-14 02:47:36,445 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.778, 45.807, 12.745, 46.690]
+2023-03-14 02:47:36,465 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2023-03-14 02:47:36,601 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-03-14 02:47:36,729 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-03-14 02:47:36,855 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-03-14 02:47:36,982 - build - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2023-03-14 02:47:37,110 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-03-14 02:47:37,238 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-03-14 02:47:37,366 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-03-14 02:47:37,501 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
+2023-03-14 02:47:37,501 - build - wflow - INFO - Preparing LAI maps.
+2023-03-14 02:47:37,502 - build - data_catalog - INFO - DataCatalog: Getting modis_lai RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/modis_lai.nc
+2023-03-14 02:47:37,519 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.778, 45.807, 12.745, 46.690]
+2023-03-14 02:47:37,530 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 1 variables.
+2023-03-14 02:47:37,537 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
+2023-03-14 02:47:37,676 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2023-03-14 02:47:37,676 - build - model_api - INFO - setup_soilmaps.ptf_ksatver: brakensiek
+2023-03-14 02:47:37,676 - build - wflow - INFO - Preparing soil parameter maps.
+2023-03-14 02:47:37,677 - build - data_catalog - INFO - DataCatalog: Getting soilgrids RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
+2023-03-14 02:47:38,240 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.778, 45.807, 12.745, 46.690]
+2023-03-14 02:47:38,262 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 21 variables.
+2023-03-14 02:47:38,622 - build - soilgrids - INFO - calculate and resample thetaS
+2023-03-14 02:47:38,869 - build - soilgrids - INFO - calculate and resample thetaR
+2023-03-14 02:47:39,235 - build - soilgrids - INFO - calculate and resample KsatVer
+2023-03-14 02:47:39,360 - build - soilgrids - INFO - calculate and resample pore size distribution index
+2023-03-14 02:47:39,527 - build - soilgrids - INFO - fit z - log(KsatVer) with numpy linalg regression (y = b*x) -&gt; M_
+2023-03-14 02:47:40,056 - build - soilgrids - INFO - fit zi - Ksat with curve_fit (scipy.optimize) -&gt; M
+2023-03-14 02:47:42,892 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaS
+2023-03-14 02:47:43,053 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaR
+2023-03-14 02:47:43,184 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilThickness
+2023-03-14 02:47:43,202 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilMinThickness
+2023-03-14 02:47:43,221 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for c
+2023-03-14 02:47:43,407 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer
+2023-03-14 02:47:43,455 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_0.0cm
+2023-03-14 02:47:43,502 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_5.0cm
+2023-03-14 02:47:43,550 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_15.0cm
+2023-03-14 02:47:43,598 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_30.0cm
+2023-03-14 02:47:43,650 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_60.0cm
+2023-03-14 02:47:43,698 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_100.0cm
+2023-03-14 02:47:43,746 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_200.0cm
+2023-03-14 02:47:43,794 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original_
+2023-03-14 02:47:44,002 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_
+2023-03-14 02:47:44,212 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f_
+2023-03-14 02:47:44,419 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original
+2023-03-14 02:47:44,620 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M
+2023-03-14 02:47:44,815 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f
+2023-03-14 02:47:45,012 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for wflow_soil
+2023-03-14 02:47:45,148 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
+2023-03-14 02:47:45,148 - build - model_api - INFO - setup_gauges.source_gdf: None
+2023-03-14 02:47:45,148 - build - model_api - INFO - setup_gauges.index_col: None
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.snap_to_river: True
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.mask: None
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.derive_subcatch: False
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.derive_outlet: True
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.basename: None
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.update_toml: True
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.gauge_toml_header: None
+2023-03-14 02:47:45,149 - build - model_api - INFO - setup_gauges.gauge_toml_param: None
+2023-03-14 02:47:45,149 - build - wflow - INFO - Gauges locations set based on river outlets.
+2023-03-14 02:47:45,157 - build - wflow - INFO - Gauges map based on catchment river outlets added.
+2023-03-14 02:47:45,157 - build - data_catalog - INFO - DataCatalog: Getting grdc GeoDataFrame csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
+2023-03-14 02:47:45,160 - build - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-03-14 02:47:45,176 - build - wflow - INFO - 3 grdc gauge locations found within domain
+2023-03-14 02:47:45,618 - build - wflow - INFO - Gauges map from grdc added.
+2023-03-14 02:47:45,618 - build - model_api - INFO - setup_precip_forcing.precip_fn: era5
+2023-03-14 02:47:45,618 - build - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2023-03-14 02:47:45,618 - build - model_api - INFO - setup_precip_forcing.chunksize: None
+2023-03-14 02:47:45,619 - build - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5.nc
+2023-03-14 02:47:45,633 - build - rasterdataset - DEBUG - RasterDataset: Shifting time labels with 86400 sec.
+2023-03-14 02:47:45,635 - build - rasterdataset - DEBUG - RasterDataset: Slicing time dim (&#39;2010-01-01T00:00:00&#39;, &#39;2010-03-31T00:00:00&#39;)
+2023-03-14 02:47:45,644 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.778, 45.807, 12.745, 46.690]
+2023-03-14 02:47:45,655 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 1 variables.
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2023-03-14 02:47:45,885 - build - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2023-03-14 02:47:45,886 - build - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5.nc
+2023-03-14 02:47:45,898 - build - rasterdataset - DEBUG - RasterDataset: Shifting time labels with 86400 sec.
+2023-03-14 02:47:45,900 - build - rasterdataset - DEBUG - RasterDataset: Slicing time dim (&#39;2010-01-01T00:00:00&#39;, &#39;2010-03-31T00:00:00&#39;)
+2023-03-14 02:47:45,909 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.778, 45.807, 12.745, 46.690]
+2023-03-14 02:47:45,922 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 4 variables.
+2023-03-14 02:47:45,952 - build - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5_orography.nc
+2023-03-14 02:47:45,965 - build - rasterdataset - DEBUG - RasterDataset: Clip with geom - [11.625, 45.625, 12.875, 46.875]
+2023-03-14 02:47:45,976 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 1 variables.
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.dtype: float32
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.nodata: -999
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.KsatHorFrac: 100
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.Cfmax: 3.75653
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.cf_soil: 0.038
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.EoverR: 0.11
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.InfiltCapPath: 5
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.InfiltCapSoil: 600
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.MaxLeakage: 0
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.rootdistpar: -500
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.TT: 0
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.TTI: 2
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.TTM: 0
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.WHC: 0.1
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.G_Cfmax: 5.3
+2023-03-14 02:47:46,491 - build - model_api - INFO - setup_constant_pars.G_SIfrac: 0.002
+2023-03-14 02:47:46,492 - build - model_api - INFO - setup_constant_pars.G_TT: 1.3
+2023-03-14 02:47:46,528 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full
+2023-03-14 02:47:46,540 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/wflow_sbm.toml
+2023-03-14 02:47:46,632 - build - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/staticmaps.nc
+2023-03-14 02:47:46,946 - build - wflow - INFO - Writing model staticgeom to file.
+2023-03-14 02:47:47,049 - build - wflow - INFO - Write forcing file
+2023-03-14 02:47:47,055 - build - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-15 00:00:00 in the toml.
+2023-03-14 02:47:47,055 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/wflow_sbm.toml
+2023-03-14 02:47:47,069 - build - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/inmaps-era5-2010.nc
+[########################################] | 100% Completed | 102.22 ms
 
 </pre></div></div>
 </div>
 <p>With this example we build a complete Wflow model including forcing. Compared to the previous <strong>hydromt build</strong> we have added: * <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_build.ini</span></code> : setup configuration file including all components to build and their arguments</p>
 <p>Next we check which files have been created. The model root should contain two netcdf (.nc) files, one for the staticmaps and one for the forcing data, a wflow configuration (.toml) file. These files are sufficient to run the wflow model. In addition several geometry (.geojson) files are saved in the <em>staticgeoms</em> folder. Finally, the setup process is logged in the hydromt.log file.</p>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
@@ -979,166 +944,161 @@ SyntaxError: invalid syntax
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+wflow_test_full
+ - hydromt.log
+ - staticmaps.nc
+ - wflow_sbm.toml
+ - hydromt_data.yml
+ - inmaps-era5-2010.nc
+wflow_test_full/run_default
+wflow_test_full/instate
+wflow_test_full/staticgeoms
+ - region.geojson
+ - rivers.geojson
+ - gauges_grdc.geojson
+ - gauges.geojson
+ - glaciers.geojson
+ - basins.geojson
+</pre></div></div>
+</div>
 </section>
 <section id="Visualize-and/or-inspect-model-schematization">
 <h2>Visualize and/or inspect model schematization<a class="headerlink" href="#Visualize-and/or-inspect-model-schematization" title="Permalink to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The <strong>wflow plot</strong> example notebook contains scripts to visualize your model</p></li>
-<li><p>The <strong>wflow nc to raster files</strong> example notebook contains scripts to write the nc model files to a netcdf which can be used to inspect (and modify) the model layers in e.g. QGIS.</p></li>
+<li><p>The <strong>wflow nc to raster files</strong> example notebook contains scripts to write the nc model files to a netcdf which can be used to inspect (and modify) the model layers in e.g. QGIS.</p></li>
 </ul>
 </section>
 </section>
 
 
-            </article>
-            
-            
-            
-            <footer class="bd-footer-article">
-                <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-  <a class='left-prev' id="prev-link" href="../user_guide/wflow_build.html" title="previous page">
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../user_guide/wflow_build.html"
+       title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
-          <p class="prev-next-subtitle">previous</p>
-          <p class="prev-next-title">Building a model</p>
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Building a model</p>
       </div>
-  </a>
-  <a class='right-next' id="next-link" href="../user_guide/wflow_update.html" title="next page">
-  <div class="prev-next-info">
-      <p class="prev-next-subtitle">next</p>
-      <p class="prev-next-title">Updating a model</p>
-  </div>
-  <i class="fa-solid fa-angle-right"></i>
-  </a>
+    </a>
+    <a class="right-next"
+       href="../user_guide/wflow_update.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Updating a model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
-            </footer>
-            
-          </div>
-          
-          
-          
-            <div class="bd-sidebar-secondary bd-toc">
+                </footer>
               
-<div class="toc-item">
-  
-<div class="tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-</div>
-<nav id="bd-toc-nav" class="page-toc">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#HydroMT-CLI-build-interface">
-   HydroMT CLI build interface
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Setup-Wflow-model-base-layers">
-   Setup Wflow model base layers
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Model-setup-configuration">
-   Model setup configuration
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Data-for-model-setup">
-   Data for model setup
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Setup-complete-Wflow-model">
-   Setup complete Wflow model
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#Visualize-and/or-inspect-model-schematization">
-   Visualize and/or inspect model schematization
-  </a>
- </li>
-</ul>
-
-</nav>
-</div>
-
-<div class="toc-item">
-  
-<div id="searchbox"></div>
-</div>
-
-<div class="toc-item">
-  
-
-<div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/build_model.ipynb">
-        <i class="fa-solid fa-pencil"></i> Edit this page
-    </a>
-</div>
-
-</div>
-
-<div class="toc-item">
-  
-<div class="tocsection sourcelink">
-    <a href="../_sources/_examples/build_model.ipynb.txt">
-        <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-</div>
-
-</div>
-
             </div>
-          
-          
-        </div>
-        <footer class="bd-footer-content">
-          <div class="bd-footer-content__inner">
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#HydroMT-CLI-build-interface">HydroMT CLI build interface</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Setup-Wflow-model-base-layers">Setup Wflow model base layers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-setup-configuration">Model setup configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Data-for-model-setup">Data for model setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Setup-complete-Wflow-model">Setup complete Wflow model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Visualize-and/or-inspect-model-schematization">Visualize and/or inspect model schematization</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/build_model.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/_examples/build_model.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
             
           </div>
-        </footer>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
         
       </main>
     </div>
   </div>
-
   
-    
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
 
-  <footer class="bd-footer"><div class="bd-footer__inner container">
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
   
-  <div class="footer-item">
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
     
-<p class="copyright">
-
-    &copy; Copyright Deltares.<br>
-
-</p>
-
-  </div>
-  
-  <div class="footer-item">
-    <p class="theme-version">
-    Built with the
-    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
-        PyData Sphinx Theme
-    </a>
-    0.12.0.
-</p>
-  </div>
-  
-  <div class="footer-item">
+      © Copyright Deltares.
+      <br/>
     
-<p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
-</p>
-
-  </div>
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+</p></div>
+      
+    </div>
   
 </div>
+
   </footer>
   </body>
 </html>
