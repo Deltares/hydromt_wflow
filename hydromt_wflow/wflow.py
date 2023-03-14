@@ -1275,7 +1275,7 @@ class WflowModel(GridModel):
             hydraulic conductivity [mm/day]). By default 'brakensiek'.
         """
         self.logger.info(f"Preparing soil parameter maps.")
-        # TODO add variables list with required variable names
+
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids(
             dsin,
@@ -1427,7 +1427,7 @@ class WflowModel(GridModel):
         Returns
         -------
         list
-            Names of added model staticmap layers.
+            Names of added model grid layers.
         """
         self.logger.info(f"Preparing grid data from raster source {raster_fn}")
         # Read raster data and select variables
@@ -1673,104 +1673,98 @@ class WflowModel(GridModel):
         self.set_forcing(temp_out.where(mask), name="temp")
 
     # I/O
-    def read(self):
-        """Method to read the complete model schematization and configuration from file."""
-        self.read_config()
-        self.read_grid()
-        self.read_intbl()
-        self.read_geoms()
-        self.read_forcing()
-        self.logger.info("Model read")
+    def read(
+        self,
+        components: List = [
+            "config",
+            "grid",
+            "geoms",
+            "forcing",
+        ],
+    ) -> None:
+        """Read the complete model schematization and configuration from model files.
+        Parameters
+        ----------
+        components : List, optional
+            List of model components to read, each should have an associated read_<component> method.
+            By default ['config', 'grid', 'geoms', 'forcing']
+            Other available ['grid_pcr', 'intbl', 'maps', 'results', 'states']
+        """
+        super().read(components=components)
 
-    def write(self):
-        """Method to write the complete model schematization and configuration to file."""
-        self.logger.info(f"Write model data to {self.root}")
-        # if in r, r+ mode, only write updated components
-        if not self._write:
-            self.logger.warning("Cannot write in read-only mode")
-            return
-        self.write_data_catalog()
-        if self.config:  # try to read default if not yet set
-            self.write_config()
-        if self._grid:
-            self.write_grid()
-        if self._geoms:
-            self.write_geoms()
-        if self._forcing:
-            self.write_forcing()
+    def write(
+        self,
+        components: List = ["config", "grid", "geoms", "forcing", "data_catalog"],
+    ) -> None:
+        """Write the complete model schematization and configuration to model files.
+        Parameters
+        ----------
+        components : List, optional
+            List of model components to write, each should have an associated write_<component> method.
+            By default ['config', 'grid', 'geoms', 'forcing', 'data_catalog']
+            Other available ['grid_pcr', 'intbl', 'maps', 'states']
+        """
+        super().write(components=components)
 
     def read_grid(self, **kwargs):
         """Read grid"""
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        self._assert_read_mode
+
+        fn_default = "staticmaps.nc"
+        fn = self.get_config("input.path_static", abs_path=False, fallback=fn_default)
 
         if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
+            input_dir = self.get_config("dir_input", abs_path=False)
             fn = join(
                 input_dir, self.get_config("input.path_static", fallback=fn_default)
             )
             self.logger.info(f"Input directory found {input_dir}")
 
-        if not self._write:
-            # start fresh in read-only mode
-            self._grid = xr.Dataset()
-        if fn is not None and isfile(fn):
-            self.logger.info(f"Read grid from {fn}")
-            # FIXME: we need a smarter (lazy) solution for big models which also
-            # works when overwriting / appending data in the same source!
-            ds = xr.open_dataset(
-                fn, mask_and_scale=False, decode_coords="all", **kwargs
-            ).load()
-            ds.close()
-            # make sure internally maps are always North -> South oriented
-            if ds.raster.res[1] > 0:
-                ds = ds.raster.flipud()
-            self.set_grid(ds)
+        if isfile(join(self.root, fn)):
+            kwargs = kwargs.update({"decode_coords": "all"})
+            for ds in self._read_nc(fn, **kwargs).values():
+                # make sure internally maps are always North -> South oriented
+                if ds.raster.res[1] > 0:
+                    ds = ds.raster.flipud()
+                self.set_grid(ds)
         elif len(glob.glob(join(self.root, "staticmaps", "*.map"))) > 0:
             self.read_grid_pcr()
 
     def write_grid(self):
         """Write grid"""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # clean-up grid and write CRS according to CF-conventions
-        # TODO replace later with hydromt.raster.gdal_compliant method after core release
-        crs = self.grid.raster.crs
-        ds_out = self.grid.reset_coords()
-        # TODO?!
-        # if ds_out.raster.res[1] < 0: # write data with South -> North orientation
-        #     ds_out = ds_out.raster.flipud()
-        x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
-        ds_out = ds_out.rename({ds_out.raster.x_dim: x_dim, ds_out.raster.y_dim: y_dim})
-        ds_out[x_dim].attrs.update(x_attrs)
-        ds_out[y_dim].attrs.update(y_attrs)
-        ds_out = ds_out.drop_vars(["mask", "spatial_ref", "ls"], errors="ignore")
-        ds_out.rio.write_crs(crs, inplace=True)
-        ds_out.rio.write_transform(self.grid.raster.transform, inplace=True)
-        ds_out.raster.set_spatial_dims()
+        if len(self._grid) == 0:
+            self.logger.debug("No grid data found, skip writing.")
+        else:
+            self._assert_write_mode
 
-        # filename
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
-        # Append inputdir if required
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            # filename
+            fn_default = join(self.root, "staticmaps.nc")
+            fn = self.get_config(
+                "input.path_static", abs_path=True, fallback=fn_default
             )
-        # Check if all sub-folders in fn exists and if not create them
-        if not isdir(dirname(fn)):
-            os.makedirs(dirname(fn))
-        self.logger.info(f"Write grid to {fn}")
-        mask = ds_out[self._MAPS["basins"]] > 0
-        for v in ds_out.data_vars:
-            # nodata is required for all but boolean fields
-            if ds_out[v].dtype != "bool":
-                ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
-        ds_out.to_netcdf(fn)
+            # Append inputdir if required
+            if self.get_config("dir_input") is not None:
+                input_dir = self.get_config("dir_input", abs_path=True)
+                fn = join(
+                    input_dir, self.get_config("input.path_static", fallback=fn_default)
+                )
+            # Check if all sub-folders in fn exists and if not create them
+            if not isdir(dirname(fn)):
+                os.makedirs(dirname(fn))
+            self.logger.info(f"Write grid to {fn}")
+
+            ds_out = self.grid.raster.gdal_compliant(rename_dims=True, force_sn=False)
+            ds_out = ds_out.drop_vars(["mask", "ls"], errors="ignore")
+            mask = ds_out[self._MAPS["basins"]] > 0
+            for v in ds_out.data_vars:
+                # nodata is required for all but boolean fields
+                if ds_out[v].dtype != "bool":
+                    ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
+            ds_out.to_netcdf(fn)
 
     def read_grid_pcr(self, crs=4326, **kwargs):
-        """Read and grid at <root/staticmaps> and parse to xarray"""
+        """Read grid at <root/staticmaps> and parse to xarray"""
+        self._assert_read_mode
         if self._read and "chunks" not in kwargs:
             kwargs.update(chunks={"y": -1, "x": -1})
         fn = join(self.root, "staticmaps", f"*.map")
@@ -1804,62 +1798,54 @@ class WflowModel(GridModel):
 
     def write_grid_pcr(self):
         """Write grid at <root/staticmaps> in PCRaster maps format."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        ds_out = self.grid
-        if "LAI" in ds_out.data_vars:
-            ds_out = ds_out.rename_vars({"LAI": "clim/LAI"})
-        if "c" in ds_out.data_vars:
-            for layer in ds_out["layer"]:
-                ds_out[f"c_{layer.item():d}"] = ds_out["c"].sel(layer=layer)
-                ds_out[f"c_{layer.item():d}"].raster.set_nodata(
-                    ds_out["c"].raster.nodata
-                )
-            ds_out = ds_out.drop_vars(["c", "layer"])
-        self.logger.info("Writing (updated) staticmap files.")
-        # add datatypes for maps with same basenames, e.g. wflow_gauges_grdc
-        pcr_vs_map = PCR_VS_MAP.copy()
-        for var_name in ds_out.raster.vars:
-            base_name = "_".join(var_name.split("_")[:-1])  # clip _<postfix>
-            if base_name in PCR_VS_MAP:
-                pcr_vs_map.update({var_name: PCR_VS_MAP[base_name]})
-        ds_out.raster.to_mapstack(
-            root=join(self.root, "staticmaps"),
-            mask=True,
-            driver="PCRaster",
-            pcr_vs_map=pcr_vs_map,
-            logger=self.logger,
-        )
+        if len(self._grid) == 0:
+            self.logger.debug("No states data found, skip writing.")
+        else:
+            self._assert_write_mode
+
+            ds_out = self.grid
+            if "LAI" in ds_out.data_vars:
+                ds_out = ds_out.rename_vars({"LAI": "clim/LAI"})
+            if "c" in ds_out.data_vars:
+                for layer in ds_out["layer"]:
+                    ds_out[f"c_{layer.item():d}"] = ds_out["c"].sel(layer=layer)
+                    ds_out[f"c_{layer.item():d}"].raster.set_nodata(
+                        ds_out["c"].raster.nodata
+                    )
+                ds_out = ds_out.drop_vars(["c", "layer"])
+            self.logger.info("Writing (updated) grid files.")
+            # add datatypes for map with same basenames, e.g. wflow_gauges_grdc
+            pcr_vs_map = PCR_VS_MAP.copy()
+            for var_name in ds_out.raster.vars:
+                base_name = "_".join(var_name.split("_")[:-1])  # clip _<postfix>
+                if base_name in PCR_VS_MAP:
+                    pcr_vs_map.update({var_name: PCR_VS_MAP[base_name]})
+            ds_out.raster.to_mapstack(
+                root=join(self.root, "staticmaps"),
+                mask=True,
+                driver="PCRaster",
+                pcr_vs_map=pcr_vs_map,
+                logger=self.logger,
+            )
 
     def read_geoms(self):
         """Read and geoms at <root/geoms> and parse to geopandas"""
-        if not self._write:
-            self._geoms = dict()  # fresh start in read-only mode
-        dir_default = join(self.root, "staticmaps.nc")
-        dir_mod = dirname(
-            self.get_config("input.path_static", abs_path=True, fallback=dir_default)
-        )
-        fns = glob.glob(join(dir_mod, "geoms", "*.geojson"))
-        if len(fns) > 1:
-            self.logger.info("Reading model staticgeom files.")
-        for fn in fns:
-            name = basename(fn).split(".")[0]
-            if name != "region":
-                self.set_geoms(gpd.read_file(fn), name=name)
+        fn = "geoms/*.geojson"
+        if self.get_config("dir_input") is not None:
+            fn = f"{self.get_config('dir_input', abs_path=False)}/geoms/*.geojson"
+        super.read_geoms(fn)
 
     def write_geoms(self):
         """Write geoms at <root/geoms> in model ready format"""
-        # to write use self.geoms[var].to_file()
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.geoms:
-            self.logger.info("Writing model staticgeom to file.")
-            for name, gdf in self.geoms.items():
-                fn_out = join(self.root, "geoms", f"{name}.geojson")
-                gdf.to_file(fn_out, driver="GeoJSON")
+        fn = "geoms/*.geojson"
+        if self.get_config("dir_input") is not None:
+            fn = f"{self.get_config('dir_input', abs_path=False)}/geoms/*.geojson"
+        super.write_geoms(fn, driver="GeoJSON")
 
     def read_forcing(self):
         """Read forcing"""
+        self._assert_read_mode
+
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
 
@@ -1870,10 +1856,7 @@ class WflowModel(GridModel):
             )
             self.logger.info(f"Input directory found {input_dir}")
 
-        if not self._write:
-            # start fresh in read-only mode
-            self._forcing = dict()
-        if fn is not None and isfile(fn):
+        if isfile(fn):
             self.logger.info(f"Read forcing from {fn}")
             ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
             for v in ds.data_vars:
@@ -1921,9 +1904,10 @@ class WflowModel(GridModel):
             Common time units when writting several netcdf forcing files. By default "days since 1900-01-01T00:00:00".
 
         """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.forcing:
+        if len(self._forcing) == 0:
+            self.logger.debug("No forcing data found, skip writing.")
+        else:
+            self._assert_write_mode
             self.logger.info("Write forcing file")
 
             # Get default forcing name from forcing attrs
@@ -2071,24 +2055,9 @@ class WflowModel(GridModel):
             #     delayed_obj.compute()
             # visualize([prof, cprof, rprof], file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
-    def read_states(self):
-        """Read states at <root/?/> and parse to dict of xr.DataArray"""
-        if not self._write:
-            # start fresh in read-only mode
-            self._states = dict()
-        # raise NotImplementedError()
-
-    def write_states(self):
-        """write states at <root/?/> in model ready format"""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
-
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset"""
-        if not self._write:
-            # start fresh in read-only mode
-            self._results = dict()
+        self._assert_read_mode
 
         output_dir = ""
         if self.get_config("dir_output") is not None:
@@ -2126,22 +2095,10 @@ class WflowModel(GridModel):
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
 
-    def write_results(self):
-        """write results at <root/?/> in model ready format"""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
-
     def read_intbl(self, **kwargs):
         """Read and intbl files at <root/intbl> and parse to xarray"""
-        if not self._write:
-            self._intbl = dict()  # start fresh in read-only mode
-        if not self._read:
-            self.logger.info("Reading default intbl files.")
-            fns = glob.glob(join(DATADIR, "wflow", "intbl", f"*.tbl"))
-        else:
-            self.logger.info("Reading model intbl files.")
-            fns = glob.glob(join(self.root, "intbl", f"*.tbl"))
+        self._assert_read_mode
+        fns = glob.glob(join(self.root, "intbl", f"*.tbl"))
         if len(fns) > 0:
             for fn in fns:
                 name = basename(fn).split(".")[0]
@@ -2154,9 +2111,10 @@ class WflowModel(GridModel):
 
     def write_intbl(self):
         """Write intbl at <root/intbl> in PCRaster table format."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.intbl:
+        if len(self._intbl) == 0:
+            self.logger.debug("No intbl data found, skip writing.")
+        else:
+            self._assert_write_mode
             self.logger.info("Writing intbl files.")
             for name in self.intbl:
                 fn_out = join(self.root, "intbl", f"{name}.tbl")
@@ -2311,23 +2269,8 @@ class WflowModel(GridModel):
 
         # Reinitiliase geoms and re-create basins/rivers
         self._geoms = dict()
-        # self.basins
-        # self.rivers
-        # now geoms links to geoms which does not exist in every hydromt version
-        # remove when updating wflow to new objects
-        basins = flw.basin_shape(
-            self.grid, self.flwdir, basin_name=self._MAPS["basins"]
-        )
-        self.set_geoms(basins, name="basins")
-        rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
-        # Check if there are river cells in the model before continuing
-        if np.any(rivmsk):
-            # add stream order 'strord' column
-            strord = self.flwdir.stream_order(mask=rivmsk)
-            feats = self.flwdir.streams(mask=rivmsk, strord=strord)
-            gdf = gpd.GeoDataFrame.from_features(feats)
-            gdf.crs = pyproj.CRS.from_user_input(self.crs)
-            self.set_geoms(gdf, name="rivers")
+        self.basins
+        self.rivers
 
         # Update reservoir and lakes
         remove_reservoir = False
