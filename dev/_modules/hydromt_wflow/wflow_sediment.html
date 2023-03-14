@@ -500,20 +500,34 @@ document.write(`
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_reservoirs"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_reservoirs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">reservoirs_fn</span><span class="o">=</span><span class="s2">&quot;hydro_reservoirs&quot;</span><span class="p">,</span>
-        <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">priority_jrc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average reservoir area, demand, min and max target storage capacities and</span>
 <span class="sd">        discharge capacity values.</span>
 
-<span class="sd">        The data is generated from features with ``min_area`` [km2]</span>
+<span class="sd">        The data is generated from features with ``min_area`` [km2] (default is 1 km2)</span>
 <span class="sd">        from a database with reservoir geometry, IDs and metadata.</span>
-<span class="sd">        Currently, &quot;hydro_reservoirs&quot; (based on GRAND) is the only supported ``reservoirs_fn``</span>
-<span class="sd">        data source and we use a default minimum area of 1 km2.</span>
 
+<span class="sd">        Data requirements for direct use (ie wflow parameters are data already present in reservoirs_fn)</span>
+<span class="sd">        are reservoir ID &#39;waterbody_id&#39;, area &#39;ResSimpleArea&#39; [m2], maximum volume &#39;ResMaxVolume&#39; [m3],</span>
+<span class="sd">        the targeted minimum and maximum fraction of water volume in the reservoir &#39;ResTargetMinFrac&#39;</span>
+<span class="sd">        and &#39;ResTargetMaxFrac&#39; [-], the average water demand ResDemand [m3/s] and the maximum release of</span>
+<span class="sd">        the reservoir before spilling &#39;ResMaxRelease&#39; [m3/s].</span>
+
+<span class="sd">        In case the wflow parameters are not directly available they can be computed by HydroMT based on time series of reservoir surface water area.</span>
+<span class="sd">        These time series can be retreived from either the hydroengine or the gwwapi, based on the Hylak_id the reservoir, found in the GrandD database.</span>
+
+<span class="sd">        The required variables for computation of the parameters with time series data are reservoir ID &#39;waterbody_id&#39;,</span>
+<span class="sd">        reservoir ID in the HydroLAKES database &#39;Hylak_id&#39;, average volume &#39;Vol_avg&#39; [m3], average depth &#39;Depth_avg&#39;</span>
+<span class="sd">        [m], average discharge &#39;Dis_avg&#39; [m3/s] and dam height &#39;Dam_height&#39; [m].</span>
+<span class="sd">        To compute parameters without using time series data, the required varibales in reservoirs_fn are reservoir ID &#39;waterbody_id&#39;,</span>
+<span class="sd">        average area &#39;Area_avg&#39; [m2], average volume &#39;Vol_avg&#39; [m3], average depth &#39;Depth_avg&#39; [m], average discharge &#39;Dis_avg&#39;</span>
+<span class="sd">        [m3/s] and dam height &#39;Dam_height&#39; [m] and minimum / normal / maximum storage capacity of the dam &#39;Capacity_min&#39;,</span>
+<span class="sd">        &#39;Capacity_norm&#39;, &#39;Capacity_max&#39; [m3].</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -529,22 +543,24 @@ document.write(`
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        reservoirs_fn : {&#39;hydro_reservoirs&#39;}</span>
+<span class="sd">        reservoirs_fn : str</span>
 <span class="sd">            Name of data source for reservoir parameters, see data/data_sources.yml.</span>
 
-<span class="sd">            * Required variables with hydroengine: [&#39;waterbody_id&#39;, &#39;Hylak_id&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Dam_height&#39;]</span>
+<span class="sd">            * Required variables for direct use: [&#39;waterbody_id&#39;, &#39;ResSimpleArea&#39;, &#39;ResMaxVolume&#39;, &#39;ResTargetMinFrac&#39;, &#39;ResTargetFullFrac&#39;, &#39;ResDemand&#39;, &#39;ResMaxRelease&#39;]</span>
 
-<span class="sd">            * Required variables without hydroengine: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Capacity_max&#39;, &#39;Capacity_norm&#39;, &#39;Capacity_min&#39;, &#39;Dam_height&#39;]</span>
+<span class="sd">            * Required variables for computation with timeseries_fn: [&#39;waterbody_id&#39;, &#39;Hylak_id&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Dam_height&#39;]</span>
+
+<span class="sd">            * Required variables for computation without timeseries_fn: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Capacity_max&#39;, &#39;Capacity_norm&#39;, &#39;Capacity_min&#39;, &#39;Dam_height&#39;]</span>
+<span class="sd">        timeseries_fn : str {&#39;gww&#39;, &#39;hydroengine&#39;, &#39;none&#39;}, optional</span>
+<span class="sd">            Download and use time series of reservoir surface water area to calculate and overwrite the reservoir volume/areas of the data source. Timeseries are</span>
+<span class="sd">            either downloaded from Global Water Watch &#39;gww&#39; (using gwwapi package) or JRC &#39;jrc&#39; (using hydroengine package). By default None.</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum reservoir area threshold [km2], by default 1.0 km2.</span>
-<span class="sd">        priority_jrc : boolean, optional</span>
-<span class="sd">            If True, use JRC water occurence (Pekel,2016) data from GEE to calculate</span>
-<span class="sd">            and overwrite the reservoir volume/areas of the data source.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_reservoirs</span><span class="p">(</span>
             <span class="n">reservoirs_fn</span><span class="o">=</span><span class="n">reservoirs_fn</span><span class="p">,</span>
+            <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span>
             <span class="n">min_area</span><span class="o">=</span><span class="n">min_area</span><span class="p">,</span>
-            <span class="n">priority_jrc</span><span class="o">=</span><span class="n">priority_jrc</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Update the toml to match wflow_sediment and not wflow_sbm</span>

@@ -411,6 +411,8 @@ document.write(`
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gp</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">shapely</span>
+<span class="kn">import</span> <span class="nn">json</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -524,16 +526,10 @@ document.write(`
     <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">outgdf</span></div>
 
 
-<div class="viewcode-block" id="reservoirattrs"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs">[docs]</a><span class="k">def</span> <span class="nf">reservoirattrs</span><span class="p">(</span>
-    <span class="n">gdf</span><span class="p">,</span>
-    <span class="n">priorityJRC</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">perc_norm</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-    <span class="n">perc_min</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-    <span class="n">usehe</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-<span class="p">):</span>
+<div class="viewcode-block" id="reservoirattrs"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs">[docs]</a><span class="k">def</span> <span class="nf">reservoirattrs</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perc_norm</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">perc_min</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns reservoir attributes (see list below) needed for modelling. </span>
-<span class="sd">    For some attributes, download data from the JRC database (Peker, 2016) using hydroengine.</span>
+<span class="sd">    When specified, some of the reservoir attributes can be derived from earth observation data. </span>
+<span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
 
 <span class="sd">    The following reservoir attributes are calculated:\</span>
 <span class="sd">    - resmaxvolume : reservoir maximum volume [m3]\</span>
@@ -547,14 +543,14 @@ document.write(`
 <span class="sd">    ----------</span>
 <span class="sd">    gdf : geopandas.GeoDataFrame</span>
 <span class="sd">        GeoDataFrame containing reservoirs geometries and attributes.</span>
-<span class="sd">    priorityJRC : boolean, optional</span>
-<span class="sd">        Specify if attributes are more reliable from the gdf attributes or from the JRC database.</span>
+<span class="sd">    timeseries_fn : str, optional </span>
+<span class="sd">        Name of database from which time series of reservoir surface water area will be retrieved.</span>
+<span class="sd">        Currently available: [&#39;jrc&#39;, &#39;gww&#39;]</span>
+<span class="sd">        Defaults to Deltares&#39; Global Water Watch database. </span>
 <span class="sd">    perc_norm : int, optional</span>
 <span class="sd">        Percentile for normal (operational) surface area</span>
 <span class="sd">    perc_min: int, optional </span>
 <span class="sd">        Percentile for minimal (operational) surface area</span>
-<span class="sd">    usehe : bool, optional</span>
-<span class="sd">        If True use hydroengine to get reservoir timeseries</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -562,15 +558,38 @@ document.write(`
 <span class="sd">        DataFrame containing reservoir attributes.</span>
 <span class="sd">    df_plot : pandas.DataFrame</span>
 <span class="sd">        DataFrame containing debugging values for reservoir building.</span>
+<span class="sd">    df_ts : pandas.DataFrame</span>
+<span class="sd">        DataFrame containing all downloaded reservoir time series. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">usehe</span><span class="p">:</span>
+
+    <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;jrc&quot;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">hydroengine</span> <span class="k">as</span> <span class="nn">he</span>
-        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="n">usehe</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;HydroEngine package not found, using default reservoir attribute values.&quot;</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using reservoir timeseries from JRC via hydroengine.&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="s2">&quot;hydroengine package not found, cannot download jrc reservoir timeseries.&quot;</span>
             <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;gww&quot;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">gwwapi</span> <span class="kn">import</span> <span class="n">client</span> <span class="k">as</span> <span class="n">cli</span>
+            <span class="kn">from</span> <span class="nn">gwwapi</span> <span class="kn">import</span> <span class="n">utils</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using reservoir timeseries from GWW via gwwapi.&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
+                <span class="s2">&quot;gwwapi package not found, cannot download gww reservoir timeseries.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;timeseries_fn argument </span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2"> not understood, please use one of [gww, jrc] or None.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Using reservoir attributes from reservoir database to compute parameters.&quot;</span>
+        <span class="p">)</span>
 
     <span class="c1"># Initialize output DataFrame with empty values and reservoir ID</span>
     <span class="n">df_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -589,12 +608,12 @@ document.write(`
     <span class="p">)</span>
     <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-    <span class="c1"># Create similar dataframe for JRC timeseries</span>
-    <span class="n">df_JRC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="c1"># Create similar dataframe for EO time series</span>
+    <span class="n">df_EO</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="n">index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])),</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">([</span><span class="s2">&quot;resid&quot;</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]),</span>
     <span class="p">)</span>
-    <span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
     <span class="c1"># Create dtaframe for accuracy plots</span>
     <span class="n">df_plot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -603,26 +622,37 @@ document.write(`
     <span class="p">)</span>
     <span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;resid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-    <span class="c1"># Get JRC data for each reservoir from hydroengine</span>
-    <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="c1"># Create empty dataframe for timeseries exports</span>
+    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">usehe</span><span class="p">:</span>
+    <span class="c1"># Get EO data for each reservoir</span>
+    <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;jrc&quot;</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])):</span>
             <span class="n">ids</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading HydroEngine timeseries for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading HydroEngine time series for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">time_series</span> <span class="o">=</span> <span class="n">he</span><span class="o">.</span><span class="n">get_lake_time_series</span><span class="p">(</span>
                     <span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Hylak_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span> <span class="s2">&quot;water_area&quot;</span>
                 <span class="p">)</span>
+
+                <span class="c1"># Append series to df_ts which will contain all time series</span>
+                <span class="c1"># of all dowloaded reservoirs, with an outer join on the datetime index</span>
+                <span class="n">ts_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="n">k</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">time_series</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]])</span>
+                <span class="n">ts_values</span> <span class="o">=</span> <span class="n">time_series</span><span class="p">[</span><span class="s2">&quot;water_area&quot;</span><span class="p">]</span>
+                <span class="n">ts_series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">ts_values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">ts_index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Hylak_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="n">ts_series</span> <span class="o">=</span> <span class="n">ts_series</span><span class="p">[</span><span class="n">ts_series</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+                <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_ts</span><span class="p">,</span> <span class="n">ts_series</span><span class="p">],</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Save area stats</span>
                 <span class="n">area_series</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time_series</span><span class="p">[</span><span class="s2">&quot;water_area&quot;</span><span class="p">])</span>  <span class="c1"># [m2]</span>
                 <span class="n">area_series_nozeros</span> <span class="o">=</span> <span class="n">area_series</span><span class="p">[</span><span class="n">area_series</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
-                <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-                <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
-                <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
@@ -630,24 +660,67 @@ document.write(`
                     <span class="sa">f</span><span class="s2">&quot;No HydroEngine time series available for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">!&quot;</span>
                 <span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;gww&quot;</span><span class="p">:</span>
+        <span class="c1"># get bounds from gdf input as JSON object that can be used in post request with the gww api</span>
+        <span class="n">gdf_bounds</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span> <span class="n">ccw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">__geo_interface__</span>
+        <span class="p">)</span>
+        <span class="c1"># get reservoirs wihtin these bounds</span>
+        <span class="n">gww_reservoirs</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">get_reservoirs_by_geom</span><span class="p">(</span><span class="n">gdf_bounds</span><span class="p">)</span>
+        <span class="c1"># from the response, create a dictonary, linking the gww_id to the hylak_id (used in the default reservoir database)</span>
+        <span class="n">idlink</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;source_id&quot;</span><span class="p">]:</span> <span class="n">k</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gww_reservoirs</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])):</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Downloading Global Water Watch time series for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">time_series</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">get_reservoir_ts_monthly</span><span class="p">(</span>
+                    <span class="n">idlink</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Hylak_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])]</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Append series to df_ts which will contain all time series</span>
+                <span class="c1"># of all dowloaded reservoirs, with an outer join on the datetime index</span>
+                <span class="n">ts_series</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_timeseries</span><span class="p">(</span>
+                    <span class="n">time_series</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Hylak_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+                <span class="n">df_ts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_ts</span><span class="p">,</span> <span class="n">ts_series</span><span class="p">],</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Compute stats</span>
+                <span class="n">area_series</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">to_timeseries</span><span class="p">(</span><span class="n">time_series</span><span class="p">)[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                <span class="n">area_series_nozeros</span> <span class="o">=</span> <span class="n">area_series</span><span class="p">[</span><span class="n">area_series</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;maxarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">area_series_nozeros</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;normarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                    <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_norm</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+                <span class="p">)</span>
+                <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
+                    <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+                <span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No GWW time series available for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Sort timeseries dataframe (will be saved to root as .csv later)</span>
+    <span class="n">df_ts</span> <span class="o">=</span> <span class="n">df_ts</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
     <span class="c1"># Compute resdemand and resmaxrelease either from average discharge</span>
     <span class="k">if</span> <span class="s2">&quot;Dis_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resdemand&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Dis_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">0.5</span>
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxrelease&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Dis_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="mf">4.0</span>
 
-    <span class="c1"># Get resarea either from JRC or database depending on priorityJRC</span>
+    <span class="c1"># Get resarea either from EO or database depending</span>
     <span class="k">if</span> <span class="s2">&quot;Area_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="k">if</span> <span class="n">priorityJRC</span><span class="p">:</span>
-            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
-                <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">])</span>
             <span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
+            <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]),</span> <span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">][</span>
                 <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">])</span>
             <span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;maxarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
     <span class="c1"># Get resmaxvolume from database</span>
     <span class="k">if</span> <span class="s2">&quot;Vol_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -662,8 +735,9 @@ document.write(`
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span>
         <span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]))</span>
 
-    <span class="c1"># Then compute from JRC data and fill or replace the previous values depending on priorityJRC</span>
+    <span class="c1"># Then compute from EO data and fill or replace the previous values (if a valid source is provided)</span>
     <span class="c1"># TODO for now assumes that the reservoir-db is used (combination of GRanD and HydroLAKES)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])):</span>
         <span class="c1"># Initialise values</span>
         <span class="c1"># import pdb; pdb.set_trace()</span>
@@ -671,9 +745,9 @@ document.write(`
         <span class="n">max_level</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Depth_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">max_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">max_cap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
-        <span class="n">norm_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;normarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="n">norm_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;normarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">norm_cap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
-        <span class="n">min_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;minarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+        <span class="n">min_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;minarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">min_cap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_min&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">mv</span> <span class="o">=</span> <span class="mf">0.0</span>
 
@@ -791,27 +865,27 @@ document.write(`
             <span class="n">accuracy_min</span> <span class="o">=</span> <span class="mi">5</span>
 
         <span class="c1"># Resume results</span>
-        <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cap_f</span>
-        <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_cap_f</span>
+        <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cap_f</span>
+        <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">norm_cap_f</span>
         <span class="n">df_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;factor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">factor_shape</span>
         <span class="n">df_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;accuracy_min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_min</span>
         <span class="n">df_plot</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">accuracy_norm</span>
 
-    <span class="c1"># Depending on priority JRC update fullfrac and min frac</span>
-    <span class="k">if</span> <span class="n">priorityJRC</span><span class="p">:</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">resminfrac</span> <span class="o">=</span> <span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">df_out</span><span class="o">.</span><span class="n">resfullfrac</span> <span class="o">=</span> <span class="n">df_JRC</span><span class="p">[</span><span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># Depending on priority EO update fullfrac and min frac</span>
+    <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">resminfrac</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">df_out</span><span class="o">.</span><span class="n">resfullfrac</span> <span class="o">=</span> <span class="n">df_EO</span><span class="p">[</span><span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resminfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;resminfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resminfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resminfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;capmin&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="o">/</span> <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resminfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="p">)</span>
         <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">df_JRC</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="o">/</span> <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">df_out</span><span class="p">,</span> <span class="n">df_plot</span></div>
+    <span class="k">return</span> <span class="n">df_out</span><span class="p">,</span> <span class="n">df_plot</span><span class="p">,</span> <span class="n">df_ts</span></div>
 </pre></div>
 
                 </article>

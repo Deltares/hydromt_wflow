@@ -437,12 +437,15 @@ document.write(`
 <h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support in toml for dir_input and dir_output options. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/140">PR #140</a></p></li>
+<li><p>In <strong>setup_reservoirs</strong>: Global Water Watch compatibility for determining reservoir parameters.</p></li>
+<li><p>In <strong>setup_reservoirs</strong>: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Default tomls are now using the dir_output option to specify <em>run_default</em> folder.</p></li>
+<li><p>in <strong>setup_reservoirs</strong>: options ‘usehe’ and ‘priorityjrc’ are removed and replaced with ‘timeseries_fn’. Options are [‘jrc’, ‘gww’]. By default None to use reservoir_fn data directly.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -450,6 +453,7 @@ document.write(`
 <ul class="simple">
 <li><p>Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/144">PR #144</a></p></li>
 <li><p>Bugfix with wrong indexing in the river method that could cause memory issues <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/147">PR #147</a></p></li>
+<li><p>fix error in <strong>setup_reservoirs</strong> when gdf contains no data in np.nanmax calculation for i.e. damheight #35</p></li>
 </ul>
 </section>
 <section id="deprecated">
