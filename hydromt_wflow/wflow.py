@@ -1701,7 +1701,9 @@ class WflowModel(Model):
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(input_dir, self.get_config("input.path_static", fallback=fn_default))
+            fn = join(
+                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            )
             self.logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
@@ -1748,7 +1750,9 @@ class WflowModel(Model):
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(input_dir, self.get_config("input.path_static", fallback=fn_default))
+            fn = join(
+                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
@@ -1857,7 +1861,9 @@ class WflowModel(Model):
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(input_dir, self.get_config("input.path_forcing", fallback=fn_default))
+            fn = join(
+                input_dir, self.get_config("input.path_forcing", fallback=fn_default)
+            )
             self.logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
@@ -2095,7 +2101,9 @@ class WflowModel(Model):
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("netcdf.path", abs_path=True)
-        ncs_fn = ncs_fn.parent / output_dir / ncs_fn.name  if ncs_fn is not None else ncs_fn
+        ncs_fn = (
+            ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
+        )
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
             ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
@@ -2103,7 +2111,9 @@ class WflowModel(Model):
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("csv.path", abs_path=True)
-        csv_fn = csv_fn.parent / output_dir / csv_fn.name  if csv_fn is not None else csv_fn
+        csv_fn = (
+            csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
+        )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
                 csv_fn, config=self.config, maps=self.staticmaps
