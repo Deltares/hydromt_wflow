@@ -1698,6 +1698,14 @@ class WflowModel(Model):
         """Read staticmaps"""
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._staticmaps = xr.Dataset()
@@ -1739,6 +1747,12 @@ class WflowModel(Model):
         # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        # Append inputdir if required
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
@@ -1844,6 +1858,14 @@ class WflowModel(Model):
         """Read forcing"""
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
+
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir, self.get_config("input.path_forcing", fallback=fn_default)
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._forcing = dict()
@@ -1911,6 +1933,10 @@ class WflowModel(Model):
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
+                if self.get_config("dir_input") is not None:
+                    input_dir = self.get_config("dir_input", abs_path=True)
+                    fn_out = join(input_dir, fn_out)
+
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
                     self.logger.warning(
@@ -2060,8 +2086,13 @@ class WflowModel(Model):
             # start fresh in read-only mode
             self._results = dict()
 
+        output_dir = ""
+        if self.get_config("dir_output") is not None:
+            output_dir = self.get_config("dir_output")
+
         # Read gridded netcdf (output section)
         nc_fn = self.get_config("output.path", abs_path=True)
+        nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
@@ -2070,6 +2101,9 @@ class WflowModel(Model):
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("netcdf.path", abs_path=True)
+        ncs_fn = (
+            ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
+        )
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
             ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
@@ -2077,6 +2111,9 @@ class WflowModel(Model):
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("csv.path", abs_path=True)
+        csv_fn = (
+            csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
+        )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
                 csv_fn, config=self.config, maps=self.staticmaps

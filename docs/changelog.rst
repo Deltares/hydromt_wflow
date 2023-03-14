@@ -9,14 +9,13 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ==========
 
-
 Added
 -----
-
+- Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
 
 Changed
 -------
-
+- Default tomls are now using the dir_output option to specify *run_default* folder.
 
 Fixed
 -----
