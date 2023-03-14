@@ -34,15 +34,15 @@ def _compare_wflow_models(mod0, mod1):
     # check maps
     invalid_maps = {}
     # invalid_maps_dtype = {}
-    if len(mod0._staticmaps) > 0:
-        maps = mod0.staticmaps.raster.vars
-        assert np.all(mod0.crs == mod1.crs), f"map crs staticmaps"
+    if len(mod0._grid) > 0:
+        maps = mod0.grid.raster.vars
+        assert np.all(mod0.crs == mod1.crs), f"map crs grid"
         for name in maps:
-            map0 = mod0.staticmaps[name].fillna(0)
-            if name not in mod1.staticmaps:
+            map0 = mod0.grid[name].fillna(0)
+            if name not in mod1.grid:
                 invalid_maps[name] = "KeyError"
                 continue
-            map1 = mod1.staticmaps[name].fillna(0)
+            map1 = mod1.grid[name].fillna(0)
             if (
                 not np.allclose(map0, map1, atol=1e-3, rtol=1e-3)
                 or map0.dtype != map1.dtype
@@ -76,10 +76,10 @@ def _compare_wflow_models(mod0, mod1):
     # ), f"{len(invalid_maps_dtype)} invalid dtype for maps: {invalid_maps_dtype}"
     assert len(invalid_maps) == 0, f"{len(invalid_maps)} invalid maps: {invalid_maps}"
     # check geoms
-    if mod0._staticgeoms:
-        for name in mod0.staticgeoms:
-            geom0 = mod0.staticgeoms[name]
-            geom1 = mod1.staticgeoms[name]
+    if mod0._geoms:
+        for name in mod0.geoms:
+            geom0 = mod0.geoms[name]
+            geom1 = mod1.geoms[name]
             assert geom0.index.size == geom1.index.size and np.all(
                 geom0.index == geom1.index
             ), f"geom index {name}"
@@ -131,7 +131,7 @@ def test_model_build(tmpdir, model):
     assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
-    # (need to read it again for proper staticgeoms check)
+    # (need to read it again for proper geoms check)
     mod1 = _model["model"](root=root, mode="r")  # , logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, _model["example"])
@@ -159,7 +159,7 @@ def test_model_clip(tmpdir):
     mod1 = WflowModel(root=root, mode="r")  # , logger=logger)
     mod1.read()
     mod1.set_root(destination, mode="w")
-    mod1.clip_staticmaps(region)
+    mod1.clip_grid(region)
     mod1.clip_forcing()
     mod1.write()
     # Check if model is api compliant
@@ -167,7 +167,7 @@ def test_model_clip(tmpdir):
     assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
-    # (need to read it again for proper staticgeoms check)
+    # (need to read it again for proper geoms check)
     mod1 = WflowModel(root=destination, mode="r")  # , logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, "wflow_piave_clip")

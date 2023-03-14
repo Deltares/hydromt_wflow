@@ -62,8 +62,8 @@ a specific method see its documentation.
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
-    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
-      -  Setup staticmaps from raster to add parameters from direct data.
+    * - :py:func:`~WflowModel.setup_grid_from_raster`
+      -  Setup grid from raster to add parameters from direct data.
 
 
 .. _model_components:
@@ -86,10 +86,10 @@ and :py:func:`~WflowModel.write_config` for the
      - Wflow files
    * - :py:attr:`~hydromt_wflow.WflowModel.config`
      - wflow_sbm.toml
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps`
+   * - :py:attr:`~hydromt_wflow.WflowModel.grid`
      - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticgeoms`
-     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
+   * - :py:attr:`~hydromt_wflow.WflowModel.geoms`
+     - geometries from the geoms folder (basins.geojson, rivers.geojson etc.)
    * - :py:attr:`~hydromt_wflow.WflowModel.forcing`
      - inmaps.nc
    * - :py:attr:`~hydromt_wflow.WflowModel.states`

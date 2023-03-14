@@ -28,7 +28,7 @@ For a static (non-interactive) view of the examples follow one of the links belo
 
 **Postprocessing and visualization**
 
-*   `Convert wflow staticmaps netcdf to raster files <../_examples/convert_staticmaps_to_mapstack.ipynb>`_
+*   `Convert wflow grid netcdf to raster files <../_examples/convert_staticmaps_to_mapstack.ipynb>`_
 *   `Plot Wflow static maps <../_examples/plot_wflow_staticmaps.ipynb>`_
 *   `Plot Wflow forcing data <../_examples/plot_wflow_forcing.ipynb>`_
 *   `Plot Wflow results data <../_examples/plot_wflow_results.ipynb>`_

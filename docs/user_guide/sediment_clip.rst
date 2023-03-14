@@ -4,7 +4,7 @@ Clipping a model
 ----------------
 This plugin allows to clip the following parts of an existing model for a smaller region from command line:
 
-- staticmaps
+- grid
 - forcing
 
 To clip a smaller model from an existing one use:

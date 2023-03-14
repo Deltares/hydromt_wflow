@@ -55,7 +55,7 @@ Updating a Wflow model
  | **Q**: Is there an easy way to update reservoirs or lakes parameters in my Wflow model ?
 
 To easily update reservoirs or lakes parameters, you can directly use the *reservoirs.geojson* and *lakes.geojson* that are saved
-by HydroMT into the *staticgeoms* folder. Once you have updated the parameters with the new value, just use these geojson files as 
+by HydroMT into the *geoms* folder. Once you have updated the parameters with the new value, just use these geojson files as 
 your new "local" input data!
 
  | **Q**: Can I select a specific Wflow TOML config file when updating my model ?
@@ -68,7 +68,7 @@ Others
 
  | **Q**: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?
 
-HydroMT is still able to read the python PCRaster based maps of Wflow with the method :py:func:`~WflowModel.read_staticmaps_pcr`.
+HydroMT is still able to read the python PCRaster based maps of Wflow with the method :py:func:`~WflowModel.read_grid_pcr`.
 So actually just a read and write of your python model will do most of the job :) The intbl are however not taken into account so if 
 you have single values intbl, you can use the :py:func:`~WflowModel.setup_constant_pars` method. For lakes and reservoirs parameters,
 the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating 

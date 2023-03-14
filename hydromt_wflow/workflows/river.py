@@ -328,9 +328,7 @@ def river_width(
 ):
     nopars = a is None or b is None  # no manual a, b parameters
     fit = fit or (nopars and predictor not in ["discharge"])  # fit power-law on the fly
-    nowth = (
-        f"{rivwth_name}{obs_postfix}" not in ds_like
-    )  # no obseved with in staticmaps
+    nowth = f"{rivwth_name}{obs_postfix}" not in ds_like  # no observed width in ds_like
     fill = fill and nowth == False  # fill datagaps and masked areas (lakes/res) in obs
 
     if nowth and fit:
@@ -351,7 +349,7 @@ def river_width(
         values = _precip(ds_like, flwdir=flwdir, logger=logger, **data)
     else:
         if predictor not in ds_like:
-            raise ValueError(f"required {predictor} variable missing in staticmaps.")
+            raise ValueError(f"required {predictor} variable missing in ds.")
         values = ds_like[predictor].values
 
     # read river width observations

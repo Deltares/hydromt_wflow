@@ -58,8 +58,8 @@ a specific method see its documentation.
       - Setup area map from vector data to save wflow outputs for specific area.
     * - :py:func:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
-    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
-      -  Setup staticmaps from raster to add parameters from direct data.
+    * - :py:func:`~WflowModel.setup_grid_from_raster`
+      -  Setup grid from raster to add parameters from direct data.
 
 
 .. _model_components_sed:
@@ -82,10 +82,10 @@ and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
      - Wflow sediment files
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.config`
      - wflow_sediment.toml
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps`
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.grid`
      - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms`
-     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.geoms`
+     - geometries from the geoms folder (basins.geojson, rivers.geojson etc.)
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.forcing`
      - inmaps.nc
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.states`

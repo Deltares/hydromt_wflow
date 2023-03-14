@@ -5,7 +5,7 @@ Clipping a model
 ----------------
 This plugin allows to clip the following parts of an existing model for a smaller region from command line:
 
-- staticmaps
+- grid
 - forcing
 
 To clip a smaller model from an existing one use:
@@ -23,7 +23,7 @@ for a proper implementation of the clipped model are:
 
 See the following model API:
 
-* :py:func:`~WflowModel.clip_staticmaps`
+* :py:func:`~WflowModel.clip_grid`
 * :py:func:`~WflowModel.clip_forcing`
 
 

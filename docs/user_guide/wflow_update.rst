@@ -24,8 +24,8 @@ To add or change one or more components of an existing Wflow model the ``update`
 .. TIP::
 
     By default all model data is written at the end of the update method. If your update however 
-    only affects a certain model data (e.g. staticmaps or forcing) you can add a write_* method 
-    (e.g. `write_staticmaps`, `write_forcing`) to the .ini file and only these data will be written.
+    only affects a certain model data (e.g. grid or forcing) you can add a write_* method 
+    (e.g. `write_grid`, `write_forcing`) to the .ini file and only these data will be written.
     
     Note that the model config is often changed as part of the a model method and `write_config` 
     should thus be added to the .ini file to keep the model data and config consistent.
