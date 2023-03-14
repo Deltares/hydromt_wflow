@@ -18,7 +18,7 @@ Added
 Changed
 -------
 - Default tomls are now using the dir_output option to specify *run_default* folder.
-- in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default Global Water Watch is used for downloading reservoir timeseries.
+- in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default None to use reservoir_fn data directly.
 
 Fixed
 -----

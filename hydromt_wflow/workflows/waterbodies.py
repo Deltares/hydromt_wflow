@@ -119,16 +119,11 @@ def waterbodymaps(
 
     return ds_out, outgdf
 
-def reservoirattrs(
-    gdf,
-    timeseries_fn='gww',
-    perc_norm=50,
-    perc_min=20,
-    logger=logger
-):
+
+def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=logger):
     """Returns reservoir attributes (see list below) needed for modelling. 
     When specified, some of the reservoir attributes can be derived from earth observation data. 
-    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) and 2. JRC (Peker, 2016)
+    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
     The following reservoir attributes are calculated:\
     - resmaxvolume : reservoir maximum volume [m3]\
@@ -161,27 +156,34 @@ def reservoirattrs(
         DataFrame containing all downloaded reservoir time series. 
     """
 
-    options = ['gww','jrc']
-    timeseries_fn = timeseries_fn.lower()
-
-    if timeseries_fn == 'jrc':
+    if timeseries_fn == "jrc":
         try:
             import hydroengine as he
-        except ImportError:
-            logger.debug(
-                "HydroEngine package not found, using default reservoir attribute values."
+
+            logger.info("Using reservoir timeseries from JRC via hydroengine.")
+        except:
+            raise ImportError(
+                "hydroengine package not found, cannot download jrc reservoir timeseries."
             )
-    
-    elif timeseries_fn == 'gww':
+
+    elif timeseries_fn == "gww":
         try:
             from gwwapi import client as cli
-            from gwwapi import utils 
-        except ImportError:
-            logger.debug(
-                "gwwapi not found, using default reservoir attribute values."
+            from gwwapi import utils
+
+            logger.info("Using reservoir timeseries from GWW via gwwapi.")
+        except:
+            raise ImportError(
+                "gwwapi package not found, cannot download gww reservoir timeseries."
             )
+    elif timeseries_fn is not None:
+        raise ValueError(
+            f"timeseries_fn argument {timeseries_fn} not understood, please use one of [gww, jrc] or None."
+        )
     else:
-        logger.debug("No timeseries_fn found, using default reservoir attributes from reservoir database")
+        logger.debug(
+            "Using reservoir attributes from reservoir database to compute parameters."
+        )
 
     # Initialize output DataFrame with empty values and reservoir ID
     df_out = pd.DataFrame(
@@ -213,16 +215,12 @@ def reservoirattrs(
         columns=(["resid", "factor", "accuracy_min", "accuracy_norm"]),
     )
     df_plot["resid"] = gdf["waterbody_id"].values
-    
+
     # Create empty dataframe for timeseries exports
     df_ts = pd.DataFrame()
 
-    # Get EO data for each reservoir 
-    df_EO.loc[:, "maxarea"] = np.nan
-    df_EO.loc[:, "normarea"] = np.nan
-    df_EO.loc[:, "minarea"] = np.nan
-
-    if timeseries_fn == 'jrc':
+    # Get EO data for each reservoir
+    if timeseries_fn == "jrc":
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
             try:
@@ -230,15 +228,17 @@ def reservoirattrs(
                 time_series = he.get_lake_time_series(
                     int(gdf["Hylak_id"].iloc[i]), "water_area"
                 )
-                
-                # Append series to df_ts which will contain all time series 
+
+                # Append series to df_ts which will contain all time series
                 # of all dowloaded reservoirs, with an outer join on the datetime index
-                ts_index = pd.to_datetime([k*1000000 for k in time_series['time']])
-                ts_values= time_series['water_area']
-                ts_series = pd.Series(data = ts_values, index = ts_index, name=int(gdf["Hylak_id"].iloc[i]))
+                ts_index = pd.to_datetime([k * 1000000 for k in time_series["time"]])
+                ts_values = time_series["water_area"]
+                ts_series = pd.Series(
+                    data=ts_values, index=ts_index, name=int(gdf["Hylak_id"].iloc[i])
+                )
                 ts_series = ts_series[ts_series > 0].dropna()
-                df_ts = pd.concat([df_ts, ts_series], join='outer', axis=1)
-                
+                df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
+
                 # Save area stats
                 area_series = np.array(time_series["water_area"])  # [m2]
                 area_series_nozeros = area_series[area_series > 0]
@@ -253,30 +253,36 @@ def reservoirattrs(
                 logger.warning(
                     f"No HydroEngine time series available for reservoir {ids}!"
                 )
-    
-    if timeseries_fn == 'gww':
-        # get bounds from gdf input as JSON object that can be used in post request with the gww api 
-        gdf_bounds = json.dumps(shapely.geometry.box(*gdf.total_bounds, ccw=True).__geo_interface__)
+
+    if timeseries_fn == "gww":
+        # get bounds from gdf input as JSON object that can be used in post request with the gww api
+        gdf_bounds = json.dumps(
+            shapely.geometry.box(*gdf.total_bounds, ccw=True).__geo_interface__
+        )
         # get reservoirs wihtin these bounds
         gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds)
         # from the response, create a dictonary, linking the gww_id to the hylak_id (used in the default reservoir database)
-        idlink = {k['properties']['source_id']:k['id'] for k in gww_reservoirs}
+        idlink = {k["properties"]["source_id"]: k["id"] for k in gww_reservoirs}
 
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
             try:
-                logger.debug(f"Downloading Global Water Watch time series for reservoir {ids}")
+                logger.debug(
+                    f"Downloading Global Water Watch time series for reservoir {ids}"
+                )
                 time_series = cli.get_reservoir_ts_monthly(
                     idlink[int(gdf["Hylak_id"].iloc[i])]
                 )
-                
-                # Append series to df_ts which will contain all time series 
+
+                # Append series to df_ts which will contain all time series
                 # of all dowloaded reservoirs, with an outer join on the datetime index
-                ts_series = utils.to_timeseries(time_series, name=f'{int(gdf["Hylak_id"].iloc[i])}').drop_duplicates()
-                df_ts = pd.concat([df_ts, ts_series], join='outer', axis=1)
-                
+                ts_series = utils.to_timeseries(
+                    time_series, name=f'{int(gdf["Hylak_id"].iloc[i])}'
+                ).drop_duplicates()
+                df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
+
                 # Compute stats
-                area_series = utils.to_timeseries(time_series)['area'].to_numpy()
+                area_series = utils.to_timeseries(time_series)["area"].to_numpy()
                 area_series_nozeros = area_series[area_series > 0]
                 df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
                 df_EO.loc[i, "normarea"] = np.percentile(
@@ -286,13 +292,11 @@ def reservoirattrs(
                     area_series_nozeros, perc_min, axis=0
                 )
             except:
-                logger.warning(
-                    f"No GWW time series available for reservoir {ids}!"
-                )
+                logger.warning(f"No GWW time series available for reservoir {ids}!")
 
     # Sort timeseries dataframe (will be saved to root as .csv later)
     df_ts = df_ts.sort_index()
-    
+
     # Compute resdemand and resmaxrelease either from average discharge
     if "Dis_avg" in gdf.columns:
         df_out["resdemand"] = gdf["Dis_avg"].values * 0.5
@@ -301,7 +305,7 @@ def reservoirattrs(
     # Get resarea either from EO or database depending
     if "Area_avg" in gdf.columns:
         df_out["resarea"] = gdf["Area_avg"].values
-        if timeseries_fn in options:
+        if timeseries_fn is not None:
             df_out.loc[pd.notna(df_EO["maxarea"]), "resarea"] = df_EO["maxarea"][
                 pd.notna(df_EO["maxarea"])
             ].values
@@ -462,7 +466,7 @@ def reservoirattrs(
         df_plot.loc[i, "accuracy_norm"] = accuracy_norm
 
     # Depending on priority EO update fullfrac and min frac
-    if timeseries_fn in options:
+    if timeseries_fn is not None:
         df_out.resminfrac = df_EO["capmin"].values / df_out["resmaxvolume"].values
         df_out.resfullfrac = df_EO["capmax"].values / df_out["resmaxvolume"].values
     else:
