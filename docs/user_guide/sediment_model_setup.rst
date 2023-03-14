@@ -58,6 +58,8 @@ a specific method see its documentation.
       - Setup area map from vector data to save wflow outputs for specific area.
     * - :py:func:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
+    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+      -  Setup staticmaps from raster to add parameters from direct data.
 
 
 .. _model_components_sed:

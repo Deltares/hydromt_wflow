@@ -1,42 +1,48 @@
+# note that these are the developer dependencies
+# use environment.yml in the root to install for normal use
 name: hydromt-wflow
 
 channels:
   - conda-forge
 
-# note that these are the developer dependencies,
-# FIXME change to minimal version after hydromt is on conda-forge
 dependencies:
   - affine
-  - click
   - black
   - bottleneck
+  - click
   - dask
   - entrypoints
   - flit>=3.4
+  - fsspec
   - gdal>=3.1
   - geopandas>=0.10
-  # - hydromt >= 0.4.5
   - netcdf4
-  - numba
   - numpy
   - openpyxl
   - pandas
+  - packaging
+  - pcraster # optional
   - pip
-  - pyflwdir>=0.5.5
-  - pygeos>=0.8
+  - pyflwdir>=0.5.4
+  - pyproj
   - pytest # tests
-  # - pytest-benchmark # test > unused
   - pytest-cov # tests
+  - pytest-mock # tests
   - pytest-timeout # test
   - python>=3.7
   - rasterio
-  - rioxarray
+  - responses # tests
   - requests
+  - rioxarray
   - scipy
+  - testpath  # tests
   - toml
+  - universal_pathlib
+  - shapely>=2.0.0
   - xarray
   - zarr
   - pip:
-    # - hydroengine > test without for speed
+    - pyet
+    - hydroengine
     - git+https://github.com/Deltares/hydromt.git
 

@@ -58,7 +58,6 @@ def average_soillayers_block(ds, soilthickness):
     d = soilthickness.fillna(0.0)
 
     for i in ds.sl:
-
         da_sum = da_sum + (
             (soildepth_cm[i] - soildepth_cm[i - 1])
             * ds.sel(sl=i)
@@ -83,7 +82,6 @@ def average_soillayers_block(ds, soilthickness):
 
 
 def average_soillayers(ds, soilthickness):
-
     """
     Determine weighted average of soil property at different depths over soil thickness,
     using the trapezoidal rule.
@@ -111,7 +109,6 @@ def average_soillayers(ds, soilthickness):
     d = soilthickness.fillna(0.0)
 
     for i in range(1, len(ds.sl)):  # range(1, 7):
-
         da_sum = da_sum + (
             (soildepth_cm[i] - soildepth_cm[i - 1])
             * (ds.sel(sl=i) + ds.sel(sl=i + 1))
@@ -136,7 +133,6 @@ def average_soillayers(ds, soilthickness):
 
 
 def pore_size_distrution_index_layers(ds, thetas):
-
     """
     Determine pore size distribution index per soil layer depth based on PTF.
 
@@ -171,7 +167,6 @@ def pore_size_distrution_index_layers(ds, thetas):
 
 
 def kv_layers(ds, thetas, ptf_name):
-
     """
     Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth based on PTF.
 
@@ -457,7 +452,7 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     else:
         # for soilgrids 2017, keep the direct mapping calculation.
         da_c = []
-        for (i, sl_ind) in enumerate(c_sl_index):
+        for i, sl_ind in enumerate(c_sl_index):
             da_c.append(3.0 + (2.0 / lambda_sl.sel(sl=sl_ind)))
         ds_c = xr.concat(
             da_c, pd.Index(np.arange(len(c_sl_index), dtype=int), name="layer")
@@ -552,7 +547,6 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
 
 def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
-
     """
     Returns soil parameter maps for sediment modelling at model resolution based on soil 
     properties from SoilGrids dataset.

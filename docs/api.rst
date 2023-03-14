@@ -42,6 +42,7 @@ Setup components
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
    WflowModel.setup_constant_pars
+   WflowModel.setup_staticmaps_from_raster
 
 Attributes
 ----------
@@ -148,6 +149,7 @@ Setup components
    WflowSedimentModel.setup_gauges
    WflowSedimentModel.setup_areamap
    WflowSedimentModel.setup_constant_pars
+   WflowSedimentModel.setup_staticmaps_from_raster
 
 Attributes
 ----------
