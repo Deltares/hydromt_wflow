@@ -9,6 +9,14 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 Unreleased
 ==========
 
+Added
+-----
+- Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
+
+Changed
+-------
+- Default tomls are now using the dir_output option to specify *run_default* folder.
+
 v0.2.1 (22 November 2022)
 =========================
 New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
