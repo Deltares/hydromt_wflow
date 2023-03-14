@@ -17,6 +17,15 @@ Changed
 -------
 - Default tomls are now using the dir_output option to specify *run_default* folder.
 
+Fixed
+-----
+- Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
+- Bugfix with wrong indexing in the river method that could cause memory issues `PR #147 <https://github.com/Deltares/hydromt_wflow/pull/147>`_
+
+Deprecated
+----------
+
+
 v0.2.1 (22 November 2022)
 =========================
 New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
