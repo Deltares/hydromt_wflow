@@ -168,14 +168,15 @@ class WflowModel(Model):
         self.logger.info(f"Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
-        # TODO support and test (user) data from other sources with other crs!
-        if ds_org.raster.crs is None or ds_org.raster.crs.to_epsg() != 4326:
-            raise ValueError("Only EPSG:4326 base data supported.")
+        # TODO: add a check on resolution (degree vs meter) depending on ds_org res/crs?
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
-            bas_index = self.data_catalog[basin_index_fn]
+            if basin_index_fn is not None:
+                bas_index = self.data_catalog[basin_index_fn]
+            else:
+                bas_index = None
             geom, xy = hydromt.workflows.get_basin_geometry(
                 ds=ds_org,
                 kind=kind,
@@ -192,6 +193,7 @@ class WflowModel(Model):
             raise ValueError(f"wflow region argument not understood: {region}")
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
+
         ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
         self.logger.debug(f"Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
