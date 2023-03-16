@@ -1931,13 +1931,16 @@ class WflowModel(Model):
             yr0 = pd.to_datetime(self.get_config("starttime")).year
             yr1 = pd.to_datetime(self.get_config("endtime")).year
             freq = self.get_config("timestepsecs")
-
             # get output filename
             if fn_out is not None:
                 self.set_config("input.path_forcing", fn_out)
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
+                if "*" in basename(fn_out):
+                    # get rid of * in case model had multiple forcing files and write to single nc file.
+                    self.logger.warning("Writing multiple forcing files to one file")
+                    fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
                 if self.get_config("dir_input") is not None:
                     input_dir = self.get_config("dir_input", abs_path=True)
                     fn_out = join(input_dir, fn_out)
