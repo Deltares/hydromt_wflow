@@ -24,12 +24,12 @@ see the **Install HydroMT-Wflow in a new environment** section in the
 2 - Download the content of the HydroMT github repository
 *********************************************************
 To run the examples locally, you will need to download the content of the examples folder in the HydroMT-Wflow repository. 
-You can either do a `manual download <https://github.com/Deltares/hydromt_wflow/archive/refs/heads/main.zip>`_ 
+You can  do a `manual download <https://github.com/Deltares/hydromt_wflow/archive/refs/heads/main.zip>`_ 
 and extract the content of the downloaded ZIP folder **or** clone the repository locally (this requires git):
 
 .. code-block:: console
 
-  $ git clone https://github.com/Deltares/hydromt.git
+  $ git clone https://github.com/Deltares/hydromt_wflow.git
 
 3 - Running the examples
 ************************
