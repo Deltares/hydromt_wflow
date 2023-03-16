@@ -54,8 +54,10 @@ def landuse(da, ds_like, fn_map, logger=logger, params=None):
     # setup reclass method
     def reclass(x):
         return np.vectorize(d.get)(x, nodata)
-
+    
+    da_crs = da.raster.crs
     da = da.raster.interpolate_na(method="nearest")
+    da.raster.set_crs(da_crs)
     # apply for each parameter
     for param in params:
         method = RESAMPLING.get(param, "average")
