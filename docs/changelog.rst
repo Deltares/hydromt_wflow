@@ -19,6 +19,7 @@ Changed
 -------
 - Default tomls are now using the dir_output option to specify *run_default* folder.
 - in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default None to use reservoir_fn data directly.
+- in **setup_areamap**: name of the added map is based on column name of the vector data instead of name of the vector data file. Allows to add several maps in staticmaps from one vector data file. 
 
 Fixed
 -----

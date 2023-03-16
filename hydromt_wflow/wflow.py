@@ -885,7 +885,7 @@ class WflowModel(Model):
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
-        * **area_fn** map:  output area data map
+        * **col2raster** map:  output area data map
         Parameters
         ----------
         area_fn : str
@@ -899,7 +899,7 @@ class WflowModel(Model):
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
             return
 
-        self.logger.info(f"Preparing '{area_fn}' map.")
+        self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
             area_fn, geom=self.basins, dst_crs=self.crs
         )
@@ -915,7 +915,7 @@ class WflowModel(Model):
                 nodata=nodata,
                 all_touched=True,
             )
-        self.set_staticmaps(da_area.rename(area_fn))
+        self.set_staticmaps(da_area.rename(col2raster))
 
     def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
         """This component generates maps of lake areas and outlets as well as parameters
