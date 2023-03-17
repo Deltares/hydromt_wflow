@@ -1967,7 +1967,8 @@ class WflowModel(Model):
                         start = pd.to_datetime(times[0])
                         correct_times = True
                     elif start not in times:
-                        start = pd.to_datetime(times[times >= start][0])
+                        # starttime becomes starttime of forcing_fn
+                        start = pd.to_datetime(times[0])
                         correct_times = True
                     if end > pd.to_datetime(times[-1]):
                         end = pd.to_datetime(times[-1])
