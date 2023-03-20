@@ -599,6 +599,7 @@ class WflowModel(Model):
 
         else:
             # include new input data
+            self.set_config("input.lateral.river.bankfull_elevation", name)
             self.set_config("input.lateral.land.elevation", name)
             # Remove kinematic-wave and 1d floodplain states
             self.config["state"]["lateral"]["land"].pop("q", None)
@@ -994,7 +995,7 @@ class WflowModel(Model):
         Parameters
         ----------
         gauges_fn : str, {"grdc"}, optional
-            Known source name or path to gauges file geometry file, by default None.
+            Known source name or path to gauges file geometry file, by default "grdc".
         source_gdf : geopandas.GeoDataFame, optional
             Direct gauges file geometry, by default None.
         index_col : str, optional
