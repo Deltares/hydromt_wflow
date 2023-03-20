@@ -13,9 +13,11 @@ Unreleased
 Added
 -----
 - New setup_river_floodplain method `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
+- New setup_floodplains method, that allows the user the choose either 1D or 2D floodplains
 
 Changed
 -------
+- Merged river part of setup_hydrodem into setup_rivers functionnality, and moved land part of setup_hydrodem into setup_floodplains.
 
 Fixed
 -----
@@ -28,7 +30,7 @@ Deprecated
 
 v0.2.1 (22 November 2022)
 =========================
-New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
+New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon
 deprecated staticmaps and staticgeoms objects in hydromt core to work with the new 0.6.0 release.
 
 Added
@@ -39,7 +41,7 @@ Added
 Changed
 -------
 - update forcing example with multiple forcing files #122
-- New window smoothing algorithm in `setup_rivers` to avoid cells with small river length. 
+- New window smoothing algorithm in `setup_rivers` to avoid cells with small river length.
   Set the min_rivlen_ratio argument to a value larger than zero to apply the smoothing.
   Note: requires pyflwdir v0.5.6 `PR #92 <https://github.com/Deltares/hydromt_wflow/pull/92>`_
 
@@ -52,7 +54,7 @@ Fixed
 - bug in self.rivers if no staticgeoms and rivmsk is found #113
 - bug in wflow_build_sediment.ini template in examples
 - wrong defaults in wflow_build.ini teamplate in examples #116
-- temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms). 
+- temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms).
 - fix wrong default value for lai_fn in setup_laimaps #119
 
 Deprecated
@@ -100,7 +102,7 @@ Added
 -----
 - Possibility to write_forcing in several files based on time frequency (fn_freq argument).
 - setup_hydrodem method for hydrological conditioned elevation used with "local-inertial" routing
-- workflow.river.river_bathymetry method to derive river width and depth estimates. 
+- workflow.river.river_bathymetry method to derive river width and depth estimates.
   Note that the new river width estimates are different and result in different model results.
 - moved basemaps workflows (hydrography and topography) from HydroMT core. Note that HydroMT_Wflow v0.1.3 there should be used together with HydroMT v0.4.4 (not newer!)
 - new ID columns for the outlets staticgeoms
@@ -147,7 +149,7 @@ Added
 -----
 
 - Add results attributes for Wflow and read_results method (including test+example).
-- Add `f_` parameter in soilgrids 
+- Add `f_` parameter in soilgrids
 - Support soilgrids version 2020
 - Setup_areamap component to prepare maps of areas of interest to save Wflow outputs at.
 - Support Wflow_sediment with vito landuse.
