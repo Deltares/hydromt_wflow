@@ -110,3 +110,105 @@ def test_setup_reservoirs(source, tmpdir):
             )
             == number_of_reservoirs
         ), f"Number of non-null values in {i} not equal to number of reservoirs in model area"
+
+
+@pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
+def test_setup_rivers(elevtn_map):
+    logger = logging.getLogger(__name__)
+    # read model from examples folder
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+
+    # Initialize model and read results
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+
+    mod.setup_rivers(
+        hydrography_fn   = "merit_hydro",
+        river_geom_fn    = "rivers_lin2019_v1",
+        river_upa        = 30,
+        rivdph_method    = "powlaw",
+        min_rivdph       = 1,
+        min_rivwth       = 30,
+        slope_len        = 2000,
+        smooth_len       = 5000,
+        river_routing    = "local-inertial",
+        elevtn_map       = elevtn_map,
+    )
+
+    mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[elevtn_map]
+
+    assert mapname in mod.staticmaps
+    assert mod.get_config("model.river_routing") == "local-inertial"
+    # assert mod.get_config("model.land_routing") == "kinematic-wave" or None
+    assert mod.get_config("input.lateral.river.bankfull_elevation") == mapname
+
+def test_setup_floodplains_1d():
+    logger = logging.getLogger(__name__)
+    # read model from examples folder
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+
+    # Initialize model and read results
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+
+    flood_depths     = [0.5, 1.0, 1.5, 2.5]
+
+    mod.setup_rivers(
+        hydrography_fn   = "merit_hydro",
+        river_geom_fn    = "rivers_lin2019_v1",
+        river_upa        = 30,
+        rivdph_method    = "powlaw",
+        min_rivdph       = 1,
+        min_rivwth       = 30,
+        slope_len        = 2000,
+        smooth_len       = 5000,
+        river_routing    = "local-inertial",
+        elevtn_map       = "wflow_dem",
+    )
+
+    mod.setup_floodplains(
+        hydrography_fn   = "merit_hydro",
+        floodplain_type  = "1d",
+        river_upa        = 30,
+        flood_depths     = flood_depths
+    )
+
+    assert "floodplain_volume" in mod.staticmaps
+    assert mod.get_config("model.floodplain_1d") == True
+    assert mod.get_config("model.land_routing") == "kinematic-wave"
+    assert mod.get_config("input.lateral.river.floodplain.volume") == "floodplain_volume"
+    assert np.all(mod.staticmaps.flood_depth.values == flood_depths)
+
+@pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
+def test_setup_floodplains_2d(elevtn_map):
+    logger = logging.getLogger(__name__)
+    # read model from examples folder
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+
+    # Initialize model and read results
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+
+    mod.setup_rivers(
+        hydrography_fn   = "merit_hydro",
+        river_geom_fn    = "rivers_lin2019_v1",
+        river_upa        = 30,
+        rivdph_method    = "powlaw",
+        min_rivdph       = 1,
+        min_rivwth       = 30,
+        slope_len        = 2000,
+        smooth_len       = 5000,
+        river_routing    = "local-inertial",
+        elevtn_map       = "wflow_dem",
+    )
+
+    mod.setup_floodplains(
+        hydrography_fn   = "merit_hydro",
+        floodplain_type  = "2d",
+        elevtn_map       = elevtn_map
+    )
+
+    mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[elevtn_map]
+
+    assert f"{mapname}_D4" in mod.staticmaps
+    assert mod.get_config("model.floodplain_1d") == False
+    assert mod.get_config("model.land_routing") == "local-inertial"
+    assert mod.get_config("input.lateral.river.bankfull_elevation") == f"{mapname}_D4"
+    assert mod.get_config("input.lateral.land.elevation") == f"{mapname}_D4"
