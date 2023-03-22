@@ -1959,16 +1959,16 @@ class WflowModel(Model):
             correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
-                    if hasattr(da.indexes["time"], "to_datetimeindex"):
-                        times = da.indexes["time"].to_datetimeindex().values
-                    else:
+                    if not hasattr(da.indexes["time"], "to_datetimeindex"):
+                        # times = da.indexes["time"].to_datetimeindex().values
+                        # else:
                         times = da.time.values
-                    if (start < pd.to_datetime(times[0])) | (start not in times):
-                        start = pd.to_datetime(times[0])
-                        correct_times = True
-                    if (end > pd.to_datetime(times[-1])) | (end not in times):
-                        end = pd.to_datetime(times[-1])
-                        correct_times = True
+                        if (start < pd.to_datetime(times[0])) | (start not in times):
+                            start = pd.to_datetime(times[0])
+                            correct_times = True
+                        if (end > pd.to_datetime(times[-1])) | (end not in times):
+                            end = pd.to_datetime(times[-1])
+                            correct_times = True
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
             ds.raster.set_crs(self.crs)
