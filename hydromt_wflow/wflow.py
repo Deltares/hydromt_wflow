@@ -1963,18 +1963,11 @@ class WflowModel(Model):
                         times = da.indexes["time"].to_datetimeindex().values
                     else:
                         times = da.time.values
-                    if start < pd.to_datetime(times[0]):
+                    if (start < pd.to_datetime(times[0])) | (start not in times):
                         start = pd.to_datetime(times[0])
                         correct_times = True
-                    elif start not in times:
-                        # starttime becomes starttime of forcing_fn
-                        start = pd.to_datetime(times[0])
-                        correct_times = True
-                    if end > pd.to_datetime(times[-1]):
+                    if (end > pd.to_datetime(times[-1])) | (end not in times):
                         end = pd.to_datetime(times[-1])
-                        correct_times = True
-                    elif end not in times:
-                        end = pd.to_datetime(times[times <= end][-1])
                         correct_times = True
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
