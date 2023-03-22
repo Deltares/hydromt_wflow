@@ -240,17 +240,17 @@ class WflowModel(Model):
         self,
         hydrography_fn,
         river_geom_fn=None,
-        river_upa : float = 30,
-        rivdph_method : str = "powlaw",
-        slope_len : float = 2e3,
+        river_upa: float = 30,
+        rivdph_method: str = "powlaw",
+        slope_len: float = 2e3,
         min_rivlen_ratio=0.0,
-        min_rivdph : float = 1,
-        min_rivwth : float = 30,
-        smooth_len : float = 5e3,
-        rivman_mapping_fn = join(DATADIR, "wflow", "N_river_mapping.csv"),
-        elevtn_map : str = "wflow_dem",
-        river_routing : str = "kinematic-wave",
-        connectivity : int = 8,
+        min_rivdph: float = 1,
+        min_rivwth: float = 30,
+        smooth_len: float = 5e3,
+        rivman_mapping_fn=join(DATADIR, "wflow", "N_river_mapping.csv"),
+        elevtn_map: str = "wflow_dem",
+        river_routing: str = "kinematic-wave",
+        connectivity: int = 8,
         **kwargs,
     ):
         """
@@ -422,8 +422,9 @@ class WflowModel(Model):
 
         # Add hydrologically conditioned elevation map for the river, if required
         if river_routing == "local-inertial":
-
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(elevtn_map, "")
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
             name = f"hydrodem{postfix}"
 
             ds_out = flw.dem_adjust(
@@ -438,7 +439,9 @@ class WflowModel(Model):
             self.set_staticmaps(ds_out)
 
             # update toml model.river_routing
-            self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
+            self.logger.debug(
+                f'Update wflow config model.river_routing="{river_routing}"'
+            )
             self.set_config("model.river_routing", river_routing)
 
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
@@ -561,7 +564,9 @@ class WflowModel(Model):
             if not elevtn_map in self.staticmaps:
                 raise ValueError(f'"{elevtn_map}" not found in staticmaps')
 
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(elevtn_map, "")
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
             name = f"hydrodem{postfix}"
 
             self.logger.info(f"Preparing {name} map for land routing.")
@@ -587,7 +592,9 @@ class WflowModel(Model):
 
         if floodplain_type == "1d":
             # include new input data
-            self.set_config("input.lateral.river.floodplain.volume", "floodplain_volume")
+            self.set_config(
+                "input.lateral.river.floodplain.volume", "floodplain_volume"
+            )
             # Add states
             self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
             self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
@@ -604,10 +611,14 @@ class WflowModel(Model):
             self.set_config("input.lateral.land.elevation", name)
             # Remove kinematic-wave and 1d floodplain states
             self.config["state"]["lateral"]["land"].pop("q", None)
-            try: self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
-            except: pass
-            try: self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
-            except: pass
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
+            except:
+                pass
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
+            except:
+                pass
             self.config["output"]["lateral"]["land"].pop("q", None)
             # Add local-inertial land routing states
             self.set_config("state.lateral.land.qx", "qx_land")

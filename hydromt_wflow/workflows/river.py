@@ -40,14 +40,14 @@ def river(
     - rivmsk : river mask based on upstream area threshold on upstream area\
     - rivlen : river length [m]\
     - rivslp : smoothed river slope [m/m]\
-    - rivzs : elevation of the river bankfull height based on pixel outlet 
+    - rivzs : elevation of the river bankfull height based on pixel outlet
     - rivwth : river width at pixel outlet (if in ds)
     - qbankfull : bankfull discharge at pixel outlet (if in ds)
 
     Parameters
     ----------
     ds: xr.Dataset
-        hydrography dataset containing "flwdir", "uparea", "elevtn" variables; 
+        hydrography dataset containing "flwdir", "uparea", "elevtn" variables;
         and optional "rivwth" and "qbankfull" variable
     ds_model: xr.Dataset, optional
         model dataset with output grid, must contain "uparea", for subgrid rivlen/slp
@@ -57,12 +57,12 @@ def river(
     slope_len: float
         minimum length over which to calculate the river slope, by default 1000 [m]
     min_rivlen_ratio: float
-        minimum global river length to avg. Cell resolution ratio used as threshold 
-        in window based smoothing of river length, by default 0.0. 
+        minimum global river length to avg. Cell resolution ratio used as threshold
+        in window based smoothing of river length, by default 0.0.
         The smoothing is skipped if min_riverlen_ratio = 0.
     channel_dir: {"up", "down"}
         flow direction in which to calculate (subgrid) river length and width
-    
+
     Returns:
     ds_out: xr.Dataset
         Dataset with output river attributes
