@@ -67,7 +67,7 @@ def _compare_wflow_models(mod0, mod1):
                 if ncells > 0:
                     # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                     # yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
-                    diff = (map0 - map1).values[notclose].mean()
+                    diff = (map0.values - map1.values)[notclose].mean()
                     err = f"diff ({ncells:d} cells): {diff:.4f}; {err}"
                 invalid_maps[name] = err
     # invalid_map_str = ", ".join(invalid_maps)
@@ -122,11 +122,10 @@ def test_model_build(tmpdir, model):
         "strord": 4,
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
-    res = 1 / 60.0
     config = join(TESTDATADIR, _model["ini"])
     opt = parse_config(config)
     # Build model
-    mod1.build(region=region, res=res, opt=opt)
+    mod1.build(region=region, opt=opt)
     # Check if model is api compliant
     non_compliant_list = mod1.test_model_api()
     assert len(non_compliant_list) == 0
