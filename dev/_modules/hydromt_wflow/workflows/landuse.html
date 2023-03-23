@@ -460,7 +460,7 @@ document.write(`
     <span class="c1"># setup reclass method</span>
     <span class="k">def</span> <span class="nf">reclass</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">x</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
-
+    
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
     <span class="c1"># apply for each parameter</span>
     <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>

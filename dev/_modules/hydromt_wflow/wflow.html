@@ -1291,7 +1291,7 @@ document.write(`
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup area map from vector data to save wflow outputs for specific area.</span>
 <span class="sd">        Adds model layer:</span>
-<span class="sd">        * **area_fn** map:  output area data map</span>
+<span class="sd">        * **col2raster** map:  output area data map</span>
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        area_fn : str</span>
@@ -1305,7 +1305,7 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_areamap.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39; map.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing &#39;</span><span class="si">{</span><span class="n">col2raster</span><span class="si">}</span><span class="s2">&#39; map from &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
             <span class="n">area_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">dst_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
         <span class="p">)</span>
@@ -1321,7 +1321,7 @@ document.write(`
                 <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
                 <span class="n">all_touched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">area_fn</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col2raster</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="WflowModel.setup_lakes"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
@@ -2393,13 +2393,16 @@ document.write(`
             <span class="n">yr0</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">year</span>
             <span class="n">yr1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">year</span>
             <span class="n">freq</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">)</span>
-
             <span class="c1"># get output filename</span>
             <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fn_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn_out</span><span class="p">):</span>
+                    <span class="c1"># get rid of * in case model had multiple forcing files and write to single nc file.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Writing multiple forcing files to one file&quot;</span><span class="p">)</span>
+                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">),</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn_out</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
                     <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
