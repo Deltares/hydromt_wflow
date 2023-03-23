@@ -115,7 +115,9 @@ def test_model_build(tmpdir, model):
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
     logger = setuplog(__name__, join(root, "hydromt.log"), log_level=10)
-    mod1 = _model["model"](root=root, mode="w")  # , logger=logger)
+    mod1 = _model["model"](
+        root=root, mode="w", data_libs="artifact_data"
+    )  # , logger=logger)
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],
