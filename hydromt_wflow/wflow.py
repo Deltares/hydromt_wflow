@@ -889,7 +889,7 @@ class WflowModel(Model):
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
-        * **area_fn** map:  output area data map
+        * **col2raster** map:  output area data map
         Parameters
         ----------
         area_fn : str
@@ -903,7 +903,7 @@ class WflowModel(Model):
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
             return
 
-        self.logger.info(f"Preparing '{area_fn}' map.")
+        self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
             area_fn, geom=self.basins, dst_crs=self.crs
         )
@@ -919,7 +919,7 @@ class WflowModel(Model):
                 nodata=nodata,
                 all_touched=True,
             )
-        self.set_staticmaps(da_area.rename(area_fn))
+        self.set_staticmaps(da_area.rename(col2raster))
 
     def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
         """This component generates maps of lake areas and outlets as well as parameters
@@ -1550,6 +1550,9 @@ class WflowModel(Model):
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
+        wind_correction: bool = True,
+        wind_altitude: int = 10,
+        reproj_method: str = "nearest_index",
         dem_forcing_fn: str = "era5_orography",
         skip_pet: str = False,
         chunksize: Optional[int] = None,
@@ -1566,15 +1569,18 @@ class WflowModel(Model):
         ----------
         temp_pet_fn : str, optional
             Name or path of data source with variables to calculate temperature and reference evapotranspiration,
-            see data/forcing_sources.yml, by default 'era5'.
+            see data/forcing_sources.yml, by default 'era5_daily_zarr'.
 
             * Required variable for temperature: ['temp']
 
             * Required variables for De Bruin reference evapotranspiration: ['temp', 'press_msl', 'kin', 'kout']
 
             * Required variables for Makkink reference evapotranspiration: ['temp', 'press_msl', 'kin']
-        pet_method : {'debruin', 'makkink'}, optional
+
+            * Required variables for daily Penman-Monteith reference evapotranspiration: either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 'wind', 'kin', 'press_msl', "wind10_u", "wind10_v"] for 'penman-monteith_tdew' (these are the variables available in ERA5)
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
+            If penman-monteith is used, requires the installation of the pyet package.
         press_correction, temp_correction : bool, optional
              If True pressure, temperature are corrected using elevation lapse rate,
              by default False.
@@ -1603,8 +1609,25 @@ class WflowModel(Model):
                 variables += ["press_msl", "kin", "kout"]
             elif pet_method == "makkink":
                 variables += ["press_msl", "kin"]
+            elif pet_method == "penman-monteith_rh_simple":
+                variables += ["temp_min", "temp_max", "wind", "rh", "kin"]
+            elif pet_method == "penman-monteith_tdew":
+                variables += [
+                    "temp_min",
+                    "temp_max",
+                    "wind10_u",
+                    "wind10_v",
+                    "temp_dew",
+                    "kin",
+                    "press_msl",
+                ]
             else:
-                methods = ["debruin", "makking"]
+                methods = [
+                    "debruin",
+                    "makking",
+                    "penman-monteith_rh_simple",
+                    "penman-monteith_tdew",
+                ]
                 ValueError(f"Unknown pet method {pet_method}, select from {methods}")
 
         ds = self.data_catalog.get_rasterdataset(
@@ -1637,13 +1660,43 @@ class WflowModel(Model):
             **kwargs,
         )
 
+        if (
+            "penman-monteith" in pet_method
+        ):  # also downscaled temp_min and temp_max for Penman needed
+            temp_max_in = hydromt.workflows.forcing.temp(
+                ds["temp_max"],
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_forcing=dem_forcing,
+                lapse_correction=temp_correction,
+                logger=self.logger,
+                freq=None,  # resample time after pet workflow
+                **kwargs,
+            )
+            temp_max_in.name = "temp_max"
+
+            temp_min_in = hydromt.workflows.forcing.temp(
+                ds["temp_min"],
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_forcing=dem_forcing,
+                lapse_correction=temp_correction,
+                logger=self.logger,
+                freq=None,  # resample time after pet workflow
+                **kwargs,
+            )
+            temp_min_in.name = "temp_min"
+
+            temp_in = xr.merge([temp_in, temp_max_in, temp_min_in])
+
         if not skip_pet:
             pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 temp=temp_in,
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 method=pet_method,
                 press_correction=press_correction,
+                wind_correction=wind_correction,
+                wind_altitude=wind_altitude,
+                reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
                 logger=self.logger,
@@ -1657,6 +1710,9 @@ class WflowModel(Model):
             pet_out.attrs.update(opt_attr)
             self.set_forcing(pet_out.where(mask), name="pet")
 
+        # make sure only temp is written to netcdf
+        if "penman-monteith" in pet_method:
+            temp_in = temp_in["temp"]
         # resample temp after pet workflow
         temp_out = hydromt.workflows.forcing.resample_time(
             temp_in,
@@ -1935,13 +1991,16 @@ class WflowModel(Model):
             yr0 = pd.to_datetime(self.get_config("starttime")).year
             yr1 = pd.to_datetime(self.get_config("endtime")).year
             freq = self.get_config("timestepsecs")
-
             # get output filename
             if fn_out is not None:
                 self.set_config("input.path_forcing", fn_out)
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
+                if "*" in basename(fn_out):
+                    # get rid of * in case model had multiple forcing files and write to single nc file.
+                    self.logger.warning("Writing multiple forcing files to one file")
+                    fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
                 if self.get_config("dir_input") is not None:
                     input_dir = self.get_config("dir_input", abs_path=True)
                     fn_out = join(input_dir, fn_out)
@@ -1988,33 +2047,32 @@ class WflowModel(Model):
                         fn_out = fn_default_path
 
             # Check if all dates between (starttime, endtime) are in all da forcing
+            # Check if starttime and endtime timestamps are correct
             start = pd.to_datetime(self.get_config("starttime"))
             end = pd.to_datetime(self.get_config("endtime"))
-            missings = False
+            correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
-                    if hasattr(da.indexes["time"], "to_datetimeindex"):
-                        times = da.indexes["time"].to_datetimeindex().values
-                    else:
+                    #only correct dates in toml for standard calendars:
+                    if not hasattr(da.indexes["time"], "to_datetimeindex"):
                         times = da.time.values
-                    if start < pd.to_datetime(times[0]):
-                        start = pd.to_datetime(times[0])
-                        missings = True
-                    if end > pd.to_datetime(times[-1]):
-                        end = pd.to_datetime(times[-1])
-                        missings = True
+                        if (start < pd.to_datetime(times[0])) | (start not in times):
+                            start = pd.to_datetime(times[0])
+                            correct_times = True
+                        if (end > pd.to_datetime(times[-1])) | (end not in times):
+                            end = pd.to_datetime(times[-1])
+                            correct_times = True
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
             ds.raster.set_crs(self.crs)
-            # Send warning, slice ds and update config with new start and end time
-            if missings:
+            # Send warning, and update config with new start and end time
+            if correct_times:
                 self.logger.warning(
                     f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
                 )
                 self.set_config("starttime", start.to_pydatetime())
                 self.set_config("endtime", end.to_pydatetime())
                 self.write_config()
-                ds = ds.sel({"time": slice(start, end)})
 
             if decimals is not None:
                 ds = ds.round(decimals)
