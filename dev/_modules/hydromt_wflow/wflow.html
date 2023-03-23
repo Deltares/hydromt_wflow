@@ -1952,6 +1952,9 @@ document.write(`
         <span class="n">pet_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;debruin&quot;</span><span class="p">,</span>
         <span class="n">press_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">temp_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">wind_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">wind_altitude</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">reproj_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nearest_index&quot;</span><span class="p">,</span>
         <span class="n">dem_forcing_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5_orography&quot;</span><span class="p">,</span>
         <span class="n">skip_pet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1968,15 +1971,18 @@ document.write(`
 <span class="sd">        ----------</span>
 <span class="sd">        temp_pet_fn : str, optional</span>
 <span class="sd">            Name or path of data source with variables to calculate temperature and reference evapotranspiration,</span>
-<span class="sd">            see data/forcing_sources.yml, by default &#39;era5&#39;.</span>
+<span class="sd">            see data/forcing_sources.yml, by default &#39;era5_daily_zarr&#39;.</span>
 
 <span class="sd">            * Required variable for temperature: [&#39;temp&#39;]</span>
 
 <span class="sd">            * Required variables for De Bruin reference evapotranspiration: [&#39;temp&#39;, &#39;press_msl&#39;, &#39;kin&#39;, &#39;kout&#39;]</span>
 
 <span class="sd">            * Required variables for Makkink reference evapotranspiration: [&#39;temp&#39;, &#39;press_msl&#39;, &#39;kin&#39;]</span>
-<span class="sd">        pet_method : {&#39;debruin&#39;, &#39;makkink&#39;}, optional</span>
+
+<span class="sd">            * Required variables for daily Penman-Monteith reference evapotranspiration: either [&#39;temp&#39;, &#39;temp_min&#39;, &#39;temp_max&#39;, &#39;wind&#39;, &#39;rh&#39;, &#39;kin&#39;] for &#39;penman-monteith_rh_simple&#39; or [&#39;temp&#39;, &#39;temp_min&#39;, &#39;temp_max&#39;, &#39;temp_dew&#39;, &#39;wind&#39;, &#39;kin&#39;, &#39;press_msl&#39;, &quot;wind10_u&quot;, &quot;wind10_v&quot;] for &#39;penman-monteith_tdew&#39; (these are the variables available in ERA5)</span>
+<span class="sd">        pet_method : {&#39;debruin&#39;, &#39;makkink&#39;, &#39;penman-monteith_rh_simple&#39;, &#39;penman-monteith_tdew&#39;}, optional</span>
 <span class="sd">            Reference evapotranspiration method, by default &#39;debruin&#39;.</span>
+<span class="sd">            If penman-monteith is used, requires the installation of the pyet package.</span>
 <span class="sd">        press_correction, temp_correction : bool, optional</span>
 <span class="sd">             If True pressure, temperature are corrected using elevation lapse rate,</span>
 <span class="sd">             by default False.</span>
@@ -2005,8 +2011,25 @@ document.write(`
                 <span class="n">variables</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;press_msl&quot;</span><span class="p">,</span> <span class="s2">&quot;kin&quot;</span><span class="p">,</span> <span class="s2">&quot;kout&quot;</span><span class="p">]</span>
             <span class="k">elif</span> <span class="n">pet_method</span> <span class="o">==</span> <span class="s2">&quot;makkink&quot;</span><span class="p">:</span>
                 <span class="n">variables</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;press_msl&quot;</span><span class="p">,</span> <span class="s2">&quot;kin&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">pet_method</span> <span class="o">==</span> <span class="s2">&quot;penman-monteith_rh_simple&quot;</span><span class="p">:</span>
+                <span class="n">variables</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;temp_min&quot;</span><span class="p">,</span> <span class="s2">&quot;temp_max&quot;</span><span class="p">,</span> <span class="s2">&quot;wind&quot;</span><span class="p">,</span> <span class="s2">&quot;rh&quot;</span><span class="p">,</span> <span class="s2">&quot;kin&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">pet_method</span> <span class="o">==</span> <span class="s2">&quot;penman-monteith_tdew&quot;</span><span class="p">:</span>
+                <span class="n">variables</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="s2">&quot;temp_min&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;temp_max&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind10_u&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;wind10_v&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;temp_dew&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;kin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;press_msl&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;debruin&quot;</span><span class="p">,</span> <span class="s2">&quot;makking&quot;</span><span class="p">]</span>
+                <span class="n">methods</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="s2">&quot;debruin&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;makking&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;penman-monteith_rh_simple&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;penman-monteith_tdew&quot;</span><span class="p">,</span>
+                <span class="p">]</span>
                 <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown pet method </span><span class="si">{</span><span class="n">pet_method</span><span class="si">}</span><span class="s2">, select from </span><span class="si">{</span><span class="n">methods</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
@@ -2039,13 +2062,43 @@ document.write(`
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="s2">&quot;penman-monteith&quot;</span> <span class="ow">in</span> <span class="n">pet_method</span>
+        <span class="p">):</span>  <span class="c1"># also downscaled temp_min and temp_max for Penman needed</span>
+            <span class="n">temp_max_in</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">temp</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;temp_max&quot;</span><span class="p">],</span>
+                <span class="n">dem_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
+                <span class="n">dem_forcing</span><span class="o">=</span><span class="n">dem_forcing</span><span class="p">,</span>
+                <span class="n">lapse_correction</span><span class="o">=</span><span class="n">temp_correction</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># resample time after pet workflow</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">temp_max_in</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;temp_max&quot;</span>
+
+            <span class="n">temp_min_in</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">temp</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;temp_min&quot;</span><span class="p">],</span>
+                <span class="n">dem_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
+                <span class="n">dem_forcing</span><span class="o">=</span><span class="n">dem_forcing</span><span class="p">,</span>
+                <span class="n">lapse_correction</span><span class="o">=</span><span class="n">temp_correction</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+                <span class="n">freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># resample time after pet workflow</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">temp_min_in</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;temp_min&quot;</span>
+
+            <span class="n">temp_in</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">([</span><span class="n">temp_in</span><span class="p">,</span> <span class="n">temp_max_in</span><span class="p">,</span> <span class="n">temp_min_in</span><span class="p">])</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_pet</span><span class="p">:</span>
             <span class="n">pet_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">pet</span><span class="p">(</span>
                 <span class="n">ds</span><span class="p">[</span><span class="n">variables</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span>
-                <span class="n">dem_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
                 <span class="n">temp</span><span class="o">=</span><span class="n">temp_in</span><span class="p">,</span>
+                <span class="n">dem_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
                 <span class="n">method</span><span class="o">=</span><span class="n">pet_method</span><span class="p">,</span>
                 <span class="n">press_correction</span><span class="o">=</span><span class="n">press_correction</span><span class="p">,</span>
+                <span class="n">wind_correction</span><span class="o">=</span><span class="n">wind_correction</span><span class="p">,</span>
+                <span class="n">wind_altitude</span><span class="o">=</span><span class="n">wind_altitude</span><span class="p">,</span>
+                <span class="n">reproj_method</span><span class="o">=</span><span class="n">reproj_method</span><span class="p">,</span>
                 <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
                 <span class="n">resample_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
                 <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
@@ -2059,6 +2112,9 @@ document.write(`
             <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">pet_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span>
 
+        <span class="c1"># make sure only temp is written to netcdf</span>
+        <span class="k">if</span> <span class="s2">&quot;penman-monteith&quot;</span> <span class="ow">in</span> <span class="n">pet_method</span><span class="p">:</span>
+            <span class="n">temp_in</span> <span class="o">=</span> <span class="n">temp_in</span><span class="p">[</span><span class="s2">&quot;temp&quot;</span><span class="p">]</span>
         <span class="c1"># resample temp after pet workflow</span>
         <span class="n">temp_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">resample_time</span><span class="p">(</span>
             <span class="n">temp_in</span><span class="p">,</span>
