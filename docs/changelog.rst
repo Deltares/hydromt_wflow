@@ -26,7 +26,6 @@ Fixed
 - Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
 - Bugfix with wrong indexing in the river method that could cause memory issues `PR #147 <https://github.com/Deltares/hydromt_wflow/pull/147>`_
 - fix error in **setup_reservoirs** when gdf contains no data in np.nanmax calculation for i.e. damheight #35
-- Fix crs when landuse map is not in EPSG:4326, crs was lost in interpolate_na function and this gave an error. 
 - When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename. 
 
 Deprecated
