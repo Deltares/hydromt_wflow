@@ -325,8 +325,7 @@ class WflowSedimentModel(WflowModel):
             fn_map = bedsed_mapping_fn
 
         if not isfile(fn_map) and fn_map not in self.data_catalog:
-            self.logger.error(f"Riverbed sediment mapping file not found: {fn_map}")
-            return
+            raise ValueError(f"Riverbed sediment mapping file not found: {fn_map}")
         df = self.data_catalog.get_dataframe(fn_map, **kwargs)
 
         strord = self.staticmaps[self._MAPS["strord"]].copy()

@@ -629,8 +629,7 @@ class WflowModel(Model):
         else:
             fn_map = lulc_mapping_fn
         if not isfile(fn_map) and fn_map not in self.data_catalog:
-            self.logger.error(f"LULC mapping file not found: {fn_map}")
-            return
+            raise ValueError(f"LULC mapping file not found: {fn_map}")
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
