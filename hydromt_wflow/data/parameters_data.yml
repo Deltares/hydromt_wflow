@@ -1,0 +1,139 @@
+corine_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: 0
+  dtype:
+    landuse: int16
+    Kext: float32
+    N: float32
+    PathFrac: float32
+    RootingDepth: float32
+    Sl: float32
+    Swood: float32
+    WaterFrac: float32
+    USLE_C: float32
+    Cov_River: float32
+  meta:
+    category: landuse
+    source_info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
+    source_version: 1.0
+  path: lulc/corine_mapping.csv
+
+esa_worldcover_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: 0
+  dtype:
+    landuse: int16
+    Kext: float32
+    N: float32
+    PathFrac: float32
+    RootingDepth: float32
+    Sl: float32
+    Swood: float32
+    WaterFrac: float32
+    USLE_C: float32
+    Cov_River: float32
+  meta:
+    category: landuse
+    source_info: landuse parameters based on esa worldcover classification (https://doi.org/10.5281/zenodo.5571936)
+    source_version: 1.0
+  path: lulc/esa_worldcover_mapping.csv
+
+globcover_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: 0
+  dtype:
+    landuse: int16
+    Kext: float32
+    N: float32
+    PathFrac: float32
+    RootingDepth: float32
+    Sl: float32
+    Swood: float32
+    WaterFrac: float32
+    USLE_C: float32
+    Cov_River: float32
+  meta:
+    category: landuse
+    source_info: landuse parameters based on globcover classification (http://due.esrin.esa.int/page_globcover.php)
+    source_version: 1.0
+  path: lulc/globcover_mapping.csv
+
+vito_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: 0
+  dtype:
+    landuse: int16
+    Kext: float32
+    N: float32
+    PathFrac: float32
+    RootingDepth: float32
+    Sl: float32
+    Swood: float32
+    WaterFrac: float32
+    USLE_C: float32
+    Cov_River: float32
+  meta:
+    category: landuse
+    source_info: landuse parameters based on vito classification (https://land.copernicus.eu/global/products/lc)
+    source_version: 1.0
+  path: lulc/vito_mapping.csv
+
+koppen_geiger_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: class
+  meta:
+    category: landuse
+    source_info: Mapping between climate classification and base_class (te be used for river width estimation)
+    source_version: 1.0
+  path: rivwth/koppen_geiger.csv
+
+regr_chelsa_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: source
+  meta:
+    category: hydrography
+    source_info: Mapping between climate base class and parameters used to estimate river width
+    source_version: 1.0
+  path: rivwth/regr_chelsa.csv
+
+roughness_river_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: 0
+  dtype:
+    N_River: float32
+  meta:
+    category: hydrography
+    source_info: Mapping between streamorder and river Manning roughness
+    source_version: 1.0
+  path: wflow/N_river_mapping.csv
+
+riverbedsed_mapping:
+  data_type: DataFrame
+  driver: csv
+  kwargs:
+    index_col: 0
+  dtype:
+    D50_River: float32
+    ClayF_River: float32
+    SiltF_River: float32
+    SandF_River: float32
+    GravelF_River: float32
+  meta:
+    category: landuse
+    source_info: Mapping between stream order and river bed sediment
+    source_version: 1.0
+  path: wflow_sediment/riverbedsed_mapping.csv

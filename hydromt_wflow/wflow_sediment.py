@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import join
+from os.path import join, isfile
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -263,8 +263,8 @@ class WflowSedimentModel(WflowModel):
         ],
     ):
         """This component derives several wflow maps are derived based on landuse-
-        landcover (LULC) data. 
-        
+        landcover (LULC) data.
+
         Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
@@ -274,7 +274,7 @@ class WflowSedimentModel(WflowModel):
         Adds model layers:
 
         * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.       
+            Original source dependent LULC class, resampled using nearest neighbour.
         * **Cov_river** map: vegetation coefficent reducing stream bank erosion [-].
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]
@@ -298,10 +298,7 @@ class WflowSedimentModel(WflowModel):
             lulc_fn=lulc_fn, lulc_mapping_fn=lulc_mapping_fn, lulc_vars=lulc_vars
         )
 
-    def setup_riverbedsed(
-        self,
-        bedsed_mapping_fn=None,
-    ):
+    def setup_riverbedsed(self, bedsed_mapping_fn=None, **kwargs):
         """Setup sediments based river bed characteristics maps.
 
         Adds model layers:
@@ -323,11 +320,16 @@ class WflowSedimentModel(WflowModel):
         self.logger.info(f"Preparing riverbedsed parameter maps.")
         # Make D50_River map from csv file with mapping between streamorder and D50_River value
         if bedsed_mapping_fn is None:
-            fn_map = join(DATADIR, "wflow_sediment", "riverbedsed_mapping.csv")
+            fn_map = "riverbedsed_mapping"
         else:
             fn_map = bedsed_mapping_fn
+
+        if not isfile(fn_map) and fn_map not in self.data_catalog:
+            self.logger.error(f"Riverbed sediment mapping file not found: {fn_map}")
+            return
+        df = self.data_catalog.get_dataframe(fn_map, **kwargs)
+
         strord = self.staticmaps[self._MAPS["strord"]].copy()
-        df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python")
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
         # if streamroder value larger than max_str, assign last value
@@ -339,7 +341,7 @@ class WflowSedimentModel(WflowModel):
         ds_riversed = landuse(
             da=strord,
             ds_like=self.staticmaps,
-            fn_map=fn_map,
+            df=df,
             logger=self.logger,
         )
 
