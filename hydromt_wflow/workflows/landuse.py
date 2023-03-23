@@ -54,7 +54,7 @@ def landuse(da, ds_like, fn_map, logger=logger, params=None):
     # setup reclass method
     def reclass(x):
         return np.vectorize(d.get)(x, nodata)
-
+    
     da = da.raster.interpolate_na(method="nearest")
     # apply for each parameter
     for param in params:

@@ -19,6 +19,7 @@ Changed
 -------
 - Default tomls are now using the dir_output option to specify *run_default* folder.
 - in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default None to use reservoir_fn data directly.
+- in **setup_areamap**: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file. 
 
 Fixed
 -----
@@ -27,10 +28,14 @@ Fixed
 - fix error in **setup_reservoirs** when gdf contains no data in np.nanmax calculation for i.e. damheight #35
 - write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)
 - write_forcing automatic adjustment of starttime and endtime based on forcing content
+- When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename. 
 
 Deprecated
 ----------
 
+Added
+^^^^^
+- add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 
 v0.2.1 (22 November 2022)
 =========================
