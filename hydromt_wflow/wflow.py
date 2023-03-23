@@ -2053,7 +2053,7 @@ class WflowModel(Model):
             correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
-                    #only correct dates in toml for standard calendars:
+                    # only correct dates in toml for standard calendars:
                     if not hasattr(da.indexes["time"], "to_datetimeindex"):
                         times = da.time.values
                         if (start < pd.to_datetime(times[0])) | (start not in times):
