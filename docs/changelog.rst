@@ -19,12 +19,14 @@ Changed
 -------
 - Default tomls are now using the dir_output option to specify *run_default* folder.
 - in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default None to use reservoir_fn data directly.
+- in **setup_areamap**: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file. 
 
 Fixed
 -----
 - Bugfix with wrong nodata value in the hydrography method which caused errors for model which where not based on (sub)basins `PR #144 <https://github.com/Deltares/hydromt_wflow/pull/144>`_
 - Bugfix with wrong indexing in the river method that could cause memory issues `PR #147 <https://github.com/Deltares/hydromt_wflow/pull/147>`_
 - fix error in **setup_reservoirs** when gdf contains no data in np.nanmax calculation for i.e. damheight #35
+- When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename. 
 
 Deprecated
 ----------
