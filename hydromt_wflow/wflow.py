@@ -1542,7 +1542,7 @@ class WflowModel(Model):
 
     def setup_temp_pet_forcing(
         self,
-        temp_pet_fn: str = "era5", 
+        temp_pet_fn: str = "era5",
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
@@ -1554,7 +1554,7 @@ class WflowModel(Model):
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
-        """Setup gridded reference evapotranspiration forcing at model resolution. 
+        """Setup gridded reference evapotranspiration forcing at model resolution.
 
         Adds model layer:
 
