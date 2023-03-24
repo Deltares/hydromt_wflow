@@ -573,6 +573,13 @@ class WflowModel(Model):
                 logger=self.logger,
             )
 
+            # check if the layer already exists, since overwriting with different flood_depth values is not working properly if this is the case
+            if "floodplain_volume" in self.staticmaps:
+                self.logger.warning(
+                    "Layer `floodplain_volume` already in staticmaps, removing layer and `flood_depth` dimension to ensure correctly setting new flood_depth dimensions"
+                )
+                self._staticmaps = self._staticmaps.drop_dims("flood_depth")
+
             self.set_staticmaps(da_fldpln, "floodplain_volume")
 
         elif floodplain_type == "2d":
