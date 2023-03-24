@@ -14,7 +14,7 @@ Added
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
 - In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
-- New setup_river_floodplain method `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
+- New setup_river_floodplain method `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_. Note: requires pyflwdir v0.5.7
 - New setup_floodplains method, that allows the user the choose either 1D or 2D floodplains
 
 Changed
