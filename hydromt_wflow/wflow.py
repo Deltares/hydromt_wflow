@@ -369,6 +369,10 @@ class WflowModel(Model):
             min_rivlen_ratio=min_rivlen_ratio,
             logger=self.logger,
         )[0]
+
+        ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
+            river_upa=river_upa, slope_len=slope_len, min_rivlen_ratio=min_rivlen_ratio
+        )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
@@ -454,7 +458,7 @@ class WflowModel(Model):
         hydrography_fn,
         floodplain_type: str,
         ### Options for 1D floodplains
-        river_upa: float = 30,
+        river_upa: Optional[float] = None,
         flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5],
         ### Options for 2D floodplains
         elevtn_map: str = "wflow_dem",
@@ -545,12 +549,26 @@ class WflowModel(Model):
                 hydrography_fn, geom=self.region, buffer=10
             )
 
+            # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
+            new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
+                "river_upa", river_upa
+            )
+            if new_river_upa is None:
+                raise ValueError(
+                    "No value for `river_upa` specified, and the value cannot be inferred from the staticmaps attributes"
+                )
+            elif new_river_upa != river_upa and river_upa is not None:
+                raise ValueError(
+                    f"Value specified for river_upa ({river_upa}) is different from the value found in the staticmaps ({new_river_upa})"
+                )
+            self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
+
             # get river floodplain volume
             inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
             da_fldpln = workflows.river_floodplain_volume(
                 ds=ds_hydro,
                 ds_model=self.staticmaps.rename(inv_rename),
-                river_upa=river_upa,
+                river_upa=new_river_upa,
                 flood_depths=flood_depths,
                 logger=self.logger,
             )
