@@ -5,6 +5,7 @@ from os.path import join, dirname, abspath
 import numpy as np
 import warnings
 import pdb
+import xarray as xr
 from hydromt_wflow.wflow import WflowModel
 
 import logging
@@ -114,6 +115,9 @@ def test_setup_reservoirs(source, tmpdir):
 
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
 def test_setup_rivers(elevtn_map):
+    # load netcdf file with floodplain layers
+    test_data = xr.open_dataset(join(TESTDATADIR, "floodplain_layers.nc"))
+
     logger = logging.getLogger(__name__)
     # read model from examples folder
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
@@ -140,11 +144,14 @@ def test_setup_rivers(elevtn_map):
 
     assert mapname in mod.staticmaps
     assert mod.get_config("model.river_routing") == "local-inertial"
-    # assert mod.get_config("model.land_routing") == "kinematic-wave" or None
     assert mod.get_config("input.lateral.river.bankfull_elevation") == mapname
+    assert mod.staticmaps[mapname].raster.mask_nodata().equals(test_data[mapname])
 
 
 def test_setup_floodplains_1d():
+    # load netcdf file with floodplain layers
+    test_data = xr.open_dataset(join(TESTDATADIR, "floodplain_layers.nc"))
+
     logger = logging.getLogger(__name__)
     # read model from examples folder
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
@@ -152,7 +159,7 @@ def test_setup_floodplains_1d():
     # Initialize model and read results
     mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
 
-    flood_depths = [0.5, 1.0, 1.5, 2.5]
+    flood_depths = [0.5, 1.0, 1.5, 2.0, 2.5]
 
     mod.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -181,10 +188,16 @@ def test_setup_floodplains_1d():
         mod.get_config("input.lateral.river.floodplain.volume") == "floodplain_volume"
     )
     assert np.all(mod.staticmaps.flood_depth.values == flood_depths)
+    assert mod.staticmaps.floodplain_volume.raster.mask_nodata().equals(
+        test_data.floodplain_volume
+    )
 
 
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
 def test_setup_floodplains_2d(elevtn_map):
+    # load netcdf file with floodplain layers
+    test_data = xr.open_dataset(join(TESTDATADIR, "floodplain_layers.nc"))
+
     logger = logging.getLogger(__name__)
     # read model from examples folder
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
@@ -218,3 +231,8 @@ def test_setup_floodplains_2d(elevtn_map):
     assert mod.get_config("model.land_routing") == "local-inertial"
     assert mod.get_config("input.lateral.river.bankfull_elevation") == f"{mapname}_D4"
     assert mod.get_config("input.lateral.land.elevation") == f"{mapname}_D4"
+    assert (
+        mod.staticmaps[f"{mapname}_D4"]
+        .raster.mask_nodata()
+        .equals(test_data[f"{mapname}_D4"])
+    )
