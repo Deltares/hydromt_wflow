@@ -684,10 +684,75 @@ class WflowModel(Model):
         rmdict = {da_lai.dims[0]: "time"}
         self.set_staticmaps(da_lai.rename(rmdict), name="LAI")
 
+    def _setup_config_timeseries(
+        self,
+        mapname: str,
+        toml_output="csv",
+        gauge_toml_header=["Q"],
+        gauge_toml_param=["lateral.river.q_av"],
+    ):
+        """This components sets the default gauge map based on basin outlets.
+
+        Adds model layers:
+
+        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
+        * **gauges** geom: polygon of catchment outlets
+
+        Parameters
+        ----------
+        mapname : str
+            Name of the gauge map to use for scalar output (without wflow_).
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+        gauge_toml_header : list, optional
+            Save specific model parameters in csv section. This option defines the header of the csv file./
+            By default saves Q (for lateral.river.q_av).
+        gauge_toml_param: list, optional
+            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+        """
+
+        # # Add new outputcsv section in the config
+        if toml_output == "csv" or toml_output == "netcdf":
+            self.logger.info(
+                f"Adding {gauge_toml_param} to {toml_output} section of toml."
+            )
+            self.set_config(f"input.{mapname}", f"wflow_{mapname}")
+            # csv
+            if toml_output == "csv":
+                if self.get_config("csv") is None:
+                    self.set_config("csv.path", "output.csv")
+                for o in range(len(gauge_toml_param)):
+                    gauge_toml_dict = {
+                        "header": gauge_toml_header[o],
+                        "map": mapname,
+                        "parameter": gauge_toml_param[o],
+                    }
+                    # If the gauge outcsv column already exists skip writting twice
+                    if gauge_toml_dict not in self.config["csv"]["column"]:
+                        self.config["csv"]["column"].append(gauge_toml_dict)
+            # netcdf
+            if toml_output == "netcdf":
+                if self.get_config("netcdf") is None:
+                    self.set_config("netcdf.path", "output_scalar.nc")
+                for o in range(len(gauge_toml_param)):
+                    gauge_toml_dict = {
+                        "name": gauge_toml_header[o],
+                        "map": mapname,
+                        "parameter": gauge_toml_param[o],
+                    }
+                    # If the gauge outcsv column already exists skip writting twice
+                    if gauge_toml_dict not in self.config["netcdf"]["variable"]:
+                        self.config["netcdf"]["variable"].append(gauge_toml_dict)
+        else:
+            self.logger.info(
+                f"toml_output set to {toml_output}, skipping adding gauge specific outputs to the toml."
+            )
+
     def setup_outlets(
         self,
         river_only=True,
-        update_toml=True,
+        toml_output="csv",
         gauge_toml_header=["Q"],
         gauge_toml_param=["lateral.river.q_av"],
     ):
@@ -702,8 +767,8 @@ class WflowModel(Model):
         ----------
         river_only : bool, optional
             Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.
-        update_toml : boolean, optional
-            Update [outputcsv] section of wflow toml file.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines the header of the csv file./
             By default saves Q (for lateral.river.q_av).
@@ -733,20 +798,12 @@ class WflowModel(Model):
         self.set_staticgeoms(gdf, name="gauges")
         self.logger.info(f"Gauges map based on catchment river outlets added.")
 
-        # # Add new outputcsv section in the config
-        if update_toml:
-            self.logger.info(f"Adding {gauge_toml_param} to csv output.")
-            self.set_config("input.gauges", "wflow_gauges")
-            if self.get_config("csv") is not None:
-                for o in range(len(gauge_toml_param)):
-                    gauge_toml_dict = {
-                        "header": gauge_toml_header[o],
-                        "map": "gauges",
-                        "parameter": gauge_toml_param[o],
-                    }
-                    # If the gauge outcsv column already exists skip writting twice
-                    if gauge_toml_dict not in self.config["csv"]["column"]:
-                        self.config["csv"]["column"].append(gauge_toml_dict)
+        self._setup_config_timeseries(
+            mapname="gauges",
+            toml_output=toml_output,
+            gauge_toml_header=gauge_toml_header,
+            gauge_toml_param=gauge_toml_param,
+        )
 
     def setup_gauges(
         self,
@@ -757,7 +814,7 @@ class WflowModel(Model):
         mask=None,
         derive_subcatch=False,
         basename=None,
-        update_toml=True,
+        toml_output="csv",
         gauge_toml_header=["Q", "P"],
         gauge_toml_param=["lateral.river.q_av", "vertical.precipitation"],
         **kwargs,
@@ -795,8 +852,8 @@ class WflowModel(Model):
             Derive subcatch map for gauges, by default False
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
-        update_toml : boolean, optional
-            Update [outputcsv] section of wflow toml file.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines the header of the csv file./
             By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
@@ -890,20 +947,12 @@ class WflowModel(Model):
             # Add gdf_snapped to staticgeoms
             self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
 
-            # # Add new outputcsv section in the config
-            if update_toml:
-                self.set_config(f"input.gauges_{basename}", f"{mapname}")
-                if self.get_config("csv") is not None:
-                    for o in range(len(gauge_toml_param)):
-                        gauge_toml_dict = {
-                            "header": gauge_toml_header[o],
-                            "map": f"gauges_{basename}",
-                            "parameter": gauge_toml_param[o],
-                        }
-                        # If the gauge outcsv column already exists skip writting twice
-                        if gauge_toml_dict not in self.config["csv"]["column"]:
-                            self.config["csv"]["column"].append(gauge_toml_dict)
-                self.logger.info(f"Gauges map from {basename} added.")
+            self._setup_config_timeseries(
+                mapname=mapname,
+                toml_output=toml_output,
+                gauge_toml_header=gauge_toml_header,
+                gauge_toml_param=gauge_toml_param,
+            )
 
             # add subcatch
             if derive_subcatch:
