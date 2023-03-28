@@ -170,6 +170,40 @@ class WflowSedimentModel(WflowModel):
             if self.get_config("input.lateral.river.reservoir") is not None:
                 del self.config["input"]["lateral"]["river"]["reservoir"]
 
+    def setup_outlets(
+        self,
+        river_only=True,
+        update_toml=True,
+        gauge_toml_header=["TSS"],
+        gauge_toml_param=["lateral.river.SSconc"],
+    ):
+        """This components sets the default gauge map based on basin outlets.
+
+        Adds model layers:
+
+        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
+        * **gauges** geom: polygon of catchment outlets
+
+        Parameters
+        ----------
+        river_only : bool, optional
+            Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.
+        update_toml : boolean, optional
+            Update [outputcsv] section of wflow toml file.
+        gauge_toml_header : list, optional
+            Save specific model parameters in csv section. This option defines the header of the csv file./
+            By default saves TSS (for lateral.river.SSconc).
+        gauge_toml_param: list, optional
+            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).
+        """
+        super().setup_outlets(
+            river_only=river_only,
+            update_toml=update_toml,
+            gauge_toml_header=gauge_toml_header,
+            gauge_toml_param=gauge_toml_param,
+        )
+
     def setup_gauges(
         self,
         gauges_fn=None,
@@ -177,15 +211,13 @@ class WflowSedimentModel(WflowModel):
         snap_to_river=True,
         mask=None,
         derive_subcatch=False,
-        derive_outlet=True,
         basename=None,
         update_toml=True,
-        gauge_toml_header=None,
-        gauge_toml_param=None,
+        gauge_toml_header=["Q", "TSS"],
+        gauge_toml_param=["lateral.river.q_riv", "lateral.river.SSconc"],
         **kwargs,
     ):
-        """This components sets the default gauge map based on basin outlets and additional
-        gauge maps based on ``gauges_fn`` data.
+        """This components sets a gauge map based on ``gauges_fn`` data.
 
         Supported gauge datasets include "grdc"
         or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
@@ -197,10 +229,8 @@ class WflowSedimentModel(WflowModel):
 
         Adds model layers:
 
-        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
         * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
         * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
-        * **gauges** geom: polygon of catchment outlets
         * **gauges_source** geom: polygon of gauges from source
         * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)
 
@@ -230,16 +260,12 @@ class WflowSedimentModel(WflowModel):
             names in gauge_toml_header. By default saves lateral.river.q_riv (for Q) and lateral.river.SSconc (for TSS).
         """
         # # Add new outputcsv section in the config
-        if gauge_toml_param is None and update_toml:
-            gauge_toml_header = ["Q", "TSS"]
-            gauge_toml_param = ["lateral.river.q_riv", "lateral.river.SSconc"]
         super().setup_gauges(
             gauges_fn=gauges_fn,
             source_gdf=source_gdf,
             snap_to_river=snap_to_river,
             mask=mask,
             derive_subcatch=derive_subcatch,
-            derive_outlet=derive_outlet,
             basename=basename,
             update_toml=update_toml,
             gauge_toml_header=gauge_toml_header,
