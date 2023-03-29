@@ -684,66 +684,75 @@ class WflowModel(Model):
         rmdict = {da_lai.dims[0]: "time"}
         self.set_staticmaps(da_lai.rename(rmdict), name="LAI")
 
-    def _setup_config_timeseries(
+    def setup_config_output_timeseries(
         self,
         mapname: str,
-        toml_output="csv",
-        gauge_toml_header=["Q"],
-        gauge_toml_param=["lateral.river.q_av"],
+        toml_output: Optional[str] = "csv",
+        header: Optional[List[str]] = ["Q"],
+        param: Optional[List[str]] = ["lateral.river.q_av"],
+        reducer: Optional[List[str]] = None,
     ):
         """This components sets the default gauge map based on basin outlets.
 
         Adds model layers:
 
-        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
-        * **gauges** geom: polygon of catchment outlets
+        * **csv.column** config: csv timeseries to save based on mapname locations
+        * **netcdf.variable** config: netcdf timeseries to save based on mapname locations
 
         Parameters
         ----------
         mapname : str
-            Name of the gauge map to use for scalar output (without wflow_).
+            Name of the gauge map (in staticmaps.nc) to use for scalar output.
         toml_output : str, optional
             One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
-        gauge_toml_header : list, optional
+        header : list, optional
             Save specific model parameters in csv section. This option defines the header of the csv file./
             By default saves Q (for lateral.river.q_av).
-        gauge_toml_param: list, optional
+        param: list, optional
             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
             names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+        reducer: list, optional
+            If map is an area rather than a point location, provides the reducer for the parameters to save. By default None.
         """
 
         # # Add new outputcsv section in the config
         if toml_output == "csv" or toml_output == "netcdf":
-            self.logger.info(
-                f"Adding {gauge_toml_param} to {toml_output} section of toml."
+            self.logger.info(f"Adding {param} to {toml_output} section of toml.")
+            # Add map to the input section of config
+            basename = (
+                mapname
+                if not mapname.startswith("wflow")
+                else mapname.replace("wflow_", "")
             )
-            self.set_config(f"input.{mapname}", f"wflow_{mapname}")
+            self.set_config(f"input.{basename}", mapname)
+            # Settings and add csv or netcdf sections if not already in config
             # csv
             if toml_output == "csv":
+                header_name = "header"
+                var_name = "column"
                 if self.get_config("csv") is None:
                     self.set_config("csv.path", "output.csv")
-                for o in range(len(gauge_toml_param)):
-                    gauge_toml_dict = {
-                        "header": gauge_toml_header[o],
-                        "map": mapname,
-                        "parameter": gauge_toml_param[o],
-                    }
-                    # If the gauge outcsv column already exists skip writting twice
-                    if gauge_toml_dict not in self.config["csv"]["column"]:
-                        self.config["csv"]["column"].append(gauge_toml_dict)
             # netcdf
             if toml_output == "netcdf":
+                header_name = "name"
+                var_name = "variable"
                 if self.get_config("netcdf") is None:
                     self.set_config("netcdf.path", "output_scalar.nc")
-                for o in range(len(gauge_toml_param)):
-                    gauge_toml_dict = {
-                        "name": gauge_toml_header[o],
-                        "map": mapname,
-                        "parameter": gauge_toml_param[o],
-                    }
-                    # If the gauge outcsv column already exists skip writting twice
-                    if gauge_toml_dict not in self.config["netcdf"]["variable"]:
-                        self.config["netcdf"]["variable"].append(gauge_toml_dict)
+            if self.get_config(f"{toml_output}.{var_name}") is None:
+                self.set_config(f"{toml_output}.{var_name}", [])
+
+            # Add new output column/variable to config
+            for o in range(len(param)):
+                gauge_toml_dict = {
+                    header_name: header[o],
+                    "map": basename,
+                    "parameter": param[o],
+                }
+                if reducer is not None:
+                    gauge_toml_dict["reducer"]: reducer[o]
+                    # If the gauge column/variable already exists skip writting twice
+                    if gauge_toml_dict not in self.config[toml_output][var_name]:
+                        self.config[toml_output][var_name].append(gauge_toml_dict)
         else:
             self.logger.info(
                 f"toml_output set to {toml_output}, skipping adding gauge specific outputs to the toml."
@@ -777,6 +786,7 @@ class WflowModel(Model):
             names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
         """
         # read existing staticgeoms; important to get the right basin when updating
+        # fix in set_staticgeoms / set_geoms method
         self.staticgeoms
 
         self.logger.info(f"Gauges locations set based on river outlets.")
@@ -798,8 +808,8 @@ class WflowModel(Model):
         self.set_staticgeoms(gdf, name="gauges")
         self.logger.info(f"Gauges map based on catchment river outlets added.")
 
-        self._setup_config_timeseries(
-            mapname="gauges",
+        self.setup_config_output_timeseries(
+            mapname="wflow_gauges",
             toml_output=toml_output,
             gauge_toml_header=gauge_toml_header,
             gauge_toml_param=gauge_toml_param,
@@ -807,16 +817,19 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        gauges_fn="grdc",
-        source_gdf=None,
-        index_col=None,
-        snap_to_river=True,
-        mask=None,
-        derive_subcatch=False,
-        basename=None,
-        toml_output="csv",
-        gauge_toml_header=["Q", "P"],
-        gauge_toml_param=["lateral.river.q_av", "vertical.precipitation"],
+        gauges_fn: str,
+        index_col: Optional[str] = None,
+        snap_to_river: Optional[bool] = True,
+        mask: Optional[np.ndarray] = None,
+        max_dist: Optional[float] = 10e3,
+        derive_subcatch: Optional[bool] = False,
+        basename: Optional[str] = None,
+        toml_output: Optional[str] = "csv",
+        gauge_toml_header: Optional[List[str]] = ["Q", "P"],
+        gauge_toml_param: Optional[List[str]] = [
+            "lateral.river.q_av",
+            "vertical.precipitation",
+        ],
         **kwargs,
     ):
         """This components sets a gauge map based on ``gauges_fn`` data.
@@ -848,6 +861,9 @@ class WflowModel(Model):
             Snap point locations to the closest downstream river cell, by default True
         mask : np.boolean, optional
             If provided snaps to the mask, else snaps to the river (default).
+        max_dist : float, optional
+            Maximum distance between original and snapped point location.
+            A warning is logged if exceeded. By default 10 km.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
@@ -861,108 +877,170 @@ class WflowModel(Model):
             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
             names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).
         """
-        # read existing staticgeoms; important to get the right basin when updating
-        self.staticgeoms
-
         # TODO check snapping locations based on upstream area attribute of the gauge data
-        if gauges_fn is not None:
-            kwargs = {}
-            if isfile(gauges_fn):
-                # try to get epsg number directly, important when writting back data_catalog
-                if hasattr(self.crs, "to_epsg"):
-                    code = self.crs.to_epsg()
-                else:
-                    code = self.crs
-                kwargs.update(crs=code)
-            gdf = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
-            )
-            gdf = gdf.to_crs(self.crs)
-        elif source_gdf is not None and basename is None:
-            raise ValueError(
-                "Basename is required when setting gauges based on source_gdf"
-            )
-        elif source_gdf is not None:
-            self.logger.info(f"Gauges locations read from source_gdf")
-            gdf = source_gdf.to_crs(self.crs)
-        else:
-            self.logger.warning(
-                "Either gauges_fn or source_gdf should be provided, skipping setup_gauges."
-            )
+        # Read data
+        kwargs = {}
+        if isfile(gauges_fn):
+            # try to get epsg number directly, important when writting back data_catalog
+            if hasattr(self.crs, "to_epsg"):
+                code = self.crs.to_epsg()
+            else:
+                code = self.crs
+            kwargs.update(crs=code)
+        gdf = self.data_catalog.get_geodataframe(
+            gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+        )
+        # Create basename
+        if basename is None:
+            basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
+        # Set index to index_col
+        if index_col is not None and index_col in gdf:
+            gdf = gdf.set_index(index_col)
 
+        # Create gauge map, subcatch map and update toml
         if gdf.index.size == 0:
             self.logger.warning(f"No {gauges_fn} gauge locations found within domain")
         else:
-            if basename is None:
-                basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
             self.logger.info(
                 f"{gdf.index.size} {basename} gauge locations found within domain"
             )
-            # Set index to index_col
-            if index_col is not None and index_col in gdf:
-                gdf = gdf.set_index(index_col)
-            xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(gdf["geometry"])
-            idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
-            ids = gdf.index.values
-
-            if snap_to_river and mask is None:
-                mask = self.staticmaps[self._MAPS["rivmsk"]].values
-            da, idxs, ids = flw.gauge_map(
-                self.staticmaps,
-                idxs=idxs,
-                ids=ids,
-                stream=mask,
-                flwdir=self.flwdir,
-                logger=self.logger,
-            )
-            # Filter gauges that could not be snapped to rivers
-            if snap_to_river:
-                ids_old = ids.copy()
-                da = da.where(
-                    self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
-                )
-                ids_new = np.unique(da.values[da.values > 0])
-                idxs = idxs[np.isin(ids_old, ids_new)]
-                ids = da.values.flat[idxs]
-            # Add to staticmaps
-            mapname = f'{str(self._MAPS["gauges"])}_{basename}'
-            self.set_staticmaps(da, name=mapname)
-
-            # geoms
-            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
-            # if csv contains additional columns, these are also written in the staticgeoms
-            gdf_snapped = gpd.GeoDataFrame(
-                index=ids.astype(np.int32), geometry=points, crs=self.crs
-            )
-            # Set the index name of gdf snapped based on original gdf
-            if gdf.index.name is not None:
-                gdf_snapped.index.name = gdf.index.name
-            else:
-                gdf_snapped.index.name = "fid"
-                gdf.index.name = "fid"
-            # Add gdf attributes to gdf_snapped (filter on snapped index before merging)
-            df_attrs = pd.DataFrame(gdf.drop(columns="geometry"))
-            df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
-            gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf.index.name)
-            # Add gdf_snapped to staticgeoms
-            self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
-
-            self._setup_config_timeseries(
-                mapname=mapname,
+            self.create_gauges(
+                gdf_gauges=gdf,
+                basename=basename,
+                snap_to_river=snap_to_river,
+                mask=mask,
+                max_dist=max_dist,
+                derive_subcatch=derive_subcatch,
                 toml_output=toml_output,
                 gauge_toml_header=gauge_toml_header,
                 gauge_toml_param=gauge_toml_param,
             )
 
-            # add subcatch
-            if derive_subcatch:
-                da_basins = flw.basin_map(
-                    self.staticmaps, self.flwdir, idxs=idxs, ids=ids
-                )[0]
-                mapname = self._MAPS["basins"] + "_" + basename
-                self.set_staticmaps(da_basins, name=mapname)
-                gdf_basins = self.staticmaps[mapname].raster.vectorize()
-                self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
+    def create_gauges(
+        self,
+        gdf_gauges: gpd.GeoDataFrame,
+        basename: str,
+        snap_to_river: Optional[bool] = True,
+        mask: Optional[np.ndarray] = None,
+        max_dist: Optional[float] = 10e3,
+        derive_subcatch: Optional[bool] = False,
+        toml_output: Optional[str] = "csv",
+        gauge_toml_header: Optional[List[str]] = ["Q", "P"],
+        gauge_toml_param: Optional[List[str]] = [
+            "lateral.river.q_av",
+            "vertical.precipitation",
+        ],
+    ):
+        """This components sets a gauge map based on ``gdf_gauges`` geodataframe.
+
+        The gdf index will be used as IDs in the map. If ``snap_to_river`` is set
+        to True, the gauge location will be snapped to the boolean river mask. If
+        ``derive_subcatch`` is set to True, an additional subcatch map is derived from
+        the gauge locations.
+
+        Adds model layers:
+
+        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
+        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
+        * **gauges_source** geom: polygon of gauges from source
+        * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)
+
+        Parameters
+        ----------
+        source_gdf : geopandas.GeoDataFame, optional
+            Direct gauges file geometry, by default None.
+        basename : str, optional
+            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
+        snap_to_river : bool, optional
+            Snap point locations to the closest downstream river cell, by default True
+        mask : np.boolean, optional
+            If provided snaps to the mask, else snaps to the river (default).
+        max_dist : float, optional
+            Maximum distance between original and snapped point location.
+            A warning is logged if exceeded. By default 10 km.
+        derive_subcatch : bool, optional
+            Derive subcatch map for gauges, by default False
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+        gauge_toml_header : list, optional
+            Save specific model parameters in csv section. This option defines the header of the csv file./
+            By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
+        gauge_toml_param: list, optional
+            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).
+        """
+        # read existing staticgeoms; important to get the right basin when updating
+        self.staticgeoms
+        # Reproject to model crs
+        gdf_gauges = gdf_gauges.to_crs(self.crs)
+
+        # Get coords, index and ID
+        xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
+            gdf_gauges["geometry"]
+        )
+        idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
+        ids = gdf_gauges.index.values
+
+        # if snap_to_river use river map as the mask
+        if snap_to_river and mask is None:
+            mask = self.staticmaps[self._MAPS["rivmsk"]].values
+        # Derive gauge map
+        da, idxs, ids = flw.gauge_map(
+            self.staticmaps,
+            idxs=idxs,
+            ids=ids,
+            stream=mask,
+            flwdir=self.flwdir,
+            max_dist=max_dist,
+            logger=self.logger,
+        )
+        # Filter gauges that could not be snapped to rivers
+        if snap_to_river:
+            ids_old = ids.copy()
+            da = da.where(self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
+            ids_new = np.unique(da.values[da.values > 0])
+            idxs = idxs[np.isin(ids_old, ids_new)]
+            ids = da.values.flat[idxs]
+        # Add to staticmaps
+        mapname = f'{str(self._MAPS["gauges"])}_{basename}'
+        self.set_staticmaps(da, name=mapname)
+
+        # geoms
+        points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
+        # if csv contains additional columns, these are also written in the staticgeoms
+        gdf_snapped = gpd.GeoDataFrame(
+            index=ids.astype(np.int32), geometry=points, crs=self.crs
+        )
+        # Set the index name of gdf snapped based on original gdf
+        if gdf_gauges.index.name is not None:
+            gdf_snapped.index.name = gdf_gauges.index.name
+        else:
+            gdf_snapped.index.name = "fid"
+            gdf_gauges.index.name = "fid"
+        # Add gdf attributes to gdf_snapped (filter on snapped index before merging)
+        df_attrs = pd.DataFrame(gdf_gauges.drop(columns="geometry"))
+        df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
+        gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
+        # Add gdf_snapped to staticgeoms
+        self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
+
+        # Add output timeseries for gauges in the toml
+        self.setup_config_output_timeseries(
+            mapname=mapname,
+            toml_output=toml_output,
+            gauge_toml_header=gauge_toml_header,
+            gauge_toml_param=gauge_toml_param,
+        )
+
+        # add subcatch
+        if derive_subcatch:
+            da_basins = flw.basin_map(self.staticmaps, self.flwdir, idxs=idxs, ids=ids)[
+                0
+            ]
+            mapname = self._MAPS["basins"] + "_" + basename
+            self.set_staticmaps(da_basins, name=mapname)
+            gdf_basins = self.staticmaps[mapname].raster.vectorize()
+            self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
         self,
