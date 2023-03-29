@@ -887,9 +887,23 @@ class WflowModel(Model):
             else:
                 code = self.crs
             kwargs.update(crs=code)
-        gdf = self.data_catalog.get_geodataframe(
-            gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
-        )
+            gdf = self.data_catalog.get_geodataframe(
+                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+            )
+        elif self.data_catalog[gauges_fn]["data_type"] == "GeoDataFrame":
+            gdf = self.data_catalog.get_geodataframe(
+                gauges_fn, geom=self.basins, **kwargs
+            )
+        elif self.data_catalog[gauges_fn]["data_type"] == "GeoDataset":
+            da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
+            gdf = da.vector.to_gdf()
+        else:
+            raise ValueError(
+                f"{gauges_fn} data source not found or incorrect data_type (GeoDataFrame or GeoDataset)."
+            )
+        # Check for point geometry
+        if not np.all(np.isin(gdf.geometry.type, "Point")):
+            raise ValueError(f"{gauges_fn} contains other geometries than Point")
         # Create basename
         if basename is None:
             basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
@@ -947,8 +961,8 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        source_gdf : geopandas.GeoDataFame, optional
-            Direct gauges file geometry, by default None.
+        source_gdf : geopandas.GeoDataFame
+            Gauges GeoDataFrame geometry
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
         snap_to_river : bool, optional
