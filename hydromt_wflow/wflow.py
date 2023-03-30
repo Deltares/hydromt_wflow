@@ -750,9 +750,9 @@ class WflowModel(Model):
                 }
                 if reducer is not None:
                     gauge_toml_dict["reducer"]: reducer[o]
-                    # If the gauge column/variable already exists skip writting twice
-                    if gauge_toml_dict not in self.config[toml_output][var_name]:
-                        self.config[toml_output][var_name].append(gauge_toml_dict)
+                # If the gauge column/variable already exists skip writting twice
+                if gauge_toml_dict not in self.config[toml_output][var_name]:
+                    self.config[toml_output][var_name].append(gauge_toml_dict)
         else:
             self.logger.info(
                 f"toml_output set to {toml_output}, skipping adding gauge specific outputs to the toml."
@@ -797,7 +797,10 @@ class WflowModel(Model):
                 (self.staticmaps[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
         da_out, idxs_out, ids_out = flw.gauge_map(
-            self.staticmaps, idxs=self.flwdir.idxs_out
+            self.staticmaps,
+            idxs=idxs_out,
+            flwdir=self.flwdir,
+            logger=self.logger,
         )
         self.set_staticmaps(da_out, name=self._MAPS["gauges"])
         points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_out))
@@ -811,8 +814,8 @@ class WflowModel(Model):
         self.setup_config_output_timeseries(
             mapname="wflow_gauges",
             toml_output=toml_output,
-            gauge_toml_header=gauge_toml_header,
-            gauge_toml_param=gauge_toml_param,
+            header=gauge_toml_header,
+            param=gauge_toml_param,
         )
 
     def setup_gauges(
@@ -890,11 +893,11 @@ class WflowModel(Model):
             gdf = self.data_catalog.get_geodataframe(
                 gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
             )
-        elif self.data_catalog[gauges_fn]["data_type"] == "GeoDataFrame":
+        elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
             gdf = self.data_catalog.get_geodataframe(
                 gauges_fn, geom=self.basins, **kwargs
             )
-        elif self.data_catalog[gauges_fn]["data_type"] == "GeoDataset":
+        elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
             da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
             gdf = da.vector.to_gdf()
         else:
@@ -1042,8 +1045,8 @@ class WflowModel(Model):
         self.setup_config_output_timeseries(
             mapname=mapname,
             toml_output=toml_output,
-            gauge_toml_header=gauge_toml_header,
-            gauge_toml_param=gauge_toml_param,
+            header=gauge_toml_header,
+            param=gauge_toml_param,
         )
 
         # add subcatch
