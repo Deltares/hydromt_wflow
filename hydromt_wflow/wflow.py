@@ -824,7 +824,10 @@ class WflowModel(Model):
         index_col: Optional[str] = None,
         snap_to_river: Optional[bool] = True,
         mask: Optional[np.ndarray] = None,
+        snap_uparea: Optional[bool] = False,
         max_dist: Optional[float] = 10e3,
+        wdw: Optional[int] = 5,
+        rel_error: Optional[float] = 0.05,
         derive_subcatch: Optional[bool] = False,
         basename: Optional[str] = None,
         toml_output: Optional[str] = "csv",
@@ -856,17 +859,26 @@ class WflowModel(Model):
         ----------
         gauges_fn : str, {"grdc"}, optional
             Known source name or path to gauges file geometry file, by default None.
-        source_gdf : geopandas.GeoDataFame, optional
-            Direct gauges file geometry, by default None.
+
+            * Required variables if snap_uparea is True: ["uparea"]
         index_col : str, optional
             Column in gauges_fn to use for ID values, by default None (use the default index column)
-        snap_to_river : bool, optional
-            Snap point locations to the closest downstream river cell, by default True
         mask : np.boolean, optional
             If provided snaps to the mask, else snaps to the river (default).
+        snap_to_river : bool, optional
+            Snap point locations to the closest downstream river cell, by default True
+        snap_uparea: bool, optional
+            Snap gauges based on upstream area. Gauges_fn should have "uparea" in its attributes.
         max_dist : float, optional
             Maximum distance between original and snapped point location.
             A warning is logged if exceeded. By default 10 km.
+        wdw: int, optional
+            Window size in number of cells around discharge boundary locations
+            to snap to, only used if ``snap_uparea`` is True. By default 5.
+        rel_error: float, optional
+            Maximum relative error (default 0.05)
+            between the gauge location upstream area and the upstream area of
+            the best fit grid cell, only used if snap_area is True.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
@@ -895,18 +907,19 @@ class WflowModel(Model):
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
             gdf = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, **kwargs
+                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
             da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
             gdf = da.vector.to_gdf()
+            # Check for point geometry
+            if not np.all(np.isin(gdf.geometry.type, "Point")):
+                raise ValueError(f"{gauges_fn} contains other geometries than Point")
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or incorrect data_type (GeoDataFrame or GeoDataset)."
             )
-        # Check for point geometry
-        if not np.all(np.isin(gdf.geometry.type, "Point")):
-            raise ValueError(f"{gauges_fn} contains other geometries than Point")
+
         # Create basename
         if basename is None:
             basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
@@ -926,7 +939,10 @@ class WflowModel(Model):
                 basename=basename,
                 snap_to_river=snap_to_river,
                 mask=mask,
+                snap_uparea=snap_uparea,
                 max_dist=max_dist,
+                wdw=wdw,
+                rel_error=rel_error,
                 derive_subcatch=derive_subcatch,
                 toml_output=toml_output,
                 gauge_toml_header=gauge_toml_header,
@@ -938,8 +954,11 @@ class WflowModel(Model):
         gdf_gauges: gpd.GeoDataFrame,
         basename: str,
         snap_to_river: Optional[bool] = True,
-        mask: Optional[np.ndarray] = None,
+        mask: Optional[str] = None,
+        snap_uparea: Optional[bool] = False,
         max_dist: Optional[float] = 10e3,
+        wdw: Optional[int] = 5,
+        rel_error: Optional[float] = 0.05,
         derive_subcatch: Optional[bool] = False,
         toml_output: Optional[str] = "csv",
         gauge_toml_header: Optional[List[str]] = ["Q", "P"],
@@ -972,9 +991,18 @@ class WflowModel(Model):
             Snap point locations to the closest downstream river cell, by default True
         mask : np.boolean, optional
             If provided snaps to the mask, else snaps to the river (default).
+        snap_uparea: bool, optional
+            Snap gauges based on upstream area. Gauges_fn should have "uparea" in its attributes.
         max_dist : float, optional
             Maximum distance between original and snapped point location.
             A warning is logged if exceeded. By default 10 km.
+        wdw: int, optional
+            Window size in number of cells around discharge boundary locations
+            to snap to, only used if ``snap_uparea`` is True. By default 5.
+        rel_error: float, optional
+            Maximum relative error (default 0.05)
+            between the gauge location upstream area and the upstream area of
+            the best fit grid cell, only used if snap_area is True.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         toml_output : str, optional
@@ -1000,24 +1028,39 @@ class WflowModel(Model):
 
         # if snap_to_river use river map as the mask
         if snap_to_river and mask is None:
-            mask = self.staticmaps[self._MAPS["rivmsk"]].values
-        # Derive gauge map
-        da, idxs, ids = flw.gauge_map(
-            self.staticmaps,
-            idxs=idxs,
-            ids=ids,
-            stream=mask,
-            flwdir=self.flwdir,
-            max_dist=max_dist,
-            logger=self.logger,
-        )
-        # Filter gauges that could not be snapped to rivers
-        if snap_to_river:
-            ids_old = ids.copy()
-            da = da.where(self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
-            ids_new = np.unique(da.values[da.values > 0])
-            idxs = idxs[np.isin(ids_old, ids_new)]
-            ids = da.values.flat[idxs]
+            mask = self._MAPS["rivmsk"]
+        if mask is not None:
+            mask = self.staticmaps[mask].values
+        if mask is not None:
+            # Derive gauge map
+            da, idxs, ids = flw.gauge_map(
+                self.staticmaps,
+                idxs=idxs,
+                ids=ids,
+                stream=mask,
+                flwdir=self.flwdir,
+                max_dist=max_dist,
+                logger=self.logger,
+            )
+            # Filter gauges that could not be snapped to rivers
+            if snap_to_river:
+                ids_old = ids.copy()
+                da = da.where(
+                    self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
+                )
+                ids_new = np.unique(da.values[da.values > 0])
+                idxs = idxs[np.isin(ids_old, ids_new)]
+                ids = da.values.flat[idxs]
+        elif snap_uparea and "uparea" in gdf_gauges.columns:
+            # Derive gauge map based on upstream area snapping
+            da, idxs, ids = workflows.gauge_map_uparea(
+                self.staticmaps,
+                gdf_gauges,
+                uparea_name="wflow_uparea",
+                wdw=wdw,
+                rel_error=rel_error,
+                logger=self.logger,
+            )
         # Add to staticmaps
         mapname = f'{str(self._MAPS["gauges"])}_{basename}'
         self.set_staticmaps(da, name=mapname)

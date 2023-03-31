@@ -110,3 +110,27 @@ def test_setup_reservoirs(source, tmpdir):
             )
             == number_of_reservoirs
         ), f"Number of non-null values in {i} not equal to number of reservoirs in model area"
+
+
+def test_setup_gauges():
+    logger = logging.getLogger(__name__)
+    # read model from examples folder
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+
+    # Initialize model and read results
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+    # uparea rename not in the latest artifact_data version
+    mod.data_catalog["grdc"].rename = {"area": "uparea"}
+    mod.setup_gauges(
+        gauges_fn="grdc",
+        basename="grdc_uparea",
+        snap_to_river=False,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+    )
+    gdf = mod.staticgeoms["gauges_grdc_uparea"]
+    ds_samp = mod.staticmaps[["wflow_river", "wflow_uparea"]].raster.sample(gdf, wdw=0)
+    assert np.all(ds_samp["wflow_river"].values == 1)
+    assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
