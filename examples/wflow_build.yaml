@@ -1,0 +1,80 @@
+global:
+  data_libs: []
+
+setup_basemaps:
+  basin_index_fn: merit_hydro_index
+  hydrography_fn: merit_hydro
+  upscale_method: ihu
+
+setup_config:
+  endtime: '2010-03-31T00:00:00'
+  input.path_forcing: inmaps-era5-2010.nc
+  starttime: '2010-01-01T00:00:00'
+  timestepsecs: 86400
+
+setup_constant_pars:
+  Cfmax: 3.75653
+  EoverR: 0.11
+  G_Cfmax: 5.3
+  G_SIfrac: 0.002
+  G_TT: 1.3
+  InfiltCapPath: 5
+  InfiltCapSoil: 600
+  KsatHorFrac: 100
+  MaxLeakage: 0
+  TT: 0
+  TTI: 2
+  TTM: 0
+  WHC: 0.1
+  cf_soil: 0.038
+  rootdistpar: -500
+
+setup_gauges:
+  derive_subcatch: false
+  gauges_fn: grdc
+  snap_to_river: true
+
+setup_glaciers:
+  glaciers_fn: rgi
+  min_area: 1.0
+
+setup_laimaps:
+  lai_fn: modis_lai
+  
+setup_lakes:
+  lakes_fn: hydro_lakes
+  min_area: 10.0
+
+setup_lulcmaps:
+  lulc_fn: globcover
+
+setup_precip_forcing:
+  precip_clim_fn: null
+  precip_fn: era5
+
+setup_reservoirs:
+  min_area: 1.0
+  priority_jrc: true
+  reservoirs_fn: hydro_reservoirs
+
+setup_rivers:
+  hydrography_fn: merit_hydro
+  min_rivdph: 1
+  min_rivwth: 30
+  rivdph_method: powlaw
+  river_geom_fn: rivers_lin2019_v1
+  river_upa: 30
+  slope_len: 2000
+  smooth_len: 5000
+
+setup_soilmaps:
+  ptf_ksatver: brakensiek
+  soil_fn: soilgrids
+  
+setup_temp_pet_forcing:
+  dem_forcing_fn: era5_orography
+  pet_method: debruin
+  press_correction: true
+  skip_pet: false
+  temp_correction: true
+  temp_pet_fn: era5
