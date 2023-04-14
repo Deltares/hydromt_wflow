@@ -1688,46 +1688,65 @@ class WflowModel(Model):
             da_param = da_param.rename(var)
             ds_out[var] = da_param
 
+        # get soil variable names from config
+        st_vn = self.get_config("input.vertical.soilthickness", "SoilThickness")
+        ts_vn = self.get_config("input.vertical.theta_s", "thetaS")
+        tr_vn = self.get_config("input.vertical.theta_r", "thetaR")
+        ksh_vn = self.get_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac")
+        ksv_vn = self.get_config("input.vertical.kv_0", "KsatVer")
+        f_vn = self.get_config("input.vertical.f", "f")
+        c_vn = self.get_config("input.vertical.c", "c")
+        sl_vn = self.get_config("input.lateral.land.slope", "Slope")
+
         # satwaterdepth
-        swd = 0.85 * dsin["SoilThickness"] * (dsin["thetaS"] - dsin["thetaR"])
+        swd = 0.85 * dsin[st_vn] * (dsin[ts_vn] - dsin[tr_vn])
         swd = create_constant_map(dsin, swd.values, nodata, dtype, maskname="basins")
         ds_out["satwaterdepth"] = swd
 
         # ssf
         zi = np.maximum(
-            0.0, dsin["SoilThickness"] - swd / (dsin["thetaS"] - dsin["thetaR"])
+            0.0, dsin[st_vn] - swd / (dsin[ts_vn] - dsin[tr_vn])
         )
-        kh0 = dsin["KsatHorFrac"] * dsin["KsatVer"] * 0.001 * (86400 / timestepsecs)
-        ssf = (kh0 * np.maximum(0.00001, dsin["Slope"]) / (dsin["f"] * 1000)) * (
-            np.exp(-dsin["f"] * 1000 * zi * 0.001)
+        kh0 = dsin[ksh_vn] * dsin[ksv_vn] * 0.001 * (86400 / timestepsecs)
+        ssf = (kh0 * np.maximum(0.00001, dsin[sl_vn]) / (dsin[f_vn] * 1000)) * (
+            np.exp(-dsin[f_vn] * 1000 * zi * 0.001)
         ) - (
-            np.exp(-dsin["f"] * 1000 * dsin["SoilThickness"])
+            np.exp(-dsin[f_vn] * 1000 * dsin[st_vn])
             * np.sqrt(dsin.raster.area_grid())
         )
         ssf = create_constant_map(dsin, ssf.values, nodata, dtype, maskname="basins")
         ds_out["ssf"] = ssf
 
         # ustorelayerdepth (zero per layer)
-        usld = hydromt.raster.full_like(dsin["c"], nodata=nodata)
+        usld = hydromt.raster.full_like(dsin[c_vn], nodata=nodata)
         for sl in usld["layer"]:
             usld.loc[dict(layer=sl)] = xr.where(dsin[self._MAPS["basins"]], 0.0, nodata)
         ds_out["ustorelayerdepth"] = usld
 
         # reservoir
-        if "ResMaxVolume" in dsin:
-            resvol = dsin["ResTargetFullFrac"] * dsin["ResMaxVolume"]
-            resvol = xr.where(dsin[self._MAPS["reslocs"]] > 0, resvol, nodata)
+        if self.get_config("model.reservoirs", False):
+            tff_vn = self.get_config("input.lateral.river.reservoir.targetfullfrac", "ResTargetFullFrac")
+            mv_vn = self.get_config("input.lateral.river.reservoir.maxvolume", "ResMaxVolume")
+            locs_vn = self.get_config("input.lateral.river.reservoir.locs", "wflow_reservoirlocs")
+            resvol = dsin[tff_vn] * dsin[mv_vn]
+            resvol = xr.where(dsin[locs_vn] > 0, resvol, nodata)
             resvol.raster.set_nodata(nodata)
             ds_out["volume_reservoir"] = resvol
         # lake
-        if "LakeAvgLevel" in dsin:
-            ds_out["waterlevel_lake"] = dsin["LakeAvgLevel"]
+        if self.get_config("model.lakes", False):
+            ll_vn = self.get_config("input.lateral.river.lake.waterlevel", "LakeAvgLevel")
+            if ll_vn in dsin:
+                ds_out["waterlevel_lake"] = dsin[ll_vn]
         # glacier
-        if "G_SIfrac" in dsin:
-            glacstore = create_constant_map(
-                dsin, 5500.0, nodata, dtype, maskname="basins"
-            )
-            ds_out["glacierstore"] = glacstore
+        if self.get_config("model.glacier", False):
+            gs_vn = self.get_config("input.vertical.glacierstore", "wflow_glacierstore")
+            if gs_vn in dsin:
+                ds_out["glacierstore"] = dsin[gs_vn]
+            else:
+                glacstore = create_constant_map(
+                    dsin, 5500.0, nodata, dtype, maskname="basins"
+                )
+                ds_out["glacierstore"] = glacstore
 
         # Add time dimension
         if timestamp is None:
