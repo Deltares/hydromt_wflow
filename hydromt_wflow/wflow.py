@@ -2002,8 +2002,11 @@ class WflowModel(Model):
 
         if self._read:  # force the function to read forcing
             self.read_forcing()
+
         self.logger.info(f"Setting FEWS config at {fews_root}")
-        fews = FewsUtils(fews_root, template_path=fews_template)
+        fews = FewsUtils(
+            fews_root, template_path=fews_template, fews_binaries=fews_binaries
+        )
         # Instantiate the wflow model in fews object
         model_name = f"wflow.{region_name}.{model_version}"
         fews.add_modeldata(
@@ -2014,6 +2017,7 @@ class WflowModel(Model):
             bounds=self.staticmaps.raster.bounds,
             T0=self.get_config("starttime"),
         )
+
         # Update and write wflow model components in specific FEWS folders and format
         self.logger.info(f"Write model data to {fews_root}")
         old_root = self.root
@@ -2136,22 +2140,19 @@ class WflowModel(Model):
 
         # update FEWS config files for the model
         self.logger.info("Updating FEWS config files for Wflow")
-
         # Updating csv locs files
         # fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template)
-
         # updating SpatialDisplay.xml
         fews.add_spatialplots(model_source=model_name)
-
         # updating Topology.xml
         fews.add_topologygroups(model_source=model_name)
-
         # updating Explorer.xml
         fews.update_explorer(model_source=model_name)
         # update global.properties
         fews.update_globalproperties(
             model_source=model_name, model_templates=wflow_template
         )
+
         # Close logger, Zip the model and state, and erase the unzipped copy
         self.logger.info("Zipping wflow model")
         wflow_root_zip = wflow_root
@@ -2163,9 +2164,6 @@ class WflowModel(Model):
             logger.removeHandler(handler)
         shutil.rmtree(wflow_root)
         shutil.rmtree(states_root)
-
-        # create shortcut
-        fews.create_cf_link(fews_binaries=fews_binaries)
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
