@@ -24,7 +24,6 @@ import hydromt
 from hydromt.models.model_api import Model
 from hydromt import flw
 from hydromt.io import open_mfraster
-from hydromt.cf_utils import FewsUtils
 
 from . import utils, workflows, DATADIR
 
@@ -1837,14 +1836,18 @@ class WflowModel(Model):
             ds_out[var] = da_param
 
         # get soil variable names from config
-        st_vn = self.get_config("input.vertical.soilthickness", "SoilThickness")
-        ts_vn = self.get_config("input.vertical.theta_s", "thetaS")
-        tr_vn = self.get_config("input.vertical.theta_r", "thetaR")
-        ksh_vn = self.get_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac")
-        ksv_vn = self.get_config("input.vertical.kv_0", "KsatVer")
-        f_vn = self.get_config("input.vertical.f", "f")
-        c_vn = self.get_config("input.vertical.c", "c")
-        sl_vn = self.get_config("input.lateral.land.slope", "Slope")
+        st_vn = self.get_config(
+            "input.vertical.soilthickness", fallback="SoilThickness"
+        )
+        ts_vn = self.get_config("input.vertical.theta_s", fallback="thetaS")
+        tr_vn = self.get_config("input.vertical.theta_r", fallback="thetaR")
+        ksh_vn = self.get_config(
+            "input.lateral.subsurface.ksathorfrac", fallback="KsatHorFrac"
+        )
+        ksv_vn = self.get_config("input.vertical.kv_0", fallback="KsatVer")
+        f_vn = self.get_config("input.vertical.f", fallback="f")
+        c_vn = self.get_config("input.vertical.c", fallback="c")
+        sl_vn = self.get_config("input.lateral.land.slope", fallback="Slope")
 
         # satwaterdepth
         swd = 0.85 * dsin[st_vn] * (dsin[ts_vn] - dsin[tr_vn])
@@ -1871,13 +1874,14 @@ class WflowModel(Model):
         # reservoir
         if self.get_config("model.reservoirs", False):
             tff_vn = self.get_config(
-                "input.lateral.river.reservoir.targetfullfrac", "ResTargetFullFrac"
+                "input.lateral.river.reservoir.targetfullfrac",
+                fallback="ResTargetFullFrac",
             )
             mv_vn = self.get_config(
-                "input.lateral.river.reservoir.maxvolume", "ResMaxVolume"
+                "input.lateral.river.reservoir.maxvolume", fallback="ResMaxVolume"
             )
             locs_vn = self.get_config(
-                "input.lateral.river.reservoir.locs", "wflow_reservoirlocs"
+                "input.lateral.river.reservoir.locs", fallback="wflow_reservoirlocs"
             )
             resvol = dsin[tff_vn] * dsin[mv_vn]
             resvol = xr.where(dsin[locs_vn] > 0, resvol, nodata)
@@ -1886,13 +1890,15 @@ class WflowModel(Model):
         # lake
         if self.get_config("model.lakes", False):
             ll_vn = self.get_config(
-                "input.lateral.river.lake.waterlevel", "LakeAvgLevel"
+                "input.lateral.river.lake.waterlevel", fallback="LakeAvgLevel"
             )
             if ll_vn in dsin:
                 ds_out["waterlevel_lake"] = dsin[ll_vn]
         # glacier
         if self.get_config("model.glacier", False):
-            gs_vn = self.get_config("input.vertical.glacierstore", "wflow_glacierstore")
+            gs_vn = self.get_config(
+                "input.vertical.glacierstore", fallback="wflow_glacierstore"
+            )
             if gs_vn in dsin:
                 ds_out["glacierstore"] = dsin[gs_vn]
             else:
@@ -1981,6 +1987,19 @@ class WflowModel(Model):
         fews_binaries: str, Path, optional
             Path to a folder containing the FEWS binaries. Id None, assume FEWS bin folder in fews root.
         """
+        try:
+            from hydromt_fews import FewsUtils
+
+            HAS_FEWS = True
+        except ImportError:
+            HAS_FEWS = False
+
+        if not HAS_FEWS:
+            self.logger.warning(
+                "To use write_fews function, the hydromt_fews package need to be installed. Skipping."
+            )
+            return
+
         if self._read:  # force the function to read forcing
             self.read_forcing()
         self.logger.info(f"Setting FEWS config at {fews_root}")
@@ -2119,7 +2138,7 @@ class WflowModel(Model):
         self.logger.info("Updating FEWS config files for Wflow")
 
         # Updating csv locs files
-        fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template)
+        # fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template)
 
         # updating SpatialDisplay.xml
         fews.add_spatialplots(model_source=model_name)
