@@ -5,6 +5,7 @@ import os
 from os.path import join, dirname, basename, isfile, isdir
 from typing import Union, Optional, List
 import glob
+import shutil
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -680,17 +681,18 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        gauges_fn="grdc",
-        source_gdf=None,
-        index_col=None,
-        snap_to_river=True,
+        gauges_fn: str = "grdc",
+        source_gdf: gpd.GeoDataFrame = None,
+        index_col: str = None,
+        snap_to_river: bool = True,
         mask=None,
-        derive_subcatch=False,
-        derive_outlet=True,
-        basename=None,
-        update_toml=True,
-        gauge_toml_header=None,
-        gauge_toml_param=None,
+        derive_subcatch: bool = False,
+        derive_outlet: bool = True,
+        basename: str = None,
+        update_toml: bool = True,
+        gauge_toml_type: str = "csv",
+        gauge_toml_header: List = None,
+        gauge_toml_param: List = None,
         **kwargs,
     ):
         """This components sets the default gauge map based on basin outlets and additional
@@ -732,7 +734,9 @@ class WflowModel(Model):
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
         update_toml : boolean, optional
-            Update [outputcsv] section of wflow toml file.
+            Update [csv.column] or [netcdf.variable] section of wflow toml file, based on update_toml_type.
+        gauge_toml_type : str, optional
+            Specify in which toml section to save the gauge ouputs. Either "csv" (default) or "netcdf".
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines the header of the csv file./
             By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
@@ -855,16 +859,31 @@ class WflowModel(Model):
 
                 if update_toml:
                     self.set_config(f"input.gauges_{basename}", f"{mapname}")
-                    if self.get_config("csv") is not None:
+                    if self.get_config("csv") is not None and gauge_toml_type == "csv":
                         for o in range(len(gauge_toml_param)):
                             gauge_toml_dict = {
                                 "header": gauge_toml_header[o],
                                 "map": f"gauges_{basename}",
                                 "parameter": gauge_toml_param[o],
                             }
-                            # If the gauge outcsv column already exists skip writting twice
+                            # If the gauge csv column already exists skip writting twice
                             if gauge_toml_dict not in self.config["csv"]["column"]:
                                 self.config["csv"]["column"].append(gauge_toml_dict)
+                    elif (
+                        self.get_config("netcdf") is not None
+                        and gauge_toml_type == "netcdf"
+                    ):
+                        for o in range(len(gauge_toml_param)):
+                            gauge_toml_dict = {
+                                "name": gauge_toml_header[o],
+                                "map": f"gauges_{basename}",
+                                "parameter": gauge_toml_param[o],
+                            }
+                            # If the gauge netdcf variable already exists skip writting twice
+                            if gauge_toml_dict not in self.config["netdcf"]["variable"]:
+                                self.config["netcdf"]["variable"].append(
+                                    gauge_toml_dict
+                                )
                     self.logger.info(f"Gauges map from {basename} added.")
 
                 # add subcatch
@@ -1728,6 +1747,179 @@ class WflowModel(Model):
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    def setup_cold_states(
+        self,
+        timestamp: str = None,
+    ) -> None:
+        """Setup cold states for Wflow.
+        To be run last as this requires some soil parameters or constant_pars to be computed already.
+
+        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        cold states for them if they are present in the basin.
+
+        This function is mainly useful in case the wflow model is read into Delft-FEWS.
+
+        Adds model layer:
+
+        * **satwaterdepth**: saturated store [mm]
+        * **snow**: snow storage [mm]
+        * **tsoil**: top soil temperature [°C]
+        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
+        * **snowwater**: liquid water content in the snow pack [mm]
+        * **canopystorage**: canopy storage [mm]
+        * **q_river**: river discharge [m3/s]
+        * **h_river**: river water level [m]
+        * **h_av_river**: river average water level [m]
+        * **ssf**: subsurface flow [m3/d]
+        * **h_land**: land water level [m]
+        * **h_av_land**: land average water level[m]
+        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or overland flow in x/y directions for local-inertial [m3/s]
+
+        If lakes, also adds:
+
+        * **waterlevel_lake**: lake water level [m]
+
+        If reservoirs, also adds:
+
+        * **volume_reservoir**: reservoir volume [m3]
+
+        If glaciers, also adds:
+
+        * **glacierstore**: water within the glacier [mm]
+
+        Parameters
+        ----------
+        timestamp : str, optional
+            Timestamp of the cold states. By default uses the (starttime - timestepsecs) from the config.
+        """
+        dsin = self.staticmaps
+        timestepsecs = self.get_config("timestepsecs", fallback=86400)
+        dtype = "float32"
+        nodata = -999
+
+        ds_out = xr.Dataset(coords=dsin.raster.coords)
+
+        def create_constant_map(dsin, value, nodata, dtype, maskname):
+            nodata = np.dtype(dtype).type(nodata)
+            da_param = xr.where(dsin[self._MAPS[maskname]], value, nodata).astype(dtype)
+            da_param.raster.set_nodata(nodata)
+
+            return da_param
+
+        # zeros (per layer for "ustorelayerdepth")
+        zeromap = ["tsoil", "snow", "snowwater", "canopystorage", "h_land", "h_av_land"]
+        olf = self.get_config("model.land_routing")
+        if olf == "local-inertial":
+            zeromap.extend(["qx_land", "qy_land"])
+        else:
+            zeromap.extend(["q_land"])
+
+        for var in zeromap:
+            if var == "tsoil":
+                value = 10.0
+            else:
+                value = 0.0
+            da_param = create_constant_map(
+                dsin, value, nodata, dtype, maskname="basins"
+            )
+            da_param = da_param.rename(var)
+            ds_out[var] = da_param
+
+        # zeros for river
+        zeromap_riv = ["q_river", "h_river", "h_av_river"]
+        for var in zeromap_riv:
+            value = 0.0
+            da_param = create_constant_map(
+                dsin, value, nodata, dtype, maskname="rivmsk"
+            )
+            da_param = da_param.rename(var)
+            ds_out[var] = da_param
+
+        # get soil variable names from config
+        st_vn = self.get_config(
+            "input.vertical.soilthickness", fallback="SoilThickness"
+        )
+        ts_vn = self.get_config("input.vertical.theta_s", fallback="thetaS")
+        tr_vn = self.get_config("input.vertical.theta_r", fallback="thetaR")
+        ksh_vn = self.get_config(
+            "input.lateral.subsurface.ksathorfrac", fallback="KsatHorFrac"
+        )
+        ksv_vn = self.get_config("input.vertical.kv_0", fallback="KsatVer")
+        f_vn = self.get_config("input.vertical.f", fallback="f")
+        c_vn = self.get_config("input.vertical.c", fallback="c")
+        sl_vn = self.get_config("input.lateral.land.slope", fallback="Slope")
+
+        # satwaterdepth
+        swd = 0.85 * dsin[st_vn] * (dsin[ts_vn] - dsin[tr_vn])
+        swd = create_constant_map(dsin, swd.values, nodata, dtype, maskname="basins")
+        ds_out["satwaterdepth"] = swd
+
+        # ssf
+        zi = np.maximum(0.0, dsin[st_vn] - swd / (dsin[ts_vn] - dsin[tr_vn]))
+        kh0 = dsin[ksh_vn] * dsin[ksv_vn] * 0.001 * (86400 / timestepsecs)
+        ssf = (kh0 * np.maximum(0.00001, dsin[sl_vn]) / (dsin[f_vn] * 1000)) * (
+            np.exp(-dsin[f_vn] * 1000 * zi * 0.001)
+        ) - (
+            np.exp(-dsin[f_vn] * 1000 * dsin[st_vn]) * np.sqrt(dsin.raster.area_grid())
+        )
+        ssf = create_constant_map(dsin, ssf.values, nodata, dtype, maskname="basins")
+        ds_out["ssf"] = ssf
+
+        # ustorelayerdepth (zero per layer)
+        usld = hydromt.raster.full_like(dsin[c_vn], nodata=nodata)
+        for sl in usld["layer"]:
+            usld.loc[dict(layer=sl)] = xr.where(dsin[self._MAPS["basins"]], 0.0, nodata)
+        ds_out["ustorelayerdepth"] = usld
+
+        # reservoir
+        if self.get_config("model.reservoirs", False):
+            tff_vn = self.get_config(
+                "input.lateral.river.reservoir.targetfullfrac",
+                fallback="ResTargetFullFrac",
+            )
+            mv_vn = self.get_config(
+                "input.lateral.river.reservoir.maxvolume", fallback="ResMaxVolume"
+            )
+            locs_vn = self.get_config(
+                "input.lateral.river.reservoir.locs", fallback="wflow_reservoirlocs"
+            )
+            resvol = dsin[tff_vn] * dsin[mv_vn]
+            resvol = xr.where(dsin[locs_vn] > 0, resvol, nodata)
+            resvol.raster.set_nodata(nodata)
+            ds_out["volume_reservoir"] = resvol
+        # lake
+        if self.get_config("model.lakes", False):
+            ll_vn = self.get_config(
+                "input.lateral.river.lake.waterlevel", fallback="LakeAvgLevel"
+            )
+            if ll_vn in dsin:
+                ds_out["waterlevel_lake"] = dsin[ll_vn]
+        # glacier
+        if self.get_config("model.glacier", False):
+            gs_vn = self.get_config(
+                "input.vertical.glacierstore", fallback="wflow_glacierstore"
+            )
+            if gs_vn in dsin:
+                ds_out["glacierstore"] = dsin[gs_vn]
+            else:
+                glacstore = create_constant_map(
+                    dsin, 5500.0, nodata, dtype, maskname="basins"
+                )
+                ds_out["glacierstore"] = glacstore
+
+        # Add time dimension
+        if timestamp is None:
+            starttime = pd.to_datetime(self.get_config("starttime"))
+            timestamp = starttime - pd.Timedelta(seconds=timestepsecs)
+        else:
+            timestamp = pd.to_datetime(timestamp)
+        ds_out = ds_out.expand_dims(dim=dict(time=[timestamp]))
+
+        self.set_states(ds_out)
+
+        # Update config to read the states
+        self.set_config("model.reinit", False)
+
     # I/O
     def read(self):
         """Method to read the complete model schematization and configuration from file."""
@@ -1735,6 +1927,7 @@ class WflowModel(Model):
         self.read_staticmaps()
         self.read_intbl()
         self.read_staticgeoms()
+        self.read_states()
         self.read_forcing()
         self.logger.info("Model read")
 
@@ -1752,8 +1945,225 @@ class WflowModel(Model):
             self.write_staticmaps()
         if self._staticgeoms:
             self.write_staticgeoms()
+        if self._states:
+            self.write_states()
         if self._forcing:
             self.write_forcing()
+
+    def write_fews(
+        self,
+        fews_root: str,
+        scheme_version: int,
+        region_name: str,
+        model_version: int,
+        fews_template: Optional[str] = None,
+        wflow_template: Optional[str] = None,
+        fews_binaries: Optional[str] = None,
+    ) -> None:
+        """
+        Method to write and export the complete model schematization and configuration to a Delft-FEWS configuration.
+
+        Writes:
+
+        * zipped wflow model in ModuleDataSetFiles
+        * staticgeoms in MapLayerFiles
+        * states in ColdStateFiles
+        * forcing in Import
+
+        Parameters
+        ----------
+        fews_root: str
+            Path to the FEWS configuration.
+        scheme_version: int
+            Version number of the modelling scheme (coupled model suite).
+        region_name: str
+            Name of the model region.
+        model_version: int
+            Version of the current wflow model version for region_name.
+        fews_template: str, Path, optional
+            Path to a FEWS config template for initialisation. If None, download from url.
+        wflow_template: str, Path, optional
+            Path to a folder containing all wflow template files (xml). If None download from url.
+        fews_binaries: str, Path, optional
+            Path to a folder containing the FEWS binaries. Id None, assume FEWS bin folder in fews root.
+        """
+        try:
+            from hydromt_fews import FewsUtils
+
+            HAS_FEWS = True
+        except ImportError:
+            HAS_FEWS = False
+
+        if not HAS_FEWS:
+            self.logger.warning(
+                "To use write_fews function, the hydromt_fews package need to be installed. Skipping."
+            )
+            return
+
+        if self._read:  # force the function to read forcing
+            self.read_forcing()
+
+        self.logger.info(f"Setting FEWS config at {fews_root}")
+        fews = FewsUtils(
+            fews_root, template_path=fews_template, fews_binaries=fews_binaries
+        )
+        # Instantiate the wflow model in fews object
+        model_name = f"wflow.{region_name}.{model_version}"
+        fews.add_modeldata(
+            name=model_name,
+            scheme_version=scheme_version,
+            crs=self.crs,
+            shape=self.staticmaps.raster.shape,
+            bounds=self.staticmaps.raster.bounds,
+            T0=self.get_config("starttime"),
+        )
+
+        # Update and write wflow model components in specific FEWS folders and format
+        self.logger.info(f"Write model data to {fews_root}")
+        old_root = self.root
+        # Location of wflow model
+        wflow_root = os.path.join(
+            fews.module_path,
+            f"scheme.{scheme_version}",
+            f"wflow.{region_name}.{model_version}",
+        )
+        self.set_root(wflow_root, mode="w")
+        # In build mode, check if empty root folder (no staticmaps) was created and if yes remove
+        if not isfile(join(old_root, "staticmaps.nc")):
+            self.logger.info(
+                "Wflow model only saved directly in FEWS. To get a copy in {old_root}, use the 'write' function before 'write_fews'."
+            )
+            # Delete empty folder at self.root
+            shutil.rmtree(old_root)
+
+        # Use standard ouput filenames
+        toml_opt = {
+            "state.path_input": "instate/instates.nc",
+            "state.path_output": "run_default/outstate/outstates.nc",
+            "input.path_static": "staticmaps.nc",
+            "output.path": "run_default/output.nc",
+            "netcdf.path": "run_default/output_scalar.nc",
+            "csv.path": "run_default/output.csv",
+        }
+        for option in toml_opt:
+            self.set_config(option, toml_opt[option])
+        self.write_data_catalog()
+        if self._staticmaps:
+            self.write_staticmaps()
+
+        # Write staticgeoms in MapLayerFiles folder
+        if self._staticgeoms:
+            # Write first in zip folder
+            self.write_staticgeoms()
+            # Write a copy in MapLayer with different name
+            geoms_root = os.path.join(
+                fews.map_path,
+                f"scheme.{scheme_version}",
+                f"wflow.{region_name}.{model_version}",
+            )
+            if not isdir(geoms_root):
+                os.makedirs(geoms_root)
+            names = list(self.staticgeoms.keys())
+            for name in names:
+                new_name = f"wflow.{region_name}.{model_version}_{name}"
+                self._staticgeoms[new_name] = self._staticgeoms.pop(name)
+            self.write_staticgeoms(geoms_root=geoms_root)
+
+        # Write states in ColdStateFiles folder
+        if not self._states:
+            self.setup_cold_states()
+        states_root = os.path.join(
+            fews.state_path, f"run_update_wflow.{region_name}.{model_version} Default"
+        )
+        states_fn = os.path.join(
+            states_root,
+            "instates.nc",
+        )
+        self.write_states(fn_out=states_fn)
+
+        # Write forcing and wflow_dem in another folder
+        import_path = os.path.join(
+            fews.import_path,
+            f"scheme.{scheme_version}",
+            f"wflow.{region_name}.{model_version}",
+        )
+        if not isdir(import_path):
+            os.makedirs(import_path)
+        if self._forcing:
+            forcing_name = os.path.basename(self.get_config("input.path_forcing"))
+            self.write_forcing(fn_out=os.path.join(import_path, forcing_name))
+        if "wflow_dem" in self.staticmaps:
+            da = self.staticmaps["wflow_dem"]
+            da.to_netcdf(os.path.join(import_path, "wflow_dem.nc"))
+
+        # Update fews times and write in toml_template folder
+        toml_opt = {
+            "starttime": "%START_DATE_TIME(date)%T%START_DATE_TIME(time)%",
+            "endtime": "%END_DATE_TIME(date)%T%END_DATE_TIME(time)%",
+            "input.path_forcing": "inmaps.nc",
+            "state.path_input": "instate/instates.nc",
+        }
+        for option in toml_opt:
+            self.set_config(option, toml_opt[option])
+        config_root = os.path.join(wflow_root)  # , "toml_template")
+        if not isdir(config_root):
+            os.makedirs(config_root)
+        self.write_config(
+            config_root=config_root,
+            config_name="wflow_sbm_template.toml",
+        )
+
+        # Get list of output variables from toml
+        outputvars = []
+        if self.get_config("output.vertical"):
+            outputvars.extend([i for i in self.get_config("output.vertical")])
+        if self.get_config("output.lateral.river"):
+            outputvars.extend(
+                [f"river.{i}" for i in self.get_config("output.lateral.river")]
+            )
+        if self.get_config("output.lateral.land"):
+            outputvars.extend(
+                [f"land.{i}" for i in self.get_config("output.lateral.land")]
+            )
+        if self.get_config("output.lateral.subsurface"):
+            outputvars.extend(
+                [f"land.{i}" for i in self.get_config("output.lateral.subsurface")]
+            )
+
+        # Add FEWS config files for the model
+        self.logger.info("Adding FEWS template files for Wflow")
+        fews.add_template_configfiles(
+            model_source=model_name,
+            model_templates=wflow_template,
+            variables=outputvars,
+        )
+
+        # update FEWS config files for the model
+        self.logger.info("Updating FEWS config files for Wflow")
+        # Updating csv locs files
+        # fews.add_locationsfiles(model_source=model_name, model_templates=wflow_template)
+        # updating SpatialDisplay.xml
+        fews.add_spatialplots(model_source=model_name)
+        # updating Topology.xml
+        fews.add_topologygroups(model_source=model_name)
+        # updating Explorer.xml
+        fews.update_explorer(model_source=model_name)
+        # update global.properties
+        fews.update_globalproperties(
+            model_source=model_name, model_templates=wflow_template
+        )
+
+        # Close logger, Zip the model and state, and erase the unzipped copy
+        self.logger.info("Zipping wflow model")
+        wflow_root_zip = wflow_root
+        shutil.make_archive(wflow_root_zip, "zip", wflow_root)
+        states_root_zip = states_root
+        shutil.make_archive(states_root_zip, "zip", states_root)
+        for handler in self.logger.handlers[:]:
+            handler.close()
+            logger.removeHandler(handler)
+        shutil.rmtree(wflow_root)
+        shutil.rmtree(states_root)
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps"""
@@ -1904,7 +2314,7 @@ class WflowModel(Model):
             if name != "region":
                 self.set_staticgeoms(gpd.read_file(fn), name=name)
 
-    def write_staticgeoms(self):
+    def write_staticgeoms(self, geoms_root=None):
         """Write staticmaps at <root/staticgeoms> in model ready format"""
         # to write use self.staticgeoms[var].to_file()
         if not self._write:
@@ -1912,7 +2322,10 @@ class WflowModel(Model):
         if self.staticgeoms:
             self.logger.info("Writing model staticgeom to file.")
             for name, gdf in self.staticgeoms.items():
-                fn_out = join(self.root, "staticgeoms", f"{name}.geojson")
+                if geoms_root:
+                    fn_out = join(geoms_root, f"{name}.geojson")
+                else:
+                    fn_out = join(self.root, "staticgeoms", f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
 
     def read_forcing(self):
@@ -2132,16 +2545,43 @@ class WflowModel(Model):
 
     def read_states(self):
         """Read states at <root/?/> and parse to dict of xr.DataArray"""
+        fn_default = join(self.root, "instate", "instates.nc")
+        fn = self.get_config("state.path_input", abs_path=True, fallback=fn_default)
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
-        # raise NotImplementedError()
+        if fn is not None and isfile(fn):
+            self.logger.info(f"Read states from {fn}")
+            ds = xr.open_dataset(fn, mask_and_scale=False)
+            for v in ds.data_vars:
+                self.set_states(ds[v])
 
-    def write_states(self):
+    def write_states(self, fn_out=None):
         """write states at <root/?/> in model ready format"""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
+        if self.states:
+            self.logger.info("Write states file")
+
+            # get output filename
+            if fn_out is not None:
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
+            else:
+                fn_out = self.get_config("state.path_input", abs_path=True)
+
+            # merge, process and write forcing
+            ds = xr.merge(self.states.values())
+
+            # make sure no _FillValue is written to the time dimension
+            ds["time"].attrs.pop("_FillValue", None)
+
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
+
+            # write states
+            ds.to_netcdf(fn_out, mode="w")
 
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset"""
@@ -2461,3 +2901,28 @@ class WflowModel(Model):
                 self.staticmaps.raster.bounds
             )
             self.set_forcing(ds_forcing)
+
+    def clip_states(self, crs=4326, **kwargs):
+        """Return clippped states for subbasin.
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped states.
+
+        """
+        if len(self.states) > 0:
+            self.logger.info("Clipping NetCDF states..")
+            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+                self.staticmaps.raster.bounds
+            )
+            # Check for reservoirs/lakes presence in the clipped model
+            remove_maps = []
+            if self._MAPS["resareas"] not in self.staticmaps:
+                if "volume_reservoir" in ds_states:
+                    remove_maps.extend(["volume_reservoir"])
+            if self._MAPS["lakeareas"] not in self.staticmaps:
+                if "waterlevel_lake" in ds_states:
+                    remove_maps.extend(["waterlevel_lake"])
+            ds_states = ds_states.drop_vars(remove_maps)
+            self.set_states(ds_states)
