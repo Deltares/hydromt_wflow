@@ -1852,15 +1852,12 @@ class WflowModel(Model):
         ds_out["satwaterdepth"] = swd
 
         # ssf
-        zi = np.maximum(
-            0.0, dsin[st_vn] - swd / (dsin[ts_vn] - dsin[tr_vn])
-        )
+        zi = np.maximum(0.0, dsin[st_vn] - swd / (dsin[ts_vn] - dsin[tr_vn]))
         kh0 = dsin[ksh_vn] * dsin[ksv_vn] * 0.001 * (86400 / timestepsecs)
         ssf = (kh0 * np.maximum(0.00001, dsin[sl_vn]) / (dsin[f_vn] * 1000)) * (
             np.exp(-dsin[f_vn] * 1000 * zi * 0.001)
         ) - (
-            np.exp(-dsin[f_vn] * 1000 * dsin[st_vn])
-            * np.sqrt(dsin.raster.area_grid())
+            np.exp(-dsin[f_vn] * 1000 * dsin[st_vn]) * np.sqrt(dsin.raster.area_grid())
         )
         ssf = create_constant_map(dsin, ssf.values, nodata, dtype, maskname="basins")
         ds_out["ssf"] = ssf
@@ -1873,16 +1870,24 @@ class WflowModel(Model):
 
         # reservoir
         if self.get_config("model.reservoirs", False):
-            tff_vn = self.get_config("input.lateral.river.reservoir.targetfullfrac", "ResTargetFullFrac")
-            mv_vn = self.get_config("input.lateral.river.reservoir.maxvolume", "ResMaxVolume")
-            locs_vn = self.get_config("input.lateral.river.reservoir.locs", "wflow_reservoirlocs")
+            tff_vn = self.get_config(
+                "input.lateral.river.reservoir.targetfullfrac", "ResTargetFullFrac"
+            )
+            mv_vn = self.get_config(
+                "input.lateral.river.reservoir.maxvolume", "ResMaxVolume"
+            )
+            locs_vn = self.get_config(
+                "input.lateral.river.reservoir.locs", "wflow_reservoirlocs"
+            )
             resvol = dsin[tff_vn] * dsin[mv_vn]
             resvol = xr.where(dsin[locs_vn] > 0, resvol, nodata)
             resvol.raster.set_nodata(nodata)
             ds_out["volume_reservoir"] = resvol
         # lake
         if self.get_config("model.lakes", False):
-            ll_vn = self.get_config("input.lateral.river.lake.waterlevel", "LakeAvgLevel")
+            ll_vn = self.get_config(
+                "input.lateral.river.lake.waterlevel", "LakeAvgLevel"
+            )
             if ll_vn in dsin:
                 ds_out["waterlevel_lake"] = dsin[ll_vn]
         # glacier
