@@ -30,7 +30,7 @@ def river(
     ds_model=None,
     river_upa=30.0,
     slope_len=2e3,
-    min_rivlen_ratio=0.1,
+    min_rivlen_ratio=0.0,
     channel_dir="up",
     logger=logger,
 ):
@@ -38,7 +38,7 @@ def river(
 
     The output maps are:\
     - rivmsk : river mask based on upstream area threshold on upstream area\
-    - rivlen : river length [m], minimum set to 1/4 cell res\
+    - rivlen : river length [m]\
     - rivslp : smoothed river slope [m/m]\
     - rivzs : elevation of the river bankfull height based on pixel outlet 
     - rivwth : river width at pixel outlet (if in ds)
@@ -57,7 +57,9 @@ def river(
     slope_len: float
         minimum length over which to calculate the river slope, by default 1000 [m]
     min_rivlen_ratio: float
-        minimum global river length to avg. cell resolution ratio, by default 0.1
+        minimum global river length to avg. Cell resolution ratio used as threshold 
+        in window based smoothing of river length, by default 0.0. 
+        The smoothing is skipped if min_riverlen_ratio = 0.
     channel_dir: {"up", "down"}
         flow direcition in which to calculate (subgrid) river length and width
     
@@ -113,14 +115,26 @@ def river(
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
         lat_avg = ds_model.raster.ycoords.values.mean()
         xres, yres = gis_utils.cellres(lat_avg, xres, yres)
-    res = np.mean(np.abs([xres, yres]))
-    # minimum river length equal 10% of cellsize
-    min_len = res * min_rivlen_ratio
-    rivlen = np.where(riv_mask.values, np.maximum(rivlen, min_len), -9999)
-    rivlen_avg = np.mean(rivlen[riv_mask.values])
-    # set mean length at pits when taking the downstream length
-    if channel_dir == "down":
-        rivlen.flat[flwdir.idxs_pit] = rivlen_avg
+    rivlen = np.where(riv_mask.values, rivlen, -9999)
+    # set mean length at most downstream (if channel_dir=down) or upstream (if channel_dir=up) river lengths
+    if np.any(rivlen == 0):
+        rivlen[rivlen == 0] = np.mean(rivlen[rivlen > 0])
+    # smooth river length based on minimum river length
+    if min_rivlen_ratio > 0 and hasattr(flwdir, "smooth_rivlen"):
+        res = np.mean(np.abs([xres, yres]))
+        min_len = res * min_rivlen_ratio
+        flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
+        rivlen2 = flwdir_model.smooth_rivlen(rivlen, min_len, nodata=-9999)
+        min_len2 = rivlen2[riv_mask].min()
+        pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
+        logger.debug(
+            f"River length smoothed (min length: {min_len2:.0f} m; cells modified: {pmod:.1f})%."
+        )
+        rivlen = rivlen2
+    elif min_rivlen_ratio > 0:
+        logger.warning(
+            "River length smoothing skipped as it requires newer version of pyflwdir."
+        )
 
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
@@ -135,8 +149,9 @@ def river(
     # create xarray dataset for all river variables
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
     dims = ds_model.raster.dims
-    riv_mask.raster.set_nodata(0)
-    ds_out["rivmsk"] = riv_mask
+    # save as uint8 as bool is not supported in nc and tif files
+    ds_out["rivmsk"] = riv_mask.astype(np.uint8)
+    ds_out["rivmsk"].raster.set_nodata(0)
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
@@ -375,7 +390,7 @@ def river_width(
         )
 
     # compute new riverwidth
-    rivmsk = ds_like[rivmsk_name].values
+    rivmsk = ds_like[rivmsk_name].values != 0
     rivwth_out = np.full(ds_like.raster.shape, -9999.0, dtype=np.float32)
     rivwth_out[rivmsk] = np.maximum(min_wth, power_law(values[rivmsk], a, b))
 

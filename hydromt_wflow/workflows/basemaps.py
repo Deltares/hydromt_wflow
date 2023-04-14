@@ -25,20 +25,22 @@ def hydrography(
     ftype: str = "infer",
     logger=logger,
 ):
-    """Returns hydrography maps (see list below) and FlwdirRaster object based on 
-    gridded flow direction and elevation data input. 
+    """Returns hydrography maps (see list below) and FlwdirRaster object based on
+    gridded flow direction and elevation data input.
 
-    The output maps are:\
-    - flwdir : flow direction [-]\
-    - basins : basin map [-]\
-    - uparea : upstream area [km2]\
-    - strord : stream order [-]\
+    The output maps are:
 
-    If the resolution is lower than the source resolution, the flow direction data is 
+    - flwdir : flow direction [-]
+    - basins : basin map [-]
+    - uparea : upstream area [km2]
+    - strord : stream order [-]
+
+    If the resolution is lower than the source resolution, the flow direction data is
     upscaled and river length and slope are based on subgrid flow paths and the following
-    maps are added:\
-    - subare : contributing area to each subgrid outlet pixel (unit catchment area) [km2]\
-    - subelv : elevation at subgrid outlet pixel [m+REF]\
+    maps are added:
+
+    - subare : contributing area to each subgrid outlet pixel (unit catchment area) [km2]
+    - subelv : elevation at subgrid outlet pixel [m+REF]
 
     Parameters
     ----------
@@ -53,7 +55,7 @@ def hydrography(
     ftype : {'d8', 'ldd', 'nextxy', 'nextidx', 'infer'}, optional
         name of flow direction type, infer from data if 'infer', by default is 'infer'
     flwdir_name, elevtn_name, uparea_name, basins_name, strord_name : str, optional
-        Name of flow direction [-], elevation [m], upstream area [km2], basin index [-] 
+        Name of flow direction [-], elevation [m], upstream area [km2], basin index [-]
         and stream order [-] variables in ds
 
     Returns
@@ -65,12 +67,13 @@ def hydrography(
 
     References
     ----------
-    .. [1] Eilander et al. (2021). A hydrography upscaling method for scale-invariant parametrization of distributed hydrological models. 
+    .. [1] Eilander et al. (2021). A hydrography upscaling method for scale-invariant parametrization of distributed hydrological models.
            Hydrology and Earth System Sciences, 25(9), 5287–5313. https://doi.org/10.5194/hess-25-5287-2021
 
     See Also
     --------
     pyflwdir.FlwdirRaster.upscale_flwdir
+
     """
     # TODO add check if flwdir in ds, calculate if not
     flwdir = None
@@ -143,15 +146,14 @@ def hydrography(
             )
         else:
             # This is a patch for basins which are clipped based on bbox or wrong geom
-            ds_out.coords["mask"] = (
-                ds["mask"]
-                .astype(np.int8)
-                .raster.reproject_like(da_flw, method="nearest")
-                .astype(np.bool)
-            )
+            mask_int = ds["mask"].astype(np.int8)
+            mask_int.raster.set_nodata(-1)  # change nodata value
+            ds_out.coords["mask"] = mask_int.raster.reproject_like(
+                da_flw, method="nearest"
+            ).astype(np.bool)
             basins = ds_out["mask"].values.astype(np.int32)
             logger.warning(
-                "The basin delination might be wrong as no original resolution outlets "
+                "The basin delineation might be wrong as no original resolution outlets "
                 "are found in the upscaled map."
             )
         ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
@@ -162,9 +164,9 @@ def hydrography(
         subare = flwdir.ucat_area(outidx, unit="km2")[1]
         uparea = flwdir_out.accuflux(subare)
         attrs = dict(_FillValue=-9999, unit="km2")
-        ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs)
+        ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs).astype(np.float32)
         # NOTE: subgrid cella area is currently not used in wflow
-        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs)
+        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
         if "elevtn" in ds:
             subelv = ds["elevtn"].values.flat[outidx]
             subelv = np.where(outidx >= 0, subelv, -9999)
@@ -212,13 +214,15 @@ def hydrography(
         if uparea_name not in ds_out.data_vars:
             uparea = flwdir_out.upstream_area("km2")  # km2
             attrs = dict(_FillValue=-9999, unit="km2")
-            ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs)
+            ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs).astype(
+                np.float32
+            )
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
         ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
         subare = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
-        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs)
+        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
     # logging
     npits = flwdir_out.idxs_pit.size
     xy_pit = flwdir_out.xy(flwdir_out.idxs_pit[:5])
@@ -227,10 +231,11 @@ def hydrography(
     if strord_name not in ds_out.data_vars:
         logger.debug(f"Derive stream order.")
         strord = flwdir_out.stream_order()
-        ds_out[strord_name] = xr.Variable(dims, strord, attrs=dict(_FillValue=-1))
+        ds_out[strord_name] = xr.Variable(dims, strord)
+        ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
-    ds_out = ds_out.raster.clip_mask(mask=ds_out[basins_name])
+    ds_out = ds_out.raster.clip_mask(ds_out[basins_name])
     ds_out.raster.set_crs(ds.raster.crs)
     logger.debug(
         f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."

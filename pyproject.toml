@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.2.0,<3.3"]
+requires = ["flit_core >=3.4.0,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -9,15 +9,15 @@ authors = [
     {name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl"},
 ]
 dependencies = [
-    "hydromt >=0.4.5",
+    "hydromt >=0.5.0",
     "dask",
-    "geopandas >=0.8",
+    "geopandas >=0.10",
     "netcdf4",
     "numpy",
     "pandas",
-    "pyflwdir>=0.5.5",
-    "pygeos",
+    "pyflwdir>=0.5.6",
     "rasterio",
+    "rioxarray",
     "scipy",
     "toml",
     "xarray",
@@ -37,15 +37,16 @@ dynamic = ['version', 'description']
 
 [project.optional-dependencies]
 test = [
-    "testpath",
-    "responses",
     "pytest>=2.7.3",
     "pytest-cov",
     "black",
 ]
 doc = [
+    "nbsphinx",
     "sphinx",
-    "sphinx_rtd_theme",
+    "sphinx_design",
+    "pydata-sphinx-theme",
+    "sphinx_autosummary_accessors",
 ]
 
 [project.urls]
@@ -67,4 +68,6 @@ exclude = ["docs", "examples", "envs", "tests", "binder", ".github"]
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore:distutils Version classes are deprecated:DeprecationWarning",
+    "ignore:The staticmaps property:DeprecationWarning",
+    "ignore:The staticgeoms property:DeprecationWarning",
 ]

@@ -5,7 +5,6 @@ import math
 
 
 def kv_brakensiek(thetas, clay, sand):
-
     """
     Determine saturated hydraulic conductivity kv [mm/day] based on:
     Brakensiek, D.L., Rawls, W.J.,and Stephenson, G.R.: Modifying scs hydrologic soil groups
@@ -54,7 +53,6 @@ def kv_brakensiek(thetas, clay, sand):
 
 
 def kv_cosby(sand, clay):
-
     """
     Determine saturated hydraulic conductivity kv [mm/day] based on:
     Cosby, B.J., Hornberger, G.M., Clapp, R.B., Ginn, T.R., 1984. A statistical exploration
@@ -81,7 +79,6 @@ def kv_cosby(sand, clay):
 
 
 def pore_size_index_brakensiek(sand, thetas, clay):
-
     """
     Determine Brooks-Corey pore size distribution index [-] based on:
     Rawls,W. J., and Brakensiek, D. L.: Estimation of SoilWater Retention and Hydraulic
@@ -124,7 +121,6 @@ def pore_size_index_brakensiek(sand, thetas, clay):
 
 
 def thetas_toth(ph, bd, clay, silt):
-
     """
     Determine saturated water content [m3/m3] based on:
     Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.: New generation
@@ -169,7 +165,6 @@ def thetas_toth(ph, bd, clay, silt):
 
 
 def thetar_toth(oc, clay, silt):
-
     """
     Determine residual water content [m3/m3] based on:
     Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.: New generation
@@ -410,7 +405,7 @@ def UsleK_EPIC(clay, silt, oc):
         sand percentage [%].
     silt: float
         silt percentage [%].
-    oc : float, optional
+    oc : float
         organic carbon [%].
 
     Returns
