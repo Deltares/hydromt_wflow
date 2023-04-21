@@ -826,9 +826,10 @@ class WflowModel(Model):
         mask: Optional[np.ndarray] = None,
         snap_uparea: Optional[bool] = False,
         max_dist: Optional[float] = 10e3,
-        wdw: Optional[int] = 5,
+        wdw: Optional[int] = 2,
         rel_error: Optional[float] = 0.05,
         derive_subcatch: Optional[bool] = False,
+        index_col: Optional[str] = None,
         basename: Optional[str] = None,
         toml_output: Optional[str] = "csv",
         gauge_toml_header: Optional[List[str]] = ["Q", "P"],
@@ -874,13 +875,15 @@ class WflowModel(Model):
             A warning is logged if exceeded. By default 10 km.
         wdw: int, optional
             Window size in number of cells around discharge boundary locations
-            to snap to, only used if ``snap_uparea`` is True. By default 5.
+            to snap to, only used if ``snap_uparea`` is True. By default 2.
         rel_error: float, optional
             Maximum relative error (default 0.05)
             between the gauge location upstream area and the upstream area of
             the best fit grid cell, only used if snap_area is True.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
+        index_col : str, optional
+            Column in gauges_fn to use for ID values, by default None (use the default index column)
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
         toml_output : str, optional
@@ -937,6 +940,7 @@ class WflowModel(Model):
             self.create_gauges(
                 gdf_gauges=gdf,
                 basename=basename,
+                index_col=index_col,
                 snap_to_river=snap_to_river,
                 mask=mask,
                 snap_uparea=snap_uparea,
@@ -953,11 +957,12 @@ class WflowModel(Model):
         self,
         gdf_gauges: gpd.GeoDataFrame,
         basename: str,
+        index_col: Optional[str] = None,
         snap_to_river: Optional[bool] = True,
         mask: Optional[str] = None,
         snap_uparea: Optional[bool] = False,
         max_dist: Optional[float] = 10e3,
-        wdw: Optional[int] = 5,
+        wdw: Optional[int] = 2,
         rel_error: Optional[float] = 0.05,
         derive_subcatch: Optional[bool] = False,
         toml_output: Optional[str] = "csv",
@@ -987,6 +992,8 @@ class WflowModel(Model):
             Gauges GeoDataFrame geometry
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
+        index_col : str, optional
+            Column name to use as index, if None use the source_gdf index.
         snap_to_river : bool, optional
             Snap point locations to the closest downstream river cell, by default True
         mask : np.boolean, optional
@@ -998,7 +1005,7 @@ class WflowModel(Model):
             A warning is logged if exceeded. By default 10 km.
         wdw: int, optional
             Window size in number of cells around discharge boundary locations
-            to snap to, only used if ``snap_uparea`` is True. By default 5.
+            to snap to, only used if ``snap_uparea`` is True. By default 2.
         rel_error: float, optional
             Maximum relative error (default 0.05)
             between the gauge location upstream area and the upstream area of
@@ -1024,7 +1031,13 @@ class WflowModel(Model):
             gdf_gauges["geometry"]
         )
         idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
-        ids = gdf_gauges.index.values
+        if index_col is not None and index_col in gdf_gauges.columns:
+            ids = gdf_gauges[index_col].values
+        else:
+            ids = gdf_gauges.index.values
+        if np.any(ids == 0):
+            ids = ids + 1
+            self.logger.warning("Gauge ID 0 is not allowed, setting to 1")
 
         # if snap_to_river use river map as the mask
         if snap_to_river and mask is None:
