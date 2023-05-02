@@ -90,7 +90,7 @@ def test_setup_lake(tmpdir):
             "lake_rating_test": {
                 "data_type": "DataFrame",
                 "driver": "csv",
-                "path": join(tmpdir, "rating_curve_{index}.csv"),
+                "path": join(tmpdir, "rating_curve_*.csv"),
             }
         }
     )

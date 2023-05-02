@@ -9,7 +9,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["waterbodymaps", "reservoirattrs"]
+__all__ = ["waterbodymaps", "reservoirattrs", "lakeattrs"]
 
 
 def waterbodymaps(
@@ -406,3 +406,155 @@ def reservoirattrs(
         )
 
     return df_out, df_plot
+
+def lakeattrs(
+        ds: xr.Dataset,
+        gdf: gp.GeoDataFrame,
+        rating_dict: dict = dict(),
+        logger=logger,
+):
+    """
+    Returns lake attributes (see list below) needed for modelling. 
+    If rating_dict is not empty, prepares also rating tables for wflow
+
+    The following reservoir attributes are calculated:\
+    - waterbody_id : waterbody id\
+    - LakeArea : lake area [m2]\
+    - LakeAvgLevel: lake average level [m]\
+    - LakeAvgOut: lake average outflow [m3/s]\
+    - Lake_b: lake rating curve coefficient [-]\
+    - Lake_e: lake rating curve exponent [-]\
+    - LakeStorFunc: option to compute storage curve [-]\
+    - LakeOutflowFunc: option to compute rating curve [-]\
+    - LakeThreshold: minimium threshold for lake outflow [m]\
+    - LinkedLakeLocs: id of linked lake location if any\
+    
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset containing the lake locations and area
+    gdf : gp.GeoDataFrame
+        GeoDataFrame containing the lake locations and area
+    rating_dict : dict, optional
+        Dictionary containing the rating curve parameters, by default dict()
+    
+    Returns
+    -------
+    ds : xr.Dataset
+        Dataset containing the lake locations with the attributes
+    gdf : gp.GeoDataFrame
+        GeoDataFrame containing the lake locations with the attributes
+    rating_curves : dict
+        Dictionary containing the rating curves in wflow format
+    """
+    # rename to param values
+    gdf = gdf.rename(
+        columns={
+            "Area_avg": "LakeArea",
+            "Depth_avg": "LakeAvgLevel",
+            "Dis_avg": "LakeAvgOut",
+        }
+    )
+    # Minimum value for LakeAvgOut
+    LakeAvgOut = gdf["LakeAvgOut"].copy()
+    gdf["LakeAvgOut"] = np.maximum(gdf["LakeAvgOut"], 0.01)
+    if "Lake_b" not in gdf.columns:
+        gdf["Lake_b"] = gdf["LakeAvgOut"].values / (
+            gdf["LakeAvgLevel"].values
+        ) ** (2)
+    if "Lake_e" not in gdf.columns:
+        gdf["Lake_e"] = 2
+    if "LakeThreshold" not in gdf.columns:
+        gdf["LakeThreshold"] = 0.0
+    if "LinkedLakeLocs" not in gdf.columns:
+        gdf["LinkedLakeLocs"] = 0
+    if "LakeStorFunc" not in gdf.columns:
+        gdf["LakeStorFunc"] = 1
+    if "LakeOutflowFunc" not in gdf.columns:
+        gdf["LakeOutflowFunc"] = 3
+
+    # Check if some LakeAvgOut values have been replaced
+    if not np.all(LakeAvgOut == gdf["LakeAvgOut"]):
+        logger.warning(
+            "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
+        )
+    
+    # Check if rating curve is provided
+    rating_curves = dict()
+    if len(rating_dict) != 0:
+        # Assume one rating curve per lake index
+        for id in gdf["waterbody_id"].values:
+            if id in rating_dict.keys():
+                df_rate = rating_dict[id]
+                # Prepare the right tables for wflow
+                # Update LakeStor and LakeOutflowFunc
+                # Storage
+                if "volume" in df_rate.columns:
+                    gdf.loc[
+                        gdf["waterbody_id"] == id, "LakeStorFunc"
+                    ] = 2
+                    df_stor = df_rate[["elevtn", "volume"]].dropna(
+                        subset=["elevtn", "volume"]
+                    )
+                    df_stor.rename(
+                        columns={"elevtn": "H", "volume": "S"}, inplace=True
+                    )
+                    # add to rating_curves
+                    rating_curves[f"lake_sh_{id}"] = df_stor
+                else:
+                    logger.warning(
+                        f"Storage data not available for lake {id}. Using default S=AH"
+                    )
+                # Rating
+                if "discharge" in df_rate.columns:
+                    gdf.loc[
+                        gdf["waterbody_id"] == id, "LakeOutflowFunc"
+                    ] = 1
+                    df_rate = df_rate[["elevtn", "discharge"]].dropna(
+                        subset=["elevtn", "discharge"]
+                    )
+                    df_rate.rename(
+                        columns={"elevtn": "H", "discharge": "Q"},
+                        inplace=True,
+                    )
+                    # Repeat Q for the 365 JDOY
+                    df_q = pd.concat(
+                        [df_rate.Q] * (366), axis=1, ignore_index=True
+                    )
+                    df_q[0] = df_rate["H"]
+                    df_q.rename(columns={0: "H"}, inplace=True)
+                    # add to rating_curves
+                    rating_curves[f"lake_hq_{id}"] = df_q
+                else:
+                    logger.warning(
+                        f"Rating data not available for lake {id}. Using default Modified Puls Approach"
+                    )
+        
+    # Create raster of lake params
+    lake_params = [
+        "waterbody_id",
+        "LakeArea",
+        "LakeAvgLevel",
+        "LakeAvgOut",
+        "Lake_b",
+        "Lake_e",
+        "LakeStorFunc",
+        "LakeOutflowFunc",
+        "LakeThreshold",
+        "LinkedLakeLocs",
+    ]
+
+    gdf_org_points = gp.GeoDataFrame(
+        gdf[lake_params],
+        geometry=gp.points_from_xy(gdf.xout, gdf.yout),
+    )
+
+    for name in lake_params[1:]:
+        da_lake = ds.raster.rasterize(
+            gdf_org_points, col_name=name, dtype="float32", nodata=-999
+        )
+        ds[name] = da_lake
+    
+    return ds, gdf, rating_curves
+
+
