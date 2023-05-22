@@ -14,8 +14,7 @@ Added
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
 - In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
-- New setup_river_floodplain method `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_. Note: requires pyflwdir v0.5.7
-- New setup_floodplains method, that allows the user the choose either 1D or 2D floodplains
+- New **setup_floodplains** method, that allows the user the choose either 1D or 2D floodplains. Note: requires pyflwdir v0.5.7. `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
 
 Changed
 -------
@@ -23,6 +22,7 @@ Changed
 - in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default None to use reservoir_fn data directly.
 - in **setup_areamap**: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file.
 - Merged river part of setup_hydrodem into setup_rivers functionality, and moved land part of setup_hydrodem into setup_floodplains.
+- in **setup_rivers**, the value used for river_upa is now added as attribute to the rivmsk layer. This value can then be used in the **setup_floodplains** method.
 
 Fixed
 -----
@@ -35,7 +35,7 @@ Fixed
 
 Deprecated
 ----------
-
+- The **setup_hydrodem** function has been removed, and the functionality are moved to **setup_rivers** and **setup_floodplains**
 Added
 ^^^^^
 - add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
