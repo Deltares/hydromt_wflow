@@ -459,7 +459,7 @@ class WflowModel(Model):
         floodplain_type: str,
         ### Options for 1D floodplains
         river_upa: Optional[float] = None,
-        flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5],
+        flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
         ### Options for 2D floodplains
         elevtn_map: str = "wflow_dem",
         connectivity: int = 4,
@@ -493,23 +493,27 @@ class WflowModel(Model):
 
         Adds model layers:
 
-        * **floodplain_volume** map: river mask [-] (for 1D floodplains)
+        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
+        dimension [m3] (for 1D floodplains)
         * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
 
         Parameters
         ----------
         floodplain_type: {"1d", "2d"}
-            Option defining the type of floodplains:
+            Option defining the type of floodplains, see below what arguments are related to
+            the different floodplain types
         hydrography_fn : str, Path
             Name of data source for hydrography data. Must be same as setup_basemaps for
             consistent results.
 
             * Required variables: ['flwdir', 'uparea', 'elevtn']
-        river_upa : float
-            (1D floodplains) minimum upstream area threshold for drain in the HAND.
+        river_upa : float, optional
+            (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
+            value, as it is inferred from the staticmaps metadata, to be consistent with
+            setup_rivers.
         flood_depths : tuple of float, optional
             (1D floodplains) flood depths at which a volume is derived, by default
-            [0.5,1.0,1.5,2.0,2.5]
+            [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
         elevtn_map: {"wflow_dem", "dem_subgrid"}
             (2D floodplains) Name of staticmap to hydrologically condition, by default
