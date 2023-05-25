@@ -19,29 +19,26 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/design-tabs.js"></script>
@@ -537,32 +534,32 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-03-24 13:50:23,226 - clip - log - INFO - HydroMT version: 0.7.1.dev
-2023-03-24 13:50:23,227 - clip - main - INFO - Clipping instance of wflow model.
-2023-03-24 13:50:23,227 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2023-03-24 13:50:23,580 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2023-03-24 13:50:23,580 - clip - main - INFO - Reading model to clip
-2023-03-24 13:50:23,582 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-03-24 13:50:23,687 - clip - wflow - INFO - Reading model intbl files.
-2023-03-24 13:50:23,688 - clip - wflow - INFO - Reading model staticgeom files.
-2023-03-24 13:50:23,804 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-03-24 13:50:23,813 - clip - wflow - INFO - Model read
-2023-03-24 13:50:23,813 - clip - main - INFO - Clipping staticmaps
-2023-03-24 13:50:27,036 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2023-03-24 13:50:27,725 - clip - model_api - WARNING - Replacing geom: basins
-2023-03-24 13:50:28,701 - clip - model_api - WARNING - Replacing geom: rivers
-2023-03-24 13:50:28,702 - clip - main - INFO - Clipping forcing
-2023-03-24 13:50:28,702 - clip - wflow - INFO - Clipping NetCDF forcing..
-2023-03-24 13:50:28,707 - clip - model_api - WARNING - Replacing forcing: precip
-2023-03-24 13:50:28,708 - clip - model_api - WARNING - Replacing forcing: pet
-2023-03-24 13:50:28,708 - clip - model_api - WARNING - Replacing forcing: temp
-2023-03-24 13:50:28,708 - clip - main - INFO - Writting clipped model
-2023-03-24 13:50:28,708 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2023-03-24 13:50:28,708 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
-2023-03-24 13:50:28,808 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
-2023-03-24 13:50:29,166 - clip - wflow - INFO - Write forcing file
-2023-03-24 13:50:29,185 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
-[########################################] | 100% Completed | 101.20 ms
+2023-05-25 08:35:19,815 - clip - log - INFO - HydroMT version: 0.7.2.dev0
+2023-05-25 08:35:19,815 - clip - main - INFO - Clipping instance of wflow model.
+2023-05-25 08:35:19,815 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2023-05-25 08:35:20,173 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-05-25 08:35:20,173 - clip - main - INFO - Reading model to clip
+2023-05-25 08:35:20,176 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-05-25 08:35:20,427 - clip - wflow - INFO - Reading model intbl files.
+2023-05-25 08:35:20,428 - clip - wflow - INFO - Reading model staticgeom files.
+2023-05-25 08:35:20,633 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-05-25 08:35:20,664 - clip - wflow - INFO - Model read
+2023-05-25 08:35:20,664 - clip - main - INFO - Clipping staticmaps
+2023-05-25 08:35:23,764 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2023-05-25 08:35:24,449 - clip - model_api - WARNING - Replacing geom: basins
+2023-05-25 08:35:25,342 - clip - model_api - WARNING - Replacing geom: rivers
+2023-05-25 08:35:25,344 - clip - main - INFO - Clipping forcing
+2023-05-25 08:35:25,344 - clip - wflow - INFO - Clipping NetCDF forcing..
+2023-05-25 08:35:25,349 - clip - model_api - WARNING - Replacing forcing: precip
+2023-05-25 08:35:25,349 - clip - model_api - WARNING - Replacing forcing: pet
+2023-05-25 08:35:25,349 - clip - model_api - WARNING - Replacing forcing: temp
+2023-05-25 08:35:25,349 - clip - main - INFO - Writting clipped model
+2023-05-25 08:35:25,349 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2023-05-25 08:35:25,350 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2023-05-25 08:35:25,449 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2023-05-25 08:35:25,897 - clip - wflow - INFO - Write forcing file
+2023-05-25 08:35:25,917 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+[########################################] | 100% Completed | 101.47 ms
 
 </pre></div></div>
 </div>
@@ -691,7 +688,10 @@ Options:
               
               
                 <footer class="bd-footer-article">
-                  <!-- Previous / next buttons -->
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="../user_guide/wflow_clip.html"
@@ -711,7 +711,10 @@ Options:
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
+</div></div>
+  
 </div>
+
                 </footer>
               
             </div>
@@ -760,7 +763,7 @@ Options:
             
           </div>
           <footer class="bd-footer-content">
-            <div class="bd-footer-content__inner"></div>
+            
           </footer>
         
       </main>
@@ -768,8 +771,8 @@ Options:
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -787,7 +790,7 @@ Options:
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
     <br/>
   </p>
 </div>
@@ -798,7 +801,7 @@ Options:
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
 </p></div>
       
     </div>
