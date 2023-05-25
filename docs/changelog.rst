@@ -12,16 +12,22 @@ Unreleased
 Added
 -----
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
+- Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
 - In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
+- New **setup_floodplains** method, that allows the user the choose either 1D or 2D floodplains. Note: requires pyflwdir v0.5.7. `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
 
 Changed
 -------
 - Default tomls are now using the dir_output option to specify *run_default* folder.
 - in **setup_reservoirs**: options 'usehe' and 'priorityjrc' are removed and replaced with 'timeseries_fn'. Options are ['jrc', 'gww']. By default None to use reservoir_fn data directly.
+- in **setup_areamap**: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file.
 - in **setup_areamap**: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file. 
 - Update docs of the developer installation guide to use pip install -e . instead of flit.  
 - Change naming of θₛ, θᵣ and kv₀ to theta_s, theta_r and kv_0 in the toml template of wflow. 
+- Merged river part of setup_hydrodem into setup_rivers functionality, and moved land part of setup_hydrodem into setup_floodplains.
+- in **setup_rivers**, the value used for river_upa is now added as attribute to the rivmsk layer. This value can then be used in the **setup_floodplains** method.
+
 
 Fixed
 -----
@@ -30,18 +36,16 @@ Fixed
 - fix error in **setup_reservoirs** when gdf contains no data in np.nanmax calculation for i.e. damheight #35
 - write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)
 - write_forcing automatic adjustment of starttime and endtime based on forcing content
-- When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename. 
+- When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename.
 
 Deprecated
 ----------
+- The **setup_hydrodem** function has been removed, and the functionality are moved to **setup_rivers** and **setup_floodplains**
 
-Added
-^^^^^
-- add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 
 v0.2.1 (22 November 2022)
 =========================
-New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon 
+New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon
 deprecated staticmaps and staticgeoms objects in hydromt core to work with the new 0.6.0 release.
 
 Added
@@ -52,7 +56,7 @@ Added
 Changed
 -------
 - update forcing example with multiple forcing files #122
-- New window smoothing algorithm in `setup_rivers` to avoid cells with small river length. 
+- New window smoothing algorithm in `setup_rivers` to avoid cells with small river length.
   Set the min_rivlen_ratio argument to a value larger than zero to apply the smoothing.
   Note: requires pyflwdir v0.5.6 `PR #92 <https://github.com/Deltares/hydromt_wflow/pull/92>`_
 
@@ -65,7 +69,7 @@ Fixed
 - bug in self.rivers if no staticgeoms and rivmsk is found #113
 - bug in wflow_build_sediment.ini template in examples
 - wrong defaults in wflow_build.ini teamplate in examples #116
-- temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms). 
+- temporary fix to update staticgeoms basins+rivers in clip_staticmaps (update when moving away from deprecated staticgeoms).
 - fix wrong default value for lai_fn in setup_laimaps #119
 
 Deprecated
@@ -113,7 +117,7 @@ Added
 -----
 - Possibility to write_forcing in several files based on time frequency (fn_freq argument).
 - setup_hydrodem method for hydrological conditioned elevation used with "local-inertial" routing
-- workflow.river.river_bathymetry method to derive river width and depth estimates. 
+- workflow.river.river_bathymetry method to derive river width and depth estimates.
   Note that the new river width estimates are different and result in different model results.
 - moved basemaps workflows (hydrography and topography) from HydroMT core. Note that HydroMT_Wflow v0.1.3 there should be used together with HydroMT v0.4.4 (not newer!)
 - new ID columns for the outlets staticgeoms
@@ -160,7 +164,7 @@ Added
 -----
 
 - Add results attributes for Wflow and read_results method (including test+example).
-- Add `f_` parameter in soilgrids 
+- Add `f_` parameter in soilgrids
 - Support soilgrids version 2020
 - Setup_areamap component to prepare maps of areas of interest to save Wflow outputs at.
 - Support Wflow_sediment with vito landuse.
