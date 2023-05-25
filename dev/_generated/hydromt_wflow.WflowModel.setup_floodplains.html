@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>hydromt_wflow.WflowModel.setup_hydrodem &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.WflowModel.setup_floodplains &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_hydrodem';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_floodplains';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.setup_gauges" href="hydromt_wflow.WflowModel.setup_gauges.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.setup_soilmaps" href="hydromt_wflow.WflowModel.setup_soilmaps.html" />
+    <link rel="next" title="hydromt_wflow.WflowModel.setup_lakes" href="hydromt_wflow.WflowModel.setup_lakes.html" />
+    <link rel="prev" title="hydromt_wflow.WflowModel.setup_rivers" href="hydromt_wflow.WflowModel.setup_rivers.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -366,13 +366,13 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_floodplains</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">hydromt_wflow.WflowModel.setup_lakes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
@@ -549,7 +549,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.WflowModel.setup_hydrodem</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.WflowModel.setup_floodplains</li>
   </ul>
 </nav>
 </div>
@@ -566,42 +566,60 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="hydromt-wflow-wflowmodel-setup-hydrodem">
-<h1>hydromt_wflow.WflowModel.setup_hydrodem<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-hydrodem" title="Permalink to this heading">#</a></h1>
+  <section id="hydromt-wflow-wflowmodel-setup-floodplains">
+<h1>hydromt_wflow.WflowModel.setup_floodplains<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-floodplains" title="Permalink to this heading">#</a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_hydrodem">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_hydrodem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elevtn_map</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wflow_dem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_routing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'local-inertial'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_routing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kinematic-wave'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_hydrodem"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_hydrodem" title="Permalink to this definition">#</a></dt>
-<dd><p>This component adds a hydrologically conditioned elevation (hydrodem) map for
-river and/or land local-inertial routing.</p>
-<p>River cells are always conditioned to D8 flow directions.  Land cells are conditioned
-to D4 flow directions if land_routing=”local-inertial”, else to D8. If local inertial
-is selected for land routing, it is required to have a D4 conditioning, otherwise pits
-may remain in the land cells.</p>
-<p>The conditioned elevation can be based on the average cell elevation (“wflow_dem”)
-or subgrid outlet pixel elevation (“dem_subgrid”). For local-inertial river
-routing the subgrid elevation might provide a better representation of the river
-elevation profile, however in combination with local-inertial land routing the
-subgrid elevation will likely overestimate the floodplain storage capacity.</p>
-<p>Note that the same input elevation map should be used for river bankfull elevation
-and land elevation when using local-inertial land routing.</p>
+<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_floodplains">
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_floodplains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floodplain_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flood_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[0.5,</span> <span class="pre">1.0,</span> <span class="pre">1.5,</span> <span class="pre">2.0,</span> <span class="pre">2.5,</span> <span class="pre">3.0,</span> <span class="pre">4.0,</span> <span class="pre">5.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevtn_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_dem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_floodplains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_floodplains" title="Permalink to this definition">#</a></dt>
+<dd><p>This components adds floodplain information to the model schematistation. The user can
+define what type of floodplains are required (1D or 2D), through the <cite>floodplain_type</cite>
+argument.</p>
+<p>If <cite>floodplain_type</cite> is set to “1d”, a floodplain profile is derived for every river
+cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
+1D floodplain schematisation.</p>
+<p>Note, it is important to use the same river uparea value as used in the <cite>setup_rivers</cite>
+method.</p>
+<p>If <cite>floodplain_type</cite> is set to “2d”, this component adds a hydrologically conditioned
+elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
+need to be conditioned to D4 flow directions otherwise pits may remain in the land
+cells.</p>
+<p>The conditioned elevation can be based on the average cell elevation (“wflow_dem”) or
+subgrid outlet pixel elevation (“dem_subgrid”). Note that the subgrid elevation will
+likely overestimate the floodplain storage capacity.</p>
+<p>Additionally, note that the same input elevation map should be used for river bankfull
+elevation and land elevation when using local-inertial land routing.</p>
+<p>Requires <cite>setup_rivers</cite> to be executed beforehand (with <cite>river_routing</cite> set to
+<cite>local-inertial</cite>).</p>
 <p>Adds model layers:</p>
 <ul class="simple">
-<li><p><strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF].</p></li>
+<li><p><strong>floodplain_volume</strong> map: map with floodplain volumes, has flood depth as third</p></li>
 </ul>
+<p>dimension [m3] (for 1D floodplains)
+* <strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>elevtn_map</strong> (<em>{&quot;wflow_dem&quot;</em><em>, </em><em>&quot;dem_subgrid&quot;}</em>) – Name of staticmap to hydrologically condition, by default “wflow_dem”.</p></li>
-<li><p><strong>river_routing</strong> (<em>{&quot;kinematic-wave&quot;</em><em>, </em><em>&quot;local-inertial&quot;}</em>) – changes wflow config model.river_routing (by default “local-inertial”)
-and model.land_routing (default “kinematic-wave”)</p></li>
-<li><p><strong>land_routing</strong> (<em>{&quot;kinematic-wave&quot;</em><em>, </em><em>&quot;local-inertial&quot;}</em>) – changes wflow config model.river_routing (by default “local-inertial”)
-and model.land_routing (default “kinematic-wave”)</p></li>
+<li><p><strong>floodplain_type</strong> (<em>{&quot;1d&quot;</em><em>, </em><em>&quot;2d&quot;}</em>) – Option defining the type of floodplains, see below what arguments are related to
+the different floodplain types</p></li>
+<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data. Must be same as setup_basemaps for
+consistent results.</p>
+<ul>
+<li><p>Required variables: [‘flwdir’, ‘uparea’, ‘elevtn’]</p></li>
+</ul>
+</p></li>
+<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
+value, as it is inferred from the staticmaps metadata, to be consistent with
+setup_rivers.</p></li>
+<li><p><strong>flood_depths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – (1D floodplains) flood depths at which a volume is derived, by default
+[0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]</p></li>
+<li><p><strong>elevtn_map</strong> (<em>{&quot;wflow_dem&quot;</em><em>, </em><em>&quot;dem_subgrid&quot;}</em>) – (2D floodplains) Name of staticmap to hydrologically condition, by default
+“wflow_dem”</p></li>
 </ul>
 </dd>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.flw.dem_adjust.html#hydromt.flw.dem_adjust" title="(in HydroMT v0.7.2.dev0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.flw.dem_adjust</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.dem_adjust</span></code></p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.river_floodplain_volume</span></code>, <a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.flw.dem_adjust.html#hydromt.flw.dem_adjust" title="(in HydroMT v0.7.2.dev0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.flw.dem_adjust</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.dem_adjust</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.setup_rivers</span></code></p>
 </div>
 </dd></dl>
 
@@ -619,20 +637,20 @@ and model.land_routing (default “kinematic-wave”)</p></li>
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowModel.setup_soilmaps.html"
+       href="hydromt_wflow.WflowModel.setup_rivers.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_soilmaps</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_rivers</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.WflowModel.setup_gauges.html"
+       href="hydromt_wflow.WflowModel.setup_lakes.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_gauges</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_lakes</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -654,14 +672,14 @@ and model.land_routing (default “kinematic-wave”)</p></li>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.setup_hydrodem"><code class="docutils literal notranslate"><span class="pre">WflowModel.setup_hydrodem()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.setup_floodplains"><code class="docutils literal notranslate"><span class="pre">WflowModel.setup_floodplains()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.setup_hydrodem.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.setup_floodplains.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -675,7 +693,7 @@ and model.land_routing (default “kinematic-wave”)</p></li>
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_hydrodem.rst.txt">
+    <a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_floodplains.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

@@ -46,7 +46,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydromt_wflow.WflowModel.setup_areamap" href="hydromt_wflow.WflowModel.setup_areamap.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.setup_hydrodem" href="hydromt_wflow.WflowModel.setup_hydrodem.html" />
+    <link rel="prev" title="hydromt_wflow.WflowModel.setup_soilmaps" href="hydromt_wflow.WflowModel.setup_soilmaps.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -366,13 +366,13 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html">hydromt_wflow.WflowModel.setup_floodplains</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">hydromt_wflow.WflowModel.setup_lakes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
@@ -592,7 +592,7 @@ the gauge locations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gauges_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>{&quot;grdc&quot;}</em><em>, </em><em>optional</em>) – Known source name or path to gauges file geometry file, by default None.</p></li>
+<li><p><strong>gauges_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>{&quot;grdc&quot;}</em><em>, </em><em>optional</em>) – Known source name or path to gauges file geometry file, by default “grdc”.</p></li>
 <li><p><strong>source_gdf</strong> (<em>geopandas.GeoDataFame</em><em>, </em><em>optional</em>) – Direct gauges file geometry, by default None.</p></li>
 <li><p><strong>index_col</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Column in gauges_fn to use for ID values, by default None (use the default index column)</p></li>
 <li><p><strong>snap_to_river</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Snap point locations to the closest downstream river cell, by default True</p></li>
@@ -624,12 +624,12 @@ names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vert
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowModel.setup_hydrodem.html"
+       href="hydromt_wflow.WflowModel.setup_soilmaps.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_hydrodem</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_soilmaps</p>
       </div>
     </a>
     <a class="right-next"

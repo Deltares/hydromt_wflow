@@ -497,7 +497,7 @@ to a model component with the same name.</p>
 <span class="na">hydrography_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
 <span class="na">basin_index_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro_index</span><span class="w"> </span><span class="c1"># source of basin index corresponding to hydrography_fn</span>
 <span class="na">upscale_method</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">ihu</span><span class="w">           </span><span class="c1"># upscaling method for flow direction data, by default &#39;ihu&#39;</span>
-<span class="na">res</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s">0.00833</span><span class="w">           </span><span class="c1"># build the model at a 30 arc sec (~1km) resolution </span>
+<span class="na">res</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s">0.00833</span><span class="w">           </span><span class="c1"># build the model at a 30 arc sec (~1km) resolution</span>
 
 <span class="k">[setup_rivers]</span>
 <span class="na">hydrography_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
@@ -508,11 +508,18 @@ to a model component with the same name.</p>
 <span class="na">min_rivwth</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">30</span><span class="w">               </span><span class="c1"># minimum river width [m]</span>
 <span class="na">slope_len</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
 <span class="na">smooth_len</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
+<span class="c1"># river_routing    = local-inertial   # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
 
-<span class="c1"># [setup_hydrodem]                  # uncomment for river and/or land local-inertial routing.</span>
-<span class="c1"># elevtn_map      = dem_subgrid     # {&#39;dem_subgrid&#39;, &#39;wflow_dem&#39;}</span>
-<span class="c1"># river_routing   = local-inertial  # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
-<span class="c1"># land_routing    = kinematic-wave  # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
+<span class="c1"># [setup_floodplains] # if 2D floodplains are required</span>
+<span class="c1"># hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="c1"># floodplain_type = 2d #  # If two-dimensional floodplains are required</span>
+<span class="c1"># elevtn_map = wflow_dem  # {&#39;wflow_dem&#39;, &#39;dem_subgrid&#39;}</span>
+
+<span class="c1"># [setup_floodplains] # if 1D floodplains are required</span>
+<span class="c1"># hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="c1"># floodplain_type = 1d    # If one-dimensional floodplains are required</span>
+<span class="c1"># flood_depths     = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0] # flood depths at which a volume is derived</span>
+
 
 <span class="k">[setup_reservoirs]</span>
 <span class="na">reservoirs_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_reservoirs</span><span class="w">  </span><span class="c1"># source for reservoirs shape and attributes</span>

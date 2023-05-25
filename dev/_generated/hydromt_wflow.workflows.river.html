@@ -366,13 +366,13 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html">hydromt_wflow.WflowModel.setup_floodplains</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">hydromt_wflow.WflowModel.setup_lakes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
@@ -587,7 +587,7 @@ must contain “x_out”, “y_out”. If None, ds is assumed to be the model gr
 <li><p><strong>min_rivlen_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum global river length to avg. Cell resolution ratio used as threshold
 in window based smoothing of river length, by default 0.0.
 The smoothing is skipped if min_riverlen_ratio = 0.</p></li>
-<li><p><strong>channel_dir</strong> (<em>{&quot;up&quot;</em><em>, </em><em>&quot;down&quot;}</em>) – flow direcition in which to calculate (subgrid) river length and width</p></li>
+<li><p><strong>channel_dir</strong> (<em>{&quot;up&quot;</em><em>, </em><em>&quot;down&quot;}</em>) – flow direction in which to calculate (subgrid) river length and width</p></li>
 <li><p><strong>Returns</strong> – </p></li>
 <li><p><strong>ds_out</strong> (<em>xr.Dataset</em>) – Dataset with output river attributes</p></li>
 </ul>

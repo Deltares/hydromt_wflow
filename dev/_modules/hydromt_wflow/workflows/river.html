@@ -418,7 +418,7 @@ document.write(`
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;river&quot;</span><span class="p">,</span> <span class="s2">&quot;river_bathymetry&quot;</span><span class="p">,</span> <span class="s2">&quot;river_width&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;river&quot;</span><span class="p">,</span> <span class="s2">&quot;river_bathymetry&quot;</span><span class="p">,</span> <span class="s2">&quot;river_width&quot;</span><span class="p">,</span> <span class="s2">&quot;river_floodplain_volume&quot;</span><span class="p">]</span>
 
 <span class="n">RESAMPLING</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;climate&quot;</span><span class="p">:</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">:</span> <span class="s2">&quot;average&quot;</span><span class="p">}</span>
 <span class="n">NODATA</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;discharge&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">9999</span><span class="p">}</span>
@@ -443,14 +443,14 @@ document.write(`
 <span class="sd">    - rivmsk : river mask based on upstream area threshold on upstream area\</span>
 <span class="sd">    - rivlen : river length [m]\</span>
 <span class="sd">    - rivslp : smoothed river slope [m/m]\</span>
-<span class="sd">    - rivzs : elevation of the river bankfull height based on pixel outlet </span>
+<span class="sd">    - rivzs : elevation of the river bankfull height based on pixel outlet</span>
 <span class="sd">    - rivwth : river width at pixel outlet (if in ds)</span>
 <span class="sd">    - qbankfull : bankfull discharge at pixel outlet (if in ds)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds: xr.Dataset</span>
-<span class="sd">        hydrography dataset containing &quot;flwdir&quot;, &quot;uparea&quot;, &quot;elevtn&quot; variables; </span>
+<span class="sd">        hydrography dataset containing &quot;flwdir&quot;, &quot;uparea&quot;, &quot;elevtn&quot; variables;</span>
 <span class="sd">        and optional &quot;rivwth&quot; and &quot;qbankfull&quot; variable</span>
 <span class="sd">    ds_model: xr.Dataset, optional</span>
 <span class="sd">        model dataset with output grid, must contain &quot;uparea&quot;, for subgrid rivlen/slp</span>
@@ -460,12 +460,12 @@ document.write(`
 <span class="sd">    slope_len: float</span>
 <span class="sd">        minimum length over which to calculate the river slope, by default 1000 [m]</span>
 <span class="sd">    min_rivlen_ratio: float</span>
-<span class="sd">        minimum global river length to avg. Cell resolution ratio used as threshold </span>
-<span class="sd">        in window based smoothing of river length, by default 0.0. </span>
+<span class="sd">        minimum global river length to avg. Cell resolution ratio used as threshold</span>
+<span class="sd">        in window based smoothing of river length, by default 0.0.</span>
 <span class="sd">        The smoothing is skipped if min_riverlen_ratio = 0.</span>
 <span class="sd">    channel_dir: {&quot;up&quot;, &quot;down&quot;}</span>
-<span class="sd">        flow direcition in which to calculate (subgrid) river length and width</span>
-<span class="sd">    </span>
+<span class="sd">        flow direction in which to calculate (subgrid) river length and width</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">    ds_out: xr.Dataset</span>
 <span class="sd">        Dataset with output river attributes</span>
@@ -477,7 +477,7 @@ document.write(`
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds: </span><span class="si">{</span><span class="n">dvars</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">ds_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars_model</span><span class="p">]):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds_model: </span><span class="si">{</span><span class="n">dvars_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="c1"># sort sugrid</span>
+    <span class="c1"># sort subgrid</span>
     <span class="n">subgrid</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="k">if</span> <span class="n">ds_model</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x_out&quot;</span><span class="p">,</span> <span class="s2">&quot;y_out&quot;</span><span class="p">]]):</span>
         <span class="n">subgrid</span> <span class="o">=</span> <span class="kc">False</span>
@@ -707,6 +707,101 @@ document.write(`
     <span class="k">return</span> <span class="n">ds_model</span><span class="p">[[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;rivdph&quot;</span><span class="p">]]</span></div>
 
 
+<span class="k">def</span> <span class="nf">river_floodplain_volume</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="n">ds_model</span><span class="p">,</span>
+    <span class="n">river_upa</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">flood_depths</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the floodplain volume at given flood depths based on a (subgrid) HAND map.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds: xr.Dataset</span>
+<span class="sd">        hydrography dataset containing &quot;flwdir&quot;, &quot;uparea&quot;, &quot;elevtn&quot; variables;</span>
+<span class="sd">    ds_model: xr.Dataset, optional</span>
+<span class="sd">        Model dataset with output grid, must contain &quot;rivmsk&quot;, &quot;rivwth&quot;, &quot;rivlen&quot;</span>
+<span class="sd">        for subgrid must contain &quot;x_out&quot;, &quot;y_out&quot;.</span>
+<span class="sd">    river_upa: float</span>
+<span class="sd">        minimum threshold to define the river when calculating HAND, by default 30 [km2]</span>
+<span class="sd">    flood_depths : list of float, optional</span>
+<span class="sd">        flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]</span>
+<span class="sd">    dtype: numpy.dtype, optional</span>
+<span class="sd">        output dtype</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    da_out : xr.DataArray with dims (flood_depth, y, x)</span>
+<span class="sd">        Floodplain volume [m3]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Hydrography dataset CRS does not match model CRS&quot;</span><span class="p">)</span>
+
+    <span class="c1"># check data variables.</span>
+    <span class="n">dvars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">,</span> <span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;uparea&quot;</span><span class="p">]</span>
+    <span class="n">dvars_model</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">,</span> <span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;rivlen&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds: </span><span class="si">{</span><span class="n">dvars</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars_model</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds_model: </span><span class="si">{</span><span class="n">dvars_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># initialize flood directions</span>
+    <span class="n">flwdir</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">],</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># get river cell coordinates</span>
+    <span class="n">riv_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="s2">&quot;x_out&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="ow">and</span> <span class="s2">&quot;y_out&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span><span class="p">:</span>  <span class="c1"># use subgrid</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xy_to_idx</span><span class="p">(</span>
+            <span class="n">xs</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;x_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">ys</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;y_out&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="n">riv_mask</span><span class="p">,</span>
+            <span class="n">nodata</span><span class="o">=</span><span class="n">flwdir</span><span class="o">.</span><span class="n">_mv</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># get cell index of river cells</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">size</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">riv_mask</span><span class="p">,</span> <span class="n">idxs_out</span><span class="p">,</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">_mv</span><span class="p">)</span>
+
+    <span class="c1"># calculate hand</span>
+    <span class="n">hand</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">hand</span><span class="p">(</span>
+        <span class="n">drain</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">river_upa</span><span class="p">,</span> <span class="n">elevtn</span><span class="o">=</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+
+    <span class="c1"># calculate volume at user defined flood depths</span>
+    <span class="c1"># note that the ucat_map is not save currently but is required if</span>
+    <span class="c1"># we want to create a flood map by postprocessing</span>
+    <span class="n">flood_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">flood_depths</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>  <span class="c1"># force 1D</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ucat_vol</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">ucat_volume</span><span class="p">(</span><span class="n">idxs_out</span><span class="o">=</span><span class="n">idxs_out</span><span class="p">,</span> <span class="n">hand</span><span class="o">=</span><span class="n">hand</span><span class="p">,</span> <span class="n">depths</span><span class="o">=</span><span class="n">flood_depths</span><span class="p">)</span>
+    <span class="c1"># force minimum volume based on river width * length</span>
+    <span class="n">rivlen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># avoid zero division errors</span>
+    <span class="n">min_vol</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">rivlen</span> <span class="o">*</span> <span class="n">flood_depths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ucat_vol</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">ucat_vol</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">min_vol</span><span class="p">)</span>
+    <span class="n">fldwth</span> <span class="o">=</span> <span class="n">ucat_vol</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">rivlen</span> <span class="o">/</span> <span class="n">flood_depths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ucat_vol</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">dh</span> <span class="o">=</span> <span class="n">flood_depths</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">flood_depths</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">min_vol</span> <span class="o">=</span> <span class="n">ucat_vol</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="n">fldwth</span> <span class="o">*</span> <span class="n">rivlen</span> <span class="o">*</span> <span class="n">dh</span><span class="p">)</span>
+        <span class="n">ucat_vol</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">ucat_vol</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">min_vol</span><span class="p">)</span>
+        <span class="n">fldwth</span> <span class="o">=</span> <span class="p">(</span><span class="n">ucat_vol</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">ucat_vol</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="o">/</span> <span class="n">rivlen</span> <span class="o">/</span> <span class="n">dh</span>
+
+    <span class="c1"># return xarray DataArray</span>
+    <span class="n">da_out</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;flood_depth&quot;</span><span class="p">:</span> <span class="n">flood_depths</span><span class="p">,</span> <span class="o">**</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">},</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;flood_depth&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span><span class="p">),</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ucat_vol</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="o">.</span><span class="n">reset_coords</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">da_out</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
+    <span class="n">da_out</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="c1"># TODO return a second dataset with hand and ucat_map variables for postprocessing</span>
+    <span class="k">return</span> <span class="n">da_out</span>
+
+
 <span class="c1"># TODO: methods below are redundant after version v0.1.4 and will be removed in</span>
 <span class="c1"># future versions</span>
 
@@ -731,9 +826,7 @@ document.write(`
 <span class="p">):</span>
     <span class="n">nopars</span> <span class="o">=</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># no manual a, b parameters</span>
     <span class="n">fit</span> <span class="o">=</span> <span class="n">fit</span> <span class="ow">or</span> <span class="p">(</span><span class="n">nopars</span> <span class="ow">and</span> <span class="n">predictor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;discharge&quot;</span><span class="p">])</span>  <span class="c1"># fit power-law on the fly</span>
-    <span class="n">nowth</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span>
-    <span class="p">)</span>  <span class="c1"># no obseved with in staticmaps</span>
+    <span class="n">nowth</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span>  <span class="c1"># no observed width</span>
     <span class="n">fill</span> <span class="o">=</span> <span class="n">fill</span> <span class="ow">and</span> <span class="n">nowth</span> <span class="o">==</span> <span class="kc">False</span>  <span class="c1"># fill datagaps and masked areas (lakes/res) in obs</span>
 
     <span class="k">if</span> <span class="n">nowth</span> <span class="ow">and</span> <span class="n">fit</span><span class="p">:</span>

@@ -416,6 +416,7 @@ document.write(`
 <span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">import</span> <span class="nn">toml</span>
 <span class="kn">import</span> <span class="nn">codecs</span>
+<span class="kn">import</span> <span class="nn">pyflwdir</span>
 <span class="kn">from</span> <span class="nn">pyflwdir</span> <span class="kn">import</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span><span class="p">,</span> <span class="n">core_conversion</span>
 <span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -642,14 +643,17 @@ document.write(`
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hydrography_fn</span><span class="p">,</span>
         <span class="n">river_geom_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">river_upa</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
-        <span class="n">rivdph_method</span><span class="o">=</span><span class="s2">&quot;powlaw&quot;</span><span class="p">,</span>
-        <span class="n">slope_len</span><span class="o">=</span><span class="mf">2e3</span><span class="p">,</span>
+        <span class="n">river_upa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="n">rivdph_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;powlaw&quot;</span><span class="p">,</span>
+        <span class="n">slope_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e3</span><span class="p">,</span>
         <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-        <span class="n">min_rivdph</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">min_rivwth</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
-        <span class="n">smooth_len</span><span class="o">=</span><span class="mf">5e3</span><span class="p">,</span>
+        <span class="n">min_rivdph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+        <span class="n">smooth_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e3</span><span class="p">,</span>
         <span class="n">rivman_mapping_fn</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;wflow&quot;</span><span class="p">,</span> <span class="s2">&quot;N_river_mapping.csv&quot;</span><span class="p">),</span>
+        <span class="n">elevtn_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_dem&quot;</span><span class="p">,</span>
+        <span class="n">river_routing</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span>
+        <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -679,6 +683,14 @@ document.write(`
 <span class="sd">        (default = 0.27) and hp (default = 0.30) parameters. For other methods see</span>
 <span class="sd">        :py:meth:`hydromt.workflows.river_depth`.</span>
 
+<span class="sd">        If `river_routing` is set to &quot;local-inertial&quot;, the bankfull elevantion map can be</span>
+<span class="sd">        conditioned based on the average cell elevation (&quot;wflow_dem&quot;) or subgrid outlet pixel</span>
+<span class="sd">        elevation (&quot;dem_subgrid&quot;). The subgrid elevation might provide a better representation</span>
+<span class="sd">        of the river elevation profile, however in combination with local-inertial land routing</span>
+<span class="sd">        (see `hydromt.setup_floodplains`) the subgrid elevation will likely overestimate the</span>
+<span class="sd">        floodplain storage capacity. Note that the same input elevation map should be used for</span>
+<span class="sd">        river bankfull elevation and land elevation when using local-inertial land routing.</span>
+
 <span class="sd">        Adds model layers:</span>
 
 <span class="sd">        * **wflow_river** map: river mask [-]</span>
@@ -688,6 +700,7 @@ document.write(`
 <span class="sd">        * **RiverSlope** map: river slope [m/m]</span>
 <span class="sd">        * **N_River** map: Manning coefficient for river cells [s.m^1/3]</span>
 <span class="sd">        * **rivers** geom: river vector based on wflow_river mask</span>
+<span class="sd">        * **hydrodem** map: hydrologically conditioned elevation [m+REF]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -712,20 +725,35 @@ document.write(`
 <span class="sd">            For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`</span>
 <span class="sd">        rivdph_method : {&#39;gvf&#39;, &#39;manning&#39;, &#39;powlaw&#39;}</span>
 <span class="sd">            see py:meth:`hydromt.workflows.river_depth` for details, by default &quot;powlaw&quot;</span>
+<span class="sd">        river_routing : {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
+<span class="sd">            Routing methodology to be used, by default &quot;kinematic-wave&quot;.</span>
 <span class="sd">        smooth_len : float, optional</span>
 <span class="sd">            Length [m] over which to smooth the output river width and depth, by default 5e3</span>
 <span class="sd">        min_rivdph : float, optional</span>
 <span class="sd">            Minimum river depth [m], by default 1.0</span>
 <span class="sd">        min_rivwth : float, optional</span>
 <span class="sd">            Minimum river width [m], by default 30.0</span>
+<span class="sd">        elevtn_map : str, optional</span>
+<span class="sd">            by default &quot;wflow_dem&quot;,</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
 <span class="sd">        workflows.river_bathymetry</span>
 <span class="sd">        hydromt.workflows.river_depth</span>
 <span class="sd">        pyflwdir.FlwdirRaster.river_depth</span>
+<span class="sd">        hydromt.setup_floodplains</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing river maps.&quot;</span><span class="p">)</span>
+
+        <span class="n">rivdph_methods</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;gvf&quot;</span><span class="p">,</span> <span class="s2">&quot;manning&quot;</span><span class="p">,</span> <span class="s2">&quot;powlaw&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">rivdph_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rivdph_methods</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">rivdph_method</span><span class="si">}</span><span class="s1">&quot; unknown. Select from </span><span class="si">{</span><span class="n">rivdph_methods</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">routing_options</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">river_routing</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">routing_options</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot; unknown. Select from </span><span class="si">{</span><span class="n">routing_options</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="p">)</span>
 
         <span class="c1"># read data</span>
         <span class="n">ds_hydro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
@@ -744,6 +772,10 @@ document.write(`
             <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="n">min_rivlen_ratio</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">ds_riv</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_riv</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">assign_attrs</span><span class="p">(</span>
+            <span class="n">river_upa</span><span class="o">=</span><span class="n">river_upa</span><span class="p">,</span> <span class="n">slope_len</span><span class="o">=</span><span class="n">slope_len</span><span class="p">,</span> <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="n">min_rivlen_ratio</span>
+        <span class="p">)</span>
         <span class="n">dvars</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">,</span> <span class="s2">&quot;rivlen&quot;</span><span class="p">,</span> <span class="s2">&quot;rivslp&quot;</span><span class="p">]</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dvars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_riv</span><span class="p">[</span><span class="n">dvars</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
@@ -793,98 +825,236 @@ document.write(`
 
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding rivers vector to staticgeoms.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">staticgeoms</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;rivers&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># remove old rivers if in staticgeoms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>  <span class="c1"># add new rivers to staticgeoms</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rivers</span>  <span class="c1"># add new rivers to staticgeoms</span>
 
-<div class="viewcode-block" id="WflowModel.setup_hydrodem"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_hydrodem.html#hydromt_wflow.WflowModel.setup_hydrodem">[docs]</a>    <span class="k">def</span> <span class="nf">setup_hydrodem</span><span class="p">(</span>
+        <span class="c1"># Add hydrologically conditioned elevation map for the river, if required</span>
+        <span class="k">if</span> <span class="n">river_routing</span> <span class="o">==</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
+            <span class="n">postfix</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">:</span> <span class="s2">&quot;_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;dem_subgrid&quot;</span><span class="p">:</span> <span class="s2">&quot;_subgrid&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">elevtn_map</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hydrodem</span><span class="si">{</span><span class="n">postfix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">dem_adjust</span><span class="p">(</span>
+                <span class="n">da_flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]],</span>
+                <span class="n">da_elevtn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">elevtn_map</span><span class="p">],</span>
+                <span class="n">da_rivmsk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]],</span>
+                <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
+                <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
+                <span class="n">river_d8</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
+
+            <span class="c1"># update toml model.river_routing</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;Update wflow config model.river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot;&#39;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">,</span> <span class="n">river_routing</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.river.bankfull_depth&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.river.bankfull_elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">,</span> <span class="n">river_routing</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WflowModel.setup_floodplains"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_floodplains.html#hydromt_wflow.WflowModel.setup_floodplains">[docs]</a>    <span class="k">def</span> <span class="nf">setup_floodplains</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">elevtn_map</span><span class="o">=</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">,</span>
-        <span class="n">river_routing</span><span class="o">=</span><span class="s2">&quot;local-inertial&quot;</span><span class="p">,</span>
-        <span class="n">land_routing</span><span class="o">=</span><span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span>
+        <span class="n">hydrography_fn</span><span class="p">,</span>
+        <span class="n">floodplain_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="c1">### Options for 1D floodplains</span>
+        <span class="n">river_upa</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">flood_depths</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">],</span>
+        <span class="c1">### Options for 2D floodplains</span>
+        <span class="n">elevtn_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_dem&quot;</span><span class="p">,</span>
+        <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;This component adds a hydrologically conditioned elevation (hydrodem) map for</span>
-<span class="sd">        river and/or land local-inertial routing.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This components adds floodplain information to the model schematistation. The user can</span>
+<span class="sd">        define what type of floodplains are required (1D or 2D), through the `floodplain_type`</span>
+<span class="sd">        argument.</span>
 
-<span class="sd">        River cells are always conditioned to D8 flow directions.  Land cells are conditioned</span>
-<span class="sd">        to D4 flow directions if land_routing=&quot;local-inertial&quot;, else to D8. If local inertial</span>
-<span class="sd">        is selected for land routing, it is required to have a D4 conditioning, otherwise pits</span>
-<span class="sd">        may remain in the land cells.</span>
+<span class="sd">        If `floodplain_type` is set to &quot;1d&quot;, a floodplain profile is derived for every river</span>
+<span class="sd">        cell. It adds a map with floodplain volume per flood depth, which is used in the wflow</span>
+<span class="sd">        1D floodplain schematisation.</span>
 
-<span class="sd">        The conditioned elevation can be based on the average cell elevation (&quot;wflow_dem&quot;)</span>
-<span class="sd">        or subgrid outlet pixel elevation (&quot;dem_subgrid&quot;). For local-inertial river</span>
-<span class="sd">        routing the subgrid elevation might provide a better representation of the river</span>
-<span class="sd">        elevation profile, however in combination with local-inertial land routing the</span>
-<span class="sd">        subgrid elevation will likely overestimate the floodplain storage capacity.</span>
+<span class="sd">        Note, it is important to use the same river uparea value as used in the `setup_rivers`</span>
+<span class="sd">        method.</span>
 
-<span class="sd">        Note that the same input elevation map should be used for river bankfull elevation</span>
-<span class="sd">        and land elevation when using local-inertial land routing.</span>
+<span class="sd">        If `floodplain_type` is set to &quot;2d&quot;, this component adds a hydrologically conditioned</span>
+<span class="sd">        elevation (hydrodem) map for land routing (local-inertial). For this options, landcells</span>
+<span class="sd">        need to be conditioned to D4 flow directions otherwise pits may remain in the land</span>
+<span class="sd">        cells.</span>
+
+<span class="sd">        The conditioned elevation can be based on the average cell elevation (&quot;wflow_dem&quot;) or</span>
+<span class="sd">        subgrid outlet pixel elevation (&quot;dem_subgrid&quot;). Note that the subgrid elevation will</span>
+<span class="sd">        likely overestimate the floodplain storage capacity.</span>
+
+<span class="sd">        Additionally, note that the same input elevation map should be used for river bankfull</span>
+<span class="sd">        elevation and land elevation when using local-inertial land routing.</span>
+
+<span class="sd">        Requires `setup_rivers` to be executed beforehand (with `river_routing` set to</span>
+<span class="sd">        `local-inertial`).</span>
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **hydrodem** map: hydrologically conditioned elevation [m+REF].</span>
+<span class="sd">        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third</span>
+<span class="sd">        dimension [m3] (for 1D floodplains)</span>
+<span class="sd">        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        floodplain_type: {&quot;1d&quot;, &quot;2d&quot;}</span>
+<span class="sd">            Option defining the type of floodplains, see below what arguments are related to</span>
+<span class="sd">            the different floodplain types</span>
+<span class="sd">        hydrography_fn : str, Path</span>
+<span class="sd">            Name of data source for hydrography data. Must be same as setup_basemaps for</span>
+<span class="sd">            consistent results.</span>
+
+<span class="sd">            * Required variables: [&#39;flwdir&#39;, &#39;uparea&#39;, &#39;elevtn&#39;]</span>
+<span class="sd">        river_upa : float, optional</span>
+<span class="sd">            (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional</span>
+<span class="sd">            value, as it is inferred from the staticmaps metadata, to be consistent with</span>
+<span class="sd">            setup_rivers.</span>
+<span class="sd">        flood_depths : tuple of float, optional</span>
+<span class="sd">            (1D floodplains) flood depths at which a volume is derived, by default</span>
+<span class="sd">            [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]</span>
+
 <span class="sd">        elevtn_map: {&quot;wflow_dem&quot;, &quot;dem_subgrid&quot;}</span>
-<span class="sd">            Name of staticmap to hydrologically condition, by default &quot;wflow_dem&quot;.</span>
-<span class="sd">        river_routing, land_routing : {&quot;kinematic-wave&quot;, &quot;local-inertial&quot;}</span>
-<span class="sd">            changes wflow config model.river_routing (by default &quot;local-inertial&quot;)</span>
-<span class="sd">            and model.land_routing (default &quot;kinematic-wave&quot;)</span>
+<span class="sd">            (2D floodplains) Name of staticmap to hydrologically condition, by default</span>
+<span class="sd">            &quot;wflow_dem&quot;</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
+<span class="sd">        hydromt.workflows.river_floodplain_volume</span>
 <span class="sd">        hydromt.flw.dem_adjust</span>
 <span class="sd">        pyflwdir.FlwdirRaster.dem_adjust</span>
+<span class="sd">        hydromt.setup_rivers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">r_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">elevtn_map</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">elevtn_map</span><span class="si">}</span><span class="s1">&quot; not found in staticmaps&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">river_routing</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r_list</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot; unknown. Select from </span><span class="si">{</span><span class="n">r_list</span><span class="si">}</span><span class="s1">.&#39;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">land_routing</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r_list</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;land_routing=&quot;</span><span class="si">{</span><span class="n">land_routing</span><span class="si">}</span><span class="s1">&quot; unknown. Select from </span><span class="si">{</span><span class="n">r_list</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;Floodplains (1d or 2d) are currently only supported with local intertial river routing&quot;</span>
             <span class="p">)</span>
 
-        <span class="n">postfix</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">:</span> <span class="s2">&quot;_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;dem_subgrid&quot;</span><span class="p">:</span> <span class="s2">&quot;_subgrid&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">elevtn_map</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hydrodem</span><span class="si">{</span><span class="n">postfix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">r_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1d&quot;</span><span class="p">,</span> <span class="s2">&quot;2d&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">floodplain_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r_list</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;river_routing=&quot;</span><span class="si">{</span><span class="n">floodplain_type</span><span class="si">}</span><span class="s1">&quot; unknown. Select from </span><span class="si">{</span><span class="n">r_list</span><span class="si">}</span><span class="s1">.&#39;</span>
+            <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> map for routing.&quot;</span><span class="p">)</span>
-        <span class="n">connectivity</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;kinematic-wave&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">}[</span><span class="n">land_routing</span><span class="p">]</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hydrodem</span><span class="si">{</span><span class="n">postfix</span><span class="si">}</span><span class="s2">_D</span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> map for routing.&quot;</span><span class="p">)</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">dem_adjust</span><span class="p">(</span>
-            <span class="n">da_flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]],</span>
-            <span class="n">da_elevtn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">elevtn_map</span><span class="p">],</span>
-            <span class="n">da_rivmsk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]],</span>
-            <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
-            <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
-            <span class="n">river_d8</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
+        <span class="c1"># Adjust settings based on floodplain_type selection</span>
+        <span class="k">if</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;1d&quot;</span><span class="p">:</span>
+            <span class="n">floodplain_1d</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">land_routing</span> <span class="o">=</span> <span class="s2">&quot;kinematic-wave&quot;</span>
 
-        <span class="c1"># update toml model.river_routing</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update wflow config model.river_routing=&quot;</span><span class="si">{</span><span class="n">river_routing</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">,</span> <span class="n">river_routing</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pyflwdir</span><span class="o">.</span><span class="n">FlwdirRaster</span><span class="p">,</span> <span class="s2">&quot;ucat_volume&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This method requires pyflwdir &gt;= 0.5.6&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing 1D river floodplain_volume map.&quot;</span><span class="p">)</span>
+
+            <span class="c1"># read data</span>
+            <span class="n">ds_hydro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+                <span class="n">hydrography_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span>
+            <span class="p">)</span>
+
+            <span class="c1"># try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value</span>
+            <span class="n">new_river_upa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;river_upa&quot;</span><span class="p">,</span> <span class="n">river_upa</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">new_river_upa</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;No value for `river_upa` specified, and the value cannot be inferred from the staticmaps attributes&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">new_river_upa</span> <span class="o">!=</span> <span class="n">river_upa</span> <span class="ow">and</span> <span class="n">river_upa</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Value specified for river_upa (</span><span class="si">{</span><span class="n">river_upa</span><span class="si">}</span><span class="s2">) is different from the value found in the staticmaps (</span><span class="si">{</span><span class="n">new_river_upa</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using river_upa value value of: </span><span class="si">{</span><span class="n">new_river_upa</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># get river floodplain volume</span>
+            <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">}</span>
+            <span class="n">da_fldpln</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">river_floodplain_volume</span><span class="p">(</span>
+                <span class="n">ds</span><span class="o">=</span><span class="n">ds_hydro</span><span class="p">,</span>
+                <span class="n">ds_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+                <span class="n">river_upa</span><span class="o">=</span><span class="n">new_river_upa</span><span class="p">,</span>
+                <span class="n">flood_depths</span><span class="o">=</span><span class="n">flood_depths</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># check if the layer already exists, since overwriting with different flood_depth values is not working properly if this is the case</span>
+            <span class="k">if</span> <span class="s2">&quot;floodplain_volume&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Layer `floodplain_volume` already in staticmaps, removing layer and `flood_depth` dimension to ensure correctly setting new flood_depth dimensions&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_staticmaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staticmaps</span><span class="o">.</span><span class="n">drop_dims</span><span class="p">(</span><span class="s2">&quot;flood_depth&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_fldpln</span><span class="p">,</span> <span class="s2">&quot;floodplain_volume&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;2d&quot;</span><span class="p">:</span>
+            <span class="n">floodplain_1d</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">land_routing</span> <span class="o">=</span> <span class="s2">&quot;local-inertial&quot;</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">elevtn_map</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">elevtn_map</span><span class="si">}</span><span class="s1">&quot; not found in staticmaps&#39;</span><span class="p">)</span>
+
+            <span class="n">postfix</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">:</span> <span class="s2">&quot;_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;dem_subgrid&quot;</span><span class="p">:</span> <span class="s2">&quot;_subgrid&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">elevtn_map</span><span class="p">,</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hydrodem</span><span class="si">{</span><span class="n">postfix</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> map for land routing.&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;hydrodem</span><span class="si">{</span><span class="n">postfix</span><span class="si">}</span><span class="s2">_D</span><span class="si">{</span><span class="n">connectivity</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> map for land routing.&quot;</span><span class="p">)</span>
+            <span class="n">ds_out</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">dem_adjust</span><span class="p">(</span>
+                <span class="n">da_flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]],</span>
+                <span class="n">da_elevtn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">elevtn_map</span><span class="p">],</span>
+                <span class="n">da_rivmsk</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]],</span>
+                <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
+                <span class="n">connectivity</span><span class="o">=</span><span class="n">connectivity</span><span class="p">,</span>
+                <span class="n">river_d8</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_out</span><span class="p">)</span>
+
+        <span class="c1"># Update config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update wflow config model.floodplain_1d=&quot;</span><span class="si">{</span><span class="n">floodplain_1d</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.floodplain_1d&quot;</span><span class="p">,</span> <span class="n">floodplain_1d</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Update wflow config model.land_routing=&quot;</span><span class="si">{</span><span class="n">land_routing</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.land_routing&quot;</span><span class="p">,</span> <span class="n">land_routing</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">river_routing</span> <span class="o">==</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.river.bankfull_depth&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.river.bankfull_elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">land_routing</span> <span class="o">==</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.land.elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.land.qx&quot;</span><span class="p">,</span> <span class="s2">&quot;qx_land&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.land.qy&quot;</span><span class="p">,</span> <span class="s2">&quot;qy_land&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">floodplain_type</span> <span class="o">==</span> <span class="s2">&quot;1d&quot;</span><span class="p">:</span>
+            <span class="c1"># include new input data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span>
+                <span class="s2">&quot;input.lateral.river.floodplain.volume&quot;</span><span class="p">,</span> <span class="s2">&quot;floodplain_volume&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># Add states</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.river.floodplain.q&quot;</span><span class="p">,</span> <span class="s2">&quot;q_floodplain&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.river.floodplain.h&quot;</span><span class="p">,</span> <span class="s2">&quot;h_floodplain&quot;</span><span class="p">)</span>
+            <span class="c1"># Remove local-inertial land states</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qx&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;qy&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.land.q&quot;</span><span class="p">,</span> <span class="s2">&quot;q_land&quot;</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.land.q&quot;</span><span class="p">,</span> <span class="s2">&quot;q_land&quot;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># include new input data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.river.bankfull_elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.land.elevation&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="c1"># Remove kinematic-wave and 1d floodplain states</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;floodplain&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;floodplain&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="c1"># Add local-inertial land routing states</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.land.qx&quot;</span><span class="p">,</span> <span class="s2">&quot;qx_land&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.land.qy&quot;</span><span class="p">,</span> <span class="s2">&quot;qy_land&quot;</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">setup_riverwidth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1119,7 +1289,7 @@ document.write(`
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        gauges_fn : str, {&quot;grdc&quot;}, optional</span>
-<span class="sd">            Known source name or path to gauges file geometry file, by default None.</span>
+<span class="sd">            Known source name or path to gauges file geometry file, by default &quot;grdc&quot;.</span>
 <span class="sd">        source_gdf : geopandas.GeoDataFame, optional</span>
 <span class="sd">            Direct gauges file geometry, by default None.</span>
 <span class="sd">        index_col : str, optional</span>

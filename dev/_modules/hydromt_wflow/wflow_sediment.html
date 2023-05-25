@@ -454,6 +454,18 @@ document.write(`
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span></div>
 
+<div class="viewcode-block" id="WflowSedimentModel.setup_rivers"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers">[docs]</a>    <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components copies the functionality of WflowModel, but removes the</span>
+<span class="sd">        river_routing key from the config</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        hydromt.WflowModel.setup_rivers</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_rivers</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;river_routing&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="WflowSedimentModel.setup_lakes"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
 <span class="sd">        with average lake area, depth a discharge values.</span>
@@ -666,8 +678,8 @@ document.write(`
         <span class="p">],</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This component derives several wflow maps are derived based on landuse-</span>
-<span class="sd">        landcover (LULC) data. </span>
-<span class="sd">        </span>
+<span class="sd">        landcover (LULC) data.</span>
+
 <span class="sd">        Currently, ``lulc_fn`` can be set to the &quot;vito&quot;, &quot;globcover&quot;</span>
 <span class="sd">        or &quot;corine&quot;, fo which lookup tables are constructed to convert lulc classses to</span>
 <span class="sd">        model parameters based on literature. The data is remapped at its original</span>
@@ -677,7 +689,7 @@ document.write(`
 <span class="sd">        Adds model layers:</span>
 
 <span class="sd">        * **landuse** map: Landuse class [-]</span>
-<span class="sd">            Original source dependent LULC class, resampled using nearest neighbour.       </span>
+<span class="sd">            Original source dependent LULC class, resampled using nearest neighbour.</span>
 <span class="sd">        * **Cov_river** map: vegetation coefficent reducing stream bank erosion [-].</span>
 <span class="sd">        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]</span>
 <span class="sd">        * **Sl** map: Specific leaf storage [mm]</span>

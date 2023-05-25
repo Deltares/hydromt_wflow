@@ -434,8 +434,10 @@ document.write(`
 <h3>Added<a class="headerlink" href="#added" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support in toml for dir_input and dir_output options. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/140">PR #140</a></p></li>
+<li><p>Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined <code class="docutils literal notranslate"><span class="pre">penman-monteith_tdew</span></code> (inputs: [‘temp’, ‘temp_min’, ‘temp_max’, ‘wind_u’, ‘wind_v’, ‘temp_dew’, ‘kin’, ‘press_msl’]) and <code class="docutils literal notranslate"><span class="pre">penman-monteith_rh_simple</span></code> (inputs: [‘temp’, ‘temp_min’, ‘temp_max’, ‘wind’, ‘rh’, ‘kin’]).</p></li>
 <li><p>In <strong>setup_reservoirs</strong>: Global Water Watch compatibility for determining reservoir parameters.</p></li>
 <li><p>In <strong>setup_reservoirs</strong>: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.</p></li>
+<li><p>New <strong>setup_floodplains</strong> method, that allows the user the choose either 1D or 2D floodplains. Note: requires pyflwdir v0.5.7. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/123">PR #123</a></p></li>
 </ul>
 </section>
 <section id="changed">
@@ -444,8 +446,11 @@ document.write(`
 <li><p>Default tomls are now using the dir_output option to specify <em>run_default</em> folder.</p></li>
 <li><p>in <strong>setup_reservoirs</strong>: options ‘usehe’ and ‘priorityjrc’ are removed and replaced with ‘timeseries_fn’. Options are [‘jrc’, ‘gww’]. By default None to use reservoir_fn data directly.</p></li>
 <li><p>in <strong>setup_areamap</strong>: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file.</p></li>
+<li><p>in <strong>setup_areamap</strong>: name of the added map is based on column name of the vector data (col2raster) instead of name of the vector data file (area_fn). Allows to add several maps from one vector data file.</p></li>
 <li><p>Update docs of the developer installation guide to use pip install -e . instead of flit.</p></li>
 <li><p>Change naming of θₛ, θᵣ and kv₀ to theta_s, theta_r and kv_0 in the toml template of wflow.</p></li>
+<li><p>Merged river part of setup_hydrodem into setup_rivers functionality, and moved land part of setup_hydrodem into setup_floodplains.</p></li>
+<li><p>in <strong>setup_rivers</strong>, the value used for river_upa is now added as attribute to the rivmsk layer. This value can then be used in the <strong>setup_floodplains</strong> method.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -461,27 +466,24 @@ document.write(`
 </section>
 <section id="deprecated">
 <h3>Deprecated<a class="headerlink" href="#deprecated" title="Permalink to this heading">#</a></h3>
-<section id="id1">
-<h4>Added<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
-<li><p>add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined <code class="docutils literal notranslate"><span class="pre">penman-monteith_tdew</span></code> (inputs: [‘temp’, ‘temp_min’, ‘temp_max’, ‘wind_u’, ‘wind_v’, ‘temp_dew’, ‘kin’, ‘press_msl’]) and <code class="docutils literal notranslate"><span class="pre">penman-monteith_rh_simple</span></code> (inputs: [‘temp’, ‘temp_min’, ‘temp_max’, ‘wind’, ‘rh’, ‘kin’]).</p></li>
+<li><p>The <strong>setup_hydrodem</strong> function has been removed, and the functionality are moved to <strong>setup_rivers</strong> and <strong>setup_floodplains</strong></p></li>
 </ul>
-</section>
 </section>
 </section>
 <section id="v0-2-1-22-november-2022">
 <h2>v0.2.1 (22 November 2022)<a class="headerlink" href="#v0-2-1-22-november-2022" title="Permalink to this heading">#</a></h2>
 <p>New setup_staticmaps_from_raster method and river smoothing algorithm. Correct some bugs linked to soon
 deprecated staticmaps and staticgeoms objects in hydromt core to work with the new 0.6.0 release.</p>
-<section id="id2">
-<h3>Added<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<section id="id1">
+<h3>Added<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Parameters for landuse esa_worlcover. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/111">PR #111</a></p></li>
 <li><p>New <strong>setup_staticmaps_from_raster</strong> method. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/issues/111">PR #128</a></p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Changed<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>update forcing example with multiple forcing files #122</p></li>
 <li><p>New window smoothing algorithm in <cite>setup_rivers</cite> to avoid cells with small river length.
@@ -489,8 +491,8 @@ Set the min_rivlen_ratio argument to a value larger than zero to apply the smoot
 Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/92">PR #92</a></p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>Fixed<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<section id="id3">
+<h3>Fixed<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>write_forcing with time of type cftime.DatetimeNoLeap #109</p></li>
 <li><p>write_forcing: re-write config in case of multiple forcing files</p></li>
@@ -503,8 +505,8 @@ Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://githu
 <li><p>fix wrong default value for lai_fn in setup_laimaps #119</p></li>
 </ul>
 </section>
-<section id="id5">
-<h3>Deprecated<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<section id="id4">
+<h3>Deprecated<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
 </section>
 </section>
 <section id="v0-2-0-5-august-2022">
@@ -512,8 +514,8 @@ Note: requires pyflwdir v0.5.6 <a class="reference external" href="https://githu
 <p>We now use rioxarray to read raster data. We recommend reinstalling your hydromt and hydromt_wflow environment including the rioxarray package.
 This enables the writting of CF compliant netcdf files for wflow staticmaps.nc and inmaps.nc.
 Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
-<section id="id6">
-<h3>Fixed<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<section id="id5">
+<h3>Fixed<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>correct float32 dtype for all landuse based maps (by changing values in all lookup tables to floats)</p></li>
 <li><p>write <strong>CF-compliant</strong> staticmaps.nc and inmaps.nc</p></li>
@@ -521,8 +523,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <li><p>update times in config depending on forcing date range availability in <strong>write_forcing</strong> methods #97</p></li>
 </ul>
 </section>
-<section id="id7">
-<h3>Changed<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<section id="id6">
+<h3>Changed<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>In the naming of the generated hydrodem map, it is now specified if a D4 or D8 conditionning has been applied for land cells.</p></li>
 <li><p>uint8 dtype <em>wflow_rivers</em> and <em>wflow_streamorder</em> maps</p></li>
@@ -534,8 +536,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <li><p>in <strong>setup_reservoirs</strong> and <strong>setup_lakes</strong> the predicate ‘contains’ to open data is now officially used after a bugfix in hydromt core (cf #150).</p></li>
 </ul>
 </section>
-<section id="id8">
-<h3>Added<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>nodata argument to <strong>setup_areamap</strong> with a default of -1 (was 0 and not user defined).</p></li>
 </ul>
@@ -543,8 +545,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 </section>
 <section id="v0-1-4-18-february-2022">
 <h2>v0.1.4 (18 February 2022)<a class="headerlink" href="#v0-1-4-18-february-2022" title="Permalink to this heading">#</a></h2>
-<section id="id9">
-<h3>Changed<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>setup_riverwidth</strong> method <strong>deprecated</strong> (will be removed in future versions) in favour of setup_rivers. We suggest to remove the setup_riverwidth component from your ini files.</p></li>
 <li><p><strong>setup_rivers</strong> calculate river width and depth based on the attributes of the new <strong>river_geom_fn</strong> river geometry file. We suggest adding “river_geom_fn = rivers_lin2019_v1” to the setup_rivers component of your ini files.</p></li>
@@ -552,8 +554,8 @@ Following an update in xarray, hydromt version should be &gt;= 0.5.0.</p>
 <li><p>Possibility to use any dataset and not just the default ones for setup_laimaps, setup_lakes, setup_glaciers. See the documentation for data requirements.</p></li>
 </ul>
 </section>
-<section id="id10">
-<h3>Added<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<section id="id9">
+<h3>Added<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Possibility to write_forcing in several files based on time frequency (fn_freq argument).</p></li>
 <li><p>setup_hydrodem method for hydrological conditioned elevation used with “local-inertial” routing</p></li>
@@ -564,8 +566,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>new <code class="docutils literal notranslate"><span class="pre">index_col</span></code> attribute to setup_gauges to choose a specific column of gauges_fn as ID for Wflow_gauges</p></li>
 </ul>
 </section>
-<section id="id11">
-<h3>Fixed<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<section id="id10">
+<h3>Fixed<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Calculation of lake_b parameter in setup_lakes.</p></li>
 <li><p>Add a minimum averaged discharge to lakes to avoid division by zero when computing lake_b.</p></li>
@@ -580,8 +582,8 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-3-4-october-2021">
 <h2>v0.1.3 (4 October 2021)<a class="headerlink" href="#v0-1-3-4-october-2021" title="Permalink to this heading">#</a></h2>
 <p>This release adds pyflwdir v0.5 compatibility and a data_catalog of the used data to the write_method.</p>
-<section id="id12">
-<h3>Added<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<section id="id11">
+<h3>Added<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>write data_catalog with the used data when writing model</p></li>
@@ -589,14 +591,14 @@ Note that the new river width estimates are different and result in different mo
 </ul>
 </div></blockquote>
 </section>
-<section id="id13">
-<h3>Changed<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
+<section id="id12">
+<h3>Changed<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>TOML files only contains reservoir/lake/glacier lines when they are setup and present in the model region.</p></li>
 </ul>
 </section>
-<section id="id14">
-<h3>Fixed<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<section id="id13">
+<h3>Fixed<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>pyflwdir v0.5 compatibility: changes from stream order bugfix and improved river slope</p></li>
@@ -610,8 +612,8 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-2-1-september-2021">
 <h2>v0.1.2 (1 September 2021)<a class="headerlink" href="#v0-1-2-1-september-2021" title="Permalink to this heading">#</a></h2>
 <p>This release implements the new results attributes for Wflow.</p>
-<section id="id15">
-<h3>Added<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<section id="id14">
+<h3>Added<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add results attributes for Wflow and read_results method (including test+example).</p></li>
 <li><p>Add <cite>f_</cite> parameter in soilgrids</p></li>
@@ -621,8 +623,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>New utils.py script for low_level Wflow methods.</p></li>
 </ul>
 </section>
-<section id="id16">
-<h3>Changed<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<section id="id15">
+<h3>Changed<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>wfow_sbm.toml remove netcdf output.</p></li>
 <li><p>Wflow_soil map is now based on soil texture calculated directly from soilgrids data</p></li>
@@ -630,8 +632,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>Wflow_sbm.toml now includes links to staticmaps of glacier parameters and outstate of glacierstore is added.</p></li>
 </ul>
 </section>
-<section id="id17">
-<h3>Fixed<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
+<section id="id16">
+<h3>Fixed<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix f parameter in soilgrids</p></li>
 <li><p>Full reading and writing of Wflow filepaths depending on the toml file (including subfolders).</p></li>
@@ -649,22 +651,22 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-1-21-may-2021">
 <h2>v0.1.1 (21 May 2021)<a class="headerlink" href="#v0-1-1-21-may-2021" title="Permalink to this heading">#</a></h2>
 <p>This release adds more functionnality for saving forcing data for Wflow and fixes several bugs for some parameter values and soilgrids workflow.</p>
-<section id="id18">
-<h3>Added<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<section id="id17">
+<h3>Added<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Write the forcing with user defined chunking on time (default is 1) and none on the lat/lon dimensions (makes Wflow.jl run much faster).</p></li>
 <li><p>Rounding of the forcing data with user defined number of decimals (by default 2).</p></li>
 <li><p>Progress bar when writing the forcing file.</p></li>
 </ul>
 </section>
-<section id="id19">
-<h3>Changed<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h3>
+<section id="id18">
+<h3>Changed<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Remove unused imports.</p></li>
 </ul>
 </section>
-<section id="id20">
-<h3>Fixed<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<section id="id19">
+<h3>Fixed<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fixed a mistake in the computation of the lake_b parameter for Wflow.</p></li>
 <li><p>Missing no data values for soilgrids workflows.</p></li>
@@ -672,8 +674,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>New behavior of apply_ufunc from an update of xarray for passing attributes (need to specify keep_attrs=True).</p></li>
 </ul>
 </section>
-<section id="id21">
-<h3>Documentation<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
+<section id="id20">
+<h3>Documentation<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Added changelog.</p></li>
 </ul>
@@ -688,29 +690,29 @@ Note that the new river width estimates are different and result in different mo
 <section id="v0-1-0-28-april-2021">
 <h2>v0.1.0 (28 April 2021)<a class="headerlink" href="#v0-1-0-28-april-2021" title="Permalink to this heading">#</a></h2>
 <p>Initial open source release of HydroMT Wflow plugin, also published on pypi. Noticeable changes are listed below.</p>
-<section id="id22">
-<h3>Added<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h3>
+<section id="id21">
+<h3>Added<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Minimum HydroMT plugin template in the <strong>plugin-boilerplate</strong> branch.</p></li>
 <li><p>Default filename for the forcing file created by HydroMT (when the one in config already exists).</p></li>
 </ul>
 </section>
-<section id="id23">
-<h3>Changed<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
+<section id="id22">
+<h3>Changed<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Implement new get_basin_geometry from HydroMT core.</p></li>
 <li><p>Consistent setup functions arguments for data sources (‘_fn’).</p></li>
 <li><p>Rename <strong>hydrom_merit</strong> source to <strong>merit_hydro</strong> (updated version of data-artifacts).</p></li>
 </ul>
 </section>
-<section id="id24">
-<h3>Fixed<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h3>
+<section id="id23">
+<h3>Fixed<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Bugs using the clip functions</p></li>
 </ul>
 </section>
-<section id="id25">
-<h3>Documentation<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h3>
+<section id="id24">
+<h3>Documentation<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Initial version of the documentation on github-pages.</p></li>
 <li><p><strong>Latest</strong> and <strong>stable</strong> version of the documentation.</p></li>
@@ -718,8 +720,8 @@ Note that the new river width estimates are different and result in different mo
 <li><p>Add examples notebooks for the documentation.</p></li>
 </ul>
 </section>
-<section id="id26">
-<h3>Tests<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h3>
+<section id="id25">
+<h3>Tests<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Initial tests for Wflow and Wflow_sediment.</p></li>
 </ul>
@@ -778,58 +780,55 @@ Note that the new river width estimates are different and result in different mo
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#added">Added</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#changed">Changed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fixed">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
-</ul>
-</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecated">Deprecated</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-1-22-november-2022">v0.2.1 (22 November 2022)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Deprecated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Deprecated</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-2-0-5-august-2022">v0.2.0 (5 August 2022)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">Added</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-4-18-february-2022">v0.1.4 (18 February 2022)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-3-4-october-2021">v0.1.3 (4 October 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">Fixed</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-2-1-september-2021">v0.1.2 (1 September 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Fixed</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-1-21-may-2021">v0.1.1 (21 May 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">Documentation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v0-1-0-28-april-2021">v0.1.0 (28 April 2021)</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Added</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Changed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Fixed</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Documentation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">Tests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">Added</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">Changed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">Fixed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">Documentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">Tests</a></li>
 </ul>
 </li>
 </ul>

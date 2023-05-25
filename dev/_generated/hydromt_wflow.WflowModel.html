@@ -366,13 +366,13 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html">hydromt_wflow.WflowModel.setup_floodplains</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lakes.html">hydromt_wflow.WflowModel.setup_lakes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html">hydromt_wflow.WflowModel.setup_hydrodem</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
@@ -700,14 +700,14 @@ Note that this is not the HydroMT model setup configuration file!</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_constant_pars</span></code></a>([dtype, nodata])</p></td>
 <td><p>Setup constant parameter maps for all active model cells.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges" title="hydromt_wflow.WflowModel.setup_gauges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_gauges</span></code></a>([gauges_fn, source_gdf, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_floodplains.html#hydromt_wflow.WflowModel.setup_floodplains" title="hydromt_wflow.WflowModel.setup_floodplains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_floodplains</span></code></a>(hydrography_fn, ...[, ...])</p></td>
+<td><p>This components adds floodplain information to the model schematistation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges" title="hydromt_wflow.WflowModel.setup_gauges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_gauges</span></code></a>([gauges_fn, source_gdf, ...])</p></td>
 <td><p>This components sets the default gauge map based on basin outlets and additional gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers" title="hydromt_wflow.WflowModel.setup_glaciers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_glaciers</span></code></a>([glaciers_fn, min_area])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers" title="hydromt_wflow.WflowModel.setup_glaciers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_glaciers</span></code></a>([glaciers_fn, min_area])</p></td>
 <td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice convertion fraction.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_hydrodem.html#hydromt_wflow.WflowModel.setup_hydrodem" title="hydromt_wflow.WflowModel.setup_hydrodem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_hydrodem</span></code></a>([elevtn_map, river_routing, ...])</p></td>
-<td><p>This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps" title="hydromt_wflow.WflowModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a>([lai_fn])</p></td>
 <td><p>This component sets leaf area index (LAI) climatology maps per month.</p></td>
