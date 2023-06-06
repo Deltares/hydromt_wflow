@@ -892,7 +892,6 @@ class WflowModel(Model):
             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
             names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).
         """
-        # TODO check snapping locations based on upstream area attribute of the gauge data
         # Read data
         kwargs = {}
         if isfile(gauges_fn):
@@ -902,18 +901,18 @@ class WflowModel(Model):
             else:
                 code = self.crs
             kwargs.update(crs=code)
-            gdf = self.data_catalog.get_geodataframe(
+            gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
-            gdf = self.data_catalog.get_geodataframe(
+            gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
             da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
-            gdf = da.vector.to_gdf()
+            gdf_gauges = da.vector.to_gdf()
             # Check for point geometry
-            if not np.all(np.isin(gdf.geometry.type, "Point")):
+            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
         else:
             raise ValueError(
@@ -925,96 +924,16 @@ class WflowModel(Model):
             basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
 
         # Create gauge map, subcatch map and update toml
-        if gdf.index.size == 0:
+        if gdf_gauges.index.size == 0:
             self.logger.warning(f"No {gauges_fn} gauge locations found within domain")
-        else:
-            self.logger.info(
-                f"{gdf.index.size} {basename} gauge locations found within domain"
-            )
-            self.create_gauges(
-                gdf_gauges=gdf,
-                basename=basename,
-                index_col=index_col,
-                snap_to_river=snap_to_river,
-                mask=mask,
-                snap_uparea=snap_uparea,
-                max_dist=max_dist,
-                wdw=wdw,
-                rel_error=rel_error,
-                derive_subcatch=derive_subcatch,
-                toml_output=toml_output,
-                gauge_toml_header=gauge_toml_header,
-                gauge_toml_param=gauge_toml_param,
-            )
 
-    def create_gauges(
-        self,
-        gdf_gauges: gpd.GeoDataFrame,
-        basename: str,
-        index_col: Optional[str] = None,
-        snap_to_river: Optional[bool] = True,
-        mask: Optional[str] = None,
-        snap_uparea: Optional[bool] = False,
-        max_dist: Optional[float] = 10e3,
-        wdw: Optional[int] = 3,
-        rel_error: Optional[float] = 0.05,
-        derive_subcatch: Optional[bool] = False,
-        toml_output: Optional[str] = "csv",
-        gauge_toml_header: Optional[List[str]] = ["Q", "P"],
-        gauge_toml_param: Optional[List[str]] = [
-            "lateral.river.q_av",
-            "vertical.precipitation",
-        ],
-    ):
-        """This components sets a gauge map based on ``gdf_gauges`` geodataframe.
+            return
 
-        The gdf index will be used as IDs in the map. If ``snap_to_river`` is set
-        to True, the gauge location will be snapped to the boolean river mask. If
-        ``derive_subcatch`` is set to True, an additional subcatch map is derived from
-        the gauge locations.
+        # Create the gauges map
+        self.logger.info(
+            f"{gdf_gauges.index.size} {basename} gauge locations found within domain"
+        )
 
-        Adds model layers:
-
-        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
-        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
-        * **gauges_source** geom: polygon of gauges from source
-        * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)
-
-        Parameters
-        ----------
-        source_gdf : geopandas.GeoDataFame
-            Gauges GeoDataFrame geometry
-        basename : str, optional
-            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
-        index_col : str, optional
-            Column name to use as index, if None use the source_gdf index.
-        snap_to_river : bool, optional
-            Snap point locations to the closest downstream river cell, by default True
-        mask : np.boolean, optional
-            If provided snaps to the mask, else snaps to the river (default).
-        snap_uparea: bool, optional
-            Snap gauges based on upstream area. Gauges_fn should have "uparea" in its attributes.
-        max_dist : float, optional
-            Maximum distance between original and snapped point location.
-            A warning is logged if exceeded. By default 10 km.
-        wdw: int, optional
-            Window size in number of cells around discharge boundary locations
-            to snap to, only used if ``snap_uparea`` is True. By default 3.
-        rel_error: float, optional
-            Maximum relative error (default 0.05)
-            between the gauge location upstream area and the upstream area of
-            the best fit grid cell, only used if snap_area is True.
-        derive_subcatch : bool, optional
-            Derive subcatch map for gauges, by default False
-        toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
-        gauge_toml_header : list, optional
-            Save specific model parameters in csv section. This option defines the header of the csv file./
-            By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
-        gauge_toml_param: list, optional
-            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
-            names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).
-        """
         # read existing staticgeoms; important to get the right basin when updating
         self.staticgeoms
         # Reproject to model crs
@@ -1037,7 +956,17 @@ class WflowModel(Model):
             mask = self._MAPS["rivmsk"]
         if mask is not None:
             mask = self.staticmaps[mask].values
-        if mask is not None:
+        if snap_uparea and "uparea" in gdf_gauges.columns:
+            # Derive gauge map based on upstream area snapping
+            da, idxs, ids = workflows.gauge_map_uparea(
+                self.staticmaps,
+                gdf_gauges,
+                uparea_name="wflow_uparea",
+                wdw=wdw,
+                rel_error=rel_error,
+                logger=self.logger,
+            )
+        else:
             # Derive gauge map
             da, idxs, ids = flw.gauge_map(
                 self.staticmaps,
@@ -1057,16 +986,7 @@ class WflowModel(Model):
                 ids_new = np.unique(da.values[da.values > 0])
                 idxs = idxs[np.isin(ids_old, ids_new)]
                 ids = da.values.flat[idxs]
-        elif snap_uparea and "uparea" in gdf_gauges.columns:
-            # Derive gauge map based on upstream area snapping
-            da, idxs, ids = workflows.gauge_map_uparea(
-                self.staticmaps,
-                gdf_gauges,
-                uparea_name="wflow_uparea",
-                wdw=wdw,
-                rel_error=rel_error,
-                logger=self.logger,
-            )
+
         # Add to staticmaps
         mapname = f'{str(self._MAPS["gauges"])}_{basename}'
         self.set_staticmaps(da, name=mapname)

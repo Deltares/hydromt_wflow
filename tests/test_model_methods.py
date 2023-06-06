@@ -134,3 +134,28 @@ def test_setup_gauges():
     ds_samp = mod.staticmaps[["wflow_river", "wflow_uparea"]].raster.sample(gdf, wdw=0)
     assert np.all(ds_samp["wflow_river"].values == 1)
     assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
+
+    # Test with/without snapping
+    stations_fn = join(EXAMPLEDIR, "test_stations.csv")
+    mod.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_snapping",
+        snap_to_river=True,
+        mask=None,
+    )
+    gdf_snap = mod.staticgeoms["gauges_stations_snapping"]
+
+    mod.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_no_snapping",
+        snap_to_river=False,
+        mask=None,
+    )
+    gdf_no_snap = mod.staticgeoms["gauges_stations_no_snapping"]
+
+    # Check that not all geometries of gdf_snap and gdf_no_snap are equal
+    assert not gdf_snap.equals(gdf_no_snap)
+    # Find wich row is identical
+    equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
+    assert len(equal) == 1
+    assert equal.index.values[0] == 1003

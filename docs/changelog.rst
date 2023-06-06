@@ -19,7 +19,6 @@ Added
 - **setup_config_output_timeseries**: add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
 - **setup_gauges**: support for snapping based on a user defined max distance and snapping based on upstream area attribute.
 - **setup_gauges**: gauges_fn can be both GeoDataFrame or GeoDataset (new) data_type.
-- **create_gauges**: submethod to add gauges directly from a geopandas.geodataframe object rather than a data source from catalog.
 
 Changed
 -------
