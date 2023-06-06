@@ -14,6 +14,7 @@ from shapely.geometry import box
 import pyproj
 import toml
 import codecs
+import pyflwdir
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
@@ -241,14 +242,17 @@ class WflowModel(Model):
         self,
         hydrography_fn,
         river_geom_fn=None,
-        river_upa=30,
-        rivdph_method="powlaw",
-        slope_len=2e3,
+        river_upa: float = 30,
+        rivdph_method: str = "powlaw",
+        slope_len: float = 2e3,
         min_rivlen_ratio=0.0,
-        min_rivdph=1,
-        min_rivwth=30,
-        smooth_len=5e3,
+        min_rivdph: float = 1,
+        min_rivwth: float = 30,
+        smooth_len: float = 5e3,
         rivman_mapping_fn=join(DATADIR, "wflow", "N_river_mapping.csv"),
+        elevtn_map: str = "wflow_dem",
+        river_routing: str = "kinematic-wave",
+        connectivity: int = 8,
         **kwargs,
     ):
         """
@@ -278,6 +282,14 @@ class WflowModel(Model):
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
+        If `river_routing` is set to "local-inertial", the bankfull elevantion map can be
+        conditioned based on the average cell elevation ("wflow_dem") or subgrid outlet pixel
+        elevation ("dem_subgrid"). The subgrid elevation might provide a better representation
+        of the river elevation profile, however in combination with local-inertial land routing
+        (see `hydromt.setup_floodplains`) the subgrid elevation will likely overestimate the
+        floodplain storage capacity. Note that the same input elevation map should be used for
+        river bankfull elevation and land elevation when using local-inertial land routing.
+
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
@@ -287,6 +299,7 @@ class WflowModel(Model):
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
 
         Parameters
         ----------
@@ -311,20 +324,35 @@ class WflowModel(Model):
             For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+        river_routing : {'kinematic-wave', 'local-inertial'}
+            Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
             Length [m] over which to smooth the output river width and depth, by default 5e3
         min_rivdph : float, optional
             Minimum river depth [m], by default 1.0
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
+        elevtn_map : str, optional
+            by default "wflow_dem",
 
         See Also
         --------
         workflows.river_bathymetry
         hydromt.workflows.river_depth
         pyflwdir.FlwdirRaster.river_depth
+        hydromt.setup_floodplains
         """
         self.logger.info(f"Preparing river maps.")
+
+        rivdph_methods = ["gvf", "manning", "powlaw"]
+        if rivdph_method not in rivdph_methods:
+            raise ValueError(f'"{rivdph_method}" unknown. Select from {rivdph_methods}')
+
+        routing_options = ["kinematic-wave", "local-inertial"]
+        if river_routing not in routing_options:
+            raise ValueError(
+                f'river_routing="{river_routing}" unknown. Select from {routing_options}.'
+            )
 
         # read data
         ds_hydro = self.data_catalog.get_rasterdataset(
@@ -343,6 +371,10 @@ class WflowModel(Model):
             min_rivlen_ratio=min_rivlen_ratio,
             logger=self.logger,
         )[0]
+
+        ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
+            river_upa=river_upa, slope_len=slope_len, min_rivlen_ratio=min_rivlen_ratio
+        )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
@@ -394,96 +426,234 @@ class WflowModel(Model):
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
 
-    def setup_hydrodem(
+        # Add hydrologically conditioned elevation map for the river, if required
+        if river_routing == "local-inertial":
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
+            name = f"hydrodem{postfix}"
+
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps[elevtn_map],
+                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+                logger=self.logger,
+            ).rename(name)
+            self.set_staticmaps(ds_out)
+
+            # update toml model.river_routing
+            self.logger.debug(
+                f'Update wflow config model.river_routing="{river_routing}"'
+            )
+            self.set_config("model.river_routing", river_routing)
+
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+        else:
+            self.set_config("model.river_routing", river_routing)
+
+    def setup_floodplains(
         self,
-        elevtn_map="wflow_dem",
-        river_routing="local-inertial",
-        land_routing="kinematic-wave",
+        hydrography_fn,
+        floodplain_type: str,
+        ### Options for 1D floodplains
+        river_upa: Optional[float] = None,
+        flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
+        ### Options for 2D floodplains
+        elevtn_map: str = "wflow_dem",
+        connectivity: int = 4,
     ):
-        """This component adds a hydrologically conditioned elevation (hydrodem) map for
-        river and/or land local-inertial routing.
+        """
+        This components adds floodplain information to the model schematistation. The user can
+        define what type of floodplains are required (1D or 2D), through the `floodplain_type`
+        argument.
 
-        River cells are always conditioned to D8 flow directions.  Land cells are conditioned
-        to D4 flow directions if land_routing="local-inertial", else to D8. If local inertial
-        is selected for land routing, it is required to have a D4 conditioning, otherwise pits
-        may remain in the land cells.
+        If `floodplain_type` is set to "1d", a floodplain profile is derived for every river
+        cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
+        1D floodplain schematisation.
 
-        The conditioned elevation can be based on the average cell elevation ("wflow_dem")
-        or subgrid outlet pixel elevation ("dem_subgrid"). For local-inertial river
-        routing the subgrid elevation might provide a better representation of the river
-        elevation profile, however in combination with local-inertial land routing the
-        subgrid elevation will likely overestimate the floodplain storage capacity.
+        Note, it is important to use the same river uparea value as used in the `setup_rivers`
+        method.
 
-        Note that the same input elevation map should be used for river bankfull elevation
-        and land elevation when using local-inertial land routing.
+        If `floodplain_type` is set to "2d", this component adds a hydrologically conditioned
+        elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
+        need to be conditioned to D4 flow directions otherwise pits may remain in the land
+        cells.
+
+        The conditioned elevation can be based on the average cell elevation ("wflow_dem") or
+        subgrid outlet pixel elevation ("dem_subgrid"). Note that the subgrid elevation will
+        likely overestimate the floodplain storage capacity.
+
+        Additionally, note that the same input elevation map should be used for river bankfull
+        elevation and land elevation when using local-inertial land routing.
+
+        Requires `setup_rivers` to be executed beforehand (with `river_routing` set to
+        `local-inertial`).
 
         Adds model layers:
 
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF].
+        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
+        dimension [m3] (for 1D floodplains)
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
 
         Parameters
         ----------
+        floodplain_type: {"1d", "2d"}
+            Option defining the type of floodplains, see below what arguments are related to
+            the different floodplain types
+        hydrography_fn : str, Path
+            Name of data source for hydrography data. Must be same as setup_basemaps for
+            consistent results.
+
+            * Required variables: ['flwdir', 'uparea', 'elevtn']
+        river_upa : float, optional
+            (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
+            value, as it is inferred from the staticmaps metadata, to be consistent with
+            setup_rivers.
+        flood_depths : tuple of float, optional
+            (1D floodplains) flood depths at which a volume is derived, by default
+            [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
+
         elevtn_map: {"wflow_dem", "dem_subgrid"}
-            Name of staticmap to hydrologically condition, by default "wflow_dem".
-        river_routing, land_routing : {"kinematic-wave", "local-inertial"}
-            changes wflow config model.river_routing (by default "local-inertial")
-            and model.land_routing (default "kinematic-wave")
+            (2D floodplains) Name of staticmap to hydrologically condition, by default
+            "wflow_dem"
 
         See Also
         --------
+        hydromt.workflows.river_floodplain_volume
         hydromt.flw.dem_adjust
         pyflwdir.FlwdirRaster.dem_adjust
+        hydromt.setup_rivers
         """
-        r_list = ["kinematic-wave", "local-inertial"]
-        if not elevtn_map in self.staticmaps:
-            raise ValueError(f'"{elevtn_map}" not found in staticmaps')
-        if river_routing not in r_list:
+        if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
-                f'river_routing="{river_routing}" unknown. Select from {r_list}.'
-            )
-        if land_routing not in r_list:
-            raise ValueError(
-                f'land_routing="{land_routing}" unknown. Select from {r_list}.'
+                f"Floodplains (1d or 2d) are currently only supported with local intertial river routing"
             )
 
-        postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(elevtn_map, "")
-        name = f"hydrodem{postfix}"
+        r_list = ["1d", "2d"]
+        if floodplain_type not in r_list:
+            raise ValueError(
+                f'river_routing="{floodplain_type}" unknown. Select from {r_list}.'
+            )
 
-        self.logger.info(f"Preparing {name} map for routing.")
-        connectivity = {"local-inertial": 4, "kinematic-wave": 8}[land_routing]
-        name = f"hydrodem{postfix}_D{connectivity}"
-        self.logger.info(f"Preparing {name} map for routing.")
-        ds_out = flw.dem_adjust(
-            da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
-            da_elevtn=self.staticmaps[elevtn_map],
-            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
-            flwdir=self.flwdir,
-            connectivity=connectivity,
-            river_d8=True,
-            logger=self.logger,
-        ).rename(name)
-        self.set_staticmaps(ds_out)
+        # Adjust settings based on floodplain_type selection
+        if floodplain_type == "1d":
+            floodplain_1d = True
+            land_routing = "kinematic-wave"
 
-        # update toml model.river_routing
-        self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
-        self.set_config("model.river_routing", river_routing)
+            if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
+                self.logger.warning("This method requires pyflwdir >= 0.5.6")
+                return
+
+            self.logger.info("Preparing 1D river floodplain_volume map.")
+
+            # read data
+            ds_hydro = self.data_catalog.get_rasterdataset(
+                hydrography_fn, geom=self.region, buffer=10
+            )
+
+            # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
+            new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
+                "river_upa", river_upa
+            )
+            if new_river_upa is None:
+                raise ValueError(
+                    "No value for `river_upa` specified, and the value cannot be inferred from the staticmaps attributes"
+                )
+            elif new_river_upa != river_upa and river_upa is not None:
+                raise ValueError(
+                    f"Value specified for river_upa ({river_upa}) is different from the value found in the staticmaps ({new_river_upa})"
+                )
+            self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
+
+            # get river floodplain volume
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            da_fldpln = workflows.river_floodplain_volume(
+                ds=ds_hydro,
+                ds_model=self.staticmaps.rename(inv_rename),
+                river_upa=new_river_upa,
+                flood_depths=flood_depths,
+                logger=self.logger,
+            )
+
+            # check if the layer already exists, since overwriting with different flood_depth values is not working properly if this is the case
+            if "floodplain_volume" in self.staticmaps:
+                self.logger.warning(
+                    "Layer `floodplain_volume` already in staticmaps, removing layer and `flood_depth` dimension to ensure correctly setting new flood_depth dimensions"
+                )
+                self._staticmaps = self._staticmaps.drop_dims("flood_depth")
+
+            self.set_staticmaps(da_fldpln, "floodplain_volume")
+
+        elif floodplain_type == "2d":
+            floodplain_1d = False
+            land_routing = "local-inertial"
+
+            if not elevtn_map in self.staticmaps:
+                raise ValueError(f'"{elevtn_map}" not found in staticmaps')
+
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
+            name = f"hydrodem{postfix}"
+
+            self.logger.info(f"Preparing {name} map for land routing.")
+            name = f"hydrodem{postfix}_D{connectivity}"
+            self.logger.info(f"Preparing {name} map for land routing.")
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps[elevtn_map],
+                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+                logger=self.logger,
+            ).rename(name)
+
+            self.set_staticmaps(ds_out)
+
+        # Update config
+        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
+        self.set_config("model.floodplain_1d", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
-        if river_routing == "local-inertial":
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-        if land_routing == "local-inertial":
-            self.set_config("input.lateral.land.elevation", name)
-            self.config["state"]["lateral"]["land"].pop("q", None)
-            self.config["output"]["lateral"]["land"].pop("q", None)
-            self.set_config("state.lateral.land.qx", "qx_land")
-            self.set_config("state.lateral.land.qy", "qy_land")
-        else:
+
+        if floodplain_type == "1d":
+            # include new input data
+            self.set_config(
+                "input.lateral.river.floodplain.volume", "floodplain_volume"
+            )
+            # Add states
+            self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
+            self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
+            # Remove local-inertial land states
             self.config["state"]["lateral"]["land"].pop("qx", None)
             self.config["state"]["lateral"]["land"].pop("qy", None)
             self.config["output"]["lateral"]["land"].pop("qx", None)
             self.config["output"]["lateral"]["land"].pop("qy", None)
             self.set_config("state.lateral.land.q", "q_land")
+
+        else:
+            # include new input data
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+            self.set_config("input.lateral.land.elevation", name)
+            # Remove kinematic-wave and 1d floodplain states
+            self.config["state"]["lateral"]["land"].pop("q", None)
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
+            except:
+                pass
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
+            except:
+                pass
+            self.config["output"]["lateral"]["land"].pop("q", None)
+            # Add local-inertial land routing states
+            self.set_config("state.lateral.land.qx", "qx_land")
+            self.set_config("state.lateral.land.qy", "qy_land")
 
     def setup_riverwidth(
         self,
@@ -718,7 +888,7 @@ class WflowModel(Model):
         Parameters
         ----------
         gauges_fn : str, {"grdc"}, optional
-            Known source name or path to gauges file geometry file, by default None.
+            Known source name or path to gauges file geometry file, by default "grdc".
         source_gdf : geopandas.GeoDataFame, optional
             Direct gauges file geometry, by default None.
         index_col : str, optional
@@ -887,7 +1057,7 @@ class WflowModel(Model):
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
         Adds model layer:
-        * **area_fn** map:  output area data map
+        * **col2raster** map:  output area data map
         Parameters
         ----------
         area_fn : str
@@ -901,7 +1071,7 @@ class WflowModel(Model):
             self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
             return
 
-        self.logger.info(f"Preparing '{area_fn}' map.")
+        self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
             area_fn, geom=self.basins, dst_crs=self.crs
         )
@@ -917,7 +1087,7 @@ class WflowModel(Model):
                 nodata=nodata,
                 all_touched=True,
             )
-        self.set_staticmaps(da_area.rename(area_fn))
+        self.set_staticmaps(da_area.rename(col2raster))
 
     def setup_lakes(
         self,
@@ -1030,9 +1200,9 @@ class WflowModel(Model):
 
     def setup_reservoirs(
         self,
-        reservoirs_fn="hydro_reservoirs",
-        min_area=1.0,
-        priority_jrc=True,
+        reservoirs_fn: str,
+        timeseries_fn: str = None,
+        min_area: float = 1.0,
         **kwargs,
     ):
         """This component generates maps of reservoir areas and outlets as well as parameters
@@ -1048,18 +1218,16 @@ class WflowModel(Model):
         and 'ResTargetMaxFrac' [-], the average water demand ResDemand [m3/s] and the maximum release of
         the reservoir before spilling 'ResMaxRelease' [m3/s].
 
-        In case the wflow parameters are not directly available they can be computed by HydroMT using other
-        reservoir characteristics. If not enough characteristics are available, the hydroengine tool will be
-        used to download additionnal timeseries from the JRC database.
-        The required variables for computation of the parameters with hydroengine are reservoir ID 'waterbody_id',
+        In case the wflow parameters are not directly available they can be computed by HydroMT based on time series of reservoir surface water area.
+        These time series can be retreived from either the hydroengine or the gwwapi, based on the Hylak_id the reservoir, found in the GrandD database.
+
+        The required variables for computation of the parameters with time series data are reservoir ID 'waterbody_id',
         reservoir ID in the HydroLAKES database 'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg'
         [m], average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
-        To compute parameters without using hydroengine, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
+        To compute parameters without using time series data, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
         average area 'Area_avg' [m2], average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge 'Dis_avg'
         [m3/s] and dam height 'Dam_height' [m] and minimum / normal / maximum storage capacity of the dam 'Capacity_min',
         'Capacity_norm', 'Capacity_max' [m3].
-
-
 
         Adds model layers:
 
@@ -1075,19 +1243,20 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        reservoirs_fn : {'hydro_reservoirs'}
+        reservoirs_fn : str
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
             * Required variables for direct use: ['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', 'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
 
-            * Required variables for computation with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+            * Required variables for computation with timeseries_fn: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
 
-            * Required variables for computation without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+            * Required variables for computation without timeseries_fn: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+        timeseries_fn : str {'gww', 'hydroengine', 'none'}, optional
+            Download and use time series of reservoir surface water area to calculate and overwrite the reservoir volume/areas of the data source. Timeseries are
+            either downloaded from Global Water Watch 'gww' (using gwwapi package) or JRC 'jrc' (using hydroengine package). By default None.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
-        priority_jrc : boolean, optional
-            If True, use JRC water occurrence (Pekel,2016) data from GEE to calculate
-            and overwrite the reservoir volume/areas of the data source.
+
         """
         # rename to wflow naming convention
         tbls = {
@@ -1136,11 +1305,12 @@ class WflowModel(Model):
                 reservoir_accuracy = None
             # else compute
             else:
-                intbl_reservoirs, reservoir_accuracy = workflows.reservoirattrs(
-                    gdf=gdf_org,
-                    priorityJRC=priority_jrc,
-                    usehe=kwargs.get("usehe", True),
-                    logger=self.logger,
+                (
+                    intbl_reservoirs,
+                    reservoir_accuracy,
+                    reservoir_timeseries,
+                ) = workflows.reservoirattrs(
+                    gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
                 )
                 intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
@@ -1171,6 +1341,11 @@ class WflowModel(Model):
             # Save accuracy information on reservoir parameters
             if reservoir_accuracy is not None:
                 reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
+
+            if reservoir_timeseries is not None:
+                reservoir_timeseries.to_csv(
+                    join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
+                )
 
             for option in res_toml:
                 self.set_config(option, res_toml[option])
@@ -1547,6 +1722,9 @@ class WflowModel(Model):
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
+        wind_correction: bool = True,
+        wind_altitude: int = 10,
+        reproj_method: str = "nearest_index",
         dem_forcing_fn: str = "era5_orography",
         skip_pet: str = False,
         chunksize: Optional[int] = None,
@@ -1563,15 +1741,18 @@ class WflowModel(Model):
         ----------
         temp_pet_fn : str, optional
             Name or path of data source with variables to calculate temperature and reference evapotranspiration,
-            see data/forcing_sources.yml, by default 'era5'.
+            see data/forcing_sources.yml, by default 'era5_daily_zarr'.
 
             * Required variable for temperature: ['temp']
 
             * Required variables for De Bruin reference evapotranspiration: ['temp', 'press_msl', 'kin', 'kout']
 
             * Required variables for Makkink reference evapotranspiration: ['temp', 'press_msl', 'kin']
-        pet_method : {'debruin', 'makkink'}, optional
+
+            * Required variables for daily Penman-Monteith reference evapotranspiration: either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 'wind', 'kin', 'press_msl', "wind10_u", "wind10_v"] for 'penman-monteith_tdew' (these are the variables available in ERA5)
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
+            If penman-monteith is used, requires the installation of the pyet package.
         press_correction, temp_correction : bool, optional
              If True pressure, temperature are corrected using elevation lapse rate,
              by default False.
@@ -1600,8 +1781,25 @@ class WflowModel(Model):
                 variables += ["press_msl", "kin", "kout"]
             elif pet_method == "makkink":
                 variables += ["press_msl", "kin"]
+            elif pet_method == "penman-monteith_rh_simple":
+                variables += ["temp_min", "temp_max", "wind", "rh", "kin"]
+            elif pet_method == "penman-monteith_tdew":
+                variables += [
+                    "temp_min",
+                    "temp_max",
+                    "wind10_u",
+                    "wind10_v",
+                    "temp_dew",
+                    "kin",
+                    "press_msl",
+                ]
             else:
-                methods = ["debruin", "makking"]
+                methods = [
+                    "debruin",
+                    "makking",
+                    "penman-monteith_rh_simple",
+                    "penman-monteith_tdew",
+                ]
                 ValueError(f"Unknown pet method {pet_method}, select from {methods}")
 
         ds = self.data_catalog.get_rasterdataset(
@@ -1634,13 +1832,43 @@ class WflowModel(Model):
             **kwargs,
         )
 
+        if (
+            "penman-monteith" in pet_method
+        ):  # also downscaled temp_min and temp_max for Penman needed
+            temp_max_in = hydromt.workflows.forcing.temp(
+                ds["temp_max"],
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_forcing=dem_forcing,
+                lapse_correction=temp_correction,
+                logger=self.logger,
+                freq=None,  # resample time after pet workflow
+                **kwargs,
+            )
+            temp_max_in.name = "temp_max"
+
+            temp_min_in = hydromt.workflows.forcing.temp(
+                ds["temp_min"],
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_forcing=dem_forcing,
+                lapse_correction=temp_correction,
+                logger=self.logger,
+                freq=None,  # resample time after pet workflow
+                **kwargs,
+            )
+            temp_min_in.name = "temp_min"
+
+            temp_in = xr.merge([temp_in, temp_max_in, temp_min_in])
+
         if not skip_pet:
             pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 temp=temp_in,
+                dem_model=self.staticmaps[self._MAPS["elevtn"]],
                 method=pet_method,
                 press_correction=press_correction,
+                wind_correction=wind_correction,
+                wind_altitude=wind_altitude,
+                reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
                 logger=self.logger,
@@ -1654,6 +1882,9 @@ class WflowModel(Model):
             pet_out.attrs.update(opt_attr)
             self.set_forcing(pet_out.where(mask), name="pet")
 
+        # make sure only temp is written to netcdf
+        if "penman-monteith" in pet_method:
+            temp_in = temp_in["temp"]
         # resample temp after pet workflow
         temp_out = hydromt.workflows.forcing.resample_time(
             temp_in,
@@ -1707,6 +1938,14 @@ class WflowModel(Model):
         """Read staticmaps"""
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._staticmaps = xr.Dataset()
@@ -1748,6 +1987,12 @@ class WflowModel(Model):
         # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        # Append inputdir if required
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir, self.get_config("input.path_static", fallback=fn_default)
+            )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
@@ -1853,6 +2098,14 @@ class WflowModel(Model):
         """Read forcing"""
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
+
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir, self.get_config("input.path_forcing", fallback=fn_default)
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._forcing = dict()
@@ -1913,13 +2166,20 @@ class WflowModel(Model):
             yr0 = pd.to_datetime(self.get_config("starttime")).year
             yr1 = pd.to_datetime(self.get_config("endtime")).year
             freq = self.get_config("timestepsecs")
-
             # get output filename
             if fn_out is not None:
                 self.set_config("input.path_forcing", fn_out)
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
+                if "*" in basename(fn_out):
+                    # get rid of * in case model had multiple forcing files and write to single nc file.
+                    self.logger.warning("Writing multiple forcing files to one file")
+                    fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
+                if self.get_config("dir_input") is not None:
+                    input_dir = self.get_config("dir_input", abs_path=True)
+                    fn_out = join(input_dir, fn_out)
+
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
                     self.logger.warning(
@@ -1962,33 +2222,32 @@ class WflowModel(Model):
                         fn_out = fn_default_path
 
             # Check if all dates between (starttime, endtime) are in all da forcing
+            # Check if starttime and endtime timestamps are correct
             start = pd.to_datetime(self.get_config("starttime"))
             end = pd.to_datetime(self.get_config("endtime"))
-            missings = False
+            correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
-                    if hasattr(da.indexes["time"], "to_datetimeindex"):
-                        times = da.indexes["time"].to_datetimeindex().values
-                    else:
+                    # only correct dates in toml for standard calendars:
+                    if not hasattr(da.indexes["time"], "to_datetimeindex"):
                         times = da.time.values
-                    if start < pd.to_datetime(times[0]):
-                        start = pd.to_datetime(times[0])
-                        missings = True
-                    if end > pd.to_datetime(times[-1]):
-                        end = pd.to_datetime(times[-1])
-                        missings = True
+                        if (start < pd.to_datetime(times[0])) | (start not in times):
+                            start = pd.to_datetime(times[0])
+                            correct_times = True
+                        if (end > pd.to_datetime(times[-1])) | (end not in times):
+                            end = pd.to_datetime(times[-1])
+                            correct_times = True
             # merge, process and write forcing
             ds = xr.merge([da.reset_coords(drop=True) for da in self.forcing.values()])
             ds.raster.set_crs(self.crs)
-            # Send warning, slice ds and update config with new start and end time
-            if missings:
+            # Send warning, and update config with new start and end time
+            if correct_times:
                 self.logger.warning(
                     f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
                 )
                 self.set_config("starttime", start.to_pydatetime())
                 self.set_config("endtime", end.to_pydatetime())
                 self.write_config()
-                ds = ds.sel({"time": slice(start, end)})
 
             if decimals is not None:
                 ds = ds.round(decimals)
@@ -2069,8 +2328,13 @@ class WflowModel(Model):
             # start fresh in read-only mode
             self._results = dict()
 
+        output_dir = ""
+        if self.get_config("dir_output") is not None:
+            output_dir = self.get_config("dir_output")
+
         # Read gridded netcdf (output section)
         nc_fn = self.get_config("output.path", abs_path=True)
+        nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
@@ -2079,6 +2343,9 @@ class WflowModel(Model):
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("netcdf.path", abs_path=True)
+        ncs_fn = (
+            ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
+        )
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
             ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
@@ -2086,6 +2353,9 @@ class WflowModel(Model):
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("csv.path", abs_path=True)
+        csv_fn = (
+            csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
+        )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
                 csv_fn, config=self.config, maps=self.staticmaps

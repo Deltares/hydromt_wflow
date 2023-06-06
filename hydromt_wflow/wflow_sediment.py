@@ -51,6 +51,18 @@ class WflowSedimentModel(WflowModel):
             logger=logger,
         )
 
+    def setup_rivers(self, *args, **kwargs):
+        """This components copies the functionality of WflowModel, but removes the
+        river_routing key from the config
+
+        See Also
+        --------
+        hydromt.WflowModel.setup_rivers
+        """
+        super().setup_rivers(*args, **kwargs)
+
+        self.config["model"].pop("river_routing", None)
+
     def setup_lakes(self, lakes_fn="hydro_lakes", min_area=1.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
@@ -94,20 +106,34 @@ class WflowSedimentModel(WflowModel):
 
     def setup_reservoirs(
         self,
-        reservoirs_fn="hydro_reservoirs",
-        min_area=1.0,
-        priority_jrc=True,
+        reservoirs_fn: str,
+        timeseries_fn: str = None,
+        min_area: float = 1.0,
         **kwargs,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average reservoir area, demand, min and max target storage capacities and
         discharge capacity values.
 
-        The data is generated from features with ``min_area`` [km2]
+        The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with reservoir geometry, IDs and metadata.
-        Currently, "hydro_reservoirs" (based on GRAND) is the only supported ``reservoirs_fn``
-        data source and we use a default minimum area of 1 km2.
 
+        Data requirements for direct use (ie wflow parameters are data already present in reservoirs_fn)
+        are reservoir ID 'waterbody_id', area 'ResSimpleArea' [m2], maximum volume 'ResMaxVolume' [m3],
+        the targeted minimum and maximum fraction of water volume in the reservoir 'ResTargetMinFrac'
+        and 'ResTargetMaxFrac' [-], the average water demand ResDemand [m3/s] and the maximum release of
+        the reservoir before spilling 'ResMaxRelease' [m3/s].
+
+        In case the wflow parameters are not directly available they can be computed by HydroMT based on time series of reservoir surface water area.
+        These time series can be retreived from either the hydroengine or the gwwapi, based on the Hylak_id the reservoir, found in the GrandD database.
+
+        The required variables for computation of the parameters with time series data are reservoir ID 'waterbody_id',
+        reservoir ID in the HydroLAKES database 'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg'
+        [m], average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
+        To compute parameters without using time series data, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
+        average area 'Area_avg' [m2], average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge 'Dis_avg'
+        [m3/s] and dam height 'Dam_height' [m] and minimum / normal / maximum storage capacity of the dam 'Capacity_min',
+        'Capacity_norm', 'Capacity_max' [m3].
 
         Adds model layers:
 
@@ -123,22 +149,24 @@ class WflowSedimentModel(WflowModel):
 
         Parameters
         ----------
-        reservoirs_fn : {'hydro_reservoirs'}
+        reservoirs_fn : str
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables with hydroengine: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+            * Required variables for direct use: ['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', 'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
 
-            * Required variables without hydroengine: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+            * Required variables for computation with timeseries_fn: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+
+            * Required variables for computation without timeseries_fn: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+        timeseries_fn : str {'gww', 'hydroengine', 'none'}, optional
+            Download and use time series of reservoir surface water area to calculate and overwrite the reservoir volume/areas of the data source. Timeseries are
+            either downloaded from Global Water Watch 'gww' (using gwwapi package) or JRC 'jrc' (using hydroengine package). By default None.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
-        priority_jrc : boolean, optional
-            If True, use JRC water occurence (Pekel,2016) data from GEE to calculate
-            and overwrite the reservoir volume/areas of the data source.
         """
         super().setup_reservoirs(
             reservoirs_fn=reservoirs_fn,
+            timeseries_fn=timeseries_fn,
             min_area=min_area,
-            priority_jrc=priority_jrc,
             **kwargs,
         )
         # Update the toml to match wflow_sediment and not wflow_sbm
@@ -247,8 +275,8 @@ class WflowSedimentModel(WflowModel):
         ],
     ):
         """This component derives several wflow maps are derived based on landuse-
-        landcover (LULC) data. 
-        
+        landcover (LULC) data.
+
         Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
@@ -258,7 +286,7 @@ class WflowSedimentModel(WflowModel):
         Adds model layers:
 
         * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.       
+            Original source dependent LULC class, resampled using nearest neighbour.
         * **Cov_river** map: vegetation coefficent reducing stream bank erosion [-].
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]

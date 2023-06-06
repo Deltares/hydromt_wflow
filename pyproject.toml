@@ -5,8 +5,8 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "hydromt_wflow"
 authors = [
-    {name = "Dirk Eilander", email = "dirk.eilander@deltares.nl"},
-    {name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl"},
+    { name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
+    { name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
 ]
 dependencies = [
     "hydromt >=0.5.0",
@@ -15,7 +15,7 @@ dependencies = [
     "netcdf4",
     "numpy",
     "pandas",
-    "pyflwdir>=0.5.6",
+    "pyflwdir>=0.5.7",
     "rasterio",
     "rioxarray",
     "scipy",
@@ -36,11 +36,7 @@ classifiers = [
 dynamic = ['version', 'description']
 
 [project.optional-dependencies]
-test = [
-    "pytest>=2.7.3",
-    "pytest-cov",
-    "black",
-]
+test = ["pytest>=2.7.3", "pytest-cov", "black"]
 doc = [
     "nbsphinx",
     "sphinx",

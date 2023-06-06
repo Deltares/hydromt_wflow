@@ -14,6 +14,7 @@ Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:
 
 - `toml <https://github.com/uiri/toml>`_
 - `pcraster <https://pcraster.geo.uu.nl>`_ (optional)
+- `gwwapi <https://github.com/global-water-watch/gww-api>`_ (optional)
 - `hydroengine <https://github.com/openearth/hydro-engine>`_ (optional)
 
 If you already have a python & conda installation but do not yet have mamba installed, 
@@ -72,13 +73,12 @@ channels the installation may fail.
 
 .. Note::
 
-    The hydroengine package is not available from conda and therefore has to be installed from pypi separately.
+    Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.
 
 .. code-block:: console
 
+  $ pip install gwwapi
   $ pip install hydroengine
-
-For **Using pip** from pypi (not recommended) see above
 
 Developer install
 ==================
