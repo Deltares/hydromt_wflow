@@ -13,6 +13,7 @@ from shapely.geometry import box
 import pyproj
 import toml
 import codecs
+import pyflwdir
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
@@ -239,14 +240,17 @@ class WflowModel(Model):
         self,
         hydrography_fn,
         river_geom_fn=None,
-        river_upa=30,
-        rivdph_method="powlaw",
-        slope_len=2e3,
+        river_upa: float = 30,
+        rivdph_method: str = "powlaw",
+        slope_len: float = 2e3,
         min_rivlen_ratio=0.0,
-        min_rivdph=1,
-        min_rivwth=30,
-        smooth_len=5e3,
+        min_rivdph: float = 1,
+        min_rivwth: float = 30,
+        smooth_len: float = 5e3,
         rivman_mapping_fn=join(DATADIR, "wflow", "N_river_mapping.csv"),
+        elevtn_map: str = "wflow_dem",
+        river_routing: str = "kinematic-wave",
+        connectivity: int = 8,
         **kwargs,
     ):
         """
@@ -276,6 +280,14 @@ class WflowModel(Model):
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
+        If `river_routing` is set to "local-inertial", the bankfull elevantion map can be
+        conditioned based on the average cell elevation ("wflow_dem") or subgrid outlet pixel
+        elevation ("dem_subgrid"). The subgrid elevation might provide a better representation
+        of the river elevation profile, however in combination with local-inertial land routing
+        (see `hydromt.setup_floodplains`) the subgrid elevation will likely overestimate the
+        floodplain storage capacity. Note that the same input elevation map should be used for
+        river bankfull elevation and land elevation when using local-inertial land routing.
+
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
@@ -285,6 +297,7 @@ class WflowModel(Model):
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
 
         Parameters
         ----------
@@ -309,20 +322,35 @@ class WflowModel(Model):
             For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+        river_routing : {'kinematic-wave', 'local-inertial'}
+            Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
             Length [m] over which to smooth the output river width and depth, by default 5e3
         min_rivdph : float, optional
             Minimum river depth [m], by default 1.0
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
+        elevtn_map : str, optional
+            by default "wflow_dem",
 
         See Also
         --------
         workflows.river_bathymetry
         hydromt.workflows.river_depth
         pyflwdir.FlwdirRaster.river_depth
+        hydromt.setup_floodplains
         """
         self.logger.info(f"Preparing river maps.")
+
+        rivdph_methods = ["gvf", "manning", "powlaw"]
+        if rivdph_method not in rivdph_methods:
+            raise ValueError(f'"{rivdph_method}" unknown. Select from {rivdph_methods}')
+
+        routing_options = ["kinematic-wave", "local-inertial"]
+        if river_routing not in routing_options:
+            raise ValueError(
+                f'river_routing="{river_routing}" unknown. Select from {routing_options}.'
+            )
 
         # read data
         ds_hydro = self.data_catalog.get_rasterdataset(
@@ -341,6 +369,10 @@ class WflowModel(Model):
             min_rivlen_ratio=min_rivlen_ratio,
             logger=self.logger,
         )[0]
+
+        ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
+            river_upa=river_upa, slope_len=slope_len, min_rivlen_ratio=min_rivlen_ratio
+        )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
@@ -392,102 +424,234 @@ class WflowModel(Model):
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
 
-    def setup_hydrodem(
+        # Add hydrologically conditioned elevation map for the river, if required
+        if river_routing == "local-inertial":
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
+            name = f"hydrodem{postfix}"
+
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps[elevtn_map],
+                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+                logger=self.logger,
+            ).rename(name)
+            self.set_staticmaps(ds_out)
+
+            # update toml model.river_routing
+            self.logger.debug(
+                f'Update wflow config model.river_routing="{river_routing}"'
+            )
+            self.set_config("model.river_routing", river_routing)
+
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+        else:
+            self.set_config("model.river_routing", river_routing)
+
+    def setup_floodplains(
         self,
-        elevtn_map="wflow_dem",
-        river_routing="local-inertial",
-        land_routing="kinematic-wave",
+        hydrography_fn,
+        floodplain_type: str,
+        ### Options for 1D floodplains
+        river_upa: Optional[float] = None,
+        flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
+        ### Options for 2D floodplains
+        elevtn_map: str = "wflow_dem",
+        connectivity: int = 4,
     ):
-        """This component adds a hydrologically conditioned elevation (hydrodem) map for
-        river and/or land local-inertial routing.
+        """
+        This components adds floodplain information to the model schematistation. The user can
+        define what type of floodplains are required (1D or 2D), through the `floodplain_type`
+        argument.
 
-        River cells are always conditioned to D8 flow directions.  Land cells are conditioned
-        to D4 flow directions if land_routing="local-inertial", else to D8. If local inertial
-        is selected for land routing, it is required to have a D4 conditioning, otherwise pits
-        may remain in the land cells.
+        If `floodplain_type` is set to "1d", a floodplain profile is derived for every river
+        cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
+        1D floodplain schematisation.
 
-        The conditioned elevation can be based on the average cell elevation ("wflow_dem")
-        or subgrid outlet pixel elevation ("dem_subgrid"). For local-inertial river
-        routing the subgrid elevation might provide a better representation of the river
-        elevation profile, however in combination with local-inertial land routing the
-        subgrid elevation will likely overestimate the floodplain storage capacity.
+        Note, it is important to use the same river uparea value as used in the `setup_rivers`
+        method.
 
-        Note that the same input elevation map should be used for river bankfull elevation
-        and land elevation when using local-inertial land routing.
+        If `floodplain_type` is set to "2d", this component adds a hydrologically conditioned
+        elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
+        need to be conditioned to D4 flow directions otherwise pits may remain in the land
+        cells.
+
+        The conditioned elevation can be based on the average cell elevation ("wflow_dem") or
+        subgrid outlet pixel elevation ("dem_subgrid"). Note that the subgrid elevation will
+        likely overestimate the floodplain storage capacity.
+
+        Additionally, note that the same input elevation map should be used for river bankfull
+        elevation and land elevation when using local-inertial land routing.
+
+        Requires `setup_rivers` to be executed beforehand (with `river_routing` set to
+        `local-inertial`).
 
         Adds model layers:
 
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF].
+        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
+        dimension [m3] (for 1D floodplains)
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
 
         Parameters
         ----------
+        floodplain_type: {"1d", "2d"}
+            Option defining the type of floodplains, see below what arguments are related to
+            the different floodplain types
+        hydrography_fn : str, Path
+            Name of data source for hydrography data. Must be same as setup_basemaps for
+            consistent results.
+
+            * Required variables: ['flwdir', 'uparea', 'elevtn']
+        river_upa : float, optional
+            (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
+            value, as it is inferred from the staticmaps metadata, to be consistent with
+            setup_rivers.
+        flood_depths : tuple of float, optional
+            (1D floodplains) flood depths at which a volume is derived, by default
+            [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
+
         elevtn_map: {"wflow_dem", "dem_subgrid"}
-            Name of staticmap to hydrologically condition, by default "wflow_dem".
-        river_routing, land_routing : {"kinematic-wave", "local-inertial"}
-            changes wflow config model.river_routing (by default "local-inertial")
-            and model.land_routing (default "kinematic-wave")
+            (2D floodplains) Name of staticmap to hydrologically condition, by default
+            "wflow_dem"
 
         See Also
         --------
+        hydromt.workflows.river_floodplain_volume
         hydromt.flw.dem_adjust
         pyflwdir.FlwdirRaster.dem_adjust
+        hydromt.setup_rivers
         """
-        r_list = ["kinematic-wave", "local-inertial"]
-        if not elevtn_map in self.staticmaps:
-            raise ValueError(f'"{elevtn_map}" not found in staticmaps')
-        if river_routing not in r_list:
+        if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
-                f'river_routing="{river_routing}" unknown. Select from {r_list}.'
-            )
-        if land_routing not in r_list:
-            raise ValueError(
-                f'land_routing="{land_routing}" unknown. Select from {r_list}.'
+                f"Floodplains (1d or 2d) are currently only supported with local intertial river routing"
             )
 
-        postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(elevtn_map, "")
-        name = f"hydrodem{postfix}"
+        r_list = ["1d", "2d"]
+        if floodplain_type not in r_list:
+            raise ValueError(
+                f'river_routing="{floodplain_type}" unknown. Select from {r_list}.'
+            )
 
-        self.logger.info(f"Preparing {name} map for routing.")
-        connectivity = {"local-inertial": 4, "kinematic-wave": 8}[land_routing]
-        name = f"hydrodem{postfix}_D{connectivity}"
-        self.logger.info(f"Preparing {name} map for routing.")
-        ds_out = flw.dem_adjust(
-            da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
-            da_elevtn=self.staticmaps[elevtn_map],
-            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
-            flwdir=self.flwdir,
-            connectivity=connectivity,
-            river_d8=True,
-            logger=self.logger,
-        ).rename(name)
-        self.set_staticmaps(ds_out)
+        # Adjust settings based on floodplain_type selection
+        if floodplain_type == "1d":
+            floodplain_1d = True
+            land_routing = "kinematic-wave"
 
-        # update toml model.river_routing
-        self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
-        self.set_config("model.river_routing", river_routing)
+            if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
+                self.logger.warning("This method requires pyflwdir >= 0.5.6")
+                return
+
+            self.logger.info("Preparing 1D river floodplain_volume map.")
+
+            # read data
+            ds_hydro = self.data_catalog.get_rasterdataset(
+                hydrography_fn, geom=self.region, buffer=10
+            )
+
+            # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
+            new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
+                "river_upa", river_upa
+            )
+            if new_river_upa is None:
+                raise ValueError(
+                    "No value for `river_upa` specified, and the value cannot be inferred from the staticmaps attributes"
+                )
+            elif new_river_upa != river_upa and river_upa is not None:
+                raise ValueError(
+                    f"Value specified for river_upa ({river_upa}) is different from the value found in the staticmaps ({new_river_upa})"
+                )
+            self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
+
+            # get river floodplain volume
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            da_fldpln = workflows.river_floodplain_volume(
+                ds=ds_hydro,
+                ds_model=self.staticmaps.rename(inv_rename),
+                river_upa=new_river_upa,
+                flood_depths=flood_depths,
+                logger=self.logger,
+            )
+
+            # check if the layer already exists, since overwriting with different flood_depth values is not working properly if this is the case
+            if "floodplain_volume" in self.staticmaps:
+                self.logger.warning(
+                    "Layer `floodplain_volume` already in staticmaps, removing layer and `flood_depth` dimension to ensure correctly setting new flood_depth dimensions"
+                )
+                self._staticmaps = self._staticmaps.drop_dims("flood_depth")
+
+            self.set_staticmaps(da_fldpln, "floodplain_volume")
+
+        elif floodplain_type == "2d":
+            floodplain_1d = False
+            land_routing = "local-inertial"
+
+            if not elevtn_map in self.staticmaps:
+                raise ValueError(f'"{elevtn_map}" not found in staticmaps')
+
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
+            name = f"hydrodem{postfix}"
+
+            self.logger.info(f"Preparing {name} map for land routing.")
+            name = f"hydrodem{postfix}_D{connectivity}"
+            self.logger.info(f"Preparing {name} map for land routing.")
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps[elevtn_map],
+                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+                logger=self.logger,
+            ).rename(name)
+
+            self.set_staticmaps(ds_out)
+
+        # Update config
+        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
+        self.set_config("model.floodplain_1d", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
-        remove_landq = False
-        if "output" in self.config["output"]:
-            if "land" in self.config["output"]["lateral"]:
-                remove_landq = True
-        if river_routing == "local-inertial":
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-        if land_routing == "local-inertial":
-            self.set_config("input.lateral.land.elevation", name)
-            self.config["state"]["lateral"]["land"].pop("q", None)
-            if remove_landq:
-                self.config["output"]["lateral"]["land"].pop("q", None)
-            self.set_config("state.lateral.land.qx", "qx_land")
-            self.set_config("state.lateral.land.qy", "qy_land")
-        else:
+
+        if floodplain_type == "1d":
+            # include new input data
+            self.set_config(
+                "input.lateral.river.floodplain.volume", "floodplain_volume"
+            )
+            # Add states
+            self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
+            self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
+            # Remove local-inertial land states
             self.config["state"]["lateral"]["land"].pop("qx", None)
             self.config["state"]["lateral"]["land"].pop("qy", None)
-            if remove_landq:
-                self.config["output"]["lateral"]["land"].pop("qx", None)
-                self.config["output"]["lateral"]["land"].pop("qy", None)
+            self.config["output"]["lateral"]["land"].pop("qx", None)
+            self.config["output"]["lateral"]["land"].pop("qy", None)
             self.set_config("state.lateral.land.q", "q_land")
+
+        else:
+            # include new input data
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+            self.set_config("input.lateral.land.elevation", name)
+            # Remove kinematic-wave and 1d floodplain states
+            self.config["state"]["lateral"]["land"].pop("q", None)
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
+            except:
+                pass
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
+            except:
+                pass
+            self.config["output"]["lateral"]["land"].pop("q", None)
+            # Add local-inertial land routing states
+            self.set_config("state.lateral.land.qx", "qx_land")
+            self.set_config("state.lateral.land.qy", "qy_land")
 
     def setup_riverwidth(
         self,
