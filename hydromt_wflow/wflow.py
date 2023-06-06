@@ -3,6 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
+from pathlib import Path
 from typing import Union, Optional, List
 import glob
 import numpy as np
@@ -920,9 +921,9 @@ class WflowModel(Model):
 
     def setup_lakes(
         self,
-        lakes_fn="hydro_lakes",
-        rating_curve_fn=None,
-        min_area=10.0,
+        lakes_fn: Union[str, Path],
+        rating_curve_fns: List[Union[str, Path]] = None,
+        min_area: float = 10.0,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
@@ -945,21 +946,22 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        lakes_fn : {'hydro_lakes'}
+        lakes_fn :
             Name of data source for lake parameters, see data/data_sources.yml.
 
             * Required variables for direct use: ['waterbody_id', 'Area_avg', 'Depth_avg', 'Dis_avg', 'Lake_b', 'Lake_e', 'LakeOutflowFunc', 'LakeStorFunc', 'LakeThreshold', 'LinkedLakeLocs']
 
             * Required variables for parameter estimation: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
-        rating_curve_fn: str
-            Data catalog entry containing rating curve values for lakes. If None then will be derived from
-            properties of lakes_fn.
+        rating_curve_fns: str, Path, List[str], List[Path], optional
+            Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
+            properties of lakes_fn. Assumes that the lake ID is either in the filename or data catalog entry name (eg using placeholder).
 
             * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
-            Minimum lake area threshold [km2], by default 1.0 km2.
+            Minimum lake area threshold [km2], by default 10.0 km2.
         """
 
+        # Lake seetings in the toml to update
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
@@ -974,41 +976,41 @@ class WflowModel(Model):
             "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
             "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
         }
-
+        # Derive lake are and outlet maps
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is None:
             return
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
         ds_lakes = ds_lakes.rename(rmdict)
-      
+
         # If rating_curve_fn prepare rating curve dict
         rating_dict = dict()
-        if rating_curve_fn is not None:
-            self.logger.info(f"Preparing lake rating curve data from {rating_curve_fn}")
+        if rating_curve_fns is not None:
+            rating_curve_fns = np.atleast_1d(rating_curve_fns)
             # assume lake index will be in the path
-            rating_path = self.data_catalog[rating_curve_fn].path
-            rating_fns = glob.glob(rating_path)
             # Assume one rating curve per lake index
             for id in gdf_org["waterbody_id"].values:
-                # Find if id is is one of the paths in rating_fns
-                if any([str(id) in fn for fn in rating_fns]):
+                # Find if id is is one of the paths in rating_curve_fns
+                if any([str(id) in fn for fn in rating_curve_fns]):
                     # Update path based on current waterbody_id
-                    path = [fn for fn in rating_fns if str(id) in fn][0]
-                    self.data_catalog[rating_curve_fn].path = path
+                    rating_fn = [fn for fn in rating_curve_fns if str(id) in fn][0]
                     # Read data
-                    if isfile(path):
-                        df_rate = self.data_catalog.get_dataframe(rating_curve_fn)
-                        # Reset path to original
-                        self.data_catalog[rating_curve_fn].path = rating_path    
+                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                        self.logger.info(
+                            f"Preparing lake rating curve data from {rating_fn}"
+                        )
+                        df_rate = self.data_catalog.get_dataframe(rating_fn)
                         # Add to dict
                         rating_dict[id] = df_rate
                 else:
                     self.logger.warning(
-                        f"Rating curve file {path} not found for lake with id {id}. Using default storage/outflow function parameters."
+                        f"Rating curve file {rating_fn} not found for lake with id {id}. Using default storage/outflow function parameters."
                     )
         else:
-            self.logger.info("No rating curve data provided. Using default storage/outflow function parameters.")
-        
+            self.logger.info(
+                "No rating curve data provided. Using default storage/outflow function parameters."
+            )
+
         # add waterbody parameters
         ds_lakes, gdf_lakes, rating_curves = workflows.waterbodies.lakeattrs(
             ds_lakes, gdf_org, rating_dict

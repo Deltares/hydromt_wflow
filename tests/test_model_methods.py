@@ -87,22 +87,27 @@ def test_setup_lake(tmpdir):
     # Register as new data source
     mod.data_catalog.from_dict(
         {
-            "lake_rating_test": {
+            "lake_rating_test_{index}": {
                 "data_type": "DataFrame",
                 "driver": "csv",
-                "path": join(tmpdir, "rating_curve_*.csv"),
+                "path": join(tmpdir, "rating_curve_{index}.csv"),
+                "placeholders": {
+                    "index": [str(lake_id)],
+                },
             }
         }
     )
     # Update model with it
     mod.setup_lakes(
         lakes_fn="hydro_lakes",
-        rating_curve_fn="lake_rating_test",
+        rating_curve_fns=[f"lake_rating_test_{lake_id}"],
         min_area=5,
     )
 
     assert f"lake_sh_{lake_id}" in mod.tables
     assert f"lake_hq_{lake_id}" in mod.tables
+    assert 2 in np.unique(mod.staticmaps["LakeStorFunc"].values)
+    assert 1 in np.unique(mod.staticmaps["LakeOutflowFunc"].values)
 
     # Write and read back
     mod.set_root(join(tmpdir, "wflow_lake_test"))
