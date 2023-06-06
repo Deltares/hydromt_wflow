@@ -5,12 +5,8 @@ from os.path import join, dirname, abspath
 import numpy as np
 import warnings
 import pdb
-<<<<<<< HEAD
-import numpy as np
 import pandas as pd
-=======
 import xarray as xr
->>>>>>> main
 from hydromt_wflow.wflow import WflowModel
 
 import logging
@@ -122,6 +118,7 @@ def test_setup_lake(tmpdir):
     mod.read_tables()
 
     assert mod.tables[f"lake_sh_{lake_id}"].equals(test_table)
+
 
 @pytest.mark.timeout(300)  # max 5 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
