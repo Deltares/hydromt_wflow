@@ -1297,6 +1297,7 @@ class WflowModel(Model):
             if np.all(np.isin(resattributes, gdf_org.columns)):
                 intbl_reservoirs = gdf_org[resattributes]
                 reservoir_accuracy = None
+                reservoir_timeseries = None
             # else compute
             else:
                 (
