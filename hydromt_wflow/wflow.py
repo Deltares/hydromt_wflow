@@ -1976,6 +1976,12 @@ class WflowModel(Model):
         ds_out.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
         ds_out.raster.set_spatial_dims()
 
+        # Remove FillValue Nan for x_dim, y_dim
+        encoding = dict()
+        for v in [ds_out.raster.x_dim, ds_out.raster.y_dim]:
+            ds_out[v].attrs.pop("_FillValue", None)
+            encoding[v] = {"_FillValue": None}
+
         # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
@@ -1994,7 +2000,7 @@ class WflowModel(Model):
             # nodata is required for all but boolean fields
             if ds_out[v].dtype != "bool":
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
-        ds_out.to_netcdf(fn)
+        ds_out.to_netcdf(fn, encoding=encoding)
         # self.write_staticmaps_pcr()
 
     def read_staticmaps_pcr(self, crs=4326, **kwargs):
@@ -2256,10 +2262,11 @@ class WflowModel(Model):
                 v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
                 for v in ds.data_vars.keys()
             }
-            # make sure no _FillValue is written to the time dimension
+            # make sure no _FillValue is written to the time / x_dim / y_dim dimension
             # For several forcing files add common units attributes to time
-            ds["time"].attrs.pop("_FillValue", None)
-            encoding["time"] = {"_FillValue": None}
+            for v in ["time", ds.raster.x_dim, ds.raster.y_dim]:
+                ds[v].attrs.pop("_FillValue", None)
+                encoding[v] = {"_FillValue": None}
 
             # Check if all sub-folders in fn_out exists and if not create them
             if not isdir(dirname(fn_out)):
