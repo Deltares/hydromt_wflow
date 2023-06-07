@@ -763,7 +763,7 @@ class WflowModel(Model):
         This component derives several wflow maps are derived based on landuse-
         landcover (LULC) data.
 
-        Currently, ``lulc_fn`` can be set to the "vito", "globcover"
+        Currently, ``lulc_fn`` can be set to the "vito", "globcover", "esa_worldcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
