@@ -1096,11 +1096,15 @@ class WflowModel(Model):
         min_area: float = 10.0,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
-        with average lake area, depth a discharge values.
+        with average lake area, depth and discharge values.
 
         The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with
         lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id', average area 'Area_avg' [m2],
         average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
+
+        If rating curve data is available for storage and discharge they can be preapred via ``rating_curve_fns``. Else
+        the parameters 'Lake_b' and 'Lake_e' will be used for discharge and for storage a rectangular profile lake is assumed.
+        See Wflow documentation for more information.
 
         Adds model layers:
 
@@ -1124,7 +1128,8 @@ class WflowModel(Model):
             * Required variables for parameter estimation: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
         rating_curve_fns: str, Path, List[str], List[Path], optional
             Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
-            properties of lakes_fn. Assumes that the lake ID is either in the filename or data catalog entry name (eg using placeholder).
+            properties of lakes_fn. Assumes one file per lake (with all varibales) and that the lake ID is either in the filename
+            or data catalog entry name (eg using placeholder).
 
             * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
