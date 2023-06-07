@@ -2443,11 +2443,20 @@ class WflowModel(Model):
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
         if "basins" in self.staticgeoms:
             gdf = self.staticgeoms["basins"]
-        else:
-            gdf = flw.basin_shape(
-                self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+        elif self._MAPS["basins"] in self.staticmaps:
+            gdf = (
+                self.staticmaps[self._MAPS["basins"]]
+                .raster.vectorize()
+                .set_index("value")
+                .sort_index()
             )
+            gdf.index.name = self._MAPS["basins"]
             self.set_staticgeoms(gdf, name="basins")
+        else:
+            self.logger.warning(
+                f"Basin map {self._MAPS['basins']} not found in staticmaps."
+            )
+            gdf = None
         return gdf
 
     @property
@@ -2549,10 +2558,16 @@ class WflowModel(Model):
         # self.rivers
         # now staticgeoms links to geoms which does not exist in every hydromt version
         # remove when updating wflow to new objects
-        basins = flw.basin_shape(
-            self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+        # Basin shape
+        basins = (
+            self.staticmaps[basins_name]
+            .raster.vectorize()
+            .set_index("value")
+            .sort_index()
         )
+        basins.index.name = basins_name
         self.set_staticgeoms(basins, name="basins")
+
         rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
         # Check if there are river cells in the model before continuing
         if np.any(rivmsk):
