@@ -3,6 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
+from pathlib import Path
 from typing import Union, Optional, List
 import glob
 import numpy as np
@@ -984,7 +985,7 @@ class WflowModel(Model):
 
     def setup_gauges(
         self,
-        gauges_fn: str,
+        gauges_fn: Union[str, Path, gpd.GeoDataFrame],
         index_col: Optional[str] = None,
         snap_to_river: Optional[bool] = True,
         mask: Optional[np.ndarray] = None,
@@ -1021,7 +1022,7 @@ class WflowModel(Model):
 
         Parameters
         ----------
-        gauges_fn : str, {"grdc"}, optional
+        gauges_fn : str, Path, gpd.GeoDataFrame, optional
             Known source name or path to gauges file geometry file, by default None.
 
             * Required variables if snap_uparea is True: ["uparea"]
@@ -1058,7 +1059,11 @@ class WflowModel(Model):
         """
         # Read data
         kwargs = {}
-        if isfile(gauges_fn):
+        if isinstance(gauges_fn, gpd.GeoDataFrame):
+            gdf_gauges = gauges_fn
+            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                raise ValueError(f"{gauges_fn} contains other geometries than Point")
+        elif isfile(gauges_fn):
             # try to get epsg number directly, important when writting back data_catalog
             if hasattr(self.crs, "to_epsg"):
                 code = self.crs.to_epsg()

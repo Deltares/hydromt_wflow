@@ -119,7 +119,7 @@ def test_setup_gauges():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
 
     # Initialize model and read results
-    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)   
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
     # uparea rename not in the latest artifact_data version
     mod.data_catalog["grdc"].rename = {"area": "uparea"}
     mod.setup_gauges(
@@ -160,6 +160,7 @@ def test_setup_gauges():
     equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
     assert len(equal) == 1
     assert equal.index.values[0] == 1003
+
 
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
 def test_setup_rivers(elevtn_map):
