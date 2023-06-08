@@ -168,7 +168,7 @@ class WflowModel(Model):
         self.logger.info(f"Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
-        # TODO: add a check on resolution (degree vs meter) depending on ds_org res/crs?
+
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         xy = None
@@ -198,6 +198,18 @@ class WflowModel(Model):
         self.logger.debug(f"Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
 
+        # Check on resolution (degree vs meter) depending on ds_org res/crs
+        scale_ratio = int(np.round(res / ds_org.raster.res[0]))
+        if scale_ratio < 1:
+            self.logger.error(
+                f"The model resolution {res} should be larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
+            )
+        if ds_org.raster.crs.is_geographic:
+            if res > 1:  # 111 km
+                self.logger.error(
+                    "The model resolution {res} should be smaller than 1 degree (111km) for geographic coordinate systems."
+                    "Make sure you provided res in degree rather than in meters."
+                )
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
             ds=ds_org,
@@ -236,6 +248,12 @@ class WflowModel(Model):
         # set basin geometry
         self.logger.debug(f"Adding region vector to staticgeoms.")
         self.set_staticgeoms(self.region, name="region")
+
+        # update toml for degree/meters if needed
+        if ds_base.raster.crs.is_geographic:
+            self.set_config("model.sizeinmetres", False)
+        else:
+            self.set_config("model.sizeinmetres", True)
 
     def setup_rivers(
         self,
