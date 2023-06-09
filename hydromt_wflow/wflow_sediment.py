@@ -51,6 +51,18 @@ class WflowSedimentModel(WflowModel):
             logger=logger,
         )
 
+    def setup_rivers(self, *args, **kwargs):
+        """This components copies the functionality of WflowModel, but removes the
+        river_routing key from the config
+
+        See Also
+        --------
+        hydromt.WflowModel.setup_rivers
+        """
+        super().setup_rivers(*args, **kwargs)
+
+        self.config["model"].pop("river_routing", None)
+
     def setup_lakes(self, lakes_fn="hydro_lakes", min_area=1.0):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth a discharge values.
@@ -263,8 +275,8 @@ class WflowSedimentModel(WflowModel):
         ],
     ):
         """This component derives several wflow maps are derived based on landuse-
-        landcover (LULC) data. 
-        
+        landcover (LULC) data.
+
         Currently, ``lulc_fn`` can be set to the "vito", "globcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
@@ -274,7 +286,7 @@ class WflowSedimentModel(WflowModel):
         Adds model layers:
 
         * **landuse** map: Landuse class [-]
-            Original source dependent LULC class, resampled using nearest neighbour.       
+            Original source dependent LULC class, resampled using nearest neighbour.
         * **Cov_river** map: vegetation coefficent reducing stream bank erosion [-].
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]

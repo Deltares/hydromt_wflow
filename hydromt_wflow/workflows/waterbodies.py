@@ -262,7 +262,9 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
         # get reservoirs wihtin these bounds
         gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds)
         # from the response, create a dictonary, linking the gww_id to the hylak_id (used in the default reservoir database)
-        idlink = {k["properties"]["source_id"]: k["id"] for k in gww_reservoirs}
+        idlink = {
+            k["properties"]["source_id"]: k["id"] for k in gww_reservoirs["features"]
+        }
 
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
