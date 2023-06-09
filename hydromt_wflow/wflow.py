@@ -127,7 +127,14 @@ class WflowModel(Model):
         Iterative Hydrography Upscaling (IHU).
         The default ``hydrography_fn`` is "merit_hydro" (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
         at 3 arcsec resolution) Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
-        Users can also supply their own elevation and flow direction data. Note that only EPSG:4326 base data supported.
+        Users can also supply their own elevation and flow direction data in any CRS and not only EPSG:4326.
+
+        Note that in order to define the region, using points or bounding box, the coordinates of the points / bounding box
+        should be in the same CRS than the hydrography data. The wflow model will then also be in the same CRS than the
+        hydrography data in order to avoid assumptions and reprojection errors. If the user wishes to use a different CRS,
+        we recommend first to reproject the hydrography data seperately because calling hydromt build. You can find examples
+        on how to reproject or prepare hydrography data in the
+        `prepare flow directions example notebok <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`.
 
         Adds model layers:
 

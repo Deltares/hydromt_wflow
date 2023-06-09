@@ -11,6 +11,8 @@ Unreleased
 
 Added
 -----
+- Support for models in CRS other than 4326. `PR #161 <https://github.com/Deltares/hydromt_wflow/pull/161>`_
+- Support for elevation data other than MERIT Hydro in **setup_basemaps**.
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
 - Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
@@ -41,6 +43,10 @@ Fixed
 Deprecated
 ----------
 - The **setup_hydrodem** function has been removed, and the functionality are moved to **setup_rivers** and **setup_floodplains**
+
+Documentation
+-------------
+- New **prepare_ldd** example notebook to demonstrate how to prepare flow directions and other elevation related data.
 
 
 v0.2.1 (22 November 2022)
