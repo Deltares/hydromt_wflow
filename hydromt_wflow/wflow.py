@@ -209,13 +209,13 @@ class WflowModel(Model):
         # Check on resolution (degree vs meter) depending on ds_org res/crs
         scale_ratio = int(np.round(res / ds_org.raster.res[0]))
         if scale_ratio < 1:
-            self.logger.error(
+            raise ValueError(
                 f"The model resolution {res} should be larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             )
         if ds_org.raster.crs.is_geographic:
             if res > 1:  # 111 km
-                self.logger.error(
-                    "The model resolution {res} should be smaller than 1 degree (111km) for geographic coordinate systems."
+                raise ValueError(
+                    f"The model resolution {res} should be smaller than 1 degree (111km) for geographic coordinate systems. "
                     "Make sure you provided res in degree rather than in meters."
                 )
         # setup hydrography maps and set staticmap attribute with renamed maps
@@ -258,9 +258,7 @@ class WflowModel(Model):
         self.set_staticgeoms(self.region, name="region")
 
         # update toml for degree/meters if needed
-        if ds_base.raster.crs.is_geographic:
-            self.set_config("model.sizeinmetres", False)
-        else:
+        if ds_base.raster.crs.is_projected:
             self.set_config("model.sizeinmetres", True)
 
     def setup_rivers(

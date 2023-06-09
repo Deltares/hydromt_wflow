@@ -6,6 +6,7 @@ import numpy as np
 import warnings
 import pdb
 import xarray as xr
+from hydromt import flw
 from hydromt_wflow.wflow import WflowModel
 
 import logging
@@ -55,6 +56,55 @@ def test_setup_staticmaps():
             reproject_method="average",
             wflow_variables=["input.vertical.altitude"],
         )
+
+
+def test_projected_crs(tmpdir):
+    logger = logging.getLogger(__name__)
+
+    # Instantiate wflow model
+    root = str(tmpdir.join("wflow_projected"))
+    mod = WflowModel(
+        root=root,
+        mode="w",
+        data_libs=["artifact_data", join(TESTDATADIR, "merit_utm", "merit_utm.yml")],
+        logger=logger,
+    )
+
+    # Setup basemaps
+    with pytest.raises(ValueError) as error:
+        mod.setup_basemaps(
+            region={"basin": [12.862, 45.701]},
+            res=1000,
+            hydrography_fn="merit_hydro",
+        )
+    assert str(error.value).startswith(
+        "The model resolution 1000 should be smaller than 1 degree"
+    )
+
+    with pytest.raises(ValueError) as error:
+        mod.setup_basemaps(
+            region={"basin": [1427596.0, 5735404.0]},
+            res=0.01,
+            hydrography_fn="merit_hydro_1k_utm",
+            basin_index_fn=None,
+        )
+    assert str(error.value).startswith(
+        "The model resolution 0.01 should be larger than"
+    )
+
+    mod.setup_basemaps(
+        region={"basin": [1427596.0, 5735404.0]},
+        res=2000,
+        hydrography_fn="merit_hydro_1k_utm",
+        basin_index_fn=None,
+    )
+
+    # Add more data eg landuse
+    mod.setup_lulcmaps("globcover")
+
+    assert mod.staticmaps.raster.crs == 3857
+    assert np.quantile(mod.staticmaps["wflow_landuse"], 0.95) == 190.0  # urban
+    assert mod.get_config("model.sizeinmetres") == True
 
 
 @pytest.mark.timeout(300)  # max 5 min
