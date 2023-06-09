@@ -1717,6 +1717,10 @@ class WflowModel(Model):
             missing_days_threshold=missing_days_threshold,
             logger=self.logger,
         )  # .reset_coords(drop=True)
+        #set nodata value outside basin
+        dsout = dsout.where(self.staticmaps[self._MAPS["basins"]]>0, -999)
+        for var in dsout.data_vars:
+            dsout[var].raster.set_nodata(-999)
         self.set_staticmaps(dsout)
         self.set_staticgeoms(gdf, name="rootzone_storage")
 
