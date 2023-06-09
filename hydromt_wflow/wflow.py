@@ -1609,7 +1609,7 @@ class WflowModel(Model):
         Parameters
         ----------
         run_fn : str, optional
-            Geodataset with timeseries with discharge per x,y location. 
+            Geodataset with timeseries with discharge (m3/s) per x,y location. 
             The geodataset expects the coordinate names "index" (for each station id), 
             "x" (for x coord) and "y" for y coord. 
             The default is "run_obs".
@@ -1669,26 +1669,38 @@ class WflowModel(Model):
         self.logger.info("Preparing climate based root zone storage parameter maps.")
         #TODO: make sure that forcing data has unit mm. 
         # Open the data sets
-        ds_obs = self.data_catalog.get_rasterdataset(
-            forcing_obs_fn, geom=self.region, buffer=2,
-            variables=["pet", "precip"],
-            time_tuple=time_tuple,
-        )
-        ds_cc_hist = None
-        if forcing_cc_hist_fn != None:
-            ds_cc_hist = self.data_catalog.get_rasterdataset(
-                forcing_cc_hist_fn, geom=self.region, buffer=2,
+        if isinstance(forcing_obs_fn, xr.Dataset):
+            ds_obs = forcing_obs_fn
+        else: #read from data catalog
+            ds_obs = self.data_catalog.get_rasterdataset(
+                forcing_obs_fn, geom=self.region, buffer=2,
                 variables=["pet", "precip"],
                 time_tuple=time_tuple,
-            )        
+            )
+        ds_cc_hist = None
+        if forcing_cc_hist_fn != None:
+            if isinstance(forcing_cc_hist_fn, xr.Dataset):
+                ds_cc_hist = forcing_cc_hist_fn
+            else: #read from data catalog
+                ds_cc_hist = self.data_catalog.get_rasterdataset(
+                    forcing_cc_hist_fn, geom=self.region, buffer=2,
+                    variables=["pet", "precip"],
+                    time_tuple=time_tuple,
+                )        
         ds_cc_fut = None
         if forcing_cc_fut_fn != None:
-            ds_cc_fut = self.data_catalog.get_rasterdataset(
-                forcing_cc_fut_fn, geom=self.region, buffer=2,
-                variables=["pet", "precip"],
-                time_tuple=time_tuple_fut,
-            ) 
-        dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False, time_tuple=time_tuple)
+            if isinstance(forcing_cc_fut_fn, xr.Dataset):
+                ds_cc_fut = forcing_cc_fut_fn
+            else: #read from data catalog
+                ds_cc_fut = self.data_catalog.get_rasterdataset(
+                    forcing_cc_fut_fn, geom=self.region, buffer=2,
+                    variables=["pet", "precip"],
+                    time_tuple=time_tuple_fut,
+                ) 
+        if isinstance(run_fn, xr.Dataset):
+            dsrun = run_fn
+        else: #read from data catalog
+            dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False, time_tuple=time_tuple)
         
         #make sure dsrun overlaps with ds_obs, otherwise give error
         if dsrun.time[0] < ds_obs.time[0]:
