@@ -903,6 +903,7 @@ class WflowModel(Model):
                 var_name = "variable"
                 if self.get_config("netcdf") is None:
                     self.set_config("netcdf.path", "output_scalar.nc")
+            # initialise column / varibale section
             if self.get_config(f"{toml_output}.{var_name}") is None:
                 self.set_config(f"{toml_output}.{var_name}", [])
 
@@ -1008,10 +1009,26 @@ class WflowModel(Model):
         Supported gauge datasets include "grdc"
         or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
         If a csv file is provided, a "x" or "lon" and "y" or "lat" column is required
-        and the first column will be used as IDs in the map. If ``snap_to_river`` is set
-        to True, the gauge location will be snapped to the boolean river mask. If
-        ``derive_subcatch`` is set to True, an additional subcatch map is derived from
+        and the first column will be used as IDs in the map.
+
+        There are three available methods to prepare the gauge map:
+
+        * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.
+          The gauge locations are used as is.
+        * snapping to mask: the gauge locations are snapped to a boolean mask map: either provide
+          ``mask`` or set ``snap_to_river=True`` to snap to the river (default). ``max_dist`` can be
+          used to set the maximum distance to snap to the mask.
+        * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations
+          are snapped to the closest matching upstream area value. Requires gauges_fn to have
+          an `uparea` [m] column. The closest value will be looked for in a cell window of size ``wdw``
+          and the difference between the gauge and the closest value should be smaller than ``rel_error``.
+
+        If ``derive_subcatch`` is set to True, an additional subcatch map is derived from
         the gauge locations.
+
+        Finally the output locations can be added to wflow TOML file sections [csv] or [netcdf]
+        using the ``toml_output`` option. The ``gauge_toml_header`` and ``gauge_toml_param`` options
+        can be used to define the header and corresponding wflow variable names in the TOML file.
 
         Adds model layers:
 
@@ -1035,11 +1052,11 @@ class WflowModel(Model):
         snap_uparea: bool, optional
             Snap gauges based on upstream area. Gauges_fn should have "uparea" in its attributes.
         max_dist : float, optional
-            Maximum distance between original and snapped point location.
-            A warning is logged if exceeded. By default 10 km.
+            Maximum distance [m] between original and snapped point location.
+            A warning is logged if exceeded. By default 10 000m.
         wdw: int, optional
-            Window size in number of cells around discharge boundary locations
-            to snap to, only used if ``snap_uparea`` is True. By default 3.
+            Window size in number of cells around the gauge locations
+            to snap uparea to, only used if ``snap_uparea`` is True. By default 3.
         rel_error: float, optional
             Maximum relative error (default 0.05)
             between the gauge location upstream area and the upstream area of
