@@ -9,7 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>hydromt_wflow.WflowModel.read_states &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.WflowSedimentModel.setup_outlets &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -42,11 +42,11 @@
     <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.read_states';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowSedimentModel.setup_outlets';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.write_states" href="hydromt_wflow.WflowModel.write_states.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.set_states" href="hydromt_wflow.WflowModel.set_states.html" />
+    <link rel="next" title="hydromt_wflow.WflowSedimentModel.setup_gauges" href="hydromt_wflow.WflowSedimentModel.setup_gauges.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -404,7 +404,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.update.html">hydromt_wflow.WflowModel.update</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_root.html">hydromt_wflow.WflowModel.set_root</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.get_config.html">hydromt_wflow.WflowModel.get_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_config.html">hydromt_wflow.WflowModel.set_config</a></li>
@@ -424,7 +424,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.write_forcing.html">hydromt_wflow.WflowModel.write_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.clip_forcing.html">hydromt_wflow.WflowModel.clip_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_states.html">hydromt_wflow.WflowModel.set_states</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.read_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.read_states.html">hydromt_wflow.WflowModel.read_states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.write_states.html">hydromt_wflow.WflowModel.write_states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_results.html">hydromt_wflow.WflowModel.set_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.read_results.html">hydromt_wflow.WflowModel.read_results</a></li>
@@ -433,7 +433,7 @@ document.write(`
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.html">hydromt_wflow.WflowSedimentModel</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config.html">hydromt_wflow.WflowSedimentModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html">hydromt_wflow.WflowSedimentModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_rivers.html">hydromt_wflow.WflowSedimentModel.setup_rivers</a></li>
@@ -445,7 +445,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html">hydromt_wflow.WflowSedimentModel.setup_soilmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverwidth.html">hydromt_wflow.WflowSedimentModel.setup_riverwidth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html">hydromt_wflow.WflowSedimentModel.setup_riverbedsed</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_outlets.html">hydromt_wflow.WflowSedimentModel.setup_outlets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowSedimentModel.setup_outlets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_gauges.html">hydromt_wflow.WflowSedimentModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html">hydromt_wflow.WflowSedimentModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
@@ -553,7 +553,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.WflowModel.read_states</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.WflowSedimentModel.setup_outlets</li>
   </ul>
 </nav>
 </div>
@@ -570,12 +570,37 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <section id="hydromt-wflow-wflowmodel-read-states">
-<h1>hydromt_wflow.WflowModel.read_states<a class="headerlink" href="#hydromt-wflow-wflowmodel-read-states" title="Permalink to this heading">#</a></h1>
+  <section id="hydromt-wflow-wflowsedimentmodel-setup-outlets">
+<h1>hydromt_wflow.WflowSedimentModel.setup_outlets<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-outlets" title="Permalink to this heading">#</a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.read_states">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">read_states</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.read_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.read_states" title="Permalink to this definition">#</a></dt>
-<dd><p>Read states at &lt;root/?/&gt; and parse to dict of xr.DataArray</p>
+<dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_outlets">
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_outlets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">river_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toml_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['TSS']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['lateral.river.SSconc']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_outlets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_outlets" title="Permalink to this definition">#</a></dt>
+<dd><p>This components sets the default gauge map based on basin outlets.</p>
+<blockquote>
+<div><p>Adds model layers:</p>
+<ul class="simple">
+<li><p><strong>wflow_gauges</strong> map: gauge IDs map from catchment outlets [-]</p></li>
+<li><p><strong>gauges</strong> geom: polygon of catchment outlets</p></li>
+</ul>
+<dl class="simple">
+<dt>river_only<span class="classifier">bool, optional</span></dt><dd><p>Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl>
+<dt>toml_output<span class="classifier">str, optional</span></dt><dd><blockquote>
+<div><p>One of [‘csv’, ‘netcdf’, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, ‘csv’.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>gauge_toml_header<span class="classifier">list, optional</span></dt><dd><p>Save specific model parameters in csv section. This option defines the header of the csv file./
+By default saves TSS (for lateral.river.SSconc).</p>
+</dd>
+<dt>gauge_toml_param: list, optional</dt><dd><p>Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -592,20 +617,20 @@ document.write(`
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowModel.set_states.html"
+       href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.set_states</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_riverbedsed</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.WflowModel.write_states.html"
+       href="hydromt_wflow.WflowSedimentModel.setup_gauges.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.write_states</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_gauges</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -627,14 +652,14 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.read_states"><code class="docutils literal notranslate"><span class="pre">WflowModel.read_states()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowSedimentModel.setup_outlets"><code class="docutils literal notranslate"><span class="pre">WflowSedimentModel.setup_outlets()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.read_states.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -648,7 +673,7 @@ document.write(`
 
   <div class="sidebar-secondary-item">
   <div class="tocsection sourcelink">
-    <a href="../_sources/_generated/hydromt_wflow.WflowModel.read_states.rst.txt">
+    <a href="../_sources/_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

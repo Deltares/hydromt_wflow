@@ -406,6 +406,7 @@ document.write(`
 
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">isdir</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -1251,61 +1252,224 @@ document.write(`
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">da_lai</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="s2">&quot;time&quot;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_lai</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAI&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_gauges"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges">[docs]</a>    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
+<div class="viewcode-block" id="WflowModel.setup_config_output_timeseries"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_config_output_timeseries.html#hydromt_wflow.WflowModel.setup_config_output_timeseries">[docs]</a>    <span class="k">def</span> <span class="nf">setup_config_output_timeseries</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">gauges_fn</span><span class="o">=</span><span class="s2">&quot;grdc&quot;</span><span class="p">,</span>
-        <span class="n">source_gdf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">index_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">snap_to_river</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">derive_subcatch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">derive_outlet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">basename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">update_toml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">gauge_toml_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">gauge_toml_param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="n">mapname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">toml_output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="n">header</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">],</span>
+        <span class="n">param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;lateral.river.q_av&quot;</span><span class="p">],</span>
+        <span class="n">reducer</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets and additional</span>
-<span class="sd">        gauge maps based on ``gauges_fn`` data.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets.</span>
 
-<span class="sd">        Supported gauge datasets include &quot;grdc&quot;</span>
-<span class="sd">        or &quot;&lt;path_to_source&gt;&quot; for user supplied csv or geometry files with gauge locations.</span>
-<span class="sd">        If a csv file is provided, a &quot;x&quot; or &quot;lon&quot; and &quot;y&quot; or &quot;lat&quot; column is required</span>
-<span class="sd">        and the first column will be used as IDs in the map. If ``snap_to_river`` is set</span>
-<span class="sd">        to True, the gauge location will be snapped to the boolean river mask. If</span>
-<span class="sd">        ``derive_subcatch`` is set to True, an additional subcatch map is derived from</span>
-<span class="sd">        the gauge locations.</span>
+<span class="sd">        Adds model layers:</span>
+
+<span class="sd">        * **csv.column** config: csv timeseries to save based on mapname locations</span>
+<span class="sd">        * **netcdf.variable** config: netcdf timeseries to save based on mapname locations</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mapname : str</span>
+<span class="sd">            Name of the gauge map (in staticmaps.nc) to use for scalar output.</span>
+<span class="sd">        toml_output : str, optional</span>
+<span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
+<span class="sd">        header : list, optional</span>
+<span class="sd">            Save specific model parameters in csv section. This option defines the header of the csv file./</span>
+<span class="sd">            By default saves Q (for lateral.river.q_av).</span>
+<span class="sd">        param: list, optional</span>
+<span class="sd">            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/</span>
+<span class="sd">            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).</span>
+<span class="sd">        reducer: list, optional</span>
+<span class="sd">            If map is an area rather than a point location, provides the reducer for the parameters to save. By default None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># # Add new outputcsv section in the config</span>
+        <span class="k">if</span> <span class="n">toml_output</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span> <span class="ow">or</span> <span class="n">toml_output</span> <span class="o">==</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">toml_output</span><span class="si">}</span><span class="s2"> section of toml.&quot;</span><span class="p">)</span>
+            <span class="c1"># Add map to the input section of config</span>
+            <span class="n">basename</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">mapname</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">mapname</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;wflow&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">mapname</span><span class="p">)</span>
+            <span class="c1"># Settings and add csv or netcdf sections if not already in config</span>
+            <span class="c1"># csv</span>
+            <span class="k">if</span> <span class="n">toml_output</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+                <span class="n">header_name</span> <span class="o">=</span> <span class="s2">&quot;header&quot;</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;column&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;csv.path&quot;</span><span class="p">,</span> <span class="s2">&quot;output.csv&quot;</span><span class="p">)</span>
+            <span class="c1"># netcdf</span>
+            <span class="k">if</span> <span class="n">toml_output</span> <span class="o">==</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span>
+                <span class="n">header_name</span> <span class="o">=</span> <span class="s2">&quot;name&quot;</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="s2">&quot;variable&quot;</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;netcdf&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;netcdf.path&quot;</span><span class="p">,</span> <span class="s2">&quot;output_scalar.nc&quot;</span><span class="p">)</span>
+            <span class="c1"># initialise column / varibale section</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">toml_output</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">toml_output</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+            <span class="c1"># Add new output column/variable to config</span>
+            <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">param</span><span class="p">)):</span>
+                <span class="n">gauge_toml_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">header_name</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
+                    <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="n">basename</span><span class="p">,</span>
+                    <span class="s2">&quot;parameter&quot;</span><span class="p">:</span> <span class="n">param</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
+                <span class="p">}</span>
+                <span class="k">if</span> <span class="n">reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">gauge_toml_dict</span><span class="p">[</span><span class="s2">&quot;reducer&quot;</span><span class="p">]:</span> <span class="n">reducer</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+                <span class="c1"># If the gauge column/variable already exists skip writting twice</span>
+                <span class="k">if</span> <span class="n">gauge_toml_dict</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">toml_output</span><span class="p">][</span><span class="n">var_name</span><span class="p">]:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">toml_output</span><span class="p">][</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gauge_toml_dict</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;toml_output set to </span><span class="si">{</span><span class="n">toml_output</span><span class="si">}</span><span class="s2">, skipping adding gauge specific outputs to the toml.&quot;</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WflowModel.setup_outlets"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_outlets.html#hydromt_wflow.WflowModel.setup_outlets">[docs]</a>    <span class="k">def</span> <span class="nf">setup_outlets</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">river_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="n">gauge_toml_header</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">],</span>
+        <span class="n">gauge_toml_param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lateral.river.q_av&quot;</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets.</span>
 
 <span class="sd">        Adds model layers:</span>
 
 <span class="sd">        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
+<span class="sd">        * **gauges** geom: polygon of catchment outlets</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        river_only : bool, optional</span>
+<span class="sd">            Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</span>
+<span class="sd">        toml_output : str, optional</span>
+<span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
+<span class="sd">        gauge_toml_header : list, optional</span>
+<span class="sd">            Save specific model parameters in csv section. This option defines the header of the csv file./</span>
+<span class="sd">            By default saves Q (for lateral.river.q_av).</span>
+<span class="sd">        gauge_toml_param: list, optional</span>
+<span class="sd">            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/</span>
+<span class="sd">            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># read existing staticgeoms; important to get the right basin when updating</span>
+        <span class="c1"># fix in set_staticgeoms / set_geoms method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">staticgeoms</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges locations set based on river outlets.&quot;</span><span class="p">)</span>
+        <span class="n">idxs_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">idxs_pit</span>
+        <span class="c1"># Only keep river outlets for gauges</span>
+        <span class="k">if</span> <span class="n">river_only</span><span class="p">:</span>
+            <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">idxs_out</span><span class="p">[</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs_out</span><span class="p">]</span>
+            <span class="p">]</span>
+        <span class="n">da_out</span><span class="p">,</span> <span class="n">idxs_out</span><span class="p">,</span> <span class="n">ids_out</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
+            <span class="n">idxs</span><span class="o">=</span><span class="n">idxs_out</span><span class="p">,</span>
+            <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">])</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs_out</span><span class="p">))</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">ids_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
+        <span class="p">)</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;fid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gauges&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges map based on catchment river outlets added.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_config_output_timeseries</span><span class="p">(</span>
+            <span class="n">mapname</span><span class="o">=</span><span class="s2">&quot;wflow_gauges&quot;</span><span class="p">,</span>
+            <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="n">gauge_toml_header</span><span class="p">,</span>
+            <span class="n">param</span><span class="o">=</span><span class="n">gauge_toml_param</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="WflowModel.setup_gauges"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges">[docs]</a>    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">gauges_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">snap_to_river</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">snap_uparea</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">max_dist</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10e3</span><span class="p">,</span>
+        <span class="n">wdw</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">rel_error</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="n">derive_subcatch</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">basename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">toml_output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">],</span>
+        <span class="n">gauge_toml_param</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;lateral.river.q_av&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;vertical.precipitation&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets a gauge map based on ``gauges_fn`` data.</span>
+
+<span class="sd">        Supported gauge datasets include &quot;grdc&quot;</span>
+<span class="sd">        or &quot;&lt;path_to_source&gt;&quot; for user supplied csv or geometry files with gauge locations.</span>
+<span class="sd">        If a csv file is provided, a &quot;x&quot; or &quot;lon&quot; and &quot;y&quot; or &quot;lat&quot; column is required</span>
+<span class="sd">        and the first column will be used as IDs in the map.</span>
+
+<span class="sd">        There are three available methods to prepare the gauge map:</span>
+
+<span class="sd">        * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.</span>
+<span class="sd">          The gauge locations are used as is.</span>
+<span class="sd">        * snapping to mask: the gauge locations are snapped to a boolean mask map: either provide</span>
+<span class="sd">          ``mask`` or set ``snap_to_river=True`` to snap to the river (default). ``max_dist`` can be</span>
+<span class="sd">          used to set the maximum distance to snap to the mask.</span>
+<span class="sd">        * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations</span>
+<span class="sd">          are snapped to the closest matching upstream area value. Requires gauges_fn to have</span>
+<span class="sd">          an `uparea` [km2] column. The closest value will be looked for in a cell window of size ``wdw``</span>
+<span class="sd">          and the difference between the gauge and the closest value should be smaller than ``rel_error``.</span>
+
+<span class="sd">        If ``derive_subcatch`` is set to True, an additional subcatch map is derived from</span>
+<span class="sd">        the gauge locations.</span>
+
+<span class="sd">        Finally the output locations can be added to wflow TOML file sections [csv] or [netcdf]</span>
+<span class="sd">        using the ``toml_output`` option. The ``gauge_toml_header`` and ``gauge_toml_param`` options</span>
+<span class="sd">        can be used to define the header and corresponding wflow variable names in the TOML file.</span>
+
+<span class="sd">        Adds model layers:</span>
+
 <span class="sd">        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)</span>
 <span class="sd">        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)</span>
-<span class="sd">        * **gauges** geom: polygon of catchment outlets</span>
 <span class="sd">        * **gauges_source** geom: polygon of gauges from source</span>
 <span class="sd">        * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        gauges_fn : str, {&quot;grdc&quot;}, optional</span>
-<span class="sd">            Known source name or path to gauges file geometry file, by default &quot;grdc&quot;.</span>
-<span class="sd">        source_gdf : geopandas.GeoDataFame, optional</span>
-<span class="sd">            Direct gauges file geometry, by default None.</span>
+<span class="sd">        gauges_fn : str, Path, gpd.GeoDataFrame, optional</span>
+<span class="sd">            Known source name or path to gauges file geometry file, by default None.</span>
+
+<span class="sd">            * Required variables if snap_uparea is True: [&quot;uparea&quot;]</span>
 <span class="sd">        index_col : str, optional</span>
 <span class="sd">            Column in gauges_fn to use for ID values, by default None (use the default index column)</span>
-<span class="sd">        snap_to_river : bool, optional</span>
-<span class="sd">            Snap point locations to the closest downstream river cell, by default True</span>
 <span class="sd">        mask : np.boolean, optional</span>
 <span class="sd">            If provided snaps to the mask, else snaps to the river (default).</span>
+<span class="sd">        snap_to_river : bool, optional</span>
+<span class="sd">            Snap point locations to the closest downstream river cell, by default True</span>
+<span class="sd">        snap_uparea: bool, optional</span>
+<span class="sd">            Snap gauges based on upstream area. Gauges_fn should have &quot;uparea&quot; in its attributes.</span>
+<span class="sd">        max_dist : float, optional</span>
+<span class="sd">            Maximum distance [m] between original and snapped point location.</span>
+<span class="sd">            A warning is logged if exceeded. By default 10 000m.</span>
+<span class="sd">        wdw: int, optional</span>
+<span class="sd">            Window size in number of cells around the gauge locations</span>
+<span class="sd">            to snap uparea to, only used if ``snap_uparea`` is True. By default 3.</span>
+<span class="sd">        rel_error: float, optional</span>
+<span class="sd">            Maximum relative error (default 0.05)</span>
+<span class="sd">            between the gauge location upstream area and the upstream area of</span>
+<span class="sd">            the best fit grid cell, only used if snap_area is True.</span>
 <span class="sd">        derive_subcatch : bool, optional</span>
 <span class="sd">            Derive subcatch map for gauges, by default False</span>
-<span class="sd">        derive_outlet : bool, optional</span>
-<span class="sd">            Derive gaugemap based on catchment outlets, by default True</span>
 <span class="sd">        basename : str, optional</span>
 <span class="sd">            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.</span>
-<span class="sd">        update_toml : boolean, optional</span>
-<span class="sd">            Update [outputcsv] section of wflow toml file.</span>
+<span class="sd">        toml_output : str, optional</span>
+<span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
 <span class="sd">        gauge_toml_header : list, optional</span>
 <span class="sd">            Save specific model parameters in csv section. This option defines the header of the csv file./</span>
 <span class="sd">            By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).</span>
@@ -1313,142 +1477,145 @@ document.write(`
 <span class="sd">            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/</span>
 <span class="sd">            names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Read data</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">gauges_fn</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> contains other geometries than Point&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">isfile</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">):</span>
+            <span class="c1"># try to get epsg number directly, important when writting back data_catalog</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;to_epsg&quot;</span><span class="p">):</span>
+                <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
+            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                <span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
+            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                <span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+            <span class="c1"># Check for point geometry</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> contains other geometries than Point&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> data source not found or incorrect data_type (GeoDataFrame or GeoDataset).&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create basename</span>
+        <span class="k">if</span> <span class="n">basename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Create gauge map, subcatch map and update toml</span>
+        <span class="k">if</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> gauge locations found within domain&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span>
+
+        <span class="c1"># Create the gauges map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2"> gauge locations found within domain&quot;</span>
+        <span class="p">)</span>
+
         <span class="c1"># read existing staticgeoms; important to get the right basin when updating</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">staticgeoms</span>
+        <span class="c1"># Reproject to model crs</span>
+        <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">derive_outlet</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges locations set based on river outlets.&quot;</span><span class="p">)</span>
-            <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="o">.</span><span class="n">idxs_pit</span><span class="p">)</span>
-            <span class="c1"># Only keep river outlets for gauges</span>
-            <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
-            <span class="n">ids_da</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
-            <span class="n">idxs_da</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">ids_da</span><span class="p">)]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">])</span>
-            <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs_da</span><span class="p">))</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-                <span class="n">index</span><span class="o">=</span><span class="n">ids_da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
+        <span class="c1"># Get coords, index and ID</span>
+        <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))(</span>
+            <span class="n">gdf_gauges</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xy_to_idx</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">index_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index_col</span> <span class="ow">in</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Gauge ID 0 is not allowed, setting to 1&quot;</span><span class="p">)</span>
+            <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># if snap_to_river use river map as the mask</span>
+        <span class="k">if</span> <span class="n">snap_to_river</span> <span class="ow">and</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="n">snap_uparea</span> <span class="ow">and</span> <span class="s2">&quot;uparea&quot;</span> <span class="ow">in</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="c1"># Derive gauge map based on upstream area snapping</span>
+            <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">gauge_map_uparea</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
+                <span class="n">gdf_gauges</span><span class="p">,</span>
+                <span class="n">uparea_name</span><span class="o">=</span><span class="s2">&quot;wflow_uparea&quot;</span><span class="p">,</span>
+                <span class="n">wdw</span><span class="o">=</span><span class="n">wdw</span><span class="p">,</span>
+                <span class="n">rel_error</span><span class="o">=</span><span class="n">rel_error</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;fid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ids_da</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gauges&quot;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges map based on catchment river outlets added.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Derive gauge map</span>
+            <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
+                <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span>
+                <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+                <span class="n">stream</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+                <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
+                <span class="n">max_dist</span><span class="o">=</span><span class="n">max_dist</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Filter gauges that could not be snapped to rivers</span>
+            <span class="k">if</span> <span class="n">snap_to_river</span><span class="p">:</span>
+                <span class="n">ids_old</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+                <span class="p">)</span>
+                <span class="n">ids_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="n">idxs</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids_old</span><span class="p">,</span> <span class="n">ids_new</span><span class="p">)]</span>
+                <span class="n">ids</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="n">gauges_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">source_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># append location from geometry</span>
-            <span class="c1"># TODO check snapping locations based on upstream area attribute of the gauge data</span>
-            <span class="k">if</span> <span class="n">gauges_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">):</span>
-                    <span class="c1"># try to get epsg number directly, important when writting back data_catalog</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;to_epsg&quot;</span><span class="p">):</span>
-                        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
-                    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
-                <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-                    <span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-                <span class="p">)</span>
-                <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">source_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">basename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Basename is required when setting gauges based on source_gdf&quot;</span>
-                <span class="p">)</span>
-            <span class="k">elif</span> <span class="n">source_gdf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges locations read from source_gdf&quot;</span><span class="p">)</span>
-                <span class="n">gdf</span> <span class="o">=</span> <span class="n">source_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="c1"># Add to staticmaps</span>
+        <span class="n">mapname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">])</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> gauge locations found within domain&quot;</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">basename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">basename</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
-                    <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2"> gauge locations found within domain&quot;</span>
-                <span class="p">)</span>
-                <span class="c1"># Set index to index_col</span>
-                <span class="k">if</span> <span class="n">index_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index_col</span> <span class="ow">in</span> <span class="n">gdf</span><span class="p">:</span>
-                    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
-                <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="o">.</span><span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]))(</span>
-                    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
-                <span class="p">)</span>
-                <span class="n">idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">xy_to_idx</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">ys</span><span class="p">)</span>
-                <span class="n">ids</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
+        <span class="c1"># geoms</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
+        <span class="c1"># if csv contains additional columns, these are also written in the staticgeoms</span>
+        <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
+        <span class="p">)</span>
+        <span class="c1"># Set the index name of gdf snapped based on original gdf</span>
+        <span class="k">if</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span>
+            <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span>
+        <span class="c1"># Add gdf attributes to gdf_snapped (filter on snapped index before merging)</span>
+        <span class="n">df_attrs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">))</span>
+        <span class="n">df_attrs</span> <span class="o">=</span> <span class="n">df_attrs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df_attrs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">df_attrs</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Add gdf_snapped to staticgeoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_snapped</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
 
-                <span class="k">if</span> <span class="n">snap_to_river</span> <span class="ow">and</span> <span class="n">mask</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-                <span class="n">da</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
-                    <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span>
-                    <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
-                    <span class="n">stream</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
-                    <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
-                    <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="c1"># Filter gauges that could not be snapped to rivers</span>
-                <span class="k">if</span> <span class="n">snap_to_river</span><span class="p">:</span>
-                    <span class="n">ids_old</span> <span class="o">=</span> <span class="n">ids</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                    <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
-                    <span class="p">)</span>
-                    <span class="n">ids_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">da</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
-                    <span class="n">idxs</span> <span class="o">=</span> <span class="n">idxs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">ids_old</span><span class="p">,</span> <span class="n">ids_new</span><span class="p">)]</span>
-                    <span class="n">ids</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
-                <span class="c1"># Add to staticmaps</span>
-                <span class="n">mapname</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">])</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s1">&#39;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="p">)</span>
+        <span class="c1"># Add output timeseries for gauges in the toml</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_config_output_timeseries</span><span class="p">(</span>
+            <span class="n">mapname</span><span class="o">=</span><span class="n">mapname</span><span class="p">,</span>
+            <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="n">gauge_toml_header</span><span class="p">,</span>
+            <span class="n">param</span><span class="o">=</span><span class="n">gauge_toml_param</span><span class="p">,</span>
+        <span class="p">)</span>
 
-                <span class="c1"># geoms</span>
-                <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
-                <span class="c1"># if csv contains additional columns, these are also written in the staticgeoms</span>
-                <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-                    <span class="n">index</span><span class="o">=</span><span class="n">ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
-                <span class="p">)</span>
-                <span class="c1"># Set the index name of gdf snapped based on original gdf</span>
-                <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span>
-                    <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;fid&quot;</span>
-                <span class="c1"># Add gdf attributes to gdf_snapped (filter on snapped index before merging)</span>
-                <span class="n">df_attrs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">))</span>
-                <span class="n">df_attrs</span> <span class="o">=</span> <span class="n">df_attrs</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">df_attrs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
-                <span class="n">gdf_snapped</span> <span class="o">=</span> <span class="n">gdf_snapped</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-                    <span class="n">df_attrs</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
-                <span class="p">)</span>
-                <span class="c1"># Add gdf_snapped to staticgeoms</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_snapped</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-
-                <span class="c1"># # Add new outputcsv section in the config</span>
-                <span class="k">if</span> <span class="n">gauge_toml_param</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">update_toml</span><span class="p">:</span>
-                    <span class="n">gauge_toml_header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;P&quot;</span><span class="p">]</span>
-                    <span class="n">gauge_toml_param</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;lateral.river.q_av&quot;</span><span class="p">,</span> <span class="s2">&quot;vertical.precipitation&quot;</span><span class="p">]</span>
-
-                <span class="k">if</span> <span class="n">update_toml</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;input.gauges_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gauge_toml_param</span><span class="p">)):</span>
-                            <span class="n">gauge_toml_dict</span> <span class="o">=</span> <span class="p">{</span>
-                                <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="n">gauge_toml_header</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
-                                <span class="s2">&quot;map&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;parameter&quot;</span><span class="p">:</span> <span class="n">gauge_toml_param</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
-                            <span class="p">}</span>
-                            <span class="c1"># If the gauge outcsv column already exists skip writting twice</span>
-                            <span class="k">if</span> <span class="n">gauge_toml_dict</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]:</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;csv&quot;</span><span class="p">][</span><span class="s2">&quot;column&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gauge_toml_dict</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gauges map from </span><span class="si">{</span><span class="n">basename</span><span class="si">}</span><span class="s2"> added.&quot;</span><span class="p">)</span>
-
-                <span class="c1"># add subcatch</span>
-                <span class="k">if</span> <span class="n">derive_subcatch</span><span class="p">:</span>
-                    <span class="n">da_basins</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">basin_map</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">ids</span>
-                    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">mapname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">basename</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="p">)</span>
-                    <span class="n">gdf_basins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">mapname</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span></div>
+        <span class="c1"># add subcatch</span>
+        <span class="k">if</span> <span class="n">derive_subcatch</span><span class="p">:</span>
+            <span class="n">da_basins</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">basin_map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span> <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">)[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>
+            <span class="n">mapname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">basename</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="p">)</span>
+            <span class="n">gdf_basins</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">mapname</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">mapname</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;wflow_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="WflowModel.setup_areamap"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap">[docs]</a>    <span class="k">def</span> <span class="nf">setup_areamap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

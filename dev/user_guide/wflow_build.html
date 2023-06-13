@@ -544,6 +544,9 @@ to a model component with the same name.</p>
 <span class="na">soil_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">soilgrids</span><span class="w">     </span><span class="c1"># source for soilmaps: {soilgrids}</span>
 <span class="na">ptf_ksatver</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">brakensiek</span><span class="w">    </span><span class="c1"># pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}</span>
 
+<span class="k">[setup_outlets]</span>
+<span class="na">river_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
 <span class="k">[setup_gauges]</span>
 <span class="na">gauges_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">grdc</span><span class="w">          </span><span class="c1"># if not None add gaugemap. Either a path or known gauges_fn: {grdc}</span>
 <span class="na">snap_to_river</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True snaps gauges from source to river</span>

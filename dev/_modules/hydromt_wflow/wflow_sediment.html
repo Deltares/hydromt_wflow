@@ -585,6 +585,40 @@ document.write(`
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.river.reservoir&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;reservoir&quot;</span><span class="p">]</span></div>
 
+<div class="viewcode-block" id="WflowSedimentModel.setup_outlets"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets">[docs]</a>    <span class="k">def</span> <span class="nf">setup_outlets</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">river_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="n">gauge_toml_header</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;TSS&quot;</span><span class="p">],</span>
+        <span class="n">gauge_toml_param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lateral.river.SSconc&quot;</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets.</span>
+
+<span class="sd">         Adds model layers:</span>
+
+<span class="sd">         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
+<span class="sd">         * **gauges** geom: polygon of catchment outlets</span>
+
+<span class="sd">         Parameters</span>
+<span class="sd">         ----------</span>
+<span class="sd">         river_only : bool, optional</span>
+<span class="sd">             Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</span>
+<span class="sd">        toml_output : str, optional</span>
+<span class="sd">             One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
+<span class="sd">         gauge_toml_header : list, optional</span>
+<span class="sd">             Save specific model parameters in csv section. This option defines the header of the csv file./</span>
+<span class="sd">             By default saves TSS (for lateral.river.SSconc).</span>
+<span class="sd">         gauge_toml_param: list, optional</span>
+<span class="sd">             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/</span>
+<span class="sd">             names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_outlets</span><span class="p">(</span>
+            <span class="n">river_only</span><span class="o">=</span><span class="n">river_only</span><span class="p">,</span>
+            <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
+            <span class="n">gauge_toml_header</span><span class="o">=</span><span class="n">gauge_toml_header</span><span class="p">,</span>
+            <span class="n">gauge_toml_param</span><span class="o">=</span><span class="n">gauge_toml_param</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
 <div class="viewcode-block" id="WflowSedimentModel.setup_gauges"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges">[docs]</a>    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gauges_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -592,15 +626,13 @@ document.write(`
         <span class="n">snap_to_river</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">derive_subcatch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">derive_outlet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">basename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">update_toml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">gauge_toml_header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">gauge_toml_param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span>
+        <span class="n">gauge_toml_header</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;TSS&quot;</span><span class="p">],</span>
+        <span class="n">gauge_toml_param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lateral.river.q_riv&quot;</span><span class="p">,</span> <span class="s2">&quot;lateral.river.SSconc&quot;</span><span class="p">],</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets and additional</span>
-<span class="sd">        gauge maps based on ``gauges_fn`` data.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets a gauge map based on ``gauges_fn`` data.</span>
 
 <span class="sd">        Supported gauge datasets include &quot;grdc&quot;</span>
 <span class="sd">        or &quot;&lt;path_to_source&gt;&quot; for user supplied csv or geometry files with gauge locations.</span>
@@ -612,10 +644,8 @@ document.write(`
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
 <span class="sd">        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)</span>
 <span class="sd">        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)</span>
-<span class="sd">        * **gauges** geom: polygon of catchment outlets</span>
 <span class="sd">        * **gauges_source** geom: polygon of gauges from source</span>
 <span class="sd">        * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)</span>
 
@@ -635,8 +665,8 @@ document.write(`
 <span class="sd">            Derive gaugemap based on catchment outlets, by default True</span>
 <span class="sd">        basename : str, optional</span>
 <span class="sd">            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.</span>
-<span class="sd">        update_toml : boolean, optional</span>
-<span class="sd">            Update [outputcsv] section of wflow toml file.</span>
+<span class="sd">        toml_output : str, optional</span>
+<span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
 <span class="sd">        gauge_toml_header : list, optional</span>
 <span class="sd">            Save specific model parameters in csv section. This option defines the header of the csv file./</span>
 <span class="sd">            By default saves Q (for lateral.river.q_riv) and TSS (for lateral.river.SSconc).</span>
@@ -645,18 +675,14 @@ document.write(`
 <span class="sd">            names in gauge_toml_header. By default saves lateral.river.q_riv (for Q) and lateral.river.SSconc (for TSS).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># # Add new outputcsv section in the config</span>
-        <span class="k">if</span> <span class="n">gauge_toml_param</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">update_toml</span><span class="p">:</span>
-            <span class="n">gauge_toml_header</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;TSS&quot;</span><span class="p">]</span>
-            <span class="n">gauge_toml_param</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;lateral.river.q_riv&quot;</span><span class="p">,</span> <span class="s2">&quot;lateral.river.SSconc&quot;</span><span class="p">]</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_gauges</span><span class="p">(</span>
             <span class="n">gauges_fn</span><span class="o">=</span><span class="n">gauges_fn</span><span class="p">,</span>
             <span class="n">source_gdf</span><span class="o">=</span><span class="n">source_gdf</span><span class="p">,</span>
             <span class="n">snap_to_river</span><span class="o">=</span><span class="n">snap_to_river</span><span class="p">,</span>
             <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
             <span class="n">derive_subcatch</span><span class="o">=</span><span class="n">derive_subcatch</span><span class="p">,</span>
-            <span class="n">derive_outlet</span><span class="o">=</span><span class="n">derive_outlet</span><span class="p">,</span>
             <span class="n">basename</span><span class="o">=</span><span class="n">basename</span><span class="p">,</span>
-            <span class="n">update_toml</span><span class="o">=</span><span class="n">update_toml</span><span class="p">,</span>
+            <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
             <span class="n">gauge_toml_header</span><span class="o">=</span><span class="n">gauge_toml_header</span><span class="p">,</span>
             <span class="n">gauge_toml_param</span><span class="o">=</span><span class="n">gauge_toml_param</span><span class="p">,</span>
         <span class="p">)</span></div>

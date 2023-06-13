@@ -46,7 +46,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydromt_wflow.WflowSedimentModel.setup_areamap" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html" />
-    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html" />
+    <link rel="prev" title="hydromt_wflow.WflowSedimentModel.setup_outlets" href="hydromt_wflow.WflowSedimentModel.setup_outlets.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -373,8 +373,10 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_outlets.html">hydromt_wflow.WflowModel.setup_outlets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_gauges.html">hydromt_wflow.WflowModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config_output_timeseries.html">hydromt_wflow.WflowModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">hydromt_wflow.WflowModel.setup_temp_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_constant_pars.html">hydromt_wflow.WflowModel.setup_constant_pars</a></li>
@@ -443,8 +445,10 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html">hydromt_wflow.WflowSedimentModel.setup_soilmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverwidth.html">hydromt_wflow.WflowSedimentModel.setup_riverwidth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html">hydromt_wflow.WflowSedimentModel.setup_riverbedsed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_outlets.html">hydromt_wflow.WflowSedimentModel.setup_outlets</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowSedimentModel.setup_gauges</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html">hydromt_wflow.WflowSedimentModel.setup_areamap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_staticmaps_from_raster</a></li>
 </ul>
@@ -570,9 +574,8 @@ document.write(`
 <h1>hydromt_wflow.WflowSedimentModel.setup_gauges<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-gauges" title="Permalink to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_gauges">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_gauges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gauges_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_gdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snap_to_river</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">derive_subcatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">derive_outlet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_toml</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_gauges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_gauges" title="Permalink to this definition">#</a></dt>
-<dd><p>This components sets the default gauge map based on basin outlets and additional
-gauge maps based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_gauges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gauges_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_gdf</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snap_to_river</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">derive_subcatch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toml_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Q',</span> <span class="pre">'TSS']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['lateral.river.q_riv',</span> <span class="pre">'lateral.river.SSconc']</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_gauges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_gauges" title="Permalink to this definition">#</a></dt>
+<dd><p>This components sets a gauge map based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p>
 <p>Supported gauge datasets include “grdc”
 or “&lt;path_to_source&gt;” for user supplied csv or geometry files with gauge locations.
 If a csv file is provided, a “x” or “lon” and “y” or “lat” column is required
@@ -582,10 +585,8 @@ to True, the gauge location will be snapped to the boolean river mask. If
 the gauge locations.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
-<li><p><strong>wflow_gauges</strong> map: gauge IDs map from catchment outlets [-]</p></li>
 <li><p><strong>wflow_gauges_source</strong> map: gauge IDs map from source [-] (if gauges_fn)</p></li>
 <li><p><strong>wflow_subcatch_source</strong> map: subcatchment based on gauge locations [-] (if derive_subcatch)</p></li>
-<li><p><strong>gauges</strong> geom: polygon of catchment outlets</p></li>
 <li><p><strong>gauges_source</strong> geom: polygon of gauges from source</p></li>
 <li><p><strong>subcatch_source</strong> geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)</p></li>
 </ul>
@@ -599,7 +600,7 @@ the gauge locations.</p>
 <li><p><strong>derive_subcatch</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Derive subcatch map for gauges, by default False</p></li>
 <li><p><strong>derive_outlet</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Derive gaugemap based on catchment outlets, by default True</p></li>
 <li><p><strong>basename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.</p></li>
-<li><p><strong>update_toml</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Update [outputcsv] section of wflow toml file.</p></li>
+<li><p><strong>toml_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – One of [‘csv’, ‘netcdf’, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, ‘csv’.</p></li>
 <li><p><strong>gauge_toml_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – Save specific model parameters in csv section. This option defines the header of the csv file./
 By default saves Q (for lateral.river.q_riv) and TSS (for lateral.river.SSconc).</p></li>
 <li><p><strong>gauge_toml_param</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
@@ -623,12 +624,12 @@ names in gauge_toml_header. By default saves lateral.river.q_riv (for Q) and lat
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html"
+       href="hydromt_wflow.WflowSedimentModel.setup_outlets.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_riverbedsed</p>
+        <p class="prev-next-title">hydromt_wflow.WflowSedimentModel.setup_outlets</p>
       </div>
     </a>
     <a class="right-next"
