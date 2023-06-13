@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Parameters for landuse esa_worlcover. `PR #111 <https://github.com/Deltares/hydromt_wflow/pull/111>`_
+- New method setup_rootzoneclim to estimate the RootingDepth based on hydroclimatic data for historical and future conditions. As an alternative for the look-up table method for wflow_sbm. 
 
 Changed
 -------

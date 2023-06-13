@@ -6,6 +6,7 @@ import pandas as pd
 from scipy import optimize
 import xarray as xr
 import hydromt
+from typing import Optional
 
 from hydromt import flw
 import pyflwdir
@@ -18,22 +19,23 @@ __all__ = ["rootzoneclim"]
 
 def determine_budyko_curve_terms(ds_sub_annual, ): 
     """
+    # Determine the Budyko terms (note that the discharge coefficient and evaporative
+    # index for the future climate, if present, are not correct yet and will
+    # be adjusted at a later stage)
+
     Parameters
     ----------
-    ds_sub_annual : xarray dataset
-        xarray dataset containing per subcatchment the annual precipitation, 
+    ds_sub_annual : xr.Dataset
+        Dataset containing per subcatchment the annual precipitation, 
         potential evaporation and specific discharge sums.
 
     Returns
     -------
-    ds_sub_annual : xarray dataset
+    ds_sub_annual : xr.Dataset
         Similar to input, but containing the discharge coefficient, aridity 
         index and the evaporative index as long term averages.
 
     """
-    # Determine the terms (note that the discharge coefficient and evaporative
-    # index for the future climate, if present, are not correct yet and will
-    # be adjusted at a later stage)
 
     ds_sub_annual['discharge_coeff'] = (ds_sub_annual['specific_Q'] / ds_sub_annual['precip_mean']).mean('time', skipna=True)
     ds_sub_annual['aridity_index'] = (ds_sub_annual['pet_mean'] / ds_sub_annual['precip_mean']).mean('time', skipna=True)
@@ -61,18 +63,24 @@ def determine_budyko_curve_terms(ds_sub_annual, ):
 
 def determine_omega(ds_sub_annual):
     """
-    This function uses the Zhang function to determine the omega parameter for
-    ds_sub_annual.
+    This function uses the Zhang function (as defined in Teuling et al., 2019) 
+    to determine the omega parameter for ds_sub_annual.
+
+    Teuling, A. J., de Badts, E. A. G., Jansen, F. A., Fuchs, R., Buitink, J., 
+    Hoek van Dijke, A. J., and Sterling, S. M.: Climate change, reforestation/
+    afforestation, and urbanization impacts on evapotranspiration and streamflow 
+    in Europe, Hydrol. Earth Syst. Sci., 23, 3631–3652, 
+    https://doi.org/10.5194/hess-23-3631-2019, 2019.
 
     Parameters
     ----------
-    ds_sub_annual : xarray dataset
-        Xarray dataset containing at least the discharge coefficient, aridity
+    ds_sub_annual : xr.Dataset
+        Dataset containing at least the discharge coefficient, aridity
         index and evaporative index for the different forcing types.
 
     Returns
     -------
-    ds_sub_annual : xarray dataset
+    ds_sub_annual : xr.Dataset
         Same as above, but with the omega parameter added. The omega parameter
         is the same for all forcing types and based on the observations.
 
@@ -133,19 +141,19 @@ def determine_Peffective_Interception_explicit(ds_sub,
 
     Parameters
     ----------
-    ds_sub : xarray dataset
-        xarray dataset containing precipitation and potential evaporation
+    ds_sub : xr.Dataset
+        Dataset containing precipitation and potential evaporation
         (precip_mean and pet_mean).
     Imax : float
         The maximum interception storage capacity [mm].
-    intercep_vars_sub : xarray dataarray
-        Xarray dataarray from staticmaps containing the Imax values for a number
+    intercep_vars_sub : xr.Dataarray
+        Dataarray from staticmaps containing the Imax values for a number
         of time steps, e.g. every month. If present, this is used to determine
         Imax per time step. The default is None.    
 
     Returns
     -------
-    ds_sub : xarray datset
+    ds_sub : xr.Dataset
         same as above, but with effective precipitation, interception evaporation
         and canopy storage added.
     """
@@ -220,16 +228,16 @@ def determine_Peffective_Interception_explicit(ds_sub,
 def determine_storage_deficit(ds_sub, correct_cc_deficit):
     """
     Function to determine the storage deficit for every time step, subcatchment
-    location and datset in ds_sub.
+    location and dataset in ds_sub.
 
     Parameters
     ----------
-    ds_sub : xarray dataset
-        xarray dataset containing the daily or higher-resolution data.
+    ds_sub : xr.Dataset
+        Dataset containing the daily or higher-resolution data.
 
     Returns
     -------
-    ds_sub : xarray dataset
+    ds_sub : xr.Dataset
         Same as above, but containing the storage deficits per time step for all
         forcing types.
     """         
@@ -287,12 +295,12 @@ def fut_discharge_coeff(ds_sub_annual, correct_cc_deficit):
 
     Parameters
     ----------
-    ds_sub_annual : xarray dataset
-        Xarray dataset containing at least the future omega and aridity index.
+    ds_sub_annual : xr.Dataset
+        Dataset containing at least the future omega and aridity index.
 
     Returns
     -------
-    ds_sub_annual : xarray dataset
+    ds_sub_annual : xr.Dataset
         Similar to previous, but containing the new future discharge coefficient
         and evaporative index.
     """
@@ -324,14 +332,15 @@ def gumbel_su_calc_xr(storage_deficit_annual,
                       return_period, 
                       threshold):
     """
-    Function to determine the Gumbel distribution for a set of return periods.
+    Function to determine the Gumbel distribution of the annual maximum storage deficits 
+    for a set of return periods.
 
     Parameters
     ----------
-    storage_deficit_annual : xarray dataset
-        xarray dataset with the minimum deficit per year as a positive value.
-    storage_deficit_count : xarray dataset
-        xarray dataset containing the number of days with data per year. This
+    storage_deficit_annual : xr.Dataset
+        Dataset with the minimum deficit per year as a positive value.
+    storage_deficit_count : xr.Dataset
+        Dataset containing the number of days with data per year. This
         indicates on how many days a minimum in year_min_storage_deficit is
         based.
     return_period : list
@@ -343,8 +352,8 @@ def gumbel_su_calc_xr(storage_deficit_annual,
 
     Returns
     -------
-    gumbel : xarray dataset
-        xarray dataset, similar to year_min_storage_deficit, but containing the
+    gumbel : xr.Dataset
+        Dataset, similar to year_min_storage_deficit, but containing the
         root-zone storage capacity per return period.
 
     """
@@ -427,15 +436,15 @@ def Zhang_future(omega, aridity_index):
 
     Parameters
     ----------
-    omega : xarray datarray
-        Xarray datarray containing the future omega values per sub catchment.
-    aridity_index : xarray datarray
-        Xarray datarray containing the future aridity index values per sub 
+    omega : xr.Datarray
+        Datarray containing the future omega values per sub catchment.
+    aridity_index : xr.Datarray
+        Datarray containing the future aridity index values per sub 
         catchment.
 
     Returns
     -------
-    xarray datarray containing the future discharge coefficient.
+    Datarray containing the future discharge coefficient.
     """  
     return - (aridity_index - (1 + aridity_index**omega)**(1/omega))
 
@@ -506,84 +515,94 @@ def check_inputs(start_hydro_year,
             
     return None
 
-
-def rootzoneclim(ds_obs,
-                 ds_cc_hist,
-                 ds_cc_fut,
-                 dsrun, 
-                 ds_like, 
-                 flwdir, 
-                 return_period,
-                 Imax, 
-                 start_hydro_year,
-                 start_field_capacity,
-                 LAI,
-                 rooting_depth,
-                 correct_cc_deficit,
-                 chunksize,
-                 missing_days_threshold,
+def rootzoneclim(dsrun: xr.Dataset,
+                 ds_obs: xr.Dataset,
+                 ds_like: xr.Dataset, 
+                 flwdir: xr.DataArray, 
+                 ds_cc_hist: Optional[xr.Dataset]=None,
+                 ds_cc_fut: Optional[xr.Dataset]=None,
+                 return_period: list =[2,3,5,10,15,20,25,50,60,100],
+                 Imax: float =2.0, 
+                 start_hydro_year: str="Sep",
+                 start_field_capacity: str="Apr",
+                 LAI: bool=False,
+                 rooting_depth: bool=True,
+                 correct_cc_deficit: bool=False,
+                 chunksize: int=100,
+                 missing_days_threshold: int=330,
                  logger=logger):
     """
-    Returns root zone storage parameter for current observed and (optionally 
+    Estimates the root zone storage parameter for current observed and (optionally 
     for) future climate-based streamflow data. 
-    The root zone storage parameter is calculated per subcatchment and is 
+    The root zone storage capacity parameter is calculated per subcatchment and is 
     converted to a gridded map at model resolution. Optionally, this function
     can return the wflow_sbm parameter RootingDepth by dividing the root zone
     storage parameter by (theta_s - theta_r).
 
-    The following maps are calculated:\
-    - `rootzone_storage`                  : maximum root zone storage capacity [mm]\
-    - `rootzone_depth_climate`            : maximum root zone storage depth [mm]\
-    - `RootingDepth`                      : maximum rooting depth [mm]\  
-                    
+    The method is based on the estimation of maximum annual storage deficits based on precipitation and estimated actual evaporation time series, 
+    which in turn are estimated from observed streamflow data and long-term precipitation and potential evap. data, as explained in Bouaziz et al. (2022).
+    The main assumption is that vegetation adapts its rootzone storage capacity to overcome dry spells with a certain return period (typically 20 years for forest ecosystems). 
+    In response to a changing climtate, it is likely that vegetation also adapts its rootzone storage capacity, thereby changing model parameters for future conditions.
+    This method also allows to estimate the change in rootzone storage capacity in response to a changing climate. 
     
     Parameters
     ----------
-    ds_obs : xarray.Dataset
-        Dataset with the observed forcing data.
-    ds_cc_hist : xarray.Dataset
-        Dataset with the simulated historical forcing data, based on a climate
-        model.
-    ds_cc_fut : xarray.Dataset
-        Dataset with the simulated future climate forcing data, based on a 
-        climate model.
-    dsrun : str
-        Geodataset with streamflow locations and timeseries.
+    dsrun : xr.Dataset
+        Geodataset with streamflow locations and timeseries (m3/s).
         The geodataset expects the coordinate names "index" (for each station id), 
         "x" (for x coord) and "y" for y coord. 
-    ds_like : xarray.DataArray
-        Dataset at model resolution.
+    ds_obs : xr.Dataset
+        Dataset with the observed forcing data (precip and pet) [mm/timestep].
+    ds_like : xr.Dataset
+        Dataset with staticmaps at model resolution.
     flwdir : FlwDirRaster
         flwdir object
+    ds_cc_hist : xr.Dataset
+        Dataset with the simulated historical forcing data (precip and pet) [mm/timestep], 
+        based on a climate model.
+        The default is None.
+    ds_cc_fut : xr.Dataset
+        Dataset with the simulated future climate forcing data (precip and pet) [mm/timestep], 
+        based on a climate model.
+        The default is None.
     return_period : list
         List with one or more values indiciating the return period(s) (in 
         years) for wich the rootzone storage depth should be calculated.
+        The default is [2,3,5,10,15,20,25,50,60,100]
     Imax : float
         The maximum interception storage capacity [mm].
+        The default is 2 mm.
     start_hydro_year : str
         The start month (abreviated to the first three letters of the month,
         starting with a capital letter) of the hydrological year. 
+        The default is "Sep".
     start_field_capacity : str
         The end of the wet season / commencement of dry season. This is the
         moment when the soil is at field capacity, i.e. there is no storage
         deficit yet.
+        The default is "Apr".
     rooting_depth : bool
         Boolean indicating whether also the rooting depth (rootzone storage / 
         (theta_s - theta_r)) should be stored. Requires to have run setup_soilmaps.
+        The default is True. 
     LAI : bool
         Determine whether the LAI will be used to determine Imax.
+        Requires to have run setup_laimaps.
+        The default is False. 
     chunksize : int
         Chunksize on time dimension for processing data (not for saving to 
         disk!). A default value of 100 is used on the time dimension.
     correct_cc_deficit : bool
         Determines whether a bias-correction of the future deficit should be 
         applied. If the climate change scenario and hist period are bias-corrected,
-        this should probably set to False. 
+        this should probably be set to False. 
+    missing_days_threshold: int, optional 
+            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.
         
     Returns
     -------
-    ds_out : xarray.Dataset
-        Dataset containing root zone storage capacity and RootingDepth (optional).
+    ds_out : xr.Dataset
+        Dataset containing root zone storage capacity and RootingDepth (optional) for several forcing and return periods.
     gdf_basins_all : GeoDataFrame
         Geodataframe containing the root zone storage capacity values for each basin before filling NaN. 
     
@@ -840,7 +859,6 @@ def rootzoneclim(ds_obs,
                         fill_value = value
             out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
             # Store the result in ds_out
-            #TODO: we should use a mask here. -- happens in write staticmaps? check!
             ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim), 
                 out_raster
