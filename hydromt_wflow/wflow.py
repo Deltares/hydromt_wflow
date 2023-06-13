@@ -1020,7 +1020,7 @@ class WflowModel(Model):
           used to set the maximum distance to snap to the mask.
         * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations
           are snapped to the closest matching upstream area value. Requires gauges_fn to have
-          an `uparea` [m] column. The closest value will be looked for in a cell window of size ``wdw``
+          an `uparea` [km2] column. The closest value will be looked for in a cell window of size ``wdw``
           and the difference between the gauge and the closest value should be smaller than ``rel_error``.
 
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived from

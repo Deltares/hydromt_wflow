@@ -21,9 +21,42 @@ def gauge_map_uparea(
     abs_error: float = 50,
     logger=logger,
 ):
-    """ """
+    """
+    Snaps point locations to grid cell with smallest difference in upstream area
+    within `wdw` around the original location if the local cell does not meet the
+    error criteria.
+
+    Both the upstream area variable named ``uparea_name`` in ``ds`` and ``gdf`` as
+    well as ``abs_error`` should have the same unit (typically km2).
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset with upstream area variable.
+    gdf : gpd.GeoDataFrame
+        GeoDataFrame with gauge points and uparea column.
+    uparea_name : str, optional
+        Name of the upstream area variable in ``ds``, by default "wflow_uparea".
+    wdw : int, optional
+        Window size around the original location to search for the best matching cell,
+        by default 1.
+    rel_error : float, optional
+        Relative error threshold to accept the best matching cell, by default 0.05.
+    abs_error : float, optional
+        Absolute error threshold to accept the best matching cell, by default (50 km2).
+
+    Returns
+    -------
+    da : xr.DataArray
+        Gauge map with gauge points snapped to the best matching cell.
+    idxs_out : np.ndarray
+        Array of indices of the best matching cell.
+    ids_out : np.ndarray
+        Array of gauge point ids.
+
+    """
     if uparea_name not in ds:
-        return
+        raise ValueError(f"uparea_name {uparea_name} not found in ds.")
 
     ds_wdw = ds.raster.sample(gdf, wdw=wdw)
     logger.debug(
