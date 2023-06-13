@@ -1586,8 +1586,8 @@ class WflowModel(Model):
 
     def setup_rootzoneclim(
         self,
-        run_fn: str = "run_obs",
-        forcing_obs_fn: str = "inmaps",
+        run_fn: Union[str, Path, xr.Dataset]",
+        forcing_obs_fn: Union[str, Path, xr.Dataset],
         forcing_cc_hist_fn: Optional[str] = None,
         forcing_cc_fut_fn: Optional[str] = None,
         chunksize: Optional[int] = 100, 
