@@ -45,7 +45,6 @@ path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
 
 # these are not directly part of the model
-gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
 subcatchment = "wflow_subcatch"
@@ -137,8 +136,3 @@ SSconc = "SSconc"
 
 [csv]
 path = "output.csv"
-
-[[csv.column]]
-header = "TSS"
-map = "gauges"
-parameter = "lateral.river.SSconc"

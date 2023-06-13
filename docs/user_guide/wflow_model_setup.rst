@@ -54,10 +54,14 @@ a specific method see its documentation.
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rulesto ensure flux matching across scales.
     * - :py:func:`~WflowModel.setup_hydrodem`
       - This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.
+    * - :py:func:`~WflowModel.setup_outlets`
+      - This method sets the default gauge map based on basin outlets.
     * - :py:func:`~WflowModel.setup_gauges`
-      - This method sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.
+      - This method sets the default gauge map based on a gauges_fn data.
     * - :py:func:`~WflowModel.setup_areamap`
       -  Setup area map from vector data to save wflow outputs for specific area.
+    * - :py:func:`~WflowModel.setup_config_output_timeseries`
+      - This method add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
     * - :py:func:`~WflowModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
     * - :py:func:`~WflowModel.setup_temp_pet_forcing`

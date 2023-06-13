@@ -113,6 +113,55 @@ def test_setup_reservoirs(source, tmpdir):
         ), f"Number of non-null values in {i} not equal to number of reservoirs in model area"
 
 
+def test_setup_gauges():
+    logger = logging.getLogger(__name__)
+    # read model from examples folder
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+
+    # Initialize model and read results
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+    # uparea rename not in the latest artifact_data version
+    mod.data_catalog["grdc"].rename = {"area": "uparea"}
+    mod.setup_gauges(
+        gauges_fn="grdc",
+        basename="grdc_uparea",
+        snap_to_river=False,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+    )
+    gdf = mod.staticgeoms["gauges_grdc_uparea"]
+    ds_samp = mod.staticmaps[["wflow_river", "wflow_uparea"]].raster.sample(gdf, wdw=0)
+    assert np.all(ds_samp["wflow_river"].values == 1)
+    assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
+
+    # Test with/without snapping
+    stations_fn = join(EXAMPLEDIR, "test_stations.csv")
+    mod.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_snapping",
+        snap_to_river=True,
+        mask=None,
+    )
+    gdf_snap = mod.staticgeoms["gauges_stations_snapping"]
+
+    mod.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_no_snapping",
+        snap_to_river=False,
+        mask=None,
+    )
+    gdf_no_snap = mod.staticgeoms["gauges_stations_no_snapping"]
+
+    # Check that not all geometries of gdf_snap and gdf_no_snap are equal
+    assert not gdf_snap.equals(gdf_no_snap)
+    # Find wich row is identical
+    equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
+    assert len(equal) == 1
+    assert equal.index.values[0] == 1003
+
+
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
 def test_setup_rivers(elevtn_map):
     # load netcdf file with floodplain layers

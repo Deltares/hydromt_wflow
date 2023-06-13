@@ -78,8 +78,7 @@ def waterbodymaps(
         ydim = ds_like.raster.y_dim
         xdim = ds_like.raster.x_dim
         for i in res_id:
-            res_acc = ds_like[uparea_name].where(ds_out["resareas"] == i)
-            # max_res_acc = np.amax(res_acc.values())
+            res_acc = ds_like[uparea_name].where(ds_out["resareas"] == i).load()
             max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
             yacc = max_res_acc[ydim].values
             xacc = max_res_acc[xdim].values
