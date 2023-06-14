@@ -158,24 +158,10 @@ def determine_Peffective_Interception_explicit(ds_sub,
         and canopy storage added.
     """
     # Make the output dataset ready for the output
-    ds_sub["evap_interception"] = (
-        ("index", "forcing_type", "time"),
-        np.zeros(
-            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
-            )*np.nan
-        )
-    ds_sub["precip_effective"] = (
-        ("index", "forcing_type", "time"),
-        np.zeros(
-            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
-            )*np.nan
-        )
-    ds_sub["canopy_storage"] = (
-        ("index", "forcing_type", "time"),
-        np.zeros(
-            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
-            )*np.nan
-        )    
+    ds_sub["evap_interception"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    ds_sub["precip_effective"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    ds_sub["canopy_storage"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    
     # Calculate it per forcing type
     for forcing_type in ds_sub["forcing_type"].values:
         nr_time_steps = len(ds_sub[["precip_mean", "pet_mean"]].sel(forcing_type=forcing_type).dropna("time").time)
@@ -243,13 +229,8 @@ def determine_storage_deficit(ds_sub, correct_cc_deficit):
     """         
     #make sure the order of the coordinates is always the same. 
     # Calculate it per forcing type
-
-    ds_sub["storage_deficit"] = (
-        ("index", "forcing_type", "time"),
-        np.zeros(
-            (len(ds_sub["index"]), len(ds_sub["forcing_type"]), len(ds_sub["time"]))
-            )*np.nan
-        )
+   
+    ds_sub["storage_deficit"] = hydromt.raster.full_like(ds_sub["precip_mean"])
 
     for forcing_type in ds_sub["forcing_type"].values:
         time_forcing_type = ds_sub["precip_effective"].sel(forcing_type=forcing_type).dropna("time").time.values
@@ -526,7 +507,7 @@ def rootzoneclim(dsrun: xr.Dataset,
                  start_hydro_year: str="Sep",
                  start_field_capacity: str="Apr",
                  LAI: bool=False,
-                 rooting_depth: bool=True,
+                 rootzone_storage: bool=False,
                  correct_cc_deficit: bool=False,
                  chunksize: int=100,
                  missing_days_threshold: int=330,
@@ -549,8 +530,7 @@ def rootzoneclim(dsrun: xr.Dataset,
     ----------
     dsrun : xr.Dataset
         Geodataset with streamflow locations and timeseries (m3/s).
-        The geodataset expects the coordinate names "index" (for each station id), 
-        "x" (for x coord) and "y" for y coord. 
+        The geodataset expects the coordinate names "index" (for each station id). 
     ds_obs : xr.Dataset
         Dataset with the observed forcing data (precip and pet) [mm/timestep].
     ds_like : xr.Dataset
@@ -581,10 +561,9 @@ def rootzoneclim(dsrun: xr.Dataset,
         moment when the soil is at field capacity, i.e. there is no storage
         deficit yet.
         The default is "Apr".
-    rooting_depth : bool
-        Boolean indicating whether also the rooting depth (rootzone storage / 
-        (theta_s - theta_r)) should be stored. Requires to have run setup_soilmaps.
-        The default is True. 
+    rootzone_storage : bool
+        Boolean to indicate whether the rootzone storage maps 
+        should be stored in the staticmaps or not. The default is False. 
     LAI : bool
         Determine whether the LAI will be used to determine Imax.
         Requires to have run setup_laimaps.
@@ -602,7 +581,7 @@ def rootzoneclim(dsrun: xr.Dataset,
     Returns
     -------
     ds_out : xr.Dataset
-        Dataset containing root zone storage capacity and RootingDepth (optional) for several forcing and return periods.
+        Dataset containing root zone storage capacity (optional) and RootingDepth for several forcing and return periods.
     gdf_basins_all : GeoDataFrame
         Geodataframe containing the root zone storage capacity values for each basin before filling NaN. 
     
@@ -639,7 +618,9 @@ def rootzoneclim(dsrun: xr.Dataset,
 
     # Make a basin map containing all subcatchments from geodataset of observed 
     # streamflow
-    x, y, ids = dsrun.x.values, dsrun.y.values, dsrun.index.values 
+    x_dim_dsrun = dsrun.vector.x_name
+    y_dim_dsrun = dsrun.vector.y_name
+    x, y, ids = dsrun[x_dim_dsrun].values, dsrun[y_dim_dsrun].values, dsrun.index.values 
     gdf_basins = pd.DataFrame()  
     
     # Loop over basins and get per gauge location a polygon of the upstream
@@ -858,18 +839,18 @@ def rootzoneclim(dsrun: xr.Dataset,
                     if fill_value == None:
                         fill_value = value
             out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
-            # Store the result in ds_out
-            ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
-                (y_dim, x_dim), 
-                out_raster
-                )
-            # Also store the RootingDepth if requested
-            if rooting_depth == True:
-                ds_out[f"RootingDepth_{forcing_type}_{str(return_period)}"] = (
+            # Store the rootzone_storage in ds_out is rootzone_storage flag is set to True. 
+            if rootzone_storage == True:
+                ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
                     (y_dim, x_dim), 
-                    out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values)
-                    )            
-    
+                    out_raster
+                    )
+            # Store the RootingDepth in ds_out
+            ds_out[f"RootingDepth_{forcing_type}_{str(return_period)}"] = (
+                (y_dim, x_dim), 
+                out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values)
+                )            
+
     return ds_out, gdf_basins_all
 
 

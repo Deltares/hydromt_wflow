@@ -65,8 +65,8 @@ def test_setup_rootzoneclim():
         coords = dict(
         time = test_data.index,
         index = indices,
-        x = (["index"], mod.staticgeoms["gauges_grdc"].geometry.x.values),
-        y = (["index"], mod.staticgeoms["gauges_grdc"].geometry.y.values),
+        lon = (["index"], mod.staticgeoms["gauges_grdc"].geometry.x.values),
+        lat = (["index"], mod.staticgeoms["gauges_grdc"].geometry.y.values),
         )   
     )
     #fill with dummy data
@@ -85,6 +85,7 @@ def test_setup_rootzoneclim():
                         missing_days_threshold=330,
                         return_period = [2,5,10,15,20],
                         update_toml_rootingdepth = "RootingDepth_obs_2",
+                        rootzone_storage=True,
                         )
 
     assert "RootingDepth_obs_20" in mod.staticmaps

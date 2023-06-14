@@ -1597,7 +1597,7 @@ class WflowModel(Model):
         start_hydro_year: Optional[str] = "Sep",
         start_field_capacity: Optional[str] = "Apr",
         LAI: Optional[bool] = False,
-        rooting_depth: Optional[bool] = True,
+        rootzone_storage: Optional[bool] = False,
         correct_cc_deficit: Optional[bool] = False,
         time_tuple: Optional[tuple] = None,
         time_tuple_fut: Optional[tuple] = None,
@@ -1626,7 +1626,8 @@ class WflowModel(Model):
         in response to a changing climate. 
 
         As the method requires precipitation and potential evaporation timeseries, it may be useful to run this method as an update step in the setting-up of the hydrological model, once the forcing files have already been derived. 
-        In addition the setup_soilmaps method is also required if RootingDepth are to be calculated. 
+        In addition the setup_soilmaps method is also required to calculate the RootingDepth (rootzone_storage / (thetaS-thetaR)).
+        The setup_laimaps method is also required if LAI is set to True (interception capacity estimated from LAI maps, instead of providing a default maximum interception capacity). 
 
         References
         ----------
@@ -1639,17 +1640,16 @@ class WflowModel(Model):
 
         Adds model layer:
 
-        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP.
         * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. The translation to RootingDepth is done by dividing the rootzone_storage by (thetaS - thetaR). 
         * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone storage capacity [mm of water] for each catchment estimated before filling the missings with data from downstream catchments.
+        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. Only if rootzone_storage is set to True!
 
 
         Parameters
         ----------
         run_fn : str, Path, xr.Dataset
             Geodataset with streamflow timeseries (m3/s) per x,y location. 
-            The geodataset expects the coordinate names "index" (for each station id), 
-            "x" (for x coord) and "y" for y coord. 
+            The geodataset expects the coordinate names "index" (for each station id). 
         forcing_obs_fn : str, Path, xr.Dataset
             Gridded timeseries with the observed forcing [mm/timestep]. 
             Expects to have variables "precip" and "pet".
@@ -1681,10 +1681,9 @@ class WflowModel(Model):
             Determine whether the LAI will be used to determine Imax. The
             default is False.
             If set to True, requires to have run setup_laimaps. 
-        rooting_depth : bool, optional
-            Determines whether the rooting depth (rootzone storage / 
-            (theta_s - theta_r)) should be stored or not. The default is True. 
-            If set to True, requires to have run setup_soilmaps. 
+        rootzone_storage : bool, optional
+            Determines whether the rootzone storage maps 
+            should be stored in the staticmaps or not. The default is False. 
         correct_cc_deficit : bool, optional
             Determines whether a bias-correction of the future deficit should be 
             applied using the cc_hist deficit. Only works if the time periods of cc_hist and 
@@ -1736,8 +1735,8 @@ class WflowModel(Model):
         if (LAI == True) and ("LAI" not in self.staticmaps):
             self.logger.error(f"LAI variable not found in staticmaps. Set LAI to False or run setup_laimaps first")
 
-        if (rooting_depth == True) and ("thetaS" not in self.staticmaps):
-            self.logger.error(f"thetaS variable not found in staticmaps. Set rooting_depth to False or run setup_soilmaps first")
+        if ("thetaR" not in self.staticmaps) or ("thetaS" not in self.staticmaps):
+            self.logger.error(f"thetaS or thetaR variables not found in staticmaps. Run setup_soilmaps first")
 
         # Run the rootzone clim workflow
         dsout, gdf = workflows.rootzoneclim(
@@ -1752,7 +1751,7 @@ class WflowModel(Model):
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
             LAI=LAI,
-            rooting_depth=rooting_depth,
+            rootzone_storage=rootzone_storage,
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
             missing_days_threshold=missing_days_threshold, 
