@@ -459,9 +459,9 @@ def check_inputs(start_hydro_year,
             f"start_field_capacity not in {list_of_months}: provide a valid month"
             )
     
-    if "run" not in list(dsrun.keys()):
+    if "discharge" not in list(dsrun.keys()):
         raise ValueError(
-            "Variable run not in run_fn"
+            "Variable discharge not in run_fn"
             )
     
     if "precip" not in list(ds_obs.keys()):
@@ -529,7 +529,7 @@ def rootzoneclim(dsrun: xr.Dataset,
     Parameters
     ----------
     dsrun : xr.Dataset
-        Geodataset with streamflow locations and timeseries (m3/s).
+        Geodataset with streamflow locations and timeseries, named "discharge" (m3/s).
         The geodataset expects the coordinate names "index" (for each station id). 
     ds_obs : xr.Dataset
         Dataset with the observed forcing data (precip and pet) [mm/timestep].
@@ -712,7 +712,7 @@ def rootzoneclim(dsrun: xr.Dataset,
     # Get the specific discharge (mm/timestep) per location in order to have
     # everything in mm/timestep
     dsrun = dsrun.assign(
-        specific_Q=dsrun["run"].transpose("time", "index")/np.array(gdf_basins["area"]) * time_step * 1000.0
+        specific_Q=dsrun["discharge"].transpose("time", "index")/np.array(gdf_basins["area"]) * time_step * 1000.0
         )
     # Add dsrun to ds_sub
     # if dsrun["specific_Q"].dims == ("time", "index"):

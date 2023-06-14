@@ -60,7 +60,7 @@ def test_setup_rootzoneclim():
     indices = [1,2,3]
     ds_run = xr.Dataset(
         data_vars = dict(
-        run = (["time", "index"], np.zeros((len(test_data.index), len(indices)))),
+        discharge = (["time", "index"], np.zeros((len(test_data.index), len(indices)))),
         ),
         coords = dict(
         time = test_data.index,
@@ -71,7 +71,7 @@ def test_setup_rootzoneclim():
     )
     #fill with dummy data
     for ind in indices:
-        ds_run["run"].loc[dict(index=ind)] = test_data[f"Q_{ind}"]
+        ds_run["discharge"].loc[dict(index=ind)] = test_data[f"Q_{ind}"]
 
     mod.setup_rootzoneclim(
                         run_fn=ds_run, 

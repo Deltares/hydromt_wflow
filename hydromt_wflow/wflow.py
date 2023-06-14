@@ -1649,7 +1649,7 @@ class WflowModel(Model):
         ----------
         run_fn : str, Path, xr.Dataset
             Geodataset with streamflow timeseries (m3/s) per x,y location. 
-            The geodataset expects the coordinate names "index" (for each station id). 
+            The geodataset expects the coordinate names "index" (for each station id) and the variable name "discharge". 
         forcing_obs_fn : str, Path, xr.Dataset
             Gridded timeseries with the observed forcing [mm/timestep]. 
             Expects to have variables "precip" and "pet".
