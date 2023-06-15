@@ -1591,8 +1591,8 @@ class WflowModel(Model):
         forcing_obs_fn: Union[str, Path, xr.Dataset],
         forcing_cc_hist_fn: Optional[Union[str, Path, xr.Dataset]] = None,
         forcing_cc_fut_fn: Optional[Union[str, Path, xr.Dataset]] = None,
-        chunksize: Optional[int] = 100, 
-        return_period: Optional[list] = [2,3,5,10,15,20,25,50,60,100],
+        chunksize: Optional[int] = 100,
+        return_period: Optional[list] = [2, 3, 5, 10, 15, 20, 25, 50, 60, 100],
         Imax: Optional[float] = 2.0,
         start_hydro_year: Optional[str] = "Sep",
         start_field_capacity: Optional[str] = "Apr",
@@ -1606,41 +1606,41 @@ class WflowModel(Model):
         **kwargs,
     ) -> None:
         """
-        This component sets up the RootingDepth by estimating the catchment-scale 
-        root-zone storage capacity from observed hydroclimatic data 
-        (and optionally also for climate change historical and future periods). 
-        This presents an alternative approach to determine the RootingDepth 
-        based on hydroclimatic data instead of through a look-up table relating 
-        land use to rooting depth (as usually done for the wflow_sbm model). 
-        The method is based on the estimation of maximum annual storage deficits 
-        based on precipitation and estimated actual evaporation time series, 
-        which in turn are estimated from observed streamflow data and 
-        long-term precipitation and potential evap. data, as explained in 
+        This component sets up the RootingDepth by estimating the catchment-scale
+        root-zone storage capacity from observed hydroclimatic data
+        (and optionally also for climate change historical and future periods).
+        This presents an alternative approach to determine the RootingDepth
+        based on hydroclimatic data instead of through a look-up table relating
+        land use to rooting depth (as usually done for the wflow_sbm model).
+        The method is based on the estimation of maximum annual storage deficits
+        based on precipitation and estimated actual evaporation time series,
+        which in turn are estimated from observed streamflow data and
+        long-term precipitation and potential evap. data, as explained in
         Bouaziz et al. (2022).
-        The main assumption is that vegetation adapts its rootzone storage capacity 
-        to overcome dry spells with a certain return period (typically 20 years for forest ecosystems). 
-        In response to a changing climtate, 
-        it is likely that vegetation also adapts its rootzone storage capacity, 
+        The main assumption is that vegetation adapts its rootzone storage capacity
+        to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).
+        In response to a changing climtate,
+        it is likely that vegetation also adapts its rootzone storage capacity,
         thereby changing model parameters for future conditions.
-        This method also allows to estimate the change in rootzone storage capacity 
-        in response to a changing climate. 
+        This method also allows to estimate the change in rootzone storage capacity
+        in response to a changing climate.
 
-        As the method requires precipitation and potential evaporation timeseries, it may be useful to run this method as an update step in the setting-up of the hydrological model, once the forcing files have already been derived. 
+        As the method requires precipitation and potential evaporation timeseries, it may be useful to run this method as an update step in the setting-up of the hydrological model, once the forcing files have already been derived.
         In addition the setup_soilmaps method is also required to calculate the RootingDepth (rootzone_storage / (thetaS-thetaR)).
-        The setup_laimaps method is also required if LAI is set to True (interception capacity estimated from LAI maps, instead of providing a default maximum interception capacity). 
+        The setup_laimaps method is also required if LAI is set to True (interception capacity estimated from LAI maps, instead of providing a default maximum interception capacity).
 
         References
         ----------
-        Bouaziz, L. J. E., Aalbers, E. E., Weerts, A. H., Hegnauer, M., Buiteveld, 
-        H., Lammersen, R., Stam, J., Sprokkereef, E., Savenije, H. H. G. and 
-        Hrachowitz, M. (2022). Ecosystem adaptation to climate change: the 
-        sensitivity of hydrological predictions to time-dynamic model parameters, 
-        Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI: 
+        Bouaziz, L. J. E., Aalbers, E. E., Weerts, A. H., Hegnauer, M., Buiteveld,
+        H., Lammersen, R., Stam, J., Sprokkereef, E., Savenije, H. H. G. and
+        Hrachowitz, M. (2022). Ecosystem adaptation to climate change: the
+        sensitivity of hydrological predictions to time-dynamic model parameters,
+        Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
         10.5194/hess-26-1295-2022.
 
         Adds model layer:
 
-        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. The translation to RootingDepth is done by dividing the rootzone_storage by (thetaS - thetaR). 
+        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. The translation to RootingDepth is done by dividing the rootzone_storage by (thetaS - thetaR).
         * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone storage capacity [mm of water] for each catchment estimated before filling the missings with data from downstream catchments.
         * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. Only if rootzone_storage is set to True!
 
@@ -1648,105 +1648,119 @@ class WflowModel(Model):
         Parameters
         ----------
         run_fn : str, Path, xr.Dataset
-            Geodataset with streamflow timeseries (m3/s) per x,y location. 
-            The geodataset expects the coordinate names "index" (for each station id) and the variable name "discharge". 
+            Geodataset with streamflow timeseries (m3/s) per x,y location.
+            The geodataset expects the coordinate names "index" (for each station id) and the variable name "discharge".
         forcing_obs_fn : str, Path, xr.Dataset
-            Gridded timeseries with the observed forcing [mm/timestep]. 
+            Gridded timeseries with the observed forcing [mm/timestep].
             Expects to have variables "precip" and "pet".
         forcing_cc_hist_fn : str, Path, xr.Dataset, optional
             Gridded timeseries with the simulated historical forcing [mm/timestep], based on a climate
             model. Expects to have variables "precip" and "pet". The default is None.
         forcing_cc_fut_fn : str, optional
             Gridded timeseries with the simulated climate forcing [mm/timestep], based on a
-            climate model. Expects to have variables "precip" and "pet". 
+            climate model. Expects to have variables "precip" and "pet".
             The default is None.
         chunksize : int, optional
-            Chunksize on time dimension for processing data (not for saving to 
+            Chunksize on time dimension for processing data (not for saving to
             disk!). The default is 100.
         return_period : list, optional
-            List with one or more values indiciating the return period(s) (in 
+            List with one or more values indiciating the return period(s) (in
             years) for wich the rootzone storage depth should be calculated. The
             default is [2,3,5,10,15,20,25,50,60,100] years.
         Imax : float, optional
             The maximum interception storage capacity [mm]. The default is 2.0 mm.
         start_hydro_year : str, optional
             The start month (abreviated to the first three letters of the month,
-            starting with a capital letter) of the hydrological year. The 
+            starting with a capital letter) of the hydrological year. The
             default is 'Sep'.
         start_field_capacity : str, optional
             The end of the wet season / commencement of dry season. This is the
             moment when the soil is at field capacity, i.e. there is no storage
-            deficit yet. The default is 'Apr'. 
+            deficit yet. The default is 'Apr'.
         LAI : bool, optional
             Determine whether the LAI will be used to determine Imax. The
             default is False.
-            If set to True, requires to have run setup_laimaps. 
+            If set to True, requires to have run setup_laimaps.
         rootzone_storage : bool, optional
-            Determines whether the rootzone storage maps 
-            should be stored in the staticmaps or not. The default is False. 
+            Determines whether the rootzone storage maps
+            should be stored in the staticmaps or not. The default is False.
         correct_cc_deficit : bool, optional
-            Determines whether a bias-correction of the future deficit should be 
-            applied using the cc_hist deficit. Only works if the time periods of cc_hist and 
+            Determines whether a bias-correction of the future deficit should be
+            applied using the cc_hist deficit. Only works if the time periods of cc_hist and
             cc_fut are the same. If the climate change scenario and hist period are bias-corrected,
             this should probably set to False. The default is False.
         time_tuple: tuple, optional
             Select which time period to read from all the forcing files. There should be some overlap
             between the time period available in the forcing files for the historical period and in the observed streamflow data.
-        missing_days_threshold: int, optional 
-            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis. 
-        update_toml_rootingdepth: str, optional 
+        missing_days_threshold: int, optional
+            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.
+        update_toml_rootingdepth: str, optional
             Update the wflow_sbm model config of the RootingDepth variable with the estimated RootingDepth.
-            The default is RootingDepth_obs_20, which requires to have RP 20 in the list provided for the return_period argument.  
+            The default is RootingDepth_obs_20, which requires to have RP 20 in the list provided for the return_period argument.
         """
 
         self.logger.info("Preparing climate based root zone storage parameter maps.")
         # Open the data sets
         ds_obs = self.data_catalog.get_rasterdataset(
-            forcing_obs_fn, geom=self.region, buffer=2,
+            forcing_obs_fn,
+            geom=self.region,
+            buffer=2,
             variables=["pet", "precip"],
             time_tuple=time_tuple,
         )
         ds_cc_hist = None
         if forcing_cc_hist_fn != None:
             ds_cc_hist = self.data_catalog.get_rasterdataset(
-                forcing_cc_hist_fn, geom=self.region, buffer=2,
+                forcing_cc_hist_fn,
+                geom=self.region,
+                buffer=2,
                 variables=["pet", "precip"],
                 time_tuple=time_tuple,
-            )        
+            )
         ds_cc_fut = None
         if forcing_cc_fut_fn != None:
             ds_cc_fut = self.data_catalog.get_rasterdataset(
-                forcing_cc_fut_fn, geom=self.region, buffer=2,
+                forcing_cc_fut_fn,
+                geom=self.region,
+                buffer=2,
                 variables=["pet", "precip"],
                 time_tuple=time_tuple_fut,
-            ) 
-        #observed streamflow data
-        dsrun = self.data_catalog.get_geodataset(run_fn, single_var_as_array=False, time_tuple=time_tuple)
-        
-        #make sure dsrun overlaps with ds_obs, otherwise give error
+            )
+        # observed streamflow data
+        dsrun = self.data_catalog.get_geodataset(
+            run_fn, single_var_as_array=False, time_tuple=time_tuple
+        )
+
+        # make sure dsrun overlaps with ds_obs, otherwise give error
         if dsrun.time[0] < ds_obs.time[0]:
             dsrun = dsrun.sel(time=slice(ds_obs.time[0], None))
         if dsrun.time[-1] > ds_obs.time[-1]:
             dsrun = dsrun.sel(time=slice(None, ds_obs.time[-1]))
         if len(dsrun.time) == 0:
-            self.logger.error("No overlapping period between the meteo and observed streamflow data")
+            self.logger.error(
+                "No overlapping period between the meteo and observed streamflow data"
+            )
 
-        #check if setup_soilmaps and setup_laimaps were run if LAI =True and if rooting_depth = True"
+        # check if setup_soilmaps and setup_laimaps were run if LAI =True and if rooting_depth = True"
         if (LAI == True) and ("LAI" not in self.staticmaps):
-            self.logger.error(f"LAI variable not found in staticmaps. Set LAI to False or run setup_laimaps first")
+            self.logger.error(
+                f"LAI variable not found in staticmaps. Set LAI to False or run setup_laimaps first"
+            )
 
         if ("thetaR" not in self.staticmaps) or ("thetaS" not in self.staticmaps):
-            self.logger.error(f"thetaS or thetaR variables not found in staticmaps. Run setup_soilmaps first")
+            self.logger.error(
+                f"thetaS or thetaR variables not found in staticmaps. Run setup_soilmaps first"
+            )
 
         # Run the rootzone clim workflow
         dsout, gdf = workflows.rootzoneclim(
             dsrun=dsrun,
             ds_obs=ds_obs,
-            ds_like = self.staticmaps,
-            flwdir = self.flwdir,
+            ds_like=self.staticmaps,
+            flwdir=self.flwdir,
             ds_cc_hist=ds_cc_hist,
             ds_cc_fut=ds_cc_fut,
-            return_period = return_period,
+            return_period=return_period,
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
@@ -1754,17 +1768,17 @@ class WflowModel(Model):
             rootzone_storage=rootzone_storage,
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
-            missing_days_threshold=missing_days_threshold, 
+            missing_days_threshold=missing_days_threshold,
             logger=self.logger,
         )  # .reset_coords(drop=True)
-        #set nodata value outside basin
-        dsout = dsout.where(self.staticmaps[self._MAPS["basins"]]>0, -999)
+        # set nodata value outside basin
+        dsout = dsout.where(self.staticmaps[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
         self.set_staticmaps(dsout)
         self.set_staticgeoms(gdf, name="rootzone_storage")
 
-        #update config
+        # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
 
     # I/O
