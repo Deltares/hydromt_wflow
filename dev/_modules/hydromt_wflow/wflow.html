@@ -2468,6 +2468,204 @@ document.write(`
         <span class="n">temp_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">opt_attr</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="WflowModel.setup_rootzoneclim"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim">[docs]</a>    <span class="k">def</span> <span class="nf">setup_rootzoneclim</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">run_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">forcing_obs_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">forcing_cc_hist_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">forcing_cc_fut_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
+        <span class="n">return_period</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
+        <span class="n">Imax</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">start_hydro_year</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Sep&quot;</span><span class="p">,</span>
+        <span class="n">start_field_capacity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Apr&quot;</span><span class="p">,</span>
+        <span class="n">LAI</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">rootzone_storage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">correct_cc_deficit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">time_tuple</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">time_tuple_fut</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">missing_days_threshold</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">330</span><span class="p">,</span>
+        <span class="n">update_toml_rootingdepth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;RootingDepth_obs_20&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This component sets up the RootingDepth by estimating the catchment-scale</span>
+<span class="sd">        root-zone storage capacity from observed hydroclimatic data</span>
+<span class="sd">        (and optionally also for climate change historical and future periods).</span>
+
+<span class="sd">        This presents an alternative approach to determine the RootingDepth</span>
+<span class="sd">        based on hydroclimatic data instead of through a look-up table relating</span>
+<span class="sd">        land use to rooting depth (as usually done for the wflow_sbm model).</span>
+<span class="sd">        The method is based on the estimation of maximum annual storage deficits</span>
+<span class="sd">        based on precipitation and estimated actual evaporation time series,</span>
+<span class="sd">        which in turn are estimated from observed streamflow data and</span>
+<span class="sd">        long-term precipitation and potential evap. data, as explained in</span>
+<span class="sd">        Bouaziz et al. (2022).</span>
+
+<span class="sd">        The main assumption is that vegetation adapts its rootzone storage capacity</span>
+<span class="sd">        to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).</span>
+<span class="sd">        In response to a changing climtate,</span>
+<span class="sd">        it is likely that vegetation also adapts its rootzone storage capacity,</span>
+<span class="sd">        thereby changing model parameters for future conditions.</span>
+<span class="sd">        This method also allows to estimate the change in rootzone storage capacity</span>
+<span class="sd">        in response to a changing climate.</span>
+
+<span class="sd">        As the method requires precipitation and potential evaporation timeseries, it may be useful to run this method as an update step in the setting-up of the hydrological model, once the forcing files have already been derived.</span>
+<span class="sd">        In addition the setup_soilmaps method is also required to calculate the RootingDepth (rootzone_storage / (thetaS-thetaR)).</span>
+<span class="sd">        The setup_laimaps method is also required if LAI is set to True (interception capacity estimated from LAI maps, instead of providing a default maximum interception capacity).</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Bouaziz, L. J. E., Aalbers, E. E., Weerts, A. H., Hegnauer, M., Buiteveld,</span>
+<span class="sd">        H., Lammersen, R., Stam, J., Sprokkereef, E., Savenije, H. H. G. and</span>
+<span class="sd">        Hrachowitz, M. (2022). Ecosystem adaptation to climate change: the</span>
+<span class="sd">        sensitivity of hydrological predictions to time-dynamic model parameters,</span>
+<span class="sd">        Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:</span>
+<span class="sd">        10.5194/hess-26-1295-2022.</span>
+
+<span class="sd">        Adds model layer:</span>
+
+<span class="sd">        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. The translation to RootingDepth is done by dividing the rootzone_storage by (thetaS - thetaR).</span>
+<span class="sd">        * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone storage capacity [mm of water] for each catchment estimated before filling the missings with data from downstream catchments.</span>
+<span class="sd">        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. Only if rootzone_storage is set to True!</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        run_fn : str, Path, xr.Dataset</span>
+<span class="sd">            Geodataset with streamflow timeseries (m3/s) per x,y location.</span>
+<span class="sd">            The geodataset expects the coordinate names &quot;index&quot; (for each station id) and the variable name &quot;discharge&quot;.</span>
+<span class="sd">        forcing_obs_fn : str, Path, xr.Dataset</span>
+<span class="sd">            Gridded timeseries with the observed forcing [mm/timestep].</span>
+<span class="sd">            Expects to have variables &quot;precip&quot; and &quot;pet&quot;.</span>
+<span class="sd">        forcing_cc_hist_fn : str, Path, xr.Dataset, optional</span>
+<span class="sd">            Gridded timeseries with the simulated historical forcing [mm/timestep], based on a climate</span>
+<span class="sd">            model. Expects to have variables &quot;precip&quot; and &quot;pet&quot;. The default is None.</span>
+<span class="sd">        forcing_cc_fut_fn : str, optional</span>
+<span class="sd">            Gridded timeseries with the simulated climate forcing [mm/timestep], based on a</span>
+<span class="sd">            climate model. Expects to have variables &quot;precip&quot; and &quot;pet&quot;.</span>
+<span class="sd">            The default is None.</span>
+<span class="sd">        chunksize : int, optional</span>
+<span class="sd">            Chunksize on time dimension for processing data (not for saving to</span>
+<span class="sd">            disk!). The default is 100.</span>
+<span class="sd">        return_period : list, optional</span>
+<span class="sd">            List with one or more values indiciating the return period(s) (in</span>
+<span class="sd">            years) for wich the rootzone storage depth should be calculated. The</span>
+<span class="sd">            default is [2,3,5,10,15,20,25,50,60,100] years.</span>
+<span class="sd">        Imax : float, optional</span>
+<span class="sd">            The maximum interception storage capacity [mm]. The default is 2.0 mm.</span>
+<span class="sd">        start_hydro_year : str, optional</span>
+<span class="sd">            The start month (abreviated to the first three letters of the month,</span>
+<span class="sd">            starting with a capital letter) of the hydrological year. The</span>
+<span class="sd">            default is &#39;Sep&#39;.</span>
+<span class="sd">        start_field_capacity : str, optional</span>
+<span class="sd">            The end of the wet season / commencement of dry season. This is the</span>
+<span class="sd">            moment when the soil is at field capacity, i.e. there is no storage</span>
+<span class="sd">            deficit yet. The default is &#39;Apr&#39;.</span>
+<span class="sd">        LAI : bool, optional</span>
+<span class="sd">            Determine whether the LAI will be used to determine Imax. The</span>
+<span class="sd">            default is False.</span>
+<span class="sd">            If set to True, requires to have run setup_laimaps.</span>
+<span class="sd">        rootzone_storage : bool, optional</span>
+<span class="sd">            Determines whether the rootzone storage maps</span>
+<span class="sd">            should be stored in the staticmaps or not. The default is False.</span>
+<span class="sd">        correct_cc_deficit : bool, optional</span>
+<span class="sd">            Determines whether a bias-correction of the future deficit should be</span>
+<span class="sd">            applied using the cc_hist deficit. Only works if the time periods of cc_hist and</span>
+<span class="sd">            cc_fut are the same. If the climate change scenario and hist period are bias-corrected,</span>
+<span class="sd">            this should probably set to False. The default is False.</span>
+<span class="sd">        time_tuple: tuple, optional</span>
+<span class="sd">            Select which time period to read from all the forcing files. There should be some overlap</span>
+<span class="sd">            between the time period available in the forcing files for the historical period and in the observed streamflow data.</span>
+<span class="sd">        missing_days_threshold: int, optional</span>
+<span class="sd">            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.</span>
+<span class="sd">        update_toml_rootingdepth: str, optional</span>
+<span class="sd">            Update the wflow_sbm model config of the RootingDepth variable with the estimated RootingDepth.</span>
+<span class="sd">            The default is RootingDepth_obs_20, which requires to have RP 20 in the list provided for the return_period argument.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing climate based root zone storage parameter maps.&quot;</span><span class="p">)</span>
+        <span class="c1"># Open the data sets</span>
+        <span class="n">ds_obs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+            <span class="n">forcing_obs_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">],</span>
+            <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ds_cc_hist</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">forcing_cc_hist_fn</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds_cc_hist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+                <span class="n">forcing_cc_hist_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">],</span>
+                <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">ds_cc_fut</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">forcing_cc_fut_fn</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds_cc_fut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+                <span class="n">forcing_cc_fut_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;precip&quot;</span><span class="p">],</span>
+                <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple_fut</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="c1"># observed streamflow data</span>
+        <span class="n">dsrun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
+            <span class="n">run_fn</span><span class="p">,</span> <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">time_tuple</span><span class="o">=</span><span class="n">time_tuple</span>
+        <span class="p">)</span>
+
+        <span class="c1"># make sure dsrun overlaps with ds_obs, otherwise give error</span>
+        <span class="k">if</span> <span class="n">dsrun</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">ds_obs</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">dsrun</span> <span class="o">=</span> <span class="n">dsrun</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">ds_obs</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">dsrun</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">ds_obs</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">dsrun</span> <span class="o">=</span> <span class="n">dsrun</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">ds_obs</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dsrun</span><span class="o">.</span><span class="n">time</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;No overlapping period between the meteo and observed streamflow data&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># check if setup_soilmaps and setup_laimaps were run if LAI =True and if rooting_depth = True&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">LAI</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;LAI&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;LAI variable not found in staticmaps. Set LAI to False or run setup_laimaps first&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;thetaR&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;thetaS&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;thetaS or thetaR variables not found in staticmaps. Run setup_soilmaps first&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Run the rootzone clim workflow</span>
+        <span class="n">dsout</span><span class="p">,</span> <span class="n">gdf</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">rootzoneclim</span><span class="p">(</span>
+            <span class="n">dsrun</span><span class="o">=</span><span class="n">dsrun</span><span class="p">,</span>
+            <span class="n">ds_obs</span><span class="o">=</span><span class="n">ds_obs</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
+            <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
+            <span class="n">ds_cc_hist</span><span class="o">=</span><span class="n">ds_cc_hist</span><span class="p">,</span>
+            <span class="n">ds_cc_fut</span><span class="o">=</span><span class="n">ds_cc_fut</span><span class="p">,</span>
+            <span class="n">return_period</span><span class="o">=</span><span class="n">return_period</span><span class="p">,</span>
+            <span class="n">Imax</span><span class="o">=</span><span class="n">Imax</span><span class="p">,</span>
+            <span class="n">start_hydro_year</span><span class="o">=</span><span class="n">start_hydro_year</span><span class="p">,</span>
+            <span class="n">start_field_capacity</span><span class="o">=</span><span class="n">start_field_capacity</span><span class="p">,</span>
+            <span class="n">LAI</span><span class="o">=</span><span class="n">LAI</span><span class="p">,</span>
+            <span class="n">rootzone_storage</span><span class="o">=</span><span class="n">rootzone_storage</span><span class="p">,</span>
+            <span class="n">correct_cc_deficit</span><span class="o">=</span><span class="n">correct_cc_deficit</span><span class="p">,</span>
+            <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+            <span class="n">missing_days_threshold</span><span class="o">=</span><span class="n">missing_days_threshold</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># set nodata value outside basin</span>
+        <span class="n">dsout</span> <span class="o">=</span> <span class="n">dsout</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">999</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="n">dsout</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">999</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rootzone_storage&quot;</span><span class="p">)</span>
+
+        <span class="c1"># update config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.vertical.rootingdepth&quot;</span><span class="p">,</span> <span class="n">update_toml_rootingdepth</span><span class="p">)</span></div>
+
     <span class="c1"># I/O</span>
 <div class="viewcode-block" id="WflowModel.read"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Method to read the complete model schematization and configuration from file.&quot;&quot;&quot;</span>
