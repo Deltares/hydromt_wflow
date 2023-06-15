@@ -1603,12 +1603,12 @@ class WflowModel(Model):
         time_tuple_fut: Optional[tuple] = None,
         missing_days_threshold: Optional[int] = 330,
         update_toml_rootingdepth: Optional[str] = "RootingDepth_obs_20",
-        **kwargs,
     ) -> None:
         """
         This component sets up the RootingDepth by estimating the catchment-scale
         root-zone storage capacity from observed hydroclimatic data
         (and optionally also for climate change historical and future periods).
+
         This presents an alternative approach to determine the RootingDepth
         based on hydroclimatic data instead of through a look-up table relating
         land use to rooting depth (as usually done for the wflow_sbm model).
@@ -1617,6 +1617,7 @@ class WflowModel(Model):
         which in turn are estimated from observed streamflow data and
         long-term precipitation and potential evap. data, as explained in
         Bouaziz et al. (2022).
+
         The main assumption is that vegetation adapts its rootzone storage capacity
         to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).
         In response to a changing climtate,
@@ -1770,7 +1771,8 @@ class WflowModel(Model):
             chunksize=chunksize,
             missing_days_threshold=missing_days_threshold,
             logger=self.logger,
-        )  # .reset_coords(drop=True)
+        )
+
         # set nodata value outside basin
         dsout = dsout.where(self.staticmaps[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:

@@ -587,6 +587,7 @@ def rootzoneclim(
     """
     Estimates the root zone storage parameter for current observed and (optionally
     for) future climate-based streamflow data.
+
     The root zone storage capacity parameter is calculated per subcatchment and is
     converted to a gridded map at model resolution. Optionally, this function
     can return the wflow_sbm parameter RootingDepth by dividing the root zone
@@ -787,16 +788,7 @@ def rootzoneclim(
         * time_step
         * 1000.0
     )
-    # Add dsrun to ds_sub
-    # if dsrun["specific_Q"].dims == ("time", "index"):
-    #     ds_sub = ds_sub.assign(specific_Q = dsrun["specific_Q"].transpose())
-    # elif dsrun["specific_Q"].dims == ("index", "time"):
-    #     ds_sub = ds_sub.assign(specific_Q = dsrun["specific_Q"])
-    # else:
-    #     raise ValueError(
-    #         "run_fn, the timeseries with discharge per x,y location, has not the right dimensions. Dimensions (time, index) or (index, time) expected"
-    #         )
-    # replace lines above by below?
+    # Add specific discharge to ds_sub
     ds_sub = xr.merge([ds_sub, dsrun["specific_Q"].to_dataset()], compat="override")
 
     # Rechunk data
