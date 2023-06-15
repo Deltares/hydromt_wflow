@@ -36,6 +36,7 @@ Setup components
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
+   WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_hydrodem
    WflowModel.setup_outlets
@@ -242,6 +243,7 @@ Wflow workflows
    workflows.reservoirattrs
    workflows.glaciermaps
    workflows.glacierattrs
+   workflows.rootzoneclim
 
 
 .. _methods:

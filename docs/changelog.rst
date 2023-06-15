@@ -33,6 +33,7 @@ Changed
 - Change naming of θₛ, θᵣ and kv₀ to theta_s, theta_r and kv_0 in the toml template of wflow. 
 - Merged river part of setup_hydrodem into setup_rivers functionality, and moved land part of setup_hydrodem into setup_floodplains.
 - in **setup_rivers**, the value used for river_upa is now added as attribute to the rivmsk layer. This value can then be used in the **setup_floodplains** method.
+- New method setup_rootzoneclim to estimate the RootingDepth based on hydroclimatic data for historical and future conditions. As an alternative for the look-up table method for wflow_sbm. `PR #184 <https://github.com/Deltares/hydromt_wflow/pull/184>`_
 
 
 Fixed

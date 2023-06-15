@@ -100,7 +100,7 @@ def average_soillayers(ds, soilthickness):
     Returns
     -------
     da_av : xarray.DataArray
-        Dataset containing weighted average of soil property.
+        Dataset containing the weighted average of the soil property.
 
     """
 
