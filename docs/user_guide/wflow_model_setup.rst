@@ -96,6 +96,8 @@ and :py:func:`~WflowModel.write_config` for the
      - inmaps.nc
    * - :py:attr:`~hydromt_wflow.WflowModel.states`
      - instates.nc
+   * - :py:attr:`~hydromt_wflow.WflowModel.tables`
+     - tabular data (csv format, e.g. lake_hq.csv, lake_sh.csv)
    * - :py:attr:`~hydromt_wflow.WflowModel.results`
      - output.nc, output_scalar.nc, output.csv
 
