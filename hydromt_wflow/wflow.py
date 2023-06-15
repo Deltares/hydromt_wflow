@@ -1094,6 +1094,7 @@ class WflowModel(Model):
         lakes_fn: Union[str, Path],
         rating_curve_fns: List[Union[str, Path]] = None,
         min_area: float = 10.0,
+        add_maxstorage: bool = False,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth and discharge values.
@@ -1106,6 +1107,9 @@ class WflowModel(Model):
         the parameters 'Lake_b' and 'Lake_e' will be used for discharge and for storage a rectangular profile lake is assumed.
         See Wflow documentation for more information.
 
+        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the output (controlled lake) based on
+        'Vol_max' [m3] column of lakes_fn.
+
         Adds model layers:
 
         * **wflow_lakeareas** map: lake IDs [-]
@@ -1116,6 +1120,7 @@ class WflowModel(Model):
         * **Lake_b** map: lake rating curve coefficient [-]
         * **LakeOutflowFunc** map: option to compute rating curve [-]
         * **LakeStorFunc** map: option to compute storage curve [-]
+        * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
         Parameters
@@ -1134,23 +1139,10 @@ class WflowModel(Model):
             * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
             Minimum lake area threshold [km2], by default 10.0 km2.
+        add_maxstorage : bool, optional
+            If True, maximum storage of the lake is added to the output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn, by default False (natural lake).
         """
 
-        # Lake seetings in the toml to update
-        lakes_toml = {
-            "model.lakes": True,
-            "state.lateral.river.lake.waterlevel": "waterlevel_lake",
-            "input.lateral.river.lake.area": "LakeArea",
-            "input.lateral.river.lake.areas": "wflow_lakeareas",
-            "input.lateral.river.lake.b": "Lake_b",
-            "input.lateral.river.lake.e": "Lake_e",
-            "input.lateral.river.lake.locs": "wflow_lakelocs",
-            "input.lateral.river.lake.outflowfunc": "LakeOutflowFunc",
-            "input.lateral.river.lake.storfunc": "LakeStorFunc",
-            "input.lateral.river.lake.threshold": "LakeThreshold",
-            "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
-            "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
-        }
         # Derive lake are and outlet maps
         gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
         if ds_lakes is None:
@@ -1188,7 +1180,7 @@ class WflowModel(Model):
 
         # add waterbody parameters
         ds_lakes, gdf_lakes, rating_curves = workflows.waterbodies.lakeattrs(
-            ds_lakes, gdf_org, rating_dict
+            ds_lakes, gdf_org, rating_dict, add_maxstorage=add_maxstorage
         )
 
         # add to staticmaps
@@ -1200,6 +1192,23 @@ class WflowModel(Model):
             self.set_tables(v, name=k)
 
         # if there are lakes, change True in toml
+        # Lake seetings in the toml to update
+        lakes_toml = {
+            "model.lakes": True,
+            "state.lateral.river.lake.waterlevel": "waterlevel_lake",
+            "input.lateral.river.lake.area": "LakeArea",
+            "input.lateral.river.lake.areas": "wflow_lakeareas",
+            "input.lateral.river.lake.b": "Lake_b",
+            "input.lateral.river.lake.e": "Lake_e",
+            "input.lateral.river.lake.locs": "wflow_lakelocs",
+            "input.lateral.river.lake.outflowfunc": "LakeOutflowFunc",
+            "input.lateral.river.lake.storfunc": "LakeStorFunc",
+            "input.lateral.river.lake.threshold": "LakeThreshold",
+            "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
+            "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
+        }
+        if "LakeMaxStorage" in ds_lakes:
+            lakes_toml["input.lateral.river.lake.maxstorage"] = "LakeMaxStorage"
         for option in lakes_toml:
             self.set_config(option, lakes_toml[option])
 

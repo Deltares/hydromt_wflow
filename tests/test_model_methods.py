@@ -103,12 +103,14 @@ def test_setup_lake(tmpdir):
         lakes_fn="hydro_lakes",
         rating_curve_fns=[f"lake_rating_test_{lake_id}"],
         min_area=5,
+        add_maxstorage=True,
     )
 
     assert f"lake_sh_{lake_id}" in mod.tables
     assert f"lake_hq_{lake_id}" in mod.tables
     assert 2 in np.unique(mod.staticmaps["LakeStorFunc"].values)
     assert 1 in np.unique(mod.staticmaps["LakeOutflowFunc"].values)
+    assert "LakeMaxStorage" not in mod.staticmaps  # no Vol_max column in hydro_lakes
 
     # Write and read back
     mod.set_root(join(tmpdir, "wflow_lake_test"))

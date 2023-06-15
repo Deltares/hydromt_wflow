@@ -488,6 +488,7 @@ def lakeattrs(
     ds: xr.Dataset,
     gdf: gp.GeoDataFrame,
     rating_dict: dict = dict(),
+    add_maxstorage: bool = False,
     logger=logger,
 ):
     """
@@ -505,6 +506,7 @@ def lakeattrs(
     - LakeOutflowFunc: option to compute rating curve [-]\
     - LakeThreshold: minimium threshold for lake outflow [m]\
     - LinkedLakeLocs: id of linked lake location if any\
+    - LakeMaxStorage: maximum storage [m3] (optional)
     
     Parameters
     ----------
@@ -514,6 +516,8 @@ def lakeattrs(
         GeoDataFrame containing the lake locations and area
     rating_dict : dict, optional
         Dictionary containing the rating curve parameters, by default dict()
+    add_maxstorage : bool, optional
+        If True, adds the maximum storage to the output, by default False
     
     Returns
     -------
@@ -532,6 +536,14 @@ def lakeattrs(
             "Dis_avg": "LakeAvgOut",
         }
     )
+    # Add maximum volume / no filling of NaNs as assumes then natural lake and not controlled
+    if add_maxstorage:
+        if "Vol_max" in gdf.columns:
+            gdf = gdf.rename(columns={"Vol_max": "LakeMaxStorage"})
+        else:
+            logger.warning(
+                "No maximum storage 'Vol_max' column found, skip adding LakeMaxStorage map."
+            )
     # Minimum value for LakeAvgOut
     LakeAvgOut = gdf["LakeAvgOut"].copy()
     gdf["LakeAvgOut"] = np.maximum(gdf["LakeAvgOut"], 0.01)
@@ -610,6 +622,8 @@ def lakeattrs(
         "LakeThreshold",
         "LinkedLakeLocs",
     ]
+    if "LakeMaxStorage" in gdf.columns:
+        lake_params.append("LakeMaxStorage")
 
     gdf_org_points = gp.GeoDataFrame(
         gdf[lake_params],
