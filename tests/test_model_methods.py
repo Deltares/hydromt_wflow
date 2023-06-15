@@ -121,7 +121,7 @@ def test_setup_rootzoneclim():
 
     # Initialize model and read results
     mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
-    
+
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(
         join(TESTDATADIR, "df_sub_dummy.csv"),
@@ -243,6 +243,7 @@ def test_setup_rootzoneclim():
     assert mod.staticgeoms["rootzone_storage"].loc[1][
         "rootzone_storage_cc_fut_2"
     ] == pytest.approx(104.96931418911882, abs=0.5)
+
 
 def test_setup_gauges():
     logger = logging.getLogger(__name__)
