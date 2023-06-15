@@ -15,7 +15,7 @@ from hydromt_wflow import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["river", "river_bathymetry", "river_width"]
+__all__ = ["river", "river_bathymetry", "river_width", "river_floodplain_volume"]
 
 RESAMPLING = {"climate": "nearest", "precip": "average"}
 NODATA = {"discharge": -9999}
@@ -30,7 +30,7 @@ def river(
     ds_model=None,
     river_upa=30.0,
     slope_len=2e3,
-    min_rivlen_ratio=0.1,
+    min_rivlen_ratio=0.0,
     channel_dir="up",
     logger=logger,
 ):
@@ -38,16 +38,16 @@ def river(
 
     The output maps are:\
     - rivmsk : river mask based on upstream area threshold on upstream area\
-    - rivlen : river length [m], minimum set to 1/4 cell res\
+    - rivlen : river length [m]\
     - rivslp : smoothed river slope [m/m]\
-    - rivzs : elevation of the river bankfull height based on pixel outlet 
+    - rivzs : elevation of the river bankfull height based on pixel outlet
     - rivwth : river width at pixel outlet (if in ds)
     - qbankfull : bankfull discharge at pixel outlet (if in ds)
 
     Parameters
     ----------
     ds: xr.Dataset
-        hydrography dataset containing "flwdir", "uparea", "elevtn" variables; 
+        hydrography dataset containing "flwdir", "uparea", "elevtn" variables;
         and optional "rivwth" and "qbankfull" variable
     ds_model: xr.Dataset, optional
         model dataset with output grid, must contain "uparea", for subgrid rivlen/slp
@@ -57,10 +57,12 @@ def river(
     slope_len: float
         minimum length over which to calculate the river slope, by default 1000 [m]
     min_rivlen_ratio: float
-        minimum global river length to avg. cell resolution ratio, by default 0.1
+        minimum global river length to avg. Cell resolution ratio used as threshold
+        in window based smoothing of river length, by default 0.0.
+        The smoothing is skipped if min_riverlen_ratio = 0.
     channel_dir: {"up", "down"}
-        flow direcition in which to calculate (subgrid) river length and width
-    
+        flow direction in which to calculate (subgrid) river length and width
+
     Returns:
     ds_out: xr.Dataset
         Dataset with output river attributes
@@ -72,7 +74,7 @@ def river(
         raise ValueError(f"One or more variables missing from ds: {dvars}.")
     if ds_model is not None and not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
-    # sort sugrid
+    # sort subgrid
     subgrid = True
     if ds_model is None or not np.all([v in ds_model for v in ["x_out", "y_out"]]):
         subgrid = False
@@ -113,14 +115,26 @@ def river(
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
         lat_avg = ds_model.raster.ycoords.values.mean()
         xres, yres = gis_utils.cellres(lat_avg, xres, yres)
-    res = np.mean(np.abs([xres, yres]))
-    # minimum river length equal 10% of cellsize
-    min_len = res * min_rivlen_ratio
-    rivlen = np.where(riv_mask.values, np.maximum(rivlen, min_len), -9999)
-    rivlen_avg = np.mean(rivlen[riv_mask.values])
-    # set mean length at pits when taking the downstream length
-    if channel_dir == "down":
-        rivlen.flat[flwdir.idxs_pit] = rivlen_avg
+    rivlen = np.where(riv_mask.values, rivlen, -9999)
+    # set mean length at most downstream (if channel_dir=down) or upstream (if channel_dir=up) river lengths
+    if np.any(rivlen == 0):
+        rivlen[rivlen == 0] = np.mean(rivlen[rivlen > 0])
+    # smooth river length based on minimum river length
+    if min_rivlen_ratio > 0 and hasattr(flwdir, "smooth_rivlen"):
+        res = np.mean(np.abs([xres, yres]))
+        min_len = res * min_rivlen_ratio
+        flwdir_model = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
+        rivlen2 = flwdir_model.smooth_rivlen(rivlen, min_len, nodata=-9999)
+        min_len2 = rivlen2[riv_mask].min()
+        pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
+        logger.debug(
+            f"River length smoothed (min length: {min_len2:.0f} m; cells modified: {pmod:.1f})%."
+        )
+        rivlen = rivlen2
+    elif min_rivlen_ratio > 0:
+        logger.warning(
+            "River length smoothing skipped as it requires newer version of pyflwdir."
+        )
 
     ## river slope as derivative of elevation around outlet pixels
     logger.debug("Derive river slope.")
@@ -136,9 +150,8 @@ def river(
     ds_out = xr.Dataset(coords=ds_model.raster.coords)
     dims = ds_model.raster.dims
     # save as uint8 as bool is not supported in nc and tif files
-    riv_mask = riv_mask.astype(np.uint8)
-    riv_mask.raster.set_nodata(0)
-    ds_out["rivmsk"] = riv_mask
+    ds_out["rivmsk"] = riv_mask.astype(np.uint8)
+    ds_out["rivmsk"].raster.set_nodata(0)
     attrs = dict(_FillValue=-9999, unit="m")
     ds_out["rivlen"] = xr.Variable(dims, rivlen, attrs=attrs)
     attrs = dict(_FillValue=-9999, unit="m.m-1")
@@ -291,6 +304,101 @@ def river_bathymetry(
     return ds_model[["rivwth", "rivdph"]]
 
 
+def river_floodplain_volume(
+    ds,
+    ds_model,
+    river_upa=30,
+    flood_depths=[0.5, 1.0, 1.5, 2.0, 2.5],
+    dtype=np.float64,
+    logger=logger,
+):
+    """Calculate the floodplain volume at given flood depths based on a (subgrid) HAND map.
+
+    Parameters
+    ----------
+    ds: xr.Dataset
+        hydrography dataset containing "flwdir", "uparea", "elevtn" variables;
+    ds_model: xr.Dataset, optional
+        Model dataset with output grid, must contain "rivmsk", "rivwth", "rivlen"
+        for subgrid must contain "x_out", "y_out".
+    river_upa: float
+        minimum threshold to define the river when calculating HAND, by default 30 [km2]
+    flood_depths : list of float, optional
+        flood depths at which a volume is derived, by default [0.5,1.0,1.5,2.0,2.5]
+    dtype: numpy.dtype, optional
+        output dtype
+
+    Returns
+    -------
+    da_out : xr.DataArray with dims (flood_depth, y, x)
+        Floodplain volume [m3]
+    """
+    if not ds.raster.crs == ds_model.raster.crs:
+        raise ValueError("Hydrography dataset CRS does not match model CRS")
+
+    # check data variables.
+    dvars = ["flwdir", "elevtn", "uparea"]
+    dvars_model = ["rivmsk", "rivwth", "rivlen"]
+    if not np.all([v in ds for v in dvars]):
+        raise ValueError(f"One or more variables missing from ds: {dvars}.")
+    if not np.all([v in ds_model for v in dvars_model]):
+        raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
+
+    # initialize flood directions
+    flwdir = flw.flwdir_from_da(ds["flwdir"], mask=None)
+
+    # get river cell coordinates
+    riv_mask = ds_model["rivmsk"].values > 0
+    if "x_out" in ds_model and "y_out" in ds_model:  # use subgrid
+        idxs_out = ds.raster.xy_to_idx(
+            xs=ds_model["x_out"].values,
+            ys=ds_model["y_out"].values,
+            mask=riv_mask,
+            nodata=flwdir._mv,
+        )
+    else:
+        # get cell index of river cells
+        idxs_out = np.arange(ds_model.raster.size).reshape(ds_model.raster.shape)
+        idxs_out = np.where(riv_mask, idxs_out, flwdir._mv)
+
+    # calculate hand
+    hand = flwdir.hand(
+        drain=ds["uparea"].values >= river_upa, elevtn=ds["elevtn"].values
+    )
+
+    # calculate volume at user defined flood depths
+    # note that the ucat_map is not save currently but is required if
+    # we want to create a flood map by postprocessing
+    flood_depths = np.atleast_1d(flood_depths).ravel().astype(dtype)  # force 1D
+    _, ucat_vol = flwdir.ucat_volume(idxs_out=idxs_out, hand=hand, depths=flood_depths)
+    # force minimum volume based on river width * length
+    rivlen = np.maximum(ds_model["rivlen"].values, 1)  # avoid zero division errors
+    min_vol = ds_model["rivwth"].values * rivlen * flood_depths[0]
+    ucat_vol[0, :, :] = np.maximum(ucat_vol[0, :, :], min_vol)
+    fldwth = ucat_vol[0, :, :] / rivlen / flood_depths[0]
+    for i in range(1, ucat_vol.shape[0]):
+        dh = flood_depths[i] - flood_depths[i - 1]
+        min_vol = ucat_vol[i - 1, ...] + (fldwth * rivlen * dh)
+        ucat_vol[i, :, :] = np.maximum(ucat_vol[i, :, :], min_vol)
+        fldwth = (ucat_vol[i, :, :] - ucat_vol[i - 1, :, :]) / rivlen / dh
+
+    # return xarray DataArray
+    da_out = (
+        xr.DataArray(
+            coords={"flood_depth": flood_depths, **ds_model.raster.coords},
+            dims=("flood_depth", *ds_model.raster.dims),
+            data=ucat_vol,
+        )
+        .reset_coords(drop=True)
+        .where(ds_model["rivmsk"] > 0, -9999.0)
+    )
+    da_out.raster.set_nodata(-9999.0)
+    da_out.raster.set_crs(ds_model.raster.crs)
+
+    # TODO return a second dataset with hand and ucat_map variables for postprocessing
+    return da_out
+
+
 # TODO: methods below are redundant after version v0.1.4 and will be removed in
 # future versions
 
@@ -315,9 +423,7 @@ def river_width(
 ):
     nopars = a is None or b is None  # no manual a, b parameters
     fit = fit or (nopars and predictor not in ["discharge"])  # fit power-law on the fly
-    nowth = (
-        f"{rivwth_name}{obs_postfix}" not in ds_like
-    )  # no obseved with in staticmaps
+    nowth = f"{rivwth_name}{obs_postfix}" not in ds_like  # no observed width
     fill = fill and nowth == False  # fill datagaps and masked areas (lakes/res) in obs
 
     if nowth and fit:

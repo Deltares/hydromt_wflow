@@ -52,12 +52,18 @@ a specific method see its documentation.
       - This component sets the river width parameter based on a power-lay relationship with a predictor.
     * - :py:func:`~WflowSedimentModel.setup_riverbedsed`
       - Setup sediments based river bed characteristics maps.
-    * - :py:func:`~WflowSedimentModel.setup_gauges`
-      - This components sets the default gauge map based on basin outlets and additional gauge maps based on gauges_fn data.
+    * - :py:func:`~WflowModel.setup_outlets`
+      - This method sets the default gauge map based on basin outlets.
+    * - :py:func:`~WflowModel.setup_gauges`
+      - This method sets the default gauge map based on a gauges_fn data.
     * - :py:func:`~WflowModel.setup_areamap`
       - Setup area map from vector data to save wflow outputs for specific area.
+    * - :py:func:`~WflowModel.setup_config_output_timeseries`
+      - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
     * - :py:func:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
+    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+      -  Setup staticmaps from raster to add parameters from direct data.
 
 
 .. _model_components_sed:

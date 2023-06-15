@@ -67,7 +67,7 @@ def _compare_wflow_models(mod0, mod1):
                 if ncells > 0:
                     # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                     # yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
-                    diff = (map0 - map1).values[notclose].mean()
+                    diff = (map0.values - map1.values)[notclose].mean()
                     err = f"diff ({ncells:d} cells): {diff:.4f}; {err}"
                 invalid_maps[name] = err
     # invalid_map_str = ", ".join(invalid_maps)
@@ -115,25 +115,24 @@ def test_model_build(tmpdir, model):
     # compare results with model from examples folder
     root = str(tmpdir.join(model))
     logger = setuplog(__name__, join(root, "hydromt.log"), log_level=10)
-    mod1 = _model["model"](root=root, mode="w", logger=logger)
+    mod1 = _model["model"](root=root, mode="w")  # , logger=logger)
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],
         "strord": 4,
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
-    res = 1 / 60.0
     config = join(TESTDATADIR, _model["ini"])
     opt = parse_config(config)
     # Build model
-    mod1.build(region=region, res=res, opt=opt)
+    mod1.build(region=region, opt=opt)
     # Check if model is api compliant
     non_compliant_list = mod1.test_model_api()
     assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = _model["model"](root=root, mode="r", logger=logger)
+    mod1 = _model["model"](root=root, mode="r")  # , logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, _model["example"])
     mod0 = _model["model"](root=root, mode="r")
@@ -157,7 +156,7 @@ def test_model_clip(tmpdir):
     }
 
     # Clip workflow
-    mod1 = WflowModel(root=root, mode="r", logger=logger)
+    mod1 = WflowModel(root=root, mode="r")  # , logger=logger)
     mod1.read()
     mod1.set_root(destination, mode="w")
     mod1.clip_staticmaps(region)
@@ -169,7 +168,7 @@ def test_model_clip(tmpdir):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = WflowModel(root=destination, mode="r", logger=logger)
+    mod1 = WflowModel(root=destination, mode="r")  # , logger=logger)
     mod1.read()
     root = join(EXAMPLEDIR, "wflow_piave_clip")
     mod0 = WflowModel(root=root, mode="r")
@@ -186,7 +185,7 @@ def test_model_results():
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
 
     # Initialize model and read results
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn, logger=logger)
+    mod = WflowModel(root=root, mode="r", config_fn=config_fn)  # , logger=logger)
 
     # Tests on results
     # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
