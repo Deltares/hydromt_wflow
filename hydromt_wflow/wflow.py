@@ -1161,6 +1161,7 @@ class WflowModel(Model):
             # assume lake index will be in the path
             # Assume one rating curve per lake index
             for id in gdf_org["waterbody_id"].values:
+                id = int(id)
                 # Find if id is is one of the paths in rating_curve_fns
                 if id in fns_ids:
                     # Update path based on current waterbody_id
@@ -1178,7 +1179,7 @@ class WflowModel(Model):
                         rating_dict[id] = df_rate
                 else:
                     self.logger.warning(
-                        f"Rating curve file {rating_fn} not found for lake with id {id}. Using default storage/outflow function parameters."
+                        f"Rating curve file not found for lake with id {id}. Using default storage/outflow function parameters."
                     )
         else:
             self.logger.info(

@@ -571,6 +571,7 @@ def lakeattrs(
     if len(rating_dict) != 0:
         # Assume one rating curve per lake index
         for id in gdf["waterbody_id"].values:
+            id = int(id)
             if id in rating_dict.keys():
                 df_rate = rating_dict[id]
                 # Prepare the right tables for wflow
