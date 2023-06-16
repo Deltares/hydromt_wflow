@@ -108,6 +108,7 @@ class WflowModel(Model):
 
         # wflow specific
         self._intbl = dict()
+        self._tables = dict()
         self._flwdir = None
 
     # COMPONENTS
@@ -1254,13 +1255,27 @@ class WflowModel(Model):
             )
         self.set_staticmaps(da_area.rename(col2raster))
 
-    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
+    def setup_lakes(
+        self,
+        lakes_fn: Union[str, Path],
+        rating_curve_fns: List[Union[str, Path]] = None,
+        min_area: float = 10.0,
+        add_maxstorage: bool = False,
+    ):
         """This component generates maps of lake areas and outlets as well as parameters
-        with average lake area, depth a discharge values.
+        with average lake area, depth and discharge values.
 
         The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with
         lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id', average area 'Area_avg' [m2],
         average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
+
+        If rating curve data is available for storage and discharge they can be prepared via ``rating_curve_fns``
+        (see below for syntax and requirements). Else the parameters 'Lake_b' and 'Lake_e' will be used for
+        discharge and for storage a rectangular profile lake is assumed.
+        See Wflow documentation for more information.
+
+        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the output (controlled lake) based on
+        'Vol_max' [m3] column of lakes_fn.
 
         Adds model layers:
 
@@ -1270,18 +1285,93 @@ class WflowModel(Model):
         * **LakeAvgLevel** map: lake average water level [m]
         * **LakeAvgOut** map: lake average discharge [m3/s]
         * **Lake_b** map: lake rating curve coefficient [-]
+        * **LakeOutflowFunc** map: option to compute rating curve [-]
+        * **LakeStorFunc** map: option to compute storage curve [-]
+        * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
         Parameters
         ----------
-        lakes_fn : {'hydro_lakes'}
+        lakes_fn :
             Name of data source for lake parameters, see data/data_sources.yml.
 
-            * Required variables: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
+            * Required variables for direct use: ['waterbody_id', 'Area_avg', 'Depth_avg', 'Dis_avg', 'Lake_b', 'Lake_e', 'LakeOutflowFunc', 'LakeStorFunc', 'LakeThreshold', 'LinkedLakeLocs']
+
+            * Required variables for parameter estimation: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
+        rating_curve_fns: str, Path, List[str], List[Path], optional
+            Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
+            properties of lakes_fn. Assumes one file per lake (with all variables) and that the lake ID is either in the filename
+            or data catalog entry name (eg using placeholder). The ID should be placed at the end separated by an underscore (eg
+            'rating_curve_12.csv' or 'rating_curve_12')
+
+            * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
-            Minimum lake area threshold [km2], by default 1.0 km2.
+            Minimum lake area threshold [km2], by default 10.0 km2.
+        add_maxstorage : bool, optional
+            If True, maximum storage of the lake is added to the output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn, by default False (natural lake).
         """
 
+        # Derive lake are and outlet maps
+        gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
+        if ds_lakes is None:
+            return
+        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
+        ds_lakes = ds_lakes.rename(rmdict)
+
+        # If rating_curve_fn prepare rating curve dict
+        rating_dict = dict()
+        if rating_curve_fns is not None:
+            rating_curve_fns = np.atleast_1d(rating_curve_fns)
+            # Find ids in rating_curve_fns
+            fns_ids = []
+            for fn in rating_curve_fns:
+                try:
+                    fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
+                except:
+                    self.logger.warning(
+                        f"Could not parse integer lake index from rating curve fn {fn}. Skipping."
+                    )
+            # assume lake index will be in the path
+            # Assume one rating curve per lake index
+            for id in gdf_org["waterbody_id"].values:
+                id = int(id)
+                # Find if id is is one of the paths in rating_curve_fns
+                if id in fns_ids:
+                    # Update path based on current waterbody_id
+                    i = fns_ids.index(id)
+                    rating_fn = rating_curve_fns[i]
+                    # Read data
+                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                        self.logger.info(
+                            f"Preparing lake rating curve data from {rating_fn}"
+                        )
+                        df_rate = self.data_catalog.get_dataframe(rating_fn)
+                        # Add to dict
+                        rating_dict[id] = df_rate
+                else:
+                    self.logger.warning(
+                        f"Rating curve file not found for lake with id {id}. Using default storage/outflow function parameters."
+                    )
+        else:
+            self.logger.info(
+                "No rating curve data provided. Using default storage/outflow function parameters."
+            )
+
+        # add waterbody parameters
+        ds_lakes, gdf_lakes, rating_curves = workflows.waterbodies.lakeattrs(
+            ds_lakes, gdf_org, rating_dict, add_maxstorage=add_maxstorage
+        )
+
+        # add to staticmaps
+        self.set_staticmaps(ds_lakes)
+        # write lakes with attr tables to static geoms.
+        self.set_staticgeoms(gdf_lakes, name="lakes")
+        # add the tables
+        for k, v in rating_curves.items():
+            self.set_tables(v, name=k)
+
+        # if there are lakes, change True in toml
+        # Lake seetings in the toml to update
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
@@ -1296,68 +1386,10 @@ class WflowModel(Model):
             "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
             "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
         }
-
-        gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
-        if ds_lakes is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
-            self.set_staticmaps(ds_lakes.rename(rmdict))
-            # add waterbody parameters
-            # rename to param values
-            gdf_org = gdf_org.rename(
-                columns={
-                    "Area_avg": "LakeArea",
-                    "Depth_avg": "LakeAvgLevel",
-                    "Dis_avg": "LakeAvgOut",
-                }
-            )
-            # Minimum value for LakeAvgOut
-            LakeAvgOut = gdf_org["LakeAvgOut"].copy()
-            gdf_org["LakeAvgOut"] = np.maximum(gdf_org["LakeAvgOut"], 0.01)
-            gdf_org["Lake_b"] = gdf_org["LakeAvgOut"].values / (
-                gdf_org["LakeAvgLevel"].values
-            ) ** (2)
-            gdf_org["Lake_e"] = 2
-            gdf_org["LakeStorFunc"] = 1
-            gdf_org["LakeOutflowFunc"] = 3
-            gdf_org["LakeThreshold"] = 0.0
-            gdf_org["LinkedLakeLocs"] = 0
-
-            # Check if some LakeAvgOut values have been replaced
-            if not np.all(LakeAvgOut == gdf_org["LakeAvgOut"]):
-                self.logger.warning(
-                    "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
-                )
-
-            lake_params = [
-                "waterbody_id",
-                "LakeArea",
-                "LakeAvgLevel",
-                "LakeAvgOut",
-                "Lake_b",
-                "Lake_e",
-                "LakeStorFunc",
-                "LakeOutflowFunc",
-                "LakeThreshold",
-                "LinkedLakeLocs",
-            ]
-
-            gdf_org_points = gpd.GeoDataFrame(
-                gdf_org[lake_params],
-                geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
-            )
-
-            # write lakes with attr tables to static geoms.
-            self.set_staticgeoms(gdf_org, name="lakes")
-
-            for name in lake_params[1:]:
-                da_lake = ds_lakes.raster.rasterize(
-                    gdf_org_points, col_name=name, dtype="float32", nodata=-999
-                )
-                self.set_staticmaps(da_lake)
-
-            # if there are lakes, change True in toml
-            for option in lakes_toml:
-                self.set_config(option, lakes_toml[option])
+        if "LakeMaxStorage" in ds_lakes:
+            lakes_toml["input.lateral.river.lake.maxstorage"] = "LakeMaxStorage"
+        for option in lakes_toml:
+            self.set_config(option, lakes_toml[option])
 
     def setup_reservoirs(
         self,
@@ -2269,6 +2301,7 @@ class WflowModel(Model):
         self.read_config()
         self.read_staticmaps()
         self.read_intbl()
+        self.read_tables()
         self.read_staticgeoms()
         self.read_forcing()
         self.logger.info("Model read")
@@ -2285,6 +2318,8 @@ class WflowModel(Model):
             self.write_config()
         if self._staticmaps:
             self.write_staticmaps()
+        if self._tables:
+            self.write_tables()
         if self._staticgeoms:
             self.write_staticgeoms()
         if self._forcing:
@@ -2767,6 +2802,40 @@ class WflowModel(Model):
                 self.logger.warning(f"Overwriting intbl: {name}")
         self._intbl[name] = df
 
+    def read_tables(self, **kwargs):
+        """Read table files at <root> and parse to dict of dataframes"""
+        if not self._write:
+            self._tables = dict()  # start fresh in read-only mode
+
+        self.logger.info("Reading model table files.")
+        fns = glob.glob(join(self.root, f"*.csv"))
+        if len(fns) > 0:
+            for fn in fns:
+                name = basename(fn).split(".")[0]
+                tbl = pd.read_csv(fn)
+                self.set_tables(tbl, name=name)
+
+    def write_tables(self):
+        """Write tables at <root>."""
+        if not self._write:
+            raise IOError("Model opened in read-only mode")
+        if self.tables:
+            self.logger.info("Writing table files.")
+            for name in self.tables:
+                fn_out = join(self.root, f"{name}.csv")
+                self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
+
+    def set_tables(self, df, name):
+        """Add table <pandas.DataFrame> to model."""
+        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
+            raise ValueError("df type not recognized, should be pandas.DataFrame.")
+        if name in self._tables:
+            if not self._write:
+                raise IOError(f"Cannot overwrite table {name} in read-only mode")
+            elif self._read:
+                self.logger.warning(f"Overwriting table: {name}")
+        self._tables[name] = df
+
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
             fdict = toml.load(f)
@@ -2784,6 +2853,14 @@ class WflowModel(Model):
         if not self._intbl:
             self.read_intbl()
         return self._intbl
+
+    @property
+    # Move to core Model API ?
+    def tables(self):
+        """Returns a dictionary of pandas.DataFrames representing the wflow intbl files."""
+        if not self._tables:
+            self.read_tables()
+        return self._tables
 
     @property
     def flwdir(self):
@@ -2964,6 +3041,14 @@ class WflowModel(Model):
                     "Lake_e",
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
+
+            # Update tables
+            ids = np.unique(lake)
+            self._tables = {
+                k: v
+                for k, v in self.tables.items()
+                if not any([str(x) in k for x in ids])
+            }
 
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs

@@ -64,6 +64,7 @@ Attributes
    WflowModel.forcing
    WflowModel.states
    WflowModel.results
+   WflowModel.tables
    WflowModel.flwdir
    WflowModel.basins
    WflowModel.rivers
@@ -115,6 +116,10 @@ General methods
 
    WflowModel.set_results
    WflowModel.read_results
+
+   WflowModel.set_tables
+   WflowModel.read_tables
+   WflowModel.write_tables
 
    WflowModel.set_flwdir
 
@@ -241,6 +246,7 @@ Wflow workflows
    workflows.soilgrids_sediment
    workflows.waterbodymaps
    workflows.reservoirattrs
+   workflows.lakeattrs
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim

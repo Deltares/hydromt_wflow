@@ -21,6 +21,11 @@ Added
 - **setup_gauges**: support for snapping based on a user defined max distance and snapping based on upstream area attribute.
 - **setup_gauges**: gauges_fn can be both GeoDataFrame or GeoDataset (new) data_type.
 - New **setup_floodplains** method, that allows the user the choose either 1D or 2D floodplains. Note: requires pyflwdir v0.5.7. `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
+- In **setup_lakes**: Add option to prepare rating curve tables for lake Q-V and Q-H curves. Also updated LakeOutFlowFunc and LakeStorFunc accordingly. `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
+- In **setup_lakes**: Support setting lake parameters from direct value in the lake_fn columns. `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
+- In **setup_lakes**: Option to prepare controlled lake parameter maxstorage (new in Wflow.jl 0.7.0).
+- New workflow **waterbodies.lakeattrs** to prepare lake parameters from lake_fn attribute and rating curve data.
+- New **tables** model property including read/write: dictionnary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
 
 Changed
 -------
