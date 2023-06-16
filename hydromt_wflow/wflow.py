@@ -1157,7 +1157,14 @@ class WflowModel(Model):
         if rating_curve_fns is not None:
             rating_curve_fns = np.atleast_1d(rating_curve_fns)
             # Find ids in rating_curve_fns
-            fns_ids = [int(fn.split("_")[-1].split(".")[0]) for fn in rating_curve_fns]
+            fns_ids = []
+            for fn in rating_curve_fns:
+                try:
+                    fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
+                except:
+                    self.logger.warning(
+                        f"Could not parse integer lake index from rating curve fn {fn}. Skipping."
+                    )
             # assume lake index will be in the path
             # Assume one rating curve per lake index
             for id in gdf_org["waterbody_id"].values:
@@ -1165,10 +1172,8 @@ class WflowModel(Model):
                 # Find if id is is one of the paths in rating_curve_fns
                 if id in fns_ids:
                     # Update path based on current waterbody_id
-                    for i, idx in enumerate(fns_ids):
-                        if idx == id:
-                            rating_fn = rating_curve_fns[i]
-                            break
+                    i = fns_ids.index(id)
+                    rating_fn = rating_curve_fns[i]
                     # Read data
                     if isfile(rating_fn) or rating_fn in self.data_catalog:
                         self.logger.info(
