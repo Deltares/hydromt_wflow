@@ -394,6 +394,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.forcing.html">hydromt_wflow.WflowModel.forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.results.html">hydromt_wflow.WflowModel.results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.tables.html">hydromt_wflow.WflowModel.tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.flwdir.html">hydromt_wflow.WflowModel.flwdir</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.basins.html">hydromt_wflow.WflowModel.basins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.rivers.html">hydromt_wflow.WflowModel.rivers</a></li>
@@ -429,6 +430,9 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.write_states.html">hydromt_wflow.WflowModel.write_states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_results.html">hydromt_wflow.WflowModel.set_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.read_results.html">hydromt_wflow.WflowModel.read_results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.read_tables.html">hydromt_wflow.WflowModel.read_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.write_tables.html">hydromt_wflow.WflowModel.write_tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_flwdir.html">hydromt_wflow.WflowModel.set_flwdir</a></li>
 </ul>
 <ul class="current nav bd-sidenav">
@@ -509,6 +513,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
@@ -662,41 +667,47 @@ Note that this is not the HydroMT model setup configuration file!</p></li>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_staticmaps_pcr</span></code>([crs])</p></td>
 <td><p>Read and staticmaps at &lt;root/staticmaps&gt; and parse to xarray</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_config.html#hydromt_wflow.WflowSedimentModel.set_config" title="hydromt_wflow.WflowSedimentModel.set_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_config</span></code></a>(*args)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_tables</span></code>(**kwargs)</p></td>
+<td><p>Read table files at &lt;root&gt; and parse to dict of dataframes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_config.html#hydromt_wflow.WflowSedimentModel.set_config" title="hydromt_wflow.WflowSedimentModel.set_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_config</span></code></a>(*args)</p></td>
 <td><p>Update the config dictionary at key(s) with values.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_crs</span></code>(crs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_crs</span></code>(crs)</p></td>
 <td><p>Set the coordinate reference system.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_flwdir.html#hydromt_wflow.WflowSedimentModel.set_flwdir" title="hydromt_wflow.WflowSedimentModel.set_flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flwdir</span></code></a>([ftype])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_flwdir.html#hydromt_wflow.WflowSedimentModel.set_flwdir" title="hydromt_wflow.WflowSedimentModel.set_flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flwdir</span></code></a>([ftype])</p></td>
 <td><p>Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_forcing.html#hydromt_wflow.WflowSedimentModel.set_forcing" title="hydromt_wflow.WflowSedimentModel.set_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_forcing</span></code></a>(data[, name, split_dataset])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_forcing.html#hydromt_wflow.WflowSedimentModel.set_forcing" title="hydromt_wflow.WflowSedimentModel.set_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_forcing</span></code></a>(data[, name, split_dataset])</p></td>
 <td><p>Add data to forcing attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_geoms</span></code>(geom, name)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_geoms</span></code>(geom, name)</p></td>
 <td><p>Add data to the geoms attribute.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_intbl</span></code>(df, name)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_intbl</span></code>(df, name)</p></td>
 <td><p>Add intbl &lt;pandas.DataFrame&gt; to model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_maps</span></code>(data[, name, split_dataset])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_maps</span></code>(data[, name, split_dataset])</p></td>
 <td><p>Add raster data to the maps component.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_results.html#hydromt_wflow.WflowSedimentModel.set_results" title="hydromt_wflow.WflowSedimentModel.set_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_results</span></code></a>(data[, name, split_dataset])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_results.html#hydromt_wflow.WflowSedimentModel.set_results" title="hydromt_wflow.WflowSedimentModel.set_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_results</span></code></a>(data[, name, split_dataset])</p></td>
 <td><p>Add data to results attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_root.html#hydromt_wflow.WflowSedimentModel.set_root" title="hydromt_wflow.WflowSedimentModel.set_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_root</span></code></a>(root[, mode])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_root.html#hydromt_wflow.WflowSedimentModel.set_root" title="hydromt_wflow.WflowSedimentModel.set_root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_root</span></code></a>(root[, mode])</p></td>
 <td><p>Initialize the model root.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_states.html#hydromt_wflow.WflowSedimentModel.set_states" title="hydromt_wflow.WflowSedimentModel.set_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_states</span></code></a>(data[, name, split_dataset])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_states.html#hydromt_wflow.WflowSedimentModel.set_states" title="hydromt_wflow.WflowSedimentModel.set_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_states</span></code></a>(data[, name, split_dataset])</p></td>
 <td><p>Add data to states attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_staticgeoms.html#hydromt_wflow.WflowSedimentModel.set_staticgeoms" title="hydromt_wflow.WflowSedimentModel.set_staticgeoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_staticgeoms</span></code></a>(geom, name)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_staticgeoms.html#hydromt_wflow.WflowSedimentModel.set_staticgeoms" title="hydromt_wflow.WflowSedimentModel.set_staticgeoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_staticgeoms</span></code></a>(geom, name)</p></td>
 <td><p>Set the geometries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_staticmaps.html#hydromt_wflow.WflowSedimentModel.set_staticmaps" title="hydromt_wflow.WflowSedimentModel.set_staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_staticmaps</span></code></a>(data[, name])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_staticmaps.html#hydromt_wflow.WflowSedimentModel.set_staticmaps" title="hydromt_wflow.WflowSedimentModel.set_staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_staticmaps</span></code></a>(data[, name])</p></td>
 <td><p>Add data to staticmaps.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_tables</span></code>(df, name)</p></td>
+<td><p>Add table &lt;pandas.DataFrame&gt; to model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_areamap</span></code></a>(area_fn, col2raster[, nodata])</p></td>
 <td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
@@ -815,6 +826,9 @@ Note that this is not the HydroMT model setup configuration file!</p></li>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps_pcr</span></code>()</p></td>
 <td><p>Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_tables</span></code>()</p></td>
+<td><p>Write tables at &lt;root&gt;.</p></td>
+</tr>
 </tbody>
 </table>
 <p class="rubric">Attributes</p>
@@ -886,10 +900,13 @@ Note that this is not the HydroMT model setup configuration file!</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.staticmaps.html#hydromt_wflow.WflowSedimentModel.staticmaps" title="hydromt_wflow.WflowSedimentModel.staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">staticmaps</span></code></a></p></td>
 <td><p>Model static maps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tables</span></code></p></td>
+<td><p>Returns a dictionary of pandas.DataFrames representing the wflow intbl files.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></p></td>
 <td><p>Returns the geospatial transform of the model staticmaps.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></p></td>
 <td><p>Returns the width of the model staticmaps.</p></td>
 </tr>
 </tbody>

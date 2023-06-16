@@ -394,6 +394,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.forcing.html">hydromt_wflow.WflowModel.forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.results.html">hydromt_wflow.WflowModel.results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.tables.html">hydromt_wflow.WflowModel.tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.flwdir.html">hydromt_wflow.WflowModel.flwdir</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.basins.html">hydromt_wflow.WflowModel.basins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.rivers.html">hydromt_wflow.WflowModel.rivers</a></li>
@@ -429,6 +430,9 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_states.html">hydromt_wflow.WflowModel.write_states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_results.html">hydromt_wflow.WflowModel.set_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_results.html">hydromt_wflow.WflowModel.read_results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_tables.html">hydromt_wflow.WflowModel.read_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_tables.html">hydromt_wflow.WflowModel.write_tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_flwdir.html">hydromt_wflow.WflowModel.set_flwdir</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -509,6 +513,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
@@ -599,8 +604,8 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_floodplains.html#hydromt_wflow.WflowModel.setup_floodplains" title="hydromt_wflow.WflowModel.setup_floodplains"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_floodplains</span></code></a>(hydrography_fn, ...)</p></td>
 <td><p>This components adds floodplain information to the model schematistation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes" title="hydromt_wflow.WflowModel.setup_lakes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_lakes</span></code></a>([lakes_fn, min_area])</p></td>
-<td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes" title="hydromt_wflow.WflowModel.setup_lakes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_lakes</span></code></a>(lakes_fn[, ...])</p></td>
+<td><p>This component generates maps of lake areas and outlets as well as parameters with average lake area, depth and discharge values.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs" title="hydromt_wflow.WflowModel.setup_reservoirs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_reservoirs</span></code></a>(reservoirs_fn[, ...])</p></td>
 <td><p>This component generates maps of reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
@@ -681,13 +686,16 @@ document.write(`
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.results.html#hydromt_wflow.WflowModel.results" title="hydromt_wflow.WflowModel.results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.results</span></code></a></p></td>
 <td><p>Model results.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.flwdir.html#hydromt_wflow.WflowModel.flwdir" title="hydromt_wflow.WflowModel.flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.flwdir</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.tables.html#hydromt_wflow.WflowModel.tables" title="hydromt_wflow.WflowModel.tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.tables</span></code></a></p></td>
+<td><p>Returns a dictionary of pandas.DataFrames representing the wflow intbl files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.flwdir.html#hydromt_wflow.WflowModel.flwdir" title="hydromt_wflow.WflowModel.flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.flwdir</span></code></a></p></td>
 <td><p>Returns the pyflwdir.FlwdirRaster object parsed from the wflow ldd.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.basins.html#hydromt_wflow.WflowModel.basins" title="hydromt_wflow.WflowModel.basins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.basins</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.basins.html#hydromt_wflow.WflowModel.basins" title="hydromt_wflow.WflowModel.basins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.basins</span></code></a></p></td>
 <td><p>Returns a basin(s) geometry as a geopandas.GeoDataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.rivers.html#hydromt_wflow.WflowModel.rivers" title="hydromt_wflow.WflowModel.rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.rivers</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.rivers.html#hydromt_wflow.WflowModel.rivers" title="hydromt_wflow.WflowModel.rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.rivers</span></code></a></p></td>
 <td><p>Returns a river geometry as a geopandas.GeoDataFrame.</p></td>
 </tr>
 </tbody>
@@ -788,7 +796,16 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_results.html#hydromt_wflow.WflowModel.read_results" title="hydromt_wflow.WflowModel.read_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_results</span></code></a>()</p></td>
 <td><p>Read results at &lt;root/?/&gt; and parse to dict of xr.DataArray/xr.Dataset</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_flwdir.html#hydromt_wflow.WflowModel.set_flwdir" title="hydromt_wflow.WflowModel.set_flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_flwdir</span></code></a>([ftype])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_tables.html#hydromt_wflow.WflowModel.set_tables" title="hydromt_wflow.WflowModel.set_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_tables</span></code></a>(df, name)</p></td>
+<td><p>Add table &lt;pandas.DataFrame&gt; to model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_tables.html#hydromt_wflow.WflowModel.read_tables" title="hydromt_wflow.WflowModel.read_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_tables</span></code></a>(**kwargs)</p></td>
+<td><p>Read table files at &lt;root&gt; and parse to dict of dataframes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_tables.html#hydromt_wflow.WflowModel.write_tables" title="hydromt_wflow.WflowModel.write_tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write_tables</span></code></a>()</p></td>
+<td><p>Write tables at &lt;root&gt;.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_flwdir.html#hydromt_wflow.WflowModel.set_flwdir" title="hydromt_wflow.WflowModel.set_flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_flwdir</span></code></a>([ftype])</p></td>
 <td><p>Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd</p></td>
 </tr>
 </tbody>
@@ -1038,13 +1055,16 @@ document.write(`
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs" title="hydromt_wflow.workflows.reservoirattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.reservoirattrs</span></code></a>(gdf[, ...])</p></td>
 <td><p>Returns reservoir attributes (see list below) needed for modelling.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html#hydromt_wflow.workflows.glaciermaps" title="hydromt_wflow.workflows.glaciermaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glaciermaps</span></code></a>(gdf, ds_like[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs" title="hydromt_wflow.workflows.lakeattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.lakeattrs</span></code></a>(ds, gdf[, rating_dict, ...])</p></td>
+<td><p>Returns lake attributes (see list below) needed for modelling.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html#hydromt_wflow.workflows.glaciermaps" title="hydromt_wflow.workflows.glaciermaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glaciermaps</span></code></a>(gdf, ds_like[, ...])</p></td>
 <td><p>Returns glacier maps (see list below) at model resolution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html#hydromt_wflow.workflows.glacierattrs" title="hydromt_wflow.workflows.glacierattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glacierattrs</span></code></a>(gdf[, TT, Cfmax, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html#hydromt_wflow.workflows.glacierattrs" title="hydromt_wflow.workflows.glacierattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glacierattrs</span></code></a>(gdf[, TT, Cfmax, ...])</p></td>
 <td><p>Returns glacier intbls (see list below).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
 <td><p>Estimates the root zone storage parameter for current observed and (optionally for) future climate-based streamflow data.</p></td>
 </tr>
 </tbody>

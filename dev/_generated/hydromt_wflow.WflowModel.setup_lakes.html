@@ -394,6 +394,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.forcing.html">hydromt_wflow.WflowModel.forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.results.html">hydromt_wflow.WflowModel.results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.tables.html">hydromt_wflow.WflowModel.tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.flwdir.html">hydromt_wflow.WflowModel.flwdir</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.basins.html">hydromt_wflow.WflowModel.basins</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.rivers.html">hydromt_wflow.WflowModel.rivers</a></li>
@@ -429,6 +430,9 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.write_states.html">hydromt_wflow.WflowModel.write_states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_results.html">hydromt_wflow.WflowModel.set_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.read_results.html">hydromt_wflow.WflowModel.read_results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_tables.html">hydromt_wflow.WflowModel.set_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.read_tables.html">hydromt_wflow.WflowModel.read_tables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.write_tables.html">hydromt_wflow.WflowModel.write_tables</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.set_flwdir.html">hydromt_wflow.WflowModel.set_flwdir</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -509,6 +513,7 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
@@ -576,12 +581,18 @@ document.write(`
 <h1>hydromt_wflow.WflowModel.setup_lakes<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-lakes" title="Permalink to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_lakes">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lakes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lakes_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hydro_lakes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lakes" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lakes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lakes_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rating_curve_fns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><span class="pre">Path</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_maxstorage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lakes" title="Permalink to this definition">#</a></dt>
 <dd><p>This component generates maps of lake areas and outlets as well as parameters
-with average lake area, depth a discharge values.</p>
+with average lake area, depth and discharge values.</p>
 <p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2] (default 1 km2) from a database with
 lake geometry, IDs and metadata. Data required are lake ID ‘waterbody_id’, average area ‘Area_avg’ [m2],
 average volume ‘Vol_avg’ [m3], average depth ‘Depth_avg’ [m] and average discharge ‘Dis_avg’ [m3/s].</p>
+<p>If rating curve data is available for storage and discharge they can be prepared via <code class="docutils literal notranslate"><span class="pre">rating_curve_fns</span></code>
+(see below for syntax and requirements). Else the parameters ‘Lake_b’ and ‘Lake_e’ will be used for
+discharge and for storage a rectangular profile lake is assumed.
+See Wflow documentation for more information.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">add_maxstorage</span></code> is True, the maximum storage of the lake is added to the output (controlled lake) based on
+‘Vol_max’ [m3] column of lakes_fn.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_lakeareas</strong> map: lake IDs [-]</p></li>
@@ -590,17 +601,30 @@ average volume ‘Vol_avg’ [m3], average depth ‘Depth_avg’ [m] and average
 <li><p><strong>LakeAvgLevel</strong> map: lake average water level [m]</p></li>
 <li><p><strong>LakeAvgOut</strong> map: lake average discharge [m3/s]</p></li>
 <li><p><strong>Lake_b</strong> map: lake rating curve coefficient [-]</p></li>
+<li><p><strong>LakeOutflowFunc</strong> map: option to compute rating curve [-]</p></li>
+<li><p><strong>LakeStorFunc</strong> map: option to compute storage curve [-]</p></li>
+<li><p><strong>LakeMaxStorage</strong> map: optional, maximum storage of lake [m3]</p></li>
 <li><p><strong>lakes</strong> geom: polygon with lakes and wflow lake parameters</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lakes_fn</strong> (<em>{'hydro_lakes'}</em>) – <p>Name of data source for lake parameters, see data/data_sources.yml.</p>
+<li><p><strong>lakes_fn</strong> – <p>Name of data source for lake parameters, see data/data_sources.yml.</p>
 <ul>
-<li><p>Required variables: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’]</p></li>
+<li><p>Required variables for direct use: [‘waterbody_id’, ‘Area_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Lake_b’, ‘Lake_e’, ‘LakeOutflowFunc’, ‘LakeStorFunc’, ‘LakeThreshold’, ‘LinkedLakeLocs’]</p></li>
+<li><p>Required variables for parameter estimation: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>min_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum lake area threshold [km2], by default 1.0 km2.</p></li>
+<li><p><strong>rating_curve_fns</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>]</em><em>, </em><em>List</em><em>[</em><em>Path</em><em>]</em><em>, </em><em>optional</em>) – <p>Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
+properties of lakes_fn. Assumes one file per lake (with all variables) and that the lake ID is either in the filename
+or data catalog entry name (eg using placeholder). The ID should be placed at the end separated by an underscore (eg
+‘rating_curve_12.csv’ or ‘rating_curve_12’)</p>
+<ul>
+<li><p>Required variables: [‘elevtn’, ‘volume’] for storage curve and [‘elevtn’, ‘discharge’] for discharge rating curve</p></li>
+</ul>
+</p></li>
+<li><p><strong>min_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum lake area threshold [km2], by default 10.0 km2.</p></li>
+<li><p><strong>add_maxstorage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, maximum storage of the lake is added to the output (controlled lake) based on ‘Vol_max’ [m3] column of lakes_fn, by default False (natural lake).</p></li>
 </ul>
 </dd>
 </dl>

@@ -511,6 +511,7 @@ document.write(`
 
         <span class="c1"># wflow specific</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="c1"># COMPONENTS</span>
@@ -1657,13 +1658,27 @@ document.write(`
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_area</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">col2raster</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="WflowModel.setup_lakes"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lakes_fn</span><span class="o">=</span><span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+<div class="viewcode-block" id="WflowModel.setup_lakes"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lakes_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+        <span class="n">rating_curve_fns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">add_maxstorage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This component generates maps of lake areas and outlets as well as parameters</span>
-<span class="sd">        with average lake area, depth a discharge values.</span>
+<span class="sd">        with average lake area, depth and discharge values.</span>
 
 <span class="sd">        The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with</span>
 <span class="sd">        lake geometry, IDs and metadata. Data required are lake ID &#39;waterbody_id&#39;, average area &#39;Area_avg&#39; [m2],</span>
 <span class="sd">        average volume &#39;Vol_avg&#39; [m3], average depth &#39;Depth_avg&#39; [m] and average discharge &#39;Dis_avg&#39; [m3/s].</span>
+
+<span class="sd">        If rating curve data is available for storage and discharge they can be prepared via ``rating_curve_fns``</span>
+<span class="sd">        (see below for syntax and requirements). Else the parameters &#39;Lake_b&#39; and &#39;Lake_e&#39; will be used for</span>
+<span class="sd">        discharge and for storage a rectangular profile lake is assumed.</span>
+<span class="sd">        See Wflow documentation for more information.</span>
+
+<span class="sd">        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the output (controlled lake) based on</span>
+<span class="sd">        &#39;Vol_max&#39; [m3] column of lakes_fn.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1673,18 +1688,93 @@ document.write(`
 <span class="sd">        * **LakeAvgLevel** map: lake average water level [m]</span>
 <span class="sd">        * **LakeAvgOut** map: lake average discharge [m3/s]</span>
 <span class="sd">        * **Lake_b** map: lake rating curve coefficient [-]</span>
+<span class="sd">        * **LakeOutflowFunc** map: option to compute rating curve [-]</span>
+<span class="sd">        * **LakeStorFunc** map: option to compute storage curve [-]</span>
+<span class="sd">        * **LakeMaxStorage** map: optional, maximum storage of lake [m3]</span>
 <span class="sd">        * **lakes** geom: polygon with lakes and wflow lake parameters</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lakes_fn : {&#39;hydro_lakes&#39;}</span>
+<span class="sd">        lakes_fn :</span>
 <span class="sd">            Name of data source for lake parameters, see data/data_sources.yml.</span>
 
-<span class="sd">            * Required variables: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;]</span>
+<span class="sd">            * Required variables for direct use: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Lake_b&#39;, &#39;Lake_e&#39;, &#39;LakeOutflowFunc&#39;, &#39;LakeStorFunc&#39;, &#39;LakeThreshold&#39;, &#39;LinkedLakeLocs&#39;]</span>
+
+<span class="sd">            * Required variables for parameter estimation: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;]</span>
+<span class="sd">        rating_curve_fns: str, Path, List[str], List[Path], optional</span>
+<span class="sd">            Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from</span>
+<span class="sd">            properties of lakes_fn. Assumes one file per lake (with all variables) and that the lake ID is either in the filename</span>
+<span class="sd">            or data catalog entry name (eg using placeholder). The ID should be placed at the end separated by an underscore (eg</span>
+<span class="sd">            &#39;rating_curve_12.csv&#39; or &#39;rating_curve_12&#39;)</span>
+
+<span class="sd">            * Required variables: [&#39;elevtn&#39;, &#39;volume&#39;] for storage curve and [&#39;elevtn&#39;, &#39;discharge&#39;] for discharge rating curve</span>
 <span class="sd">        min_area : float, optional</span>
-<span class="sd">            Minimum lake area threshold [km2], by default 1.0 km2.</span>
+<span class="sd">            Minimum lake area threshold [km2], by default 10.0 km2.</span>
+<span class="sd">        add_maxstorage : bool, optional</span>
+<span class="sd">            If True, maximum storage of the lake is added to the output (controlled lake) based on &#39;Vol_max&#39; [m3] column of lakes_fn, by default False (natural lake).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># Derive lake are and outlet maps</span>
+        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span><span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+        <span class="n">ds_lakes</span> <span class="o">=</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span>
+
+        <span class="c1"># If rating_curve_fn prepare rating curve dict</span>
+        <span class="n">rating_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rating_curve_fns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">rating_curve_fns</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">rating_curve_fns</span><span class="p">)</span>
+            <span class="c1"># Find ids in rating_curve_fns</span>
+            <span class="n">fns_ids</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">rating_curve_fns</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">fns_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">fn</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Could not parse integer lake index from rating curve fn </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">. Skipping.&quot;</span>
+                    <span class="p">)</span>
+            <span class="c1"># assume lake index will be in the path</span>
+            <span class="c1"># Assume one rating curve per lake index</span>
+            <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+                <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                <span class="c1"># Find if id is is one of the paths in rating_curve_fns</span>
+                <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">fns_ids</span><span class="p">:</span>
+                    <span class="c1"># Update path based on current waterbody_id</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="n">fns_ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                    <span class="n">rating_fn</span> <span class="o">=</span> <span class="n">rating_curve_fns</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="c1"># Read data</span>
+                    <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">rating_fn</span><span class="p">)</span> <span class="ow">or</span> <span class="n">rating_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Preparing lake rating curve data from </span><span class="si">{</span><span class="n">rating_fn</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">df_rate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span><span class="n">rating_fn</span><span class="p">)</span>
+                        <span class="c1"># Add to dict</span>
+                        <span class="n">rating_dict</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rate</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Rating curve file not found for lake with id </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. Using default storage/outflow function parameters.&quot;</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;No rating curve data provided. Using default storage/outflow function parameters.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># add waterbody parameters</span>
+        <span class="n">ds_lakes</span><span class="p">,</span> <span class="n">gdf_lakes</span><span class="p">,</span> <span class="n">rating_curves</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">waterbodies</span><span class="o">.</span><span class="n">lakeattrs</span><span class="p">(</span>
+            <span class="n">ds_lakes</span><span class="p">,</span> <span class="n">gdf_org</span><span class="p">,</span> <span class="n">rating_dict</span><span class="p">,</span> <span class="n">add_maxstorage</span><span class="o">=</span><span class="n">add_maxstorage</span>
+        <span class="p">)</span>
+
+        <span class="c1"># add to staticmaps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_lakes</span><span class="p">)</span>
+        <span class="c1"># write lakes with attr tables to static geoms.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;lakes&quot;</span><span class="p">)</span>
+        <span class="c1"># add the tables</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rating_curves</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_tables</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="c1"># if there are lakes, change True in toml</span>
+        <span class="c1"># Lake seetings in the toml to update</span>
         <span class="n">lakes_toml</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;model.lakes&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
             <span class="s2">&quot;state.lateral.river.lake.waterlevel&quot;</span><span class="p">:</span> <span class="s2">&quot;waterlevel_lake&quot;</span><span class="p">,</span>
@@ -1699,68 +1789,10 @@ document.write(`
             <span class="s2">&quot;input.lateral.river.lake.linkedlakelocs&quot;</span><span class="p">:</span> <span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">,</span>
             <span class="s2">&quot;input.lateral.river.lake.waterlevel&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
         <span class="p">}</span>
-
-        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span><span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
-            <span class="c1"># add waterbody parameters</span>
-            <span class="c1"># rename to param values</span>
-            <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeArea&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Depth_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Dis_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">,</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-            <span class="c1"># Minimum value for LakeAvgOut</span>
-            <span class="n">LakeAvgOut</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">)</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;Lake_b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="p">(</span>
-                <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-            <span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;Lake_e&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeStorFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeThreshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-
-            <span class="c1"># Check if some LakeAvgOut values have been replaced</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">LakeAvgOut</span> <span class="o">==</span> <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="s2">&quot;Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s&quot;</span>
-                <span class="p">)</span>
-
-            <span class="n">lake_params</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LakeArea&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Lake_b&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Lake_e&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LakeStorFunc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LakeThreshold&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
-
-            <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-                <span class="n">gdf_org</span><span class="p">[</span><span class="n">lake_params</span><span class="p">],</span>
-                <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_org</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
-            <span class="p">)</span>
-
-            <span class="c1"># write lakes with attr tables to static geoms.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;lakes&quot;</span><span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lake_params</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="n">da_lake</span> <span class="o">=</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-                    <span class="n">gdf_org_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">da_lake</span><span class="p">)</span>
-
-            <span class="c1"># if there are lakes, change True in toml</span>
-            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">lakes_toml</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">lakes_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+        <span class="k">if</span> <span class="s2">&quot;LakeMaxStorage&quot;</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="p">:</span>
+            <span class="n">lakes_toml</span><span class="p">[</span><span class="s2">&quot;input.lateral.river.lake.maxstorage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;LakeMaxStorage&quot;</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">lakes_toml</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">lakes_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="WflowModel.setup_reservoirs"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs">[docs]</a>    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -2672,6 +2704,7 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">read_config</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_staticmaps</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_intbl</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_tables</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_staticgeoms</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_forcing</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model read&quot;</span><span class="p">)</span></div>
@@ -2688,6 +2721,8 @@ document.write(`
             <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staticmaps</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_staticmaps</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_tables</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_staticgeoms</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_staticgeoms</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">:</span>
@@ -3170,6 +3205,40 @@ document.write(`
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overwriting intbl: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
 
+<div class="viewcode-block" id="WflowModel.read_tables"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_tables.html#hydromt_wflow.WflowModel.read_tables">[docs]</a>    <span class="k">def</span> <span class="nf">read_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read table files at &lt;root&gt; and parse to dict of dataframes&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># start fresh in read-only mode</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading model table files.&quot;</span><span class="p">)</span>
+        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;*.csv&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_tables</span><span class="p">(</span><span class="n">tbl</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WflowModel.write_tables"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_tables.html#hydromt_wflow.WflowModel.write_tables">[docs]</a>    <span class="k">def</span> <span class="nf">write_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write tables at &lt;root&gt;.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing table files.&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">:</span>
+                <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="WflowModel.set_tables"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.set_tables.html#hydromt_wflow.WflowModel.set_tables">[docs]</a>    <span class="k">def</span> <span class="nf">set_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add table &lt;pandas.DataFrame&gt; to model.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;df type not recognized, should be pandas.DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot overwrite table </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> in read-only mode&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overwriting table: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
+
     <span class="k">def</span> <span class="nf">_configread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">fdict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -3187,6 +3256,14 @@ document.write(`
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_intbl</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span>
+
+    <span class="nd">@property</span>
+    <span class="c1"># Move to core Model API ?</span>
+    <span class="k">def</span> <span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a dictionary of pandas.DataFrames representing the wflow intbl files.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_tables</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">flwdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -3367,6 +3444,14 @@ document.write(`
                     <span class="s2">&quot;Lake_e&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_staticmaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">)</span>
+
+            <span class="c1"># Update tables</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">lake</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tables</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="n">k</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ids</span><span class="p">])</span>
+            <span class="p">}</span>
 
         <span class="c1"># Update config</span>
         <span class="c1"># Remove the absolute path and if needed remove lakes and reservoirs</span>

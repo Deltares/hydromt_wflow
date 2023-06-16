@@ -414,7 +414,7 @@ document.write(`
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;waterbodymaps&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoirattrs&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;waterbodymaps&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoirattrs&quot;</span><span class="p">,</span> <span class="s2">&quot;lakeattrs&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="waterbodymaps"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps">[docs]</a><span class="k">def</span> <span class="nf">waterbodymaps</span><span class="p">(</span>
@@ -884,6 +884,162 @@ document.write(`
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df_out</span><span class="p">,</span> <span class="n">df_plot</span><span class="p">,</span> <span class="n">df_ts</span></div>
+
+
+<div class="viewcode-block" id="lakeattrs"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs">[docs]</a><span class="k">def</span> <span class="nf">lakeattrs</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">rating_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span>
+    <span class="n">add_maxstorage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns lake attributes (see list below) needed for modelling. </span>
+<span class="sd">    If rating_dict is not empty, prepares also rating tables for wflow</span>
+
+<span class="sd">    The following reservoir attributes are calculated:\</span>
+<span class="sd">    - waterbody_id : waterbody id\</span>
+<span class="sd">    - LakeArea : lake area [m2]\</span>
+<span class="sd">    - LakeAvgLevel: lake average level [m]\</span>
+<span class="sd">    - LakeAvgOut: lake average outflow [m3/s]\</span>
+<span class="sd">    - Lake_b: lake rating curve coefficient [-]\</span>
+<span class="sd">    - Lake_e: lake rating curve exponent [-]\</span>
+<span class="sd">    - LakeStorFunc: option to compute storage curve [-]\</span>
+<span class="sd">    - LakeOutflowFunc: option to compute rating curve [-]\</span>
+<span class="sd">    - LakeThreshold: minimium threshold for lake outflow [m]\</span>
+<span class="sd">    - LinkedLakeLocs: id of linked lake location if any\</span>
+<span class="sd">    - LakeMaxStorage: maximum storage [m3] (optional)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset containing the lake locations and area</span>
+<span class="sd">    gdf : gp.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing the lake locations and area</span>
+<span class="sd">    rating_dict : dict, optional</span>
+<span class="sd">        Dictionary containing the rating curve parameters, by default dict()</span>
+<span class="sd">    add_maxstorage : bool, optional</span>
+<span class="sd">        If True, adds the maximum storage to the output, by default False</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">        Dataset containing the lake locations with the attributes</span>
+<span class="sd">    gdf : gp.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing the lake locations with the attributes</span>
+<span class="sd">    rating_curves : dict</span>
+<span class="sd">        Dictionary containing the rating curves in wflow format</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># rename to param values</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeArea&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Depth_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Dis_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="c1"># Add maximum volume / no filling of NaNs as assumes then natural lake and not controlled</span>
+    <span class="k">if</span> <span class="n">add_maxstorage</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;Vol_max&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Vol_max&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeMaxStorage&quot;</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;No maximum storage &#39;Vol_max&#39; column found, skip adding LakeMaxStorage map.&quot;</span>
+            <span class="p">)</span>
+    <span class="c1"># Minimum value for LakeAvgOut</span>
+    <span class="n">LakeAvgOut</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">],</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Lake_b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Lake_b&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Lake_e&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Lake_e&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="s2">&quot;LakeThreshold&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeThreshold&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">if</span> <span class="s2">&quot;LinkedLakeLocs&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="s2">&quot;LakeStorFunc&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeStorFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="s2">&quot;LakeOutflowFunc&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="c1"># Check if some LakeAvgOut values have been replaced</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">LakeAvgOut</span> <span class="o">==</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Check if rating curve is provided</span>
+    <span class="n">rating_curves</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rating_dict</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Assume one rating curve per lake index</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">rating_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">df_rate</span> <span class="o">=</span> <span class="n">rating_dict</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+                <span class="c1"># Prepare the right tables for wflow</span>
+                <span class="c1"># Update LakeStor and LakeOutflowFunc</span>
+                <span class="c1"># Storage</span>
+                <span class="k">if</span> <span class="s2">&quot;volume&quot;</span> <span class="ow">in</span> <span class="n">df_rate</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;LakeStorFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+                    <span class="n">df_stor</span> <span class="o">=</span> <span class="n">df_rate</span><span class="p">[[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+                        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">df_stor</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;elevtn&quot;</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="s2">&quot;S&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="c1"># add to rating_curves</span>
+                    <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;lake_sh_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_stor</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Storage data not available for lake </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. Using default S=AH&quot;</span>
+                    <span class="p">)</span>
+                <span class="c1"># Rating</span>
+                <span class="k">if</span> <span class="s2">&quot;discharge&quot;</span> <span class="ow">in</span> <span class="n">df_rate</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">id</span><span class="p">,</span> <span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">df_rate</span> <span class="o">=</span> <span class="n">df_rate</span><span class="p">[[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;discharge&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+                        <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">,</span> <span class="s2">&quot;discharge&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">df_rate</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+                        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;elevtn&quot;</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;discharge&quot;</span><span class="p">:</span> <span class="s2">&quot;Q&quot;</span><span class="p">},</span>
+                        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="c1"># Repeat Q for the 365 JDOY</span>
+                    <span class="n">df_q</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_rate</span><span class="o">.</span><span class="n">Q</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">366</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">df_q</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_rate</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span>
+                    <span class="n">df_q</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;H&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="c1"># add to rating_curves</span>
+                    <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;lake_hq_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_q</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Rating data not available for lake </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. Using default Modified Puls Approach&quot;</span>
+                    <span class="p">)</span>
+
+    <span class="c1"># Create raster of lake params</span>
+    <span class="n">lake_params</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LakeArea&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LakeAvgLevel&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Lake_b&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Lake_e&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LakeStorFunc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LakeOutflowFunc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LakeThreshold&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;LinkedLakeLocs&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;LakeMaxStorage&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">lake_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;LakeMaxStorage&quot;</span><span class="p">)</span>
+
+    <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="n">lake_params</span><span class="p">],</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">gp</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">lake_params</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">da_lake</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+            <span class="n">gdf_org_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
+        <span class="p">)</span>
+        <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_lake</span>
+
+    <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">rating_curves</span></div>
 </pre></div>
 
                 </article>
