@@ -1103,8 +1103,9 @@ class WflowModel(Model):
         lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id', average area 'Area_avg' [m2],
         average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
 
-        If rating curve data is available for storage and discharge they can be preapred via ``rating_curve_fns``. Else
-        the parameters 'Lake_b' and 'Lake_e' will be used for discharge and for storage a rectangular profile lake is assumed.
+        If rating curve data is available for storage and discharge they can be prepared via ``rating_curve_fns``
+        (see below for syntax and requirements). Else the parameters 'Lake_b' and 'Lake_e' will be used for
+        discharge and for storage a rectangular profile lake is assumed.
         See Wflow documentation for more information.
 
         If ``add_maxstorage`` is True, the maximum storage of the lake is added to the output (controlled lake) based on
@@ -1133,8 +1134,9 @@ class WflowModel(Model):
             * Required variables for parameter estimation: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
         rating_curve_fns: str, Path, List[str], List[Path], optional
             Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
-            properties of lakes_fn. Assumes one file per lake (with all varibales) and that the lake ID is either in the filename
-            or data catalog entry name (eg using placeholder).
+            properties of lakes_fn. Assumes one file per lake (with all variables) and that the lake ID is either in the filename
+            or data catalog entry name (eg using placeholder). The ID should be placed at the end separated by an underscore (eg
+            'rating_curve_12.csv' or 'rating_curve_12')
 
             * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
@@ -1154,13 +1156,18 @@ class WflowModel(Model):
         rating_dict = dict()
         if rating_curve_fns is not None:
             rating_curve_fns = np.atleast_1d(rating_curve_fns)
+            # Find ids in rating_curve_fns
+            fns_ids = [int(fn.split("_")[-1].split(".")[0]) for fn in rating_curve_fns]
             # assume lake index will be in the path
             # Assume one rating curve per lake index
             for id in gdf_org["waterbody_id"].values:
                 # Find if id is is one of the paths in rating_curve_fns
-                if any([str(id) in fn for fn in rating_curve_fns]):
+                if id in fns_ids:
                     # Update path based on current waterbody_id
-                    rating_fn = [fn for fn in rating_curve_fns if str(id) in fn][0]
+                    for i, idx in enumerate(fns_ids):
+                        if idx == id:
+                            rating_fn = rating_curve_fns[i]
+                            break
                     # Read data
                     if isfile(rating_fn) or rating_fn in self.data_catalog:
                         self.logger.info(
