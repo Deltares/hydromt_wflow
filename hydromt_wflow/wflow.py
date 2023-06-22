@@ -248,7 +248,7 @@ class WflowModel(Model):
         min_rivdph=1,
         min_rivwth=30,
         smooth_len=5e3,
-        rivman_mapping_fn: str = "roughness_river_mapping",
+        rivman_mapping_fn: str = "roughness_river_mapping_default",
         **kwargs,
     ):
         """
@@ -625,7 +625,7 @@ class WflowModel(Model):
         """
         self.logger.info(f"Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
-            fn_map = f"{lulc_fn}_mapping"
+            fn_map = f"{lulc_fn}_mapping_default"
         else:
             fn_map = lulc_mapping_fn
         if not isfile(fn_map) and fn_map not in self.data_catalog:

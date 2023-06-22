@@ -320,7 +320,7 @@ class WflowSedimentModel(WflowModel):
         self.logger.info(f"Preparing riverbedsed parameter maps.")
         # Make D50_River map from csv file with mapping between streamorder and D50_River value
         if bedsed_mapping_fn is None:
-            fn_map = "riverbedsed_mapping"
+            fn_map = "riverbedsed_mapping_default"
         else:
             fn_map = bedsed_mapping_fn
 
