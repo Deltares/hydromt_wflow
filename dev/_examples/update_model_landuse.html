@@ -614,47 +614,48 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-06-16 09:39:59,988 - update - log - INFO - HydroMT version: 0.7.2.dev0
-2023-06-16 09:39:59,989 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-06-16 09:39:59,989 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2023-06-16 09:39:59,989 - update - main - INFO - User settings:
-2023-06-16 09:40:00,345 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2023-06-16 09:40:00,348 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-06-16 09:40:00,584 - update - wflow - INFO - Reading model intbl files.
-2023-06-16 09:40:00,584 - update - wflow - INFO - Reading model table files.
-2023-06-16 09:40:00,585 - update - wflow - INFO - Reading model staticgeom files.
-2023-06-16 09:40:00,789 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-06-16 09:40:00,819 - update - wflow - INFO - Model read
-2023-06-16 09:40:00,825 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2023-06-16 09:40:00,825 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2023-06-16 09:40:00,825 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2023-06-16 09:40:00,825 - update - wflow - INFO - Preparing LULC parameter maps.
-2023-06-16 09:40:00,895 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
-2023-06-16 09:40:00,895 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-06-16 09:40:00,964 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
-2023-06-16 09:40:01,302 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2023-06-16 09:40:01,457 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2023-06-16 09:40:01,610 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2023-06-16 09:40:01,757 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2023-06-16 09:40:01,906 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2023-06-16 09:40:02,054 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2023-06-16 09:40:02,200 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2023-06-16 09:40:02,346 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2023-06-16 09:40:02,491 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
-2023-06-16 09:40:02,494 - update - model_api - WARNING - Replacing staticmap: Kext
-2023-06-16 09:40:02,496 - update - model_api - WARNING - Replacing staticmap: N
-2023-06-16 09:40:02,497 - update - model_api - WARNING - Replacing staticmap: PathFrac
-2023-06-16 09:40:02,499 - update - model_api - WARNING - Replacing staticmap: RootingDepth
-2023-06-16 09:40:02,501 - update - model_api - WARNING - Replacing staticmap: Sl
-2023-06-16 09:40:02,503 - update - model_api - WARNING - Replacing staticmap: Swood
-2023-06-16 09:40:02,504 - update - model_api - WARNING - Replacing staticmap: WaterFrac
-2023-06-16 09:40:02,506 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2023-06-16 09:40:02,508 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
-2023-06-16 09:40:02,618 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
-2023-06-16 09:40:02,901 - update - wflow - INFO - Write forcing file
-2023-06-16 09:40:02,921 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 101.35 ms
-
+2023-06-23 15:16:26,619 - update - log - INFO - HydroMT version: 0.7.2.dev0
+2023-06-23 15:16:26,619 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-06-23 15:16:26,620 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-06-23 15:16:26,620 - update - main - INFO - User settings:
+2023-06-23 15:16:26,647 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-06-23 15:16:26,650 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-06-23 15:16:27,005 - update - wflow - INFO - Reading model intbl files.
+2023-06-23 15:16:27,005 - update - wflow - INFO - Reading model table files.
+2023-06-23 15:16:27,006 - update - wflow - INFO - Reading model staticgeom files.
+2023-06-23 15:16:27,187 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-06-23 15:16:27,231 - update - wflow - INFO - Model read
+2023-06-23 15:16:27,238 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2023-06-23 15:16:27,238 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-06-23 15:16:27,238 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2023-06-23 15:16:27,238 - update - wflow - INFO - Preparing LULC parameter maps.
+2023-06-23 15:16:27,295 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
+2023-06-23 15:16:27,295 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-06-23 15:16:27,389 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
+2023-06-23 15:16:27,834 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2023-06-23 15:16:28,038 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-06-23 15:16:28,230 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-06-23 15:16:28,415 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-06-23 15:16:28,600 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2023-06-23 15:16:28,784 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-06-23 15:16:28,967 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-06-23 15:16:29,167 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-06-23 15:16:29,354 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
+2023-06-23 15:16:29,357 - update - model_api - WARNING - Replacing staticmap: Kext
+2023-06-23 15:16:29,359 - update - model_api - WARNING - Replacing staticmap: N
+2023-06-23 15:16:29,361 - update - model_api - WARNING - Replacing staticmap: PathFrac
+2023-06-23 15:16:29,364 - update - model_api - WARNING - Replacing staticmap: RootingDepth
+2023-06-23 15:16:29,366 - update - model_api - WARNING - Replacing staticmap: Sl
+2023-06-23 15:16:29,368 - update - model_api - WARNING - Replacing staticmap: Swood
+2023-06-23 15:16:29,370 - update - model_api - WARNING - Replacing staticmap: WaterFrac
+2023-06-23 15:16:29,373 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-06-23 15:16:29,374 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+2023-06-23 15:16:29,530 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2023-06-23 15:16:29,914 - update - wflow - INFO - Write forcing file
+2023-06-23 15:16:29,941 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 101.22 ms
+malloc(): mismatching next-&gt;prev_size (unsorted)
+Aborted (core dumped)
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
