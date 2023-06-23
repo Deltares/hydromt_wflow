@@ -30,15 +30,19 @@ Setup components
    WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
+   WflowModel.setup_floodplains
    WflowModel.setup_lakes
    WflowModel.setup_reservoirs
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
+   WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_hydrodem
+   WflowModel.setup_outlets
    WflowModel.setup_gauges
    WflowModel.setup_areamap
+   WflowModel.setup_config_output_timeseries
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
    WflowModel.setup_constant_pars
@@ -60,6 +64,7 @@ Attributes
    WflowModel.forcing
    WflowModel.states
    WflowModel.results
+   WflowModel.tables
    WflowModel.flwdir
    WflowModel.basins
    WflowModel.rivers
@@ -112,6 +117,10 @@ General methods
    WflowModel.set_results
    WflowModel.read_results
 
+   WflowModel.set_tables
+   WflowModel.read_tables
+   WflowModel.write_tables
+
    WflowModel.set_flwdir
 
 .. _api_model_sediment:
@@ -146,8 +155,10 @@ Setup components
    WflowSedimentModel.setup_soilmaps
    WflowSedimentModel.setup_riverwidth
    WflowSedimentModel.setup_riverbedsed
+   WflowSedimentModel.setup_outlets
    WflowSedimentModel.setup_gauges
    WflowSedimentModel.setup_areamap
+   WflowSedimentModel.setup_config_output_timeseries
    WflowSedimentModel.setup_constant_pars
    WflowSedimentModel.setup_staticmaps_from_raster
 
@@ -235,8 +246,10 @@ Wflow workflows
    workflows.soilgrids_sediment
    workflows.waterbodymaps
    workflows.reservoirattrs
+   workflows.lakeattrs
    workflows.glaciermaps
    workflows.glacierattrs
+   workflows.rootzoneclim
 
 
 .. _methods:

@@ -11,10 +11,21 @@ Unreleased
 
 Added
 -----
+- Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
+- Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
 - In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
-- Add option to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
+- **setup_oulets**: Add map/geom of basin outlets (on river or all) and optionally updates outputs in toml file.
+- **setup_config_output_timeseries**: add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
+- **setup_gauges**: support for snapping based on a user defined max distance and snapping based on upstream area attribute.
+- **setup_gauges**: gauges_fn can be both GeoDataFrame or GeoDataset (new) data_type.
+- New **setup_floodplains** method, that allows the user the choose either 1D or 2D floodplains. Note: requires pyflwdir v0.5.7. `PR #123 <https://github.com/Deltares/hydromt_wflow/pull/123>`_
+- In **setup_lakes**: Add option to prepare rating curve tables for lake Q-V and Q-H curves. Also updated LakeOutFlowFunc and LakeStorFunc accordingly. `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
+- In **setup_lakes**: Support setting lake parameters from direct value in the lake_fn columns. `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
+- In **setup_lakes**: Option to prepare controlled lake parameter maxstorage (new in Wflow.jl 0.7.0).
+- New workflow **waterbodies.lakeattrs** to prepare lake parameters from lake_fn attribute and rating curve data.
+- New **tables** model property including read/write: dictionnary of pandas.DataFrame with model tables (e.g. rating curves of lakes, etc.). `PR #158 <https://github.com/Deltares/hydromt_wflow/pull/158>`_
 - Removed hardcoded mapping tables, and added those files an additional .yml file, which is by default read when creating a WflowModel. `PR #168 <https://github.com/Deltares/hydromt_wflow/pull/168>`_
 
 Changed
@@ -34,6 +45,7 @@ Fixed
 
 Deprecated
 ----------
+- The **setup_hydrodem** function has been removed, and the functionality are moved to **setup_rivers** and **setup_floodplains**
 
 
 v0.2.1 (22 November 2022)

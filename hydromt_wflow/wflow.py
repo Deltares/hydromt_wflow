@@ -3,6 +3,7 @@
 
 import os
 from os.path import join, dirname, basename, isfile, isdir
+from pathlib import Path
 from typing import Union, Optional, List
 import glob
 import numpy as np
@@ -13,6 +14,7 @@ from shapely.geometry import box
 import pyproj
 import toml
 import codecs
+import pyflwdir
 from pyflwdir import core_d8, core_ldd, core_conversion
 from dask.diagnostics import ProgressBar
 import logging
@@ -107,6 +109,7 @@ class WflowModel(Model):
 
         # wflow specific
         self._intbl = dict()
+        self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
 
@@ -241,14 +244,17 @@ class WflowModel(Model):
         self,
         hydrography_fn,
         river_geom_fn=None,
-        river_upa=30,
-        rivdph_method="powlaw",
-        slope_len=2e3,
+        river_upa: float = 30,
+        rivdph_method: str = "powlaw",
+        slope_len: float = 2e3,
         min_rivlen_ratio=0.0,
-        min_rivdph=1,
-        min_rivwth=30,
-        smooth_len=5e3,
+        min_rivdph: float = 1,
+        min_rivwth: float = 30,
+        smooth_len: float = 5e3,
         rivman_mapping_fn: str = "roughness_river_mapping_default",
+        elevtn_map: str = "wflow_dem",
+        river_routing: str = "kinematic-wave",
+        connectivity: int = 8,
         **kwargs,
     ):
         """
@@ -278,6 +284,14 @@ class WflowModel(Model):
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
+        If `river_routing` is set to "local-inertial", the bankfull elevantion map can be
+        conditioned based on the average cell elevation ("wflow_dem") or subgrid outlet pixel
+        elevation ("dem_subgrid"). The subgrid elevation might provide a better representation
+        of the river elevation profile, however in combination with local-inertial land routing
+        (see `hydromt.setup_floodplains`) the subgrid elevation will likely overestimate the
+        floodplain storage capacity. Note that the same input elevation map should be used for
+        river bankfull elevation and land elevation when using local-inertial land routing.
+
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
@@ -287,6 +301,7 @@ class WflowModel(Model):
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
 
         Parameters
         ----------
@@ -311,20 +326,35 @@ class WflowModel(Model):
             For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+        river_routing : {'kinematic-wave', 'local-inertial'}
+            Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
             Length [m] over which to smooth the output river width and depth, by default 5e3
         min_rivdph : float, optional
             Minimum river depth [m], by default 1.0
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
+        elevtn_map : str, optional
+            by default "wflow_dem",
 
         See Also
         --------
         workflows.river_bathymetry
         hydromt.workflows.river_depth
         pyflwdir.FlwdirRaster.river_depth
+        hydromt.setup_floodplains
         """
         self.logger.info(f"Preparing river maps.")
+
+        rivdph_methods = ["gvf", "manning", "powlaw"]
+        if rivdph_method not in rivdph_methods:
+            raise ValueError(f'"{rivdph_method}" unknown. Select from {rivdph_methods}')
+
+        routing_options = ["kinematic-wave", "local-inertial"]
+        if river_routing not in routing_options:
+            raise ValueError(
+                f'river_routing="{river_routing}" unknown. Select from {routing_options}.'
+            )
 
         # read data
         ds_hydro = self.data_catalog.get_rasterdataset(
@@ -343,6 +373,10 @@ class WflowModel(Model):
             min_rivlen_ratio=min_rivlen_ratio,
             logger=self.logger,
         )[0]
+
+        ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
+            river_upa=river_upa, slope_len=slope_len, min_rivlen_ratio=min_rivlen_ratio
+        )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
@@ -394,96 +428,234 @@ class WflowModel(Model):
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
 
-    def setup_hydrodem(
+        # Add hydrologically conditioned elevation map for the river, if required
+        if river_routing == "local-inertial":
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
+            name = f"hydrodem{postfix}"
+
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps[elevtn_map],
+                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+                logger=self.logger,
+            ).rename(name)
+            self.set_staticmaps(ds_out)
+
+            # update toml model.river_routing
+            self.logger.debug(
+                f'Update wflow config model.river_routing="{river_routing}"'
+            )
+            self.set_config("model.river_routing", river_routing)
+
+            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+        else:
+            self.set_config("model.river_routing", river_routing)
+
+    def setup_floodplains(
         self,
-        elevtn_map="wflow_dem",
-        river_routing="local-inertial",
-        land_routing="kinematic-wave",
+        hydrography_fn,
+        floodplain_type: str,
+        ### Options for 1D floodplains
+        river_upa: Optional[float] = None,
+        flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
+        ### Options for 2D floodplains
+        elevtn_map: str = "wflow_dem",
+        connectivity: int = 4,
     ):
-        """This component adds a hydrologically conditioned elevation (hydrodem) map for
-        river and/or land local-inertial routing.
+        """
+        This components adds floodplain information to the model schematistation. The user can
+        define what type of floodplains are required (1D or 2D), through the `floodplain_type`
+        argument.
 
-        River cells are always conditioned to D8 flow directions.  Land cells are conditioned
-        to D4 flow directions if land_routing="local-inertial", else to D8. If local inertial
-        is selected for land routing, it is required to have a D4 conditioning, otherwise pits
-        may remain in the land cells.
+        If `floodplain_type` is set to "1d", a floodplain profile is derived for every river
+        cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
+        1D floodplain schematisation.
 
-        The conditioned elevation can be based on the average cell elevation ("wflow_dem")
-        or subgrid outlet pixel elevation ("dem_subgrid"). For local-inertial river
-        routing the subgrid elevation might provide a better representation of the river
-        elevation profile, however in combination with local-inertial land routing the
-        subgrid elevation will likely overestimate the floodplain storage capacity.
+        Note, it is important to use the same river uparea value as used in the `setup_rivers`
+        method.
 
-        Note that the same input elevation map should be used for river bankfull elevation
-        and land elevation when using local-inertial land routing.
+        If `floodplain_type` is set to "2d", this component adds a hydrologically conditioned
+        elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
+        need to be conditioned to D4 flow directions otherwise pits may remain in the land
+        cells.
+
+        The conditioned elevation can be based on the average cell elevation ("wflow_dem") or
+        subgrid outlet pixel elevation ("dem_subgrid"). Note that the subgrid elevation will
+        likely overestimate the floodplain storage capacity.
+
+        Additionally, note that the same input elevation map should be used for river bankfull
+        elevation and land elevation when using local-inertial land routing.
+
+        Requires `setup_rivers` to be executed beforehand (with `river_routing` set to
+        `local-inertial`).
 
         Adds model layers:
 
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF].
+        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
+        dimension [m3] (for 1D floodplains)
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
 
         Parameters
         ----------
+        floodplain_type: {"1d", "2d"}
+            Option defining the type of floodplains, see below what arguments are related to
+            the different floodplain types
+        hydrography_fn : str, Path
+            Name of data source for hydrography data. Must be same as setup_basemaps for
+            consistent results.
+
+            * Required variables: ['flwdir', 'uparea', 'elevtn']
+        river_upa : float, optional
+            (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
+            value, as it is inferred from the staticmaps metadata, to be consistent with
+            setup_rivers.
+        flood_depths : tuple of float, optional
+            (1D floodplains) flood depths at which a volume is derived, by default
+            [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
+
         elevtn_map: {"wflow_dem", "dem_subgrid"}
-            Name of staticmap to hydrologically condition, by default "wflow_dem".
-        river_routing, land_routing : {"kinematic-wave", "local-inertial"}
-            changes wflow config model.river_routing (by default "local-inertial")
-            and model.land_routing (default "kinematic-wave")
+            (2D floodplains) Name of staticmap to hydrologically condition, by default
+            "wflow_dem"
 
         See Also
         --------
+        hydromt.workflows.river_floodplain_volume
         hydromt.flw.dem_adjust
         pyflwdir.FlwdirRaster.dem_adjust
+        hydromt.setup_rivers
         """
-        r_list = ["kinematic-wave", "local-inertial"]
-        if not elevtn_map in self.staticmaps:
-            raise ValueError(f'"{elevtn_map}" not found in staticmaps')
-        if river_routing not in r_list:
+        if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
-                f'river_routing="{river_routing}" unknown. Select from {r_list}.'
-            )
-        if land_routing not in r_list:
-            raise ValueError(
-                f'land_routing="{land_routing}" unknown. Select from {r_list}.'
+                f"Floodplains (1d or 2d) are currently only supported with local intertial river routing"
             )
 
-        postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(elevtn_map, "")
-        name = f"hydrodem{postfix}"
+        r_list = ["1d", "2d"]
+        if floodplain_type not in r_list:
+            raise ValueError(
+                f'river_routing="{floodplain_type}" unknown. Select from {r_list}.'
+            )
 
-        self.logger.info(f"Preparing {name} map for routing.")
-        connectivity = {"local-inertial": 4, "kinematic-wave": 8}[land_routing]
-        name = f"hydrodem{postfix}_D{connectivity}"
-        self.logger.info(f"Preparing {name} map for routing.")
-        ds_out = flw.dem_adjust(
-            da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
-            da_elevtn=self.staticmaps[elevtn_map],
-            da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
-            flwdir=self.flwdir,
-            connectivity=connectivity,
-            river_d8=True,
-            logger=self.logger,
-        ).rename(name)
-        self.set_staticmaps(ds_out)
+        # Adjust settings based on floodplain_type selection
+        if floodplain_type == "1d":
+            floodplain_1d = True
+            land_routing = "kinematic-wave"
 
-        # update toml model.river_routing
-        self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
-        self.set_config("model.river_routing", river_routing)
+            if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
+                self.logger.warning("This method requires pyflwdir >= 0.5.6")
+                return
+
+            self.logger.info("Preparing 1D river floodplain_volume map.")
+
+            # read data
+            ds_hydro = self.data_catalog.get_rasterdataset(
+                hydrography_fn, geom=self.region, buffer=10
+            )
+
+            # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
+            new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
+                "river_upa", river_upa
+            )
+            if new_river_upa is None:
+                raise ValueError(
+                    "No value for `river_upa` specified, and the value cannot be inferred from the staticmaps attributes"
+                )
+            elif new_river_upa != river_upa and river_upa is not None:
+                raise ValueError(
+                    f"Value specified for river_upa ({river_upa}) is different from the value found in the staticmaps ({new_river_upa})"
+                )
+            self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
+
+            # get river floodplain volume
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            da_fldpln = workflows.river_floodplain_volume(
+                ds=ds_hydro,
+                ds_model=self.staticmaps.rename(inv_rename),
+                river_upa=new_river_upa,
+                flood_depths=flood_depths,
+                logger=self.logger,
+            )
+
+            # check if the layer already exists, since overwriting with different flood_depth values is not working properly if this is the case
+            if "floodplain_volume" in self.staticmaps:
+                self.logger.warning(
+                    "Layer `floodplain_volume` already in staticmaps, removing layer and `flood_depth` dimension to ensure correctly setting new flood_depth dimensions"
+                )
+                self._staticmaps = self._staticmaps.drop_dims("flood_depth")
+
+            self.set_staticmaps(da_fldpln, "floodplain_volume")
+
+        elif floodplain_type == "2d":
+            floodplain_1d = False
+            land_routing = "local-inertial"
+
+            if not elevtn_map in self.staticmaps:
+                raise ValueError(f'"{elevtn_map}" not found in staticmaps')
+
+            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+                elevtn_map, ""
+            )
+            name = f"hydrodem{postfix}"
+
+            self.logger.info(f"Preparing {name} map for land routing.")
+            name = f"hydrodem{postfix}_D{connectivity}"
+            self.logger.info(f"Preparing {name} map for land routing.")
+            ds_out = flw.dem_adjust(
+                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
+                da_elevtn=self.staticmaps[elevtn_map],
+                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                flwdir=self.flwdir,
+                connectivity=connectivity,
+                river_d8=True,
+                logger=self.logger,
+            ).rename(name)
+
+            self.set_staticmaps(ds_out)
+
+        # Update config
+        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
+        self.set_config("model.floodplain_1d", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
-        if river_routing == "local-inertial":
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-        if land_routing == "local-inertial":
-            self.set_config("input.lateral.land.elevation", name)
-            self.config["state"]["lateral"]["land"].pop("q", None)
-            self.config["output"]["lateral"]["land"].pop("q", None)
-            self.set_config("state.lateral.land.qx", "qx_land")
-            self.set_config("state.lateral.land.qy", "qy_land")
-        else:
+
+        if floodplain_type == "1d":
+            # include new input data
+            self.set_config(
+                "input.lateral.river.floodplain.volume", "floodplain_volume"
+            )
+            # Add states
+            self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
+            self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
+            # Remove local-inertial land states
             self.config["state"]["lateral"]["land"].pop("qx", None)
             self.config["state"]["lateral"]["land"].pop("qy", None)
             self.config["output"]["lateral"]["land"].pop("qx", None)
             self.config["output"]["lateral"]["land"].pop("qy", None)
             self.set_config("state.lateral.land.q", "q_land")
+
+        else:
+            # include new input data
+            self.set_config("input.lateral.river.bankfull_elevation", name)
+            self.set_config("input.lateral.land.elevation", name)
+            # Remove kinematic-wave and 1d floodplain states
+            self.config["state"]["lateral"]["land"].pop("q", None)
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
+            except:
+                pass
+            try:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
+            except:
+                pass
+            self.config["output"]["lateral"]["land"].pop("q", None)
+            # Add local-inertial land routing states
+            self.set_config("state.lateral.land.qx", "qx_land")
+            self.set_config("state.lateral.land.qy", "qy_land")
 
     def setup_riverwidth(
         self,
@@ -681,61 +853,224 @@ class WflowModel(Model):
         rmdict = {da_lai.dims[0]: "time"}
         self.set_staticmaps(da_lai.rename(rmdict), name="LAI")
 
-    def setup_gauges(
+    def setup_config_output_timeseries(
         self,
-        gauges_fn="grdc",
-        source_gdf=None,
-        index_col=None,
-        snap_to_river=True,
-        mask=None,
-        derive_subcatch=False,
-        derive_outlet=True,
-        basename=None,
-        update_toml=True,
-        gauge_toml_header=None,
-        gauge_toml_param=None,
-        **kwargs,
+        mapname: str,
+        toml_output: Optional[str] = "csv",
+        header: Optional[List[str]] = ["Q"],
+        param: Optional[List[str]] = ["lateral.river.q_av"],
+        reducer: Optional[List[str]] = None,
     ):
-        """This components sets the default gauge map based on basin outlets and additional
-        gauge maps based on ``gauges_fn`` data.
+        """This components sets the default gauge map based on basin outlets.
 
-        Supported gauge datasets include "grdc"
-        or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
-        If a csv file is provided, a "x" or "lon" and "y" or "lat" column is required
-        and the first column will be used as IDs in the map. If ``snap_to_river`` is set
-        to True, the gauge location will be snapped to the boolean river mask. If
-        ``derive_subcatch`` is set to True, an additional subcatch map is derived from
-        the gauge locations.
+        Adds model layers:
+
+        * **csv.column** config: csv timeseries to save based on mapname locations
+        * **netcdf.variable** config: netcdf timeseries to save based on mapname locations
+
+        Parameters
+        ----------
+        mapname : str
+            Name of the gauge map (in staticmaps.nc) to use for scalar output.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+        header : list, optional
+            Save specific model parameters in csv section. This option defines the header of the csv file./
+            By default saves Q (for lateral.river.q_av).
+        param: list, optional
+            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+        reducer: list, optional
+            If map is an area rather than a point location, provides the reducer for the parameters to save. By default None.
+        """
+
+        # # Add new outputcsv section in the config
+        if toml_output == "csv" or toml_output == "netcdf":
+            self.logger.info(f"Adding {param} to {toml_output} section of toml.")
+            # Add map to the input section of config
+            basename = (
+                mapname
+                if not mapname.startswith("wflow")
+                else mapname.replace("wflow_", "")
+            )
+            self.set_config(f"input.{basename}", mapname)
+            # Settings and add csv or netcdf sections if not already in config
+            # csv
+            if toml_output == "csv":
+                header_name = "header"
+                var_name = "column"
+                if self.get_config("csv") is None:
+                    self.set_config("csv.path", "output.csv")
+            # netcdf
+            if toml_output == "netcdf":
+                header_name = "name"
+                var_name = "variable"
+                if self.get_config("netcdf") is None:
+                    self.set_config("netcdf.path", "output_scalar.nc")
+            # initialise column / varibale section
+            if self.get_config(f"{toml_output}.{var_name}") is None:
+                self.set_config(f"{toml_output}.{var_name}", [])
+
+            # Add new output column/variable to config
+            for o in range(len(param)):
+                gauge_toml_dict = {
+                    header_name: header[o],
+                    "map": basename,
+                    "parameter": param[o],
+                }
+                if reducer is not None:
+                    gauge_toml_dict["reducer"]: reducer[o]
+                # If the gauge column/variable already exists skip writting twice
+                if gauge_toml_dict not in self.config[toml_output][var_name]:
+                    self.config[toml_output][var_name].append(gauge_toml_dict)
+        else:
+            self.logger.info(
+                f"toml_output set to {toml_output}, skipping adding gauge specific outputs to the toml."
+            )
+
+    def setup_outlets(
+        self,
+        river_only=True,
+        toml_output="csv",
+        gauge_toml_header=["Q"],
+        gauge_toml_param=["lateral.river.q_av"],
+    ):
+        """This components sets the default gauge map based on basin outlets.
 
         Adds model layers:
 
         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
+        * **gauges** geom: polygon of catchment outlets
+
+        Parameters
+        ----------
+        river_only : bool, optional
+            Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+        gauge_toml_header : list, optional
+            Save specific model parameters in csv section. This option defines the header of the csv file./
+            By default saves Q (for lateral.river.q_av).
+        gauge_toml_param: list, optional
+            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+        """
+        # read existing staticgeoms; important to get the right basin when updating
+        # fix in set_staticgeoms / set_geoms method
+        self.staticgeoms
+
+        self.logger.info(f"Gauges locations set based on river outlets.")
+        idxs_out = self.flwdir.idxs_pit
+        # Only keep river outlets for gauges
+        if river_only:
+            idxs_out = idxs_out[
+                (self.staticmaps[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
+            ]
+        da_out, idxs_out, ids_out = flw.gauge_map(
+            self.staticmaps,
+            idxs=idxs_out,
+            flwdir=self.flwdir,
+            logger=self.logger,
+        )
+        self.set_staticmaps(da_out, name=self._MAPS["gauges"])
+        points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_out))
+        gdf = gpd.GeoDataFrame(
+            index=ids_out.astype(np.int32), geometry=points, crs=self.crs
+        )
+        gdf["fid"] = ids_out.astype(np.int32)
+        self.set_staticgeoms(gdf, name="gauges")
+        self.logger.info(f"Gauges map based on catchment river outlets added.")
+
+        self.setup_config_output_timeseries(
+            mapname="wflow_gauges",
+            toml_output=toml_output,
+            header=gauge_toml_header,
+            param=gauge_toml_param,
+        )
+
+    def setup_gauges(
+        self,
+        gauges_fn: Union[str, Path, gpd.GeoDataFrame],
+        index_col: Optional[str] = None,
+        snap_to_river: Optional[bool] = True,
+        mask: Optional[np.ndarray] = None,
+        snap_uparea: Optional[bool] = False,
+        max_dist: Optional[float] = 10e3,
+        wdw: Optional[int] = 3,
+        rel_error: Optional[float] = 0.05,
+        derive_subcatch: Optional[bool] = False,
+        basename: Optional[str] = None,
+        toml_output: Optional[str] = "csv",
+        gauge_toml_header: Optional[List[str]] = ["Q", "P"],
+        gauge_toml_param: Optional[List[str]] = [
+            "lateral.river.q_av",
+            "vertical.precipitation",
+        ],
+        **kwargs,
+    ):
+        """This components sets a gauge map based on ``gauges_fn`` data.
+
+        Supported gauge datasets include "grdc"
+        or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
+        If a csv file is provided, a "x" or "lon" and "y" or "lat" column is required
+        and the first column will be used as IDs in the map.
+
+        There are three available methods to prepare the gauge map:
+
+        * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.
+          The gauge locations are used as is.
+        * snapping to mask: the gauge locations are snapped to a boolean mask map: either provide
+          ``mask`` or set ``snap_to_river=True`` to snap to the river (default). ``max_dist`` can be
+          used to set the maximum distance to snap to the mask.
+        * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations
+          are snapped to the closest matching upstream area value. Requires gauges_fn to have
+          an `uparea` [km2] column. The closest value will be looked for in a cell window of size ``wdw``
+          and the difference between the gauge and the closest value should be smaller than ``rel_error``.
+
+        If ``derive_subcatch`` is set to True, an additional subcatch map is derived from
+        the gauge locations.
+
+        Finally the output locations can be added to wflow TOML file sections [csv] or [netcdf]
+        using the ``toml_output`` option. The ``gauge_toml_header`` and ``gauge_toml_param`` options
+        can be used to define the header and corresponding wflow variable names in the TOML file.
+
+        Adds model layers:
+
         * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
         * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
-        * **gauges** geom: polygon of catchment outlets
         * **gauges_source** geom: polygon of gauges from source
         * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)
 
         Parameters
         ----------
-        gauges_fn : str, {"grdc"}, optional
+        gauges_fn : str, Path, gpd.GeoDataFrame, optional
             Known source name or path to gauges file geometry file, by default None.
-        source_gdf : geopandas.GeoDataFame, optional
-            Direct gauges file geometry, by default None.
+
+            * Required variables if snap_uparea is True: ["uparea"]
         index_col : str, optional
             Column in gauges_fn to use for ID values, by default None (use the default index column)
-        snap_to_river : bool, optional
-            Snap point locations to the closest downstream river cell, by default True
         mask : np.boolean, optional
             If provided snaps to the mask, else snaps to the river (default).
+        snap_to_river : bool, optional
+            Snap point locations to the closest downstream river cell, by default True
+        snap_uparea: bool, optional
+            Snap gauges based on upstream area. Gauges_fn should have "uparea" in its attributes.
+        max_dist : float, optional
+            Maximum distance [m] between original and snapped point location.
+            A warning is logged if exceeded. By default 10 000m.
+        wdw: int, optional
+            Window size in number of cells around the gauge locations
+            to snap uparea to, only used if ``snap_uparea`` is True. By default 3.
+        rel_error: float, optional
+            Maximum relative error (default 0.05)
+            between the gauge location upstream area and the upstream area of
+            the best fit grid cell, only used if snap_area is True.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
-        derive_outlet : bool, optional
-            Derive gaugemap based on catchment outlets, by default True
         basename : str, optional
             Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
-        update_toml : boolean, optional
-            Update [outputcsv] section of wflow toml file.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines the header of the csv file./
             By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
@@ -743,142 +1078,145 @@ class WflowModel(Model):
             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
             names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).
         """
+        # Read data
+        kwargs = {}
+        if isinstance(gauges_fn, gpd.GeoDataFrame):
+            gdf_gauges = gauges_fn
+            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                raise ValueError(f"{gauges_fn} contains other geometries than Point")
+        elif isfile(gauges_fn):
+            # try to get epsg number directly, important when writting back data_catalog
+            if hasattr(self.crs, "to_epsg"):
+                code = self.crs.to_epsg()
+            else:
+                code = self.crs
+            kwargs.update(crs=code)
+            gdf_gauges = self.data_catalog.get_geodataframe(
+                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+            )
+        elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+            gdf_gauges = self.data_catalog.get_geodataframe(
+                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+            )
+        elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
+            da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
+            gdf_gauges = da.vector.to_gdf()
+            # Check for point geometry
+            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                raise ValueError(f"{gauges_fn} contains other geometries than Point")
+        else:
+            raise ValueError(
+                f"{gauges_fn} data source not found or incorrect data_type (GeoDataFrame or GeoDataset)."
+            )
+
+        # Create basename
+        if basename is None:
+            basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
+
+        # Create gauge map, subcatch map and update toml
+        if gdf_gauges.index.size == 0:
+            self.logger.warning(f"No {gauges_fn} gauge locations found within domain")
+
+            return
+
+        # Create the gauges map
+        self.logger.info(
+            f"{gdf_gauges.index.size} {basename} gauge locations found within domain"
+        )
+
         # read existing staticgeoms; important to get the right basin when updating
         self.staticgeoms
+        # Reproject to model crs
+        gdf_gauges = gdf_gauges.to_crs(self.crs).copy()
 
-        if derive_outlet:
-            self.logger.info(f"Gauges locations set based on river outlets.")
-            da, idxs, ids = flw.gauge_map(self.staticmaps, idxs=self.flwdir.idxs_pit)
-            # Only keep river outlets for gauges
-            da = da.where(self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
-            ids_da = np.unique(da.values[da.values > 0])
-            idxs_da = idxs[np.isin(ids, ids_da)]
-            self.set_staticmaps(da, name=self._MAPS["gauges"])
-            points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_da))
-            gdf = gpd.GeoDataFrame(
-                index=ids_da.astype(np.int32), geometry=points, crs=self.crs
+        # Get coords, index and ID
+        xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
+            gdf_gauges["geometry"]
+        )
+        idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
+        if index_col is not None and index_col in gdf_gauges.columns:
+            gdf_gauges = gdf_gauges.set_index(index_col)
+        if np.any(gdf_gauges.index == 0):
+            self.logger.warning("Gauge ID 0 is not allowed, setting to 1")
+            gdf_gauges.index = gdf_gauges.index.values + 1
+        ids = gdf_gauges.index.values
+
+        # if snap_to_river use river map as the mask
+        if snap_to_river and mask is None:
+            mask = self._MAPS["rivmsk"]
+        if mask is not None:
+            mask = self.staticmaps[mask].values
+        if snap_uparea and "uparea" in gdf_gauges.columns:
+            # Derive gauge map based on upstream area snapping
+            da, idxs, ids = workflows.gauge_map_uparea(
+                self.staticmaps,
+                gdf_gauges,
+                uparea_name="wflow_uparea",
+                wdw=wdw,
+                rel_error=rel_error,
+                logger=self.logger,
             )
-            gdf["fid"] = ids_da.astype(np.int32)
-            self.set_staticgeoms(gdf, name="gauges")
-            self.logger.info(f"Gauges map based on catchment river outlets added.")
+        else:
+            # Derive gauge map
+            da, idxs, ids = flw.gauge_map(
+                self.staticmaps,
+                idxs=idxs,
+                ids=ids,
+                stream=mask,
+                flwdir=self.flwdir,
+                max_dist=max_dist,
+                logger=self.logger,
+            )
+            # Filter gauges that could not be snapped to rivers
+            if snap_to_river:
+                ids_old = ids.copy()
+                da = da.where(
+                    self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
+                )
+                ids_new = np.unique(da.values[da.values > 0])
+                idxs = idxs[np.isin(ids_old, ids_new)]
+                ids = da.values.flat[idxs]
 
-        if gauges_fn is not None or source_gdf is not None:
-            # append location from geometry
-            # TODO check snapping locations based on upstream area attribute of the gauge data
-            if gauges_fn is not None:
-                kwargs = {}
-                if isfile(gauges_fn):
-                    # try to get epsg number directly, important when writting back data_catalog
-                    if hasattr(self.crs, "to_epsg"):
-                        code = self.crs.to_epsg()
-                    else:
-                        code = self.crs
-                    kwargs.update(crs=code)
-                gdf = self.data_catalog.get_geodataframe(
-                    gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
-                )
-                gdf = gdf.to_crs(self.crs)
-            elif source_gdf is not None and basename is None:
-                raise ValueError(
-                    "Basename is required when setting gauges based on source_gdf"
-                )
-            elif source_gdf is not None:
-                self.logger.info(f"Gauges locations read from source_gdf")
-                gdf = source_gdf.to_crs(self.crs)
+        # Add to staticmaps
+        mapname = f'{str(self._MAPS["gauges"])}_{basename}'
+        self.set_staticmaps(da, name=mapname)
 
-            if gdf.index.size == 0:
-                self.logger.warning(
-                    f"No {gauges_fn} gauge locations found within domain"
-                )
-            else:
-                if basename is None:
-                    basename = (
-                        os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
-                    )
-                self.logger.info(
-                    f"{gdf.index.size} {basename} gauge locations found within domain"
-                )
-                # Set index to index_col
-                if index_col is not None and index_col in gdf:
-                    gdf = gdf.set_index(index_col)
-                xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
-                    gdf["geometry"]
-                )
-                idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
-                ids = gdf.index.values
+        # geoms
+        points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
+        # if csv contains additional columns, these are also written in the staticgeoms
+        gdf_snapped = gpd.GeoDataFrame(
+            index=ids.astype(np.int32), geometry=points, crs=self.crs
+        )
+        # Set the index name of gdf snapped based on original gdf
+        if gdf_gauges.index.name is not None:
+            gdf_snapped.index.name = gdf_gauges.index.name
+        else:
+            gdf_snapped.index.name = "fid"
+            gdf_gauges.index.name = "fid"
+        # Add gdf attributes to gdf_snapped (filter on snapped index before merging)
+        df_attrs = pd.DataFrame(gdf_gauges.drop(columns="geometry"))
+        df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
+        gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
+        # Add gdf_snapped to staticgeoms
+        self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
 
-                if snap_to_river and mask is None:
-                    mask = self.staticmaps[self._MAPS["rivmsk"]].values
-                da, idxs, ids = flw.gauge_map(
-                    self.staticmaps,
-                    idxs=idxs,
-                    ids=ids,
-                    stream=mask,
-                    flwdir=self.flwdir,
-                    logger=self.logger,
-                )
-                # Filter gauges that could not be snapped to rivers
-                if snap_to_river:
-                    ids_old = ids.copy()
-                    da = da.where(
-                        self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
-                    )
-                    ids_new = np.unique(da.values[da.values > 0])
-                    idxs = idxs[np.isin(ids_old, ids_new)]
-                    ids = da.values.flat[idxs]
-                # Add to staticmaps
-                mapname = f'{str(self._MAPS["gauges"])}_{basename}'
-                self.set_staticmaps(da, name=mapname)
+        # Add output timeseries for gauges in the toml
+        self.setup_config_output_timeseries(
+            mapname=mapname,
+            toml_output=toml_output,
+            header=gauge_toml_header,
+            param=gauge_toml_param,
+        )
 
-                # geoms
-                points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
-                # if csv contains additional columns, these are also written in the staticgeoms
-                gdf_snapped = gpd.GeoDataFrame(
-                    index=ids.astype(np.int32), geometry=points, crs=self.crs
-                )
-                # Set the index name of gdf snapped based on original gdf
-                if gdf.index.name is not None:
-                    gdf_snapped.index.name = gdf.index.name
-                else:
-                    gdf_snapped.index.name = "fid"
-                    gdf.index.name = "fid"
-                # Add gdf attributes to gdf_snapped (filter on snapped index before merging)
-                df_attrs = pd.DataFrame(gdf.drop(columns="geometry"))
-                df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
-                gdf_snapped = gdf_snapped.merge(
-                    df_attrs, how="inner", on=gdf.index.name
-                )
-                # Add gdf_snapped to staticgeoms
-                self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
-
-                # # Add new outputcsv section in the config
-                if gauge_toml_param is None and update_toml:
-                    gauge_toml_header = ["Q", "P"]
-                    gauge_toml_param = ["lateral.river.q_av", "vertical.precipitation"]
-
-                if update_toml:
-                    self.set_config(f"input.gauges_{basename}", f"{mapname}")
-                    if self.get_config("csv") is not None:
-                        for o in range(len(gauge_toml_param)):
-                            gauge_toml_dict = {
-                                "header": gauge_toml_header[o],
-                                "map": f"gauges_{basename}",
-                                "parameter": gauge_toml_param[o],
-                            }
-                            # If the gauge outcsv column already exists skip writting twice
-                            if gauge_toml_dict not in self.config["csv"]["column"]:
-                                self.config["csv"]["column"].append(gauge_toml_dict)
-                    self.logger.info(f"Gauges map from {basename} added.")
-
-                # add subcatch
-                if derive_subcatch:
-                    da_basins = flw.basin_map(
-                        self.staticmaps, self.flwdir, idxs=idxs, ids=ids
-                    )[0]
-                    mapname = self._MAPS["basins"] + "_" + basename
-                    self.set_staticmaps(da_basins, name=mapname)
-                    gdf_basins = self.staticmaps[mapname].raster.vectorize()
-                    self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
+        # add subcatch
+        if derive_subcatch:
+            da_basins = flw.basin_map(self.staticmaps, self.flwdir, idxs=idxs, ids=ids)[
+                0
+            ]
+            mapname = self._MAPS["basins"] + "_" + basename
+            self.set_staticmaps(da_basins, name=mapname)
+            gdf_basins = self.staticmaps[mapname].raster.vectorize()
+            self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
         self,
@@ -920,13 +1258,27 @@ class WflowModel(Model):
             )
         self.set_staticmaps(da_area.rename(col2raster))
 
-    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=10.0):
+    def setup_lakes(
+        self,
+        lakes_fn: Union[str, Path],
+        rating_curve_fns: List[Union[str, Path]] = None,
+        min_area: float = 10.0,
+        add_maxstorage: bool = False,
+    ):
         """This component generates maps of lake areas and outlets as well as parameters
-        with average lake area, depth a discharge values.
+        with average lake area, depth and discharge values.
 
         The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with
         lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id', average area 'Area_avg' [m2],
         average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
+
+        If rating curve data is available for storage and discharge they can be prepared via ``rating_curve_fns``
+        (see below for syntax and requirements). Else the parameters 'Lake_b' and 'Lake_e' will be used for
+        discharge and for storage a rectangular profile lake is assumed.
+        See Wflow documentation for more information.
+
+        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the output (controlled lake) based on
+        'Vol_max' [m3] column of lakes_fn.
 
         Adds model layers:
 
@@ -936,18 +1288,93 @@ class WflowModel(Model):
         * **LakeAvgLevel** map: lake average water level [m]
         * **LakeAvgOut** map: lake average discharge [m3/s]
         * **Lake_b** map: lake rating curve coefficient [-]
+        * **LakeOutflowFunc** map: option to compute rating curve [-]
+        * **LakeStorFunc** map: option to compute storage curve [-]
+        * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
         Parameters
         ----------
-        lakes_fn : {'hydro_lakes'}
+        lakes_fn :
             Name of data source for lake parameters, see data/data_sources.yml.
 
-            * Required variables: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
+            * Required variables for direct use: ['waterbody_id', 'Area_avg', 'Depth_avg', 'Dis_avg', 'Lake_b', 'Lake_e', 'LakeOutflowFunc', 'LakeStorFunc', 'LakeThreshold', 'LinkedLakeLocs']
+
+            * Required variables for parameter estimation: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
+        rating_curve_fns: str, Path, List[str], List[Path], optional
+            Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
+            properties of lakes_fn. Assumes one file per lake (with all variables) and that the lake ID is either in the filename
+            or data catalog entry name (eg using placeholder). The ID should be placed at the end separated by an underscore (eg
+            'rating_curve_12.csv' or 'rating_curve_12')
+
+            * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
-            Minimum lake area threshold [km2], by default 1.0 km2.
+            Minimum lake area threshold [km2], by default 10.0 km2.
+        add_maxstorage : bool, optional
+            If True, maximum storage of the lake is added to the output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn, by default False (natural lake).
         """
 
+        # Derive lake are and outlet maps
+        gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
+        if ds_lakes is None:
+            return
+        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
+        ds_lakes = ds_lakes.rename(rmdict)
+
+        # If rating_curve_fn prepare rating curve dict
+        rating_dict = dict()
+        if rating_curve_fns is not None:
+            rating_curve_fns = np.atleast_1d(rating_curve_fns)
+            # Find ids in rating_curve_fns
+            fns_ids = []
+            for fn in rating_curve_fns:
+                try:
+                    fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
+                except:
+                    self.logger.warning(
+                        f"Could not parse integer lake index from rating curve fn {fn}. Skipping."
+                    )
+            # assume lake index will be in the path
+            # Assume one rating curve per lake index
+            for id in gdf_org["waterbody_id"].values:
+                id = int(id)
+                # Find if id is is one of the paths in rating_curve_fns
+                if id in fns_ids:
+                    # Update path based on current waterbody_id
+                    i = fns_ids.index(id)
+                    rating_fn = rating_curve_fns[i]
+                    # Read data
+                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                        self.logger.info(
+                            f"Preparing lake rating curve data from {rating_fn}"
+                        )
+                        df_rate = self.data_catalog.get_dataframe(rating_fn)
+                        # Add to dict
+                        rating_dict[id] = df_rate
+                else:
+                    self.logger.warning(
+                        f"Rating curve file not found for lake with id {id}. Using default storage/outflow function parameters."
+                    )
+        else:
+            self.logger.info(
+                "No rating curve data provided. Using default storage/outflow function parameters."
+            )
+
+        # add waterbody parameters
+        ds_lakes, gdf_lakes, rating_curves = workflows.waterbodies.lakeattrs(
+            ds_lakes, gdf_org, rating_dict, add_maxstorage=add_maxstorage
+        )
+
+        # add to staticmaps
+        self.set_staticmaps(ds_lakes)
+        # write lakes with attr tables to static geoms.
+        self.set_staticgeoms(gdf_lakes, name="lakes")
+        # add the tables
+        for k, v in rating_curves.items():
+            self.set_tables(v, name=k)
+
+        # if there are lakes, change True in toml
+        # Lake seetings in the toml to update
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
@@ -962,68 +1389,10 @@ class WflowModel(Model):
             "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
             "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
         }
-
-        gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
-        if ds_lakes is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
-            self.set_staticmaps(ds_lakes.rename(rmdict))
-            # add waterbody parameters
-            # rename to param values
-            gdf_org = gdf_org.rename(
-                columns={
-                    "Area_avg": "LakeArea",
-                    "Depth_avg": "LakeAvgLevel",
-                    "Dis_avg": "LakeAvgOut",
-                }
-            )
-            # Minimum value for LakeAvgOut
-            LakeAvgOut = gdf_org["LakeAvgOut"].copy()
-            gdf_org["LakeAvgOut"] = np.maximum(gdf_org["LakeAvgOut"], 0.01)
-            gdf_org["Lake_b"] = gdf_org["LakeAvgOut"].values / (
-                gdf_org["LakeAvgLevel"].values
-            ) ** (2)
-            gdf_org["Lake_e"] = 2
-            gdf_org["LakeStorFunc"] = 1
-            gdf_org["LakeOutflowFunc"] = 3
-            gdf_org["LakeThreshold"] = 0.0
-            gdf_org["LinkedLakeLocs"] = 0
-
-            # Check if some LakeAvgOut values have been replaced
-            if not np.all(LakeAvgOut == gdf_org["LakeAvgOut"]):
-                self.logger.warning(
-                    "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
-                )
-
-            lake_params = [
-                "waterbody_id",
-                "LakeArea",
-                "LakeAvgLevel",
-                "LakeAvgOut",
-                "Lake_b",
-                "Lake_e",
-                "LakeStorFunc",
-                "LakeOutflowFunc",
-                "LakeThreshold",
-                "LinkedLakeLocs",
-            ]
-
-            gdf_org_points = gpd.GeoDataFrame(
-                gdf_org[lake_params],
-                geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
-            )
-
-            # write lakes with attr tables to static geoms.
-            self.set_staticgeoms(gdf_org, name="lakes")
-
-            for name in lake_params[1:]:
-                da_lake = ds_lakes.raster.rasterize(
-                    gdf_org_points, col_name=name, dtype="float32", nodata=-999
-                )
-                self.set_staticmaps(da_lake)
-
-            # if there are lakes, change True in toml
-            for option in lakes_toml:
-                self.set_config(option, lakes_toml[option])
+        if "LakeMaxStorage" in ds_lakes:
+            lakes_toml["input.lateral.river.lake.maxstorage"] = "LakeMaxStorage"
+        for option in lakes_toml:
+            self.set_config(option, lakes_toml[option])
 
     def setup_reservoirs(
         self,
@@ -1731,12 +2100,211 @@ class WflowModel(Model):
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    def setup_rootzoneclim(
+        self,
+        run_fn: Union[str, Path, xr.Dataset],
+        forcing_obs_fn: Union[str, Path, xr.Dataset],
+        forcing_cc_hist_fn: Optional[Union[str, Path, xr.Dataset]] = None,
+        forcing_cc_fut_fn: Optional[Union[str, Path, xr.Dataset]] = None,
+        chunksize: Optional[int] = 100,
+        return_period: Optional[list] = [2, 3, 5, 10, 15, 20, 25, 50, 60, 100],
+        Imax: Optional[float] = 2.0,
+        start_hydro_year: Optional[str] = "Sep",
+        start_field_capacity: Optional[str] = "Apr",
+        LAI: Optional[bool] = False,
+        rootzone_storage: Optional[bool] = False,
+        correct_cc_deficit: Optional[bool] = False,
+        time_tuple: Optional[tuple] = None,
+        time_tuple_fut: Optional[tuple] = None,
+        missing_days_threshold: Optional[int] = 330,
+        update_toml_rootingdepth: Optional[str] = "RootingDepth_obs_20",
+    ) -> None:
+        """
+        This component sets up the RootingDepth by estimating the catchment-scale
+        root-zone storage capacity from observed hydroclimatic data
+        (and optionally also for climate change historical and future periods).
+
+        This presents an alternative approach to determine the RootingDepth
+        based on hydroclimatic data instead of through a look-up table relating
+        land use to rooting depth (as usually done for the wflow_sbm model).
+        The method is based on the estimation of maximum annual storage deficits
+        based on precipitation and estimated actual evaporation time series,
+        which in turn are estimated from observed streamflow data and
+        long-term precipitation and potential evap. data, as explained in
+        Bouaziz et al. (2022).
+
+        The main assumption is that vegetation adapts its rootzone storage capacity
+        to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).
+        In response to a changing climtate,
+        it is likely that vegetation also adapts its rootzone storage capacity,
+        thereby changing model parameters for future conditions.
+        This method also allows to estimate the change in rootzone storage capacity
+        in response to a changing climate.
+
+        As the method requires precipitation and potential evaporation timeseries, it may be useful to run this method as an update step in the setting-up of the hydrological model, once the forcing files have already been derived.
+        In addition the setup_soilmaps method is also required to calculate the RootingDepth (rootzone_storage / (thetaS-thetaR)).
+        The setup_laimaps method is also required if LAI is set to True (interception capacity estimated from LAI maps, instead of providing a default maximum interception capacity).
+
+        References
+        ----------
+        Bouaziz, L. J. E., Aalbers, E. E., Weerts, A. H., Hegnauer, M., Buiteveld,
+        H., Lammersen, R., Stam, J., Sprokkereef, E., Savenije, H. H. G. and
+        Hrachowitz, M. (2022). Ecosystem adaptation to climate change: the
+        sensitivity of hydrological predictions to time-dynamic model parameters,
+        Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
+        10.5194/hess-26-1295-2022.
+
+        Adds model layer:
+
+        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. The translation to RootingDepth is done by dividing the rootzone_storage by (thetaS - thetaR).
+        * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone storage capacity [mm of water] for each catchment estimated before filling the missings with data from downstream catchments.
+        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. Only if rootzone_storage is set to True!
+
+
+        Parameters
+        ----------
+        run_fn : str, Path, xr.Dataset
+            Geodataset with streamflow timeseries (m3/s) per x,y location.
+            The geodataset expects the coordinate names "index" (for each station id) and the variable name "discharge".
+        forcing_obs_fn : str, Path, xr.Dataset
+            Gridded timeseries with the observed forcing [mm/timestep].
+            Expects to have variables "precip" and "pet".
+        forcing_cc_hist_fn : str, Path, xr.Dataset, optional
+            Gridded timeseries with the simulated historical forcing [mm/timestep], based on a climate
+            model. Expects to have variables "precip" and "pet". The default is None.
+        forcing_cc_fut_fn : str, optional
+            Gridded timeseries with the simulated climate forcing [mm/timestep], based on a
+            climate model. Expects to have variables "precip" and "pet".
+            The default is None.
+        chunksize : int, optional
+            Chunksize on time dimension for processing data (not for saving to
+            disk!). The default is 100.
+        return_period : list, optional
+            List with one or more values indiciating the return period(s) (in
+            years) for wich the rootzone storage depth should be calculated. The
+            default is [2,3,5,10,15,20,25,50,60,100] years.
+        Imax : float, optional
+            The maximum interception storage capacity [mm]. The default is 2.0 mm.
+        start_hydro_year : str, optional
+            The start month (abreviated to the first three letters of the month,
+            starting with a capital letter) of the hydrological year. The
+            default is 'Sep'.
+        start_field_capacity : str, optional
+            The end of the wet season / commencement of dry season. This is the
+            moment when the soil is at field capacity, i.e. there is no storage
+            deficit yet. The default is 'Apr'.
+        LAI : bool, optional
+            Determine whether the LAI will be used to determine Imax. The
+            default is False.
+            If set to True, requires to have run setup_laimaps.
+        rootzone_storage : bool, optional
+            Determines whether the rootzone storage maps
+            should be stored in the staticmaps or not. The default is False.
+        correct_cc_deficit : bool, optional
+            Determines whether a bias-correction of the future deficit should be
+            applied using the cc_hist deficit. Only works if the time periods of cc_hist and
+            cc_fut are the same. If the climate change scenario and hist period are bias-corrected,
+            this should probably set to False. The default is False.
+        time_tuple: tuple, optional
+            Select which time period to read from all the forcing files. There should be some overlap
+            between the time period available in the forcing files for the historical period and in the observed streamflow data.
+        missing_days_threshold: int, optional
+            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.
+        update_toml_rootingdepth: str, optional
+            Update the wflow_sbm model config of the RootingDepth variable with the estimated RootingDepth.
+            The default is RootingDepth_obs_20, which requires to have RP 20 in the list provided for the return_period argument.
+        """
+
+        self.logger.info("Preparing climate based root zone storage parameter maps.")
+        # Open the data sets
+        ds_obs = self.data_catalog.get_rasterdataset(
+            forcing_obs_fn,
+            geom=self.region,
+            buffer=2,
+            variables=["pet", "precip"],
+            time_tuple=time_tuple,
+        )
+        ds_cc_hist = None
+        if forcing_cc_hist_fn != None:
+            ds_cc_hist = self.data_catalog.get_rasterdataset(
+                forcing_cc_hist_fn,
+                geom=self.region,
+                buffer=2,
+                variables=["pet", "precip"],
+                time_tuple=time_tuple,
+            )
+        ds_cc_fut = None
+        if forcing_cc_fut_fn != None:
+            ds_cc_fut = self.data_catalog.get_rasterdataset(
+                forcing_cc_fut_fn,
+                geom=self.region,
+                buffer=2,
+                variables=["pet", "precip"],
+                time_tuple=time_tuple_fut,
+            )
+        # observed streamflow data
+        dsrun = self.data_catalog.get_geodataset(
+            run_fn, single_var_as_array=False, time_tuple=time_tuple
+        )
+
+        # make sure dsrun overlaps with ds_obs, otherwise give error
+        if dsrun.time[0] < ds_obs.time[0]:
+            dsrun = dsrun.sel(time=slice(ds_obs.time[0], None))
+        if dsrun.time[-1] > ds_obs.time[-1]:
+            dsrun = dsrun.sel(time=slice(None, ds_obs.time[-1]))
+        if len(dsrun.time) == 0:
+            self.logger.error(
+                "No overlapping period between the meteo and observed streamflow data"
+            )
+
+        # check if setup_soilmaps and setup_laimaps were run if LAI =True and if rooting_depth = True"
+        if (LAI == True) and ("LAI" not in self.staticmaps):
+            self.logger.error(
+                f"LAI variable not found in staticmaps. Set LAI to False or run setup_laimaps first"
+            )
+
+        if ("thetaR" not in self.staticmaps) or ("thetaS" not in self.staticmaps):
+            self.logger.error(
+                f"thetaS or thetaR variables not found in staticmaps. Run setup_soilmaps first"
+            )
+
+        # Run the rootzone clim workflow
+        dsout, gdf = workflows.rootzoneclim(
+            dsrun=dsrun,
+            ds_obs=ds_obs,
+            ds_like=self.staticmaps,
+            flwdir=self.flwdir,
+            ds_cc_hist=ds_cc_hist,
+            ds_cc_fut=ds_cc_fut,
+            return_period=return_period,
+            Imax=Imax,
+            start_hydro_year=start_hydro_year,
+            start_field_capacity=start_field_capacity,
+            LAI=LAI,
+            rootzone_storage=rootzone_storage,
+            correct_cc_deficit=correct_cc_deficit,
+            chunksize=chunksize,
+            missing_days_threshold=missing_days_threshold,
+            logger=self.logger,
+        )
+
+        # set nodata value outside basin
+        dsout = dsout.where(self.staticmaps[self._MAPS["basins"]] > 0, -999)
+        for var in dsout.data_vars:
+            dsout[var].raster.set_nodata(-999)
+        self.set_staticmaps(dsout)
+        self.set_staticgeoms(gdf, name="rootzone_storage")
+
+        # update config
+        self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
+
     # I/O
     def read(self):
         """Method to read the complete model schematization and configuration from file."""
         self.read_config()
         self.read_staticmaps()
         self.read_intbl()
+        self.read_tables()
         self.read_staticgeoms()
         self.read_forcing()
         self.logger.info("Model read")
@@ -1753,6 +2321,8 @@ class WflowModel(Model):
             self.write_config()
         if self._staticmaps:
             self.write_staticmaps()
+        if self._tables:
+            self.write_tables()
         if self._staticgeoms:
             self.write_staticgeoms()
         if self._forcing:
@@ -2235,6 +2805,40 @@ class WflowModel(Model):
                 self.logger.warning(f"Overwriting intbl: {name}")
         self._intbl[name] = df
 
+    def read_tables(self, **kwargs):
+        """Read table files at <root> and parse to dict of dataframes"""
+        if not self._write:
+            self._tables = dict()  # start fresh in read-only mode
+
+        self.logger.info("Reading model table files.")
+        fns = glob.glob(join(self.root, f"*.csv"))
+        if len(fns) > 0:
+            for fn in fns:
+                name = basename(fn).split(".")[0]
+                tbl = pd.read_csv(fn)
+                self.set_tables(tbl, name=name)
+
+    def write_tables(self):
+        """Write tables at <root>."""
+        if not self._write:
+            raise IOError("Model opened in read-only mode")
+        if self.tables:
+            self.logger.info("Writing table files.")
+            for name in self.tables:
+                fn_out = join(self.root, f"{name}.csv")
+                self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
+
+    def set_tables(self, df, name):
+        """Add table <pandas.DataFrame> to model."""
+        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
+            raise ValueError("df type not recognized, should be pandas.DataFrame.")
+        if name in self._tables:
+            if not self._write:
+                raise IOError(f"Cannot overwrite table {name} in read-only mode")
+            elif self._read:
+                self.logger.warning(f"Overwriting table: {name}")
+        self._tables[name] = df
+
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
             fdict = toml.load(f)
@@ -2252,6 +2856,14 @@ class WflowModel(Model):
         if not self._intbl:
             self.read_intbl()
         return self._intbl
+
+    @property
+    # Move to core Model API ?
+    def tables(self):
+        """Returns a dictionary of pandas.DataFrames representing the wflow intbl files."""
+        if not self._tables:
+            self.read_tables()
+        return self._tables
 
     @property
     def flwdir(self):
@@ -2432,6 +3044,14 @@ class WflowModel(Model):
                     "Lake_e",
                 ]
                 self._staticmaps = self.staticmaps.drop_vars(remove_maps)
+
+            # Update tables
+            ids = np.unique(lake)
+            self._tables = {
+                k: v
+                for k, v in self.tables.items()
+                if not any([str(x) in k for x in ids])
+            }
 
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
