@@ -629,31 +629,33 @@ class WflowModel(Model):
             # Add states
             self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
             self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
-            # Remove local-inertial land states
-            self.config["state"]["lateral"]["land"].pop("qx", None)
-            self.config["state"]["lateral"]["land"].pop("qy", None)
-            self.config["output"]["lateral"]["land"].pop("qx", None)
-            self.config["output"]["lateral"]["land"].pop("qy", None)
             self.set_config("state.lateral.land.q", "q_land")
+            # Remove local-inertial land states
+            if self.get_config("state.lateral.land.qx") is not None:
+                self.config["state"]["lateral"]["land"].pop("qx", None)
+            if self.get_config("state.lateral.land.qy") is not None:
+                self.config["state"]["lateral"]["land"].pop("qy", None)
+            if self.get_config("output.lateral.land.qx") is not None:
+                self.config["output"]["lateral"]["land"].pop("qx", None)
+            if self.get_config("output.lateral.land.qy") is not None:
+                self.config["output"]["lateral"]["land"].pop("qy", None)
 
         else:
             # include new input data
             self.set_config("input.lateral.river.bankfull_elevation", name)
             self.set_config("input.lateral.land.elevation", name)
-            # Remove kinematic-wave and 1d floodplain states
-            self.config["state"]["lateral"]["land"].pop("q", None)
-            try:
-                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
-            except:
-                pass
-            try:
-                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
-            except:
-                pass
-            self.config["output"]["lateral"]["land"].pop("q", None)
             # Add local-inertial land routing states
             self.set_config("state.lateral.land.qx", "qx_land")
             self.set_config("state.lateral.land.qy", "qy_land")
+            # Remove kinematic-wave and 1d floodplain states
+            if self.get_config("state.lateral.land.q") is not None:
+                self.config["state"]["lateral"]["land"].pop("q", None)
+            if self.get_config("state.lateral.river.floodplain.q") is not None:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
+            if self.get_config("state.lateral.river.floodplain.h") is not None:
+                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
+            if self.get_config("output.lateral.land.q") is not None:
+                self.config["output"]["lateral"]["land"].pop("q", None)
 
     def setup_riverwidth(
         self,
