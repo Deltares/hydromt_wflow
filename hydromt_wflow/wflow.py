@@ -631,7 +631,7 @@ class WflowModel(Model):
             self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
             self.set_config("state.lateral.land.q", "q_land")
             # Remove local-inertial land states
-            if self.get_config('state.lateral.land.qx') is not None:
+            if self.get_config("state.lateral.land.qx") is not None:
                 self.config["state"]["lateral"]["land"].pop("qx", None)
             if self.get_config("state.lateral.land.qy") is not None:
                 self.config["state"]["lateral"]["land"].pop("qy", None)
