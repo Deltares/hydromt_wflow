@@ -131,7 +131,7 @@ def test_setup_reservoirs(source, tmpdir):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
     model = "wflow"
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    mod1 = WflowModel(root=root, mode="r", logger=logger)
+    mod1 = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
     mod1.read()
 
     # Update model (reservoirs only)

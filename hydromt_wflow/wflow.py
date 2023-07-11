@@ -87,6 +87,7 @@ class WflowModel(Model):
         "instate",
         "run_default",
     ]
+    _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
         self,
@@ -110,6 +111,7 @@ class WflowModel(Model):
         self._intbl = dict()
         self._tables = dict()
         self._flwdir = None
+        self.data_catalog.from_yml(self._CATALOGS)
 
     # COMPONENTS
     def setup_basemaps(
@@ -249,7 +251,7 @@ class WflowModel(Model):
         min_rivdph: float = 1,
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
-        rivman_mapping_fn=join(DATADIR, "wflow", "N_river_mapping.csv"),
+        rivman_mapping_fn: str = "roughness_river_mapping_default",
         elevtn_map: str = "wflow_dem",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
@@ -382,7 +384,7 @@ class WflowModel(Model):
         # TODO make separate workflows.river_manning  method
         # Make N_River map from csv file with mapping between streamorder and N_River value
         strord = self.staticmaps[self._MAPS["strord"]].copy()
-        df = pd.read_csv(rivman_mapping_fn, index_col=0, sep=",|;", engine="python")
+        df = self.data_catalog.get_dataframe(rivman_mapping_fn)
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
         # if streamorder value larger than max_str, assign last value
@@ -393,7 +395,7 @@ class WflowModel(Model):
         ds_nriver = workflows.landuse(
             da=strord,
             ds_like=self.staticmaps,
-            fn_map=rivman_mapping_fn,
+            df=df,
             logger=self.logger,
         )
         self.set_staticmaps(ds_nriver)
@@ -762,6 +764,7 @@ class WflowModel(Model):
             "Swood",
             "WaterFrac",
         ],
+        **kwargs,
     ):
         """
         This component derives several wflow maps are derived based on landuse-
@@ -796,21 +799,21 @@ class WflowModel(Model):
         """
         self.logger.info(f"Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
-            fn_map = join(DATADIR, "lulc", f"{lulc_fn}_mapping.csv")
+            fn_map = f"{lulc_fn}_mapping_default"
         else:
             fn_map = lulc_mapping_fn
-        if not isfile(fn_map):
-            self.logger.error(f"LULC mapping file not found: {fn_map}")
-            return
+        if not isfile(fn_map) and fn_map not in self.data_catalog:
+            raise ValueError(f"LULC mapping file not found: {fn_map}")
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
         )
+        df_map = self.data_catalog.get_rasterdataset(fn_map, **kwargs)
         # process landuse
         ds_lulc_maps = workflows.landuse(
             da=da,
             ds_like=self.staticmaps,
-            fn_map=fn_map,
+            df=df_map,
             params=lulc_vars,
             logger=self.logger,
         )

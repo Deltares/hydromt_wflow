@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from os.path import join
+from os.path import join, isfile
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -336,10 +336,7 @@ class WflowSedimentModel(WflowModel):
             lulc_fn=lulc_fn, lulc_mapping_fn=lulc_mapping_fn, lulc_vars=lulc_vars
         )
 
-    def setup_riverbedsed(
-        self,
-        bedsed_mapping_fn=None,
-    ):
+    def setup_riverbedsed(self, bedsed_mapping_fn=None, **kwargs):
         """Setup sediments based river bed characteristics maps.
 
         Adds model layers:
@@ -361,11 +358,15 @@ class WflowSedimentModel(WflowModel):
         self.logger.info(f"Preparing riverbedsed parameter maps.")
         # Make D50_River map from csv file with mapping between streamorder and D50_River value
         if bedsed_mapping_fn is None:
-            fn_map = join(DATADIR, "wflow_sediment", "riverbedsed_mapping.csv")
+            fn_map = "riverbedsed_mapping_default"
         else:
             fn_map = bedsed_mapping_fn
+
+        if not isfile(fn_map) and fn_map not in self.data_catalog:
+            raise ValueError(f"Riverbed sediment mapping file not found: {fn_map}")
+        df = self.data_catalog.get_dataframe(fn_map, **kwargs)
+
         strord = self.staticmaps[self._MAPS["strord"]].copy()
-        df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python")
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
         # if streamroder value larger than max_str, assign last value
@@ -377,7 +378,7 @@ class WflowSedimentModel(WflowModel):
         ds_riversed = landuse(
             da=strord,
             ds_like=self.staticmaps,
-            fn_map=fn_map,
+            df=df,
             logger=self.logger,
         )
 
