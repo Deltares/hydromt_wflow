@@ -16,14 +16,15 @@ RESAMPLING = {"landuse": "nearest", "lai": "average"}
 DTYPES = {"landuse": np.int16}
 
 
-def landuse(da, ds_like, fn_map, logger=logger, params=None):
+# def landuse(da, ds_like, data_catalog, fn_map, logger=logger, params=None):
+def landuse(da, ds_like, df, logger=logger, params=None):
     """Returns landuse map and related parameter maps.
     The parameter maps are prepared based on landuse map and
     mapping table as provided in the generic data folder of hydromt.
 
     The following topography maps are calculated:\
     - TODO
-    
+
     Parameters
     ----------
     da : xarray.DataArray
@@ -36,12 +37,6 @@ def landuse(da, ds_like, fn_map, logger=logger, params=None):
     ds_out : xarray.Dataset
         Dataset containing gridded landuse based maps
     """
-    # read csv with remapping values
-    df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python", dtype=DTYPES)
-    # limit dtypes to avoid gdal errors downstream
-    ddict = {"float64": np.float32, "int64": np.int32}
-    dtypes = {c: ddict.get(str(df[c].dtype), df[c].dtype) for c in df.columns}
-    df = pd.read_csv(fn_map, index_col=0, sep=",|;", engine="python", dtype=dtypes)
     keys = df.index.values
     if params is None:
         params = [p for p in df.columns if p != "description"]
@@ -50,6 +45,7 @@ def landuse(da, ds_like, fn_map, logger=logger, params=None):
         raise ValueError(f"Parameter(s) missing in mapping file: {missing}")
     # setup ds out
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
+
     # setup reclass method
     def reclass(x):
         return np.vectorize(d.get)(x, nodata)
@@ -78,7 +74,7 @@ def lai(da, ds_like, logger=logger):
 
     The following topography maps are calculated:\
     - LAI\
-    
+
     Parameters
     ----------
     da : xarray.DataArray or xarray.Dataset

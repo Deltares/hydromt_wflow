@@ -63,7 +63,7 @@ happy to discuss how it can be implemented for your model.
     :target: https://pypi.org/project/hydromt_wflow/
     :alt: PyPI
 
-.. |conda_forge| image:: https://anaconda.org/conda-forge/hydromt_wflow/badges/installer/conda.svg
+.. |conda_forge| image:: https://anaconda.org/conda-forge/hydromt_wflow/badges/version.svg
     :target: https://anaconda.org/conda-forge/hydromt_wflow
     :alt: Conda-Forge
 

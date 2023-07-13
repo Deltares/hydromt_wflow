@@ -146,15 +146,14 @@ def hydrography(
             )
         else:
             # This is a patch for basins which are clipped based on bbox or wrong geom
-            ds_out.coords["mask"] = (
-                ds["mask"]
-                .astype(np.int8)
-                .raster.reproject_like(da_flw, method="nearest")
-                .astype(np.bool)
-            )
+            mask_int = ds["mask"].astype(np.int8)
+            mask_int.raster.set_nodata(-1)  # change nodata value
+            ds_out.coords["mask"] = mask_int.raster.reproject_like(
+                da_flw, method="nearest"
+            ).astype(np.bool)
             basins = ds_out["mask"].values.astype(np.int32)
             logger.warning(
-                "The basin delination might be wrong as no original resolution outlets "
+                "The basin delineation might be wrong as no original resolution outlets "
                 "are found in the upscaled map."
             )
         ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
@@ -236,7 +235,7 @@ def hydrography(
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
-    ds_out = ds_out.raster.clip_mask(mask=ds_out[basins_name])
+    ds_out = ds_out.raster.clip_mask(ds_out[basins_name])
     ds_out.raster.set_crs(ds.raster.crs)
     logger.debug(
         f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."
