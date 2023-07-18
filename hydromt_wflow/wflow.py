@@ -197,7 +197,8 @@ class WflowModel(Model):
             raise ValueError(f"wflow region argument not understood: {region}")
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
-        ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10, mask=True)
+        ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
+        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
         self.logger.debug("Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
 
@@ -2967,8 +2968,9 @@ class WflowModel(Model):
         # clip based on subbasin args, geom or bbox
         if geom is not None:
             ds_staticmaps = self.staticmaps.raster.clip_geom(
-                geom, align=align, buffer=buffer, mask=True
+                geom, align=align, buffer=buffer
             )
+            ds_staticmaps.coords["mask"] = ds_staticmaps.raster.geometry_mask(geom)
             ds_staticmaps[basins_name] = ds_staticmaps[basins_name].where(
                 ds_staticmaps["mask"], self.staticmaps[basins_name].raster.nodata
             )
