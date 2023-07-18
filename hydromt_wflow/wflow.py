@@ -197,8 +197,8 @@ class WflowModel(Model):
             raise ValueError(f"wflow region argument not understood: {region}")
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
-        ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
-        self.logger.debug(f"Adding basins vector to staticgeoms.")
+        ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10, mask=True)
+        self.logger.debug("Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
 
         # setup hydrography maps and set staticmap attribute with renamed maps
@@ -764,7 +764,6 @@ class WflowModel(Model):
             "Swood",
             "WaterFrac",
         ],
-        **kwargs,
     ):
         """
         This component derives several wflow maps are derived based on landuse-
@@ -797,7 +796,7 @@ class WflowModel(Model):
             List of landuse parameters to keep.\
             By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
         """
-        self.logger.info(f"Preparing LULC parameter maps.")
+        self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
             fn_map = f"{lulc_fn}_mapping_default"
         else:
@@ -808,7 +807,10 @@ class WflowModel(Model):
         da = self.data_catalog.get_rasterdataset(
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
         )
-        df_map = self.data_catalog.get_rasterdataset(fn_map, **kwargs)
+        df_map = self.data_catalog.get_dataframe(
+            fn_map,
+            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+        )
         # process landuse
         ds_lulc_maps = workflows.landuse(
             da=da,
@@ -2965,7 +2967,7 @@ class WflowModel(Model):
         # clip based on subbasin args, geom or bbox
         if geom is not None:
             ds_staticmaps = self.staticmaps.raster.clip_geom(
-                geom, align=align, buffer=buffer
+                geom, align=align, buffer=buffer, mask=True
             )
             ds_staticmaps[basins_name] = ds_staticmaps[basins_name].where(
                 ds_staticmaps["mask"], self.staticmaps[basins_name].raster.nodata
