@@ -361,6 +361,7 @@ class WflowModel(Model):
         ds_hydro = self.data_catalog.get_rasterdataset(
             hydrography_fn, geom=self.region, buffer=10
         )
+        ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
         # get rivmsk, rivlen, rivslp
         # read model maps and revert wflow to hydromt map names
@@ -557,6 +558,7 @@ class WflowModel(Model):
             ds_hydro = self.data_catalog.get_rasterdataset(
                 hydrography_fn, geom=self.region, buffer=10
             )
+            ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
             # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
             new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
