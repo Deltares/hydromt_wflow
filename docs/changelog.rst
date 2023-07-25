@@ -44,6 +44,7 @@ Fixed
 - When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename.
 - Remove deprecated basin_shape method `PR #183 <https://github.com/Deltares/hydromt_wflow/pull/183>`_
 - Remove FillValue Nan for lat/lon in staticmaps and forcing `PR #183 <https://github.com/Deltares/hydromt_wflow/pull/183>`_
+- Fix compatibility with HydroMT v0.8.0, with updated `clip_geom/mask` functionality `PR #189 <https://github.com/Deltares/hydromt_wflow/pull/189>`_
 
 Deprecated
 ----------
