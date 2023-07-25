@@ -43,6 +43,7 @@
     <script src="../_static/design-tabs.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_lulcmaps';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="hydromt_wflow.WflowModel.setup_laimaps" href="hydromt_wflow.WflowModel.setup_laimaps.html" />
@@ -110,8 +111,8 @@
     
     
     
-    <img src="../_static/hydromt-logo.jpg" class="logo__image only-light" alt="Logo image"/>
-    <script>document.write(`<img src="../_static/hydromt-logo.jpg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/hydromt-icon.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
   
   
     <p class="title logo__title">HydroMT Wflow</p>
@@ -199,7 +200,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
           
@@ -325,7 +327,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" class="icon-link-image" alt="GitHub"/></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
           
@@ -584,7 +587,7 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lulcmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lulc_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'globcover'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_mapping_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_vars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['landuse',</span> <span class="pre">'Kext',</span> <span class="pre">'N',</span> <span class="pre">'PathFrac',</span> <span class="pre">'RootingDepth',</span> <span class="pre">'Sl',</span> <span class="pre">'Swood',</span> <span class="pre">'WaterFrac']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lulcmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lulcmaps" title="Permalink to this definition">#</a></dt>
 <dd><p>This component derives several wflow maps are derived based on landuse-
 landcover (LULC) data.</p>
-<p>Currently, <code class="docutils literal notranslate"><span class="pre">lulc_fn</span></code> can be set to the “vito”, “globcover”
+<p>Currently, <code class="docutils literal notranslate"><span class="pre">lulc_fn</span></code> can be set to the “vito”, “globcover”, “esa_worldcover”
 or “corine”, fo which lookup tables are constructed to convert lulc classses to
 model parameters based on literature. The data is remapped at its original
 resolution and then resampled to the model resolution using the average
