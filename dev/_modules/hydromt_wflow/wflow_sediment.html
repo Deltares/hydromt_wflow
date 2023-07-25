@@ -404,7 +404,7 @@ document.write(`
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">isfile</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
@@ -739,10 +739,7 @@ document.write(`
             <span class="n">lulc_fn</span><span class="o">=</span><span class="n">lulc_fn</span><span class="p">,</span> <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="n">lulc_mapping_fn</span><span class="p">,</span> <span class="n">lulc_vars</span><span class="o">=</span><span class="n">lulc_vars</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed">[docs]</a>    <span class="k">def</span> <span class="nf">setup_riverbedsed</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+<div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed">[docs]</a>    <span class="k">def</span> <span class="nf">setup_riverbedsed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup sediments based river bed characteristics maps.</span>
 
 <span class="sd">        Adds model layers:</span>
@@ -764,11 +761,15 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing riverbedsed parameter maps.&quot;</span><span class="p">)</span>
         <span class="c1"># Make D50_River map from csv file with mapping between streamorder and D50_River value</span>
         <span class="k">if</span> <span class="n">bedsed_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fn_map</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;wflow_sediment&quot;</span><span class="p">,</span> <span class="s2">&quot;riverbedsed_mapping.csv&quot;</span><span class="p">)</span>
+            <span class="n">fn_map</span> <span class="o">=</span> <span class="s2">&quot;riverbedsed_mapping_default&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fn_map</span> <span class="o">=</span> <span class="n">bedsed_mapping_fn</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_map</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fn_map</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Riverbed sediment mapping file not found: </span><span class="si">{</span><span class="n">fn_map</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
         <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
         <span class="c1"># max streamorder value above which values get the same N_River value</span>
         <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
         <span class="c1"># if streamroder value larger than max_str, assign last value</span>
@@ -780,7 +781,7 @@ document.write(`
         <span class="n">ds_riversed</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">strord</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
-            <span class="n">fn_map</span><span class="o">=</span><span class="n">fn_map</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
 

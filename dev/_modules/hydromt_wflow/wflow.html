@@ -490,6 +490,7 @@ document.write(`
         <span class="s2">&quot;instate&quot;</span><span class="p">,</span>
         <span class="s2">&quot;run_default&quot;</span><span class="p">,</span>
     <span class="p">]</span>
+    <span class="n">_CATALOGS</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">_DATADIR</span><span class="p">,</span> <span class="s2">&quot;parameters_data.yml&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.__init__"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -512,7 +513,8 @@ document.write(`
         <span class="c1"># wflow specific</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">from_yml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_CATALOGS</span><span class="p">)</span></div>
 
     <span class="c1"># COMPONENTS</span>
 <div class="viewcode-block" id="WflowModel.setup_basemaps"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_basemaps.html#hydromt_wflow.WflowModel.setup_basemaps">[docs]</a>    <span class="k">def</span> <span class="nf">setup_basemaps</span><span class="p">(</span>
@@ -599,7 +601,8 @@ document.write(`
         <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">geom</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wflow region geometry has no CRS&quot;</span><span class="p">)</span>
         <span class="n">ds_org</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding basins vector to staticgeoms.&quot;</span><span class="p">)</span>
+        <span class="n">ds_org</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding basins vector to staticgeoms.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span>
 
         <span class="c1"># setup hydrography maps and set staticmap attribute with renamed maps</span>
@@ -652,7 +655,7 @@ document.write(`
         <span class="n">min_rivdph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">smooth_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e3</span><span class="p">,</span>
-        <span class="n">rivman_mapping_fn</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;wflow&quot;</span><span class="p">,</span> <span class="s2">&quot;N_river_mapping.csv&quot;</span><span class="p">),</span>
+        <span class="n">rivman_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;roughness_river_mapping_default&quot;</span><span class="p">,</span>
         <span class="n">elevtn_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_dem&quot;</span><span class="p">,</span>
         <span class="n">river_routing</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
@@ -761,6 +764,7 @@ document.write(`
         <span class="n">ds_hydro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">hydrography_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span>
         <span class="p">)</span>
+        <span class="n">ds_hydro</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_hydro</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">)</span>
 
         <span class="c1"># get rivmsk, rivlen, rivslp</span>
         <span class="c1"># read model maps and revert wflow to hydromt map names</span>
@@ -785,7 +789,7 @@ document.write(`
         <span class="c1"># TODO make separate workflows.river_manning  method</span>
         <span class="c1"># Make N_River map from csv file with mapping between streamorder and N_River value</span>
         <span class="n">strord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">rivman_mapping_fn</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span><span class="n">rivman_mapping_fn</span><span class="p">)</span>
         <span class="c1"># max streamorder value above which values get the same N_River value</span>
         <span class="n">max_str</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
         <span class="c1"># if streamorder value larger than max_str, assign last value</span>
@@ -796,7 +800,7 @@ document.write(`
         <span class="n">ds_nriver</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">landuse</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">strord</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
-            <span class="n">fn_map</span><span class="o">=</span><span class="n">rivman_mapping_fn</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_nriver</span><span class="p">)</span>
@@ -957,6 +961,7 @@ document.write(`
             <span class="n">ds_hydro</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
                 <span class="n">hydrography_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span>
             <span class="p">)</span>
+            <span class="n">ds_hydro</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_hydro</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">)</span>
 
             <span class="c1"># try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value</span>
             <span class="n">new_river_upa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -1197,23 +1202,26 @@ document.write(`
 <span class="sd">            List of landuse parameters to keep.\</span>
 <span class="sd">            By default [&quot;landuse&quot;,&quot;Kext&quot;,&quot;N&quot;,&quot;PathFrac&quot;,&quot;RootingDepth&quot;,&quot;Sl&quot;,&quot;Swood&quot;,&quot;WaterFrac&quot;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing LULC parameter maps.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LULC parameter maps.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">lulc_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fn_map</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">DATADIR</span><span class="p">,</span> <span class="s2">&quot;lulc&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lulc_fn</span><span class="si">}</span><span class="s2">_mapping.csv&quot;</span><span class="p">)</span>
+            <span class="n">fn_map</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lulc_fn</span><span class="si">}</span><span class="s2">_mapping_default&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fn_map</span> <span class="o">=</span> <span class="n">lulc_mapping_fn</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_map</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LULC mapping file not found: </span><span class="si">{</span><span class="n">fn_map</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_map</span><span class="p">)</span> <span class="ow">and</span> <span class="n">fn_map</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LULC mapping file not found: </span><span class="si">{</span><span class="n">fn_map</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># read landuse map to DataArray</span>
         <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">lulc_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">df_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+            <span class="n">fn_map</span><span class="p">,</span>
+            <span class="n">driver_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>  <span class="c1"># only used if fn_map is a file path</span>
         <span class="p">)</span>
         <span class="c1"># process landuse</span>
         <span class="n">ds_lulc_maps</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">landuse</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">,</span>
-            <span class="n">fn_map</span><span class="o">=</span><span class="n">fn_map</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_map</span><span class="p">,</span>
             <span class="n">params</span><span class="o">=</span><span class="n">lulc_vars</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3367,6 +3375,7 @@ document.write(`
             <span class="n">ds_staticmaps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_geom</span><span class="p">(</span>
                 <span class="n">geom</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">align</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span>
             <span class="p">)</span>
+            <span class="n">ds_staticmaps</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
             <span class="n">ds_staticmaps</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_staticmaps</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
                 <span class="n">ds_staticmaps</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="n">basins_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
             <span class="p">)</span>

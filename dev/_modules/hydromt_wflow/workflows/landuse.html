@@ -419,14 +419,15 @@ document.write(`
 <span class="n">DTYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="landuse"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse">[docs]</a><span class="k">def</span> <span class="nf">landuse</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">fn_map</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="c1"># def landuse(da, ds_like, data_catalog, fn_map, logger=logger, params=None):</span>
+<div class="viewcode-block" id="landuse"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse">[docs]</a><span class="k">def</span> <span class="nf">landuse</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns landuse map and related parameter maps.</span>
 <span class="sd">    The parameter maps are prepared based on landuse map and</span>
 <span class="sd">    mapping table as provided in the generic data folder of hydromt.</span>
 
 <span class="sd">    The following topography maps are calculated:\</span>
 <span class="sd">    - TODO</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    da : xarray.DataArray</span>
@@ -439,12 +440,6 @@ document.write(`
 <span class="sd">    ds_out : xarray.Dataset</span>
 <span class="sd">        Dataset containing gridded landuse based maps</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># read csv with remapping values</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">DTYPES</span><span class="p">)</span>
-    <span class="c1"># limit dtypes to avoid gdal errors downstream</span>
-    <span class="n">ddict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;float64&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="s2">&quot;int64&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">}</span>
-    <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">ddict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn_map</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,|;&quot;</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtypes</span><span class="p">)</span>
     <span class="n">keys</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span>
     <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
@@ -482,7 +477,7 @@ document.write(`
 
 <span class="sd">    The following topography maps are calculated:\</span>
 <span class="sd">    - LAI\</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    da : xarray.DataArray or xarray.Dataset</span>

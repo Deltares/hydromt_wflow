@@ -538,33 +538,34 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-06-23 15:14:22,530 - clip - log - INFO - HydroMT version: 0.7.2.dev0
-2023-06-23 15:14:22,530 - clip - main - INFO - Clipping instance of wflow model.
-2023-06-23 15:14:22,531 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2023-06-23 15:14:22,559 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
-2023-06-23 15:14:22,559 - clip - main - INFO - Reading model to clip
-2023-06-23 15:14:22,562 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-06-23 15:14:22,907 - clip - wflow - INFO - Reading model intbl files.
-2023-06-23 15:14:22,908 - clip - wflow - INFO - Reading model table files.
-2023-06-23 15:14:22,908 - clip - wflow - INFO - Reading model staticgeom files.
-2023-06-23 15:14:23,090 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-06-23 15:14:23,135 - clip - wflow - INFO - Model read
-2023-06-23 15:14:23,136 - clip - main - INFO - Clipping staticmaps
-2023-06-23 15:14:27,625 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2023-06-23 15:14:28,411 - clip - model_api - WARNING - Replacing geom: basins
-2023-06-23 15:14:29,816 - clip - model_api - WARNING - Replacing geom: rivers
-2023-06-23 15:14:29,818 - clip - wflow - INFO - Reading model table files.
-2023-06-23 15:14:29,818 - clip - main - INFO - Clipping forcing
-2023-06-23 15:14:29,818 - clip - wflow - INFO - Clipping NetCDF forcing..
-2023-06-23 15:14:29,826 - clip - model_api - WARNING - Replacing forcing: precip
-2023-06-23 15:14:29,826 - clip - model_api - WARNING - Replacing forcing: pet
-2023-06-23 15:14:29,826 - clip - model_api - WARNING - Replacing forcing: temp
-2023-06-23 15:14:29,826 - clip - main - INFO - Writting clipped model
-2023-06-23 15:14:29,826 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2023-06-23 15:14:29,826 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
-2023-06-23 15:14:29,971 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
-2023-06-23 15:14:30,431 - clip - wflow - INFO - Write forcing file
-2023-06-23 15:14:30,457 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+2023-07-25 07:08:44,532 - clip - log - INFO - HydroMT version: 0.8.1.dev0
+2023-07-25 07:08:44,532 - clip - main - INFO - Clipping instance of wflow model.
+2023-07-25 07:08:44,532 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2023-07-25 07:08:44,562 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.2.2.dev0).
+2023-07-25 07:08:44,562 - clip - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
+2023-07-25 07:08:44,578 - clip - main - INFO - Reading model to clip
+2023-07-25 07:08:44,581 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-07-25 07:08:44,728 - clip - wflow - INFO - Reading model intbl files.
+2023-07-25 07:08:44,728 - clip - wflow - INFO - Reading model table files.
+2023-07-25 07:08:44,729 - clip - wflow - INFO - Reading model staticgeom files.
+2023-07-25 07:08:44,890 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-07-25 07:08:44,907 - clip - wflow - INFO - Model read
+2023-07-25 07:08:44,907 - clip - main - INFO - Clipping staticmaps
+2023-07-25 07:08:48,947 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2023-07-25 07:08:49,652 - clip - model_api - WARNING - Replacing geom: basins
+2023-07-25 07:08:50,822 - clip - model_api - WARNING - Replacing geom: rivers
+2023-07-25 07:08:50,823 - clip - wflow - INFO - Reading model table files.
+2023-07-25 07:08:50,824 - clip - main - INFO - Clipping forcing
+2023-07-25 07:08:50,824 - clip - wflow - INFO - Clipping NetCDF forcing..
+2023-07-25 07:08:50,829 - clip - model_api - WARNING - Replacing forcing: precip
+2023-07-25 07:08:50,829 - clip - model_api - WARNING - Replacing forcing: pet
+2023-07-25 07:08:50,829 - clip - model_api - WARNING - Replacing forcing: temp
+2023-07-25 07:08:50,829 - clip - main - INFO - Writting clipped model
+2023-07-25 07:08:50,830 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2023-07-25 07:08:50,830 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2023-07-25 07:08:50,934 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2023-07-25 07:08:51,301 - clip - wflow - INFO - Write forcing file
+2023-07-25 07:08:51,322 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
 [########################################] | 100% Completed | 101.53 ms
 
 </pre></div></div>
