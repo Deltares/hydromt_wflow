@@ -1,3 +1,79 @@
 """add global fixtures"""
-
+from os.path import join, dirname, abspath
 import pytest
+import xarray as xr
+import logging
+from hydromt.cli.cli_utils import parse_config
+from hydromt_wflow import WflowModel, WflowSedimentModel
+
+TESTDATADIR = join(dirname(abspath(__file__)), "data")
+EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+
+
+@pytest.fixture()
+def example_wflow_model():
+    logger = logging.getLogger(__name__)
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+    return mod
+
+
+@pytest.fixture()
+def example_sediment_model():
+    logger = logging.getLogger(__name__)
+    root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
+    mod = WflowSedimentModel(
+        root=root, mode="r", data_libs="artifact_data", logger=logger
+    )
+    return mod
+
+
+@pytest.fixture()
+def example_models(example_wflow_model, example_sediment_model):
+    models = {"wflow": example_wflow_model, "wflow_sediment": example_sediment_model}
+    return models
+
+
+@pytest.fixture()
+def wflow_ini():
+    config = join(TESTDATADIR, "wflow_piave_build_subbasin.ini")
+    opt = parse_config(config)
+    return opt
+
+
+@pytest.fixture()
+def sediment_ini():
+    config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.ini")
+    opt = parse_config(config)
+    return opt
+
+
+@pytest.fixture()
+def example_inis(wflow_ini, sediment_ini):
+    inis = {"wflow": wflow_ini, "wflow_sediment": sediment_ini}
+    return inis
+
+
+@pytest.fixture()
+def example_wflow_results():
+    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+    config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
+    mod = WflowModel(root=root, mode="r", config_fn=config_fn)
+    return mod
+
+
+@pytest.fixture()
+def clipped_wflow_model():
+    root = join(EXAMPLEDIR, "wflow_piave_clip")
+    mod = WflowModel(root=root, mode="r")
+    return mod
+
+
+@pytest.fixture()
+def floodplain1d_testdata():
+    data = xr.load_dataset(
+        join(TESTDATADIR, "floodplain_layers.nc"),
+        lock=False,
+        mode="r",
+    )
+    return data

@@ -42,6 +42,7 @@ Fixed
 - write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)
 - write_forcing automatic adjustment of starttime and endtime based on forcing content
 - When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename.
+- Fix compatibility with HydroMT v0.8.0, with updated `clip_geom/mask` functionality `PR #189 <https://github.com/Deltares/hydromt_wflow/pull/189>`_
 
 Deprecated
 ----------
