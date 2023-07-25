@@ -2991,7 +2991,7 @@ class WflowModel(Model):
             )
             ds_staticmaps.coords["mask"] = ds_staticmaps.raster.geometry_mask(geom)
             ds_staticmaps[basins_name] = ds_staticmaps[basins_name].where(
-                ds_staticmaps["mask"], self.staticmaps[basins_name].raster.nodata
+                ds_staticmaps.coords["mask"], self.staticmaps[basins_name].raster.nodata
             )
             ds_staticmaps[basins_name].attrs.update(
                 _FillValue=self.staticmaps[basins_name].raster.nodata
