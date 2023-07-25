@@ -22,7 +22,8 @@ def landuse(da, ds_like, df, logger=logger, params=None):
     The parameter maps are prepared based on landuse map and
     mapping table as provided in the generic data folder of hydromt.
 
-    The following topography maps are calculated:\
+    The following topography maps are calculated:
+
     - TODO
 
     Parameters

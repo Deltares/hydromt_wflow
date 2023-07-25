@@ -259,13 +259,14 @@ def topography(
     method: str = "average",
     logger=logger,
 ):
-    """Returns topography maps (see list below) at model resolution based on gridded 
-    elevation data input. 
+    """Returns topography maps (see list below) at model resolution based on gridded
+    elevation data input.
 
-    The following topography maps are calculated:\
-    - elevtn : average elevation [m]\
-    - lndslp : average land surface slope [m/m]\
-    
+    The following topography maps are calculated:
+
+    - elevtn : average elevation [m]
+    - lndslp : average land surface slope [m/m]
+
     Parameters
     ----------
     ds : xarray.DataArray
