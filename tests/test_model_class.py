@@ -16,18 +16,7 @@ import logging
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
-_models = {
-    "wflow": {
-        "example": "wflow_piave_subbasin",
-        "ini": "wflow_piave_build_subbasin.ini",
-        "model": WflowModel,
-    },
-    "wflow_sediment": {
-        "example": "wflow_sediment_piave_subbasin",
-        "ini": "wflow_sediment_piave_build_subbasin.ini",
-        "model": WflowSedimentModel,
-    },
-}
+_supported_models = {"wflow": WflowModel, "wflow_sediment": WflowSedimentModel}
 
 
 def _compare_wflow_models(mod0, mod1):
@@ -95,12 +84,9 @@ def _compare_wflow_models(mod0, mod1):
         assert mod0._config == mod1._config, f"config mismatch"
 
 
-@pytest.mark.parametrize("model", list(_models.keys()))
-def test_model_class(model):
-    _model = _models[model]
-    # read model in examples folder
-    root = join(EXAMPLEDIR, _model["example"])
-    mod = _model["model"](root=root, mode="r")
+@pytest.mark.parametrize("model", list(_supported_models.keys()))
+def test_model_class(model, example_models):
+    mod = example_models[model]
     mod.read()
     # run test_model_api() method
     non_compliant_list = mod.test_model_api()
@@ -108,24 +94,21 @@ def test_model_class(model):
 
 
 @pytest.mark.timeout(300)  # max 5 min
-@pytest.mark.parametrize("model", list(_models.keys()))
-def test_model_build(tmpdir, model):
-    _model = _models[model]
-    # test build method
-    # compare results with model from examples folder
+@pytest.mark.parametrize("model", list(_supported_models.keys()))
+def test_model_build(tmpdir, model, example_models, example_inis):
+    # get model type
+    model_type = _supported_models[model]
+    # create folder to store new model
     root = str(tmpdir.join(model))
-    logger = setuplog(__name__, join(root, "hydromt.log"), log_level=10)
-    mod1 = _model["model"](
-        root=root, mode="w", data_libs="artifact_data"
-    )  # , logger=logger)
+    mod1 = model_type(root=root, mode="w", data_libs="artifact_data")
     # Build method options
     region = {
         "subbasin": [12.2051, 45.8331],
         "strord": 4,
         "bounds": [11.70, 45.35, 12.95, 46.70],
     }
-    config = join(TESTDATADIR, _model["ini"])
-    opt = parse_config(config)
+    # get ini file
+    opt = example_inis[model]
     # Build model
     mod1.build(region=region, opt=opt)
     # Check if model is api compliant
@@ -134,21 +117,16 @@ def test_model_build(tmpdir, model):
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = _model["model"](root=root, mode="r")  # , logger=logger)
+    mod1 = model_type(root=root, mode="r")
     mod1.read()
-    root = join(EXAMPLEDIR, _model["example"])
-    mod0 = _model["model"](root=root, mode="r")
-    mod0.read()
+    # get reference model
+    mod0 = example_models[model]
     # compare models
     _compare_wflow_models(mod0, mod1)
 
 
-def test_model_clip(tmpdir):
-    logger = logging.getLogger(__name__)
+def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     model = "wflow"
-    # test clip method
-    # compare results with model from examples folder
-    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
 
     # Clip method options
     destination = str(tmpdir.join(model))
@@ -157,58 +135,51 @@ def test_model_clip(tmpdir):
         "wflow_streamorder": 4,
     }
 
-    # Clip workflow
-    mod1 = WflowModel(root=root, mode="r")  # , logger=logger)
-    mod1.read()
-    mod1.set_root(destination, mode="w")
-    mod1.clip_staticmaps(region)
-    mod1.clip_forcing()
-    mod1.write()
+    # Clip workflow, based on example model
+    example_wflow_model.read()
+    example_wflow_model.set_root(destination, mode="w")
+    example_wflow_model.clip_staticmaps(region)
+    example_wflow_model.clip_forcing()
+    example_wflow_model.write()
     # Check if model is api compliant
-    non_compliant_list = mod1.test_model_api()
+    non_compliant_list = example_wflow_model.test_model_api()
     assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
     # (need to read it again for proper staticgeoms check)
-    mod1 = WflowModel(root=destination, mode="r")  # , logger=logger)
+    mod1 = WflowModel(root=destination, mode="r")
     mod1.read()
-    root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod0 = WflowModel(root=root, mode="r")
-    mod0.read()
+    # Read reference clipped model
+    clipped_wflow_model.read()
     # compare models
-    _compare_wflow_models(mod0, mod1)
+    _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-def test_model_results():
-    logger = logging.getLogger(__name__)
-    # test read_results method
-    # read results from model from examples folder
-    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
-
-    # Initialize model and read results
-    mod = WflowModel(root=root, mode="r", config_fn=config_fn)  # , logger=logger)
-
+def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
-    assert len(mod.results) == (2 + len(mod.get_config("csv.column")))
+    assert len(example_wflow_results.results) == (
+        2 + len(example_wflow_results.get_config("csv.column"))
+    )
 
     # Check that the output and netcdf xr.Dataset are present
-    assert "output" in mod.results
-    assert isinstance(mod.results["netcdf"], xr.Dataset)
+    assert "output" in example_wflow_results.results
+    assert isinstance(example_wflow_results.results["netcdf"], xr.Dataset)
 
     # Checks for the csv columns
     # Q for gauges_grdc
-    assert len(mod.results["Q_gauges_grdc"].index) == 3
-    assert np.isin(6349410, mod.results["Q_gauges_grdc"].index)
+    assert len(example_wflow_results.results["Q_gauges_grdc"].index) == 3
+    assert np.isin(6349410, example_wflow_results.results["Q_gauges_grdc"].index)
 
     # Coordinates and values for coordinate.x and index.x for temp
     assert np.isclose(
-        mod.results["temp_bycoord"]["x"].values, mod.results["temp_byindex"]["x"].values
+        example_wflow_results.results["temp_bycoord"]["x"].values,
+        example_wflow_results.results["temp_byindex"]["x"].values,
     )
     assert np.allclose(
-        mod.results["temp_bycoord"].values, mod.results["temp_byindex"].values
+        example_wflow_results.results["temp_bycoord"].values,
+        example_wflow_results.results["temp_byindex"].values,
     )
 
     # Coordinates of the reservoir
-    assert np.isclose(mod.results["res-volume"]["y"], 46.16656)
+    assert np.isclose(example_wflow_results.results["res-volume"]["y"], 46.16656)

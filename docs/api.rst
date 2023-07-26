@@ -38,7 +38,6 @@ Setup components
    WflowModel.setup_laimaps
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
-   WflowModel.setup_hydrodem
    WflowModel.setup_outlets
    WflowModel.setup_gauges
    WflowModel.setup_areamap

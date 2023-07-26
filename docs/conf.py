@@ -111,7 +111,8 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "_static/hydromt-logo.jpg"
+html_logo = "_static/hydromt-icon.svg"
+html_favicon = "_static/hydromt-icon.svg"
 autodoc_member_order = "bysource"  # overwrite default alphabetical sort
 autoclass_content = "both"
 
@@ -132,8 +133,8 @@ html_theme_options = {
         {
             "name": "GitHub",
             "url": "https://github.com/Deltares/hydromt_wflow",  # required
-            "icon": "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
-            "type": "url",
+            "icon": "fab fa-github",
+            "type": "fontawesome",
         },
         {
             "name": "Wflow",
@@ -280,7 +281,7 @@ nbsphinx_prolog = r"""
     .. raw:: html
 
         <div>
-            For an interactive online version click here: 
+            For an interactive online version click here:
             <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/{{ docname|e }}" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
         </div>
 """

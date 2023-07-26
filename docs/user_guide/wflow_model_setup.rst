@@ -53,9 +53,7 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_soilmaps`
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rulesto ensure flux matching across scales.
     * - :py:func:`~WflowModel.setup_rootzoneclim`
-      - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions. 
-    * - :py:func:`~WflowModel.setup_hydrodem`
-      - This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.
+      - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
     * - :py:func:`~WflowModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
     * - :py:func:`~WflowModel.setup_gauges`

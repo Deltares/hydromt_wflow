@@ -229,13 +229,14 @@ def hydrography(
     xy_pit_str = ", ".join([f"({x:.5f},{y:.5f})" for x, y in zip(*xy_pit)])
     # stream order
     if strord_name not in ds_out.data_vars:
-        logger.debug(f"Derive stream order.")
+        logger.debug("Derive stream order.")
         strord = flwdir_out.stream_order()
         ds_out[strord_name] = xr.Variable(dims, strord)
         ds_out[strord_name].raster.set_nodata(255)
 
     # clip to basin extent
-    ds_out = ds_out.raster.clip_mask(ds_out[basins_name])
+    ds_out = ds_out.raster.clip_mask(da_mask=ds_out[basins_name])
+
     ds_out.raster.set_crs(ds.raster.crs)
     logger.debug(
         f"Map shape: {ds_out.raster.shape}; active cells: {flwdir_out.ncells}."
