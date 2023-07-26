@@ -207,7 +207,8 @@ class WflowModel(Model):
             raise ValueError("wflow region geometry has no CRS")
 
         ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
-        self.logger.debug(f"Adding basins vector to staticgeoms.")
+        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
+        self.logger.debug("Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
 
         # Check on resolution (degree vs meter) depending on ds_org res/crs
@@ -385,6 +386,7 @@ class WflowModel(Model):
         ds_hydro = self.data_catalog.get_rasterdataset(
             hydrography_fn, geom=self.region, buffer=10
         )
+        ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
         # get rivmsk, rivlen, rivslp
         # read model maps and revert wflow to hydromt map names
@@ -581,6 +583,7 @@ class WflowModel(Model):
             ds_hydro = self.data_catalog.get_rasterdataset(
                 hydrography_fn, geom=self.region, buffer=10
             )
+            ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
             # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
             new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
@@ -789,13 +792,12 @@ class WflowModel(Model):
             "Swood",
             "WaterFrac",
         ],
-        **kwargs,
     ):
         """
         This component derives several wflow maps are derived based on landuse-
         landcover (LULC) data.
 
-        Currently, ``lulc_fn`` can be set to the "vito", "globcover"
+        Currently, ``lulc_fn`` can be set to the "vito", "globcover", "esa_worldcover"
         or "corine", fo which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
@@ -822,7 +824,7 @@ class WflowModel(Model):
             List of landuse parameters to keep.\
             By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
         """
-        self.logger.info(f"Preparing LULC parameter maps.")
+        self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
             fn_map = f"{lulc_fn}_mapping_default"
         else:
@@ -833,7 +835,10 @@ class WflowModel(Model):
         da = self.data_catalog.get_rasterdataset(
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
         )
-        df_map = self.data_catalog.get_rasterdataset(fn_map, **kwargs)
+        df_map = self.data_catalog.get_dataframe(
+            fn_map,
+            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+        )
         # process landuse
         ds_lulc_maps = workflows.landuse(
             da=da,
@@ -1526,6 +1531,7 @@ class WflowModel(Model):
             if np.all(np.isin(resattributes, gdf_org.columns)):
                 intbl_reservoirs = gdf_org[resattributes]
                 reservoir_accuracy = None
+                reservoir_timeseries = None
             # else compute
             else:
                 (
@@ -2405,6 +2411,12 @@ class WflowModel(Model):
         ds_out.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
         ds_out.raster.set_spatial_dims()
 
+        # Remove FillValue Nan for x_dim, y_dim
+        encoding = dict()
+        for v in [ds_out.raster.x_dim, ds_out.raster.y_dim]:
+            ds_out[v].attrs.pop("_FillValue", None)
+            encoding[v] = {"_FillValue": None}
+
         # filename
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
@@ -2423,7 +2435,7 @@ class WflowModel(Model):
             # nodata is required for all but boolean fields
             if ds_out[v].dtype != "bool":
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
-        ds_out.to_netcdf(fn)
+        ds_out.to_netcdf(fn, encoding=encoding)
         # self.write_staticmaps_pcr()
 
     def read_staticmaps_pcr(self, crs=4326, **kwargs):
@@ -2685,10 +2697,11 @@ class WflowModel(Model):
                 v: {"zlib": True, "dtype": "float32", "chunksizes": chunksizes}
                 for v in ds.data_vars.keys()
             }
-            # make sure no _FillValue is written to the time dimension
+            # make sure no _FillValue is written to the time / x_dim / y_dim dimension
             # For several forcing files add common units attributes to time
-            ds["time"].attrs.pop("_FillValue", None)
-            encoding["time"] = {"_FillValue": None}
+            for v in ["time", ds.raster.x_dim, ds.raster.y_dim]:
+                ds[v].attrs.pop("_FillValue", None)
+                encoding[v] = {"_FillValue": None}
 
             # Check if all sub-folders in fn_out exists and if not create them
             if not isdir(dirname(fn_out)):
@@ -2914,11 +2927,20 @@ class WflowModel(Model):
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
         if "basins" in self.staticgeoms:
             gdf = self.staticgeoms["basins"]
-        else:
-            gdf = flw.basin_shape(
-                self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+        elif self._MAPS["basins"] in self.staticmaps:
+            gdf = (
+                self.staticmaps[self._MAPS["basins"]]
+                .raster.vectorize()
+                .set_index("value")
+                .sort_index()
             )
+            gdf.index.name = self._MAPS["basins"]
             self.set_staticgeoms(gdf, name="basins")
+        else:
+            self.logger.warning(
+                f"Basin map {self._MAPS['basins']} not found in staticmaps."
+            )
+            gdf = None
         return gdf
 
     @property
@@ -2992,8 +3014,9 @@ class WflowModel(Model):
             ds_staticmaps = self.staticmaps.raster.clip_geom(
                 geom, align=align, buffer=buffer
             )
+            ds_staticmaps.coords["mask"] = ds_staticmaps.raster.geometry_mask(geom)
             ds_staticmaps[basins_name] = ds_staticmaps[basins_name].where(
-                ds_staticmaps["mask"], self.staticmaps[basins_name].raster.nodata
+                ds_staticmaps.coords["mask"], self.staticmaps[basins_name].raster.nodata
             )
             ds_staticmaps[basins_name].attrs.update(
                 _FillValue=self.staticmaps[basins_name].raster.nodata
@@ -3020,10 +3043,16 @@ class WflowModel(Model):
         # self.rivers
         # now staticgeoms links to geoms which does not exist in every hydromt version
         # remove when updating wflow to new objects
-        basins = flw.basin_shape(
-            self.staticmaps, self.flwdir, basin_name=self._MAPS["basins"]
+        # Basin shape
+        basins = (
+            self.staticmaps[basins_name]
+            .raster.vectorize()
+            .set_index("value")
+            .sort_index()
         )
+        basins.index.name = basins_name
         self.set_staticgeoms(basins, name="basins")
+
         rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
         # Check if there are river cells in the model before continuing
         if np.any(rivmsk):
