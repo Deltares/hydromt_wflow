@@ -143,10 +143,11 @@ def glacierattrs(
 ):
     """Returns glacier intbls (see list below).
 
-    The following glacier intbls are calculated:\
-    - glacTempThresh: glacier temperature threshold [°C]\
-    - glacCfmax: glacier melting factor [mm/(°C*day)]\
-    - glacSIfrac: fraction of snowpack converted into ice and added to glacier storage [-]\
+    The following glacier intbls are calculated:
+
+    - glacTempThresh: glacier temperature threshold [°C]
+    - glacCfmax: glacier melting factor [mm/(°C*day)]
+    - glacSIfrac: fraction of snowpack converted into ice and added to glacier storage [-]
 
     Parameters
     ----------

@@ -293,26 +293,26 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
     The following soil parameter maps are calculated:
 
-    - `thetaS`            : average saturated soil water content [m3/m3]
-    - `thetaR`            : average residual water content [m3/m3]
-    - `KsatVer`           : vertical saturated hydraulic conductivity at soil surface [mm/day]
-    - `SoilThickness`     : soil thickness [mm]
-    - `SoilMinThickness`  : minimum soil thickness [mm] (equal to SoilThickness)
-    - `M`                 : model parameter [mm] that controls exponential decline of KsatVer with soil depth
-                            (fitted with curve_fit (scipy.optimize)), bounds of M are checked
-    - `M_`                : model parameter [mm] that controls exponential decline of KsatVer with soil depth
-                            (fitted with numpy linalg regression), bounds of `M_`are checked
-    - `M_original`        : `M` without checking bounds
-    - `M_original_`       : `M_`without checking bounds
-    - `f`                 : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-    - `f_`                : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
-    - `c_0`               : Brooks Corey coefficient [-] based on pore size distribution index at depth
-                            1st soil layer (100 mm) wflow_sbm
-    - `c_1`               : idem `c_0` at depth 2nd soil layer (400 mm) wflow_sbm
-    - `c_2`               : idem `c_0` at depth 3rd soil layer (1200 mm) wflow_sbm
-    - `c_3`               : idem `c_0` at depth 4th soil layer (> 1200 mm) wflow_sbm
-    - `KsatVer_[z]cm`     : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-    - `wflow_soil`        : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
+    - **thetaS** : average saturated soil water content [m3/m3]
+    - **thetaR** : average residual water content [m3/m3]
+    - **KsatVer** : vertical saturated hydraulic conductivity at soil surface [mm/day]
+    - **SoilThickness** : soil thickness [mm]
+    - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)
+    - **M** : model parameter [mm] that controls exponential decline of KsatVer with soil depth
+      (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked
+    - **M\_** : model parameter [mm] that controls exponential decline of KsatVer with soil depth
+      (fitted with numpy linalg regression), bounds of **M_** are checked
+    - **M_original** : **M** without checking bounds
+    - **M_original_** : **M_** without checking bounds
+    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
+    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
+    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at depth 1st
+      soil layer (100 mm) wflow_sbm
+    - **c_1** : idem **c_0** at depth 2nd soil layer (400 mm) wflow_sbm
+    - **c_2** : idem **c_0** at depth 3rd soil layer (1200 mm) wflow_sbm
+    - **c_3** : idem **c_0** at depth 4th soil layer (> 1200 mm) wflow_sbm
+    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
 
 
     Parameters
@@ -554,11 +554,11 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     The following soil parameter maps are calculated:
 
-        - PercentClay: clay content of the topsoil [%]
-        - PercentSilt: silt content of the topsoil [%]
-        - PercentOC: organic carbon in the topsoil [%]
-        - ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]
-        - USLE_K: soil erodibility factor from the USLE equation [-]
+    * PercentClay: clay content of the topsoil [%]
+    * PercentSilt: silt content of the topsoil [%]
+    * PercentOC: organic carbon in the topsoil [%]
+    * ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]
+    * USLE_K: soil erodibility factor from the USLE equation [-]
 
     Parameters
     ----------

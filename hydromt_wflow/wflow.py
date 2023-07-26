@@ -495,13 +495,12 @@ class WflowModel(Model):
         elevation and land elevation when using local-inertial land routing.
 
         Requires :py:meth:`setup_rivers` to be executed beforehand (with ``river_routing`` set to
-        `local-inertial`).
+        "local-inertial").
 
         Adds model layers:
 
         * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
-        dimension [m3] (for 1D floodplains)
-
+          dimension [m3] (for 1D floodplains)
         * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
 
         Parameters
@@ -528,10 +527,10 @@ class WflowModel(Model):
 
         See Also
         --------
-        hydromt.workflows.river_floodplain_volume
+        workflows.river_floodplain_volume
         hydromt.flw.dem_adjust
         pyflwdir.FlwdirRaster.dem_adjust
-        hydromt.setup_rivers
+        setup_rivers
         """
         if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
@@ -774,7 +773,7 @@ class WflowModel(Model):
         landcover (LULC) data.
 
         Currently, ``lulc_fn`` can be set to the "vito", "globcover", "esa_worldcover"
-        or "corine", fo which lookup tables are constructed to convert lulc classses to
+        or "corine", of which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
         value, unless noted differently.
@@ -1233,8 +1232,11 @@ class WflowModel(Model):
         nodata: Union[int, float] = -1,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
+
         Adds model layer:
+
         * **col2raster** map:  output area data map
+
         Parameters
         ----------
         area_fn : str
@@ -1785,6 +1787,7 @@ class WflowModel(Model):
         The config toml can also be updated to include the new maps using ``wflow_variables``.
 
         Adds model layers:
+
         * **raster.name** or **variables** staticmaps: data from raster_fn
 
         Parameters
