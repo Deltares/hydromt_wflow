@@ -36,10 +36,11 @@ def river(
 ):
     """Returns river maps
 
-    The output maps are:\
-    - rivmsk : river mask based on upstream area threshold on upstream area\
-    - rivlen : river length [m]\
-    - rivslp : smoothed river slope [m/m]\
+    The output maps are:
+
+    - rivmsk : river mask based on upstream area threshold on upstream area
+    - rivlen : river length [m]
+    - rivslp : smoothed river slope [m/m]
     - rivzs : elevation of the river bankfull height based on pixel outlet
     - rivwth : river width at pixel outlet (if in ds)
     - qbankfull : bankfull discharge at pixel outlet (if in ds)

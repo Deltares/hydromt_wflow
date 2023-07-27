@@ -20,11 +20,12 @@ def glaciermaps(
 ):
     """Returns glacier maps (see list below) at model resolution.
 
-    The following glacier maps are calculated:\
-    - wflow_glacierareas: glacier IDs [ID]\
-    - wflow_glacierfrac: area fraction of glacier per cell [-]\
-    - wflow_glacierstore: storage (volume) of glacier per cell [mm]\
-    
+    The following glacier maps are calculated:
+
+    - wflow_glacierareas: glacier IDs [ID]
+    - wflow_glacierfrac: area fraction of glacier per cell [-]
+    - wflow_glacierstore: storage (volume) of glacier per cell [mm]
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -142,10 +143,11 @@ def glacierattrs(
 ):
     """Returns glacier intbls (see list below).
 
-    The following glacier intbls are calculated:\
-    - glacTempThresh: glacier temperature threshold [°C]\
-    - glacCfmax: glacier melting factor [mm/(°C*day)]\
-    - glacSIfrac: fraction of snowpack converted into ice and added to glacier storage [-]\
+    The following glacier intbls are calculated:
+
+    - glacTempThresh: glacier temperature threshold [°C]
+    - glacCfmax: glacier melting factor [mm/(°C*day)]
+    - glacSIfrac: fraction of snowpack converted into ice and added to glacier storage [-]
 
     Parameters
     ----------

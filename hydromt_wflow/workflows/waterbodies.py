@@ -21,13 +21,14 @@ def waterbodymaps(
     uparea_name="uparea",
     logger=logger,
 ):
-    """Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded 
-    upstream area data input or outlet coordinates. 
+    """Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded
+    upstream area data input or outlet coordinates.
 
-    The following waterbody maps are calculated:\
-    - resareas/lakeareas : waterbody areas mask [ID]\
+    The following waterbody maps are calculated:
+
+    - resareas/lakeareas : waterbody areas mask [ID]
     - reslocs/lakelocs : waterbody outlets [ID]
-    
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -35,7 +36,7 @@ def waterbodymaps(
     ds_like : xarray.DataArray
         Dataset at model resolution.
     uparea_name : str, optional
-        Name of uparea variable in ds_like. If None then database coordinates will be 
+        Name of uparea variable in ds_like. If None then database coordinates will be
         used to setup outlets
     wb_type : str, optional either "reservoir" or "lake"
         Option to change the name of the maps depending on reservoir or lake
@@ -120,29 +121,30 @@ def waterbodymaps(
 
 
 def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=logger):
-    """Returns reservoir attributes (see list below) needed for modelling. 
-    When specified, some of the reservoir attributes can be derived from earth observation data. 
+    """Returns reservoir attributes (see list below) needed for modelling.
+    When specified, some of the reservoir attributes can be derived from earth observation data.
     Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
-    The following reservoir attributes are calculated:\
-    - resmaxvolume : reservoir maximum volume [m3]\
-    - resarea : reservoir area [m2]\
-    - resdemand : reservoir demand flow [m3/s]\
-    - resmaxrelease : reservoir maximum release flow [m3/s]\
-    - resfullfrac : reservoir targeted full volume fraction [m3/m3]\
-    - resminfrac : reservoir targeted minimum volume fraction [m3/m3]\
-    
+    The following reservoir attributes are calculated:
+
+    - resmaxvolume : reservoir maximum volume [m3]
+    - resarea : reservoir area [m2]
+    - resdemand : reservoir demand flow [m3/s]
+    - resmaxrelease : reservoir maximum release flow [m3/s]
+    - resfullfrac : reservoir targeted full volume fraction [m3/m3]
+    - resminfrac : reservoir targeted minimum volume fraction [m3/m3]
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs geometries and attributes.
-    timeseries_fn : str, optional 
+    timeseries_fn : str, optional
         Name of database from which time series of reservoir surface water area will be retrieved.
         Currently available: ['jrc', 'gww']
-        Defaults to Deltares' Global Water Watch database. 
+        Defaults to Deltares' Global Water Watch database.
     perc_norm : int, optional
         Percentile for normal (operational) surface area
-    perc_min: int, optional 
+    perc_min: int, optional
         Percentile for minimal (operational) surface area
 
     Returns
@@ -152,7 +154,7 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
     df_plot : pandas.DataFrame
         DataFrame containing debugging values for reservoir building.
     df_ts : pandas.DataFrame
-        DataFrame containing all downloaded reservoir time series. 
+        DataFrame containing all downloaded reservoir time series.
     """
 
     if timeseries_fn == "jrc":
@@ -491,22 +493,23 @@ def lakeattrs(
     logger=logger,
 ):
     """
-    Returns lake attributes (see list below) needed for modelling. 
+    Returns lake attributes (see list below) needed for modelling.
     If rating_dict is not empty, prepares also rating tables for wflow
 
-    The following reservoir attributes are calculated:\
-    - waterbody_id : waterbody id\
-    - LakeArea : lake area [m2]\
-    - LakeAvgLevel: lake average level [m]\
-    - LakeAvgOut: lake average outflow [m3/s]\
-    - Lake_b: lake rating curve coefficient [-]\
-    - Lake_e: lake rating curve exponent [-]\
-    - LakeStorFunc: option to compute storage curve [-]\
-    - LakeOutflowFunc: option to compute rating curve [-]\
-    - LakeThreshold: minimium threshold for lake outflow [m]\
-    - LinkedLakeLocs: id of linked lake location if any\
+    The following reservoir attributes are calculated:
+
+    - waterbody_id : waterbody id
+    - LakeArea : lake area [m2]
+    - LakeAvgLevel: lake average level [m]
+    - LakeAvgOut: lake average outflow [m3/s]
+    - Lake_b: lake rating curve coefficient [-]
+    - Lake_e: lake rating curve exponent [-]
+    - LakeStorFunc: option to compute storage curve [-]
+    - LakeOutflowFunc: option to compute rating curve [-]
+    - LakeThreshold: minimium threshold for lake outflow [m]
+    - LinkedLakeLocs: id of linked lake location if any
     - LakeMaxStorage: maximum storage [m3] (optional)
-    
+
     Parameters
     ----------
     ds : xr.Dataset
@@ -517,7 +520,7 @@ def lakeattrs(
         Dictionary containing the rating curve parameters, by default dict()
     add_maxstorage : bool, optional
         If True, adds the maximum storage to the output, by default False
-    
+
     Returns
     -------
     ds : xr.Dataset

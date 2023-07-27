@@ -262,34 +262,34 @@ class WflowModel(Model):
         This component sets the all river parameter maps.
 
         The river mask is defined by all cells with a mimimum upstream area threshold
-        `river_upa` [km2].
+        ``river_upa`` [km2].
 
         The river length is defined as the distance from the subgrid outlet pixel to
-        the next upstream subgrid outlet pixel. The `min_rivlen_ratio` is the minimum
+        the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum
         global river length to avg. cell resolution ratio and is used as a threshold in
         window based smoothing of river length.
 
         The river slope is derived from the subgrid elevation difference between pixels at a
-        half distance `slope_len` [m] up- and downstream from the subgrid outlet pixel.
+        half distance ``slope_len`` [m] up- and downstream from the subgrid outlet pixel.
 
         The river manning roughness coefficient is derived based on reclassification
-        of the streamorder map using a lookup table `rivman_mapping_fn`.
+        of the streamorder map using a lookup table ``rivman_mapping_fn``.
 
-        The river width is derived from the nearest river segment in `river_geom_fn`.
+        The river width is derived from the nearest river segment in ``river_geom_fn``.
         Data gaps are filled by the nearest valid upstream value and averaged along
-        the flow directions over a length `smooth_len` [m]
+        the flow directions over a length ``smooth_len`` [m]
 
-        The river depth is calculated using the `rivdph_method`, by default powlaw:
+        The river depth is calculated using the ``rivdph_method``, by default powlaw:
         h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
-        segment in `river_geom_fn` and takes optional arguments for the hc
+        segment in ``river_geom_fn`` and takes optional arguments for the hc
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
-        If `river_routing` is set to "local-inertial", the bankfull elevantion map can be
+        If ``river_routing`` is set to "local-inertial", the bankfull elevantion map can be
         conditioned based on the average cell elevation ("wflow_dem") or subgrid outlet pixel
         elevation ("dem_subgrid"). The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with local-inertial land routing
-        (see `hydromt.setup_floodplains`) the subgrid elevation will likely overestimate the
+        (see :py:meth:`setup_floodplains`) the subgrid elevation will likely overestimate the
         floodplain storage capacity. Note that the same input elevation map should be used for
         river bankfull elevation and land elevation when using local-inertial land routing.
 
@@ -343,7 +343,7 @@ class WflowModel(Model):
         workflows.river_bathymetry
         hydromt.workflows.river_depth
         pyflwdir.FlwdirRaster.river_depth
-        hydromt.setup_floodplains
+        setup_floodplains
         """
         self.logger.info(f"Preparing river maps.")
 
@@ -472,17 +472,17 @@ class WflowModel(Model):
     ):
         """
         This components adds floodplain information to the model schematistation. The user can
-        define what type of floodplains are required (1D or 2D), through the `floodplain_type`
+        define what type of floodplains are required (1D or 2D), through the ``floodplain_type``
         argument.
 
-        If `floodplain_type` is set to "1d", a floodplain profile is derived for every river
+        If ``floodplain_type`` is set to "1d", a floodplain profile is derived for every river
         cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
         1D floodplain schematisation.
 
-        Note, it is important to use the same river uparea value as used in the `setup_rivers`
+        Note, it is important to use the same river uparea value as used in the :py:meth:`setup_rivers`
         method.
 
-        If `floodplain_type` is set to "2d", this component adds a hydrologically conditioned
+        If ``floodplain_type`` is set to "2d", this component adds a hydrologically conditioned
         elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
         need to be conditioned to D4 flow directions otherwise pits may remain in the land
         cells.
@@ -494,13 +494,13 @@ class WflowModel(Model):
         Additionally, note that the same input elevation map should be used for river bankfull
         elevation and land elevation when using local-inertial land routing.
 
-        Requires `setup_rivers` to be executed beforehand (with `river_routing` set to
-        `local-inertial`).
+        Requires :py:meth:`setup_rivers` to be executed beforehand (with ``river_routing`` set to
+        "local-inertial").
 
         Adds model layers:
 
         * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
-        dimension [m3] (for 1D floodplains)
+          dimension [m3] (for 1D floodplains)
         * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
 
         Parameters
@@ -527,10 +527,10 @@ class WflowModel(Model):
 
         See Also
         --------
-        hydromt.workflows.river_floodplain_volume
+        workflows.river_floodplain_volume
         hydromt.flw.dem_adjust
         pyflwdir.FlwdirRaster.dem_adjust
-        hydromt.setup_rivers
+        setup_rivers
         """
         if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
@@ -773,7 +773,7 @@ class WflowModel(Model):
         landcover (LULC) data.
 
         Currently, ``lulc_fn`` can be set to the "vito", "globcover", "esa_worldcover"
-        or "corine", fo which lookup tables are constructed to convert lulc classses to
+        or "corine", of which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
         value, unless noted differently.
@@ -1031,7 +1031,7 @@ class WflowModel(Model):
           used to set the maximum distance to snap to the mask.
         * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations
           are snapped to the closest matching upstream area value. Requires gauges_fn to have
-          an `uparea` [km2] column. The closest value will be looked for in a cell window of size ``wdw``
+          an ``uparea`` [km2] column. The closest value will be looked for in a cell window of size ``wdw``
           and the difference between the gauge and the closest value should be smaller than ``rel_error``.
 
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived from
@@ -1232,8 +1232,11 @@ class WflowModel(Model):
         nodata: Union[int, float] = -1,
     ):
         """Setup area map from vector data to save wflow outputs for specific area.
+
         Adds model layer:
+
         * **col2raster** map:  output area data map
+
         Parameters
         ----------
         area_fn : str
@@ -1784,6 +1787,7 @@ class WflowModel(Model):
         The config toml can also be updated to include the new maps using ``wflow_variables``.
 
         Adds model layers:
+
         * **raster.name** or **variables** staticmaps: data from raster_fn
 
         Parameters
@@ -2540,9 +2544,9 @@ class WflowModel(Model):
         time_units="days since 1900-01-01T00:00:00",
         **kwargs,
     ):
-        """write forcing at `fn_out` in model ready format.
+        """write forcing at ``fn_out`` in model ready format.
 
-        If no `fn_out` path is provided and path_forcing from the  wflow toml exists,
+        If no ``fn_out`` path is provided and path_forcing from the  wflow toml exists,
         the following default filenames are used:
 
             * Default name format (with downscaling): inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc

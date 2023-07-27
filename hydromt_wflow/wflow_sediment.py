@@ -57,7 +57,7 @@ class WflowSedimentModel(WflowModel):
 
         See Also
         --------
-        hydromt.WflowModel.setup_rivers
+        WflowModel.setup_rivers
         """
         super().setup_rivers(*args, **kwargs)
 
@@ -191,23 +191,23 @@ class WflowSedimentModel(WflowModel):
     ):
         """This components sets the default gauge map based on basin outlets.
 
-         Adds model layers:
+        Adds model layers:
 
-         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
-         * **gauges** geom: polygon of catchment outlets
+        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
+        * **gauges** geom: polygon of catchment outlets
 
-         Parameters
-         ----------
-         river_only : bool, optional
-             Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.
+        Parameters
+        ----------
+        river_only : bool, optional
+            Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.
         toml_output : str, optional
-             One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
-         gauge_toml_header : list, optional
-             Save specific model parameters in csv section. This option defines the header of the csv file./
-             By default saves TSS (for lateral.river.SSconc).
-         gauge_toml_param: list, optional
-             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
-             names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+        gauge_toml_header : list, optional
+            Save specific model parameters in csv section. This option defines the header of the csv file./
+            By default saves TSS (for lateral.river.SSconc).
+        gauge_toml_param: list, optional
+            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).
         """
         super().setup_outlets(
             river_only=river_only,
