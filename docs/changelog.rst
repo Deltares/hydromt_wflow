@@ -6,8 +6,9 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v0.3.0 (July 2023)
+==================
+Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.
 
 Added
 -----
@@ -15,7 +16,7 @@ Added
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
 - Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
-- In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
+- In **setup_reservoirs**: All downloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
 - **setup_oulets**: Add map/geom of basin outlets (on river or all) and optionally updates outputs in toml file.
 - **setup_config_output_timeseries**: add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
 - **setup_gauges**: support for snapping based on a user defined max distance and snapping based on upstream area attribute.
