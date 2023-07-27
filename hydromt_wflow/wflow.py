@@ -131,7 +131,14 @@ class WflowModel(Model):
         Iterative Hydrography Upscaling (IHU).
         The default ``hydrography_fn`` is "merit_hydro" (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
         at 3 arcsec resolution) Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
-        Users can also supply their own elevation and flow direction data. Note that only EPSG:4326 base data supported.
+        Users can also supply their own elevation and flow direction data in any CRS and not only EPSG:4326.
+
+        Note that in order to define the region, using points or bounding box, the coordinates of the points / bounding box
+        should be in the same CRS than the hydrography data. The wflow model will then also be in the same CRS than the
+        hydrography data in order to avoid assumptions and reprojection errors. If the user wishes to use a different CRS,
+        we recommend first to reproject the hydrography data seperately because calling hydromt build. You can find examples
+        on how to reproject or prepare hydrography data in the
+        `prepare flow directions example notebok <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`.
 
         Adds model layers:
 
@@ -173,14 +180,15 @@ class WflowModel(Model):
         self.logger.info(f"Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
-        # TODO support and test (user) data from other sources with other crs!
-        if ds_org.raster.crs is None or ds_org.raster.crs.to_epsg() != 4326:
-            raise ValueError("Only EPSG:4326 base data supported.")
+
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
-            bas_index = self.data_catalog[basin_index_fn]
+            if basin_index_fn is not None:
+                bas_index = self.data_catalog[basin_index_fn]
+            else:
+                bas_index = None
             geom, xy = hydromt.workflows.get_basin_geometry(
                 ds=ds_org,
                 kind=kind,
@@ -197,11 +205,24 @@ class WflowModel(Model):
             raise ValueError(f"wflow region argument not understood: {region}")
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
+
         ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
         ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
         self.logger.debug("Adding basins vector to staticgeoms.")
         self.set_staticgeoms(geom, name="basins")
 
+        # Check on resolution (degree vs meter) depending on ds_org res/crs
+        scale_ratio = int(np.round(res / ds_org.raster.res[0]))
+        if scale_ratio < 1:
+            raise ValueError(
+                f"The model resolution {res} should be larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
+            )
+        if ds_org.raster.crs.is_geographic:
+            if res > 1:  # 111 km
+                raise ValueError(
+                    f"The model resolution {res} should be smaller than 1 degree (111km) for geographic coordinate systems. "
+                    "Make sure you provided res in degree rather than in meters."
+                )
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
             ds=ds_org,
@@ -240,6 +261,10 @@ class WflowModel(Model):
         # set basin geometry
         self.logger.debug(f"Adding region vector to staticgeoms.")
         self.set_staticgeoms(self.region, name="region")
+
+        # update toml for degree/meters if needed
+        if ds_base.raster.crs.is_projected:
+            self.set_config("model.sizeinmetres", True)
 
     def setup_rivers(
         self,
