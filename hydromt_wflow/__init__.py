@@ -2,7 +2,7 @@
 
 from os.path import join, dirname, abspath
 
-__version__ = "0.3.0"
+__version__ = "0.3.1.dev0"
 
 try:
     import pcraster as pcr
