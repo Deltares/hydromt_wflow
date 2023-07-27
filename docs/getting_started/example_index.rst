@@ -29,7 +29,7 @@ For a static (non-interactive) view of the examples follow one of the links belo
 **Pre- Post-processing and visualization**
 
 *   `Convert wflow staticmaps netcdf to raster files <../_examples/convert_staticmaps_to_mapstack.ipynb>`_
-*   `Prepare flow directions and related maps from a DEM <../examples/prepare_ldd.ipynb>`_
+*   `Prepare flow directions and related maps from a DEM <../_examples/prepare_ldd.ipynb>`_
 *   `Plot Wflow static maps <../_examples/plot_wflow_staticmaps.ipynb>`_
 *   `Plot Wflow forcing data <../_examples/plot_wflow_forcing.ipynb>`_
 *   `Plot Wflow results data <../_examples/plot_wflow_results.ipynb>`_
