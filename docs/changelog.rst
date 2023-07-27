@@ -6,6 +6,24 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+
+Deprecated
+----------
+
+Documentation
+-------------
+
 v0.3.0 (July 2023)
 ==================
 Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.
