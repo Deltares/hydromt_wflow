@@ -1,0 +1,742 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Building a model &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/wflow_build';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Build a Wflow model from scratch" href="../_examples/build_model.html" />
+    <link rel="prev" title="Model methods and components" href="wflow_model_setup.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/hydromt-icon.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/intro.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="intro.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+                        Developments
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+                    HydroMT core
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/intro.html">
+                        Getting started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="intro.html">
+                        User guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+                        Developments
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+                    HydroMT core
+                  </a>
+                </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="wflow.html">Working with the Wflow model</a><input checked class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="wflow_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">Building a model</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/build_model.html">Example: Build Wflow model</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="wflow_update.html">Updating a model</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="wflow_clip.html">Clipping a model</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/clip_model.html">Example: Clip Wflow model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="sediment.html">Working with the Wflow Sediment model</a><input checked class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sediment_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="sediment_build.html">Building a model</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/build_sediment.html">Example: Build Wflow Sediment model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="sediment_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sediment_clip.html">Clipping a model</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="process_analyze.html">Pre and postprocessing and visualization</a><input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="intro.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="wflow.html" class="nav-link">Working with the Wflow model</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Building a model</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="building-a-model">
+<span id="wflow-build"></span><h1>Building a model<a class="headerlink" href="#building-a-model" title="Permalink to this heading">#</a></h1>
+<p>This plugin allows to build a complete model from available data. Once the configuration and
+data libraries are set, you can build a model by using:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">hydromt build wflow path/to/built_model -r &quot;{&#39;basin&#39;: [x, y]}&quot; -i wflow_build.ini -d data_sources.yml -vvv</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or –region flag.
+The resolution (previously -r) argument has been moved to the setup_basemaps section in the .ini configuration file.</p>
+</div>
+<p>The recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">region options</a>
+for a proper implementation of this model are:</p>
+<ul class="simple">
+<li><p>basin</p></li>
+<li><p>subbasin</p></li>
+</ul>
+<p>The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
+is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
+If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
+You can find some examples on how to do this in the <a class="reference internal" href="../_examples/prepare_ldd.html"><span class="doc">example notebook</span></a>.</p>
+<section id="configuration-file">
+<span id="model-config"></span><h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading">#</a></h2>
+<p>Settings to build or update a Wflow model are managed in a configuration file. In this file,
+every option from each <a class="reference internal" href="wflow_model_setup.html#model-methods"><span class="std std-ref">model method</span></a> can be changed by the user
+in its corresponding section.</p>
+<p>Note that the order in which the components are listed in the ini file is important:</p>
+<ul class="simple">
+<li><p><cite>setup_basemaps</cite> should always be run first to determine the model domain</p></li>
+<li><p><cite>setup_rivers</cite> should be run right after <cite>setup_basemaps</cite> as it influences several other setup components (lakes, reservoirs, riverwidth, gauges)</p></li>
+</ul>
+<p>Below is an example ini file that can be used to build a complete Wflow model
+<a class="reference download internal" download="" href="../_downloads/336698a43d8903408cbffc46fcfa04fd/wflow_build.ini"><code class="xref download docutils literal notranslate"><span class="pre">.ini</span> <span class="pre">file</span></code></a>. Each section corresponds
+to a model component with the same name.</p>
+<div class="highlight-Ini notranslate"><div class="highlight"><pre><span></span><span class="na">[setup_config]                  # options parsed to wflow ini file &lt;section&gt;.&lt;option&gt;</span>
+<span class="na">starttime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2010-01-01T00:00:00</span>
+<span class="na">endtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2010-03-31T00:00:00</span>
+<span class="na">timestepsecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">86400</span>
+<span class="na">input.path_forcing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">inmaps-era5-2010.nc</span>
+
+<span class="k">[setup_basemaps]</span>
+<span class="na">hydrography_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
+<span class="na">basin_index_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro_index</span><span class="w"> </span><span class="c1"># source of basin index corresponding to hydrography_fn</span>
+<span class="na">upscale_method</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">ihu</span><span class="w">           </span><span class="c1"># upscaling method for flow direction data, by default &#39;ihu&#39;</span>
+<span class="na">res</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s">0.00833</span><span class="w">           </span><span class="c1"># build the model at a 30 arc sec (~1km) resolution</span>
+
+<span class="k">[setup_rivers]</span>
+<span class="na">hydrography_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="na">river_geom_fn</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">rivers_lin2019_v1</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
+<span class="na">river_upa</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">30</span><span class="w">               </span><span class="c1"># minimum upstream area threshold for the river map [km2]</span>
+<span class="na">rivdph_method</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span>
+<span class="na">min_rivdph</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w">                </span><span class="c1"># minimum river depth [m]</span>
+<span class="na">min_rivwth</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">30</span><span class="w">               </span><span class="c1"># minimum river width [m]</span>
+<span class="na">slope_len</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
+<span class="na">smooth_len</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
+<span class="c1"># river_routing    = local-inertial   # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
+
+<span class="c1"># [setup_floodplains] # if 2D floodplains are required</span>
+<span class="c1"># hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="c1"># floodplain_type = 2d #  # If two-dimensional floodplains are required</span>
+<span class="c1"># elevtn_map = wflow_dem  # {&#39;wflow_dem&#39;, &#39;dem_subgrid&#39;}</span>
+
+<span class="c1"># [setup_floodplains] # if 1D floodplains are required</span>
+<span class="c1"># hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="c1"># floodplain_type = 1d    # If one-dimensional floodplains are required</span>
+<span class="c1"># flood_depths     = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0] # flood depths at which a volume is derived</span>
+
+
+<span class="k">[setup_reservoirs]</span>
+<span class="na">reservoirs_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_reservoirs</span><span class="w">  </span><span class="c1"># source for reservoirs shape and attributes</span>
+<span class="na">timeseries_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">gww</span><span class="w">           </span><span class="c1"># additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.</span>
+<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span><span class="w">           </span><span class="c1"># minimum lake area to consider [km2]</span>
+
+<span class="k">[setup_lakes]</span>
+<span class="na">lakes_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_lakes</span><span class="w">   </span><span class="c1"># source for lakes based on hydroLAKES: {hydro_lakes}</span>
+<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span><span class="w">          </span><span class="c1"># minimum reservoir area to consider [km2]</span>
+
+<span class="k">[setup_glaciers]</span>
+<span class="na">glaciers_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">rgi</span><span class="w">           </span><span class="c1"># source for glaciers based on Randolph Glacier Inventory {rgi}</span>
+<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span><span class="w">           </span><span class="c1"># minimum glacier area to consider [km2]</span>
+
+<span class="k">[setup_lulcmaps]</span>
+<span class="na">lulc_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">globcover</span><span class="w">     </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
+
+<span class="k">[setup_laimaps]</span>
+<span class="na">lai_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">modis_lai</span><span class="w">     </span><span class="c1"># source for LAI: {modis_lai}</span>
+
+<span class="k">[setup_soilmaps]</span>
+<span class="na">soil_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">soilgrids</span><span class="w">     </span><span class="c1"># source for soilmaps: {soilgrids}</span>
+<span class="na">ptf_ksatver</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">brakensiek</span><span class="w">    </span><span class="c1"># pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}</span>
+
+<span class="k">[setup_outlets]</span>
+<span class="na">river_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+
+<span class="k">[setup_gauges]</span>
+<span class="na">gauges_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">grdc</span><span class="w">          </span><span class="c1"># if not None add gaugemap. Either a path or known gauges_fn: {grdc}</span>
+<span class="na">snap_to_river</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True snaps gauges from source to river</span>
+<span class="na">derive_subcatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span><span class="w">         </span><span class="c1"># if True derive subcatch map based on gauges.</span>
+
+<span class="k">[setup_precip_forcing]</span>
+<span class="na">precip_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">era5</span><span class="w">          </span><span class="c1"># source for precipitation.</span>
+<span class="na">precip_clim_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">None</span><span class="w">          </span><span class="c1"># source for high resolution climatology to correct precipitation.</span>
+
+<span class="k">[setup_temp_pet_forcing]</span>
+<span class="na">temp_pet_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">era5</span><span class="w">          </span><span class="c1"># source for temperature and potential evapotranspiration.</span>
+<span class="na">press_correction</span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True temperature is corrected with elevation lapse rate.</span>
+<span class="na">temp_correction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True pressure is corrected with elevation lapse rate.</span>
+<span class="na">dem_forcing_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">era5_orography</span><span class="w"> </span><span class="c1"># source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.</span>
+<span class="na">pet_method</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">debruin</span><span class="w">       </span><span class="c1"># method to compute PET: {debruin, makkink}</span>
+<span class="na">skip_pet</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">False</span><span class="w">         </span><span class="c1"># if True, only temperature is prepared.</span>
+
+<span class="k">[setup_constant_pars]</span>
+<span class="na">KsatHorFrac</span><span class="o">=</span><span class="s">100</span>
+<span class="na">Cfmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.75653</span>
+<span class="na">cf_soil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.038</span>
+<span class="na">EoverR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.11</span>
+<span class="na">InfiltCapPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
+<span class="na">InfiltCapSoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600</span>
+<span class="na">MaxLeakage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="na">rootdistpar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-500</span>
+<span class="na">TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="na">TTI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
+<span class="na">TTM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
+<span class="na">WHC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
+<span class="na">G_Cfmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.3</span>
+<span class="na">G_SIfrac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.002</span>
+<span class="na">G_TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.3</span>
+</pre></div>
+</div>
+</section>
+<section id="selecting-data">
+<h2>Selecting data<a class="headerlink" href="#selecting-data" title="Permalink to this heading">#</a></h2>
+<p>Data sources in HydroMT are provided in one of several yaml libraries. These libraries contain required
+information on the different data sources so that HydroMT can process them for the different models. There
+are three ways for the user to select which data libraries to use:</p>
+<ul class="simple">
+<li><p>If no yaml file is selected, HydroMT will use the data stored in the
+<a class="reference external" href="https://github.com/DirkEilander/hydromt-artifacts">hydromt-artifacts</a>
+which contains an extract of global data for a small region around the Piave river in Northern Italy.</p></li>
+<li><p>Another options for Deltares users is to select the deltares-data library (requires access to the Deltares
+P-drive). In the command lines examples below, this is done by adding either <strong>–dd</strong> or <strong>–deltares-data</strong>
+to the build / update command line.</p></li>
+<li><p>Finally, the user can prepare its own yaml libary (or libraries) (see
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/index">HydroMT documentation</a> to check the guidelines).
+These user libraries can be added either in the command line using the <strong>-d</strong> option and path/to/yaml or in the <strong>ini file</strong>
+with the <strong>data_libs</strong> option in the [global] sections.</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="wflow_model_setup.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model methods and components</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../_examples/build_model.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Build a Wflow model from scratch</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file">Configuration file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-data">Selecting data</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/user_guide/wflow_build.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/wflow_build.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
