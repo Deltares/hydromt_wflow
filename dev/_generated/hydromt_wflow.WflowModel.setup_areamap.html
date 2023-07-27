@@ -585,15 +585,20 @@ document.write(`
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_areamap">
 <span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_areamap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">col2raster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_areamap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_areamap" title="Permalink to this definition">#</a></dt>
-<dd><p>Setup area map from vector data to save wflow outputs for specific area.
-Adds model layer:
-* <strong>col2raster</strong> map:  output area data map
-:param area_fn: Name of vector data corresponding to wflow output area.
-:type area_fn: str
-:param col2raster: Name of the column from the vector file to rasterize.
-:type col2raster: str
-:param nodata: Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1.
-:type nodata: int/float, optional</p>
+<dd><p>Setup area map from vector data to save wflow outputs for specific area.</p>
+<p>Adds model layer:</p>
+<ul class="simple">
+<li><p><strong>col2raster</strong> map:  output area data map</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>area_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of vector data corresponding to wflow output area.</p></li>
+<li><p><strong>col2raster</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of the column from the vector file to rasterize.</p></li>
+<li><p><strong>nodata</strong> (<em>int/float</em><em>, </em><em>optional</em>) – Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

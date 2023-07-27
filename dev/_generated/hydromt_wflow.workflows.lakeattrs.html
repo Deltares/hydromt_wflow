@@ -587,7 +587,20 @@ document.write(`
 <span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">lakeattrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gdf:</span> <span class="pre">~geopandas.geodataframe.GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rating_dict:</span> <span class="pre">dict</span> <span class="pre">=</span> <span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_maxstorage:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.waterbodies</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/waterbodies.html#lakeattrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.lakeattrs" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns lake attributes (see list below) needed for modelling.
 If rating_dict is not empty, prepares also rating tables for wflow</p>
-<p>The following reservoir attributes are calculated:    - waterbody_id : waterbody id    - LakeArea : lake area [m2]    - LakeAvgLevel: lake average level [m]    - LakeAvgOut: lake average outflow [m3/s]    - Lake_b: lake rating curve coefficient [-]    - Lake_e: lake rating curve exponent [-]    - LakeStorFunc: option to compute storage curve [-]    - LakeOutflowFunc: option to compute rating curve [-]    - LakeThreshold: minimium threshold for lake outflow [m]    - LinkedLakeLocs: id of linked lake location if any    - LakeMaxStorage: maximum storage [m3] (optional)</p>
+<p>The following reservoir attributes are calculated:</p>
+<ul class="simple">
+<li><p>waterbody_id : waterbody id</p></li>
+<li><p>LakeArea : lake area [m2]</p></li>
+<li><p>LakeAvgLevel: lake average level [m]</p></li>
+<li><p>LakeAvgOut: lake average outflow [m3/s]</p></li>
+<li><p>Lake_b: lake rating curve coefficient [-]</p></li>
+<li><p>Lake_e: lake rating curve exponent [-]</p></li>
+<li><p>LakeStorFunc: option to compute storage curve [-]</p></li>
+<li><p>LakeOutflowFunc: option to compute rating curve [-]</p></li>
+<li><p>LakeThreshold: minimium threshold for lake outflow [m]</p></li>
+<li><p>LinkedLakeLocs: id of linked lake location if any</p></li>
+<li><p>LakeMaxStorage: maximum storage [m3] (optional)</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

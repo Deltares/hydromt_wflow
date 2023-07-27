@@ -586,9 +586,15 @@ document.write(`
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.river">
 <span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">river</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_model=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa=30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_len=2000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_rivlen_ratio=0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel_dir='up'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.river</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/river.html#river"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.river" title="Permalink to this definition">#</a></dt>
 <dd><p>Returns river maps</p>
-<p>The output maps are:    - rivmsk : river mask based on upstream area threshold on upstream area    - rivlen : river length [m]    - rivslp : smoothed river slope [m/m]    - rivzs : elevation of the river bankfull height based on pixel outlet
-- rivwth : river width at pixel outlet (if in ds)
-- qbankfull : bankfull discharge at pixel outlet (if in ds)</p>
+<p>The output maps are:</p>
+<ul class="simple">
+<li><p>rivmsk : river mask based on upstream area threshold on upstream area</p></li>
+<li><p>rivlen : river length [m]</p></li>
+<li><p>rivslp : smoothed river slope [m/m]</p></li>
+<li><p>rivzs : elevation of the river bankfull height based on pixel outlet</p></li>
+<li><p>rivwth : river width at pixel outlet (if in ds)</p></li>
+<li><p>qbankfull : bankfull discharge at pixel outlet (if in ds)</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

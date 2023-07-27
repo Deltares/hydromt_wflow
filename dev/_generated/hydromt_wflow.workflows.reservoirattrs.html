@@ -588,17 +588,22 @@ document.write(`
 <dd><p>Returns reservoir attributes (see list below) needed for modelling.
 When specified, some of the reservoir attributes can be derived from earth observation data.
 Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</p>
-<p>The following reservoir attributes are calculated:    - resmaxvolume : reservoir maximum volume [m3]    - resarea : reservoir area [m2]    - resdemand : reservoir demand flow [m3/s]    - resmaxrelease : reservoir maximum release flow [m3/s]    - resfullfrac : reservoir targeted full volume fraction [m3/m3]    - resminfrac : reservoir targeted minimum volume fraction [m3/m3]
-:param gdf: GeoDataFrame containing reservoirs geometries and attributes.
-:type gdf: geopandas.GeoDataFrame
-:param timeseries_fn: Name of database from which time series of reservoir surface water area will be retrieved.</p>
-<blockquote>
-<div><p>Currently available: [‘jrc’, ‘gww’]
-Defaults to Deltares’ Global Water Watch database.</p>
-</div></blockquote>
+<p>The following reservoir attributes are calculated:</p>
+<ul class="simple">
+<li><p>resmaxvolume : reservoir maximum volume [m3]</p></li>
+<li><p>resarea : reservoir area [m2]</p></li>
+<li><p>resdemand : reservoir demand flow [m3/s]</p></li>
+<li><p>resmaxrelease : reservoir maximum release flow [m3/s]</p></li>
+<li><p>resfullfrac : reservoir targeted full volume fraction [m3/m3]</p></li>
+<li><p>resminfrac : reservoir targeted minimum volume fraction [m3/m3]</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>gdf</strong> (<a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v0.13.2)"><em>geopandas.GeoDataFrame</em></a>) – GeoDataFrame containing reservoirs geometries and attributes.</p></li>
+<li><p><strong>timeseries_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – Name of database from which time series of reservoir surface water area will be retrieved.
+Currently available: [‘jrc’, ‘gww’]
+Defaults to Deltares’ Global Water Watch database.</p></li>
 <li><p><strong>perc_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Percentile for normal (operational) surface area</p></li>
 <li><p><strong>perc_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Percentile for minimal (operational) surface area</p></li>
 </ul>

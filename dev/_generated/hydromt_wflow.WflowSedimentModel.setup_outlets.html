@@ -586,29 +586,21 @@ document.write(`
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_outlets">
 <span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_outlets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">river_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toml_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['TSS']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['lateral.river.SSconc']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_outlets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_outlets" title="Permalink to this definition">#</a></dt>
 <dd><p>This components sets the default gauge map based on basin outlets.</p>
-<blockquote>
-<div><p>Adds model layers:</p>
+<p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_gauges</strong> map: gauge IDs map from catchment outlets [-]</p></li>
 <li><p><strong>gauges</strong> geom: polygon of catchment outlets</p></li>
 </ul>
-<dl class="simple">
-<dt>river_only<span class="classifier">bool, optional</span></dt><dd><p>Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>toml_output<span class="classifier">str, optional</span></dt><dd><blockquote>
-<div><p>One of [‘csv’, ‘netcdf’, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, ‘csv’.</p>
-</div></blockquote>
-<dl class="simple">
-<dt>gauge_toml_header<span class="classifier">list, optional</span></dt><dd><p>Save specific model parameters in csv section. This option defines the header of the csv file./
-By default saves TSS (for lateral.river.SSconc).</p>
-</dd>
-<dt>gauge_toml_param: list, optional</dt><dd><p>Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
-names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).</p>
-</dd>
-</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>river_only</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a><em>, </em><em>optional</em>) – Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</p></li>
+<li><p><strong>toml_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>optional</em>) – One of [‘csv’, ‘netcdf’, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, ‘csv’.</p></li>
+<li><p><strong>gauge_toml_header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – Save specific model parameters in csv section. This option defines the header of the csv file./
+By default saves TSS (for lateral.river.SSconc).</p></li>
+<li><p><strong>gauge_toml_param</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em>, </em><em>optional</em>) – Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

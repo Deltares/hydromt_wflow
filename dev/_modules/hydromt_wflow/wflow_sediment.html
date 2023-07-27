@@ -463,7 +463,7 @@ document.write(`
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        hydromt.WflowModel.setup_rivers</span>
+<span class="sd">        WflowModel.setup_rivers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_rivers</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -597,23 +597,23 @@ document.write(`
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This components sets the default gauge map based on basin outlets.</span>
 
-<span class="sd">         Adds model layers:</span>
+<span class="sd">        Adds model layers:</span>
 
-<span class="sd">         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
-<span class="sd">         * **gauges** geom: polygon of catchment outlets</span>
+<span class="sd">        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
+<span class="sd">        * **gauges** geom: polygon of catchment outlets</span>
 
-<span class="sd">         Parameters</span>
-<span class="sd">         ----------</span>
-<span class="sd">         river_only : bool, optional</span>
-<span class="sd">             Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        river_only : bool, optional</span>
+<span class="sd">            Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.</span>
 <span class="sd">        toml_output : str, optional</span>
-<span class="sd">             One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
-<span class="sd">         gauge_toml_header : list, optional</span>
-<span class="sd">             Save specific model parameters in csv section. This option defines the header of the csv file./</span>
-<span class="sd">             By default saves TSS (for lateral.river.SSconc).</span>
-<span class="sd">         gauge_toml_param: list, optional</span>
-<span class="sd">             Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/</span>
-<span class="sd">             names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).</span>
+<span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, &#39;csv&#39;.</span>
+<span class="sd">        gauge_toml_header : list, optional</span>
+<span class="sd">            Save specific model parameters in csv section. This option defines the header of the csv file./</span>
+<span class="sd">            By default saves TSS (for lateral.river.SSconc).</span>
+<span class="sd">        gauge_toml_param: list, optional</span>
+<span class="sd">            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/</span>
+<span class="sd">            names in gauge_toml_header. By default saves lateral.river.SSconc (for TSS).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_outlets</span><span class="p">(</span>
             <span class="n">river_only</span><span class="o">=</span><span class="n">river_only</span><span class="p">,</span>

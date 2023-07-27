@@ -668,34 +668,34 @@ document.write(`
 <span class="sd">        This component sets the all river parameter maps.</span>
 
 <span class="sd">        The river mask is defined by all cells with a mimimum upstream area threshold</span>
-<span class="sd">        `river_upa` [km2].</span>
+<span class="sd">        ``river_upa`` [km2].</span>
 
 <span class="sd">        The river length is defined as the distance from the subgrid outlet pixel to</span>
-<span class="sd">        the next upstream subgrid outlet pixel. The `min_rivlen_ratio` is the minimum</span>
+<span class="sd">        the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum</span>
 <span class="sd">        global river length to avg. cell resolution ratio and is used as a threshold in</span>
 <span class="sd">        window based smoothing of river length.</span>
 
 <span class="sd">        The river slope is derived from the subgrid elevation difference between pixels at a</span>
-<span class="sd">        half distance `slope_len` [m] up- and downstream from the subgrid outlet pixel.</span>
+<span class="sd">        half distance ``slope_len`` [m] up- and downstream from the subgrid outlet pixel.</span>
 
 <span class="sd">        The river manning roughness coefficient is derived based on reclassification</span>
-<span class="sd">        of the streamorder map using a lookup table `rivman_mapping_fn`.</span>
+<span class="sd">        of the streamorder map using a lookup table ``rivman_mapping_fn``.</span>
 
-<span class="sd">        The river width is derived from the nearest river segment in `river_geom_fn`.</span>
+<span class="sd">        The river width is derived from the nearest river segment in ``river_geom_fn``.</span>
 <span class="sd">        Data gaps are filled by the nearest valid upstream value and averaged along</span>
-<span class="sd">        the flow directions over a length `smooth_len` [m]</span>
+<span class="sd">        the flow directions over a length ``smooth_len`` [m]</span>
 
-<span class="sd">        The river depth is calculated using the `rivdph_method`, by default powlaw:</span>
+<span class="sd">        The river depth is calculated using the ``rivdph_method``, by default powlaw:</span>
 <span class="sd">        h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river</span>
-<span class="sd">        segment in `river_geom_fn` and takes optional arguments for the hc</span>
+<span class="sd">        segment in ``river_geom_fn`` and takes optional arguments for the hc</span>
 <span class="sd">        (default = 0.27) and hp (default = 0.30) parameters. For other methods see</span>
 <span class="sd">        :py:meth:`hydromt.workflows.river_depth`.</span>
 
-<span class="sd">        If `river_routing` is set to &quot;local-inertial&quot;, the bankfull elevantion map can be</span>
+<span class="sd">        If ``river_routing`` is set to &quot;local-inertial&quot;, the bankfull elevantion map can be</span>
 <span class="sd">        conditioned based on the average cell elevation (&quot;wflow_dem&quot;) or subgrid outlet pixel</span>
 <span class="sd">        elevation (&quot;dem_subgrid&quot;). The subgrid elevation might provide a better representation</span>
 <span class="sd">        of the river elevation profile, however in combination with local-inertial land routing</span>
-<span class="sd">        (see `hydromt.setup_floodplains`) the subgrid elevation will likely overestimate the</span>
+<span class="sd">        (see :py:meth:`setup_floodplains`) the subgrid elevation will likely overestimate the</span>
 <span class="sd">        floodplain storage capacity. Note that the same input elevation map should be used for</span>
 <span class="sd">        river bankfull elevation and land elevation when using local-inertial land routing.</span>
 
@@ -749,7 +749,7 @@ document.write(`
 <span class="sd">        workflows.river_bathymetry</span>
 <span class="sd">        hydromt.workflows.river_depth</span>
 <span class="sd">        pyflwdir.FlwdirRaster.river_depth</span>
-<span class="sd">        hydromt.setup_floodplains</span>
+<span class="sd">        setup_floodplains</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing river maps.&quot;</span><span class="p">)</span>
 
@@ -878,17 +878,17 @@ document.write(`
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        This components adds floodplain information to the model schematistation. The user can</span>
-<span class="sd">        define what type of floodplains are required (1D or 2D), through the `floodplain_type`</span>
+<span class="sd">        define what type of floodplains are required (1D or 2D), through the ``floodplain_type``</span>
 <span class="sd">        argument.</span>
 
-<span class="sd">        If `floodplain_type` is set to &quot;1d&quot;, a floodplain profile is derived for every river</span>
+<span class="sd">        If ``floodplain_type`` is set to &quot;1d&quot;, a floodplain profile is derived for every river</span>
 <span class="sd">        cell. It adds a map with floodplain volume per flood depth, which is used in the wflow</span>
 <span class="sd">        1D floodplain schematisation.</span>
 
-<span class="sd">        Note, it is important to use the same river uparea value as used in the `setup_rivers`</span>
+<span class="sd">        Note, it is important to use the same river uparea value as used in the :py:meth:`setup_rivers`</span>
 <span class="sd">        method.</span>
 
-<span class="sd">        If `floodplain_type` is set to &quot;2d&quot;, this component adds a hydrologically conditioned</span>
+<span class="sd">        If ``floodplain_type`` is set to &quot;2d&quot;, this component adds a hydrologically conditioned</span>
 <span class="sd">        elevation (hydrodem) map for land routing (local-inertial). For this options, landcells</span>
 <span class="sd">        need to be conditioned to D4 flow directions otherwise pits may remain in the land</span>
 <span class="sd">        cells.</span>
@@ -900,13 +900,13 @@ document.write(`
 <span class="sd">        Additionally, note that the same input elevation map should be used for river bankfull</span>
 <span class="sd">        elevation and land elevation when using local-inertial land routing.</span>
 
-<span class="sd">        Requires `setup_rivers` to be executed beforehand (with `river_routing` set to</span>
-<span class="sd">        `local-inertial`).</span>
+<span class="sd">        Requires :py:meth:`setup_rivers` to be executed beforehand (with ``river_routing`` set to</span>
+<span class="sd">        &quot;local-inertial&quot;).</span>
 
 <span class="sd">        Adds model layers:</span>
 
 <span class="sd">        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third</span>
-<span class="sd">        dimension [m3] (for 1D floodplains)</span>
+<span class="sd">          dimension [m3] (for 1D floodplains)</span>
 <span class="sd">        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)</span>
 
 <span class="sd">        Parameters</span>
@@ -933,10 +933,10 @@ document.write(`
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        hydromt.workflows.river_floodplain_volume</span>
+<span class="sd">        workflows.river_floodplain_volume</span>
 <span class="sd">        hydromt.flw.dem_adjust</span>
 <span class="sd">        pyflwdir.FlwdirRaster.dem_adjust</span>
-<span class="sd">        hydromt.setup_rivers</span>
+<span class="sd">        setup_rivers</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;model.river_routing&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;local-inertial&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -1179,7 +1179,7 @@ document.write(`
 <span class="sd">        landcover (LULC) data.</span>
 
 <span class="sd">        Currently, ``lulc_fn`` can be set to the &quot;vito&quot;, &quot;globcover&quot;, &quot;esa_worldcover&quot;</span>
-<span class="sd">        or &quot;corine&quot;, fo which lookup tables are constructed to convert lulc classses to</span>
+<span class="sd">        or &quot;corine&quot;, of which lookup tables are constructed to convert lulc classses to</span>
 <span class="sd">        model parameters based on literature. The data is remapped at its original</span>
 <span class="sd">        resolution and then resampled to the model resolution using the average</span>
 <span class="sd">        value, unless noted differently.</span>
@@ -1437,7 +1437,7 @@ document.write(`
 <span class="sd">          used to set the maximum distance to snap to the mask.</span>
 <span class="sd">        * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations</span>
 <span class="sd">          are snapped to the closest matching upstream area value. Requires gauges_fn to have</span>
-<span class="sd">          an `uparea` [km2] column. The closest value will be looked for in a cell window of size ``wdw``</span>
+<span class="sd">          an ``uparea`` [km2] column. The closest value will be looked for in a cell window of size ``wdw``</span>
 <span class="sd">          and the difference between the gauge and the closest value should be smaller than ``rel_error``.</span>
 
 <span class="sd">        If ``derive_subcatch`` is set to True, an additional subcatch map is derived from</span>
@@ -1638,8 +1638,11 @@ document.write(`
         <span class="n">nodata</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup area map from vector data to save wflow outputs for specific area.</span>
+
 <span class="sd">        Adds model layer:</span>
+
 <span class="sd">        * **col2raster** map:  output area data map</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        area_fn : str</span>
@@ -2190,6 +2193,7 @@ document.write(`
 <span class="sd">        The config toml can also be updated to include the new maps using ``wflow_variables``.</span>
 
 <span class="sd">        Adds model layers:</span>
+
 <span class="sd">        * **raster.name** or **variables** staticmaps: data from raster_fn</span>
 
 <span class="sd">        Parameters</span>
@@ -2946,9 +2950,9 @@ document.write(`
         <span class="n">time_units</span><span class="o">=</span><span class="s2">&quot;days since 1900-01-01T00:00:00&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;write forcing at `fn_out` in model ready format.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;write forcing at ``fn_out`` in model ready format.</span>
 
-<span class="sd">        If no `fn_out` path is provided and path_forcing from the  wflow toml exists,</span>
+<span class="sd">        If no ``fn_out`` path is provided and path_forcing from the  wflow toml exists,</span>
 <span class="sd">        the following default filenames are used:</span>
 
 <span class="sd">            * Default name format (with downscaling): inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc</span>

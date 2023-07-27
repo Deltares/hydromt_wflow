@@ -586,14 +586,14 @@ document.write(`
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_floodplains">
 <span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_floodplains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floodplain_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flood_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[0.5,</span> <span class="pre">1.0,</span> <span class="pre">1.5,</span> <span class="pre">2.0,</span> <span class="pre">2.5,</span> <span class="pre">3.0,</span> <span class="pre">4.0,</span> <span class="pre">5.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevtn_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_dem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_floodplains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_floodplains" title="Permalink to this definition">#</a></dt>
 <dd><p>This components adds floodplain information to the model schematistation. The user can
-define what type of floodplains are required (1D or 2D), through the <cite>floodplain_type</cite>
+define what type of floodplains are required (1D or 2D), through the <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code>
 argument.</p>
-<p>If <cite>floodplain_type</cite> is set to “1d”, a floodplain profile is derived for every river
+<p>If <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> is set to “1d”, a floodplain profile is derived for every river
 cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
 1D floodplain schematisation.</p>
-<p>Note, it is important to use the same river uparea value as used in the <cite>setup_rivers</cite>
+<p>Note, it is important to use the same river uparea value as used in the <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a>
 method.</p>
-<p>If <cite>floodplain_type</cite> is set to “2d”, this component adds a hydrologically conditioned
+<p>If <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> is set to “2d”, this component adds a hydrologically conditioned
 elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
 need to be conditioned to D4 flow directions otherwise pits may remain in the land
 cells.</p>
@@ -602,14 +602,14 @@ subgrid outlet pixel elevation (“dem_subgrid”). Note that the subgrid elevat
 likely overestimate the floodplain storage capacity.</p>
 <p>Additionally, note that the same input elevation map should be used for river bankfull
 elevation and land elevation when using local-inertial land routing.</p>
-<p>Requires <cite>setup_rivers</cite> to be executed beforehand (with <cite>river_routing</cite> set to
-<cite>local-inertial</cite>).</p>
+<p>Requires <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a> to be executed beforehand (with <code class="docutils literal notranslate"><span class="pre">river_routing</span></code> set to
+“local-inertial”).</p>
 <p>Adds model layers:</p>
 <ul class="simple">
-<li><p><strong>floodplain_volume</strong> map: map with floodplain volumes, has flood depth as third</p></li>
+<li><p><strong>floodplain_volume</strong> map: map with floodplain volumes, has flood depth as third
+dimension [m3] (for 1D floodplains)</p></li>
+<li><p><strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)</p></li>
 </ul>
-<p>dimension [m3] (for 1D floodplains)
-* <strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -633,7 +633,7 @@ setup_rivers.</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.river_floodplain_volume</span></code>, <a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.flw.dem_adjust.html#hydromt.flw.dem_adjust" title="(in HydroMT v0.7.2.dev0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.flw.dem_adjust</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.dem_adjust</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.setup_rivers</span></code></p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.river_floodplain_volume</span></code>, <a class="reference external" href="https://deltares.github.io/hydromt/latest/_generated/hydromt.flw.dem_adjust.html#hydromt.flw.dem_adjust" title="(in HydroMT v0.8.1.dev0)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.flw.dem_adjust</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">pyflwdir.FlwdirRaster.dem_adjust</span></code>, <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rivers</span></code></a></p>
 </div>
 </dd></dl>
 

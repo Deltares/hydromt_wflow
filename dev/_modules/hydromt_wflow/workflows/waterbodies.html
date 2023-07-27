@@ -427,13 +427,14 @@ document.write(`
     <span class="n">uparea_name</span><span class="o">=</span><span class="s2">&quot;uparea&quot;</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded </span>
-<span class="sd">    upstream area data input or outlet coordinates. </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded</span>
+<span class="sd">    upstream area data input or outlet coordinates.</span>
 
-<span class="sd">    The following waterbody maps are calculated:\</span>
-<span class="sd">    - resareas/lakeareas : waterbody areas mask [ID]\</span>
+<span class="sd">    The following waterbody maps are calculated:</span>
+
+<span class="sd">    - resareas/lakeareas : waterbody areas mask [ID]</span>
 <span class="sd">    - reslocs/lakelocs : waterbody outlets [ID]</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    gdf : geopandas.GeoDataFrame</span>
@@ -441,7 +442,7 @@ document.write(`
 <span class="sd">    ds_like : xarray.DataArray</span>
 <span class="sd">        Dataset at model resolution.</span>
 <span class="sd">    uparea_name : str, optional</span>
-<span class="sd">        Name of uparea variable in ds_like. If None then database coordinates will be </span>
+<span class="sd">        Name of uparea variable in ds_like. If None then database coordinates will be</span>
 <span class="sd">        used to setup outlets</span>
 <span class="sd">    wb_type : str, optional either &quot;reservoir&quot; or &quot;lake&quot;</span>
 <span class="sd">        Option to change the name of the maps depending on reservoir or lake</span>
@@ -526,29 +527,30 @@ document.write(`
 
 
 <div class="viewcode-block" id="reservoirattrs"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs">[docs]</a><span class="k">def</span> <span class="nf">reservoirattrs</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perc_norm</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">perc_min</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns reservoir attributes (see list below) needed for modelling. </span>
-<span class="sd">    When specified, some of the reservoir attributes can be derived from earth observation data. </span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns reservoir attributes (see list below) needed for modelling.</span>
+<span class="sd">    When specified, some of the reservoir attributes can be derived from earth observation data.</span>
 <span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
 
-<span class="sd">    The following reservoir attributes are calculated:\</span>
-<span class="sd">    - resmaxvolume : reservoir maximum volume [m3]\</span>
-<span class="sd">    - resarea : reservoir area [m2]\</span>
-<span class="sd">    - resdemand : reservoir demand flow [m3/s]\</span>
-<span class="sd">    - resmaxrelease : reservoir maximum release flow [m3/s]\</span>
-<span class="sd">    - resfullfrac : reservoir targeted full volume fraction [m3/m3]\</span>
-<span class="sd">    - resminfrac : reservoir targeted minimum volume fraction [m3/m3]\</span>
-<span class="sd">    </span>
+<span class="sd">    The following reservoir attributes are calculated:</span>
+
+<span class="sd">    - resmaxvolume : reservoir maximum volume [m3]</span>
+<span class="sd">    - resarea : reservoir area [m2]</span>
+<span class="sd">    - resdemand : reservoir demand flow [m3/s]</span>
+<span class="sd">    - resmaxrelease : reservoir maximum release flow [m3/s]</span>
+<span class="sd">    - resfullfrac : reservoir targeted full volume fraction [m3/m3]</span>
+<span class="sd">    - resminfrac : reservoir targeted minimum volume fraction [m3/m3]</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    gdf : geopandas.GeoDataFrame</span>
 <span class="sd">        GeoDataFrame containing reservoirs geometries and attributes.</span>
-<span class="sd">    timeseries_fn : str, optional </span>
+<span class="sd">    timeseries_fn : str, optional</span>
 <span class="sd">        Name of database from which time series of reservoir surface water area will be retrieved.</span>
 <span class="sd">        Currently available: [&#39;jrc&#39;, &#39;gww&#39;]</span>
-<span class="sd">        Defaults to Deltares&#39; Global Water Watch database. </span>
+<span class="sd">        Defaults to Deltares&#39; Global Water Watch database.</span>
 <span class="sd">    perc_norm : int, optional</span>
 <span class="sd">        Percentile for normal (operational) surface area</span>
-<span class="sd">    perc_min: int, optional </span>
+<span class="sd">    perc_min: int, optional</span>
 <span class="sd">        Percentile for minimal (operational) surface area</span>
 
 <span class="sd">    Returns</span>
@@ -558,7 +560,7 @@ document.write(`
 <span class="sd">    df_plot : pandas.DataFrame</span>
 <span class="sd">        DataFrame containing debugging values for reservoir building.</span>
 <span class="sd">    df_ts : pandas.DataFrame</span>
-<span class="sd">        DataFrame containing all downloaded reservoir time series. </span>
+<span class="sd">        DataFrame containing all downloaded reservoir time series.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;jrc&quot;</span><span class="p">:</span>
@@ -897,22 +899,23 @@ document.write(`
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns lake attributes (see list below) needed for modelling. </span>
+<span class="sd">    Returns lake attributes (see list below) needed for modelling.</span>
 <span class="sd">    If rating_dict is not empty, prepares also rating tables for wflow</span>
 
-<span class="sd">    The following reservoir attributes are calculated:\</span>
-<span class="sd">    - waterbody_id : waterbody id\</span>
-<span class="sd">    - LakeArea : lake area [m2]\</span>
-<span class="sd">    - LakeAvgLevel: lake average level [m]\</span>
-<span class="sd">    - LakeAvgOut: lake average outflow [m3/s]\</span>
-<span class="sd">    - Lake_b: lake rating curve coefficient [-]\</span>
-<span class="sd">    - Lake_e: lake rating curve exponent [-]\</span>
-<span class="sd">    - LakeStorFunc: option to compute storage curve [-]\</span>
-<span class="sd">    - LakeOutflowFunc: option to compute rating curve [-]\</span>
-<span class="sd">    - LakeThreshold: minimium threshold for lake outflow [m]\</span>
-<span class="sd">    - LinkedLakeLocs: id of linked lake location if any\</span>
+<span class="sd">    The following reservoir attributes are calculated:</span>
+
+<span class="sd">    - waterbody_id : waterbody id</span>
+<span class="sd">    - LakeArea : lake area [m2]</span>
+<span class="sd">    - LakeAvgLevel: lake average level [m]</span>
+<span class="sd">    - LakeAvgOut: lake average outflow [m3/s]</span>
+<span class="sd">    - Lake_b: lake rating curve coefficient [-]</span>
+<span class="sd">    - Lake_e: lake rating curve exponent [-]</span>
+<span class="sd">    - LakeStorFunc: option to compute storage curve [-]</span>
+<span class="sd">    - LakeOutflowFunc: option to compute rating curve [-]</span>
+<span class="sd">    - LakeThreshold: minimium threshold for lake outflow [m]</span>
+<span class="sd">    - LinkedLakeLocs: id of linked lake location if any</span>
 <span class="sd">    - LakeMaxStorage: maximum storage [m3] (optional)</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds : xr.Dataset</span>
@@ -923,7 +926,7 @@ document.write(`
 <span class="sd">        Dictionary containing the rating curve parameters, by default dict()</span>
 <span class="sd">    add_maxstorage : bool, optional</span>
 <span class="sd">        If True, adds the maximum storage to the output, by default False</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds : xr.Dataset</span>

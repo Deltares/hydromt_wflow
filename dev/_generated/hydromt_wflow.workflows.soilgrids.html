@@ -593,12 +593,29 @@ PLoS ONE, 12, <a class="reference external" href="https://doi.org/10.1371/journa
 Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio, E. and Rossiter, D., 2020.
 SoilGrids 2.0: producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.
 <a class="reference external" href="https://doi.org/10.5194/soil-2020-65">https://doi.org/10.5194/soil-2020-65</a></p>
-<dl>
-<dt>The following soil parameter maps are calculated:    - <cite>thetaS</cite><span class="classifier">average saturated soil water content [m3/m3]    - <cite>thetaR</cite></span><span class="classifier">average residual water content [m3/m3]    - <cite>KsatVer</cite></span><span class="classifier">vertical saturated hydraulic conductivity at soil surface [mm/day]    - <cite>SoilThickness</cite></span><span class="classifier">soil thickness [mm]    - <cite>SoilMinThickness</cite></span><span class="classifier">minimum soil thickness [mm] (equal to SoilThickness)    - <cite>M</cite></span><span class="classifier">model parameter [mm] that controls exponential decline of KsatVer with soil depth</span></dt><dd><p>(fitted with curve_fit (scipy.optimize)), bounds of M are checked    - <cite>M_</cite>                : model parameter [mm] that controls exponential decline of KsatVer with soil depth
-(fitted with numpy linalg regression), bounds of <cite>M_`are checked    - `M_original</cite>        : <cite>M</cite> without checking bounds    - <cite>M_original_</cite>       : <cite>M_`without checking bounds    - `f</cite>                 : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked    - <cite>f_</cite>                : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked    - <cite>c_0</cite>               : Brooks Corey coefficient [-] based on pore size distribution index at depth
-1st soil layer (100 mm) wflow_sbm    - <cite>c_1</cite>               : idem <cite>c_0</cite> at depth 2nd soil layer (400 mm) wflow_sbm    - <cite>c_2</cite>               : idem <cite>c_0</cite> at depth 3rd soil layer (1200 mm) wflow_sbm    - <cite>c_3</cite>               : idem <cite>c_0</cite> at depth 4th soil layer (&gt; 1200 mm) wflow_sbm    - <cite>KsatVer_[z]cm</cite>     : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]    - <cite>wflow_soil</cite>        : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</p>
-</dd>
-</dl>
+<p>The following soil parameter maps are calculated:</p>
+<ul class="simple">
+<li><p><strong>thetaS</strong> : average saturated soil water content [m3/m3]</p></li>
+<li><p><strong>thetaR</strong> : average residual water content [m3/m3]</p></li>
+<li><p><strong>KsatVer</strong> : vertical saturated hydraulic conductivity at soil surface [mm/day]</p></li>
+<li><p><strong>SoilThickness</strong> : soil thickness [mm]</p></li>
+<li><p><strong>SoilMinThickness</strong> : minimum soil thickness [mm] (equal to SoilThickness)</p></li>
+<li><p><strong>M</strong> : model parameter [mm] that controls exponential decline of KsatVer with soil depth
+(fitted with curve_fit (scipy.optimize)), bounds of <strong>M</strong> are checked</p></li>
+<li><p><strong>M_</strong> : model parameter [mm] that controls exponential decline of KsatVer with soil depth
+(fitted with numpy linalg regression), bounds of <strong>M_</strong> are checked</p></li>
+<li><p><strong>M_original</strong> : <strong>M</strong> without checking bounds</p></li>
+<li><p><strong>M_original_</strong> : <strong>M_</strong> without checking bounds</p></li>
+<li><p><strong>f</strong> : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</p></li>
+<li><p><strong>f_</strong> : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked</p></li>
+<li><p><strong>c_0</strong> : Brooks Corey coefficient [-] based on pore size distribution index at depth 1st
+soil layer (100 mm) wflow_sbm</p></li>
+<li><p><strong>c_1</strong> : idem <strong>c_0</strong> at depth 2nd soil layer (400 mm) wflow_sbm</p></li>
+<li><p><strong>c_2</strong> : idem <strong>c_0</strong> at depth 3rd soil layer (1200 mm) wflow_sbm</p></li>
+<li><p><strong>c_3</strong> : idem <strong>c_0</strong> at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</p></li>
+<li><p><strong>KsatVer_[z]cm</strong> : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
+<li><p><strong>wflow_soil</strong> : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
