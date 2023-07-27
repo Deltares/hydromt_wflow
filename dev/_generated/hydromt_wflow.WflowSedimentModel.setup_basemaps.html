@@ -592,7 +592,13 @@ the flow direction is upscaled using the <code class="docutils literal notransla
 Iterative Hydrography Upscaling (IHU).
 The default <code class="docutils literal notranslate"><span class="pre">hydrography_fn</span></code> is “merit_hydro” (<a class="reference external" href="http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html">MERIT hydro</a>
 at 3 arcsec resolution) Alternative sources include “merit_hydro_1k” at 30 arcsec resolution.
-Users can also supply their own elevation and flow direction data. Note that only EPSG:4326 base data supported.</p>
+Users can also supply their own elevation and flow direction data in any CRS and not only EPSG:4326.</p>
+<p>Note that in order to define the region, using points or bounding box, the coordinates of the points / bounding box
+should be in the same CRS than the hydrography data. The wflow model will then also be in the same CRS than the
+hydrography data in order to avoid assumptions and reprojection errors. If the user wishes to use a different CRS,
+we recommend first to reproject the hydrography data seperately because calling hydromt build. You can find examples
+on how to reproject or prepare hydrography data in the
+<cite>prepare flow directions example notebok &lt;https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html&gt;</cite>.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_ldd</strong> map: flow direction in LDD format [-]</p></li>

@@ -392,7 +392,7 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="sediment_clip.html">Clipping a model</a></li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="process_analyze.html">Postprocessing and visualization</a><input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="process_analyze.html">Pre and postprocessing and visualization</a><input checked class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
@@ -477,6 +477,10 @@ for a proper implementation of this model are:</p>
 <li><p>basin</p></li>
 <li><p>subbasin</p></li>
 </ul>
+<p>The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
+is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
+If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
+You can find some examples on how to do this in the <a class="reference internal" href="../_examples/prepare_ldd.html"><span class="doc">example notebook</span></a>.</p>
 <section id="configuration-file">
 <span id="model-config"></span><h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading">#</a></h2>
 <p>Settings to build or update a Wflow model are managed in a configuration file. In this file,

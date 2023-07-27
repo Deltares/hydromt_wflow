@@ -537,7 +537,14 @@ document.write(`
 <span class="sd">        Iterative Hydrography Upscaling (IHU).</span>
 <span class="sd">        The default ``hydrography_fn`` is &quot;merit_hydro&quot; (`MERIT hydro &lt;http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html&gt;`_</span>
 <span class="sd">        at 3 arcsec resolution) Alternative sources include &quot;merit_hydro_1k&quot; at 30 arcsec resolution.</span>
-<span class="sd">        Users can also supply their own elevation and flow direction data. Note that only EPSG:4326 base data supported.</span>
+<span class="sd">        Users can also supply their own elevation and flow direction data in any CRS and not only EPSG:4326.</span>
+
+<span class="sd">        Note that in order to define the region, using points or bounding box, the coordinates of the points / bounding box</span>
+<span class="sd">        should be in the same CRS than the hydrography data. The wflow model will then also be in the same CRS than the</span>
+<span class="sd">        hydrography data in order to avoid assumptions and reprojection errors. If the user wishes to use a different CRS,</span>
+<span class="sd">        we recommend first to reproject the hydrography data seperately because calling hydromt build. You can find examples</span>
+<span class="sd">        on how to reproject or prepare hydrography data in the</span>
+<span class="sd">        `prepare flow directions example notebok &lt;https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html&gt;`.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -579,14 +586,15 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing base hydrography basemaps.&quot;</span><span class="p">)</span>
         <span class="c1"># retrieve global data (lazy!)</span>
         <span class="n">ds_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">hydrography_fn</span><span class="p">)</span>
-        <span class="c1"># TODO support and test (user) data from other sources with other crs!</span>
-        <span class="k">if</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">4326</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only EPSG:4326 base data supported.&quot;</span><span class="p">)</span>
+
         <span class="c1"># get basin geometry and clip data</span>
         <span class="n">kind</span><span class="p">,</span> <span class="n">region</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">parse_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="n">xy</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;basin&quot;</span><span class="p">,</span> <span class="s2">&quot;subbasin&quot;</span><span class="p">,</span> <span class="s2">&quot;outlet&quot;</span><span class="p">]:</span>
-            <span class="n">bas_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">basin_index_fn</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">basin_index_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">bas_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">basin_index_fn</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">bas_index</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">geom</span><span class="p">,</span> <span class="n">xy</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">get_basin_geometry</span><span class="p">(</span>
                 <span class="n">ds</span><span class="o">=</span><span class="n">ds_org</span><span class="p">,</span>
                 <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
@@ -603,11 +611,24 @@ document.write(`
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;wflow region argument not understood: </span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">geom</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wflow region geometry has no CRS&quot;</span><span class="p">)</span>
+
         <span class="n">ds_org</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">ds_org</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding basins vector to staticgeoms.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Check on resolution (degree vs meter) depending on ds_org res/crs</span>
+        <span class="n">scale_ratio</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">res</span> <span class="o">/</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">scale_ratio</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> should be larger than the </span><span class="si">{</span><span class="n">hydrography_fn</span><span class="si">}</span><span class="s2"> resolution </span><span class="si">{</span><span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 111 km</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> should be smaller than 1 degree (111km) for geographic coordinate systems. &quot;</span>
+                    <span class="s2">&quot;Make sure you provided res in degree rather than in meters.&quot;</span>
+                <span class="p">)</span>
         <span class="c1"># setup hydrography maps and set staticmap attribute with renamed maps</span>
         <span class="n">ds_base</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">hydrography</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">=</span><span class="n">ds_org</span><span class="p">,</span>
@@ -645,7 +666,11 @@ document.write(`
         <span class="bp">self</span><span class="o">.</span><span class="n">set_staticmaps</span><span class="p">(</span><span class="n">ds_topo</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># set basin geometry</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adding region vector to staticgeoms.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_staticgeoms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">)</span>
+
+        <span class="c1"># update toml for degree/meters if needed</span>
+        <span class="k">if</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_projected</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.sizeinmetres&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="WflowModel.setup_rivers"><a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers">[docs]</a>    <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
