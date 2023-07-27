@@ -52,6 +52,7 @@ def test_setup_staticmaps(example_wflow_model):
             wflow_variables=["input.vertical.altitude"],
         )
 
+
 def test_projected_crs(tmpdir):
     logger = logging.getLogger(__name__)
 
@@ -99,6 +100,7 @@ def test_projected_crs(tmpdir):
     assert mod.staticmaps.raster.crs == 3857
     assert np.quantile(mod.staticmaps["wflow_landuse"], 0.95) == 190.0  # urban
     assert mod.get_config("model.sizeinmetres") == True
+
 
 def test_setup_lake(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
