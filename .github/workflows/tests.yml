@@ -20,14 +20,19 @@ jobs:
         python-version: ["3.9"] # fix tests to support older versions
     
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: install tomli
+        run: pip install tomli
+      - name: Generate env spec
+        run: python make_env.py test
       - uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: ${{ matrix.python-version }}
           mamba-version: "*"
           channels: conda-forge,defaults
-          channel-priority: true
-          environment-file: envs/test_env.yml
+          channel-priority: strict
+          environment-file: environment.yml
           activate-environment: hydromt-wflow
 
       - name: Conda info
@@ -36,7 +41,7 @@ jobs:
          conda list
 
       - name: Install hydromt_wflow
-        run: flit install --deps all
+        run: pip install .
 
       - name: Test
         run: python -m pytest --verbose --cov=hydromt_wflow --cov-report xml
