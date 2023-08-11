@@ -10,8 +10,9 @@ authors = [
 ]
 dependencies = [
     "dask",
-    "geopandas >=0.10",
-    "hydromt >=0.8",
+    "geopandas>=0.10",
+    "hydroengine",
+    "hydromt>=0.8",
     "netcdf4",
     "numpy",
     "pandas",
@@ -23,10 +24,9 @@ dependencies = [
     "toml",
     "xarray",
 ]
-requires-python = ">=3.8" # fix tests to support older versions
+requires-python = ">=3.9"
 readme = "README.rst"
 classifiers = [
-    # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
@@ -37,7 +37,22 @@ classifiers = [
 dynamic = ['version', 'description']
 
 [project.optional-dependencies]
-test = ["pytest>=2.7.3", "pytest-cov", "black"]
+io = [
+    "requests",
+]
+extra = [
+    "gwwapi",
+    "pyet",
+]
+dev = [
+    "black",
+    "pip>=23.1.2",
+]
+test = [
+    "pytest>=2.7.3", 
+    "pytest-cov", 
+    "pytest-mock",
+]
 doc = [
     "nbsphinx",
     "sphinx",
@@ -45,6 +60,15 @@ doc = [
     "pydata-sphinx-theme",
     "sphinx_autosummary_accessors",
 ]
+examples = [
+    "jupyterlab",      
+    "cartopy",        
+    "matplotlib-base",
+    "notebook",        
+]
+
+full = ["hydromt_wflow[io,extra,dev,test,doc,examples]"]
+slim = ["hydromt_wflow[io,extra,examples]"]
 
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
@@ -54,9 +78,19 @@ Source = "https://github.com/Deltares/hydromt_wflow"
 wflow = "hydromt_wflow.wflow:WflowModel"
 wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 
+[tool.make_env]
+channels = ["conda-forge"]
+deps_not_in_conda  = [
+    "gwwapi",
+    "hydroengine",
+    "sphinx_autosummary_accessors",
+    "sphinx_design",
+    "pyet",
+]
+
 [tool.black]
 line-length = 88
-target-version = ['py38']
+target-version = ['py39']
 
 [tool.flit.sdist]
 include = ["hydromt_wflow"]
