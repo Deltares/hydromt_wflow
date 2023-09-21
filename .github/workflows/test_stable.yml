@@ -20,7 +20,7 @@ jobs:
         include:
           - os: windows-latest
             label: win-64
-            prefix: c:/Miniconda3/envs/hydromt-wflow
+            prefix: c:/Miniconda3/envs/hydromt_wflow
 
     name: ${{ matrix.label }} - py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
@@ -38,7 +38,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           miniforge-variant: Mambaforge
           miniforge-version: latest
-          activate-environment: hydromt-wflow
+          activate-environment: hydromt_wflow
           use-mamba: true
 
       - name: Generate env spec
