@@ -47,5 +47,5 @@ This can be done through the following command from your base environment:
 It may also be advisable to clear pip's cache:
 
 .. code-block:: console
-    
+
     $ pip cache purge
