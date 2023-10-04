@@ -62,7 +62,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Install HydroMT-core dev
-        run: pip install git+https://github.com/Deltares/hydromt.git@main
+        run: pip install git+https://github.com/Deltares/hydromt.git@main --user
 
       - name: Install HydroMT-Wflow plugin
         run: pip install .
