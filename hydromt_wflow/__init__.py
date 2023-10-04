@@ -1,6 +1,6 @@
 """hydroMT plugin for wflow models."""
 
-from os.path import join, dirname, abspath
+from os.path import abspath, dirname, join
 
 __version__ = "0.3.1.dev0"
 
@@ -13,6 +13,6 @@ except ImportError:
 
 DATADIR = join(dirname(abspath(__file__)), "data")
 
+from .utils import *
 from .wflow import *
 from .wflow_sediment import *
-from .utils import *

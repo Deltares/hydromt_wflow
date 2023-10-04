@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
+"""Basemap workflows for Wflow plugin."""
 
-import numpy as np
-import xarray as xr
 import logging
-import geopandas as gpd
-import pyflwdir
-from hydromt import flw, gis_utils
 from typing import Optional
+
+import geopandas as gpd
+import numpy as np
+import pyflwdir
+import xarray as xr
+from hydromt import flw, gis_utils
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,9 @@ def hydrography(
     ftype: str = "infer",
     logger=logger,
 ):
-    """Returns hydrography maps (see list below) and FlwdirRaster object based on
-    gridded flow direction and elevation data input.
+    """Return hydrography maps (see list below) and FlwdirRaster object.
+
+    Based on gridded flow direction and elevation data input.
 
     The output maps are:
 
@@ -36,10 +38,11 @@ def hydrography(
     - strord : stream order [-]
 
     If the resolution is lower than the source resolution, the flow direction data is
-    upscaled and river length and slope are based on subgrid flow paths and the following
-    maps are added:
+    upscaled and river length and slope are based on subgrid flow paths and
+    the following maps are added:
 
-    - subare : contributing area to each subgrid outlet pixel (unit catchment area) [km2]
+    - subare : contributing area to each subgrid outlet pixel \
+(unit catchment area) [km2]
     - subelv : elevation at subgrid outlet pixel [m+REF]
 
     Parameters
@@ -67,7 +70,8 @@ def hydrography(
 
     References
     ----------
-    .. [1] Eilander et al. (2021). A hydrography upscaling method for scale-invariant parametrization of distributed hydrological models.
+    .. [1] Eilander et al. (2021). A hydrography upscaling method for scale-invariant \
+parametrization of distributed hydrological models.
            Hydrology and Earth System Sciences, 25(9), 5287–5313. https://doi.org/10.5194/hess-25-5287-2021
 
     See Also
@@ -79,11 +83,11 @@ def hydrography(
     flwdir = None
     basins = None
     outidx = None
-    if not "mask" in ds.coords and xy is None:
+    if "mask" not in ds.coords and xy is None:
         ds.coords["mask"] = xr.Variable(
             dims=ds.raster.dims, data=np.ones(ds.raster.shape, dtype=np.bool)
         )
-    elif not "mask" in ds.coords:
+    elif "mask" not in ds.coords:
         # NOTE if no subbasin mask is provided calculate it here
         logger.debug(f"Delineate {xy[0].size} subbasin(s).")
         flwdir = flw.flwdir_from_da(ds[flwdir_name], ftype=ftype)
@@ -93,7 +97,7 @@ def hydrography(
             raise ValueError("Delineating subbasins not successfull.")
     elif xy is not None:
         # NOTE: this mask is passed on from get_basin_geometry method
-        logger.debug(f"Mask in dataset assumed to represent subbasins.")
+        logger.debug("Mask in dataset assumed to represent subbasins.")
     ncells = np.sum(ds["mask"].values)
     logger.debug(f"(Sub)basin at original resolution has {ncells} cells.")
 
@@ -103,7 +107,7 @@ def hydrography(
             # NOTE initialize with mask is FALSE
             flwdir = flw.flwdir_from_da(ds[flwdir_name], ftype=ftype, mask=False)
         if xy is not None:
-            logger.debug(f"Burn subbasin outlet in upstream area data.")
+            logger.debug("Burn subbasin outlet in upstream area data.")
             if isinstance(xy, gpd.GeoDataFrame):
                 assert xy.crs == ds.raster.crs
                 xy = xy.geometry.x, xy.geometry.y
@@ -153,8 +157,8 @@ def hydrography(
             ).astype(np.bool)
             basins = ds_out["mask"].values.astype(np.int32)
             logger.warning(
-                "The basin delineation might be wrong as no original resolution outlets "
-                "are found in the upscaled map."
+                "The basin delineation might be wrong as no original resolution outlets"
+                " are found in the upscaled map."
             )
         ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
         # calculate upstream area using subgrid ucat cell areas
@@ -259,8 +263,9 @@ def topography(
     method: str = "average",
     logger=logger,
 ):
-    """Returns topography maps (see list below) at model resolution based on gridded
-    elevation data input.
+    """Return topography maps (see list below) at model resolution.
+
+    Based on gridded elevation data input.
 
     The following topography maps are calculated:
 

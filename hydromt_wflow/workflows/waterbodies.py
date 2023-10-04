@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
+"""Waterbody workflows for Wflow plugin."""
 
+import json
+import logging
+
+import geopandas as gp
 import numpy as np
 import pandas as pd
-import xarray as xr
-import geopandas as gp
-import logging
 import shapely
-import json
+import xarray as xr
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +22,9 @@ def waterbodymaps(
     uparea_name="uparea",
     logger=logger,
 ):
-    """Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded
-    upstream area data input or outlet coordinates.
+    """Return waterbody (reservoir/lake) maps (see list below).
+
+    At model resolution based on gridded upstream area data input or outlet coordinates.
 
     The following waterbody maps are calculated:
 
@@ -74,7 +76,8 @@ def waterbodymaps(
     # the maximum uparea in each waterbody mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
         logger.debug(f"Setting {wb_type} outlet map based maximum upstream area.")
-        # create dataframe with x and y coord to be filled in either from uparea or from xout and yout in hydrolakes data
+        # create dataframe with x and y coord to be filled in either from uparea or from
+        # xout and yout in hydrolakes data
         outdf = gdf[["waterbody_id"]].assign(xout=np.nan, yout=np.nan)
         ydim = ds_like.raster.y_dim
         xdim = ds_like.raster.x_dim
@@ -121,9 +124,12 @@ def waterbodymaps(
 
 
 def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=logger):
-    """Returns reservoir attributes (see list below) needed for modelling.
-    When specified, some of the reservoir attributes can be derived from earth observation data.
-    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
+    """Return reservoir attributes (see list below) needed for modelling.
+
+    When specified, some of the reservoir attributes can be derived from \
+earth observation data.
+    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \
+using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
     The following reservoir attributes are calculated:
 
@@ -139,7 +145,8 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs geometries and attributes.
     timeseries_fn : str, optional
-        Name of database from which time series of reservoir surface water area will be retrieved.
+        Name of database from which time series of reservoir surface water area \
+will be retrieved.
         Currently available: ['jrc', 'gww']
         Defaults to Deltares' Global Water Watch database.
     perc_norm : int, optional
@@ -156,15 +163,15 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
     df_ts : pandas.DataFrame
         DataFrame containing all downloaded reservoir time series.
     """
-
     if timeseries_fn == "jrc":
         try:
             import hydroengine as he
 
             logger.info("Using reservoir timeseries from JRC via hydroengine.")
-        except:
+        except Exception:
             raise ImportError(
-                "hydroengine package not found, cannot download jrc reservoir timeseries."
+                "hydroengine package not found, cannot download jrc \
+reservoir timeseries."
             )
 
     elif timeseries_fn == "gww":
@@ -173,13 +180,14 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
             from gwwapi import utils
 
             logger.info("Using reservoir timeseries from GWW via gwwapi.")
-        except:
+        except Exception:
             raise ImportError(
                 "gwwapi package not found, cannot download gww reservoir timeseries."
             )
     elif timeseries_fn is not None:
         raise ValueError(
-            f"timeseries_fn argument {timeseries_fn} not understood, please use one of [gww, jrc] or None."
+            f"timeseries_fn argument {timeseries_fn} not understood, \
+please use one of [gww, jrc] or None."
         )
     else:
         logger.debug(
@@ -250,19 +258,21 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
                 df_EO.loc[i, "minarea"] = np.percentile(
                     area_series_nozeros, perc_min, axis=0
                 )
-            except:
+            except Exception:
                 logger.warning(
                     f"No HydroEngine time series available for reservoir {ids}!"
                 )
 
     if timeseries_fn == "gww":
-        # get bounds from gdf input as JSON object that can be used in post request with the gww api
+        # get bounds from gdf input as JSON object that can be used in
+        # post request with the gww api
         gdf_bounds = json.dumps(
             shapely.geometry.box(*gdf.total_bounds, ccw=True).__geo_interface__
         )
         # get reservoirs wihtin these bounds
         gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds)
-        # from the response, create a dictonary, linking the gww_id to the hylak_id (used in the default reservoir database)
+        # from the response, create a dictonary, linking the gww_id to the hylak_id
+        # (used in the default reservoir database)
         idlink = {
             k["properties"]["source_id"]: k["id"] for k in gww_reservoirs["features"]
         }
@@ -294,7 +304,7 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
                 df_EO.loc[i, "minarea"] = np.percentile(
                     area_series_nozeros, perc_min, axis=0
                 )
-            except:
+            except Exception:
                 logger.warning(f"No GWW time series available for reservoir {ids}!")
 
     # Sort timeseries dataframe (will be saved to root as .csv later)
@@ -332,8 +342,10 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
         df_out["resfullfrac"] = gdf["Capacity_norm"].values / df_out["resmaxvolume"]
         df_plot["accuracy_norm"] = np.repeat(1.0, len(df_plot["accuracy_norm"]))
 
-    # Then compute from EO data and fill or replace the previous values (if a valid source is provided)
-    # TODO for now assumes that the reservoir-db is used (combination of GRanD and HydroLAKES)
+    # Then compute from EO data and fill or replace the previous values
+    # (if a valid source is provided)
+    # TODO for now assumes that the reservoir-db is used
+    # (combination of GRanD and HydroLAKES)
     gdf = gdf.fillna(value=np.nan)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
@@ -493,8 +505,9 @@ def lakeattrs(
     logger=logger,
 ):
     """
-    Returns lake attributes (see list below) needed for modelling.
-    If rating_dict is not empty, prepares also rating tables for wflow
+    Return lake attributes (see list below) needed for modelling.
+
+    If rating_dict is not empty, prepares also rating tables for wflow.
 
     The following reservoir attributes are calculated:
 
@@ -538,13 +551,15 @@ def lakeattrs(
             "Dis_avg": "LakeAvgOut",
         }
     )
-    # Add maximum volume / no filling of NaNs as assumes then natural lake and not controlled
+    # Add maximum volume / no filling of NaNs as assumes then
+    # natural lake and not controlled
     if add_maxstorage:
         if "Vol_max" in gdf.columns:
             gdf = gdf.rename(columns={"Vol_max": "LakeMaxStorage"})
         else:
             logger.warning(
-                "No maximum storage 'Vol_max' column found, skip adding LakeMaxStorage map."
+                "No maximum storage 'Vol_max' column found, \
+skip adding LakeMaxStorage map."
             )
     # Minimum value for LakeAvgOut
     LakeAvgOut = gdf["LakeAvgOut"].copy()
@@ -565,7 +580,8 @@ def lakeattrs(
     # Check if some LakeAvgOut values have been replaced
     if not np.all(LakeAvgOut == gdf["LakeAvgOut"]):
         logger.warning(
-            "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
+            "Some values of LakeAvgOut have been replaced by \
+a minimum value of 0.01m3/s"
         )
 
     # Check if rating curve is provided
@@ -609,7 +625,8 @@ def lakeattrs(
                     rating_curves[f"lake_hq_{id}"] = df_q
                 else:
                     logger.warning(
-                        f"Rating data not available for lake {id}. Using default Modified Puls Approach"
+                        f"Rating data not available for lake {id}. \
+Using default Modified Puls Approach"
                     )
 
     # Create raster of lake params

@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
+"""Landuse workflows for Wflow plugin."""
 
-import numpy as np
-import pandas as pd
-import xarray as xr
 import logging
 
+import numpy as np
+import xarray as xr
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,8 @@ DTYPES = {"landuse": np.int16}
 
 # def landuse(da, ds_like, data_catalog, fn_map, logger=logger, params=None):
 def landuse(da, ds_like, df, logger=logger, params=None):
-    """Returns landuse map and related parameter maps.
+    """Return landuse map and related parameter maps.
+
     The parameter maps are prepared based on landuse map and
     mapping table as provided in the generic data folder of hydromt.
 
@@ -71,10 +71,10 @@ def landuse(da, ds_like, df, logger=logger, params=None):
 
 
 def lai(da, ds_like, logger=logger):
-    """Returns climatology of Leaf Area Index (LAI).
+    """Return climatology of Leaf Area Index (LAI).
 
-    The following topography maps are calculated:\
-    - LAI\
+    The following topography maps are calculated:
+    - LAI
 
     Parameters
     ----------

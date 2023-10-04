@@ -3,7 +3,7 @@
 Building a model
 ================
 
-This plugin allows to build a complete model from available data. Once the configuration and 
+This plugin allows to build a complete model from available data. Once the configuration and
 data libraries are set, you can build a model by using:
 
 .. code-block:: console
@@ -21,8 +21,8 @@ for a proper implementation of this model are:
 - basin
 - subbasin
 
-The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region 
-is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data. 
+The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
+is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
 If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
 You can find some examples on how to do this in the `example notebook <../_examples/prepare_ldd.ipynb>`_.
 
@@ -65,5 +65,5 @@ are three ways for the user to select which data libraries to use:
 
 .. toctree::
     :hidden:
-    
+
     Example: Build Wflow model <../_examples/build_model.ipynb>

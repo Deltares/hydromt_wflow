@@ -1,17 +1,14 @@
-"""Test plugin model class against hydromt.models.model_api"""
+"""Test plugin model class against hydromt.models.model_api."""
 
-import pytest
-from os.path import join, dirname, abspath
-import numpy as np
-import xarray as xr
 import warnings
-import pdb
+from os.path import abspath, dirname, join
+
+import numpy as np
+import pytest
+import xarray as xr
+
 from hydromt_wflow.wflow import WflowModel
 from hydromt_wflow.wflow_sediment import WflowSedimentModel
-from hydromt.cli.cli_utils import parse_config
-from hydromt.log import setuplog
-
-import logging
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
@@ -25,7 +22,7 @@ def _compare_wflow_models(mod0, mod1):
     # invalid_maps_dtype = {}
     if len(mod0._staticmaps) > 0:
         maps = mod0.staticmaps.raster.vars
-        assert np.all(mod0.crs == mod1.crs), f"map crs staticmaps"
+        assert np.all(mod0.crs == mod1.crs), "map crs staticmaps"
         for name in maps:
             map0 = mod0.staticmaps[name].fillna(0)
             if name not in mod1.staticmaps:
@@ -49,7 +46,8 @@ def _compare_wflow_models(mod0, mod1):
                 err = (
                     err
                     if map0.raster.nodata == map1.raster.nodata
-                    else f"nodata {map1.raster.nodata} instead of {map0.raster.nodata}; {err}"
+                    else f"nodata {map1.raster.nodata} instead of \
+{map0.raster.nodata}; {err}"
                 )
                 notclose = ~np.isclose(map0, map1)
                 ncells = int(np.sum(notclose))
@@ -69,19 +67,17 @@ def _compare_wflow_models(mod0, mod1):
         for name in mod0.staticgeoms:
             geom0 = mod0.staticgeoms[name]
             geom1 = mod1.staticgeoms[name]
-            assert geom0.index.size == geom1.index.size and np.all(
-                geom0.index == geom1.index
-            ), f"geom index {name}"
-            assert geom0.columns.size == geom1.columns.size and np.all(
-                geom0.columns == geom1.columns
-            ), f"geom columns {name}"
+            assert geom0.index.size == geom1.index.size
+            assert np.all(geom0.index == geom1.index), f"geom index {name}"
+            assert geom0.columns.size == geom1.columns.size
+            assert np.all(geom0.columns == geom1.columns), f"geom columns {name}"
             assert geom0.crs == geom1.crs, f"geom crs {name}"
             if not np.all(geom0.geometry == geom1.geometry):
                 warnings.warn(f"New geom {name} different than the example one.")
     # check config
     if mod0._config:
         # flatten
-        assert mod0._config == mod1._config, f"config mismatch"
+        assert mod0._config == mod1._config, "config mismatch"
 
 
 @pytest.mark.parametrize("model", list(_supported_models.keys()))

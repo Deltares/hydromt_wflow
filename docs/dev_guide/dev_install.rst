@@ -23,15 +23,15 @@ file contained in the repository:
     $ conda activate hydromt-wflow
 
 If you wish to make changes in HydroMT-Wflow, you should make an editable install of the plugin.
-This can be done with: 
+This can be done with:
 
 .. code-block:: console
 
     $ pip install -e .
 
-If you encounter issues with the installation of some packages, you might consider cleaning conda to remove unused packages and caches. 
+If you encounter issues with the installation of some packages, you might consider cleaning conda to remove unused packages and caches.
 This can be done through the following command from your base environment:
 
 .. code-block:: console
 
-    $ conda clean -a 
+    $ conda clean -a

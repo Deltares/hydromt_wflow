@@ -3,7 +3,7 @@
 Building a model
 ================
 
-This plugin allows to build a complete Wflow Sediment model from available data. Once the configuration and 
+This plugin allows to build a complete Wflow Sediment model from available data. Once the configuration and
 data libraries are set, you can build a model by using:
 
 .. code-block:: console
@@ -74,5 +74,5 @@ command line would be:
 
 .. toctree::
     :hidden:
-    
+
     Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>

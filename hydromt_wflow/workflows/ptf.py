@@ -1,15 +1,18 @@
-# -*- coding: utf-8 -*-
+"""PTF workflows for Wflow plugin."""
+
+import math
 
 import numpy as np
-import math
 
 
 def kv_brakensiek(thetas, clay, sand):
     """
-    Determine saturated hydraulic conductivity kv [mm/day] based on:
-    Brakensiek, D.L., Rawls, W.J.,and Stephenson, G.R.: Modifying scs hydrologic soil groups
-    and curve numbers for range land soils, ASAE Paper no. PNR-84-203, St. Joseph, Michigan,
-    USA, 1984.
+    Determine saturated hydraulic conductivity kv [mm/day].
+
+    Based on:
+      Brakensiek, D.L., Rawls, W.J.,and Stephenson, G.R.: Modifying scs hydrologic
+      soil groups and curve numbers for range land soils, ASAE Paper no. PNR-84-203,
+      St. Joseph, Michigan, USA, 1984.
 
     Parameters
     ----------
@@ -26,7 +29,6 @@ def kv_brakensiek(thetas, clay, sand):
         saturated hydraulic conductivity [mm/day].
 
     """
-
     kv = (
         np.exp(
             19.52348 * thetas
@@ -54,10 +56,12 @@ def kv_brakensiek(thetas, clay, sand):
 
 def kv_cosby(sand, clay):
     """
-    Determine saturated hydraulic conductivity kv [mm/day] based on:
-    Cosby, B.J., Hornberger, G.M., Clapp, R.B., Ginn, T.R., 1984. A statistical exploration
-    of the relationship of soil moisture characteristics to the physical properties of soils.
-    Water Resour. Res. 20(6) 682-690.
+    Determine saturated hydraulic conductivity kv [mm/day].
+
+    based on:
+      Cosby, B.J., Hornberger, G.M., Clapp, R.B., Ginn, T.R., 1984.
+      A statistical exploration of the relationship of soil moisture characteristics to
+      the physical properties of soils. Water Resour. Res. 20(6) 682-690.
 
     Parameters
     ----------
@@ -72,7 +76,6 @@ def kv_cosby(sand, clay):
         saturated hydraulic conductivity [mm/day].
 
     """
-
     kv = 60.96 * 10.0 ** (-0.6 + 0.0126 * sand - 0.0064 * clay) * 10.0
 
     return kv
@@ -80,11 +83,13 @@ def kv_cosby(sand, clay):
 
 def pore_size_index_brakensiek(sand, thetas, clay):
     """
-    Determine Brooks-Corey pore size distribution index [-] based on:
-    Rawls,W. J., and Brakensiek, D. L.: Estimation of SoilWater Retention and Hydraulic
-    Properties, In H. J. Morel-Seytoux (Ed.), Unsaturated flow in hydrologic modelling -
-    Theory and practice, NATO ASI Series 9, 275–300, Dordrecht, The Netherlands: Kluwer Academic
-    Publishing, 1989.
+    Determine Brooks-Corey pore size distribution index [-].
+
+    Based on:
+      Rawls,W. J., and Brakensiek, D. L.: Estimation of SoilWater Retention and
+      Hydraulic Properties, In H. J. Morel-Seytoux (Ed.),
+      Unsaturated flow in hydrologic modelling - Theory and practice, NATO ASI Series 9,
+      275–300, Dordrecht, The Netherlands: Kluwer Academic Publishing, 1989.
 
     Parameters
     ----------
@@ -101,7 +106,6 @@ def pore_size_index_brakensiek(sand, thetas, clay):
         pore size distribution index [-].
 
     """
-
     poresizeindex = np.exp(
         -0.7842831
         + 0.0177544 * sand
@@ -122,9 +126,12 @@ def pore_size_index_brakensiek(sand, thetas, clay):
 
 def thetas_toth(ph, bd, clay, silt):
     """
-    Determine saturated water content [m3/m3] based on:
-    Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.: New generation
-    of hydraulic pedotransfer functions for Europe, Eur. J. Soil Sci., 66, 226–238. doi: 10.1111/ejss.121921211, 2015.
+    Determine saturated water content [m3/m3].
+
+    Based on:
+      Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.:
+      New generation of hydraulic pedotransfer functions for Europe, Eur. J.
+      Soil Sci., 66, 226–238. doi: 10.1111/ejss.121921211, 2015.
 
     Parameters
     ----------
@@ -143,7 +150,6 @@ def thetas_toth(ph, bd, clay, silt):
         saturated water content [cm3/cm3].
 
     """
-
     thetas = (
         0.5653
         - 0.07918 * bd**2
@@ -166,9 +172,12 @@ def thetas_toth(ph, bd, clay, silt):
 
 def thetar_toth(oc, clay, silt):
     """
-    Determine residual water content [m3/m3] based on:
-    Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.: New generation
-    of hydraulic pedotransfer functions for Europe, Eur. J. Soil Sci., 66, 226–238. doi: 10.1111/ejss.121921211, 2015.
+    Determine residual water content [m3/m3].
+
+    Based on:
+      Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.:
+      New generation of hydraulic pedotransfer functions for Europe, Eur. J. Soil Sci.,
+      66, 226–238. doi: 10.1111/ejss.121921211, 2015.
 
     Parameters
     ----------
@@ -185,7 +194,6 @@ def thetar_toth(oc, clay, silt):
         residual water content [m3/m3].
 
     """
-
     thetar = (
         0.09878
         + 0.002127 * clay
@@ -213,7 +221,9 @@ def soil_texture_usda(clay, silt):
     Returns
     -------
     soil texture : int
-        based on integer mapping following Ballabio et al. 2016 (https://doi.org/10.1016/j.geoderma.2015.07.006) for European topsoil physical properties.
+        based on integer mapping following Ballabio et al. 2016 \
+(https://doi.org/10.1016/j.geoderma.2015.07.006) for \
+European topsoil physical properties.
         Value	NAME
         1	Clay
         2	Silty Clay
@@ -230,7 +240,6 @@ def soil_texture_usda(clay, silt):
 
 
     """
-
     sand = 100 - (clay + silt)
 
     soil_texture = np.where(
@@ -292,7 +301,9 @@ def soil_texture_usda(clay, silt):
 
 def ErosK_texture(clay, silt):
     """
-    Determine mean detachability of the soil (Morgan et al., 1998) based on USDA soil texture.
+    Determine mean detachability of the soil (Morgan et al., 1998).
+
+    Based on USDA soil texture.
 
     Parameters
     ----------
@@ -307,7 +318,6 @@ def ErosK_texture(clay, silt):
         mean detachability of the soil [g/J].
 
     """
-
     sand = 100 - (clay + silt)
 
     erosK = np.where(

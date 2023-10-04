@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
-"""
-Spyder Editor
+"""Soilgrid workflows for Wflow plugin."""
 
-This is a temporary script file.
-"""
+import logging
 
-import xarray as xr
 import numpy as np
 import pandas as pd
+import xarray as xr
 from scipy.optimize import curve_fit
-import logging
 
 from . import ptf
 
@@ -30,14 +26,17 @@ nodata = -9999.0
 # default z [cm] of soil layers wflow_sbm: 10, 40, 120, > 120
 # mapping of wflow_sbm parameter c to soil layer SoilGrids
 c_sl_index = [2, 4, 6, 7]  # v2017 direct mapping
-# c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used, averages are taken instead.
+# c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,
+# averages are taken instead.
 
 
 def average_soillayers_block(ds, soilthickness):
     """
-    Determine the weighted average of soil property at different depths over soil thickness,
-    assuming that the properties are computed at the mid-point of the interval and are considered
-    constant over the whole depth interval (Sousa et al., 2020). https://doi.org/10.5194/soil-2020-65
+    Determine weighted average of soil property at different depths over soil thickness.
+
+    Assuming that the properties are computed at the mid-point of the interval and
+    are considered constant over the whole depth interval (Sousa et al., 2020).
+    https://doi.org/10.5194/soil-2020-65
     This function is used for soilgrids_2020.
 
     Parameters
@@ -83,10 +82,12 @@ def average_soillayers_block(ds, soilthickness):
 
 def average_soillayers(ds, soilthickness):
     """
-    Determine weighted average of soil property at different depths over soil thickness,
-    using the trapezoidal rule.
-    See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda,
-    M., Blagotic, A., et al.: SoilGrids250m: Global gridded soil information based on machine learning,
+    Determine weighted average of soil property at different depths over soil thickness.
+
+    Using the trapezoidal rule.
+    See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,
+    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m: \
+Global gridded soil information based on machine learning,
     PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
     This function is used for soilgrids (2017).
 
@@ -103,7 +104,6 @@ def average_soillayers(ds, soilthickness):
         Dataset containing the weighted average of the soil property.
 
     """
-
     da_sum = soilthickness * 0.0
     # set NaN values to 0.0 (to avoid RuntimeWarning in comparison soildepth)
     d = soilthickness.fillna(0.0)
@@ -150,7 +150,6 @@ def pore_size_distrution_index_layers(ds, thetas):
         depth.
 
     """
-
     ds_out = xr.apply_ufunc(
         ptf.pore_size_index_brakensiek,
         ds["sndppt"],
@@ -168,7 +167,9 @@ def pore_size_distrution_index_layers(ds, thetas):
 
 def kv_layers(ds, thetas, ptf_name):
     """
-    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth based on PTF.
+    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.
+
+    Based on PTF.
 
     Parameters
     ----------
@@ -237,8 +238,10 @@ def do_linalg(x, y):
 
 def do_curve_fit(x, y):
     """
-    Apply scipy.optimize.curve_fit and return fitted parameter. If least-squares minimization
-    fails with an inital guess p0 of 1e-3, and 1e-4, np.linalg.lstsq is used for curve fitting.
+    Apply scipy.optimize.curve_fit and return fitted parameter.
+
+    If least-squares minimization fails with an inital guess p0 of 1e-3,
+    and 1e-4, np.linalg.lstsq is used for curve fitting.
 
     Parameters
     ----------
@@ -273,7 +276,7 @@ def do_curve_fit(x, y):
 
 
 def constrain_M(M, popt_0, M_minmax):
-    """Constrain M parameter with the value M_minmax"""
+    """Constrain M parameter with the value M_minmax."""
     M = xr.where((M > 0) & (popt_0 == 0), M_minmax, M)
     M = xr.where(M > M_minmax, M_minmax, M)
     M = xr.where(M < 0, M_minmax, M)
@@ -282,14 +285,20 @@ def constrain_M(M, popt_0, M_minmax):
 
 def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     """
-    Returns soil parameter maps at model resolution based on soil properties from SoilGrids datasets.
-    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties at 7 specific depths, while soilgrids_2020 provides soil properties averaged over 6 depth intervals.
-    Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda,
-    M., Blagotic, A., et al.: SoilGrids250m: Global gridded soil information based on machine learning,
+    Return soil parameter maps at model resolution.
+
+    Based on soil properties from SoilGrids datasets.
+    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties
+    at 7 specific depths, while soilgrids_2020 provides soil properties averaged over
+    6 depth intervals.
+    Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,
+    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m: \
+Global gridded soil information based on machine learning,
     PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.
-    Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio, E. and Rossiter, D., 2020.
-    SoilGrids 2.0: producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.
-    https://doi.org/10.5194/soil-2020-65
+    Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio,
+    E. and Rossiter, D., 2020. SoilGrids 2.0: \
+producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.
+    https://doi.org/10.5194/soil-2020-65.
 
     The following soil parameter maps are calculated:
 
@@ -298,21 +307,29 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     - **KsatVer** : vertical saturated hydraulic conductivity at soil surface [mm/day]
     - **SoilThickness** : soil thickness [mm]
     - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)
-    - **M** : model parameter [mm] that controls exponential decline of KsatVer with soil depth
+    - **M** : model parameter [mm] that controls exponential decline of KsatVer with \
+soil depth
       (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked
-    - **M\_** : model parameter [mm] that controls exponential decline of KsatVer with soil depth
+    - **M_** : model parameter [mm] that controls exponential decline of KsatVer with \
+soil depth
       (fitted with numpy linalg regression), bounds of **M_** are checked
     - **M_original** : **M** without checking bounds
     - **M_original_** : **M_** without checking bounds
-    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
-    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at depth 1st
+    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] \
+(fitted with curve_fit (scipy.optimize)), bounds are checked
+    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]
+      (fitted with numpy linalg regression), bounds are checked
+    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at \
+depth 1st
       soil layer (100 mm) wflow_sbm
     - **c_1** : idem **c_0** at depth 2nd soil layer (400 mm) wflow_sbm
     - **c_2** : idem **c_0** at depth 3rd soil layer (1200 mm) wflow_sbm
     - **c_3** : idem **c_0** at depth 4th soil layer (> 1200 mm) wflow_sbm
-    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
+    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \
+[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
+[1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
+6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
 
 
     Parameters
@@ -331,25 +348,25 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     ds_out : xarray.Dataset
         Dataset containing gridded soil parameters.
     """
-
     if soil_fn == "soilgrids_2020":
         # use midpoints of depth intervals for soilgrids_2020.
         soildepth_cm_midpoint = np.array([2.5, 10.0, 22.5, 45.0, 80.0, 150.0])
         soildepth_cm_midpoint_surface = np.array([0, 10.0, 22.5, 45.0, 80.0, 150.0])
         soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-        soildepth_mm = 10.0 * soildepth_cm
-        soildepth_mm_midpoint = 10.0 * soildepth_cm_midpoint
+        10.0 * soildepth_cm
+        10.0 * soildepth_cm_midpoint
         soildepth_mm_midpoint_surface = 10.0 * soildepth_cm_midpoint_surface
     else:
         soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-        soildepth_mm = 10.0 * soildepth_cm
+        10.0 * soildepth_cm
         soildepth_cm_midpoint = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
-        soildepth_mm_midpoint = 10.0 * soildepth_cm
+        10.0 * soildepth_cm
         soildepth_mm_midpoint_surface = 10.0 * soildepth_cm
 
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
-    # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
+    # set nodata values in dataset to NaN (based on soil property SLTPPT at
+    # first soil layer)
     # ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
     ds = ds.raster.mask_nodata()
 
@@ -511,7 +528,8 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
     # soilmap = soilmap.raster.reproject_like(ds_like, method="mode")
     # ds_out["wflow_soil"] = soilmap.astype(np.float32)
 
-    # wflow_soil map is based on soil texture calculated with percentage sand, silt, clay
+    # wflow_soil map is based on soil texture calculated with percentage
+    # sand, silt, clay
     # clay, silt percentages averaged over soil thickness
     if soil_fn == "soilgrids_2020":
         clay_av = average_soillayers_block(ds["clyppt"], ds["soilthickness"])
@@ -549,8 +567,9 @@ def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
 
 def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
     """
-    Returns soil parameter maps for sediment modelling at model resolution based on soil
-    properties from SoilGrids dataset.
+    Return soil parameter maps for sediment modelling at model resolution.
+
+    Based on soil properties from SoilGrids dataset.
 
     The following soil parameter maps are calculated:
 
@@ -574,10 +593,10 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
     ds_out : xarray.Dataset
         Dataset containing gridded soil parameters for sediment modelling.
     """
-
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
 
-    # set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)
+    # set nodata values in dataset to NaN (based on soil property SLTPPT at
+    # first soil layer)
     # ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
     ds = ds.raster.mask_nodata()
 

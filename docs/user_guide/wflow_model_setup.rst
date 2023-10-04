@@ -104,7 +104,3 @@ and :py:func:`~WflowModel.write_config` for the
      - tabular data (csv format, e.g. lake_hq.csv, lake_sh.csv)
    * - :py:attr:`~hydromt_wflow.WflowModel.results`
      - output.nc, output_scalar.nc, output.csv
-
-
-
-

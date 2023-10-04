@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 """Workflows to derive river for a wflow model."""
 
-from os.path import join
-import numpy as np
-from scipy.optimize import curve_fit
-import xarray as xr
-import pandas as pd
-import geopandas as gpd
 import logging
-import pyflwdir
+from os.path import join
 
-from hydromt import gis_utils, stats, flw, workflows
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import xarray as xr
+from hydromt import flw, gis_utils, stats, workflows
+from scipy.optimize import curve_fit
+
 from hydromt_wflow import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
@@ -34,7 +33,7 @@ def river(
     channel_dir="up",
     logger=logger,
 ):
-    """Returns river maps
+    """Return river maps.
 
     The output maps are:
 
@@ -64,7 +63,8 @@ def river(
     channel_dir: {"up", "down"}
         flow direction in which to calculate (subgrid) river length and width
 
-    Returns:
+    Returns
+    -------
     ds_out: xr.Dataset
         Dataset with output river attributes
     """
@@ -117,7 +117,8 @@ def river(
         lat_avg = ds_model.raster.ycoords.values.mean()
         xres, yres = gis_utils.cellres(lat_avg, xres, yres)
     rivlen = np.where(riv_mask.values, rivlen, -9999)
-    # set mean length at most downstream (if channel_dir=down) or upstream (if channel_dir=up) river lengths
+    # set mean length at most downstream (if channel_dir=down) or upstream
+    # (if channel_dir=up) river lengths
     if np.any(rivlen == 0):
         rivlen[rivlen == 0] = np.mean(rivlen[rivlen > 0])
     # smooth river length based on minimum river length
@@ -129,7 +130,8 @@ def river(
         min_len2 = rivlen2[riv_mask].min()
         pmod = (rivlen != rivlen2).sum() / riv_mask.sum() * 100
         logger.debug(
-            f"River length smoothed (min length: {min_len2:.0f} m; cells modified: {pmod:.1f})%."
+            f"River length smoothed (min length: {min_len2:.0f} m; \
+cells modified: {pmod:.1f})%."
         )
         rivlen = rivlen2
     elif min_rivlen_ratio > 0:
@@ -179,7 +181,9 @@ def river_bathymetry(
     logger=logger,
     **kwargs,
 ) -> xr.Dataset:
-    """Get river width and bankfull discharge from `gdf_riv` to estimate river depth
+    """Get river width and bankfull discharge.
+
+    From `gdf_riv` to estimate river depth
     using :py:meth:`hydromt.workflows.river_depth`. Missing values in rivwth are first
     filled using downward filling and remaining  (upstream) missing values are set
     to min_rivwth (for rivwth) and 0 (for qbankfull).
@@ -256,7 +260,8 @@ def river_bathymetry(
             )
             ds_model[name] = xr.Variable(dims, data, attrs=dict(_FillValue=-9999))
     # TODO fallback option when qbankfull is missing.
-    assert "qbankfull" in ds_model and "rivwth" in ds_model
+    assert "qbankfull" in ds_model
+    assert "rivwth" in ds_model
     # fill gaps in data using downward filling along flow directions
     for name in vars0:
         data = ds_model[name].values
@@ -313,7 +318,7 @@ def river_floodplain_volume(
     dtype=np.float64,
     logger=logger,
 ):
-    """Calculate the floodplain volume at given flood depths based on a (subgrid) HAND map.
+    """Calculate floodplain volume at given flood depths based on (subgrid) HAND map.
 
     Parameters
     ----------
@@ -422,6 +427,7 @@ def river_width(
     logger=logger,
     **kwargs,
 ):
+    """Calculate river width."""
     nopars = a is None or b is None  # no manual a, b parameters
     fit = fit or (nopars and predictor not in ["discharge"])  # fit power-law on the fly
     nowth = f"{rivwth_name}{obs_postfix}" not in ds_like  # no observed width
@@ -548,7 +554,7 @@ def _width_fit(
 
 
 def _precip(ds_like, flwdir, da_precip, logger=logger):
-    """ """
+    """Do simple precipication method."""
     precip = (
         da_precip.raster.reproject_like(ds_like, method=RESAMPLING["precip"]).values
         / 1e3
@@ -562,7 +568,7 @@ def _precip(ds_like, flwdir, da_precip, logger=logger):
 
 
 def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
-    """ """
+    """Do discharge method."""
     # read clim classes and regression parameters from data dir
     precip_fn = da_precip.name
     climate_fn = da_climate.name

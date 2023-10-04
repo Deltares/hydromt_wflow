@@ -1,17 +1,17 @@
+"""Some utilities from the Wflow plugin."""
+from pathlib import Path
+from typing import Dict, Union
+
 import numpy as np
 import xarray as xr
-from typing import Dict, Union
-from pathlib import Path
-
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
-
 
 __all__ = ["read_csv_results"]
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
-    """Read wflow results csv timeseries and parse to dictionnary
+    """Read wflow results csv timeseries and parse to dictionnary.
 
     Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
@@ -31,7 +31,8 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
     Returns
     -------
     csv_dict: dict
-        Dictionnary of hydromt.GeoDataArrays for the different csv.column section of the config.
+        Dictionnary of hydromt.GeoDataArrays for the different csv.column section \
+of the config.
     """
     # Count items by csv.column
     count = 1
@@ -65,7 +66,7 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
             count += 1
             try:
                 da_ts = open_timeseries_from_table(fn, name=header, usecols=usecols)
-            except:
+            except Exception:
                 colnames = ["time", "0"]
                 da_ts = open_timeseries_from_table(
                     fn,
@@ -97,7 +98,8 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
                 else:
                     # Create grid with full 2D Julia indices
                     # Dimensions are ascending and ordered as (x,y,layer,time)
-                    # Indices are created before ordering for compatibility with raster.idx_to_xy
+                    # Indices are created before ordering for compatibility with
+                    # raster.idx_to_xy
                     full_index = maps[f'{config["input"].get("subcatchment")}'].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
@@ -155,7 +157,8 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
                         "x": xr.IndexVariable("index", xi),
                         "y": xr.IndexVariable("index", yi),
                     }
-            # Based on model bbox center for column based on reducer for the full model domain
+            # Based on model bbox center for column based on reducer for
+            # the full model domain
             else:
                 xmin, ymin, xmax, ymax = maps.raster.bounds
                 scoords = {

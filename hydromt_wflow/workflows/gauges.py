@@ -1,10 +1,12 @@
+"""Gauges workflows for Wflow plugin."""
+
+import logging
+from typing import Optional
+
+import geopandas as gpd
 import numpy as np
 import xarray as xr
-import geopandas as gpd
 from hydromt import flw
-from typing import Optional
-import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +24,10 @@ def gauge_map_uparea(
     logger=logger,
 ):
     """
-    Snaps point locations to grid cell with smallest difference in upstream area
-    within `wdw` around the original location if the local cell does not meet the
-    error criteria.
+    Snap point locations to grid cell.
+
+    With smallest difference in upstream area within `wdw` around the
+    original location if the local cell does not meet the error criteria.
 
     Both the upstream area variable named ``uparea_name`` in ``ds`` and ``gdf`` as
     well as ``abs_error`` should have the same unit (typically km2).
