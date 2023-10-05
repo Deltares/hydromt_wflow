@@ -18,29 +18,30 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -60,6 +61,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -100,7 +110,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -122,7 +133,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -181,13 +191,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -202,8 +214,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -235,18 +247,20 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
     </label>
   
@@ -329,8 +343,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -434,8 +448,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
@@ -451,7 +465,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../user_guide/wflow_update.html" class="nav-link">Updating a model</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">Update a Wflow model: landuse</li>
+    <li class="breadcrumb-item active" aria-current="page">Update a...</li>
   </ul>
 </nav>
 </div>
@@ -475,12 +489,12 @@ document.write(`
     <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/update_model_landuse.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
 </div></div>
 <section id="Update-a-Wflow-model:-landuse">
-<h1>Update a Wflow model: landuse<a class="headerlink" href="#Update-a-Wflow-model:-landuse" title="Permalink to this heading">#</a></h1>
+<h1>Update a Wflow model: landuse<a class="headerlink" href="#Update-a-Wflow-model:-landuse" title="Link to this heading">#</a></h1>
 <p>Once you have a <strong>Wflow</strong> model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.</p>
 <p>With HydroMT, you can easily read your model and update one or several components of your model using the <strong>update</strong> function of the command line interface (CLI). Here are the steps and some examples on how to <strong>update the landuse map and parameters</strong>.</p>
 <p>All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more direct feedback.</p>
 <section id="Import-packages">
-<h2>Import packages<a class="headerlink" href="#Import-packages" title="Permalink to this heading">#</a></h2>
+<h2>Import packages<a class="headerlink" href="#Import-packages" title="Link to this heading">#</a></h2>
 <p>In this notebook, we will use some functions of HydroMT to check available datasets and also to plot the landuse maps from the original and updated models. Here are the libraries to import to realize these steps.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -502,7 +516,7 @@ document.write(`
 </div>
 </section>
 <section id="Searching-the-data-catalog-for-landuse">
-<h2>Searching the data catalog for landuse<a class="headerlink" href="#Searching-the-data-catalog-for-landuse" title="Permalink to this heading">#</a></h2>
+<h2>Searching the data catalog for landuse<a class="headerlink" href="#Searching-the-data-catalog-for-landuse" title="Link to this heading">#</a></h2>
 <p>In our previous notebook, we built a Wflow model using the <em>GlobCover</em> landuse classification. But we could as well have chosen another one. Let’s what other landuse landcover data are available in HydroMT and choose another landuse classification for our model. For this we will open the data catalog.</p>
 <p>You can also directly open and search the HydroMT yaml library by downloading and opening the data_catalog.yml file in <a class="reference external" href="https://github.com/DirkEilander/hydromt-artifacts/releases/tag/v0.0.3">hydromt-artifacts</a> or look at the list of data sources in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_existing_cat.html">documentation</a>.</p>
 <div class="nbinput nblast docutils container">
@@ -548,7 +562,7 @@ Name: source_url, dtype: object
 <p>Let’s now see how to update our current model in one command line to use the <strong>corine</strong> classification.</p>
 </section>
 <section id="HydroMT-CLI-update-interface">
-<h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Permalink to this heading">#</a></h2>
+<h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Link to this heading">#</a></h2>
 <p>Using the <strong>HydroMT build</strong> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -603,7 +617,7 @@ Options:
 </div>
 </section>
 <section id="Update-Wflow-landuse-layers">
-<h2>Update Wflow landuse layers<a class="headerlink" href="#Update-Wflow-landuse-layers" title="Permalink to this heading">#</a></h2>
+<h2>Update Wflow landuse layers<a class="headerlink" href="#Update-Wflow-landuse-layers" title="Link to this heading">#</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -618,49 +632,49 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-07-27 15:23:47,365 - update - log - INFO - HydroMT version: 0.8.1.dev0
-2023-07-27 15:23:47,365 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-07-27 15:23:47,365 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2023-07-27 15:23:47,365 - update - main - INFO - User settings:
-2023-07-27 15:23:47,462 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
-2023-07-27 15:23:47,462 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-07-27 15:23:47,537 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
-2023-07-27 15:23:47,537 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-07-27 15:23:47,553 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-07-27 15:23:47,674 - update - wflow - INFO - Reading model intbl files.
-2023-07-27 15:23:47,674 - update - wflow - INFO - Reading model table files.
-2023-07-27 15:23:47,675 - update - wflow - INFO - Reading model staticgeom files.
-2023-07-27 15:23:47,817 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-07-27 15:23:47,833 - update - wflow - INFO - Model read
-2023-07-27 15:23:47,838 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2023-07-27 15:23:47,839 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2023-07-27 15:23:47,839 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2023-07-27 15:23:47,839 - update - wflow - INFO - Preparing LULC parameter maps.
-2023-07-27 15:23:47,843 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
-2023-07-27 15:23:47,946 - update - data_catalog - INFO - DataCatalog: Getting corine_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/lulc/corine_mapping.csv
-2023-07-27 15:23:47,947 - update - dataframe - INFO - DataFrame: Read csv data.
-2023-07-27 15:23:48,206 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2023-07-27 15:23:48,392 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2023-07-27 15:23:48,544 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2023-07-27 15:23:48,693 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2023-07-27 15:23:48,843 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2023-07-27 15:23:48,995 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2023-07-27 15:23:49,144 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2023-07-27 15:23:49,293 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2023-07-27 15:23:49,443 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
-2023-07-27 15:23:49,445 - update - model_api - WARNING - Replacing staticmap: Kext
-2023-07-27 15:23:49,447 - update - model_api - WARNING - Replacing staticmap: N
-2023-07-27 15:23:49,448 - update - model_api - WARNING - Replacing staticmap: PathFrac
-2023-07-27 15:23:49,450 - update - model_api - WARNING - Replacing staticmap: RootingDepth
-2023-07-27 15:23:49,452 - update - model_api - WARNING - Replacing staticmap: Sl
-2023-07-27 15:23:49,454 - update - model_api - WARNING - Replacing staticmap: Swood
-2023-07-27 15:23:49,455 - update - model_api - WARNING - Replacing staticmap: WaterFrac
-2023-07-27 15:23:49,457 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2023-07-27 15:23:49,460 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
-2023-07-27 15:23:49,569 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
-2023-07-27 15:23:49,833 - update - wflow - INFO - Write forcing file
-2023-07-27 15:23:49,853 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 101.45 ms
+2023-10-05 13:38:10,351 - update - log - INFO - HydroMT version: 0.8.0
+2023-10-05 13:38:10,351 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-10-05 13:38:10,351 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-10-05 13:38:10,351 - update - main - INFO - User settings:
+2023-10-05 13:38:10,401 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
+2023-10-05 13:38:10,401 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-10-05 13:38:10,477 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
+2023-10-05 13:38:10,477 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
+2023-10-05 13:38:10,493 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-10-05 13:38:10,779 - update - wflow - INFO - Reading model intbl files.
+2023-10-05 13:38:10,780 - update - wflow - INFO - Reading model table files.
+2023-10-05 13:38:10,780 - update - wflow - INFO - Reading model staticgeom files.
+2023-10-05 13:38:10,897 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-10-05 13:38:10,931 - update - wflow - INFO - Model read
+2023-10-05 13:38:10,936 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2023-10-05 13:38:10,936 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-10-05 13:38:10,936 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2023-10-05 13:38:10,936 - update - wflow - INFO - Preparing LULC parameter maps.
+2023-10-05 13:38:10,940 - update - data_catalog - INFO - DataCatalog: Getting corine RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
+2023-10-05 13:38:11,047 - update - data_catalog - INFO - DataCatalog: Getting corine_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/lulc/corine_mapping.csv
+2023-10-05 13:38:11,047 - update - dataframe - INFO - DataFrame: Read csv data.
+2023-10-05 13:38:11,394 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2023-10-05 13:38:11,582 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-10-05 13:38:11,746 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-10-05 13:38:11,910 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-10-05 13:38:12,078 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2023-10-05 13:38:12,243 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-10-05 13:38:12,408 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-10-05 13:38:12,575 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-10-05 13:38:12,738 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
+2023-10-05 13:38:12,740 - update - model_api - WARNING - Replacing staticmap: Kext
+2023-10-05 13:38:12,742 - update - model_api - WARNING - Replacing staticmap: N
+2023-10-05 13:38:12,744 - update - model_api - WARNING - Replacing staticmap: PathFrac
+2023-10-05 13:38:12,746 - update - model_api - WARNING - Replacing staticmap: RootingDepth
+2023-10-05 13:38:12,748 - update - model_api - WARNING - Replacing staticmap: Sl
+2023-10-05 13:38:12,750 - update - model_api - WARNING - Replacing staticmap: Swood
+2023-10-05 13:38:12,752 - update - model_api - WARNING - Replacing staticmap: WaterFrac
+2023-10-05 13:38:12,754 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-10-05 13:38:12,757 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+2023-10-05 13:38:12,871 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2023-10-05 13:38:13,158 - update - wflow - INFO - Write forcing file
+2023-10-05 13:38:13,179 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 101.53 ms
 malloc(): mismatching next-&gt;prev_size (unsorted)
 Aborted (core dumped)
 </pre></div></div>
@@ -677,7 +691,7 @@ Aborted (core dumped)
 </ul>
 </section>
 <section id="Model-comparison">
-<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this heading">#</a></h2>
+<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Link to this heading">#</a></h2>
 <p>From the information above, you can see that not only was the landuse map updated but also all wflow landuse-related parameters with it: Kext, N, PathFrac, RootingDepth, Sl, Swood and WaterFrac.</p>
 <p>Let’s now have a look at the different landuse maps of our two models and check that they were indeed updated.</p>
 <div class="nbinput nblast docutils container">
@@ -770,11 +784,10 @@ Aborted (core dumped)
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="../user_guide/wflow_update.html"
@@ -794,10 +807,7 @@ Aborted (core dumped)
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -856,8 +866,8 @@ Aborted (core dumped)
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -875,7 +885,7 @@ Aborted (core dumped)
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -883,10 +893,11 @@ Aborted (core dumped)
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

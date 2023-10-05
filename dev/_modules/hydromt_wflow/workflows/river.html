@@ -17,28 +17,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/river';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
@@ -54,6 +55,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -94,7 +104,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -116,7 +127,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -175,13 +185,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -196,8 +208,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -229,13 +241,15 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
@@ -319,8 +333,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -374,8 +388,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../../index.html" class="nav-link" aria-label="Home">
@@ -385,7 +399,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.workflows.river</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -403,19 +417,18 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for hydromt_wflow.workflows.river</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;Workflows to derive river for a wflow model.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Workflows to derive river for a wflow model.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">pyflwdir</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
 
-<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">gis_utils</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">flw</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">flw</span><span class="p">,</span> <span class="n">gis_utils</span><span class="p">,</span> <span class="n">stats</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+
 <span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">DATADIR</span>  <span class="c1"># global var</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -430,7 +443,9 @@ document.write(`
     <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="river"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river.html#hydromt_wflow.workflows.river">[docs]</a><span class="k">def</span> <span class="nf">river</span><span class="p">(</span>
+<div class="viewcode-block" id="river">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river.html#hydromt_wflow.workflows.river">[docs]</a>
+<span class="k">def</span> <span class="nf">river</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">,</span>
     <span class="n">ds_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">river_upa</span><span class="o">=</span><span class="mf">30.0</span><span class="p">,</span>
@@ -439,7 +454,7 @@ document.write(`
     <span class="n">channel_dir</span><span class="o">=</span><span class="s2">&quot;up&quot;</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns river maps</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return river maps.</span>
 
 <span class="sd">    The output maps are:</span>
 
@@ -469,7 +484,8 @@ document.write(`
 <span class="sd">    channel_dir: {&quot;up&quot;, &quot;down&quot;}</span>
 <span class="sd">        flow direction in which to calculate (subgrid) river length and width</span>
 
-<span class="sd">    Returns:</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
 <span class="sd">    ds_out: xr.Dataset</span>
 <span class="sd">        Dataset with output river attributes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -522,7 +538,8 @@ document.write(`
         <span class="n">lat_avg</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">ycoords</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
         <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span> <span class="o">=</span> <span class="n">gis_utils</span><span class="o">.</span><span class="n">cellres</span><span class="p">(</span><span class="n">lat_avg</span><span class="p">,</span> <span class="n">xres</span><span class="p">,</span> <span class="n">yres</span><span class="p">)</span>
     <span class="n">rivlen</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">riv_mask</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">rivlen</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
-    <span class="c1"># set mean length at most downstream (if channel_dir=down) or upstream (if channel_dir=up) river lengths</span>
+    <span class="c1"># set mean length at most downstream (if channel_dir=down) or upstream</span>
+    <span class="c1"># (if channel_dir=up) river lengths</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">rivlen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="n">rivlen</span><span class="p">[</span><span class="n">rivlen</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">rivlen</span><span class="p">[</span><span class="n">rivlen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>
     <span class="c1"># smooth river length based on minimum river length</span>
@@ -534,7 +551,8 @@ document.write(`
         <span class="n">min_len2</span> <span class="o">=</span> <span class="n">rivlen2</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
         <span class="n">pmod</span> <span class="o">=</span> <span class="p">(</span><span class="n">rivlen</span> <span class="o">!=</span> <span class="n">rivlen2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">riv_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="mi">100</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;River length smoothed (min length: </span><span class="si">{</span><span class="n">min_len2</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m; cells modified: </span><span class="si">{</span><span class="n">pmod</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)%.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;River length smoothed (min length: </span><span class="si">{</span><span class="n">min_len2</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m; </span><span class="se">\</span>
+<span class="s2">cells modified: </span><span class="si">{</span><span class="n">pmod</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">)%.&quot;</span>
         <span class="p">)</span>
         <span class="n">rivlen</span> <span class="o">=</span> <span class="n">rivlen2</span>
     <span class="k">elif</span> <span class="n">min_rivlen_ratio</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -574,7 +592,10 @@ document.write(`
     <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">flwdir</span></div>
 
 
-<div class="viewcode-block" id="river_bathymetry"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river_bathymetry.html#hydromt_wflow.workflows.river_bathymetry">[docs]</a><span class="k">def</span> <span class="nf">river_bathymetry</span><span class="p">(</span>
+
+<div class="viewcode-block" id="river_bathymetry">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.river_bathymetry.html#hydromt_wflow.workflows.river_bathymetry">[docs]</a>
+<span class="k">def</span> <span class="nf">river_bathymetry</span><span class="p">(</span>
     <span class="n">ds_model</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">gdf_riv</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;powlaw&quot;</span><span class="p">,</span>
@@ -584,7 +605,9 @@ document.write(`
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get river width and bankfull discharge from `gdf_riv` to estimate river depth</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get river width and bankfull discharge.</span>
+
+<span class="sd">    From `gdf_riv` to estimate river depth</span>
 <span class="sd">    using :py:meth:`hydromt.workflows.river_depth`. Missing values in rivwth are first</span>
 <span class="sd">    filled using downward filling and remaining  (upstream) missing values are set</span>
 <span class="sd">    to min_rivwth (for rivwth) and 0 (for qbankfull).</span>
@@ -661,7 +684,8 @@ document.write(`
             <span class="p">)</span>
             <span class="n">ds_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">))</span>
     <span class="c1"># TODO fallback option when qbankfull is missing.</span>
-    <span class="k">assert</span> <span class="s2">&quot;qbankfull&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="ow">and</span> <span class="s2">&quot;rivwth&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span>
+    <span class="k">assert</span> <span class="s2">&quot;qbankfull&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span>
+    <span class="k">assert</span> <span class="s2">&quot;rivwth&quot;</span> <span class="ow">in</span> <span class="n">ds_model</span>
     <span class="c1"># fill gaps in data using downward filling along flow directions</span>
     <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">vars0</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
@@ -710,6 +734,7 @@ document.write(`
     <span class="k">return</span> <span class="n">ds_model</span><span class="p">[[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;rivdph&quot;</span><span class="p">]]</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">river_floodplain_volume</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">,</span>
     <span class="n">ds_model</span><span class="p">,</span>
@@ -718,7 +743,7 @@ document.write(`
     <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the floodplain volume at given flood depths based on a (subgrid) HAND map.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate floodplain volume at given flood depths based on (subgrid) HAND map.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -827,6 +852,7 @@ document.write(`
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate river width.&quot;&quot;&quot;</span>
     <span class="n">nopars</span> <span class="o">=</span> <span class="n">a</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">b</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># no manual a, b parameters</span>
     <span class="n">fit</span> <span class="o">=</span> <span class="n">fit</span> <span class="ow">or</span> <span class="p">(</span><span class="n">nopars</span> <span class="ow">and</span> <span class="n">predictor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;discharge&quot;</span><span class="p">])</span>  <span class="c1"># fit power-law on the fly</span>
     <span class="n">nowth</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rivwth_name</span><span class="si">}{</span><span class="n">obs_postfix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span>  <span class="c1"># no observed width</span>
@@ -953,7 +979,7 @@ document.write(`
 
 
 <span class="k">def</span> <span class="nf">_precip</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="p">,</span> <span class="n">da_precip</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do simple precipication method.&quot;&quot;&quot;</span>
     <span class="n">precip</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">da_precip</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">RESAMPLING</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
         <span class="o">/</span> <span class="mf">1e3</span>
@@ -967,7 +993,7 @@ document.write(`
 
 
 <span class="k">def</span> <span class="nf">_discharge</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">flwdir</span><span class="p">,</span> <span class="n">da_precip</span><span class="p">,</span> <span class="n">da_climate</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do discharge method.&quot;&quot;&quot;</span>
     <span class="c1"># read clim classes and regression parameters from data dir</span>
     <span class="n">precip_fn</span> <span class="o">=</span> <span class="n">da_precip</span><span class="o">.</span><span class="n">name</span>
     <span class="n">climate_fn</span> <span class="o">=</span> <span class="n">da_climate</span><span class="o">.</span><span class="n">name</span>
@@ -1016,16 +1042,12 @@ document.write(`
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -1043,8 +1065,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1062,7 +1084,7 @@ document.write(`
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -1070,10 +1092,11 @@ document.write(`
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

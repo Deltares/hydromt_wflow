@@ -18,29 +18,30 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -60,6 +61,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -100,7 +110,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -122,7 +133,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -181,13 +191,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -202,8 +214,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -235,18 +247,20 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
     </label>
   
@@ -329,8 +343,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -434,8 +448,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
@@ -475,12 +489,12 @@ document.write(`
     <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/clip_model.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
 </div></div>
 <section id="Clip-a-Wflow-model">
-<h1>Clip a Wflow model<a class="headerlink" href="#Clip-a-Wflow-model" title="Permalink to this heading">#</a></h1>
+<h1>Clip a Wflow model<a class="headerlink" href="#Clip-a-Wflow-model" title="Link to this heading">#</a></h1>
 <p>Let’s imagine you have built and calibrated a <strong>Wflow</strong> model for a whole country or continent. And now you have a new project for a small basin belonging to your big calibrated Wflow model. Instead of re-building the smaller model fomr scratch with HydroMT and re-doing the calibration steps, you can easily use the <strong>clip</strong> method of HydroMT to directly extract your smaller catchment out of your already existing big calibrated model!</p>
 <p>This notebook demonstrates how to clip a <strong>Wflow</strong> model from an already existing one using the command line interace (CLI).</p>
 <p>All lines in this notebook which start with <code class="docutils literal notranslate"><span class="pre">!</span></code> are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste these in your shell to get more direct feedback.</p>
 <section id="HydroMT-CLI-clip-interface">
-<h2>HydroMT CLI clip interface<a class="headerlink" href="#HydroMT-CLI-clip-interface" title="Permalink to this heading">#</a></h2>
+<h2>HydroMT CLI clip interface<a class="headerlink" href="#HydroMT-CLI-clip-interface" title="Link to this heading">#</a></h2>
 <p>Using the <strong>HydroMT clip</strong> API we can extract a smaller wflow model out of an already existing bigger one. Let’s get an overview of all the available options:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -527,7 +541,7 @@ Options:
 </div>
 </section>
 <section id="Clip-a-small-sub-basin">
-<h2>Clip a small sub-basin<a class="headerlink" href="#Clip-a-small-sub-basin" title="Permalink to this heading">#</a></h2>
+<h2>Clip a small sub-basin<a class="headerlink" href="#Clip-a-small-sub-basin" title="Link to this heading">#</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -542,34 +556,34 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-07-27 15:21:49,167 - clip - log - INFO - HydroMT version: 0.8.1.dev0
-2023-07-27 15:21:49,167 - clip - main - INFO - Clipping instance of wflow model.
-2023-07-27 15:21:49,167 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2023-07-27 15:21:49,188 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
-2023-07-27 15:21:49,189 - clip - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-07-27 15:21:49,202 - clip - main - INFO - Reading model to clip
-2023-07-27 15:21:49,204 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-07-27 15:21:49,326 - clip - wflow - INFO - Reading model intbl files.
-2023-07-27 15:21:49,326 - clip - wflow - INFO - Reading model table files.
-2023-07-27 15:21:49,327 - clip - wflow - INFO - Reading model staticgeom files.
-2023-07-27 15:21:49,467 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-07-27 15:21:49,483 - clip - wflow - INFO - Model read
-2023-07-27 15:21:49,484 - clip - main - INFO - Clipping staticmaps
-2023-07-27 15:21:52,892 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2023-07-27 15:21:53,498 - clip - model_api - WARNING - Replacing geom: basins
-2023-07-27 15:21:54,571 - clip - model_api - WARNING - Replacing geom: rivers
-2023-07-27 15:21:54,572 - clip - wflow - INFO - Reading model table files.
-2023-07-27 15:21:54,573 - clip - main - INFO - Clipping forcing
-2023-07-27 15:21:54,573 - clip - wflow - INFO - Clipping NetCDF forcing..
-2023-07-27 15:21:54,579 - clip - model_api - WARNING - Replacing forcing: precip
-2023-07-27 15:21:54,579 - clip - model_api - WARNING - Replacing forcing: pet
-2023-07-27 15:21:54,579 - clip - model_api - WARNING - Replacing forcing: temp
-2023-07-27 15:21:54,579 - clip - main - INFO - Writting clipped model
-2023-07-27 15:21:54,579 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2023-07-27 15:21:54,579 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
-2023-07-27 15:21:54,676 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
-2023-07-27 15:21:55,009 - clip - wflow - INFO - Write forcing file
-2023-07-27 15:21:55,028 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+2023-10-05 13:36:05,029 - clip - log - INFO - HydroMT version: 0.8.0
+2023-10-05 13:36:05,029 - clip - main - INFO - Clipping instance of wflow model.
+2023-10-05 13:36:05,029 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2023-10-05 13:36:05,048 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
+2023-10-05 13:36:05,048 - clip - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
+2023-10-05 13:36:05,062 - clip - main - INFO - Reading model to clip
+2023-10-05 13:36:05,065 - clip - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-10-05 13:36:05,349 - clip - wflow - INFO - Reading model intbl files.
+2023-10-05 13:36:05,350 - clip - wflow - INFO - Reading model table files.
+2023-10-05 13:36:05,350 - clip - wflow - INFO - Reading model staticgeom files.
+2023-10-05 13:36:05,465 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-10-05 13:36:05,498 - clip - wflow - INFO - Model read
+2023-10-05 13:36:05,499 - clip - main - INFO - Clipping staticmaps
+2023-10-05 13:36:08,970 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2023-10-05 13:36:09,581 - clip - model_api - WARNING - Replacing geom: basins
+2023-10-05 13:36:10,652 - clip - model_api - WARNING - Replacing geom: rivers
+2023-10-05 13:36:10,653 - clip - wflow - INFO - Reading model table files.
+2023-10-05 13:36:10,654 - clip - main - INFO - Clipping forcing
+2023-10-05 13:36:10,654 - clip - wflow - INFO - Clipping NetCDF forcing..
+2023-10-05 13:36:10,660 - clip - model_api - WARNING - Replacing forcing: precip
+2023-10-05 13:36:10,660 - clip - model_api - WARNING - Replacing forcing: pet
+2023-10-05 13:36:10,660 - clip - model_api - WARNING - Replacing forcing: temp
+2023-10-05 13:36:10,660 - clip - main - INFO - Writting clipped model
+2023-10-05 13:36:10,660 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2023-10-05 13:36:10,660 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2023-10-05 13:36:10,759 - clip - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2023-10-05 13:36:11,115 - clip - wflow - INFO - Write forcing file
+2023-10-05 13:36:11,136 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
 [########################################] | 100% Completed | 101.46 ms
 malloc(): mismatching next-&gt;prev_size (unsorted)
 Aborted (core dumped)
@@ -587,7 +601,7 @@ Aborted (core dumped)
 <p>Compared to build, the clip command line has less options (no configuration file and no data catalog or resolution). Clip simply re-uses the original model data and extract all the informations from the model for our clipped region location.</p>
 </section>
 <section id="Visualize-and/or-inspect-model-schematization">
-<h2>Visualize and/or inspect model schematization<a class="headerlink" href="#Visualize-and/or-inspect-model-schematization" title="Permalink to this heading">#</a></h2>
+<h2>Visualize and/or inspect model schematization<a class="headerlink" href="#Visualize-and/or-inspect-model-schematization" title="Link to this heading">#</a></h2>
 <p>The <strong>wflow plot</strong> example notebook contains scripts to visualize your model.</p>
 <p>Here we will just simply plot the region of the different model (original and clipped) to check the differences between them.</p>
 <div class="nbinput nblast docutils container">
@@ -640,8 +654,7 @@ Aborted (core dumped)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-whitegrid&quot;</span><span class="p">)</span>  <span class="c1"># set nice style</span>
-<span class="c1"># we assume the model maps are in the geographic CRS EPSG:4326</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># we assume the model maps are in the geographic CRS EPSG:4326</span>
 <span class="n">proj</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
 <span class="c1"># adjust zoomlevel and figure size to your basis size &amp; aspect</span>
 <span class="n">zoom_level</span> <span class="o">=</span> <span class="mi">10</span>
@@ -699,11 +712,10 @@ Aborted (core dumped)
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="../user_guide/wflow_clip.html"
@@ -723,10 +735,7 @@ Aborted (core dumped)
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -783,8 +792,8 @@ Aborted (core dumped)
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -802,7 +811,7 @@ Aborted (core dumped)
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -810,10 +819,11 @@ Aborted (core dumped)
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

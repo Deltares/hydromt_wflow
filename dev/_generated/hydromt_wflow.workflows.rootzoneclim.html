@@ -18,28 +18,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.rootzoneclim';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
@@ -57,6 +58,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -97,7 +107,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -119,7 +130,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -178,13 +188,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -199,8 +211,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -232,18 +244,20 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
     </label>
   
@@ -326,8 +340,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -551,8 +565,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
@@ -562,7 +576,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.workflows.rootzoneclim</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -580,21 +594,27 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="hydromt-wflow-workflows-rootzoneclim">
-<h1>hydromt_wflow.workflows.rootzoneclim<a class="headerlink" href="#hydromt-wflow-workflows-rootzoneclim" title="Permalink to this heading">#</a></h1>
+<h1>hydromt_wflow.workflows.rootzoneclim<a class="headerlink" href="#hydromt-wflow-workflows-rootzoneclim" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.rootzoneclim">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">rootzoneclim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dsrun:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_obs:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">flwdir:</span> <span class="pre">~xarray.core.dataarray.DataArray,</span> <span class="pre">ds_cc_hist:</span> <span class="pre">~xarray.core.dataset.Dataset</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">ds_cc_fut:</span> <span class="pre">~xarray.core.dataset.Dataset</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">return_period:</span> <span class="pre">list</span> <span class="pre">=</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">5,</span> <span class="pre">10,</span> <span class="pre">15,</span> <span class="pre">20,</span> <span class="pre">25,</span> <span class="pre">50,</span> <span class="pre">60,</span> <span class="pre">100],</span> <span class="pre">Imax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">2.0,</span> <span class="pre">start_hydro_year:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'Sep',</span> <span class="pre">start_field_capacity:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'Apr',</span> <span class="pre">LAI:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">rootzone_storage:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">correct_cc_deficit:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">chunksize:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100,</span> <span class="pre">missing_days_threshold:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">330,</span> <span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.rootzoneclim</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/rootzoneclim.html#rootzoneclim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.rootzoneclim" title="Permalink to this definition">#</a></dt>
-<dd><p>Estimates the root zone storage parameter for current observed and (optionally
-for) future climate-based streamflow data.</p>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">rootzoneclim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dsrun:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_obs:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">flwdir:</span> <span class="pre">~xarray.core.dataarray.DataArray,</span> <span class="pre">ds_cc_hist:</span> <span class="pre">~xarray.core.dataset.Dataset</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">ds_cc_fut:</span> <span class="pre">~xarray.core.dataset.Dataset</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">return_period:</span> <span class="pre">list</span> <span class="pre">=</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">5,</span> <span class="pre">10,</span> <span class="pre">15,</span> <span class="pre">20,</span> <span class="pre">25,</span> <span class="pre">50,</span> <span class="pre">60,</span> <span class="pre">100],</span> <span class="pre">Imax:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">2.0,</span> <span class="pre">start_hydro_year:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'Sep',</span> <span class="pre">start_field_capacity:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'Apr',</span> <span class="pre">LAI:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">rootzone_storage:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">correct_cc_deficit:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">chunksize:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">100,</span> <span class="pre">missing_days_threshold:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">330,</span> <span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.rootzoneclim</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/rootzoneclim.html#rootzoneclim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.rootzoneclim" title="Link to this definition">#</a></dt>
+<dd><p>Estimates the root zone storage parameter.</p>
+<p>for current observed and (optionally) for future climate-based streamflow data.</p>
 <p>The root zone storage capacity parameter is calculated per subcatchment and is
 converted to a gridded map at model resolution. Optionally, this function
 can return the wflow_sbm parameter RootingDepth by dividing the root zone
 storage parameter by (theta_s - theta_r).</p>
-<p>The method is based on the estimation of maximum annual storage deficits based on precipitation and estimated actual evaporation time series,
-which in turn are estimated from observed streamflow data and long-term precipitation and potential evap. data, as explained in Bouaziz et al. (2022).
-The main assumption is that vegetation adapts its rootzone storage capacity to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).
-In response to a changing climtate, it is likely that vegetation also adapts its rootzone storage capacity, thereby changing model parameters for future conditions.
-This method also allows to estimate the change in rootzone storage capacity in response to a changing climate.</p>
+<p>The method is based on the estimation of maximum annual storage deficits based on
+precipitation and estimated actual evaporation time series, which in turn are
+estimated from observed streamflow data and long-term precipitation and
+potential evap. data, as explained in Bouaziz et al. (2022).
+The main assumption is that vegetation adapts its rootzone storage capacity to
+overcome dry spells with a certain return period
+(typically 20 years for forest ecosystems).
+In response to a changing climtate, it is likely that vegetation also adapts its
+rootzone storage capacity, thereby changing model parameters for future conditions.
+This method also allows to estimate the change in rootzone storage capacity in
+response to a changing climate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -609,35 +629,38 @@ The default is None.</p></li>
 <li><p><strong>ds_cc_fut</strong> (<em>xr.Dataset</em>) – Dataset with the simulated future climate forcing data (precip and pet) [mm/timestep],
 based on a climate model.
 The default is None.</p></li>
-<li><p><strong>return_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a>) – List with one or more values indiciating the return period(s) (in
+<li><p><strong>return_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – List with one or more values indiciating the return period(s) (in
 years) for wich the rootzone storage depth should be calculated.
 The default is [2,3,5,10,15,20,25,50,60,100]</p></li>
-<li><p><strong>Imax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – The maximum interception storage capacity [mm].
+<li><p><strong>Imax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The maximum interception storage capacity [mm].
 The default is 2 mm.</p></li>
-<li><p><strong>start_hydro_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The start month (abreviated to the first three letters of the month,
+<li><p><strong>start_hydro_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The start month (abreviated to the first three letters of the month,
 starting with a capital letter) of the hydrological year.
 The default is “Sep”.</p></li>
-<li><p><strong>start_field_capacity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – The end of the wet season / commencement of dry season. This is the
+<li><p><strong>start_field_capacity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The end of the wet season / commencement of dry season. This is the
 moment when the soil is at field capacity, i.e. there is no storage
 deficit yet.
 The default is “Apr”.</p></li>
-<li><p><strong>rootzone_storage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Boolean to indicate whether the rootzone storage maps
+<li><p><strong>rootzone_storage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Boolean to indicate whether the rootzone storage maps
 should be stored in the staticmaps or not. The default is False.</p></li>
-<li><p><strong>LAI</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Determine whether the LAI will be used to determine Imax.
+<li><p><strong>LAI</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Determine whether the LAI will be used to determine Imax.
 Requires to have run setup_laimaps.
 The default is False.</p></li>
-<li><p><strong>chunksize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a>) – Chunksize on time dimension for processing data (not for saving to
+<li><p><strong>chunksize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Chunksize on time dimension for processing data (not for saving to
 disk!). A default value of 100 is used on the time dimension.</p></li>
-<li><p><strong>correct_cc_deficit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – Determines whether a bias-correction of the future deficit should be
+<li><p><strong>correct_cc_deficit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Determines whether a bias-correction of the future deficit should be
 applied. If the climate change scenario and hist period are bias-corrected,
 this should probably be set to False.</p></li>
-<li><p><strong>missing_days_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.</p></li>
+<li><p><strong>missing_days_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum number of days within a year for that year to be counted in the
+long-term Budyko analysis.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>ds_out</strong> (<em>xr.Dataset</em>) – Dataset containing root zone storage capacity (optional) and RootingDepth for several forcing and return periods.</p></li>
-<li><p><strong>gdf_basins_all</strong> (<em>GeoDataFrame</em>) – Geodataframe containing the root zone storage capacity values for each basin before filling NaN.</p></li>
+<li><p><strong>ds_out</strong> (<em>xr.Dataset</em>) – Dataset containing root zone storage capacity (optional) and RootingDepth for
+several forcing and return periods.</p></li>
+<li><p><strong>gdf_basins_all</strong> (<em>GeoDataFrame</em>) – Geodataframe containing the root zone storage capacity values for
+each basin before filling NaN.</p></li>
 </ul>
 </p>
 </dd>
@@ -658,11 +681,10 @@ Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="hydromt_wflow.workflows.glacierattrs.html"
@@ -682,10 +704,7 @@ Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -740,8 +759,8 @@ Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -759,7 +778,7 @@ Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -767,10 +786,11 @@ Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

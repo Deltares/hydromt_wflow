@@ -17,28 +17,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/waterbodies';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
@@ -54,6 +55,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -94,7 +104,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -116,7 +127,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -175,13 +185,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -196,8 +208,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -229,13 +241,15 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
@@ -319,8 +333,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -374,8 +388,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../../index.html" class="nav-link" aria-label="Home">
@@ -385,7 +399,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.workflows.waterbodies</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -403,15 +417,16 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for hydromt_wflow.workflows.waterbodies</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span><span class="sd">&quot;&quot;&quot;Waterbody workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gp</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gp</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">shapely</span>
-<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -419,15 +434,18 @@ document.write(`
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;waterbodymaps&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoirattrs&quot;</span><span class="p">,</span> <span class="s2">&quot;lakeattrs&quot;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="waterbodymaps"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps">[docs]</a><span class="k">def</span> <span class="nf">waterbodymaps</span><span class="p">(</span>
+<div class="viewcode-block" id="waterbodymaps">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps">[docs]</a>
+<span class="k">def</span> <span class="nf">waterbodymaps</span><span class="p">(</span>
     <span class="n">gdf</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">,</span>
     <span class="n">wb_type</span><span class="o">=</span><span class="s2">&quot;reservoir&quot;</span><span class="p">,</span>
     <span class="n">uparea_name</span><span class="o">=</span><span class="s2">&quot;uparea&quot;</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns waterbody (reservoir/lake) maps (see list below) at model resolution based on gridded</span>
-<span class="sd">    upstream area data input or outlet coordinates.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return waterbody (reservoir/lake) maps (see list below).</span>
+
+<span class="sd">    At model resolution based on gridded upstream area data input or outlet coordinates.</span>
 
 <span class="sd">    The following waterbody maps are calculated:</span>
 
@@ -479,7 +497,8 @@ document.write(`
     <span class="c1"># the maximum uparea in each waterbody mask to match model river network.</span>
     <span class="k">if</span> <span class="n">uparea_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">uparea_name</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Setting </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> outlet map based maximum upstream area.&quot;</span><span class="p">)</span>
-        <span class="c1"># create dataframe with x and y coord to be filled in either from uparea or from xout and yout in hydrolakes data</span>
+        <span class="c1"># create dataframe with x and y coord to be filled in either from uparea or from</span>
+        <span class="c1"># xout and yout in hydrolakes data</span>
         <span class="n">outdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">xout</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">yout</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="n">ydim</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span>
         <span class="n">xdim</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span>
@@ -525,10 +544,16 @@ document.write(`
     <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">outgdf</span></div>
 
 
-<div class="viewcode-block" id="reservoirattrs"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs">[docs]</a><span class="k">def</span> <span class="nf">reservoirattrs</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perc_norm</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">perc_min</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns reservoir attributes (see list below) needed for modelling.</span>
-<span class="sd">    When specified, some of the reservoir attributes can be derived from earth observation data.</span>
-<span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
+
+<div class="viewcode-block" id="reservoirattrs">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs">[docs]</a>
+<span class="k">def</span> <span class="nf">reservoirattrs</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">perc_norm</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">perc_min</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return reservoir attributes (see list below) needed for modelling.</span>
+
+<span class="sd">    When specified, some of the reservoir attributes can be derived from \</span>
+<span class="sd">earth observation data.</span>
+<span class="sd">    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) \</span>
+<span class="sd">using gwwapi and 2. JRC (Peker, 2016) using hydroengine.</span>
 
 <span class="sd">    The following reservoir attributes are calculated:</span>
 
@@ -544,7 +569,8 @@ document.write(`
 <span class="sd">    gdf : geopandas.GeoDataFrame</span>
 <span class="sd">        GeoDataFrame containing reservoirs geometries and attributes.</span>
 <span class="sd">    timeseries_fn : str, optional</span>
-<span class="sd">        Name of database from which time series of reservoir surface water area will be retrieved.</span>
+<span class="sd">        Name of database from which time series of reservoir surface water area \</span>
+<span class="sd">will be retrieved.</span>
 <span class="sd">        Currently available: [&#39;jrc&#39;, &#39;gww&#39;]</span>
 <span class="sd">        Defaults to Deltares&#39; Global Water Watch database.</span>
 <span class="sd">    perc_norm : int, optional</span>
@@ -561,15 +587,15 @@ document.write(`
 <span class="sd">    df_ts : pandas.DataFrame</span>
 <span class="sd">        DataFrame containing all downloaded reservoir time series.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;jrc&quot;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="kn">import</span> <span class="nn">hydroengine</span> <span class="k">as</span> <span class="nn">he</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using reservoir timeseries from JRC via hydroengine.&quot;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
-                <span class="s2">&quot;hydroengine package not found, cannot download jrc reservoir timeseries.&quot;</span>
+                <span class="s2">&quot;hydroengine package not found, cannot download jrc </span><span class="se">\</span>
+<span class="s2">reservoir timeseries.&quot;</span>
             <span class="p">)</span>
 
     <span class="k">elif</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;gww&quot;</span><span class="p">:</span>
@@ -578,13 +604,14 @@ document.write(`
             <span class="kn">from</span> <span class="nn">gwwapi</span> <span class="kn">import</span> <span class="n">utils</span>
 
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Using reservoir timeseries from GWW via gwwapi.&quot;</span><span class="p">)</span>
-        <span class="k">except</span><span class="p">:</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span>
                 <span class="s2">&quot;gwwapi package not found, cannot download gww reservoir timeseries.&quot;</span>
             <span class="p">)</span>
     <span class="k">elif</span> <span class="n">timeseries_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;timeseries_fn argument </span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2"> not understood, please use one of [gww, jrc] or None.&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;timeseries_fn argument </span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2"> not understood, </span><span class="se">\</span>
+<span class="s2">please use one of [gww, jrc] or None.&quot;</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -655,19 +682,21 @@ document.write(`
                 <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;No HydroEngine time series available for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">!&quot;</span>
                 <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">timeseries_fn</span> <span class="o">==</span> <span class="s2">&quot;gww&quot;</span><span class="p">:</span>
-        <span class="c1"># get bounds from gdf input as JSON object that can be used in post request with the gww api</span>
+        <span class="c1"># get bounds from gdf input as JSON object that can be used in</span>
+        <span class="c1"># post request with the gww api</span>
         <span class="n">gdf_bounds</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
             <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span> <span class="n">ccw</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">__geo_interface__</span>
         <span class="p">)</span>
         <span class="c1"># get reservoirs wihtin these bounds</span>
         <span class="n">gww_reservoirs</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">get_reservoirs_by_geom</span><span class="p">(</span><span class="n">gdf_bounds</span><span class="p">)</span>
-        <span class="c1"># from the response, create a dictonary, linking the gww_id to the hylak_id (used in the default reservoir database)</span>
+        <span class="c1"># from the response, create a dictonary, linking the gww_id to the hylak_id</span>
+        <span class="c1"># (used in the default reservoir database)</span>
         <span class="n">idlink</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">k</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;source_id&quot;</span><span class="p">]:</span> <span class="n">k</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">gww_reservoirs</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
         <span class="p">}</span>
@@ -699,7 +728,7 @@ document.write(`
                 <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;minarea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span>
                     <span class="n">area_series_nozeros</span><span class="p">,</span> <span class="n">perc_min</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
                 <span class="p">)</span>
-            <span class="k">except</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No GWW time series available for reservoir </span><span class="si">{</span><span class="n">ids</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
 
     <span class="c1"># Sort timeseries dataframe (will be saved to root as .csv later)</span>
@@ -737,8 +766,10 @@ document.write(`
         <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Capacity_norm&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span>
         <span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_plot</span><span class="p">[</span><span class="s2">&quot;accuracy_norm&quot;</span><span class="p">]))</span>
 
-    <span class="c1"># Then compute from EO data and fill or replace the previous values (if a valid source is provided)</span>
-    <span class="c1"># TODO for now assumes that the reservoir-db is used (combination of GRanD and HydroLAKES)</span>
+    <span class="c1"># Then compute from EO data and fill or replace the previous values</span>
+    <span class="c1"># (if a valid source is provided)</span>
+    <span class="c1"># TODO for now assumes that the reservoir-db is used</span>
+    <span class="c1"># (combination of GRanD and HydroLAKES)</span>
     <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])):</span>
         <span class="c1"># Initialise values</span>
@@ -890,7 +921,10 @@ document.write(`
     <span class="k">return</span> <span class="n">df_out</span><span class="p">,</span> <span class="n">df_plot</span><span class="p">,</span> <span class="n">df_ts</span></div>
 
 
-<div class="viewcode-block" id="lakeattrs"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs">[docs]</a><span class="k">def</span> <span class="nf">lakeattrs</span><span class="p">(</span>
+
+<div class="viewcode-block" id="lakeattrs">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs">[docs]</a>
+<span class="k">def</span> <span class="nf">lakeattrs</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">gdf</span><span class="p">:</span> <span class="n">gp</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
     <span class="n">rating_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(),</span>
@@ -898,8 +932,9 @@ document.write(`
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns lake attributes (see list below) needed for modelling.</span>
-<span class="sd">    If rating_dict is not empty, prepares also rating tables for wflow</span>
+<span class="sd">    Return lake attributes (see list below) needed for modelling.</span>
+
+<span class="sd">    If rating_dict is not empty, prepares also rating tables for wflow.</span>
 
 <span class="sd">    The following reservoir attributes are calculated:</span>
 
@@ -943,13 +978,15 @@ document.write(`
             <span class="s2">&quot;Dis_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
-    <span class="c1"># Add maximum volume / no filling of NaNs as assumes then natural lake and not controlled</span>
+    <span class="c1"># Add maximum volume / no filling of NaNs as assumes then</span>
+    <span class="c1"># natural lake and not controlled</span>
     <span class="k">if</span> <span class="n">add_maxstorage</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;Vol_max&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Vol_max&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeMaxStorage&quot;</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;No maximum storage &#39;Vol_max&#39; column found, skip adding LakeMaxStorage map.&quot;</span>
+                <span class="s2">&quot;No maximum storage &#39;Vol_max&#39; column found, </span><span class="se">\</span>
+<span class="s2">skip adding LakeMaxStorage map.&quot;</span>
             <span class="p">)</span>
     <span class="c1"># Minimum value for LakeAvgOut</span>
     <span class="n">LakeAvgOut</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
@@ -970,7 +1007,8 @@ document.write(`
     <span class="c1"># Check if some LakeAvgOut values have been replaced</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">LakeAvgOut</span> <span class="o">==</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;LakeAvgOut&quot;</span><span class="p">]):</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s&quot;</span>
+            <span class="s2">&quot;Some values of LakeAvgOut have been replaced by </span><span class="se">\</span>
+<span class="s2">a minimum value of 0.01m3/s&quot;</span>
         <span class="p">)</span>
 
     <span class="c1"># Check if rating curve is provided</span>
@@ -1014,7 +1052,8 @@ document.write(`
                     <span class="n">rating_curves</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;lake_hq_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_q</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Rating data not available for lake </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. Using default Modified Puls Approach&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Rating data not available for lake </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">. </span><span class="se">\</span>
+<span class="s2">Using default Modified Puls Approach&quot;</span>
                     <span class="p">)</span>
 
     <span class="c1"># Create raster of lake params</span>
@@ -1045,22 +1084,19 @@ document.write(`
         <span class="n">ds</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_lake</span>
 
     <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">gdf</span><span class="p">,</span> <span class="n">rating_curves</span></div>
+
 </pre></div>
 
                 </article>
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -1078,8 +1114,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1097,7 +1133,7 @@ document.write(`
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -1105,10 +1141,11 @@ document.write(`
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

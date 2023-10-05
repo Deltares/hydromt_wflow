@@ -18,28 +18,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_basemaps';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
@@ -57,6 +58,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -97,7 +107,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -119,7 +130,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -178,13 +188,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -199,8 +211,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -232,18 +244,20 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
     </label>
   
@@ -326,8 +340,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -551,8 +565,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
@@ -562,7 +576,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.WflowModel.setup_basemaps</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -580,24 +594,34 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="hydromt-wflow-wflowmodel-setup-basemaps">
-<h1>hydromt_wflow.WflowModel.setup_basemaps<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-basemaps" title="Permalink to this heading">#</a></h1>
+<h1>hydromt_wflow.WflowModel.setup_basemaps<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-basemaps" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_basemaps">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_basemaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.008333333333333333</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basin_index_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upscale_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ihu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_basemaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_basemaps" title="Permalink to this definition">#</a></dt>
-<dd><p>This component sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code> (resolution in degrees) of the
-model. All DEM and flow direction related maps are then build.</p>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_basemaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.008333333333333333</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basin_index_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'merit_hydro_index'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upscale_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ihu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_basemaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_basemaps" title="Link to this definition">#</a></dt>
+<dd><p>Build the DEM and flow direction for a Wflow model.</p>
+<p>Setup basemaps sets the <code class="docutils literal notranslate"><span class="pre">region</span></code> of interest and <code class="docutils literal notranslate"><span class="pre">res</span></code>
+(resolution in degrees) of the model.
+All DEM and flow direction related maps are then build.</p>
 <p>If the model resolution is larger than the source data resolution,
 the flow direction is upscaled using the <code class="docutils literal notranslate"><span class="pre">upscale_method</span></code>, by default the
 Iterative Hydrography Upscaling (IHU).
-The default <code class="docutils literal notranslate"><span class="pre">hydrography_fn</span></code> is “merit_hydro” (<a class="reference external" href="http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html">MERIT hydro</a>
-at 3 arcsec resolution) Alternative sources include “merit_hydro_1k” at 30 arcsec resolution.
-Users can also supply their own elevation and flow direction data in any CRS and not only EPSG:4326.</p>
-<p>Note that in order to define the region, using points or bounding box, the coordinates of the points / bounding box
-should be in the same CRS than the hydrography data. The wflow model will then also be in the same CRS than the
-hydrography data in order to avoid assumptions and reprojection errors. If the user wishes to use a different CRS,
-we recommend first to reproject the hydrography data seperately because calling hydromt build. You can find examples
-on how to reproject or prepare hydrography data in the
-<cite>prepare flow directions example notebok &lt;https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html&gt;</cite>.</p>
+The default <code class="docutils literal notranslate"><span class="pre">hydrography_fn</span></code> is “merit_hydro”
+(<a class="reference external" href="http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html">MERIT hydro</a>
+at 3 arcsec resolution).
+Alternative sources include “merit_hydro_1k” at 30 arcsec resolution.
+Users can also supply their own elevation and flow direction data
+in any CRS and not only EPSG:4326.</p>
+<p>Note that in order to define the region, using points or bounding box,
+the coordinates of the points / bounding box
+should be in the same CRS than the hydrography data.
+The wflow model will then also be in the same CRS than the
+hydrography data in order to avoid assumptions and reprojection errors.
+If the user wishes to use a different CRS,
+we recommend first to reproject the hydrography data seperately,
+because calling hydromt build.
+You can find examples on how to reproject or prepare hydrography data in the
+<cite>prepare flow directions example notebok
+&lt;https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html&gt;</cite>.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_ldd</strong> map: flow direction in LDD format [-]</p></li>
@@ -613,16 +637,16 @@ on how to reproject or prepare hydrography data in the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Name of data source for basemap parameters.</p>
+<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – <p>Name of data source for basemap parameters.</p>
 <ul>
 <li><p>Required variables: [‘flwdir’, ‘uparea’, ‘basins’, ‘strord’, ‘elevtn’]</p></li>
 <li><p>Optional variables: [‘lndslp’, ‘mask’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>basin_index_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Name of data source for basin_index data linked to hydrography_fn.</p></li>
-<li><p><strong>region</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><em>dict</em></a>) – Dictionary describing region of interest.
+<li><p><strong>basin_index_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – Name of data source for basin_index data linked to hydrography_fn.</p></li>
+<li><p><strong>region</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – Dictionary describing region of interest.
 See :py:function:~basin_mask.parse_region for all options</p></li>
-<li><p><strong>res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Output model resolution</p></li>
+<li><p><strong>res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – Output model resolution</p></li>
 <li><p><strong>upscale_method</strong> (<em>{'ihu'</em><em>, </em><em>'eam'</em><em>, </em><em>'dmm'}</em>) – Upscaling method for flow direction data, by default ‘ihu’.</p></li>
 </ul>
 </dd>
@@ -640,11 +664,10 @@ See :py:function:~basin_mask.parse_region for all options</p></li>
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="hydromt_wflow.WflowModel.setup_config.html"
@@ -664,10 +687,7 @@ See :py:function:~basin_mask.parse_region for all options</p></li>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -722,8 +742,8 @@ See :py:function:~basin_mask.parse_region for all options</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -741,7 +761,7 @@ See :py:function:~basin_mask.parse_region for all options</p></li>
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -749,10 +769,11 @@ See :py:function:~basin_mask.parse_region for all options</p></li>
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

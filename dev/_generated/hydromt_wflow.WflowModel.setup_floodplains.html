@@ -18,28 +18,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/design-tabs.js"></script>
+    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_floodplains';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
@@ -57,6 +58,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -97,7 +107,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -119,7 +130,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -178,13 +188,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -199,8 +211,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -232,18 +244,20 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
   
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+    <label class="sidebar-toggle secondary-toggle" for="__secondary" tabindex="0">
       <span class="fa-solid fa-outdent"></span>
     </label>
   
@@ -326,8 +340,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -551,8 +565,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../index.html" class="nav-link" aria-label="Home">
@@ -562,7 +576,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.WflowModel.setup_floodplains</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -580,53 +594,55 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="hydromt-wflow-wflowmodel-setup-floodplains">
-<h1>hydromt_wflow.WflowModel.setup_floodplains<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-floodplains" title="Permalink to this heading">#</a></h1>
+<h1>hydromt_wflow.WflowModel.setup_floodplains<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-floodplains" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_floodplains">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_floodplains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floodplain_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flood_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><span class="pre">List</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[0.5,</span> <span class="pre">1.0,</span> <span class="pre">1.5,</span> <span class="pre">2.0,</span> <span class="pre">2.5,</span> <span class="pre">3.0,</span> <span class="pre">4.0,</span> <span class="pre">5.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevtn_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_dem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_floodplains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_floodplains" title="Permalink to this definition">#</a></dt>
-<dd><p>This components adds floodplain information to the model schematistation. The user can
-define what type of floodplains are required (1D or 2D), through the <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code>
-argument.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> is set to “1d”, a floodplain profile is derived for every river
-cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
-1D floodplain schematisation.</p>
-<p>Note, it is important to use the same river uparea value as used in the <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a>
-method.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> is set to “2d”, this component adds a hydrologically conditioned
-elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
-need to be conditioned to D4 flow directions otherwise pits may remain in the land
-cells.</p>
-<p>The conditioned elevation can be based on the average cell elevation (“wflow_dem”) or
-subgrid outlet pixel elevation (“dem_subgrid”). Note that the subgrid elevation will
-likely overestimate the floodplain storage capacity.</p>
-<p>Additionally, note that the same input elevation map should be used for river bankfull
-elevation and land elevation when using local-inertial land routing.</p>
-<p>Requires <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a> to be executed beforehand (with <code class="docutils literal notranslate"><span class="pre">river_routing</span></code> set to
-“local-inertial”).</p>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_floodplains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydrography_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floodplain_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">river_upa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.12)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flood_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[0.5,</span> <span class="pre">1.0,</span> <span class="pre">1.5,</span> <span class="pre">2.0,</span> <span class="pre">2.5,</span> <span class="pre">3.0,</span> <span class="pre">4.0,</span> <span class="pre">5.0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevtn_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_dem'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_floodplains"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_floodplains" title="Link to this definition">#</a></dt>
+<dd><p>Add floodplain information to the model schematistation.</p>
+<p>The user can define what type of floodplains are required (1D or 2D),
+through the <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> argument.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> is set to “1d”, a floodplain profile is derived for every
+river cell. It adds a map with floodplain volume per flood depth,
+which is used in the wflow 1D floodplain schematisation.</p>
+<p>Note, it is important to use the same river uparea value as used in the
+<a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a> method.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">floodplain_type</span></code> is set to “2d”, this component adds
+a hydrologically conditioned elevation (hydrodem) map for
+land routing (local-inertial). For this options, landcells need to be
+conditioned to D4 flow directions otherwise pits may remain in the land cells.</p>
+<p>The conditioned elevation can be based on the average cell elevation
+(“wflow_dem”) or subgrid outlet pixel elevation (“dem_subgrid”).
+Note that the subgrid elevation will likely overestimate
+the floodplain storage capacity.</p>
+<p>Additionally, note that the same input elevation map should be used for river
+bankfull elevation and land elevation when using local-inertial land routing.</p>
+<p>Requires <a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers" title="hydromt_wflow.WflowModel.setup_rivers"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_rivers()</span></code></a> to be executed beforehand
+(with <code class="docutils literal notranslate"><span class="pre">river_routing</span></code> set to “local-inertial”).</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>floodplain_volume</strong> map: map with floodplain volumes, has flood depth as third
 dimension [m3] (for 1D floodplains)</p></li>
-<li><p><strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)</p></li>
+<li><p><strong>hydrodem</strong> map: hydrologically conditioned elevation [m+REF]</p></li>
 </ul>
+<p>(for 2D floodplains)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>floodplain_type</strong> (<em>{&quot;1d&quot;</em><em>, </em><em>&quot;2d&quot;}</em>) – Option defining the type of floodplains, see below what arguments are related to
-the different floodplain types</p></li>
-<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data. Must be same as setup_basemaps for
+<li><p><strong>floodplain_type</strong> (<em>{&quot;1d&quot;</em><em>, </em><em>&quot;2d&quot;}</em>) – Option defining the type of floodplains, see below what arguments
+are related to the different floodplain types</p></li>
+<li><p><strong>hydrography_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>Path</em>) – <p>Name of data source for hydrography data. Must be same as setup_basemaps for
 consistent results.</p>
 <ul>
 <li><p>Required variables: [‘flwdir’, ‘uparea’, ‘elevtn’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
-value, as it is inferred from the staticmaps metadata, to be consistent with
-setup_rivers.</p></li>
-<li><p><strong>flood_depths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.11)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a><em>, </em><em>optional</em>) – (1D floodplains) flood depths at which a volume is derived, by default
-[0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]</p></li>
-<li><p><strong>elevtn_map</strong> (<em>{&quot;wflow_dem&quot;</em><em>, </em><em>&quot;dem_subgrid&quot;}</em>) – (2D floodplains) Name of staticmap to hydrologically condition, by default
-“wflow_dem”</p></li>
+<li><p><strong>river_upa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – (1D floodplains) minimum upstream area threshold for drain in the HAND.
+Optional value, as it is inferred from the staticmaps metadata,
+to be consistent with setup_rivers.</p></li>
+<li><p><strong>flood_depths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.12)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a><em>, </em><em>optional</em>) – (1D floodplains) flood depths at which a volume is derived.
+By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]</p></li>
+<li><p><strong>elevtn_map</strong> (<em>{&quot;wflow_dem&quot;</em><em>, </em><em>&quot;dem_subgrid&quot;}</em>) – (2D floodplains) Name of staticmap to hydrologically condition.
+By default “wflow_dem”</p></li>
 </ul>
 </dd>
 </dl>
@@ -643,11 +659,10 @@ setup_rivers.</p></li>
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
        href="hydromt_wflow.WflowModel.setup_rivers.html"
@@ -667,10 +682,7 @@ setup_rivers.</p></li>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -725,8 +737,8 @@ setup_rivers.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -744,7 +756,7 @@ setup_rivers.</p></li>
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -752,10 +764,11 @@ setup_rivers.</p></li>
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

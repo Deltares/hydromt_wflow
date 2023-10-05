@@ -17,28 +17,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/soilgrids';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
@@ -54,6 +55,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -94,7 +104,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -116,7 +127,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -175,13 +185,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -196,8 +208,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -229,13 +241,15 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
@@ -319,8 +333,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -374,8 +388,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../../index.html" class="nav-link" aria-label="Home">
@@ -385,7 +399,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.workflows.soilgrids</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -403,18 +417,14 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for hydromt_wflow.workflows.soilgrids</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Spyder Editor</span>
+<span></span><span class="sd">&quot;&quot;&quot;Soilgrid workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
-<span class="sd">This is a temporary script file.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
-<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ptf</span>
 
@@ -435,14 +445,17 @@ document.write(`
 <span class="c1"># default z [cm] of soil layers wflow_sbm: 10, 40, 120, &gt; 120</span>
 <span class="c1"># mapping of wflow_sbm parameter c to soil layer SoilGrids</span>
 <span class="n">c_sl_index</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># v2017 direct mapping</span>
-<span class="c1"># c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used, averages are taken instead.</span>
+<span class="c1"># c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,</span>
+<span class="c1"># averages are taken instead.</span>
 
 
 <span class="k">def</span> <span class="nf">average_soillayers_block</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine the weighted average of soil property at different depths over soil thickness,</span>
-<span class="sd">    assuming that the properties are computed at the mid-point of the interval and are considered</span>
-<span class="sd">    constant over the whole depth interval (Sousa et al., 2020). https://doi.org/10.5194/soil-2020-65</span>
+<span class="sd">    Determine weighted average of soil property at different depths over soil thickness.</span>
+
+<span class="sd">    Assuming that the properties are computed at the mid-point of the interval and</span>
+<span class="sd">    are considered constant over the whole depth interval (Sousa et al., 2020).</span>
+<span class="sd">    https://doi.org/10.5194/soil-2020-65</span>
 <span class="sd">    This function is used for soilgrids_2020.</span>
 
 <span class="sd">    Parameters</span>
@@ -488,10 +501,12 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">average_soillayers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine weighted average of soil property at different depths over soil thickness,</span>
-<span class="sd">    using the trapezoidal rule.</span>
-<span class="sd">    See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda,</span>
-<span class="sd">    M., Blagotic, A., et al.: SoilGrids250m: Global gridded soil information based on machine learning,</span>
+<span class="sd">    Determine weighted average of soil property at different depths over soil thickness.</span>
+
+<span class="sd">    Using the trapezoidal rule.</span>
+<span class="sd">    See also: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,</span>
+<span class="sd">    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m: \</span>
+<span class="sd">Global gridded soil information based on machine learning,</span>
 <span class="sd">    PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.</span>
 <span class="sd">    This function is used for soilgrids (2017).</span>
 
@@ -508,7 +523,6 @@ document.write(`
 <span class="sd">        Dataset containing the weighted average of the soil property.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">da_sum</span> <span class="o">=</span> <span class="n">soilthickness</span> <span class="o">*</span> <span class="mf">0.0</span>
     <span class="c1"># set NaN values to 0.0 (to avoid RuntimeWarning in comparison soildepth)</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">soilthickness</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
@@ -555,7 +569,6 @@ document.write(`
 <span class="sd">        depth.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">ptf</span><span class="o">.</span><span class="n">pore_size_index_brakensiek</span><span class="p">,</span>
         <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sndppt&quot;</span><span class="p">],</span>
@@ -573,7 +586,9 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth based on PTF.</span>
+<span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.</span>
+
+<span class="sd">    Based on PTF.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -642,8 +657,10 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">do_curve_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Apply scipy.optimize.curve_fit and return fitted parameter. If least-squares minimization</span>
-<span class="sd">    fails with an inital guess p0 of 1e-3, and 1e-4, np.linalg.lstsq is used for curve fitting.</span>
+<span class="sd">    Apply scipy.optimize.curve_fit and return fitted parameter.</span>
+
+<span class="sd">    If least-squares minimization fails with an inital guess p0 of 1e-3,</span>
+<span class="sd">    and 1e-4, np.linalg.lstsq is used for curve fitting.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -678,23 +695,31 @@ document.write(`
 
 
 <span class="k">def</span> <span class="nf">constrain_M</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">popt_0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constrain M parameter with the value M_minmax&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Constrain M parameter with the value M_minmax.&quot;&quot;&quot;</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">M</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">popt_0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">M</span> <span class="o">&gt;</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">M</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">M</span>
 
 
-<div class="viewcode-block" id="soilgrids"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids">[docs]</a><span class="k">def</span> <span class="nf">soilgrids</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">ptfKsatVer</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<div class="viewcode-block" id="soilgrids">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids">[docs]</a>
+<span class="k">def</span> <span class="nf">soilgrids</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">ptfKsatVer</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns soil parameter maps at model resolution based on soil properties from SoilGrids datasets.</span>
-<span class="sd">    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties at 7 specific depths, while soilgrids_2020 provides soil properties averaged over 6 depth intervals.</span>
-<span class="sd">    Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez, M., Kilibarda,</span>
-<span class="sd">    M., Blagotic, A., et al.: SoilGrids250m: Global gridded soil information based on machine learning,</span>
+<span class="sd">    Return soil parameter maps at model resolution.</span>
+
+<span class="sd">    Based on soil properties from SoilGrids datasets.</span>
+<span class="sd">    Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties</span>
+<span class="sd">    at 7 specific depths, while soilgrids_2020 provides soil properties averaged over</span>
+<span class="sd">    6 depth intervals.</span>
+<span class="sd">    Ref: Hengl, T., Mendes de Jesus, J., Heuvelink, G. B. M., Ruiperez Gonzalez,</span>
+<span class="sd">    M., Kilibarda, M., Blagotic, A., et al.: SoilGrids250m: \</span>
+<span class="sd">Global gridded soil information based on machine learning,</span>
 <span class="sd">    PLoS ONE, 12, https://doi.org/10.1371/journal.pone.0169748, 2017.</span>
-<span class="sd">    Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio, E. and Rossiter, D., 2020.</span>
-<span class="sd">    SoilGrids 2.0: producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.</span>
-<span class="sd">    https://doi.org/10.5194/soil-2020-65</span>
+<span class="sd">    Ref: de Sousa, L.M., Poggio, L., Batjes, N.H., Heuvelink, G., Kempen, B., Riberio,</span>
+<span class="sd">    E. and Rossiter, D., 2020. SoilGrids 2.0: \</span>
+<span class="sd">producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.</span>
+<span class="sd">    https://doi.org/10.5194/soil-2020-65.</span>
 
 <span class="sd">    The following soil parameter maps are calculated:</span>
 
@@ -703,21 +728,29 @@ document.write(`
 <span class="sd">    - **KsatVer** : vertical saturated hydraulic conductivity at soil surface [mm/day]</span>
 <span class="sd">    - **SoilThickness** : soil thickness [mm]</span>
 <span class="sd">    - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)</span>
-<span class="sd">    - **M** : model parameter [mm] that controls exponential decline of KsatVer with soil depth</span>
+<span class="sd">    - **M** : model parameter [mm] that controls exponential decline of KsatVer with \</span>
+<span class="sd">soil depth</span>
 <span class="sd">      (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked</span>
-<span class="sd">    - **M\_** : model parameter [mm] that controls exponential decline of KsatVer with soil depth</span>
+<span class="sd">    - **M_** : model parameter [mm] that controls exponential decline of KsatVer with \</span>
+<span class="sd">soil depth</span>
 <span class="sd">      (fitted with numpy linalg regression), bounds of **M_** are checked</span>
 <span class="sd">    - **M_original** : **M** without checking bounds</span>
 <span class="sd">    - **M_original_** : **M_** without checking bounds</span>
-<span class="sd">    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</span>
-<span class="sd">    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked</span>
-<span class="sd">    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at depth 1st</span>
+<span class="sd">    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] \</span>
+<span class="sd">(fitted with curve_fit (scipy.optimize)), bounds are checked</span>
+<span class="sd">    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]</span>
+<span class="sd">      (fitted with numpy linalg regression), bounds are checked</span>
+<span class="sd">    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at \</span>
+<span class="sd">depth 1st</span>
 <span class="sd">      soil layer (100 mm) wflow_sbm</span>
 <span class="sd">    - **c_1** : idem **c_0** at depth 2nd soil layer (400 mm) wflow_sbm</span>
 <span class="sd">    - **c_2** : idem **c_0** at depth 3rd soil layer (1200 mm) wflow_sbm</span>
 <span class="sd">    - **c_3** : idem **c_0** at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</span>
-<span class="sd">    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
-<span class="sd">    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</span>
+<span class="sd">    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \</span>
+<span class="sd">[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
+<span class="sd">    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \</span>
+<span class="sd">[1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \</span>
+<span class="sd">6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</span>
 
 
 <span class="sd">    Parameters</span>
@@ -736,25 +769,25 @@ document.write(`
 <span class="sd">    ds_out : xarray.Dataset</span>
 <span class="sd">        Dataset containing gridded soil parameters.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span><span class="p">:</span>
         <span class="c1"># use midpoints of depth intervals for soilgrids_2020.</span>
         <span class="n">soildepth_cm_midpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">22.5</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">])</span>
         <span class="n">soildepth_cm_midpoint_surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">22.5</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">])</span>
         <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
-        <span class="n">soildepth_mm</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
-        <span class="n">soildepth_mm_midpoint</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm_midpoint</span>
+        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
+        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm_midpoint</span>
         <span class="n">soildepth_mm_midpoint_surface</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm_midpoint_surface</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
-        <span class="n">soildepth_mm</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
+        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
         <span class="n">soildepth_cm_midpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
-        <span class="n">soildepth_mm_midpoint</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
+        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
         <span class="n">soildepth_mm_midpoint_surface</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
 
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
 
-    <span class="c1"># set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)</span>
+    <span class="c1"># set nodata values in dataset to NaN (based on soil property SLTPPT at</span>
+    <span class="c1"># first soil layer)</span>
     <span class="c1"># ds = xr.where(ds[&quot;sltppt_sl1&quot;] == ds[&quot;sltppt_sl1&quot;].raster.nodata, np.nan, ds)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
 
@@ -916,7 +949,8 @@ document.write(`
     <span class="c1"># soilmap = soilmap.raster.reproject_like(ds_like, method=&quot;mode&quot;)</span>
     <span class="c1"># ds_out[&quot;wflow_soil&quot;] = soilmap.astype(np.float32)</span>
 
-    <span class="c1"># wflow_soil map is based on soil texture calculated with percentage sand, silt, clay</span>
+    <span class="c1"># wflow_soil map is based on soil texture calculated with percentage</span>
+    <span class="c1"># sand, silt, clay</span>
     <span class="c1"># clay, silt percentages averaged over soil thickness</span>
     <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span><span class="p">:</span>
         <span class="n">clay_av</span> <span class="o">=</span> <span class="n">average_soillayers_block</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;clyppt&quot;</span><span class="p">],</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;soilthickness&quot;</span><span class="p">])</span>
@@ -952,10 +986,14 @@ document.write(`
     <span class="k">return</span> <span class="n">ds_out</span></div>
 
 
-<div class="viewcode-block" id="soilgrids_sediment"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment">[docs]</a><span class="k">def</span> <span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+
+<div class="viewcode-block" id="soilgrids_sediment">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment">[docs]</a>
+<span class="k">def</span> <span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns soil parameter maps for sediment modelling at model resolution based on soil</span>
-<span class="sd">    properties from SoilGrids dataset.</span>
+<span class="sd">    Return soil parameter maps for sediment modelling at model resolution.</span>
+
+<span class="sd">    Based on soil properties from SoilGrids dataset.</span>
 
 <span class="sd">    The following soil parameter maps are calculated:</span>
 
@@ -979,10 +1017,10 @@ document.write(`
 <span class="sd">    ds_out : xarray.Dataset</span>
 <span class="sd">        Dataset containing gridded soil parameters for sediment modelling.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
 
-    <span class="c1"># set nodata values in dataset to NaN (based on soil property SLTPPT at first soil layer)</span>
+    <span class="c1"># set nodata values in dataset to NaN (based on soil property SLTPPT at</span>
+    <span class="c1"># first soil layer)</span>
     <span class="c1"># ds = xr.where(ds[&quot;sltppt_sl1&quot;] == ds[&quot;sltppt_sl1&quot;].raster.nodata, np.nan, ds)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
 
@@ -1042,22 +1080,19 @@ document.write(`
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_out</span></div>
+
 </pre></div>
 
                 </article>
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -1075,8 +1110,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1094,7 +1129,7 @@ document.write(`
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -1102,10 +1137,11 @@ document.write(`
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>

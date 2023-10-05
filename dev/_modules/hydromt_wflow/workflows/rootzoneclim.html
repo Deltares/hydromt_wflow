@@ -17,28 +17,29 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
 
   
-  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
+  <script src="../../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
 
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/sphinx_highlight.js"></script>
-    <script src="../../../_static/design-tabs.js"></script>
+    <script src="../../../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/rootzoneclim';</script>
     <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
@@ -54,6 +55,15 @@
   
   
   <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
   
   <input type="checkbox"
           class="sidebar-toggle"
@@ -94,7 +104,8 @@
     <span class="fa-solid fa-bars"></span>
   </label>
   
-  <div class="navbar-header-items__start">
+  
+  <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
   
@@ -116,7 +127,6 @@
 </a></div>
     
   </div>
-  
   
   <div class="col-lg-9 navbar-header-items">
     
@@ -175,13 +185,15 @@
       
         <div class="navbar-item navbar-persistent--container">
           
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
         </div>
       
       
@@ -196,8 +208,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -229,13 +241,15 @@ document.write(`
   
   
     <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
     </div>
   
 
@@ -319,8 +333,8 @@ document.write(`
           
           
           
-          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github"></i></span>
-            <label class="sr-only">GitHub</label></a>
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github fa-lg" aria-hidden="true"></i></span>
+            <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -374,8 +388,8 @@ document.write(`
 
 
 
-<nav aria-label="Breadcrumbs">
-  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb">
+  <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../../index.html" class="nav-link" aria-label="Home">
@@ -385,7 +399,7 @@ document.write(`
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page">hydromt_wflow.workflows.rootzoneclim</li>
+    <li class="breadcrumb-item active" aria-current="page">hydromt_wflo...</li>
   </ul>
 </nav>
 </div>
@@ -403,19 +417,18 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <h1>Source code for hydromt_wflow.workflows.rootzoneclim</h1><div class="highlight"><pre>
-<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span></span><span class="sd">&quot;&quot;&quot;Rootzoneclim workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">hydromt</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">flw</span>
+<span class="kn">import</span> <span class="nn">hydromt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">pyflwdir</span>
-
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">flw</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">optimize</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -426,9 +439,11 @@ document.write(`
     <span class="n">ds_sub_annual</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    # Determine the Budyko terms (note that the discharge coefficient and evaporative</span>
-<span class="sd">    # index for the future climate, if present, are not correct yet and will</span>
-<span class="sd">    # be adjusted at a later stage)</span>
+<span class="sd">    Determine the Budyko terms.</span>
+
+<span class="sd">    (Note that the discharge coefficient and evaporative</span>
+<span class="sd">    index for the future climate, if present, are not correct yet and will</span>
+<span class="sd">    be adjusted at a later stage).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -443,7 +458,6 @@ document.write(`
 <span class="sd">        index and the evaporative index as long term averages.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-
     <span class="n">ds_sub_annual</span><span class="p">[</span><span class="s2">&quot;discharge_coeff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">ds_sub_annual</span><span class="p">[</span><span class="s2">&quot;specific_Q&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">ds_sub_annual</span><span class="p">[</span><span class="s2">&quot;precip_mean&quot;</span><span class="p">]</span>
     <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -486,6 +500,8 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">determine_omega</span><span class="p">(</span><span class="n">ds_sub_annual</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the omega parameter.</span>
+
 <span class="sd">    This function uses the Zhang function (as defined in Teuling et al., 2019)</span>
 <span class="sd">    to determine the omega parameter for ds_sub_annual.</span>
 
@@ -542,7 +558,8 @@ document.write(`
                         <span class="p">),</span>
                     <span class="p">)</span>
                     <span class="n">omega</span><span class="p">[</span><span class="n">subcatch_index_nr</span><span class="p">]</span> <span class="o">=</span> <span class="n">omega_temp</span>
-                <span class="c1"># possible error that occurs: &quot;ValueError: f(a) and f(b) must have different signs&quot;) -- increase a and b range solves the issue.</span>
+                <span class="c1"># possible error that occurs: &quot;ValueError: f(a) and f(b) must</span>
+                <span class="c1"># have different signs&quot;) -- increase a and b range solves the issue.</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No value for omega could be derived.&quot;</span><span class="p">)</span>
                     <span class="n">omega</span><span class="p">[</span><span class="n">subcatch_index_nr</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
@@ -557,9 +574,9 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">determine_Peffective_Interception_explicit</span><span class="p">(</span><span class="n">ds_sub</span><span class="p">,</span> <span class="n">Imax</span><span class="p">,</span> <span class="n">intercep_vars_sub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to determine the effective precipitation, interception evaporation</span>
-<span class="sd">    and canopy storage based on (daily) values of precipitation and potential</span>
-<span class="sd">    evaporation.</span>
+<span class="sd">    Determine the effective precipitation, interception evaporation and canopy storage.</span>
+
+<span class="sd">    Based on (daily) values of precipitation and potential evaporation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -621,8 +638,9 @@ document.write(`
         <span class="p">)</span>
         <span class="c1"># Loop through the time steps and determine the variables per time step.</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nr_time_steps</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">intercep_vars_sub</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># TODO: for now assumed that LAI contains monthly data, change this for future</span>
+            <span class="k">if</span> <span class="n">intercep_vars_sub</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># TODO: for now assumed that LAI contains monthly data,</span>
+                <span class="c1"># change this for future</span>
                 <span class="n">month</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds_sub</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
                 <span class="n">Imax</span> <span class="o">=</span> <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;Imax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">month</span><span class="p">)</span>
             <span class="c1"># Determine the variables with a simple interception reservoir approach</span>
@@ -636,7 +654,8 @@ document.write(`
             <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">nr_time_steps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">canopy_storage</span><span class="p">[:,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">canopy_storage</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
 
-        <span class="c1"># insert in ds for the time that is available in each forcing type for precip and pet</span>
+        <span class="c1"># insert in ds for the time that is available in each forcing type for</span>
+        <span class="c1"># precip and pet</span>
         <span class="n">time_forcing_type</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">ds_sub</span><span class="p">[[</span><span class="s2">&quot;precip_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;pet_mean&quot;</span><span class="p">]]</span>
             <span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">forcing_type</span><span class="o">=</span><span class="n">forcing_type</span><span class="p">)</span>
@@ -658,8 +677,9 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">determine_storage_deficit</span><span class="p">(</span><span class="n">ds_sub</span><span class="p">,</span> <span class="n">correct_cc_deficit</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to determine the storage deficit for every time step, subcatchment</span>
-<span class="sd">    location and dataset in ds_sub.</span>
+<span class="sd">    Determine the storage deficit for every time step.</span>
+
+<span class="sd">    Also for the subcatchment location and dataset in ds_sub.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -734,7 +754,8 @@ document.write(`
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Time period of cc_hist and cc_fut does not overlap. Correct_cc_deficit not applied.&quot;</span>
+                <span class="s2">&quot;Time period of cc_hist and cc_fut does not overlap. </span><span class="se">\</span>
+<span class="s2">Correct_cc_deficit not applied.&quot;</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_sub</span>
@@ -742,10 +763,12 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">fut_discharge_coeff</span><span class="p">(</span><span class="n">ds_sub_annual</span><span class="p">,</span> <span class="n">correct_cc_deficit</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to determine the future discharge coefficient, based on a given</span>
-<span class="sd">    omega value (generally same as in the current-climate observations), the</span>
-<span class="sd">    aridity index of the future climate and the difference in Q and PET between</span>
-<span class="sd">    the simulated historical and simulated future climate.</span>
+<span class="sd">    Determine the future discharge coefficient.</span>
+
+<span class="sd">    Based on a given omega value (generally same as in the</span>
+<span class="sd">    current-climate observations), the aridity index of the future climate and the</span>
+<span class="sd">    difference in Q and PET between the simulated historical and</span>
+<span class="sd">    simulated future climate.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -799,8 +822,9 @@ document.write(`
     <span class="n">storage_deficit_annual</span><span class="p">,</span> <span class="n">storage_deficit_count</span><span class="p">,</span> <span class="n">return_period</span><span class="p">,</span> <span class="n">threshold</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Function to determine the Gumbel distribution of the annual maximum storage deficits</span>
-<span class="sd">    for a set of return periods.</span>
+<span class="sd">    Determine the Gumbel distribution of the annual maximum storage deficits.</span>
+
+<span class="sd">    For a set of return periods.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -861,6 +885,8 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">Zhang</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">aridity_index</span><span class="p">,</span> <span class="n">evap_index</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate omega according to Zhang.</span>
+
 <span class="sd">    This is the Zhang equation with omega as in Teuling et al., 2019.</span>
 <span class="sd">    This function is used to get omega for historical situations when</span>
 <span class="sd">    aridity_index and evap_index are known (assuming evap_index = 1 - discharge_coeff).</span>
@@ -900,6 +926,8 @@ document.write(`
 
 <span class="k">def</span> <span class="nf">Zhang_future</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">aridity_index</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate discharge coefficients according to Zhang.</span>
+
 <span class="sd">    Once omega has been derived for historical situations, it can be used to</span>
 <span class="sd">    derive the new discharge coefficient when the future aridity index (Ep/P)</span>
 <span class="sd">    is known. This will allow the discharge coeffcient to shift over the same</span>
@@ -955,13 +983,13 @@ document.write(`
 
     <span class="k">if</span> <span class="s2">&quot;pet&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds_obs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable pet not in forcing_obs_fn&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ds_cc_hist</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds_cc_hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;precip&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds_cc_hist</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable precip not in forcing_cc_hist_fn&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="s2">&quot;pet&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds_cc_hist</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable pet not in forcing_cc_hist_fn&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">ds_cc_fut</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds_cc_fut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;precip&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">ds_cc_fut</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Variable precip not in forcing_cc_fut_fn&quot;</span><span class="p">)</span>
 
@@ -971,7 +999,9 @@ document.write(`
     <span class="k">return</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="rootzoneclim"><a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim">[docs]</a><span class="k">def</span> <span class="nf">rootzoneclim</span><span class="p">(</span>
+<div class="viewcode-block" id="rootzoneclim">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim">[docs]</a>
+<span class="k">def</span> <span class="nf">rootzoneclim</span><span class="p">(</span>
     <span class="n">dsrun</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_obs</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -990,19 +1020,26 @@ document.write(`
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Estimates the root zone storage parameter for current observed and (optionally</span>
-<span class="sd">    for) future climate-based streamflow data.</span>
+<span class="sd">    Estimates the root zone storage parameter.</span>
+
+<span class="sd">    for current observed and (optionally) for future climate-based streamflow data.</span>
 
 <span class="sd">    The root zone storage capacity parameter is calculated per subcatchment and is</span>
 <span class="sd">    converted to a gridded map at model resolution. Optionally, this function</span>
 <span class="sd">    can return the wflow_sbm parameter RootingDepth by dividing the root zone</span>
 <span class="sd">    storage parameter by (theta_s - theta_r).</span>
 
-<span class="sd">    The method is based on the estimation of maximum annual storage deficits based on precipitation and estimated actual evaporation time series,</span>
-<span class="sd">    which in turn are estimated from observed streamflow data and long-term precipitation and potential evap. data, as explained in Bouaziz et al. (2022).</span>
-<span class="sd">    The main assumption is that vegetation adapts its rootzone storage capacity to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).</span>
-<span class="sd">    In response to a changing climtate, it is likely that vegetation also adapts its rootzone storage capacity, thereby changing model parameters for future conditions.</span>
-<span class="sd">    This method also allows to estimate the change in rootzone storage capacity in response to a changing climate.</span>
+<span class="sd">    The method is based on the estimation of maximum annual storage deficits based on</span>
+<span class="sd">    precipitation and estimated actual evaporation time series, which in turn are</span>
+<span class="sd">    estimated from observed streamflow data and long-term precipitation and</span>
+<span class="sd">    potential evap. data, as explained in Bouaziz et al. (2022).</span>
+<span class="sd">    The main assumption is that vegetation adapts its rootzone storage capacity to</span>
+<span class="sd">    overcome dry spells with a certain return period</span>
+<span class="sd">    (typically 20 years for forest ecosystems).</span>
+<span class="sd">    In response to a changing climtate, it is likely that vegetation also adapts its</span>
+<span class="sd">    rootzone storage capacity, thereby changing model parameters for future conditions.</span>
+<span class="sd">    This method also allows to estimate the change in rootzone storage capacity in</span>
+<span class="sd">    response to a changing climate.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1016,11 +1053,13 @@ document.write(`
 <span class="sd">    flwdir : FlwDirRaster</span>
 <span class="sd">        flwdir object</span>
 <span class="sd">    ds_cc_hist : xr.Dataset</span>
-<span class="sd">        Dataset with the simulated historical forcing data (precip and pet) [mm/timestep],</span>
+<span class="sd">        Dataset with the simulated historical forcing data (precip and pet) \</span>
+<span class="sd">[mm/timestep],</span>
 <span class="sd">        based on a climate model.</span>
 <span class="sd">        The default is None.</span>
 <span class="sd">    ds_cc_fut : xr.Dataset</span>
-<span class="sd">        Dataset with the simulated future climate forcing data (precip and pet) [mm/timestep],</span>
+<span class="sd">        Dataset with the simulated future climate forcing data (precip and pet) \</span>
+<span class="sd">[mm/timestep],</span>
 <span class="sd">        based on a climate model.</span>
 <span class="sd">        The default is None.</span>
 <span class="sd">    return_period : list</span>
@@ -1054,14 +1093,17 @@ document.write(`
 <span class="sd">        applied. If the climate change scenario and hist period are bias-corrected,</span>
 <span class="sd">        this should probably be set to False.</span>
 <span class="sd">    missing_days_threshold: int, optional</span>
-<span class="sd">            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.</span>
+<span class="sd">            Minimum number of days within a year for that year to be counted in the</span>
+<span class="sd">            long-term Budyko analysis.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_out : xr.Dataset</span>
-<span class="sd">        Dataset containing root zone storage capacity (optional) and RootingDepth for several forcing and return periods.</span>
+<span class="sd">        Dataset containing root zone storage capacity (optional) and RootingDepth for</span>
+<span class="sd">        several forcing and return periods.</span>
 <span class="sd">    gdf_basins_all : GeoDataFrame</span>
-<span class="sd">        Geodataframe containing the root zone storage capacity values for each basin before filling NaN.</span>
+<span class="sd">        Geodataframe containing the root zone storage capacity values for</span>
+<span class="sd">        each basin before filling NaN.</span>
 
 
 <span class="sd">    References</span>
@@ -1124,23 +1166,25 @@ document.write(`
     <span class="n">gdf_basins</span> <span class="o">=</span> <span class="n">gdf_basins</span><span class="p">[(</span><span class="n">gdf_basins</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)]</span>
 
     <span class="c1"># calculate mean areal precip and pot evap for the full upstream area of each gauge.</span>
-    <span class="c1"># loop over ds_obs, ds_cc_hist and ds_cc_fut as they might have different coordinate systems and then merge.</span>
+    <span class="c1"># loop over ds_obs, ds_cc_hist and ds_cc_fut as they might have</span>
+    <span class="c1"># different coordinate systems and then merge.</span>
     <span class="n">ds_sub_obs</span> <span class="o">=</span> <span class="n">ds_obs</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">zonal_stats</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">])</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Computing zonal statistics for obs, this can take a while&quot;</span><span class="p">)</span>
     <span class="n">ds_sub_obs</span> <span class="o">=</span> <span class="n">ds_sub_obs</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">ds_cc_hist</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds_cc_hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ds_sub_cc_hist</span> <span class="o">=</span> <span class="n">ds_cc_hist</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">zonal_stats</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">])</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Computing zonal statistics for cc_hist, this can take a while&quot;</span><span class="p">)</span>
         <span class="n">ds_sub_cc_hist</span> <span class="o">=</span> <span class="n">ds_sub_cc_hist</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">ds_cc_fut</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds_cc_fut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ds_sub_cc_fut</span> <span class="o">=</span> <span class="n">ds_cc_fut</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">zonal_stats</span><span class="p">(</span><span class="n">gdf_basins</span><span class="p">,</span> <span class="n">stats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">])</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Computing zonal statistics for cc_fut, this can take a while&quot;</span><span class="p">)</span>
         <span class="n">ds_sub_cc_fut</span> <span class="o">=</span> <span class="n">ds_sub_cc_fut</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
 
-    <span class="c1"># Concatenate all forcing types (obs, cc_hist, cc_fut) into an xr dataset after zonal stats</span>
-    <span class="k">if</span> <span class="n">ds_cc_hist</span> <span class="o">!=</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ds_cc_fut</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># Concatenate all forcing types (obs, cc_hist, cc_fut) into a</span>
+    <span class="c1"># xr dataset after zonal stats</span>
+    <span class="k">if</span> <span class="n">ds_cc_hist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ds_cc_fut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ds_sub</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
             <span class="p">[</span><span class="n">ds_sub_obs</span><span class="p">,</span> <span class="n">ds_sub_cc_hist</span><span class="p">,</span> <span class="n">ds_sub_cc_fut</span><span class="p">],</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">,</span> <span class="s2">&quot;cc_hist&quot;</span><span class="p">,</span> <span class="s2">&quot;cc_fut&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;forcing_type&quot;</span><span class="p">),</span>
@@ -1223,7 +1267,7 @@ document.write(`
     <span class="n">ds_sub_annual</span> <span class="o">=</span> <span class="n">determine_omega</span><span class="p">(</span><span class="n">ds_sub_annual</span><span class="p">)</span>
 
     <span class="c1"># Determine future discharge ratio for cc_fut if ds_cc_fut exists</span>
-    <span class="k">if</span> <span class="n">ds_cc_fut</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds_cc_fut</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">ds_sub_annual</span> <span class="o">=</span> <span class="n">fut_discharge_coeff</span><span class="p">(</span><span class="n">ds_sub_annual</span><span class="p">,</span> <span class="n">correct_cc_deficit</span><span class="p">)</span>
 
     <span class="c1"># Determine long-term interception, potential evaporation and tranpsiration;</span>
@@ -1339,10 +1383,11 @@ document.write(`
                 <span class="sa">f</span><span class="s2">&quot;rootzone_storage_</span><span class="si">{</span><span class="n">forcing_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">return_period</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">]:</span>
                 <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">fill_value</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">fill_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="n">fill_value</span> <span class="o">=</span> <span class="n">value</span>
             <span class="n">out_raster</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">out_raster</span> <span class="o">==</span> <span class="o">-</span><span class="mf">999.0</span><span class="p">,</span> <span class="n">fill_value</span><span class="p">,</span> <span class="n">out_raster</span><span class="p">)</span>
-            <span class="c1"># Store the rootzone_storage in ds_out is rootzone_storage flag is set to True.</span>
+            <span class="c1"># Store the rootzone_storage in ds_out is rootzone_storage flag is</span>
+            <span class="c1"># set to True.</span>
             <span class="k">if</span> <span class="n">rootzone_storage</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
                 <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;rootzone_storage_</span><span class="si">{</span><span class="n">forcing_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">return_period</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">x_dim</span><span class="p">),</span>
@@ -1355,22 +1400,19 @@ document.write(`
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">gdf_basins_all</span></div>
+
 </pre></div>
 
                 </article>
               
               
               
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
+              
+              
+                <footer class="prev-next-footer">
+                  <!-- Previous / next buttons -->
 <div class="prev-next-area">
-</div></div>
-  
 </div>
-
                 </footer>
               
             </div>
@@ -1388,8 +1430,8 @@ document.write(`
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+  <script src="../../../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1407,7 +1449,7 @@ document.write(`
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
   </p>
 </div>
@@ -1415,10 +1457,11 @@ document.write(`
     </div>
   
   
+  
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
 </p></div>
       
     </div>
