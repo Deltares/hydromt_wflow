@@ -1,10 +1,6 @@
 name: Test dev
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
   workflow_run:
     workflows: ['Test stable']
     types:
@@ -69,9 +65,6 @@ jobs:
 
       - name: Run tests
         run: python -m pytest --verbose --cov=hydromt_wflow --cov-report xml
-
-      - name: Check style
-        run: black --check .
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
