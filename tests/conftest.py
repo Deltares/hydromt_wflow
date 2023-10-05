@@ -1,9 +1,11 @@
-"""add global fixtures"""
-from os.path import join, dirname, abspath
+"""add global fixtures."""
+import logging
+from os.path import abspath, dirname, join
+
 import pytest
 import xarray as xr
-import logging
 from hydromt.cli.cli_utils import parse_config
+
 from hydromt_wflow import WflowModel, WflowSedimentModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")

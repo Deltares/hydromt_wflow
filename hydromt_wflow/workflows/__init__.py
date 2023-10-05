@@ -1,10 +1,10 @@
-"""HydroMT wflow workflows"""
+"""HydroMT wflow workflows."""
 
 from .basemaps import *
-from .river import *
-from .waterbodies import *
-from .landuse import *
-from .soilgrids import *
-from .glaciers import *
-from .rootzoneclim import *
 from .gauges import *
+from .glaciers import *
+from .landuse import *
+from .river import *
+from .rootzoneclim import *
+from .soilgrids import *
+from .waterbodies import *
