@@ -678,154 +678,154 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-10-05 13:35:00,425 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/hydromt.log.
-2023-10-05 13:35:00,426 - build - log - INFO - HydroMT version: 0.8.0
-2023-10-05 13:35:00,426 - build - main - INFO - Building instance of wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment.
-2023-10-05 13:35:00,426 - build - main - INFO - User settings:
-2023-10-05 13:35:00,497 - build - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
-2023-10-05 13:35:00,497 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-10-05 13:35:00,575 - build - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.3.1.dev0).
-2023-10-05 13:35:00,575 - build - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-10-05 13:35:00,588 - build - model_api - DEBUG - Setting model config options.
-2023-10-05 13:35:00,591 - build - model_api - DEBUG - Default config read from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml
-2023-10-05 13:35:00,591 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
-2023-10-05 13:35:00,591 - build - model_api - INFO - setup_basemaps.res: 0.00833
-2023-10-05 13:35:00,591 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
-2023-10-05 13:35:00,591 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
-2023-10-05 13:35:00,591 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
-2023-10-05 13:35:00,591 - build - wflow - INFO - Preparing base hydrography basemaps.
-2023-10-05 13:35:00,591 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
-2023-10-05 13:35:00,804 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
-2023-10-05 13:35:07,795 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
-2023-10-05 13:35:08,067 - build - wflow - DEBUG - Adding basins vector to staticgeoms.
-2023-10-05 13:35:08,069 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
-2023-10-05 13:35:08,070 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
-2023-10-05 13:35:08,294 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
-2023-10-05 13:35:08,900 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
-2023-10-05 13:35:26,563 - build - basemaps - DEBUG - Derive stream order.
-2023-10-05 13:35:27,016 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
-2023-10-05 13:35:27,016 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
-2023-10-05 13:35:27,142 - build - wflow - DEBUG - Adding region vector to staticgeoms.
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.args: ()
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.river_geom_fn: rivers_lin2019_v1
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.river_upa: 30
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.min_rivdph: 1
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.min_rivwth: 30
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.slope_len: 2000
-2023-10-05 13:35:27,147 - build - model_api - INFO - setup_rivers.smooth_len: 5000
-2023-10-05 13:35:27,147 - build - wflow - INFO - Preparing river maps.
-2023-10-05 13:35:27,148 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
-2023-10-05 13:35:27,342 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2023-10-05 13:35:27,565 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
-2023-10-05 13:35:28,403 - build - river - DEBUG - Derive river length.
-2023-10-05 13:35:34,868 - build - river - DEBUG - Derive river slope.
-2023-10-05 13:35:36,328 - build - river - DEBUG - Derive rivwth from hydrography dataset.
-2023-10-05 13:35:36,906 - build - data_catalog - INFO - DataCatalog: Getting roughness_river_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow/N_river_mapping.csv
-2023-10-05 13:35:36,907 - build - dataframe - INFO - DataFrame: Read csv data.
-2023-10-05 13:35:36,915 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:36,928 - build - data_catalog - INFO - DataCatalog: Getting rivers_lin2019_v1 GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/rivers_lin2019_v1.gpkg
-2023-10-05 13:35:36,929 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.778, 45.807, 12.745, 46.690].
-2023-10-05 13:35:37,202 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
-2023-10-05 13:35:37,287 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
-2023-10-05 13:35:40,938 - build - wflow - DEBUG - Adding rivers vector to staticgeoms.
-2023-10-05 13:35:41,789 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
-2023-10-05 13:35:41,789 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
-2023-10-05 13:35:41,790 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
-2023-10-05 13:35:41,790 - build - wflow - INFO - Preparing reservoir maps.
-2023-10-05 13:35:41,790 - build - data_catalog - INFO - DataCatalog: Getting hydro_reservoirs GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_reservoirs.gpkg
-2023-10-05 13:35:41,793 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2023-10-05 13:35:41,828 - build - geodataframe - DEBUG - GeoDataFrame: Convert units for 5 columns.
-2023-10-05 13:35:41,832 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
-2023-10-05 13:35:41,832 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
-2023-10-05 13:35:41,833 - build - model_api - INFO - setup_lakes.min_area: 1.0
-2023-10-05 13:35:41,833 - build - wflow - INFO - Preparing lake maps.
-2023-10-05 13:35:41,833 - build - data_catalog - INFO - DataCatalog: Getting hydro_lakes GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_lakes.gpkg
-2023-10-05 13:35:41,835 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2023-10-05 13:35:41,862 - build - geodataframe - DEBUG - GeoDataFrame: Convert units for 1 columns.
-2023-10-05 13:35:41,864 - build - wflow - INFO - 1 lake(s) of sufficient size found within region.
-2023-10-05 13:35:41,873 - build - waterbodies - DEBUG - Setting lake outlet map based maximum upstream area.
-2023-10-05 13:35:41,888 - build - wflow - INFO - No rating curve data provided. Using default storage/outflow function parameters.
-2023-10-05 13:35:41,955 - build - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
-2023-10-05 13:35:41,956 - build - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2023-10-05 13:35:41,956 - build - data_catalog - INFO - DataCatalog: Getting riverbedsed_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2023-10-05 13:35:41,956 - build - dataframe - INFO - DataFrame: Read csv data.
-2023-10-05 13:35:41,964 - build - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:41,976 - build - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:41,987 - build - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:41,998 - build - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,009 - build - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,026 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
-2023-10-05 13:35:42,026 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2023-10-05 13:35:42,026 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
-2023-10-05 13:35:42,026 - build - wflow - INFO - Preparing LULC parameter maps.
-2023-10-05 13:35:42,027 - build - data_catalog - INFO - DataCatalog: Getting globcover RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
-2023-10-05 13:35:42,047 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2023-10-05 13:35:42,049 - build - data_catalog - INFO - DataCatalog: Getting globcover_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/lulc/globcover_mapping.csv
-2023-10-05 13:35:42,050 - build - dataframe - INFO - DataFrame: Read csv data.
-2023-10-05 13:35:42,070 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
-2023-10-05 13:35:42,137 - build - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,194 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,251 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,309 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,366 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,423 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,480 - build - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,539 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2023-10-05 13:35:42,607 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
-2023-10-05 13:35:42,608 - build - wflow - INFO - Preparing LAI maps.
-2023-10-05 13:35:42,608 - build - data_catalog - INFO - DataCatalog: Getting modis_lai RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/modis_lai.nc
-2023-10-05 13:35:42,643 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2023-10-05 13:35:42,644 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 1 variables.
-2023-10-05 13:35:42,652 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
-2023-10-05 13:35:42,725 - build - model_api - INFO - setup_canopymaps.canopy_fn: simard
-2023-10-05 13:35:42,725 - build - wflow_sediment - INFO - Preparing canopy height map.
-2023-10-05 13:35:42,725 - build - data_catalog - INFO - DataCatalog: Getting simard RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
-2023-10-05 13:35:42,745 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2023-10-05 13:35:42,800 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
-2023-10-05 13:35:42,800 - build - model_api - INFO - setup_soilmaps.usleK_method: renard
-2023-10-05 13:35:42,800 - build - wflow_sediment - INFO - Preparing soil parameter maps.
-2023-10-05 13:35:42,800 - build - data_catalog - INFO - DataCatalog: Getting soilgrids RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
-2023-10-05 13:35:43,524 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2023-10-05 13:35:43,546 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 21 variables.
-2023-10-05 13:35:44,131 - build - soilgrids - INFO - Interpolate NAN values for PercentClay
-2023-10-05 13:35:44,191 - build - soilgrids - INFO - Interpolate NAN values for PercentSilt
-2023-10-05 13:35:44,275 - build - soilgrids - INFO - Interpolate NAN values for PercentOC
-2023-10-05 13:35:44,367 - build - soilgrids - INFO - Interpolate NAN values for ErosK
-2023-10-05 13:35:44,453 - build - soilgrids - INFO - Interpolate NAN values for USLE_K
-2023-10-05 13:35:44,463 - build - model_api - INFO - setup_outlets.river_only: True
-2023-10-05 13:35:44,463 - build - model_api - INFO - setup_outlets.toml_output: csv
-2023-10-05 13:35:44,464 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;TSS&#39;]
-2023-10-05 13:35:44,464 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.SSconc&#39;]
-2023-10-05 13:35:44,464 - build - wflow - INFO - Gauges locations set based on river outlets.
-2023-10-05 13:35:44,470 - build - wflow - INFO - Gauges map based on catchment river outlets added.
-2023-10-05 13:35:44,470 - build - wflow - INFO - Adding [&#39;lateral.river.SSconc&#39;] to csv section of toml.
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.source_gdf: None
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.snap_to_river: True
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.mask: None
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.derive_subcatch: False
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.basename: None
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.toml_output: csv
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
-2023-10-05 13:35:44,471 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
-2023-10-05 13:35:44,471 - build - data_catalog - INFO - DataCatalog: Getting grdc GeoDataFrame csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
-2023-10-05 13:35:44,474 - build - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2023-10-05 13:35:44,486 - build - wflow - INFO - 3 grdc gauge locations found within domain
-2023-10-05 13:35:44,950 - build - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.dtype: float32
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.nodata: -999
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.eros_expo: 1.5
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.eros_ov: 0.9
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
-2023-10-05 13:35:44,950 - build - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
-2023-10-05 13:35:44,965 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
-2023-10-05 13:35:44,978 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml
-2023-10-05 13:35:45,054 - build - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticmaps.nc
-2023-10-05 13:35:46,846 - build - wflow - INFO - Writing model staticgeom to file.
+2023-10-05 13:57:51,195 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/hydromt.log.
+2023-10-05 13:57:51,195 - build - log - INFO - HydroMT version: 0.8.0
+2023-10-05 13:57:51,195 - build - main - INFO - Building instance of wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment.
+2023-10-05 13:57:51,195 - build - main - INFO - User settings:
+2023-10-05 13:57:51,258 - build - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
+2023-10-05 13:57:51,258 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-10-05 13:57:51,335 - build - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.3.1.dev0).
+2023-10-05 13:57:51,335 - build - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
+2023-10-05 13:57:51,348 - build - model_api - DEBUG - Setting model config options.
+2023-10-05 13:57:51,351 - build - model_api - DEBUG - Default config read from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml
+2023-10-05 13:57:51,351 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2023-10-05 13:57:51,351 - build - model_api - INFO - setup_basemaps.res: 0.00833
+2023-10-05 13:57:51,351 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2023-10-05 13:57:51,351 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2023-10-05 13:57:51,351 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2023-10-05 13:57:51,351 - build - wflow - INFO - Preparing base hydrography basemaps.
+2023-10-05 13:57:51,351 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2023-10-05 13:57:51,549 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
+2023-10-05 13:57:58,078 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2023-10-05 13:57:58,315 - build - wflow - DEBUG - Adding basins vector to staticgeoms.
+2023-10-05 13:57:58,316 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
+2023-10-05 13:57:58,317 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
+2023-10-05 13:57:58,514 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
+2023-10-05 13:57:59,049 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2023-10-05 13:58:15,935 - build - basemaps - DEBUG - Derive stream order.
+2023-10-05 13:58:16,342 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
+2023-10-05 13:58:16,342 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
+2023-10-05 13:58:16,467 - build - wflow - DEBUG - Adding region vector to staticgeoms.
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.args: ()
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.river_geom_fn: rivers_lin2019_v1
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.river_upa: 30
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.min_rivdph: 1
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.min_rivwth: 30
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.slope_len: 2000
+2023-10-05 13:58:16,472 - build - model_api - INFO - setup_rivers.smooth_len: 5000
+2023-10-05 13:58:16,472 - build - wflow - INFO - Preparing river maps.
+2023-10-05 13:58:16,473 - build - data_catalog - INFO - DataCatalog: Getting merit_hydro RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2023-10-05 13:58:16,658 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2023-10-05 13:58:16,857 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2023-10-05 13:58:17,597 - build - river - DEBUG - Derive river length.
+2023-10-05 13:58:23,992 - build - river - DEBUG - Derive river slope.
+2023-10-05 13:58:25,340 - build - river - DEBUG - Derive rivwth from hydrography dataset.
+2023-10-05 13:58:25,859 - build - data_catalog - INFO - DataCatalog: Getting roughness_river_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow/N_river_mapping.csv
+2023-10-05 13:58:25,859 - build - dataframe - INFO - DataFrame: Read csv data.
+2023-10-05 13:58:25,867 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:25,880 - build - data_catalog - INFO - DataCatalog: Getting rivers_lin2019_v1 GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/rivers_lin2019_v1.gpkg
+2023-10-05 13:58:25,881 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.778, 45.807, 12.745, 46.690].
+2023-10-05 13:58:26,144 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
+2023-10-05 13:58:26,224 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
+2023-10-05 13:58:29,736 - build - wflow - DEBUG - Adding rivers vector to staticgeoms.
+2023-10-05 13:58:30,572 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
+2023-10-05 13:58:30,572 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
+2023-10-05 13:58:30,572 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
+2023-10-05 13:58:30,572 - build - wflow - INFO - Preparing reservoir maps.
+2023-10-05 13:58:30,572 - build - data_catalog - INFO - DataCatalog: Getting hydro_reservoirs GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_reservoirs.gpkg
+2023-10-05 13:58:30,576 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-10-05 13:58:30,609 - build - geodataframe - DEBUG - GeoDataFrame: Convert units for 5 columns.
+2023-10-05 13:58:30,613 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
+2023-10-05 13:58:30,614 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
+2023-10-05 13:58:30,614 - build - model_api - INFO - setup_lakes.min_area: 1.0
+2023-10-05 13:58:30,614 - build - wflow - INFO - Preparing lake maps.
+2023-10-05 13:58:30,614 - build - data_catalog - INFO - DataCatalog: Getting hydro_lakes GeoDataFrame vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_lakes.gpkg
+2023-10-05 13:58:30,617 - build - geodataframe - INFO - GeoDataFrame: Read vector data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-10-05 13:58:30,643 - build - geodataframe - DEBUG - GeoDataFrame: Convert units for 1 columns.
+2023-10-05 13:58:30,645 - build - wflow - INFO - 1 lake(s) of sufficient size found within region.
+2023-10-05 13:58:30,654 - build - waterbodies - DEBUG - Setting lake outlet map based maximum upstream area.
+2023-10-05 13:58:30,668 - build - wflow - INFO - No rating curve data provided. Using default storage/outflow function parameters.
+2023-10-05 13:58:30,732 - build - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
+2023-10-05 13:58:30,732 - build - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2023-10-05 13:58:30,732 - build - data_catalog - INFO - DataCatalog: Getting riverbedsed_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2023-10-05 13:58:30,732 - build - dataframe - INFO - DataFrame: Read csv data.
+2023-10-05 13:58:30,740 - build - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:30,751 - build - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:30,762 - build - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:30,773 - build - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:30,784 - build - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:30,801 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
+2023-10-05 13:58:30,801 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-10-05 13:58:30,801 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
+2023-10-05 13:58:30,801 - build - wflow - INFO - Preparing LULC parameter maps.
+2023-10-05 13:58:30,802 - build - data_catalog - INFO - DataCatalog: Getting globcover RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
+2023-10-05 13:58:30,821 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2023-10-05 13:58:30,823 - build - data_catalog - INFO - DataCatalog: Getting globcover_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/lulc/globcover_mapping.csv
+2023-10-05 13:58:30,824 - build - dataframe - INFO - DataFrame: Read csv data.
+2023-10-05 13:58:30,843 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2023-10-05 13:58:30,907 - build - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:30,962 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,015 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,069 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,123 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,177 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,232 - build - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,287 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-10-05 13:58:31,350 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
+2023-10-05 13:58:31,350 - build - wflow - INFO - Preparing LAI maps.
+2023-10-05 13:58:31,351 - build - data_catalog - INFO - DataCatalog: Getting modis_lai RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/modis_lai.nc
+2023-10-05 13:58:31,382 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2023-10-05 13:58:31,383 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 1 variables.
+2023-10-05 13:58:31,391 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
+2023-10-05 13:58:31,462 - build - model_api - INFO - setup_canopymaps.canopy_fn: simard
+2023-10-05 13:58:31,462 - build - wflow_sediment - INFO - Preparing canopy height map.
+2023-10-05 13:58:31,462 - build - data_catalog - INFO - DataCatalog: Getting simard RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
+2023-10-05 13:58:31,481 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2023-10-05 13:58:31,534 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2023-10-05 13:58:31,534 - build - model_api - INFO - setup_soilmaps.usleK_method: renard
+2023-10-05 13:58:31,534 - build - wflow_sediment - INFO - Preparing soil parameter maps.
+2023-10-05 13:58:31,534 - build - data_catalog - INFO - DataCatalog: Getting soilgrids RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
+2023-10-05 13:58:32,198 - build - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2023-10-05 13:58:32,217 - build - rasterdataset - DEBUG - RasterDataset: Convert units for 21 variables.
+2023-10-05 13:58:32,767 - build - soilgrids - INFO - Interpolate NAN values for PercentClay
+2023-10-05 13:58:32,822 - build - soilgrids - INFO - Interpolate NAN values for PercentSilt
+2023-10-05 13:58:32,895 - build - soilgrids - INFO - Interpolate NAN values for PercentOC
+2023-10-05 13:58:32,972 - build - soilgrids - INFO - Interpolate NAN values for ErosK
+2023-10-05 13:58:33,046 - build - soilgrids - INFO - Interpolate NAN values for USLE_K
+2023-10-05 13:58:33,056 - build - model_api - INFO - setup_outlets.river_only: True
+2023-10-05 13:58:33,057 - build - model_api - INFO - setup_outlets.toml_output: csv
+2023-10-05 13:58:33,057 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;TSS&#39;]
+2023-10-05 13:58:33,057 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.SSconc&#39;]
+2023-10-05 13:58:33,057 - build - wflow - INFO - Gauges locations set based on river outlets.
+2023-10-05 13:58:33,064 - build - wflow - INFO - Gauges map based on catchment river outlets added.
+2023-10-05 13:58:33,064 - build - wflow - INFO - Adding [&#39;lateral.river.SSconc&#39;] to csv section of toml.
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.source_gdf: None
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.snap_to_river: True
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.mask: None
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.derive_subcatch: False
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.basename: None
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.toml_output: csv
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
+2023-10-05 13:58:33,065 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
+2023-10-05 13:58:33,065 - build - data_catalog - INFO - DataCatalog: Getting grdc GeoDataFrame csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
+2023-10-05 13:58:33,068 - build - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-10-05 13:58:33,080 - build - wflow - INFO - 3 grdc gauge locations found within domain
+2023-10-05 13:58:33,539 - build - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
+2023-10-05 13:58:33,539 - build - model_api - INFO - setup_constant_pars.dtype: float32
+2023-10-05 13:58:33,539 - build - model_api - INFO - setup_constant_pars.nodata: -999
+2023-10-05 13:58:33,539 - build - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
+2023-10-05 13:58:33,539 - build - model_api - INFO - setup_constant_pars.eros_expo: 1.5
+2023-10-05 13:58:33,540 - build - model_api - INFO - setup_constant_pars.eros_ov: 0.9
+2023-10-05 13:58:33,540 - build - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
+2023-10-05 13:58:33,540 - build - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
+2023-10-05 13:58:33,540 - build - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
+2023-10-05 13:58:33,553 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
+2023-10-05 13:58:33,566 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml
+2023-10-05 13:58:33,643 - build - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticmaps.nc
+2023-10-05 13:58:35,202 - build - wflow - INFO - Writing model staticgeom to file.
 malloc(): unsorted double linked list corrupted
 Aborted (core dumped)
 </pre></div></div>
@@ -956,112 +956,111 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-10-05 13:35:50,292 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
-2023-10-05 13:35:50,292 - update - log - INFO - HydroMT version: 0.8.0
-2023-10-05 13:35:50,292 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-10-05 13:35:50,292 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
-2023-10-05 13:35:50,292 - update - main - INFO - User settings:
-2023-10-05 13:35:50,341 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
-2023-10-05 13:35:50,341 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-10-05 13:35:50,418 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/hydromt.log.
-2023-10-05 13:35:50,419 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.3.1.dev0).
-2023-10-05 13:35:50,419 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-10-05 13:35:50,432 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2023-10-05 13:35:50,432 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2023-10-05 13:35:50,432 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2023-10-05 13:35:50,433 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-10-05 13:35:50,737 - update - wflow - INFO - Reading model intbl files.
-2023-10-05 13:35:50,738 - update - wflow - INFO - Reading model table files.
-2023-10-05 13:35:50,738 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2023-10-05 13:35:50,738 - update - wflow - INFO - Reading model staticgeom files.
-2023-10-05 13:35:50,853 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2023-10-05 13:35:50,853 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2023-10-05 13:35:50,853 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-10-05 13:35:50,888 - update - wflow - INFO - Model read
-2023-10-05 13:35:50,889 - update - log - DEBUG - Appending log messages to file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
-2023-10-05 13:35:50,894 - update - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
-2023-10-05 13:35:50,894 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2023-10-05 13:35:50,894 - update - data_catalog - INFO - DataCatalog: Getting riverbedsed_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2023-10-05 13:35:50,895 - update - dataframe - INFO - DataFrame: Read csv data.
-2023-10-05 13:35:50,904 - update - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:50,915 - update - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:50,926 - update - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:50,936 - update - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:50,947 - update - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:50,968 - update - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
-2023-10-05 13:35:50,968 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2023-10-05 13:35:50,968 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
-2023-10-05 13:35:50,968 - update - wflow - INFO - Preparing LULC parameter maps.
-2023-10-05 13:35:50,972 - update - data_catalog - INFO - DataCatalog: Getting globcover RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
-2023-10-05 13:35:50,993 - update - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2023-10-05 13:35:50,995 - update - data_catalog - INFO - DataCatalog: Getting globcover_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/lulc/globcover_mapping.csv
-2023-10-05 13:35:50,996 - update - dataframe - INFO - DataFrame: Read csv data.
-2023-10-05 13:35:51,166 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
-2023-10-05 13:35:51,232 - update - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,289 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,345 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,401 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,456 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,512 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,569 - update - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,625 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2023-10-05 13:35:51,680 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
-2023-10-05 13:35:51,685 - update - model_api - WARNING - Replacing staticmap: Kext
-2023-10-05 13:35:51,687 - update - model_api - WARNING - Replacing staticmap: N
-2023-10-05 13:35:51,689 - update - model_api - WARNING - Replacing staticmap: PathFrac
-2023-10-05 13:35:51,690 - update - model_api - WARNING - Replacing staticmap: Sl
-2023-10-05 13:35:51,692 - update - model_api - WARNING - Replacing staticmap: Swood
-2023-10-05 13:35:51,696 - update - model_api - WARNING - Replacing staticmap: WaterFrac
-2023-10-05 13:35:51,698 - update - model_api - INFO - setup_canopymaps.canopy_fn: simard
-2023-10-05 13:35:51,698 - update - wflow_sediment - INFO - Preparing canopy height map.
-2023-10-05 13:35:51,703 - update - data_catalog - INFO - DataCatalog: Getting simard RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
-2023-10-05 13:35:51,722 - update - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2023-10-05 13:35:51,781 - update - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
-2023-10-05 13:35:51,781 - update - model_api - INFO - setup_soilmaps.usleK_method: renard
-2023-10-05 13:35:51,782 - update - wflow_sediment - INFO - Preparing soil parameter maps.
-2023-10-05 13:35:51,786 - update - data_catalog - INFO - DataCatalog: Getting soilgrids RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
-2023-10-05 13:35:52,491 - update - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2023-10-05 13:35:52,513 - update - rasterdataset - DEBUG - RasterDataset: Convert units for 21 variables.
-2023-10-05 13:35:53,185 - update - soilgrids - INFO - Interpolate NAN values for PercentClay
-2023-10-05 13:35:53,235 - update - soilgrids - INFO - Interpolate NAN values for PercentSilt
-2023-10-05 13:35:53,316 - update - soilgrids - INFO - Interpolate NAN values for PercentOC
-2023-10-05 13:35:53,414 - update - soilgrids - INFO - Interpolate NAN values for ErosK
-2023-10-05 13:35:53,496 - update - soilgrids - INFO - Interpolate NAN values for USLE_K
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.gauges_fn: grdc
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.source_gdf: None
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.mask: None
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.basename: None
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.toml_output: csv
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
-2023-10-05 13:35:53,510 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
-2023-10-05 13:35:53,510 - update - data_catalog - INFO - DataCatalog: Getting grdc GeoDataFrame csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
-2023-10-05 13:35:53,513 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2023-10-05 13:35:53,526 - update - wflow - INFO - 3 grdc gauge locations found within domain
-2023-10-05 13:35:55,504 - update - model_api - WARNING - Replacing staticmap: wflow_gauges_grdc
-2023-10-05 13:35:55,516 - update - model_api - WARNING - Replacing geom: gauges_grdc
-2023-10-05 13:35:55,516 - update - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
-2023-10-05 13:35:55,519 - update - model_api - DEBUG - Default config read from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.dtype: float32
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.nodata: -999
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.eros_expo: 1.5
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.eros_ov: 0.9
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
-2023-10-05 13:35:55,519 - update - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
-2023-10-05 13:35:55,537 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
-2023-10-05 13:35:55,545 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml
-2023-10-05 13:35:55,824 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticmaps.nc
-2023-10-05 13:35:56,208 - update - wflow - INFO - Writing model staticgeom to file.
-2023-10-05 13:35:56,399 - update - wflow - INFO - Write forcing file
-2023-10-05 13:35:56,408 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
-2023-10-05 13:35:56,408 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml
-2023-10-05 13:35:56,423 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/inmaps.nc
-[########################################] | 100% Completed | 101.60 ms
-corrupted double-linked list
-Aborted (core dumped)
+2023-10-05 13:58:38,348 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
+2023-10-05 13:58:38,348 - update - log - INFO - HydroMT version: 0.8.0
+2023-10-05 13:58:38,348 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-10-05 13:58:38,348 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2023-10-05 13:58:38,348 - update - main - INFO - User settings:
+2023-10-05 13:58:38,410 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
+2023-10-05 13:58:38,410 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-10-05 13:58:38,485 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/hydromt.log.
+2023-10-05 13:58:38,485 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.3.1.dev0).
+2023-10-05 13:58:38,485 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
+2023-10-05 13:58:38,498 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2023-10-05 13:58:38,498 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2023-10-05 13:58:38,498 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2023-10-05 13:58:38,498 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-10-05 13:58:38,749 - update - wflow - INFO - Reading model intbl files.
+2023-10-05 13:58:38,749 - update - wflow - INFO - Reading model table files.
+2023-10-05 13:58:38,749 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2023-10-05 13:58:38,750 - update - wflow - INFO - Reading model staticgeom files.
+2023-10-05 13:58:38,855 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2023-10-05 13:58:38,855 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2023-10-05 13:58:38,855 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-10-05 13:58:38,886 - update - wflow - INFO - Model read
+2023-10-05 13:58:38,887 - update - log - DEBUG - Appending log messages to file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
+2023-10-05 13:58:38,892 - update - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
+2023-10-05 13:58:38,892 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2023-10-05 13:58:38,892 - update - data_catalog - INFO - DataCatalog: Getting riverbedsed_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2023-10-05 13:58:38,893 - update - dataframe - INFO - DataFrame: Read csv data.
+2023-10-05 13:58:38,902 - update - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:38,912 - update - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:38,923 - update - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:38,933 - update - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:38,943 - update - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:38,963 - update - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
+2023-10-05 13:58:38,963 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-10-05 13:58:38,963 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
+2023-10-05 13:58:38,963 - update - wflow - INFO - Preparing LULC parameter maps.
+2023-10-05 13:58:38,967 - update - data_catalog - INFO - DataCatalog: Getting globcover RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
+2023-10-05 13:58:38,987 - update - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2023-10-05 13:58:38,988 - update - data_catalog - INFO - DataCatalog: Getting globcover_mapping_default DataFrame csv data from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/lulc/globcover_mapping.csv
+2023-10-05 13:58:38,989 - update - dataframe - INFO - DataFrame: Read csv data.
+2023-10-05 13:58:39,146 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2023-10-05 13:58:39,208 - update - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,261 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,314 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,368 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,420 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,474 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,527 - update - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,581 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-10-05 13:58:39,635 - update - model_api - WARNING - Replacing staticmap: wflow_landuse
+2023-10-05 13:58:39,639 - update - model_api - WARNING - Replacing staticmap: Kext
+2023-10-05 13:58:39,641 - update - model_api - WARNING - Replacing staticmap: N
+2023-10-05 13:58:39,643 - update - model_api - WARNING - Replacing staticmap: PathFrac
+2023-10-05 13:58:39,646 - update - model_api - WARNING - Replacing staticmap: Sl
+2023-10-05 13:58:39,648 - update - model_api - WARNING - Replacing staticmap: Swood
+2023-10-05 13:58:39,651 - update - model_api - WARNING - Replacing staticmap: WaterFrac
+2023-10-05 13:58:39,654 - update - model_api - INFO - setup_canopymaps.canopy_fn: simard
+2023-10-05 13:58:39,654 - update - wflow_sediment - INFO - Preparing canopy height map.
+2023-10-05 13:58:39,658 - update - data_catalog - INFO - DataCatalog: Getting simard RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
+2023-10-05 13:58:39,678 - update - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2023-10-05 13:58:39,736 - update - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2023-10-05 13:58:39,736 - update - model_api - INFO - setup_soilmaps.usleK_method: renard
+2023-10-05 13:58:39,736 - update - wflow_sediment - INFO - Preparing soil parameter maps.
+2023-10-05 13:58:39,740 - update - data_catalog - INFO - DataCatalog: Getting soilgrids RasterDataset raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
+2023-10-05 13:58:40,420 - update - rasterdataset - DEBUG - RasterDataset: Clip with bbox - [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2023-10-05 13:58:40,440 - update - rasterdataset - DEBUG - RasterDataset: Convert units for 21 variables.
+2023-10-05 13:58:41,074 - update - soilgrids - INFO - Interpolate NAN values for PercentClay
+2023-10-05 13:58:41,120 - update - soilgrids - INFO - Interpolate NAN values for PercentSilt
+2023-10-05 13:58:41,201 - update - soilgrids - INFO - Interpolate NAN values for PercentOC
+2023-10-05 13:58:41,278 - update - soilgrids - INFO - Interpolate NAN values for ErosK
+2023-10-05 13:58:41,351 - update - soilgrids - INFO - Interpolate NAN values for USLE_K
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.gauges_fn: grdc
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.source_gdf: None
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.mask: None
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.basename: None
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.toml_output: csv
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
+2023-10-05 13:58:41,365 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
+2023-10-05 13:58:41,366 - update - data_catalog - INFO - DataCatalog: Getting grdc GeoDataFrame csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
+2023-10-05 13:58:41,369 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
+2023-10-05 13:58:41,383 - update - wflow - INFO - 3 grdc gauge locations found within domain
+2023-10-05 13:58:43,449 - update - model_api - WARNING - Replacing staticmap: wflow_gauges_grdc
+2023-10-05 13:58:43,461 - update - model_api - WARNING - Replacing geom: gauges_grdc
+2023-10-05 13:58:43,461 - update - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
+2023-10-05 13:58:43,463 - update - model_api - DEBUG - Default config read from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.dtype: float32
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.nodata: -999
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.eros_expo: 1.5
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.eros_ov: 0.9
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
+2023-10-05 13:58:43,464 - update - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
+2023-10-05 13:58:43,481 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2023-10-05 13:58:43,489 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml
+2023-10-05 13:58:43,627 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticmaps.nc
+2023-10-05 13:58:43,997 - update - wflow - INFO - Writing model staticgeom to file.
+2023-10-05 13:58:44,159 - update - wflow - INFO - Write forcing file
+2023-10-05 13:58:44,165 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
+2023-10-05 13:58:44,166 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml
+2023-10-05 13:58:44,180 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/inmaps.nc
+[########################################] | 100% Completed | 101.27 ms
+
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt update</strong> with:</p>
