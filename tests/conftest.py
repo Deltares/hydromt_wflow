@@ -14,7 +14,7 @@ if platform.system().lower() != "windows":
     SUBDIR = "linux64"
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", SUBDIR, "examples")
+EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 
 
 @pytest.fixture()
