@@ -46,7 +46,7 @@ jobs:
           use-mamba: true
 
       - name: Generate env spec
-        run: pip install tomli && python make_env.py test --py-version ${{ matrix.python-version }}
+        run: pip install tomli && python make_env.py test --py-version ${{ matrix.python-version }}.*
 
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
