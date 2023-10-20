@@ -829,7 +829,7 @@ class WflowModel(Model):
             fn_map = f"{lulc_fn}_mapping_default"
         else:
             fn_map = lulc_mapping_fn
-        if not isfile(fn_map) and fn_map not in self.data_catalog:
+        if not isfile(fn_map) and fn_map not in self.data_catalog.get_source_names():
             raise ValueError(f"LULC mapping file not found: {fn_map}")
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
@@ -870,9 +870,6 @@ class WflowModel(Model):
 
             * Required variables: ['LAI']
         """
-        if lai_fn not in self.data_catalog:
-            self.logger.warning(f"Invalid source '{lai_fn}', skipping setup_laimaps.")
-            return
         # retrieve data for region
         self.logger.info(f"Preparing LAI maps.")
         da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
@@ -951,7 +948,7 @@ class WflowModel(Model):
                     "parameter": param[o],
                 }
                 if reducer is not None:
-                    gauge_toml_dict["reducer"]: reducer[o]
+                    gauge_toml_dict["reducer"] = reducer[o]
                 # If the gauge column/variable already exists skip writting twice
                 if gauge_toml_dict not in self.config[toml_output][var_name]:
                     self.config[toml_output][var_name].append(gauge_toml_dict)
@@ -1271,10 +1268,6 @@ class WflowModel(Model):
         nodata : int/float, optional
             Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1.
         """
-        if area_fn not in self.data_catalog:
-            self.logger.warning(f"Invalid source '{area_fn}', skipping setup_areamap.")
-            return
-
         self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
             area_fn, geom=self.basins, dst_crs=self.crs
@@ -1299,6 +1292,7 @@ class WflowModel(Model):
         rating_curve_fns: List[Union[str, Path]] = None,
         min_area: float = 10.0,
         add_maxstorage: bool = False,
+        **kwargs,
     ):
         """This component generates maps of lake areas and outlets as well as parameters
         with average lake area, depth and discharge values.
@@ -1347,10 +1341,14 @@ class WflowModel(Model):
             Minimum lake area threshold [km2], by default 10.0 km2.
         add_maxstorage : bool, optional
             If True, maximum storage of the lake is added to the output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn, by default False (natural lake).
+        kwargs: optional
+            Keyword arguments passed to the method hydromt.DataCatalog.get_rasterdataset()
         """
 
         # Derive lake are and outlet maps
-        gdf_org, ds_lakes = self._setup_waterbodies(lakes_fn, "lake", min_area)
+        gdf_org, ds_lakes = self._setup_waterbodies(
+            lakes_fn, "lake", min_area, **kwargs
+        )
         if ds_lakes is None:
             return
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
@@ -1379,7 +1377,10 @@ class WflowModel(Model):
                     i = fns_ids.index(id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                    if (
+                        isfile(rating_fn)
+                        or rating_fn in self.data_catalog.get_source_names()
+                    ):
                         self.logger.info(
                             f"Preparing lake rating curve data from {rating_fn}"
                         )
@@ -1487,6 +1488,8 @@ class WflowModel(Model):
             either downloaded from Global Water Watch 'gww' (using gwwapi package) or JRC 'jrc' (using hydroengine package). By default None.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
+        kwargs: optional
+            Keyword arguments passed to the method hydromt.DataCatalog.get_rasterdataset()
 
         """
         # rename to wflow naming convention
@@ -1513,7 +1516,9 @@ class WflowModel(Model):
             "input.lateral.river.reservoir.targetminfrac": "ResTargetMinFrac",
         }
 
-        gdf_org, ds_res = self._setup_waterbodies(reservoirs_fn, "reservoir", min_area)
+        gdf_org, ds_res = self._setup_waterbodies(
+            reservoirs_fn, "reservoir", min_area, **kwargs
+        )
         # TODO: check if there are missing values in the above columns of the parameters tbls =
         # if everything is present, skip calculate reservoirattrs() and directly make the maps
         if ds_res is not None:
@@ -1582,13 +1587,15 @@ class WflowModel(Model):
             for option in res_toml:
                 self.set_config(option, res_toml[option])
 
-    def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0):
+    def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
         """Helper method with the common workflow of setup_lakes and setup_reservoir.
         See specific methods for more info about the arguments."""
         # retrieve data for basin
         self.logger.info(f"Preparing {wb_type} maps.")
+        if "predicate" not in kwargs:
+            kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
-            waterbodies_fn, geom=self.basins, predicate="contains"
+            waterbodies_fn, geom=self.basins, **kwargs
         )
         # skip small size waterbodies
         if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
@@ -1621,10 +1628,9 @@ class WflowModel(Model):
                 uparea_name=uparea_name,
                 logger=self.logger,
             )
-            # update xout and yout in gdf_org from gdf_wateroutlet:
-            if "xout" in gdf_org.columns and "yout" in gdf_org.columns:
-                gdf_org.loc[:, "xout"] = gdf_wateroutlet["xout"]
-                gdf_org.loc[:, "yout"] = gdf_wateroutlet["yout"]
+            # update/replace xout and yout in gdf_org from gdf_wateroutlet:
+            gdf_org["xout"] = gdf_wateroutlet["xout"]
+            gdf_org["yout"] = gdf_wateroutlet["yout"]
 
         else:
             self.logger.warning(
@@ -1893,12 +1899,11 @@ class WflowModel(Model):
         Parameters
         ----------
         precip_fn : str, default era5
-            Precipitation data source, see data/forcing_sources.yml.
+            Precipitation data source.
 
             * Required variable: ['precip']
         precip_clim_fn : str, default None
-            High resolution climatology precipitation data source to correct precipitation,
-            see data/forcing_sources.yml.
+            High resolution climatology precipitation data source to correct precipitation.
 
             * Required variable: ['precip']
         chunksize: int, optional
@@ -1906,8 +1911,6 @@ class WflowModel(Model):
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
         """
-        if precip_fn is None:
-            return
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
@@ -2360,7 +2363,9 @@ class WflowModel(Model):
             self.write_staticmaps()
         if self._tables:
             self.write_tables()
-        if self._staticgeoms:
+        if (
+            self.staticgeoms
+        ):  ## force to read staticgeoms (bug deprecation in update mode)
             self.write_staticgeoms()
         if self._forcing:
             self.write_forcing()

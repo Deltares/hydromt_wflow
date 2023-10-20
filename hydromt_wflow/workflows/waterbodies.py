@@ -343,9 +343,15 @@ def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=lo
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])
         max_cap = np.nanmax([df_out["resmaxvolume"].iloc[i], 0.0])
         norm_area = np.nanmax([df_EO["normarea"].iloc[i], 0.0])
-        norm_cap = np.nanmax([gdf["Capacity_norm"].iloc[i], 0.0])
+        if "Capacity_norm" in gdf.columns:
+            norm_cap = np.nanmax([gdf["Capacity_norm"].iloc[i], 0.0])
+        else:
+            norm_cap = 0.0
         min_area = np.nanmax([df_EO["minarea"].iloc[i], 0.0])
-        min_cap = np.nanmax([gdf["Capacity_min"].iloc[i], 0.0])
+        if "Capacity_min" in gdf.columns:
+            min_cap = np.nanmax([gdf["Capacity_min"].iloc[i], 0.0])
+        else:
+            min_cap = 0.0
         mv = 0.0
 
         # Maximum level

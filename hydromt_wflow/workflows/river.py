@@ -189,7 +189,7 @@ def river_bathymetry(
     ds_model : xr.Dataset
         Model dataset with 'flwdir', 'rivmsk', 'rivlen', 'x_out' and 'y_out' variables.
     gdf_riv : gpd.GeoDataFrame
-        River geometry with 'rivwth' and 'qbankfull' columns.
+        River geometry with 'rivwth' and 'rivdph' or 'qbankfull' columns.
     method : {'gvf', 'manning', 'powlaw'}
         see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
     smooth_len : float, optional
@@ -218,7 +218,7 @@ def river_bathymetry(
     rivlen_avg = ds_model["rivlen"].values[riv_mask].mean()
 
     ## river width and bunkfull discharge
-    vars0 = ["rivwth", "qbankfull"]
+    vars0 = ["rivwth", "rivdph", "qbankfull"]
     # find nearest values from river shape if provided
     # if None assume the data is in ds_model
     if gdf_riv is not None:
@@ -255,10 +255,12 @@ def river_bathymetry(
                 dst_nn < max_dist, gdf_riv.loc[idx_nn, name].fillna(-9999).values, -9999
             )
             ds_model[name] = xr.Variable(dims, data, attrs=dict(_FillValue=-9999))
-    # TODO fallback option when qbankfull is missing.
-    assert "qbankfull" in ds_model and "rivwth" in ds_model
+    else:
+        vars = vars0
+    assert "rivwth" in ds_model
+    assert "qbankfull" in ds_model or "rivdph" in ds_model
     # fill gaps in data using downward filling along flow directions
-    for name in vars0:
+    for name in vars:
         data = ds_model[name].values
         nodata = ds_model[name].raster.nodata
         if np.all(data[riv_mask] != nodata):
@@ -277,22 +279,25 @@ def river_bathymetry(
     )
 
     ## river depth
-    # distance to outlet; required for manning and gvf rivdph methods
-    if method != "powlaw" and "rivdst" not in ds_model:
-        rivlen = ds_model["rivlen"].values
-        nodata = ds_model["rivlen"].raster.nodata
-        rivdst = flwdir_river.accuflux(rivlen, nodata=nodata, direction="down")
-        ds_model["rivdst"] = xr.Variable(dims, rivdst, attrs=dict(_FillValue=nodata))
-    # add river distance to outlet -> required for manning/gvf method
-    rivdph = workflows.river_depth(
-        data=ds_model,
-        flwdir=flwdir_river,
-        method=method,
-        min_rivdph=min_rivdph,
-        **kwargs,
-    )
-    attrs = dict(_FillValue=-9999, unit="m")
-    ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
+    if "rivdph" not in ds_model:
+        # distance to outlet; required for manning and gvf rivdph methods
+        if method != "powlaw" and "rivdst" not in ds_model:
+            rivlen = ds_model["rivlen"].values
+            nodata = ds_model["rivlen"].raster.nodata
+            rivdst = flwdir_river.accuflux(rivlen, nodata=nodata, direction="down")
+            ds_model["rivdst"] = xr.Variable(
+                dims, rivdst, attrs=dict(_FillValue=nodata)
+            )
+        # add river distance to outlet -> required for manning/gvf method
+        rivdph = workflows.river_depth(
+            data=ds_model,
+            flwdir=flwdir_river,
+            method=method,
+            min_rivdph=min_rivdph,
+            **kwargs,
+        )
+        attrs = dict(_FillValue=-9999, unit="m")
+        ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)
     # smooth by averaging along flow directions and set minimum
     if smooth_len > 0:
         ds_model["rivdph"].values = flwdir_river.moving_average(
