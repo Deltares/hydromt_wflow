@@ -79,7 +79,7 @@ def clipped_wflow_model():
 @pytest.fixture()
 def floodplain1d_testdata():
     data = xr.load_dataset(
-        join(TESTDATADIR, "floodplain_layers.nc"),
+        join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
         lock=False,
         mode="r",
     )
