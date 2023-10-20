@@ -99,7 +99,7 @@ class WflowSedimentModel(WflowModel):
             "model.dolake": True,
             "model.lakes": False,
         }
-        if "wflow_lakeareas" in self.staticmaps:
+        if "wflow_lakeareas" in self.grid:
             for option in lakes_toml_add:
                 self.set_config(option, lakes_toml_add[option])
             if self.get_config("state.lateral.river.lake") is not None:
@@ -193,7 +193,7 @@ class WflowSedimentModel(WflowModel):
             "model.doreservoir": True,
             "model.reservoirs": False,
         }
-        if "wflow_reservoirareas" in self.staticmaps:
+        if "wflow_reservoirareas" in self.grid:
             for option in res_toml_add:
                 self.set_config(option, res_toml_add[option])
             if self.get_config("state.lateral.river.reservoir") is not None:
@@ -290,7 +290,7 @@ gauge locations [-] (if derive_subcatch)
         derive_outlet : bool, optional
             Derive gaugemap based on catchment outlets, by default True
         basename : str, optional
-            Map name in staticmaps (wflow_gauges_basename).
+            Map name in grid (wflow_gauges_basename).
             If None use the gauges_fn basename.
         toml_output : str, optional
             One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of \
@@ -407,7 +407,7 @@ particles characteristics.
             raise ValueError(f"Riverbed sediment mapping file not found: {fn_map}")
         df = self.data_catalog.get_dataframe(fn_map, **kwargs)
 
-        strord = self.staticmaps[self._MAPS["strord"]].copy()
+        strord = self.grid[self._MAPS["strord"]].copy()
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
         # if streamroder value larger than max_str, assign last value
@@ -418,12 +418,12 @@ particles characteristics.
 
         ds_riversed = landuse(
             da=strord,
-            ds_like=self.staticmaps,
+            ds_like=self.grid,
             df=df,
             logger=self.logger,
         )
 
-        self.set_staticmaps(ds_riversed)
+        self.set_grid(ds_riversed)
 
     def setup_canopymaps(
         self,
@@ -452,12 +452,12 @@ particles characteristics.
         dsin = self.data_catalog.get_rasterdataset(
             canopy_fn, geom=self.region, buffer=2
         )
-        dsout = xr.Dataset(coords=self.staticmaps.raster.coords)
-        ds_out = dsin.raster.reproject_like(self.staticmaps, method="average")
+        dsout = xr.Dataset(coords=self.grid.raster.coords)
+        ds_out = dsin.raster.reproject_like(self.grid, method="average")
         dsout["CanopyHeight"] = ds_out.astype(np.float32)
         dsout["CanopyHeight"] = dsout["CanopyHeight"].fillna(-9999.0)
         dsout["CanopyHeight"].raster.set_nodata(-9999.0)
-        self.set_staticmaps(dsout)
+        self.set_grid(dsout)
 
     def setup_soilmaps(
         self,
@@ -496,8 +496,8 @@ particles characteristics.
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = soilgrids_sediment(
             dsin,
-            self.staticmaps,
+            self.grid,
             usleK_method,
             logger=self.logger,
         )
-        self.set_staticmaps(dsout)
+        self.set_grid(dsout)

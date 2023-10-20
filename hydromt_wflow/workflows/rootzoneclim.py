@@ -3,7 +3,6 @@
 import logging
 from typing import Optional
 
-import hydromt
 import numpy as np
 import pandas as pd
 import pyflwdir
@@ -178,9 +177,20 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
         and canopy storage added.
     """
     # Make the output dataset ready for the output
-    ds_sub["evap_interception"] = hydromt.raster.full_like(ds_sub["precip_mean"])
-    ds_sub["precip_effective"] = hydromt.raster.full_like(ds_sub["precip_mean"])
-    ds_sub["canopy_storage"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    ds_sub["evap_interception"] = xr.full_like(
+        ds_sub["precip_mean"], fill_value=ds_sub["precip_mean"].vector.nodata
+    )
+    ds_sub["evap_interception"].load()
+    ds_sub["precip_effective"] = xr.full_like(
+        ds_sub["precip_mean"],
+        fill_value=ds_sub["precip_mean"].vector.nodata,
+    )
+    ds_sub["precip_effective"].load()
+    ds_sub["canopy_storage"] = xr.full_like(
+        ds_sub["precip_mean"],
+        fill_value=ds_sub["precip_mean"].vector.nodata,
+    )
+    ds_sub["canopy_storage"].load()
 
     # Calculate it per forcing type
     for forcing_type in ds_sub["forcing_type"].values:
@@ -276,7 +286,11 @@ def determine_storage_deficit(ds_sub, correct_cc_deficit):
     # make sure the order of the coordinates is always the same.
     # Calculate it per forcing type
 
-    ds_sub["storage_deficit"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    ds_sub["storage_deficit"] = xr.full_like(
+        ds_sub["precip_mean"],
+        fill_value=ds_sub["precip_mean"].vector.nodata,
+    )
+    ds_sub["storage_deficit"].load()
 
     for forcing_type in ds_sub["forcing_type"].values:
         time_forcing_type = (
