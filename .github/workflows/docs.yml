@@ -55,7 +55,10 @@ jobs:
       - name: Generate env spec
         run: |
           pip install tomli
-          python make_env.py test --py-version ${{ matrix.python-version }}
+          python make_env.py doc --py-version ${{ matrix.python-version }}.*
+
+      - name: Update environment
+        run: mamba env update -f environment.yml
 
       - name: Install HydroMT-Wflow plugin
         run: pip install .
