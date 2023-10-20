@@ -30,10 +30,7 @@ PCR_VS_MAP = {
 
 
 def read_staticmaps_pcr(
-    root: Path | str,
-    crs: int = 4326,
-    obj: object = None,
-    **kwargs
+    root: Path | str, crs: int = 4326, obj: object = None, **kwargs
 ):
     """Read and staticmaps at <root/staticmaps> and parse to xarray."""
     da_lai = None
@@ -85,9 +82,7 @@ def write_staticmaps_pcr(
     if "c" in ds_out.data_vars:
         for layer in ds_out["layer"]:
             ds_out[f"c_{layer.item():d}"] = ds_out["c"].sel(layer=layer)
-            ds_out[f"c_{layer.item():d}"].raster.set_nodata(
-                ds_out["c"].raster.nodata
-            )
+            ds_out[f"c_{layer.item():d}"].raster.set_nodata(ds_out["c"].raster.nodata)
         ds_out = ds_out.drop_vars(["c", "layer"])
     logger.info("Writing (updated) staticmap files.")
     # add datatypes for maps with same basenames, e.g. wflow_gauges_grdc
