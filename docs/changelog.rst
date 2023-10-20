@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.)
 
 Changed
 -------

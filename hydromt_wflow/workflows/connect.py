@@ -59,7 +59,7 @@ def wflow_1dmodel_connection(
         If True, derive tributaries for the subbasins larger than area_max. Always True
         for **subbasin_area** method.
     include_river_boundaries : bool, default False
-        If True, include the upstream boundary(ies) of the 1d river as an additionnal
+        If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
     logger : logging.Logger, optional
         Logger object, by default logger
@@ -129,12 +129,13 @@ def wflow_1dmodel_connection(
         # 4. Filter which subbasins are the upstream ones (tributaries)
         # and which ones are the downstream ones (main river)
         # and should be split into subbasins
+        # First intersect riv1d with gdf_edges_subbas
+        rivmerge = gpd.overlay(riv1d, gdf_edges_subbas).explode().reset_index(drop=True)
         # Compute len of river
-        if riv1d.crs.is_geographic:
-            riv1d["len"] = riv1d.geometry.to_crs(3857).length
+        if rivmerge.crs.is_geographic:
+            rivmerge["len"] = rivmerge.geometry.to_crs(3857).length
         else:
-            riv1d["len"] = riv1d.geometry.length
-        rivmerge = gpd.overlay(riv1d, gdf_edges_subbas)
+            rivmerge["len"] = rivmerge.geometry.length
         # Groupby value and sum length
         rivmerge = rivmerge.groupby("value")["len"].sum()
         # Select the subcatch where rivlength is more than 5times rivlen_avg
@@ -234,21 +235,21 @@ def wflow_1dmodel_connection(
         # Get the nodes from gdf_riv
         logger.info("Deriving subbasins based on 1D river nodes snapped to wflow river")
         nodes = []
-        for bi, b in gdf_riv.iterrows():
-            nodes.append([Point(b.geometry.coords[0]), b.index])  # start
-            nodes.append([Point(b.geometry.coords[-1]), b.index])  # end
-        gdf_nodes = gpd.DataFrame(
+        for bi, branch in gdf_riv.iterrows():
+            nodes.append([Point(branch.geometry.coords[0]), bi])  # start
+            nodes.append([Point(branch.geometry.coords[-1]), bi])  # end
+        gdf_nodes = gpd.GeoDataFrame(
             nodes, columns=["geometry", "river_id"], crs=gdf_riv.crs
         )
         # Drop duplicates geometry
-        gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep=False)]
+        gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep="first")]
         gdf_nodes.index = np.arange(1, len(gdf_nodes) + 1)
         # Derive subbasins
         da_subbasins, _ = hydromt.flw.basin_map(
             ds_model,
             flwdir=flwdir_mask,
             xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
-            mask=ds_model["rivmsk"].values,
+            stream=ds_model["rivmsk"].values,
         )
         da_subbasins.raster.set_crs(ds_model.raster.crs)
 

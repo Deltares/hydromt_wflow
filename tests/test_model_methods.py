@@ -509,3 +509,70 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
     )
+
+
+def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
+    # test subbasin_area method with river boundaries
+    example_wflow_model.setup_1dmodel_connection(
+        river1d_fn=rivers1d,
+        connection_method="subbasin_area",
+        area_max=10.0,
+        add_tributaries=True,
+        include_river_boundaries=True,
+        mapname="1dmodel",
+        update_toml=True,
+        toml_output="netcdf",
+    )
+
+    assert "gauges_1dmodel" in example_wflow_model.geoms
+    assert "subcatch_1dmodel" in example_wflow_model.geoms
+    assert "subcatch_riv_1dmodel" in example_wflow_model.geoms
+
+    assert len(example_wflow_model.geoms["gauges_1dmodel"]) == 6
+    assert len(example_wflow_model.geoms["subcatch_1dmodel"]) == 3
+    conf_dict = {
+        "name": "Q",
+        "map": "gauges_1dmodel",
+        "parameter": "lateral.river.q_av",
+    }
+    assert conf_dict in example_wflow_model.config["netcdf"]["variable"]
+
+    # test subbasin_area method with river boundaries
+    example_wflow_model.setup_1dmodel_connection(
+        river1d_fn=rivers1d,
+        connection_method="subbasin_area",
+        area_max=10.0,
+        add_tributaries=True,
+        include_river_boundaries=False,
+        mapname="1dmodel-nobounds",
+        update_toml=True,
+        toml_output="csv",
+    )
+
+    assert len(example_wflow_model.geoms["gauges_1dmodel-nobounds"]) == 3
+    assert len(example_wflow_model.geoms["subcatch_1dmodel-nobounds"]) == 3
+    conf_dict = {
+        "header": "Q",
+        "map": "gauges_1dmodel-nobounds",
+        "parameter": "lateral.river.q_av",
+    }
+    assert conf_dict in example_wflow_model.config["csv"]["column"]
+    assert np.all(
+        example_wflow_model.geoms["subcatch_1dmodel"].geometry.geom_equals(
+            example_wflow_model.geoms["subcatch_1dmodel-nobounds"].geometry
+        )
+    )
+
+    # test nodes method without extra tributaries
+    example_wflow_model.setup_1dmodel_connection(
+        river1d_fn=rivers1d,
+        connection_method="nodes",
+        area_max=10.0,
+        add_tributaries=False,
+        include_river_boundaries=False,
+        mapname="1dmodel-nodes",
+        update_toml=False,
+    )
+
+    assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms
+    assert len(example_wflow_model.geoms["subcatch_1dmodel-nodes"]) == 7
