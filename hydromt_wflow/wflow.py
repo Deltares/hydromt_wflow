@@ -1415,11 +1415,12 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         min_area : float, optional
             Minimum lake area threshold [km2], by default 10.0 km2.
         add_maxstorage : bool, optional
-            If True, maximum storage of the lake is added to the output 
-            (controlled lake) based on 'Vol_max' [m3] column of lakes_fn. 
+            If True, maximum storage of the lake is added to the output
+            (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
             By default False (natural lake).
         kwargs: optional
-            Keyword arguments passed to the method hydromt.DataCatalog.get_rasterdataset()
+            Keyword arguments passed to the method
+            hydromt.DataCatalog.get_rasterdataset()
         """
         # Derive lake are and outlet maps
         gdf_org, ds_lakes = self._setup_waterbodies(
@@ -1582,7 +1583,8 @@ Using default storage/outflow function parameters."
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         kwargs: optional
-            Keyword arguments passed to the method hydromt.DataCatalog.get_rasterdataset()
+            Keyword arguments passed to the method
+            hydromt.DataCatalog.get_rasterdataset()
 
         """
         # rename to wflow naming convention
@@ -1612,9 +1614,9 @@ Using default storage/outflow function parameters."
         gdf_org, ds_res = self._setup_waterbodies(
             reservoirs_fn, "reservoir", min_area, **kwargs
         )
-        # TODO: check if there are missing values in the above columns of 
+        # TODO: check if there are missing values in the above columns of
         # the parameters tbls =
-        # if everything is present, skip calculate reservoirattrs() and 
+        # if everything is present, skip calculate reservoirattrs() and
         # directly make the maps
         if ds_res is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
@@ -2029,7 +2031,7 @@ one variable and variables list is not provided."
 
             * Required variable: ['precip']
         precip_clim_fn : str, default None
-            High resolution climatology precipitation data source to correct 
+            High resolution climatology precipitation data source to correct
             precipitation.
 
             * Required variable: ['precip']

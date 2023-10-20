@@ -263,7 +263,7 @@ def river_bathymetry(
         vars = vars0
     assert "rivwth" in ds_model
     assert "qbankfull" in ds_model or "rivdph" in ds_model
-    
+
     # fill gaps in data using downward filling along flow directions
     for name in vars:
         data = ds_model[name].values
