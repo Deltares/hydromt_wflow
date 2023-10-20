@@ -5,7 +5,7 @@ from os.path import abspath, dirname, join
 __version__ = "0.3.1.dev0"
 
 try:
-    import pcraster as pcrs
+    import pcraster as pcr
 
     HAS_PCRASTER = True
 except ImportError:
