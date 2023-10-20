@@ -11,7 +11,7 @@ Unreleased
 
 Added
 -----
-- new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.)
+- new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 
 Changed
 -------

@@ -45,6 +45,7 @@ Setup components
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
    WflowModel.setup_constant_pars
+   WflowModel.setup_1dmodel_connection
    WflowModel.setup_staticmaps_from_raster
 
 Attributes
