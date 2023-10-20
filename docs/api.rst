@@ -250,6 +250,7 @@ Wflow workflows
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim
+   workflows.wflow_1dmodel_connection
 
 
 .. _methods:
