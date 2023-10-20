@@ -3340,6 +3340,22 @@ change name input.path_forcing "
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
 
+    def clip_staticmaps(
+        self,
+        region,
+        buffer=0,
+        align=None,
+        crs=4326,
+    ):
+        """Clip staticmaps to subbasin."""
+        warnings.warn(
+            "clip_staticmaps is deprecated. Use 'clip_grid' instead. "
+            "Will be removed in hydrom_wflow v0.6.0",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self.clip_grid(region, buffer, align, crs)
+
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
 

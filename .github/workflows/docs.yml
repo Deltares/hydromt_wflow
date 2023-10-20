@@ -60,9 +60,6 @@ jobs:
       - name: Update environment
         run: mamba env update -f environment.yml
 
-      - name: Install HydroMT-core dev
-        run: pip install git+https://github.com/Deltares/hydromt.git@main --user
-
       - name: Install HydroMT-Wflow plugin
         run: pip install .
 
