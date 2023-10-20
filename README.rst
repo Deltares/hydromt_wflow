@@ -11,7 +11,7 @@ What is the HydroMT-Wflow plugin
 HydroMT_ (Hydro Model Tools) is an open-source Python package that facilitates the process of
 building and analyzing spatial geoscientific models with a focus on water system models.
 It does so by automating the workflow to go from raw data to a complete model instance which
-is ready to run and to analyze model results once the simulation has finished. 
+is ready to run and to analyze model results once the simulation has finished.
 This plugin provides an implementation of the model API for the Wflow_ model.
 
 Why HydroMT-Wflow?

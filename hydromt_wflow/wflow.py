@@ -1,33 +1,32 @@
-"""Implement wflow model class"""
+"""Implement Wflow model class."""
 # Implement model class following model API
 
-import os
-from os.path import join, dirname, basename, isfile, isdir
-from pathlib import Path
-from typing import Union, Optional, List
-import glob
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-import xarray as xr
-from shapely.geometry import box
-import pyproj
-import toml
 import codecs
-import pyflwdir
-from pyflwdir import core_d8, core_ldd, core_conversion
-from dask.diagnostics import ProgressBar
+import glob
 import logging
-import rioxarray  # required for rio accessor
+import os
+from os.path import basename, dirname, isdir, isfile, join
+from pathlib import Path
+from typing import List, Optional, Union
+
+import geopandas as gpd
 
 # from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
-from hydromt.models.model_api import Model
+import numpy as np
+import pandas as pd
+import pyflwdir
+import pyproj
+import toml
+import xarray as xr
+from dask.diagnostics import ProgressBar
 from hydromt import flw
 from hydromt.io import open_mfraster
+from hydromt.models.model_api import Model
+from pyflwdir import core_conversion, core_d8, core_ldd
+from shapely.geometry import box
 
-from . import utils, workflows, DATADIR
-
+from . import DATADIR, utils, workflows
 
 __all__ = ["WflowModel"]
 
@@ -52,7 +51,7 @@ PCR_VS_MAP = {
 
 
 class WflowModel(Model):
-    """This is the wflow model class"""
+    """Wflow model class."""
 
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
@@ -123,22 +122,33 @@ class WflowModel(Model):
         upscale_method="ihu",
     ):
         """
-        This component sets the ``region`` of interest and ``res`` (resolution in degrees) of the
-        model. All DEM and flow direction related maps are then build.
+        Build the DEM and flow direction for a Wflow model.
+
+        Setup basemaps sets the ``region`` of interest and ``res``
+        (resolution in degrees) of the model.
+        All DEM and flow direction related maps are then build.
 
         If the model resolution is larger than the source data resolution,
         the flow direction is upscaled using the ``upscale_method``, by default the
         Iterative Hydrography Upscaling (IHU).
-        The default ``hydrography_fn`` is "merit_hydro" (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
-        at 3 arcsec resolution) Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
-        Users can also supply their own elevation and flow direction data in any CRS and not only EPSG:4326.
+        The default ``hydrography_fn`` is "merit_hydro"
+        (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
+        at 3 arcsec resolution).
+        Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
+        Users can also supply their own elevation and flow direction data
+        in any CRS and not only EPSG:4326.
 
-        Note that in order to define the region, using points or bounding box, the coordinates of the points / bounding box
-        should be in the same CRS than the hydrography data. The wflow model will then also be in the same CRS than the
-        hydrography data in order to avoid assumptions and reprojection errors. If the user wishes to use a different CRS,
-        we recommend first to reproject the hydrography data seperately because calling hydromt build. You can find examples
-        on how to reproject or prepare hydrography data in the
-        `prepare flow directions example notebok <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`.
+        Note that in order to define the region, using points or bounding box,
+        the coordinates of the points / bounding box
+        should be in the same CRS than the hydrography data.
+        The wflow model will then also be in the same CRS than the
+        hydrography data in order to avoid assumptions and reprojection errors.
+        If the user wishes to use a different CRS,
+        we recommend first to reproject the hydrography data seperately,
+        because calling hydromt build.
+        You can find examples on how to reproject or prepare hydrography data in the
+        `prepare flow directions example notebok
+        <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`.
 
         Adds model layers:
 
@@ -177,7 +187,7 @@ class WflowModel(Model):
         workflows.hydrography
         workflows.topography
         """
-        self.logger.info(f"Preparing base hydrography basemaps.")
+        self.logger.info("Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
 
@@ -215,12 +225,14 @@ class WflowModel(Model):
         scale_ratio = int(np.round(res / ds_org.raster.res[0]))
         if scale_ratio < 1:
             raise ValueError(
-                f"The model resolution {res} should be larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
+                f"The model resolution {res} should be \
+larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             )
         if ds_org.raster.crs.is_geographic:
             if res > 1:  # 111 km
                 raise ValueError(
-                    f"The model resolution {res} should be smaller than 1 degree (111km) for geographic coordinate systems. "
+                    f"The model resolution {res} should be smaller than 1 degree \
+(111km) for geographic coordinate systems. "
                     "Make sure you provided res in degree rather than in meters."
                 )
         # setup hydrography maps and set staticmap attribute with renamed maps
@@ -259,7 +271,7 @@ class WflowModel(Model):
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
         self.set_staticmaps(ds_topo.rename(rmdict))
         # set basin geometry
-        self.logger.debug(f"Adding region vector to staticgeoms.")
+        self.logger.debug("Adding region vector to staticgeoms.")
         self.set_staticgeoms(self.region, name="region")
 
         # update toml for degree/meters if needed
@@ -284,7 +296,7 @@ class WflowModel(Model):
         **kwargs,
     ):
         """
-        This component sets the all river parameter maps.
+        Set all river parameter maps.
 
         The river mask is defined by all cells with a mimimum upstream area threshold
         ``river_upa`` [km2].
@@ -294,8 +306,9 @@ class WflowModel(Model):
         global river length to avg. cell resolution ratio and is used as a threshold in
         window based smoothing of river length.
 
-        The river slope is derived from the subgrid elevation difference between pixels at a
-        half distance ``slope_len`` [m] up- and downstream from the subgrid outlet pixel.
+        The river slope is derived from the subgrid elevation difference between pixels
+        at a half distance ``slope_len`` [m] up-
+        and downstream from the subgrid outlet pixel.
 
         The river manning roughness coefficient is derived based on reclassification
         of the streamorder map using a lookup table ``rivman_mapping_fn``.
@@ -310,13 +323,15 @@ class WflowModel(Model):
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
-        If ``river_routing`` is set to "local-inertial", the bankfull elevantion map can be
-        conditioned based on the average cell elevation ("wflow_dem") or subgrid outlet pixel
-        elevation ("dem_subgrid"). The subgrid elevation might provide a better representation
-        of the river elevation profile, however in combination with local-inertial land routing
-        (see :py:meth:`setup_floodplains`) the subgrid elevation will likely overestimate the
-        floodplain storage capacity. Note that the same input elevation map should be used for
-        river bankfull elevation and land elevation when using local-inertial land routing.
+        If ``river_routing`` is set to "local-inertial", the bankfull elevantion map
+        can be conditioned based on the average cell elevation ("wflow_dem")
+        or subgrid outlet pixel elevation ("dem_subgrid").
+        The subgrid elevation might provide a better representation
+        of the river elevation profile, however in combination with
+        local-inertial land routing (see :py:meth:`setup_floodplains`)
+        the subgrid elevation will likely overestimate the floodplain storage capacity.
+        Note that the same input elevation map should be used for river bankfull
+        elevation and land elevation when using local-inertial land routing.
 
         Adds model layers:
 
@@ -349,13 +364,15 @@ class WflowModel(Model):
             Ratio of cell resolution used minimum length threshold in a moving
             window based smoothing of river length, by default 0.0
             The river length smoothing is skipped if min_riverlen_ratio = 0.
-            For details about the river length smoothing, see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
+            For details about the river length smoothing,
+            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
             see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
         river_routing : {'kinematic-wave', 'local-inertial'}
             Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
-            Length [m] over which to smooth the output river width and depth, by default 5e3
+            Length [m] over which to smooth the output river width and depth,
+            by default 5e3
         min_rivdph : float, optional
             Minimum river depth [m], by default 1.0
         min_rivwth : float, optional
@@ -370,7 +387,7 @@ class WflowModel(Model):
         pyflwdir.FlwdirRaster.river_depth
         setup_floodplains
         """
-        self.logger.info(f"Preparing river maps.")
+        self.logger.info("Preparing river maps.")
 
         rivdph_methods = ["gvf", "manning", "powlaw"]
         if rivdph_method not in rivdph_methods:
@@ -379,7 +396,8 @@ class WflowModel(Model):
         routing_options = ["kinematic-wave", "local-inertial"]
         if river_routing not in routing_options:
             raise ValueError(
-                f'river_routing="{river_routing}" unknown. Select from {routing_options}.'
+                f'river_routing="{river_routing}" unknown. \
+Select from {routing_options}.'
             )
 
         # read data
@@ -409,7 +427,8 @@ class WflowModel(Model):
         self.set_staticmaps(ds_riv[dvars].rename(rmdict))
 
         # TODO make separate workflows.river_manning  method
-        # Make N_River map from csv file with mapping between streamorder and N_River value
+        # Make N_River map from csv file with mapping
+        # between streamorder and N_River value
         strord = self.staticmaps[self._MAPS["strord"]].copy()
         df = self.data_catalog.get_dataframe(rivman_mapping_fn)
         # max streamorder value above which values get the same N_River value
@@ -451,7 +470,7 @@ class WflowModel(Model):
             # update config
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
-        self.logger.debug(f"Adding rivers vector to staticgeoms.")
+        self.logger.debug("Adding rivers vector to staticgeoms.")
         self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
         self.rivers  # add new rivers to staticgeoms
 
@@ -496,59 +515,63 @@ class WflowModel(Model):
         connectivity: int = 4,
     ):
         """
-        This components adds floodplain information to the model schematistation. The user can
-        define what type of floodplains are required (1D or 2D), through the ``floodplain_type``
-        argument.
+        Add floodplain information to the model schematistation.
 
-        If ``floodplain_type`` is set to "1d", a floodplain profile is derived for every river
-        cell. It adds a map with floodplain volume per flood depth, which is used in the wflow
-        1D floodplain schematisation.
+        The user can define what type of floodplains are required (1D or 2D),
+        through the ``floodplain_type`` argument.
 
-        Note, it is important to use the same river uparea value as used in the :py:meth:`setup_rivers`
-        method.
+        If ``floodplain_type`` is set to "1d", a floodplain profile is derived for every
+        river cell. It adds a map with floodplain volume per flood depth,
+        which is used in the wflow 1D floodplain schematisation.
 
-        If ``floodplain_type`` is set to "2d", this component adds a hydrologically conditioned
-        elevation (hydrodem) map for land routing (local-inertial). For this options, landcells
-        need to be conditioned to D4 flow directions otherwise pits may remain in the land
-        cells.
+        Note, it is important to use the same river uparea value as used in the
+        :py:meth:`setup_rivers` method.
 
-        The conditioned elevation can be based on the average cell elevation ("wflow_dem") or
-        subgrid outlet pixel elevation ("dem_subgrid"). Note that the subgrid elevation will
-        likely overestimate the floodplain storage capacity.
+        If ``floodplain_type`` is set to "2d", this component adds
+        a hydrologically conditioned elevation (hydrodem) map for
+        land routing (local-inertial). For this options, landcells need to be
+        conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
-        Additionally, note that the same input elevation map should be used for river bankfull
-        elevation and land elevation when using local-inertial land routing.
+        The conditioned elevation can be based on the average cell elevation
+        ("wflow_dem") or subgrid outlet pixel elevation ("dem_subgrid").
+        Note that the subgrid elevation will likely overestimate
+        the floodplain storage capacity.
 
-        Requires :py:meth:`setup_rivers` to be executed beforehand (with ``river_routing`` set to
-        "local-inertial").
+        Additionally, note that the same input elevation map should be used for river
+        bankfull elevation and land elevation when using local-inertial land routing.
+
+        Requires :py:meth:`setup_rivers` to be executed beforehand
+        (with ``river_routing`` set to "local-inertial").
 
         Adds model layers:
 
-        * **floodplain_volume** map: map with floodplain volumes, has flood depth as third
+        * **floodplain_volume** map: map with floodplain volumes, \
+has flood depth as third
           dimension [m3] (for 1D floodplains)
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D floodplains)
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
+        (for 2D floodplains)
 
         Parameters
         ----------
         floodplain_type: {"1d", "2d"}
-            Option defining the type of floodplains, see below what arguments are related to
-            the different floodplain types
+            Option defining the type of floodplains, see below what arguments
+            are related to the different floodplain types
         hydrography_fn : str, Path
             Name of data source for hydrography data. Must be same as setup_basemaps for
             consistent results.
 
             * Required variables: ['flwdir', 'uparea', 'elevtn']
         river_upa : float, optional
-            (1D floodplains) minimum upstream area threshold for drain in the HAND. Optional
-            value, as it is inferred from the staticmaps metadata, to be consistent with
-            setup_rivers.
+            (1D floodplains) minimum upstream area threshold for drain in the HAND.
+            Optional value, as it is inferred from the staticmaps metadata,
+            to be consistent with setup_rivers.
         flood_depths : tuple of float, optional
-            (1D floodplains) flood depths at which a volume is derived, by default
-            [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
+            (1D floodplains) flood depths at which a volume is derived.
+            By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
         elevtn_map: {"wflow_dem", "dem_subgrid"}
-            (2D floodplains) Name of staticmap to hydrologically condition, by default
-            "wflow_dem"
+            (2D floodplains) Name of staticmap to hydrologically condition.
+            By default "wflow_dem"
 
         See Also
         --------
@@ -559,7 +582,8 @@ class WflowModel(Model):
         """
         if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
-                f"Floodplains (1d or 2d) are currently only supported with local intertial river routing"
+                "Floodplains (1d or 2d) are currently only supported with \
+local intertial river routing"
             )
 
         r_list = ["1d", "2d"]
@@ -585,17 +609,20 @@ class WflowModel(Model):
             )
             ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
-            # try to get river uparea from staticmaps, throw error if not specified or when found but different from specified value
+            # try to get river uparea from staticmaps, throw error if not specified
+            # or when found but different from specified value
             new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
                 "river_upa", river_upa
             )
             if new_river_upa is None:
                 raise ValueError(
-                    "No value for `river_upa` specified, and the value cannot be inferred from the staticmaps attributes"
+                    "No value for `river_upa` specified, and the value cannot \
+be inferred from the staticmaps attributes"
                 )
             elif new_river_upa != river_upa and river_upa is not None:
                 raise ValueError(
-                    f"Value specified for river_upa ({river_upa}) is different from the value found in the staticmaps ({new_river_upa})"
+                    f"Value specified for river_upa ({river_upa}) is different from \
+the value found in the staticmaps ({new_river_upa})"
                 )
             self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
 
@@ -609,10 +636,13 @@ class WflowModel(Model):
                 logger=self.logger,
             )
 
-            # check if the layer already exists, since overwriting with different flood_depth values is not working properly if this is the case
+            # check if the layer already exists, since overwriting with different
+            # flood_depth values is not working properly if this is the case
             if "floodplain_volume" in self.staticmaps:
                 self.logger.warning(
-                    "Layer `floodplain_volume` already in staticmaps, removing layer and `flood_depth` dimension to ensure correctly setting new flood_depth dimensions"
+                    "Layer `floodplain_volume` already in staticmaps, removing layer \
+and `flood_depth` dimension to ensure correctly \
+setting new flood_depth dimensions"
                 )
                 self._staticmaps = self._staticmaps.drop_dims("flood_depth")
 
@@ -622,7 +652,7 @@ class WflowModel(Model):
             floodplain_1d = False
             land_routing = "local-inertial"
 
-            if not elevtn_map in self.staticmaps:
+            if elevtn_map not in self.staticmaps:
                 raise ValueError(f'"{elevtn_map}" not found in staticmaps')
 
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
@@ -698,16 +728,19 @@ class WflowModel(Model):
         **kwargs,
     ):
         """
-        This component sets the river width parameter based on a power-lay relationship with a predictor.
+        Set the river width parameter based on power-lay relationship with a predictor.
 
-        By default the riverwidth is estimated based on discharge as ``predictor`` and used to
-        set the riverwidth globally based on pre-defined power-law parameters per climate class.
-        With ``fit`` set to True, the power-law relationsship paramters are set on-the-fly.
-        With ``fill`` set to True, the estimated river widths are only used fill gaps in the
-        observed data. Alternative ``predictor`` values are precip (accumulated precipitation)
-        and uparea (upstream area). For these predictors values ``fit`` default to True.
-        By default the predictor is based on discharge which is estimated through multiple linear
-        regression with precipitation and upstream area per climate zone.
+        By default the riverwidth is estimated based on discharge as ``predictor``
+        and used to set the riverwidth globally based on pre-defined power-law
+        parameters per climate class. With ``fit`` set to True,
+        the power-law relationsship paramters are set on-the-fly.
+        With ``fill`` set to True, the estimated river widths are only used
+        to fill gaps in the observed data. Alternative ``predictor`` values
+        are precip (accumulated precipitation) and uparea (upstream area).
+        For these predictors values ``fit`` default to True.
+        By default the predictor is based on discharge which is estimated through
+        multiple linear regression with precipitation and upstream area
+        per climate zone.
 
         * **wflow_riverwidth** map: river width [m]
 
@@ -716,12 +749,16 @@ class WflowModel(Model):
         predictor : {"discharge", "precip", "uparea"}
             Predictor used in the power-law equation: width = a * predictor ^ b.
             Discharge is based on multiple linear regression per climate zone.
-            Precip is based on the 10x the daily average accumulated precipitation [m3/s].
+            Precip is based on the 10x the daily average
+            accumulated precipitation [m3/s].
             Uparea is based on the upstream area grid [km2].
-            Other variables, e.g. bankfull discharge, can also be provided if present in the staticmaps
+            Other variables, e.g. bankfull discharge, can also be provided if present
+            in the staticmaps
         fill : bool, optional
-            If True (default), use estimate to fill gaps, outliers and lake/res areas in observed width data (if present);
-            if False, set all riverwidths based on predictor (automatic choice if no observations found)
+            If True (default), use estimate to fill gaps, outliers and lake/res areas
+            in observed width data (if present);
+            if False, set all riverwidths based on predictor
+            (automatic choice if no observations found)
         fit : bool, optional kwarg
             If True, the power-law parameters are fitted on the fly
             By default True for all but "discharge" predictor.
@@ -731,17 +768,20 @@ class WflowModel(Model):
         min_wth : float
             minimum river width
         precip_fn : {'chelsa'}
-            Source of long term precipitation grid if the predictor is set to 'discharge' or 'precip'.
+            Source of long term precipitation grid if the predictor
+            is set to 'discharge' or 'precip'.
         climate_fn: {'koppen_geiger'}
             Source of long-term climate grid if the predictor is set to 'discharge'.
         """
         self.logger.warning(
-            'The "setup_riverwidth" method has been deprecated and will soon be removed. '
+            'The "setup_riverwidth" method has been deprecated \
+and will soon be removed. '
             'You can now use the "setup_river" method for all river parameters.'
         )
-        if not self._MAPS["rivmsk"] in self.staticmaps:
+        if self._MAPS["rivmsk"] not in self.staticmaps:
             raise ValueError(
-                'The "setup_riverwidth" method requires to run setup_river method first.'
+                'The "setup_riverwidth" method requires \
+to run setup_river method first.'
             )
 
         # derive river width
@@ -794,8 +834,7 @@ class WflowModel(Model):
         ],
     ):
         """
-        This component derives several wflow maps are derived based on landuse-
-        landcover (LULC) data.
+        Derive several wflow maps are derived based on landuse-landcover (LULC) data.
 
         Currently, ``lulc_fn`` can be set to the "vito", "globcover", "esa_worldcover"
         or "corine", of which lookup tables are constructed to convert lulc classses to
@@ -819,10 +858,12 @@ class WflowModel(Model):
         lulc_fn : {"globcover", "vito", "corine"}
             Name of data source in data_sources.yml file.
         lulc_mapping_fn : str
-            Path to a mapping csv file from landuse in source name to parameter values in lulc_vars.
+            Path to a mapping csv file from landuse in source name to
+            parameter values in lulc_vars.
         lulc_vars : list
-            List of landuse parameters to keep.\
-            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
+            List of landuse parameters to keep.
+            By default \
+["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
         """
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -852,7 +893,7 @@ class WflowModel(Model):
 
     def setup_laimaps(self, lai_fn="modis_lai"):
         """
-        This component sets leaf area index (LAI) climatology maps per month.
+        Set leaf area index (LAI) climatology maps per month.
 
         The values are resampled to the model resolution using the average value.
         The only ``lai_fn`` currently supported is "modis_lai" based on MODIS data.
@@ -871,7 +912,7 @@ class WflowModel(Model):
             * Required variables: ['LAI']
         """
         # retrieve data for region
-        self.logger.info(f"Preparing LAI maps.")
+        self.logger.info("Preparing LAI maps.")
         da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
         da_lai = workflows.lai(
             da=da,
@@ -890,29 +931,33 @@ class WflowModel(Model):
         param: Optional[List[str]] = ["lateral.river.q_av"],
         reducer: Optional[List[str]] = None,
     ):
-        """This components sets the default gauge map based on basin outlets.
+        """Set the default gauge map based on basin outlets.
 
         Adds model layers:
 
         * **csv.column** config: csv timeseries to save based on mapname locations
-        * **netcdf.variable** config: netcdf timeseries to save based on mapname locations
+        * **netcdf.variable** config: netcdf timeseries to save based
+        on mapname locations
 
         Parameters
         ----------
         mapname : str
             Name of the gauge map (in staticmaps.nc) to use for scalar output.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
+            toml file or do nothing. By default, 'csv'.
         header : list, optional
-            Save specific model parameters in csv section. This option defines the header of the csv file./
+            Save specific model parameters in csv section. This option defines
+            the header of the csv file.
             By default saves Q (for lateral.river.q_av).
         param: list, optional
-            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
+            Save specific model parameters in csv section. This option defines
+            the wflow variable corresponding to the
             names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
         reducer: list, optional
-            If map is an area rather than a point location, provides the reducer for the parameters to save. By default None.
+            If map is an area rather than a point location, provides the reducer
+            for the parameters to save. By default None.
         """
-
         # # Add new outputcsv section in the config
         if toml_output == "csv" or toml_output == "netcdf":
             self.logger.info(f"Adding {param} to {toml_output} section of toml.")
@@ -954,7 +999,8 @@ class WflowModel(Model):
                     self.config[toml_output][var_name].append(gauge_toml_dict)
         else:
             self.logger.info(
-                f"toml_output set to {toml_output}, skipping adding gauge specific outputs to the toml."
+                f"toml_output set to {toml_output}, \
+skipping adding gauge specific outputs to the toml."
             )
 
     def setup_outlets(
@@ -964,7 +1010,7 @@ class WflowModel(Model):
         gauge_toml_header=["Q"],
         gauge_toml_param=["lateral.river.q_av"],
     ):
-        """This components sets the default gauge map based on basin outlets.
+        """Set the default gauge map based on basin outlets.
 
         Adds model layers:
 
@@ -974,21 +1020,25 @@ class WflowModel(Model):
         Parameters
         ----------
         river_only : bool, optional
-            Only derive outlet locations if they are located on a river instead of locations for all catchments, by default True.
+            Only derive outlet locations if they are located on a river instead of
+            locations for all catchments, by default True.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
+            wflow toml file or do nothing. By default, 'csv'.
         gauge_toml_header : list, optional
-            Save specific model parameters in csv section. This option defines the header of the csv file./
+            Save specific model parameters in csv section. This option defines
+            the header of the csv file.
             By default saves Q (for lateral.river.q_av).
         gauge_toml_param: list, optional
-            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
-            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+            Save specific model parameters in csv section. This option defines
+            the wflow variable corresponding to the names in gauge_toml_header.
+            By default saves lateral.river.q_av (for Q).
         """
         # read existing staticgeoms; important to get the right basin when updating
         # fix in set_staticgeoms / set_geoms method
         self.staticgeoms
 
-        self.logger.info(f"Gauges locations set based on river outlets.")
+        self.logger.info("Gauges locations set based on river outlets.")
         idxs_out = self.flwdir.idxs_pit
         # Only keep river outlets for gauges
         if river_only:
@@ -1008,7 +1058,7 @@ class WflowModel(Model):
         )
         gdf["fid"] = ids_out.astype(np.int32)
         self.set_staticgeoms(gdf, name="gauges")
-        self.logger.info(f"Gauges map based on catchment river outlets added.")
+        self.logger.info("Gauges map based on catchment river outlets added.")
 
         self.setup_config_output_timeseries(
             mapname="wflow_gauges",
@@ -1037,38 +1087,44 @@ class WflowModel(Model):
         ],
         **kwargs,
     ):
-        """This components sets a gauge map based on ``gauges_fn`` data.
+        """Set a gauge map based on ``gauges_fn`` data.
 
         Supported gauge datasets include "grdc"
-        or "<path_to_source>" for user supplied csv or geometry files with gauge locations.
-        If a csv file is provided, a "x" or "lon" and "y" or "lat" column is required
-        and the first column will be used as IDs in the map.
+        or "<path_to_source>" for user supplied csv or geometry files
+        with gauge locations. If a csv file is provided, a "x" or "lon" and
+        "y" or "lat" column is required and the first column will be used as
+        IDs in the map.
 
         There are three available methods to prepare the gauge map:
 
         * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.
           The gauge locations are used as is.
-        * snapping to mask: the gauge locations are snapped to a boolean mask map: either provide
-          ``mask`` or set ``snap_to_river=True`` to snap to the river (default). ``max_dist`` can be
-          used to set the maximum distance to snap to the mask.
-        * snapping based on upstream area matching: : ``snap_uparea=True``. The gauge locations
-          are snapped to the closest matching upstream area value. Requires gauges_fn to have
-          an ``uparea`` [km2] column. The closest value will be looked for in a cell window of size ``wdw``
-          and the difference between the gauge and the closest value should be smaller than ``rel_error``.
+        * snapping to mask: the gauge locations are snapped to a boolean mask map:
+          either provide ``mask`` or set ``snap_to_river=True``
+          to snap to the river (default).
+          ``max_dist`` can be used to set the maximum distance to snap to the mask.
+        * snapping based on upstream area matching: : ``snap_uparea=True``.
+          The gauge locations are snapped to the closest matching upstream area value.
+          Requires gauges_fn to have an ``uparea`` [km2] column. The closest value will
+          be looked for in a cell window of size ``wdw`` and the difference between
+          the gauge and the closest value should be smaller than ``rel_error``.
 
-        If ``derive_subcatch`` is set to True, an additional subcatch map is derived from
-        the gauge locations.
+        If ``derive_subcatch`` is set to True, an additional subcatch map is derived
+        from the gauge locations.
 
-        Finally the output locations can be added to wflow TOML file sections [csv] or [netcdf]
-        using the ``toml_output`` option. The ``gauge_toml_header`` and ``gauge_toml_param`` options
-        can be used to define the header and corresponding wflow variable names in the TOML file.
+        Finally the output locations can be added to wflow TOML file sections [csv]
+        or [netcdf] using the ``toml_output`` option. The ``gauge_toml_header`` and
+        ``gauge_toml_param`` options can be used to define the header and corresponding
+        wflow variable names in the TOML file.
 
         Adds model layers:
 
         * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
-        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] (if derive_subcatch)
+        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] \
+(if derive_subcatch)
         * **gauges_source** geom: polygon of gauges from source
-        * **subcatch_source** geom: polygon of subcatchment based on gauge locations [-] (if derive_subcatch)
+        * **subcatch_source** geom: polygon of subcatchment based on \
+gauge locations [-] (if derive_subcatch)
 
         Parameters
         ----------
@@ -1077,13 +1133,15 @@ class WflowModel(Model):
 
             * Required variables if snap_uparea is True: ["uparea"]
         index_col : str, optional
-            Column in gauges_fn to use for ID values, by default None (use the default index column)
+            Column in gauges_fn to use for ID values, by default None
+            (use the default index column)
         mask : np.boolean, optional
             If provided snaps to the mask, else snaps to the river (default).
         snap_to_river : bool, optional
             Snap point locations to the closest downstream river cell, by default True
         snap_uparea: bool, optional
-            Snap gauges based on upstream area. Gauges_fn should have "uparea" in its attributes.
+            Snap gauges based on upstream area. Gauges_fn should have "uparea"
+            in its attributes.
         max_dist : float, optional
             Maximum distance [m] between original and snapped point location.
             A warning is logged if exceeded. By default 10 000m.
@@ -1097,15 +1155,21 @@ class WflowModel(Model):
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
-            Map name in staticmaps (wflow_gauges_basename), if None use the gauges_fn basename.
+            Map name in staticmaps (wflow_gauges_basename)
+            if None use the gauges_fn basename.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow toml file or do nothing. By default, 'csv'.
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
+            wflow toml file or do nothing. By default, 'csv'.
         gauge_toml_header : list, optional
-            Save specific model parameters in csv section. This option defines the header of the csv file./
-            By default saves Q (for lateral.river.q_av) and P (for vertical.precipitation).
+            Save specific model parameters in csv section.
+            This option defines the header of the csv file.
+            By default saves Q (for lateral.river.q_av) and
+            P (for vertical.precipitation).
         gauge_toml_param: list, optional
-            Save specific model parameters in csv section. This option defines the wflow variable corresponding to the/
-            names in gauge_toml_header. By default saves lateral.river.q_av (for Q) and vertical.precipitation (for P).
+            Save specific model parameters in csv section. This option defines
+            the wflow variable corresponding to the names in gauge_toml_header.
+            By default saves lateral.river.q_av (for Q) and
+            vertical.precipitation (for P).
         """
         # Read data
         kwargs = {}
@@ -1135,7 +1199,8 @@ class WflowModel(Model):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
         else:
             raise ValueError(
-                f"{gauges_fn} data source not found or incorrect data_type (GeoDataFrame or GeoDataset)."
+                f"{gauges_fn} data source not found or \
+incorrect data_type (GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -1253,7 +1318,7 @@ class WflowModel(Model):
         col2raster: str,
         nodata: Union[int, float] = -1,
     ):
-        """Setup area map from vector data to save wflow outputs for specific area.
+        """Set area map from vector data to save wflow outputs for specific area.
 
         Adds model layer:
 
@@ -1266,7 +1331,8 @@ class WflowModel(Model):
         col2raster : str
             Name of the column from the vector file to rasterize.
         nodata : int/float, optional
-            Nodata value to use when rasterizing. Should match the dtype of col2raster. By default -1.
+            Nodata value to use when rasterizing. Should match the dtype of col2raster.
+            By default -1.
         """
         self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
@@ -1294,20 +1360,23 @@ class WflowModel(Model):
         add_maxstorage: bool = False,
         **kwargs,
     ):
-        """This component generates maps of lake areas and outlets as well as parameters
-        with average lake area, depth and discharge values.
+        """Generate maps of lake areas and outlets.
 
-        The data is generated from features with ``min_area`` [km2] (default 1 km2) from a database with
-        lake geometry, IDs and metadata. Data required are lake ID 'waterbody_id', average area 'Area_avg' [m2],
-        average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
+        Also meant to generate parameters with average lake area,
+        depth and discharge values. The data is generated from features with
+        ``min_area`` [km2] (default 1 km2) from a database with lake geometry, IDs and
+        metadata. Data required are lake ID 'waterbody_id',
+        average area 'Area_avg' [m2], average volume 'Vol_avg' [m3],
+        average depth 'Depth_avg' [m] and average discharge 'Dis_avg' [m3/s].
 
-        If rating curve data is available for storage and discharge they can be prepared via ``rating_curve_fns``
-        (see below for syntax and requirements). Else the parameters 'Lake_b' and 'Lake_e' will be used for
-        discharge and for storage a rectangular profile lake is assumed.
+        If rating curve data is available for storage and discharge they can be prepared
+        via ``rating_curve_fns`` (see below for syntax and requirements).
+        Else the parameters 'Lake_b' and 'Lake_e' will be used for discharge and
+        for storage a rectangular profile lake is assumed.
         See Wflow documentation for more information.
 
-        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the output (controlled lake) based on
-        'Vol_max' [m3] column of lakes_fn.
+        If ``add_maxstorage`` is True, the maximum storage of the lake is added to the
+        output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
 
         Adds model layers:
 
@@ -1327,24 +1396,31 @@ class WflowModel(Model):
         lakes_fn :
             Name of data source for lake parameters, see data/data_sources.yml.
 
-            * Required variables for direct use: ['waterbody_id', 'Area_avg', 'Depth_avg', 'Dis_avg', 'Lake_b', 'Lake_e', 'LakeOutflowFunc', 'LakeStorFunc', 'LakeThreshold', 'LinkedLakeLocs']
+            * Required variables for direct use: \
+['waterbody_id', 'Area_avg', 'Depth_avg', 'Dis_avg', 'Lake_b', 'Lake_e', \
+'LakeOutflowFunc', 'LakeStorFunc', 'LakeThreshold', 'LinkedLakeLocs']
 
-            * Required variables for parameter estimation: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
+            * Required variables for parameter estimation: \
+['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
         rating_curve_fns: str, Path, List[str], List[Path], optional
-            Data catalog entry/entries or path(s) containing rating curve values for lakes. If None then will be derived from
-            properties of lakes_fn. Assumes one file per lake (with all variables) and that the lake ID is either in the filename
-            or data catalog entry name (eg using placeholder). The ID should be placed at the end separated by an underscore (eg
+            Data catalog entry/entries or path(s) containing rating curve values
+            for lakes. If None then will be derived from properties of lakes_fn.
+            Assumes one file per lake (with all variables) and that the lake ID is
+            either in the filename or data catalog entry name (eg using placeholder).
+            The ID should be placed at the end separated by an underscore (eg
             'rating_curve_12.csv' or 'rating_curve_12')
 
-            * Required variables: ['elevtn', 'volume'] for storage curve and ['elevtn', 'discharge'] for discharge rating curve
+            * Required variables: ['elevtn', 'volume'] for storage curve and \
+['elevtn', 'discharge'] for discharge rating curve
         min_area : float, optional
             Minimum lake area threshold [km2], by default 10.0 km2.
         add_maxstorage : bool, optional
-            If True, maximum storage of the lake is added to the output (controlled lake) based on 'Vol_max' [m3] column of lakes_fn, by default False (natural lake).
+            If True, maximum storage of the lake is added to the output 
+            (controlled lake) based on 'Vol_max' [m3] column of lakes_fn. 
+            By default False (natural lake).
         kwargs: optional
             Keyword arguments passed to the method hydromt.DataCatalog.get_rasterdataset()
         """
-
         # Derive lake are and outlet maps
         gdf_org, ds_lakes = self._setup_waterbodies(
             lakes_fn, "lake", min_area, **kwargs
@@ -1363,9 +1439,10 @@ class WflowModel(Model):
             for fn in rating_curve_fns:
                 try:
                     fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
-                except:
+                except Exception:
                     self.logger.warning(
-                        f"Could not parse integer lake index from rating curve fn {fn}. Skipping."
+                        f"Could not parse integer lake index from \
+rating curve fn {fn}. Skipping."
                     )
             # assume lake index will be in the path
             # Assume one rating curve per lake index
@@ -1389,11 +1466,13 @@ class WflowModel(Model):
                         rating_dict[id] = df_rate
                 else:
                     self.logger.warning(
-                        f"Rating curve file not found for lake with id {id}. Using default storage/outflow function parameters."
+                        f"Rating curve file not found for lake with id {id}. \
+Using default storage/outflow function parameters."
                     )
         else:
             self.logger.info(
-                "No rating curve data provided. Using default storage/outflow function parameters."
+                "No rating curve data provided. \
+Using default storage/outflow function parameters."
             )
 
         # add waterbody parameters
@@ -1437,28 +1516,35 @@ class WflowModel(Model):
         min_area: float = 1.0,
         **kwargs,
     ):
-        """This component generates maps of reservoir areas and outlets as well as parameters
-        with average reservoir area, demand, min and max target storage capacities and
-        discharge capacity values.
+        """Generate maps of reservoir areas and outlets.
+
+        Also meant to generate parameters with average reservoir area, demand,
+        min and max target storage capacities and discharge capacity values.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with reservoir geometry, IDs and metadata.
 
-        Data requirements for direct use (ie wflow parameters are data already present in reservoirs_fn)
-        are reservoir ID 'waterbody_id', area 'ResSimpleArea' [m2], maximum volume 'ResMaxVolume' [m3],
-        the targeted minimum and maximum fraction of water volume in the reservoir 'ResTargetMinFrac'
-        and 'ResTargetMaxFrac' [-], the average water demand ResDemand [m3/s] and the maximum release of
+        Data requirements for direct use (i.e. wflow parameters are data already present
+        in reservoirs_fn) are reservoir ID 'waterbody_id', area 'ResSimpleArea' [m2],
+        maximum volume 'ResMaxVolume' [m3], the targeted minimum and maximum fraction of
+        water volume in the reservoir 'ResTargetMinFrac' and 'ResTargetMaxFrac' [-],
+        the average water demand ResDemand [m3/s] and the maximum release of
         the reservoir before spilling 'ResMaxRelease' [m3/s].
 
-        In case the wflow parameters are not directly available they can be computed by HydroMT based on time series of reservoir surface water area.
-        These time series can be retreived from either the hydroengine or the gwwapi, based on the Hylak_id the reservoir, found in the GrandD database.
+        In case the wflow parameters are not directly available they can be computed by
+        HydroMT based on time series of reservoir surface water area.
+        These time series can be retreived from either the hydroengine or the gwwapi,
+        based on the Hylak_id the reservoir, found in the GrandD database.
 
-        The required variables for computation of the parameters with time series data are reservoir ID 'waterbody_id',
-        reservoir ID in the HydroLAKES database 'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg'
-        [m], average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
-        To compute parameters without using time series data, the required varibales in reservoirs_fn are reservoir ID 'waterbody_id',
-        average area 'Area_avg' [m2], average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge 'Dis_avg'
-        [m3/s] and dam height 'Dam_height' [m] and minimum / normal / maximum storage capacity of the dam 'Capacity_min',
+        The required variables for computation of the parameters with time series data
+        are reservoir ID 'waterbody_id', reservoir ID in the HydroLAKES database
+        'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m],
+        average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
+        To compute parameters without using time series data, the required varibales in
+        reservoirs_fn are reservoir ID 'waterbody_id', average area 'Area_avg' [m2],
+        average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge
+        'Dis_avg' [m3/s] and dam height 'Dam_height' [m]
+        and minimum / normal / maximum storage capacity of the dam 'Capacity_min',
         'Capacity_norm', 'Capacity_max' [m3].
 
         Adds model layers:
@@ -1478,14 +1564,21 @@ class WflowModel(Model):
         reservoirs_fn : str
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables for direct use: ['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', 'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
+            * Required variables for direct use: \
+['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', \
+'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
 
-            * Required variables for computation with timeseries_fn: ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+            * Required variables for computation with timeseries_fn: \
+['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
 
-            * Required variables for computation without timeseries_fn: ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
+            * Required variables for computation without timeseries_fn: \
+['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', \
+'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
         timeseries_fn : str {'gww', 'hydroengine', 'none'}, optional
-            Download and use time series of reservoir surface water area to calculate and overwrite the reservoir volume/areas of the data source. Timeseries are
-            either downloaded from Global Water Watch 'gww' (using gwwapi package) or JRC 'jrc' (using hydroengine package). By default None.
+            Download and use time series of reservoir surface water area to calculate
+            and overwrite the reservoir volume/areas of the data source. Timeseries are
+            either downloaded from Global Water Watch 'gww' (using gwwapi package) or
+            JRC 'jrc' (using hydroengine package). By default None.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         kwargs: optional
@@ -1519,8 +1612,10 @@ class WflowModel(Model):
         gdf_org, ds_res = self._setup_waterbodies(
             reservoirs_fn, "reservoir", min_area, **kwargs
         )
-        # TODO: check if there are missing values in the above columns of the parameters tbls =
-        # if everything is present, skip calculate reservoirattrs() and directly make the maps
+        # TODO: check if there are missing values in the above columns of 
+        # the parameters tbls =
+        # if everything is present, skip calculate reservoirattrs() and 
+        # directly make the maps
         if ds_res is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
             self.set_staticmaps(ds_res.rename(rmdict))
@@ -1588,8 +1683,10 @@ class WflowModel(Model):
                 self.set_config(option, res_toml[option])
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
-        """Helper method with the common workflow of setup_lakes and setup_reservoir.
-        See specific methods for more info about the arguments."""
+        """Help with common workflow of setup_lakes and setup_reservoir.
+
+        See specific methods for more info about the arguments.
+        """
         # retrieve data for basin
         self.logger.info(f"Preparing {wb_type} maps.")
         if "predicate" not in kwargs:
@@ -1638,57 +1735,78 @@ class WflowModel(Model):
                 f"Skipping {wb_type} procedures!"
             )
 
-        # rasterize points polygons in raster.rasterize -- you need staticmaps to nkow the grid
+        # rasterize points polygons in raster.rasterize --
+        # you need staticmaps to know the grid
         return gdf_org, ds_waterbody
 
     def setup_soilmaps(self, soil_fn="soilgrids", ptf_ksatver="brakensiek"):
         """
-        This component derives several (layered) soil parameters based on a database with
-        physical soil properties using available point-scale (pedo)transfer functions (PTFs)
-        from literature with upscaling rules to ensure flux matching across scales.
+        Derive several (layered) soil parameters.
+
+        Based on a database with physical soil properties using available point-scale
+        (pedo)transfer functions (PTFs) from literature with upscaling rules to
+        ensure flux matching across scales.
 
         Currently, supported ``soil_fn`` is "soilgrids" and "soilgrids_2020".
-        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are "brakensiek" and "cosby".
-        "soilgrids" provides data at 7 specific depths, while "soilgrids_2020" provides data averaged over 6 depth intervals.
-        This leads to small changes in the workflow: (1) M parameter uses midpoint depths in soilgrids_2020 versus specific depths in soilgrids,
-        (2) weighted average of soil properties over soil thickness is done with the trapezoidal rule in soilgrids versus simple block weighted average in soilgrids_2020,
-        (3) the c parameter is computed as weighted average over wflow_sbm soil layers in soilgrids_2020 versus at specific depths for soilgrids.
+        ``ptf_ksatver`` (PTF for the vertical hydraulic conductivity) options are
+        "brakensiek" and "cosby". "soilgrids" provides data at 7 specific depths,
+        while "soilgrids_2020" provides data averaged over 6 depth intervals.
+        This leads to small changes in the workflow:
+        (1) M parameter uses midpoint depths in soilgrids_2020 versus \
+specific depths in soilgrids,
+        (2) weighted average of soil properties over soil thickness is done with \
+the trapezoidal rule in soilgrids versus simple block weighted average in \
+soilgrids_2020,
+        (3) the c parameter is computed as weighted average over wflow_sbm soil layers \
+in soilgrids_2020 versus at specific depths for soilgrids.
 
         The following maps are added to staticmaps:
 
         * **thetaS** map: average saturated soil water content [m3/m3]
         * **thetaR** map: average residual water content [m3/m3]
-        * **KsatVer** map: vertical saturated hydraulic conductivity at soil surface [mm/day]
+        * **KsatVer** map: vertical saturated hydraulic conductivity at \
+soil surface [mm/day]
         * **SoilThickness** map: soil thickness [mm]
         * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
-        * **M** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
+        * **M** map: model parameter [mm] that controls exponential decline of \
+KsatVer with soil depth
             (fitted with curve_fit (scipy.optimize)), bounds of M are checked
-        * **`M_`** map: model parameter [mm] that controls exponential decline of KsatVer with soil depth
+        * **`M_`** map: model parameter [mm] that controls exponential decline of \
+KsatVer with soil depth
             (fitted with numpy linalg regression), bounds of `M_` are checked
         * **M_original** map: M without checking bounds
         * **`M_original_`** map: `M_` without checking bounds
-        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **`f_`** map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked
-        * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution index at
-            depth of 1st soil layer (100 mm) wflow_sbm
+        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
+(fitted with curve_fit (scipy.optimize)), bounds are checked
+        * **`f_`** map: scaling parameter controlling the decline of KsatVer [mm-1] \
+(fitted with numpy linalg regression), bounds are checked
+        * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution \
+index at depth of 1st soil layer (100 mm) wflow_sbm
         * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm
         * **c_2** map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm
         * **c_3** map: idem c_0 at depth 4th soil layer (> 1200 mm) wflow_sbm
-        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **wflow_soil** map: soil texture based on USDA soil texture triangle (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
+        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
+[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        * **wflow_soil** map: soil texture based on USDA soil texture triangle \
+(mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
+6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
 
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
-            Name of data source for soil parameter maps, see data/data_sources.yml. Should contain info for the
-            7 soil depths of soilgrids (or 6 depths intervals for soilgrids_2020).
-            * Required variables: ['bd_sl*', 'clyppt_sl*', 'sltppt_sl*', 'oc_sl*', 'ph_sl*', 'sndppt_sl*', 'soilthickness', 'tax_usda']
+            Name of data source for soil parameter maps, see data/data_sources.yml.
+            Should contain info for the 7 soil depths of soilgrids
+            (or 6 depths intervals for soilgrids_2020).
+            * Required variables: \
+['bd_sl*', 'clyppt_sl*', 'sltppt_sl*', 'oc_sl*', 'ph_sl*', \
+'sndppt_sl*', 'soilthickness', 'tax_usda']
         ptf_ksatver : {'brakensiek', 'cosby'}
-            Pedotransfer function (PTF) to use for calculation KsatVer (vertical saturated
-            hydraulic conductivity [mm/day]). By default 'brakensiek'.
+            Pedotransfer function (PTF) to use for calculation KsatVer
+            (vertical saturated hydraulic conductivity [mm/day]).
+            By default 'brakensiek'.
         """
-        self.logger.info(f"Preparing soil parameter maps.")
+        self.logger.info("Preparing soil parameter maps.")
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids(
@@ -1702,8 +1820,9 @@ class WflowModel(Model):
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
-        This component generates maps of glacier areas, area fraction and volume fraction,
-        as well as tables with temperature threshold, melting factor and snow-to-ice
+        Generate maps of glacier areas, area fraction and volume fraction.
+
+        Also generates tables with temperature threshold, melting factor and snow-to-ice
         convertion fraction.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
@@ -1720,7 +1839,8 @@ class WflowModel(Model):
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
         * **G_TT** map: temperature threshold for glacier melt/buildup [°C]
         * **G_Cfmax** map: glacier melting factor [mm/°C*day]
-        * **G_SIfrac** map: fraction of snowpack on top of glacier converted to ice, added to glacierstore [-]
+        * **G_SIfrac** map: fraction of snowpack on top of glacier converted to ice, \
+added to glacierstore [-]
 
         Parameters
         ----------
@@ -1741,7 +1861,7 @@ class WflowModel(Model):
             "input.vertical.g_sifrac": "G_SIfrac",
         }
         # retrieve data for basin
-        self.logger.info(f"Preparing glacier maps.")
+        self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
             glaciers_fn, geom=self.basins, predicate="intersects"
         )
@@ -1773,12 +1893,12 @@ class WflowModel(Model):
                 self.set_config(option, glac_toml[option])
         else:
             self.logger.warning(
-                f"No glaciers of sufficient size found within region!"
-                f"Skipping glacier procedures!"
+                "No glaciers of sufficient size found within region!"
+                "Skipping glacier procedures!"
             )
 
     def setup_constant_pars(self, dtype="float32", nodata=-999, **kwargs):
-        """Setup constant parameter maps for all active model cells.
+        """Generate constant parameter maps for all active model cells.
 
         Adds model layer:
 
@@ -1813,9 +1933,11 @@ class WflowModel(Model):
         fill_method: Optional[str] = None,
     ) -> List[str]:
         """
-        This component adds data variable(s) from ``raster_fn`` to staticmaps object.
-        If raster is a dataset, all variables will be added unless ``variables`` list is specified.
-        The config toml can also be updated to include the new maps using ``wflow_variables``.
+        Add data variable(s) from ``raster_fn`` to staticmaps object.
+
+        If raster is a dataset, all variables will be added unless ``variables``
+        list is specified. The config toml can also be updated to include
+        the new maps using ``wflow_variables``.
 
         Adds model layers:
 
@@ -1827,14 +1949,16 @@ class WflowModel(Model):
             Source name of raster data in data_catalog.
         reproject_method: str
             Reprojection method from rasterio.enums.Resampling.
-            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', 'lanczos', 'average', 'mode',
-            'gauss', 'max', 'min', 'med', 'q1', 'q3', 'sum', 'rms']
+            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
+'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3', \
+'sum', 'rms']
         variables: list, optional
             List of variables to add to staticmaps from raster_fn. By default all.
         wflow_variables: list, optional
-            List of corresponding wflow variables to update the config toml (e.g: ["input.vertical.altitude"]).
-            Should match the variables list. variables list should be provided unless raster_fn contains
-            a single variable (len 1).
+            List of corresponding wflow variables to update the config toml
+            (e.g: ["input.vertical.altitude"]).
+            Should match the variables list. variables list should be provided unless
+            raster_fn contains a single variable (len 1).
         fill_method : str, optional
             If specified, fills nodata values using fill_nodata method.
             Available methods are {'linear', 'nearest', 'cubic', 'rio_idw'}.
@@ -1871,13 +1995,15 @@ class WflowModel(Model):
                     variables = list(ds_out.data_vars.keys())
                 else:
                     raise ValueError(
-                        f"Cannot update the toml if raster_fn has more than one variable and variables list is not provided."
+                        "Cannot update the toml if raster_fn has more than \
+one variable and variables list is not provided."
                     )
 
             # Check on len
             if len(wflow_variables) != len(variables):
                 raise ValueError(
-                    f"Length of variables {variables} do not match wflow_variables {wflow_variables}. Cannot update the toml."
+                    f"Length of variables {variables} do not match wflow_variables \
+{wflow_variables}. Cannot update the toml."
                 )
             else:
                 for i in range(len(variables)):
@@ -1890,7 +2016,7 @@ class WflowModel(Model):
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
-        """Setup gridded precipitation forcing at model resolution.
+        """Generate gridded precipitation forcing at model resolution.
 
         Adds model layer:
 
@@ -1903,7 +2029,8 @@ class WflowModel(Model):
 
             * Required variable: ['precip']
         precip_clim_fn : str, default None
-            High resolution climatology precipitation data source to correct precipitation.
+            High resolution climatology precipitation data source to correct 
+            precipitation.
 
             * Required variable: ['precip']
         chunksize: int, optional
@@ -1928,7 +2055,7 @@ class WflowModel(Model):
             precip = precip.chunk({"time": chunksize})
 
         clim = None
-        if precip_clim_fn != None:
+        if precip_clim_fn is not None:
             clim = self.data_catalog.get_rasterdataset(
                 precip_clim_fn,
                 geom=precip.raster.box,
@@ -1966,7 +2093,7 @@ class WflowModel(Model):
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
-        """Setup gridded reference evapotranspiration forcing at model resolution.
+        """Generate gridded reference evapotranspiration forcing at model resolution.
 
         Adds model layer:
 
@@ -1976,26 +2103,35 @@ class WflowModel(Model):
         Parameters
         ----------
         temp_pet_fn : str, optional
-            Name or path of data source with variables to calculate temperature and reference evapotranspiration,
-            see data/forcing_sources.yml, by default 'era5_daily_zarr'.
+            Name or path of data source with variables to calculate temperature
+            and reference evapotranspiration, see data/forcing_sources.yml.
+            By default 'era5_daily_zarr'.
 
             * Required variable for temperature: ['temp']
 
-            * Required variables for De Bruin reference evapotranspiration: ['temp', 'press_msl', 'kin', 'kout']
+            * Required variables for De Bruin reference evapotranspiration: \
+['temp', 'press_msl', 'kin', 'kout']
 
-            * Required variables for Makkink reference evapotranspiration: ['temp', 'press_msl', 'kin']
+            * Required variables for Makkink reference evapotranspiration: \
+['temp', 'press_msl', 'kin']
 
-            * Required variables for daily Penman-Monteith reference evapotranspiration: either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 'wind', 'kin', 'press_msl', "wind10_u", "wind10_v"] for 'penman-monteith_tdew' (these are the variables available in ERA5)
-        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', 'penman-monteith_tdew'}, optional
+            * Required variables for daily Penman-Monteith \
+reference evapotranspiration: \
+either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] \
+for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', \
+'wind', 'kin', 'press_msl', "wind10_u", "wind10_v"] for 'penman-monteith_tdew' \
+(these are the variables available in ERA5)
+        pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', \
+'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
             If penman-monteith is used, requires the installation of the pyet package.
         press_correction, temp_correction : bool, optional
-             If True pressure, temperature are corrected using elevation lapse rate,
-             by default False.
+            If True pressure, temperature are corrected using elevation lapse rate,
+            by default False.
         dem_forcing_fn : str, default None
-             Elevation data source with coverage of entire meteorological forcing domain.
-             If temp_correction is True and dem_forcing_fn is provided this is used in
-             combination with elevation at model resolution to correct the temperature.
+            Elevation data source with coverage of entire meteorological forcing domain.
+            If temp_correction is True and dem_forcing_fn is provided this is used in
+            combination with elevation at model resolution to correct the temperature.
         skip_pet : bool, optional
             If True calculate temp only.
         chunksize: int, optional
@@ -2050,7 +2186,7 @@ class WflowModel(Model):
             ds = ds.chunk({"time": chunksize})
 
         dem_forcing = None
-        if dem_forcing_fn != None:
+        if dem_forcing_fn is not None:
             dem_forcing = self.data_catalog.get_rasterdataset(
                 dem_forcing_fn,
                 geom=ds.raster.box,  # clip dem with forcing bbox for full coverage
@@ -2160,9 +2296,11 @@ class WflowModel(Model):
         update_toml_rootingdepth: Optional[str] = "RootingDepth_obs_20",
     ) -> None:
         """
-        This component sets up the RootingDepth by estimating the catchment-scale
-        root-zone storage capacity from observed hydroclimatic data
-        (and optionally also for climate change historical and future periods).
+        Set the RootingDepth.
+
+        Done by estimating the catchment-scale root-zone storage capacity from observed
+        hydroclimatic data (and optionally also for climate change historical and
+        future periods).
 
         This presents an alternative approach to determine the RootingDepth
         based on hydroclimatic data instead of through a look-up table relating
@@ -2174,16 +2312,21 @@ class WflowModel(Model):
         Bouaziz et al. (2022).
 
         The main assumption is that vegetation adapts its rootzone storage capacity
-        to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).
-        In response to a changing climtate,
+        to overcome dry spells with a certain return period (typically 20 years for
+        forest ecosystems). In response to a changing climtate,
         it is likely that vegetation also adapts its rootzone storage capacity,
         thereby changing model parameters for future conditions.
         This method also allows to estimate the change in rootzone storage capacity
         in response to a changing climate.
 
-        As the method requires precipitation and potential evaporation timeseries, it may be useful to run this method as an update step in the setting-up of the hydrological model, once the forcing files have already been derived.
-        In addition the setup_soilmaps method is also required to calculate the RootingDepth (rootzone_storage / (thetaS-thetaR)).
-        The setup_laimaps method is also required if LAI is set to True (interception capacity estimated from LAI maps, instead of providing a default maximum interception capacity).
+        As the method requires precipitation and potential evaporation timeseries,
+        it may be useful to run this method as an update step in the setting-up of
+        the hydrological model, once the forcing files have already been derived.
+        In addition the setup_soilmaps method is also required to calculate
+        the RootingDepth (rootzone_storage / (thetaS-thetaR)).
+        The setup_laimaps method is also required if LAI is set to True
+        (interception capacity estimated from LAI maps, instead of providing
+        a default maximum interception capacity).
 
         References
         ----------
@@ -2196,25 +2339,34 @@ class WflowModel(Model):
 
         Adds model layer:
 
-        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. The translation to RootingDepth is done by dividing the rootzone_storage by (thetaS - thetaR).
-        * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone storage capacity [mm of water] for each catchment estimated before filling the missings with data from downstream catchments.
-        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different return periods RP. Only if rootzone_storage is set to True!
+        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] \
+estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different \
+return periods RP. The translation to RootingDepth is done by dividing \
+the rootzone_storage by (thetaS - thetaR).
+        * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
+storage capacity [mm of water] for each catchment estimated before filling \
+the missings with data from downstream catchments.
+        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity \
+[mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for \
+different return periods RP. Only if rootzone_storage is set to True!
 
 
         Parameters
         ----------
         run_fn : str, Path, xr.Dataset
             Geodataset with streamflow timeseries (m3/s) per x,y location.
-            The geodataset expects the coordinate names "index" (for each station id) and the variable name "discharge".
+            The geodataset expects the coordinate names "index" (for each station id)
+            and the variable name "discharge".
         forcing_obs_fn : str, Path, xr.Dataset
             Gridded timeseries with the observed forcing [mm/timestep].
             Expects to have variables "precip" and "pet".
         forcing_cc_hist_fn : str, Path, xr.Dataset, optional
-            Gridded timeseries with the simulated historical forcing [mm/timestep], based on a climate
-            model. Expects to have variables "precip" and "pet". The default is None.
+            Gridded timeseries with the simulated historical forcing [mm/timestep],
+            based on a climate model. Expects to have variables "precip" and "pet".
+            The default is None.
         forcing_cc_fut_fn : str, optional
-            Gridded timeseries with the simulated climate forcing [mm/timestep], based on a
-            climate model. Expects to have variables "precip" and "pet".
+            Gridded timeseries with the simulated climate forcing [mm/timestep],
+            based on a climate model. Expects to have variables "precip" and "pet".
             The default is None.
         chunksize : int, optional
             Chunksize on time dimension for processing data (not for saving to
@@ -2242,19 +2394,24 @@ class WflowModel(Model):
             should be stored in the staticmaps or not. The default is False.
         correct_cc_deficit : bool, optional
             Determines whether a bias-correction of the future deficit should be
-            applied using the cc_hist deficit. Only works if the time periods of cc_hist and
-            cc_fut are the same. If the climate change scenario and hist period are bias-corrected,
-            this should probably set to False. The default is False.
+            applied using the cc_hist deficit. Only works if the time periods of
+            cc_hist and cc_fut are the same. If the climate change scenario and
+            hist period are bias-corrected, this should probably set to False.
+            The default is False.
         time_tuple: tuple, optional
-            Select which time period to read from all the forcing files. There should be some overlap
-            between the time period available in the forcing files for the historical period and in the observed streamflow data.
+            Select which time period to read from all the forcing files.
+            There should be some overlap between the time period available in the
+            forcing files for the historical period and in the observed streamflow data.
         missing_days_threshold: int, optional
-            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.
+            Minimum number of days within a year for that year to be counted in
+            the long-term Budyko analysis.
         update_toml_rootingdepth: str, optional
-            Update the wflow_sbm model config of the RootingDepth variable with the estimated RootingDepth.
-            The default is RootingDepth_obs_20, which requires to have RP 20 in the list provided for the return_period argument.
+            Update the wflow_sbm model config of the RootingDepth variable with
+            the estimated RootingDepth.
+            The default is RootingDepth_obs_20,
+            which requires to have RP 20 in the list provided for \
+the return_period argument.
         """
-
         self.logger.info("Preparing climate based root zone storage parameter maps.")
         # Open the data sets
         ds_obs = self.data_catalog.get_rasterdataset(
@@ -2265,7 +2422,7 @@ class WflowModel(Model):
             time_tuple=time_tuple,
         )
         ds_cc_hist = None
-        if forcing_cc_hist_fn != None:
+        if forcing_cc_hist_fn is not None:
             ds_cc_hist = self.data_catalog.get_rasterdataset(
                 forcing_cc_hist_fn,
                 geom=self.region,
@@ -2274,7 +2431,7 @@ class WflowModel(Model):
                 time_tuple=time_tuple,
             )
         ds_cc_fut = None
-        if forcing_cc_fut_fn != None:
+        if forcing_cc_fut_fn is not None:
             ds_cc_fut = self.data_catalog.get_rasterdataset(
                 forcing_cc_fut_fn,
                 geom=self.region,
@@ -2297,15 +2454,18 @@ class WflowModel(Model):
                 "No overlapping period between the meteo and observed streamflow data"
             )
 
-        # check if setup_soilmaps and setup_laimaps were run if LAI =True and if rooting_depth = True"
+        # check if setup_soilmaps and setup_laimaps were run if LAI =True and
+        # if rooting_depth = True"
         if (LAI == True) and ("LAI" not in self.staticmaps):
             self.logger.error(
-                f"LAI variable not found in staticmaps. Set LAI to False or run setup_laimaps first"
+                "LAI variable not found in staticmaps. \
+Set LAI to False or run setup_laimaps first"
             )
 
         if ("thetaR" not in self.staticmaps) or ("thetaS" not in self.staticmaps):
             self.logger.error(
-                f"thetaS or thetaR variables not found in staticmaps. Run setup_soilmaps first"
+                "thetaS or thetaR variables not found in staticmaps. \
+Run setup_soilmaps first"
             )
 
         # Run the rootzone clim workflow
@@ -2340,7 +2500,7 @@ class WflowModel(Model):
 
     # I/O
     def read(self):
-        """Method to read the complete model schematization and configuration from file."""
+        """Read the complete model schematization and configuration from file."""
         self.read_config()
         self.read_staticmaps()
         self.read_intbl()
@@ -2350,7 +2510,7 @@ class WflowModel(Model):
         self.logger.info("Model read")
 
     def write(self):
-        """Method to write the complete model schematization and configuration to file."""
+        """Write the complete model schematization and configuration to file."""
         self.logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
         if not self._write:
@@ -2371,7 +2531,7 @@ class WflowModel(Model):
             self.write_forcing()
 
     def read_staticmaps(self, **kwargs):
-        """Read staticmaps"""
+        """Read staticmaps."""
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
 
@@ -2401,11 +2561,12 @@ class WflowModel(Model):
             self.read_staticmaps_pcr()
 
     def write_staticmaps(self):
-        """Write staticmaps"""
+        """Write staticmaps."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
         # clean-up staticmaps and write CRS according to CF-conventions
-        # TODO replace later with hydromt.raster.gdal_compliant method after core release
+        # TODO replace later with hydromt.raster.gdal_compliant method
+        # after core release
         crs = self.staticmaps.raster.crs
         ds_out = self.staticmaps.reset_coords()
         # TODO?!
@@ -2448,16 +2609,16 @@ class WflowModel(Model):
         # self.write_staticmaps_pcr()
 
     def read_staticmaps_pcr(self, crs=4326, **kwargs):
-        """Read and staticmaps at <root/staticmaps> and parse to xarray"""
+        """Read and staticmaps at <root/staticmaps> and parse to xarray."""
         if self._read and "chunks" not in kwargs:
             kwargs.update(chunks={"y": -1, "x": -1})
-        fn = join(self.root, "staticmaps", f"*.map")
+        fn = join(self.root, "staticmaps", "*.map")
         fns = glob.glob(fn)
         if len(fns) == 0:
             self.logger.warning(f"No staticmaps found at {fn}")
             return
         self._staticmaps = open_mfraster(fns, **kwargs)
-        path = join(self.root, "staticmaps", "clim", f"LAI*")
+        path = join(self.root, "staticmaps", "clim", "LAI*")
         if len(glob.glob(path)) > 0:
             da_lai = open_mfraster(
                 path, concat=True, concat_dim="time", logger=self.logger, **kwargs
@@ -2510,7 +2671,7 @@ class WflowModel(Model):
         )
 
     def read_staticgeoms(self):
-        """Read and staticgeoms at <root/staticgeoms> and parse to geopandas"""
+        """Read and staticgeoms at <root/staticgeoms> and parse to geopandas."""
         if not self._write:
             self._staticgeoms = dict()  # fresh start in read-only mode
         dir_default = join(self.root, "staticmaps.nc")
@@ -2526,7 +2687,7 @@ class WflowModel(Model):
                 self.set_staticgeoms(gpd.read_file(fn), name=name)
 
     def write_staticgeoms(self):
-        """Write staticmaps at <root/staticgeoms> in model ready format"""
+        """Write staticmaps at <root/staticgeoms> in model ready format."""
         # to write use self.staticgeoms[var].to_file()
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -2537,7 +2698,7 @@ class WflowModel(Model):
                 gdf.to_file(fn_out, driver="GeoJSON")
 
     def read_forcing(self):
-        """Read forcing"""
+        """Read forcing."""
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
 
@@ -2574,13 +2735,15 @@ class WflowModel(Model):
         time_units="days since 1900-01-01T00:00:00",
         **kwargs,
     ):
-        """write forcing at ``fn_out`` in model ready format.
+        """Write forcing at ``fn_out`` in model ready format.
 
         If no ``fn_out`` path is provided and path_forcing from the  wflow toml exists,
         the following default filenames are used:
 
-            * Default name format (with downscaling): inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
-            * Default name format (no downscaling): inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
+            * Default name format (with downscaling): \
+inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
+            * Default name format (no downscaling): \
+inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Parameters
         ----------
@@ -2588,15 +2751,18 @@ class WflowModel(Model):
             Path to save output netcdf file; if None the name is read from the wflow
             toml file.
         freq_out: str (Offset), optional
-            Write several files for the forcing according to fn_freq. For example 'Y' for one file per year or 'M'
-            for one file per month. By default writes the one file.
-            For more options, see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
+            Write several files for the forcing according to fn_freq. For example 'Y'
+            for one file per year or 'M' for one file per month.
+            By default writes the one file.
+            For more options, \
+see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
         chunksize: int, optional
             Chunksize on time dimension when saving to disk. By default 1.
         decimals: int, optional
             Round the ouput data to the given number of decimals.
         time_units: str, optional
-            Common time units when writting several netcdf forcing files. By default "days since 1900-01-01T00:00:00".
+            Common time units when writting several netcdf forcing files.
+            By default "days since 1900-01-01T00:00:00".
 
         """
         if not self._write:
@@ -2615,7 +2781,8 @@ class WflowModel(Model):
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
                 if "*" in basename(fn_out):
-                    # get rid of * in case model had multiple forcing files and write to single nc file.
+                    # get rid of * in case model had multiple forcing files and
+                    # write to single nc file.
                     self.logger.warning("Writing multiple forcing files to one file")
                     fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
                 if self.get_config("dir_input") is not None:
@@ -2653,8 +2820,10 @@ class WflowModel(Model):
                     fn_default_path = join(self.root, fn_default)
                     if isfile(fn_default_path):
                         self.logger.warning(
-                            "Netcdf default forcing file already exists, skipping write_forcing. "
-                            "To overwrite netcdf forcing file: change name input.path_forcing "
+                            "Netcdf default forcing file already exists, \
+skipping write_forcing. "
+                            "To overwrite netcdf forcing file: \
+change name input.path_forcing "
                             "in setup_config section of the build inifile."
                         )
                         return
@@ -2685,7 +2854,8 @@ class WflowModel(Model):
             # Send warning, and update config with new start and end time
             if correct_times:
                 self.logger.warning(
-                    f"Not all dates found in precip_fn changing starttime to {start} and endtime to {end} in the toml."
+                    f"Not all dates found in precip_fn changing starttime to \
+{start} and endtime to {end} in the toml."
                 )
                 self.set_config("starttime", start.to_pydatetime())
                 self.set_config("endtime", end.to_pydatetime())
@@ -2720,7 +2890,8 @@ class WflowModel(Model):
 
             if freq_out is None:
                 # with compute=False we get a delayed object which is executed when
-                # calling .compute where we can pass more arguments to the dask.compute method
+                # calling .compute where we can pass more arguments to
+                # the dask.compute method
                 forcing_list.append([fn_out, ds])
             else:
                 self.logger.info(f"Writting several forcing with freq {freq_out}")
@@ -2748,25 +2919,27 @@ class WflowModel(Model):
             # TO profile uncomment lines below to replace lines above
             # from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler
             # import cachey
-            # with Profiler() as prof, CacheProfiler(metric=cachey.nbytes) as cprof, ResourceProfiler() as rprof:
+            # with Profiler() as prof, CacheProfiler(metric=cachey.nbytes) as cprof,
+            # ResourceProfiler() as rprof:
             #     delayed_obj.compute()
-            # visualize([prof, cprof, rprof], file_path=r'c:\Users\eilan_dk\work\profile2.html')
+            # visualize([prof, cprof, rprof],
+            # file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
     def read_states(self):
-        """Read states at <root/?/> and parse to dict of xr.DataArray"""
+        """Read states at <root/?/> and parse to dict of xr.DataArray."""
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
         # raise NotImplementedError()
 
     def write_states(self):
-        """write states at <root/?/> in model ready format"""
+        """Write states at <root/?/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
         # raise NotImplementedError()
 
     def read_results(self):
-        """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset"""
+        """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
         if not self._write:
             # start fresh in read-only mode
             self._results = dict()
@@ -2808,21 +2981,21 @@ class WflowModel(Model):
                 self.set_results(csv_dict[f"{key}"])
 
     def write_results(self):
-        """write results at <root/?/> in model ready format"""
+        """Write results at <root/?/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
         # raise NotImplementedError()
 
     def read_intbl(self, **kwargs):
-        """Read and intbl files at <root/intbl> and parse to xarray"""
+        """Read and intbl files at <root/intbl> and parse to xarray."""
         if not self._write:
             self._intbl = dict()  # start fresh in read-only mode
         if not self._read:
             self.logger.info("Reading default intbl files.")
-            fns = glob.glob(join(DATADIR, "wflow", "intbl", f"*.tbl"))
+            fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
         else:
             self.logger.info("Reading model intbl files.")
-            fns = glob.glob(join(self.root, "intbl", f"*.tbl"))
+            fns = glob.glob(join(self.root, "intbl", "*.tbl"))
         if len(fns) > 0:
             for fn in fns:
                 name = basename(fn).split(".")[0]
@@ -2855,12 +3028,12 @@ class WflowModel(Model):
         self._intbl[name] = df
 
     def read_tables(self, **kwargs):
-        """Read table files at <root> and parse to dict of dataframes"""
+        """Read table files at <root> and parse to dict of dataframes."""
         if not self._write:
             self._tables = dict()  # start fresh in read-only mode
 
         self.logger.info("Reading model table files.")
-        fns = glob.glob(join(self.root, f"*.csv"))
+        fns = glob.glob(join(self.root, "*.csv"))
         if len(fns) > 0:
             for fn in fns:
                 name = basename(fn).split(".")[0]
@@ -2901,7 +3074,7 @@ class WflowModel(Model):
 
     @property
     def intbl(self):
-        """Returns a dictionary of pandas.DataFrames representing the wflow intbl files."""
+        """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
         if not self._intbl:
             self.read_intbl()
         return self._intbl
@@ -2909,20 +3082,20 @@ class WflowModel(Model):
     @property
     # Move to core Model API ?
     def tables(self):
-        """Returns a dictionary of pandas.DataFrames representing the wflow intbl files."""
+        """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
         if not self._tables:
             self.read_tables()
         return self._tables
 
     @property
     def flwdir(self):
-        """Returns the pyflwdir.FlwdirRaster object parsed from the wflow ldd."""
+        """Return the pyflwdir.FlwdirRaster object parsed from wflow ldd."""
         if self._flwdir is None:
             self.set_flwdir()
         return self._flwdir
 
     def set_flwdir(self, ftype="infer"):
-        """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd"""
+        """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd."""
         flwdir_name = flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
             self.staticmaps[flwdir_name],
@@ -2954,8 +3127,10 @@ class WflowModel(Model):
 
     @property
     def rivers(self):
-        """Returns a river geometry as a geopandas.GeoDataFrame. If available, the
-        stream order and upstream area values are added to the geometry properties.
+        """Return a river geometry as a geopandas.GeoDataFrame.
+
+        If available, the stream order and upstream area values are added to
+        the geometry properties.
         """
         if "rivers" in self.staticgeoms:
             gdf = self.staticgeoms["rivers"]

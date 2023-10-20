@@ -24,7 +24,7 @@ hydroMT-wflow: wflow plugin for hydroMT
 
 hydroMT_ is a python package, developed by Deltares, to build and analysis hydro models.
 It provides a generic model api with attributes to access the model schematization,
-(dynamic) forcing data, results and states. This plugin provides an implementation 
+(dynamic) forcing data, results and states. This plugin provides an implementation
 for the wflow_ model.
 
 
@@ -44,7 +44,7 @@ To install hydromt_wflow using conda do:
 
   conda install -c conda-forge hydromt_wflow
 
-This will install both the hydroMT core library and the hydromt_wflow plugin. To get a full installation, 
+This will install both the hydroMT core library and the hydromt_wflow plugin. To get a full installation,
 manually add the hydroengine dependency in your environment (not available from conda install):
 
 .. code-block:: console

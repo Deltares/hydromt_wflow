@@ -19,4 +19,3 @@ for a proper implementation of the clipped model are:
 
 - basin
 - subbasin
-

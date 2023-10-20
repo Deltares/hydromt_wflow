@@ -1,17 +1,17 @@
-"""Unit tests for hydromt_wflow methods and workflows"""
+"""Unit tests for hydromt_wflow methods and workflows."""
 
-import pytest
-from os.path import join, dirname, abspath
+import logging
+from os.path import abspath, dirname, join
+
 import numpy as np
 
 # import warnings
 # import pdb
 import pandas as pd
+import pytest
 import xarray as xr
-from hydromt_wflow.wflow import WflowModel
-import pandas as pd
 
-import logging
+from hydromt_wflow.wflow import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
@@ -66,7 +66,10 @@ def test_projected_crs(tmpdir):
     )
 
     # Setup basemaps
-    with pytest.raises(ValueError) as error:
+    with pytest.raises(
+        ValueError,
+        match=r"The model resolution 1000 should be smaller than 1 degree",
+    ) as error:
         mod.setup_basemaps(
             region={"basin": [12.862, 45.701]},
             res=1000,
@@ -76,7 +79,10 @@ def test_projected_crs(tmpdir):
         "The model resolution 1000 should be smaller than 1 degree"
     )
 
-    with pytest.raises(ValueError) as error:
+    with pytest.raises(
+        ValueError,
+        match=r"The model resolution 0.01 should be larger than",
+    ) as error:
         mod.setup_basemaps(
             region={"basin": [1427596.0, 5735404.0]},
             res=0.01,
@@ -197,7 +203,8 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         for x in [k in example_wflow_model.staticmaps.keys() for k in required]
     ), "1 or more reservoir map missing"
 
-    # Check if all parameter maps contain x non-null values, where x equals the number of reservoirs in the model area
+    # Check if all parameter maps contain x non-null values, where x equals
+    # the number of reservoirs in the model area
     staticmaps = example_wflow_model.staticmaps.where(
         example_wflow_model.staticmaps.wflow_reservoirlocs != -999
     )
@@ -213,7 +220,8 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
                 )
             )
             == number_of_reservoirs
-        ), f"Number of non-null values in {i} not equal to number of reservoirs in model area"
+        ), f"Number of non-null values in {i} not equal to \
+number of reservoirs in model area"
 
 
 def test_setup_rootzoneclim(example_wflow_model):
