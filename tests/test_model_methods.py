@@ -207,19 +207,20 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
     grid = example_wflow_model.grid.where(
         example_wflow_model.grid.wflow_reservoirlocs != -999
     )
-    stacked = grid.wflow_reservoirlocs.stack(
-        x=[grid.raster.y_dim, grid.raster.x_dim]
-    )
+    stacked = grid.wflow_reservoirlocs.stack(x=[grid.raster.y_dim, grid.raster.x_dim])
     stacked = stacked[stacked.notnull()]
     number_of_reservoirs = stacked.size
 
     for i in required:
         assert (
             np.count_nonzero(
-                ~np.isnan(grid[i].sel({
-                    grid.raster.y_dim: stacked[grid.raster.y_dim].values, 
-                    grid.raster.x_dim: stacked[grid.raster.x_dim].values,
-                    })
+                ~np.isnan(
+                    grid[i].sel(
+                        {
+                            grid.raster.y_dim: stacked[grid.raster.y_dim].values,
+                            grid.raster.x_dim: stacked[grid.raster.x_dim].values,
+                        }
+                    )
                 )
             )
             == number_of_reservoirs
