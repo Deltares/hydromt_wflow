@@ -27,8 +27,8 @@ from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
 from . import DATADIR, utils, workflows
-from .pcr import read_staticmaps_pcr as read_pcr_func
-from .pcr import write_staticmaps_pcr as write_pcr_func
+from .pcrm import read_staticmaps_pcr as read_pcr_func
+from .pcrm import write_staticmaps_pcr as write_pcr_func
 
 __all__ = ["WflowModel"]
 
@@ -2624,7 +2624,7 @@ Run setup_soilmaps first"
         """Read and staticmaps at <root/staticmaps> and parse to xarray."""
         warnings.warn(
             "read_staticmaps_pcr as a method of this object is deprecated. "
-            "Use 'read_staticmaps_pcr' for the 'pcr' submodule instead. "
+            "Use 'read_staticmaps_pcr' for the 'pcrm' submodule instead. "
             "Will be removed in hydrom_wflow v0.5.0",
             DeprecationWarning,
             stacklevel=2,
@@ -2642,7 +2642,7 @@ Run setup_soilmaps first"
         """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
         warnings.warn(
             "write_staticmaps_pcr as a method of this object is deprecated. "
-            "Use 'write_staticmaps_pcr' for the 'pcr' submodule instead. "
+            "Use 'write_staticmaps_pcr' for the 'pcrm' submodule instead. "
             "Will be removed in hydrom_wflow v0.5.0",
             DeprecationWarning,
             stacklevel=2,

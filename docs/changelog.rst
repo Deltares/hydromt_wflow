@@ -15,7 +15,7 @@ Added
 Changed
 -------
 - **WflowModel** and **WflowSedimentModel** now rely on `GridModel` from HydroMT
-- PCRaster methods are moved to `pcr` submodule and are deprecated as methods for the **WflowModel** class
+- PCRaster methods are moved to `pcrm` submodule and are deprecated as methods for the **WflowModel** class
 - **read_staticgeoms**, **write_staticgeoms** and **staticgeoms** are now deprecated
 - Staticgeoms methods are superseded by **read_geoms**, **write_geoms** and **geoms**
 - **read_staticmaps**, **write_staticmaps** and **staticmaps** are now deprecated
