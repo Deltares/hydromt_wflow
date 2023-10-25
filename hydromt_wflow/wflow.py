@@ -83,6 +83,8 @@ class WflowModel(GridModel):
         logger=logger,
         **artifact_keys,
     ):
+        if data_libs is None:
+            data_libs = []
         for lib, version in artifact_keys.items():
             warnings.warn(
                 "Adding a predefined data catalog as key-word argument is deprecated, "
