@@ -22,6 +22,7 @@ import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
+from hydromt.exceptions import NoDataException
 from hydromt.models.model_grid import GridModel
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
@@ -1180,35 +1181,44 @@ gauge locations [-] (if derive_subcatch)
         """
         # Read data
         kwargs = {}
-        if isinstance(gauges_fn, gpd.GeoDataFrame):
-            gdf_gauges = gauges_fn
-            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                raise ValueError(f"{gauges_fn} contains other geometries than Point")
-        elif isfile(gauges_fn):
-            # try to get epsg number directly, important when writting back data_catalog
-            if hasattr(self.crs, "to_epsg"):
-                code = self.crs.to_epsg()
+        try:
+            if isinstance(gauges_fn, gpd.GeoDataFrame):
+                gdf_gauges = gauges_fn
+                if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                    raise ValueError(
+                        f"{gauges_fn} contains other geometries than Point"
+                    )
+            elif isfile(gauges_fn):
+                # try to get epsg number directly, important when writting back data_catalog
+                if hasattr(self.crs, "to_epsg"):
+                    code = self.crs.to_epsg()
+                else:
+                    code = self.crs
+                kwargs.update(crs=code)
+                gdf_gauges = self.data_catalog.get_geodataframe(
+                    gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                )
+            elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+                gdf_gauges = self.data_catalog.get_geodataframe(
+                    gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                )
+            elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
+                da = self.data_catalog.get_geodataset(
+                    gauges_fn, geom=self.basins, **kwargs
+                )
+                gdf_gauges = da.vector.to_gdf()
+                # Check for point geometry
+                if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                    raise ValueError(
+                        f"{gauges_fn} contains other geometries than Point"
+                    )
             else:
-                code = self.crs
-            kwargs.update(crs=code)
-            gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
-            )
-        elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
-            gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
-            )
-        elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
-            da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
-            gdf_gauges = da.vector.to_gdf()
-            # Check for point geometry
-            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                raise ValueError(f"{gauges_fn} contains other geometries than Point")
-        else:
-            raise ValueError(
-                f"{gauges_fn} data source not found or \
-incorrect data_type (GeoDataFrame or GeoDataset)."
-            )
+                raise ValueError(
+                    f"{gauges_fn} data source not found or incorrect data_type (GeoDataFrame or GeoDataset)."
+                )
+        except NoDataException:
+            self.logger.warning(f"No {gauges_fn} data found within domain")
+            return
 
         # Create basename
         if basename is None:
@@ -1684,9 +1694,15 @@ Using default storage/outflow function parameters."
         """
         # retrieve data for basin
         self.logger.info(f"Preparing {wb_type} maps.")
-        gdf_org = self.data_catalog.get_geodataframe(
-            waterbodies_fn, geom=self.basins, predicate="contains"
-        )
+        try:
+            gdf_org = self.data_catalog.get_geodataframe(
+                waterbodies_fn,
+                geom=self.basins,
+                predicate="contains",
+                handle_nodata="ignore",
+            )
+        except NoDataException:
+            gdf_org = gpd.GeoDataFrame(columns=["geom"], geometry="geom")
         # skip small size waterbodies
         if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
             min_area_m2 = min_area * 1e6
@@ -1856,9 +1872,13 @@ added to glacierstore [-]
         }
         # retrieve data for basin
         self.logger.info("Preparing glacier maps.")
-        gdf_org = self.data_catalog.get_geodataframe(
-            glaciers_fn, geom=self.basins, predicate="intersects"
-        )
+        try:
+            gdf_org = self.data_catalog.get_geodataframe(
+                glaciers_fn, geom=self.basins, predicate="intersects"
+            )
+        except NoDataException:
+            gdf_org = gpd.GeoDataFrame(columns=["geom"], geometry="geom")
+
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
             gdf_org = gdf_org[gdf_org["AREA"] >= min_area]
