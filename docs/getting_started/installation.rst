@@ -37,27 +37,30 @@ We recommend installing using mamba from conda-forge in a new environment.
     `here <https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide>`_
     for the difference between both.
 
-Install HydroMT-Wflow in a new environment (recommended!)
----------------------------------------------------------
+Install HydroMT-Wflow in a new environment
+------------------------------------------
+.. Tip::
+
+    This is our recommended way of installing HydroMT-Wflow!
 
 You can install HydroMT-Wflow in a new environment called `hydromt-wflow`:
 
 .. code-block:: console
 
-  $ mamba create -n hydromt-wflow python=< python version >
+  $ mamba create -n hydromt-wflow -c conda-forge hydromt_wflow
 
 Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:
 HydroMT-Wflow will be installed together with all optional (see above) and a few additional dependencies with:
 
 .. code-block:: console
 
-  conda activate hydromt-wflow
+  $ conda activate hydromt-wflow
 
 .. Tip::
 
     If you already have this environment with this name either remove it with
     `conda env remove -n hydromt-wflow` **or** set a new name for the environment
-    by adding `-n <name>` to the line below.
+    by changing `-n <name>` to the name of your new environment.
 
 Install HydroMT-Wflow in an existing environment
 ------------------------------------------------
@@ -69,7 +72,7 @@ channels the installation may fail.
 
 .. code-block:: console
 
-   $ mamba install -c conda-forge hydromt_wflow -n <environment_name>
+  $ mamba install -c conda-forge hydromt_wflow -n <environment_name>
 
 .. Note::
 
