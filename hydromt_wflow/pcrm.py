@@ -198,6 +198,9 @@ def read_staticmaps_pcr(
         logger.warning(f"No staticmaps found at {fn}")
         return
     _staticmaps = open_mfraster(fns, **kwargs)
+    # add maps to staticmaps
+    obj.set_grid(_staticmaps)
+
     path = join(root, "staticmaps", "clim", "LAI*")
     if len(glob.glob(path)) > 0:
         da_lai = open_mfraster(
@@ -232,6 +235,7 @@ def write_staticmaps_pcr(
     root: Path | str,
 ):
     """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
+    root = os.path.join(root, "staticmaps")
     if not isdir(root):
         os.makedirs(root)
     profile_kwargs = {}

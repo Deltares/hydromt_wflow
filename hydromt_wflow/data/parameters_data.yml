@@ -3,17 +3,17 @@ corine_mapping_default:
   driver: csv
   kwargs:
     index_col: 0
-  dtype:
-    landuse: int16
-    Kext: float32
-    N: float32
-    PathFrac: float32
-    RootingDepth: float32
-    Sl: float32
-    Swood: float32
-    WaterFrac: float32
-    USLE_C: float32
-    Cov_River: float32
+    dtype:
+      landuse: int16
+      Kext: float32
+      N: float32
+      PathFrac: float32
+      RootingDepth: float32
+      Sl: float32
+      Swood: float32
+      WaterFrac: float32
+      USLE_C: float32
+      Cov_River: float32
   meta:
     category: landuse
     source_info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
@@ -25,17 +25,17 @@ esa_worldcover_mapping_default:
   driver: csv
   kwargs:
     index_col: 0
-  dtype:
-    landuse: int16
-    Kext: float32
-    N: float32
-    PathFrac: float32
-    RootingDepth: float32
-    Sl: float32
-    Swood: float32
-    WaterFrac: float32
-    USLE_C: float32
-    Cov_River: float32
+    dtype:
+      landuse: int16
+      Kext: float32
+      N: float32
+      PathFrac: float32
+      RootingDepth: float32
+      Sl: float32
+      Swood: float32
+      WaterFrac: float32
+      USLE_C: float32
+      Cov_River: float32
   meta:
     category: landuse
     source_info: landuse parameters based on esa worldcover classification (https://doi.org/10.5281/zenodo.5571936)
@@ -47,17 +47,17 @@ globcover_mapping_default:
   driver: csv
   kwargs:
     index_col: 0
-  dtype:
-    landuse: int16
-    Kext: float32
-    N: float32
-    PathFrac: float32
-    RootingDepth: float32
-    Sl: float32
-    Swood: float32
-    WaterFrac: float32
-    USLE_C: float32
-    Cov_River: float32
+    dtype:
+      landuse: int16
+      Kext: float32
+      N: float32
+      PathFrac: float32
+      RootingDepth: float32
+      Sl: float32
+      Swood: float32
+      WaterFrac: float32
+      USLE_C: float32
+      Cov_River: float32
   meta:
     category: landuse
     source_info: landuse parameters based on globcover classification (http://due.esrin.esa.int/page_globcover.php)
@@ -69,17 +69,17 @@ vito_mapping_default:
   driver: csv
   kwargs:
     index_col: 0
-  dtype:
-    landuse: int16
-    Kext: float32
-    N: float32
-    PathFrac: float32
-    RootingDepth: float32
-    Sl: float32
-    Swood: float32
-    WaterFrac: float32
-    USLE_C: float32
-    Cov_River: float32
+    dtype:
+      landuse: int16
+      Kext: float32
+      N: float32
+      PathFrac: float32
+      RootingDepth: float32
+      Sl: float32
+      Swood: float32
+      WaterFrac: float32
+      USLE_C: float32
+      Cov_River: float32
   meta:
     category: landuse
     source_info: landuse parameters based on vito classification (https://land.copernicus.eu/global/products/lc)
@@ -113,8 +113,8 @@ roughness_river_mapping_default:
   driver: csv
   kwargs:
     index_col: 0
-  dtype:
-    N_River: float32
+    dtype:
+      N_River: float32
   meta:
     category: hydrography
     source_info: Mapping between streamorder and river Manning roughness
@@ -126,12 +126,12 @@ riverbedsed_mapping_default:
   driver: csv
   kwargs:
     index_col: 0
-  dtype:
-    D50_River: float32
-    ClayF_River: float32
-    SiltF_River: float32
-    SandF_River: float32
-    GravelF_River: float32
+    dtype:
+      D50_River: float32
+      ClayF_River: float32
+      SiltF_River: float32
+      SandF_River: float32
+      GravelF_River: float32
   meta:
     category: landuse
     source_info: Mapping between stream order and river bed sediment
