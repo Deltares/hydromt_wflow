@@ -99,7 +99,6 @@ General methods
    WflowModel.read_grid
    WflowModel.write_grid
    WflowModel.clip_grid
-   WflowModel.clip_staticmaps
    WflowModel.read_staticmaps_pcr
    WflowModel.write_staticmaps_pcr
 

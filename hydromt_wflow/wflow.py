@@ -3152,7 +3152,11 @@ change name input.path_forcing "
 
     @property
     def staticgeoms(self):
-        """Return static geometries."""
+        """Return static geometries.
+
+        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
+        :py:attr:`geoms` instead.
+        """
         self.logger.warning(
             "staticgeoms is deprecated. Call 'geoms' instead. "
             "Will be removed in hydromt_wflow v0.6.0"
@@ -3161,7 +3165,11 @@ change name input.path_forcing "
 
     @property
     def staticmaps(self):
-        """Return staticmaps."""
+        """Return staticmaps.
+
+        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
+        :py:attr:`grid` instead.
+        """
         self.logger.warning(
             "staticmaps is deprecated. Call 'grid' instead. "
             "Will be removed in hydromt_wflow v0.6.0"
