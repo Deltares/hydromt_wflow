@@ -189,7 +189,6 @@ def read_staticmaps_pcr(
     root: Path | str, crs: int = 4326, obj: object = None, **kwargs
 ):
     """Read and staticmaps at <root/staticmaps> and parse to xarray."""
-    da_lai = None
     da = None
 
     fn = join(root, "staticmaps", "*.map")
@@ -198,16 +197,14 @@ def read_staticmaps_pcr(
         logger.warning(f"No staticmaps found at {fn}")
         return
     _staticmaps = open_mfraster(fns, **kwargs)
-    # add maps to staticmaps
-    obj.set_grid(_staticmaps)
 
     path = join(root, "staticmaps", "clim", "LAI*")
     if len(glob.glob(path)) > 0:
-        da_lai = open_mfraster(
+        ds_lai = open_mfraster(
             path, concat=True, concat_dim="time", logger=logger, **kwargs
         )
-        if obj is not None:
-            obj.set_grid(da_lai, "LAI")
+        lai_key = list(ds_lai.data_vars)[0]
+        _staticmaps["LAI"] = ds_lai[lai_key]
 
     # reorganize c_0 etc maps
     da_c = []
@@ -218,16 +215,20 @@ def read_staticmaps_pcr(
         da = xr.concat(
             da_c, pd.Index(np.arange(len(list_c), dtype=int), name="layer")
         ).transpose("layer", ...)
-        if obj is not None:
-            obj.set_grid(da, "c")
+        _staticmaps = _staticmaps.drop_vars(list_c)
+        _staticmaps["c"] = da
 
+    _staticmaps = _staticmaps.rename({"x": "lon", "y": "lat"})
+
+    # add maps to staticmaps
     if obj is not None:
+        obj.set_grid(_staticmaps)
         if obj.crs is None:
             if crs is None:
                 crs = 4326  # default to 4326
             obj.set_crs(crs)
 
-    return da, da_lai
+    return _staticmaps
 
 
 def write_staticmaps_pcr(
