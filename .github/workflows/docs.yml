@@ -77,6 +77,11 @@ jobs:
           export PATH=/usr/share/miniconda3/bin:$PATH
           mamba env update -n hydromt_wflow -f environment.yml
 
+      - name: Install HydroMT-core dev
+        run: |
+          export PATH=/usr/share/miniconda3/bin:$PATH
+          mamba run -n hydromt_wflow python -m pip install git+https://github.com/Deltares/hydromt.git@main --user
+
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
         run: |
