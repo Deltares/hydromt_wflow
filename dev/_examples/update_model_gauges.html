@@ -18,27 +18,27 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
-    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -121,11 +121,12 @@
   
   
   
+  
     
     
     
-    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt="Logo image"/>
-    <script>document.write(`<img src="../_static/hydromt-icon.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../_static/hydromt-icon.svg" class="logo__image only-dark" alt=""/>`);</script>
   
   
     <p class="title logo__title">HydroMT Wflow</p>
@@ -595,6 +596,7 @@ Options:
   -d, --data TEXT            Path to local yaml data catalog file OR name of
                              predefined data catalog.
   --dd, --deltares-data      Flag: Shortcut to add the &#34;deltares_data&#34; catalog
+  --fo, --force-overwrite    Flag: If provided overwrite existing model files
   --cache                    Flag: If provided cache tiled rasterdatasets
   -q, --quiet                Decrease verbosity.
   -v, --verbose              Increase verbosity.
@@ -619,44 +621,42 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-10-05 14:00:26,795 - update - log - INFO - HydroMT version: 0.8.0
-2023-10-05 14:00:26,795 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-10-05 14:00:26,795 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2023-10-05 14:00:26,795 - update - main - INFO - User settings:
-2023-10-05 14:00:26,813 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
-2023-10-05 14:00:26,813 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-10-05 14:00:26,828 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-10-05 14:00:27,077 - update - wflow - INFO - Reading model intbl files.
-2023-10-05 14:00:27,078 - update - wflow - INFO - Reading model table files.
-2023-10-05 14:00:27,078 - update - wflow - INFO - Reading model staticgeom files.
-2023-10-05 14:00:27,183 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-10-05 14:00:27,215 - update - wflow - INFO - Model read
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.index_col: None
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.mask: None
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.snap_uparea: False
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.wdw: 3
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.rel_error: 0.05
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.basename: test-flow
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.toml_output: csv
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
-2023-10-05 14:00:27,220 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
-2023-10-05 14:00:27,222 - update - data_catalog - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2023-10-05 14:00:27,226 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2023-10-05 14:00:27,238 - update - wflow - INFO - 3 test-flow gauge locations found within domain
-2023-10-05 14:00:29,232 - update - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
-2023-10-05 14:00:29,232 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2023-10-05 14:00:29,233 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-2023-10-05 14:00:29,358 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2023-10-05 14:00:29,772 - update - wflow - INFO - Writing model staticgeom to file.
-2023-10-05 14:00:29,934 - update - wflow - INFO - Write forcing file
-2023-10-05 14:00:29,955 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
-[########################################] | 100% Completed | 101.37 ms
-malloc(): unsorted double linked list corrupted
-Aborted (core dumped)
+2023-11-16 10:27:32,545 - update - log - INFO - HydroMT version: 0.9.1.dev
+2023-11-16 10:27:32,545 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-11-16 10:27:32,545 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2023-11-16 10:27:32,545 - update - main - INFO - User settings:
+2023-11-16 10:27:32,869 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
+2023-11-16 10:27:32,869 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2023-11-16 10:27:32,880 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-11-16 10:27:32,934 - update - wflow - INFO - Reading model intbl files.
+2023-11-16 10:27:32,934 - update - wflow - INFO - Reading model table files.
+2023-11-16 10:27:32,935 - update - wflow - INFO - Reading model staticgeom files.
+2023-11-16 10:27:33,034 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-11-16 10:27:33,052 - update - wflow - INFO - Model read
+2023-11-16 10:27:33,057 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.index_col: None
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.mask: None
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.snap_uparea: False
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.wdw: 3
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.rel_error: 0.05
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.basename: test-flow
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.toml_output: csv
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
+2023-11-16 10:27:33,058 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
+2023-11-16 10:27:33,061 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
+2023-11-16 10:27:33,069 - update - wflow - INFO - 3 test-flow gauge locations found within domain
+2023-11-16 10:27:34,832 - update - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
+2023-11-16 10:27:34,833 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2023-11-16 10:27:34,834 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
+2023-11-16 10:27:34,874 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2023-11-16 10:27:35,173 - update - wflow - INFO - Writing model staticgeom to file.
+2023-11-16 10:27:35,292 - update - wflow - INFO - Write forcing file
+2023-11-16 10:27:35,303 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
+[########################################] | 100% Completed | 100.92 ms
+
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -693,40 +693,37 @@ Aborted (core dumped)
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-10-05 14:00:32,851 - update - log - INFO - HydroMT version: 0.8.0
-2023-10-05 14:00:32,851 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
-2023-10-05 14:00:32,851 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2023-10-05 14:00:32,851 - update - main - INFO - User settings:
-2023-10-05 14:00:32,869 - update - model_api - WARNING - Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms.
-2023-10-05 14:00:32,869 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
-2023-10-05 14:00:32,869 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-10-05 14:00:32,886 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.index_col: None
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.snap_to_river: False
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.mask: None
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.snap_uparea: False
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.wdw: 3
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.rel_error: 0.05
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.basename: test-rain
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.toml_output: csv
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
-2023-10-05 14:00:33,143 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
-2023-10-05 14:00:33,146 - update - wflow - INFO - Reading model staticgeom files.
-2023-10-05 14:00:33,254 - update - data_catalog - INFO - DataCatalog: Getting test_stations GeoDataFrame csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/test_stations.csv
-2023-10-05 14:00:33,257 - update - geodataframe - INFO - GeoDataFrame: Read csv data and clip to geom (epsg:4326) [11.775, 45.804, 12.745, 46.690].
-2023-10-05 14:00:33,269 - update - wflow - INFO - 3 test-rain gauge locations found within domain
-2023-10-05 14:00:34,204 - update - wflow - INFO - Adding [&#39;vertical.precipitation&#39;] to csv section of toml.
-2023-10-05 14:00:34,205 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2023-10-05 14:00:34,205 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
-2023-10-05 14:00:34,206 - update - data_catalog - WARNING - Overwriting data source test_stations.
-2023-10-05 14:00:34,207 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-2023-10-05 14:00:34,415 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2023-10-05 14:00:34,830 - update - wflow - INFO - Writing model staticgeom to file.
-malloc(): mismatching next-&gt;prev_size (unsorted)
-Aborted (core dumped)
+2023-11-16 10:27:37,642 - update - log - INFO - HydroMT version: 0.9.1.dev
+2023-11-16 10:27:37,642 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
+2023-11-16 10:27:37,642 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2023-11-16 10:27:37,642 - update - main - INFO - User settings:
+2023-11-16 10:27:37,966 - update - model_api - WARNING - Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms.
+2023-11-16 10:27:37,967 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
+2023-11-16 10:27:37,967 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2023-11-16 10:27:37,978 - update - wflow - INFO - Reading model staticgeom files.
+2023-11-16 10:27:38,078 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.index_col: None
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.snap_to_river: False
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.mask: None
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.snap_uparea: False
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.wdw: 3
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.rel_error: 0.05
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.basename: test-rain
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.toml_output: csv
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
+2023-11-16 10:27:38,136 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
+2023-11-16 10:27:38,139 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
+2023-11-16 10:27:38,147 - update - wflow - INFO - 3 test-rain gauge locations found within domain
+2023-11-16 10:27:38,896 - update - wflow - INFO - Adding [&#39;vertical.precipitation&#39;] to csv section of toml.
+2023-11-16 10:27:38,897 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2023-11-16 10:27:38,897 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
+2023-11-16 10:27:38,898 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
+2023-11-16 10:27:38,938 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2023-11-16 10:27:39,334 - update - wflow - INFO - Writing model staticgeom to file.
+
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -784,8 +781,8 @@ Aborted (core dumped)
 <span class="c1"># initialize image with geoaxes</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
-<span class="n">bbox</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mf">5e3</span><span class="p">)</span>
-<span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">staticmaps</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+<span class="n">bbox</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">box</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mf">5e3</span><span class="p">)</span>
+<span class="n">extent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bbox</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">mod</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">)[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">proj</span><span class="p">)</span>
 
 <span class="c1"># add sat background image</span>
@@ -796,12 +793,12 @@ Aborted (core dumped)
 <span class="c1"># plot the basin boundary</span>
 <span class="n">gdf_bas</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="s2">&quot;gauges&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="k">if</span> <span class="s2">&quot;gauges&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
         <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;outlet&quot;</span>
     <span class="p">)</span>
-<span class="k">if</span> <span class="s2">&quot;gauges_grdc&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges_grdc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="k">if</span> <span class="s2">&quot;gauges_grdc&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;gauges_grdc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
         <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
         <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
         <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -809,12 +806,12 @@ Aborted (core dumped)
         <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauges GRDC&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-<span class="k">if</span> <span class="s2">&quot;gauges_test-flow&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges_test-flow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="k">if</span> <span class="s2">&quot;gauges_test-flow&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;gauges_test-flow&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
         <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Gauges Flow&quot;</span>
     <span class="p">)</span>
-<span class="k">if</span> <span class="s2">&quot;gauges_test-rain&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">:</span>
-    <span class="n">mod</span><span class="o">.</span><span class="n">staticgeoms</span><span class="p">[</span><span class="s2">&quot;gauges_test-rain&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+<span class="k">if</span> <span class="s2">&quot;gauges_test-rain&quot;</span> <span class="ow">in</span> <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+    <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;gauges_test-rain&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
         <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
         <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span>
         <span class="n">markersize</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
@@ -938,8 +935,8 @@ Aborted (core dumped)
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -969,7 +966,7 @@ Aborted (core dumped)
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>

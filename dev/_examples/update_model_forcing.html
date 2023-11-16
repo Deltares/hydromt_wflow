@@ -18,27 +18,27 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=ac02cc09edc035673794" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=ac02cc09edc035673794" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
-    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=ac02cc09edc035673794"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
 
-    <script src="../_static/documentation_options.js?v=8a448e45"></script>
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
@@ -121,11 +121,12 @@
   
   
   
+  
     
     
     
-    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt="Logo image"/>
-    <script>document.write(`<img src="../_static/hydromt-icon.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <script>document.write(`<img src="../_static/hydromt-icon.svg" class="logo__image only-dark" alt=""/>`);</script>
   
   
     <p class="title logo__title">HydroMT Wflow</p>
@@ -549,9 +550,9 @@ skip_pet        = False         # if True, only temperature is prepared.
 [write_forcing]                 # Write forcing and re-write config if forcing filename or times are updated
 freq_out        = M             # Set frequency at which forcing files are written, following pandas offset aliases
 
-[write_staticmaps]              # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
+[write_grid]              # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
 
-[write_staticgeoms]             # to make sure that the staticgeoms are written as well, can be skipped if update in the same model folder
+[write_geoms]             # to make sure that the staticgeoms are written as well, can be skipped if update in the same model folder
 
 </pre></div></div>
 </div>
@@ -611,6 +612,7 @@ Options:
   -d, --data TEXT            Path to local yaml data catalog file OR name of
                              predefined data catalog.
   --dd, --deltares-data      Flag: Shortcut to add the &#34;deltares_data&#34; catalog
+  --fo, --force-overwrite    Flag: If provided overwrite existing model files
   --cache                    Flag: If provided cache tiled rasterdatasets
   -q, --quiet                Decrease verbosity.
   -v, --verbose              Increase verbosity.
@@ -635,53 +637,54 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-10-05 14:00:12,663 - update - log - INFO - HydroMT version: 0.8.0
-2023-10-05 14:00:12,663 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-10-05 14:00:12,663 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2023-10-05 14:00:12,663 - update - main - INFO - User settings:
-2023-10-05 14:00:12,723 - update - data_catalog - INFO - Reading data catalog artifact_data v0.0.8 from archive
-2023-10-05 14:00:12,723 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-10-05 14:00:12,799 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
-2023-10-05 14:00:12,799 - update - data_catalog - INFO - Parsing data catalog from /usr/share/miniconda3/envs/hydromt-wflow/lib/python3.9/site-packages/hydromt_wflow/data/parameters_data.yml
-2023-10-05 14:00:12,814 - update - wflow - INFO - Read staticmaps from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-10-05 14:00:13,062 - update - wflow - INFO - Reading model intbl files.
-2023-10-05 14:00:13,062 - update - wflow - INFO - Reading model table files.
-2023-10-05 14:00:13,063 - update - wflow - INFO - Reading model staticgeom files.
-2023-10-05 14:00:13,165 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-10-05 14:00:13,196 - update - wflow - INFO - Model read
-2023-10-05 14:00:13,201 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2023-10-05 14:00:13,201 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2023-10-05 14:00:13,201 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2023-10-05 14:00:13,205 - update - data_catalog - INFO - DataCatalog: Getting chirps_global RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/chirps_global.nc
-2023-10-05 14:00:13,310 - update - model_api - WARNING - Replacing forcing: precip
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2023-10-05 14:00:13,310 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2023-10-05 14:00:13,314 - update - data_catalog - INFO - DataCatalog: Getting era5 RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5.nc
-2023-10-05 14:00:13,394 - update - data_catalog - INFO - DataCatalog: Getting era5_orography RasterDataset netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5_orography.nc
-2023-10-05 14:00:13,662 - update - model_api - WARNING - Replacing forcing: pet
-2023-10-05 14:00:13,663 - update - model_api - WARNING - Replacing forcing: temp
-2023-10-05 14:00:13,664 - update - model_api - INFO - write_forcing.fn_out: None
-2023-10-05 14:00:13,664 - update - model_api - INFO - write_forcing.freq_out: M
-2023-10-05 14:00:13,664 - update - model_api - INFO - write_forcing.chunksize: 1
-2023-10-05 14:00:13,664 - update - model_api - INFO - write_forcing.decimals: 2
-2023-10-05 14:00:13,664 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
-2023-10-05 14:00:13,664 - update - wflow - INFO - Write forcing file
-2023-10-05 14:00:13,672 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
-2023-10-05 14:00:13,672 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2023-10-05 14:00:13,695 - update - wflow - INFO - Writting several forcing with freq M
-2023-10-05 14:00:13,695 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2023-10-05 14:00:13,701 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
-[########################################] | 100% Completed | 102.12 ms
-2023-10-05 14:00:14,074 - update - wflow - INFO - Write staticmaps to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2023-10-05 14:00:14,343 - update - wflow - INFO - Writing model staticgeom to file.
+2023-11-16 10:27:21,299 - update - log - INFO - HydroMT version: 0.9.1.dev
+2023-11-16 10:27:21,299 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-11-16 10:27:21,299 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2023-11-16 10:27:21,299 - update - main - INFO - User settings:
+2023-11-16 10:27:21,644 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
+2023-11-16 10:27:21,644 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-11-16 10:27:21,690 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.3.1.dev0).
+2023-11-16 10:27:21,690 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2023-11-16 10:27:21,700 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-11-16 10:27:21,751 - update - wflow - INFO - Reading model intbl files.
+2023-11-16 10:27:21,752 - update - wflow - INFO - Reading model table files.
+2023-11-16 10:27:21,752 - update - wflow - INFO - Reading model staticgeom files.
+2023-11-16 10:27:21,847 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-11-16 10:27:21,864 - update - wflow - INFO - Model read
+2023-11-16 10:27:21,870 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2023-11-16 10:27:21,870 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2023-11-16 10:27:21,870 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2023-11-16 10:27:21,874 - update - rasterdataset - INFO - Reading chirps_global netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/chirps_global.nc
+2023-11-16 10:27:21,916 - update - model_api - WARNING - Replacing forcing: precip
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2023-11-16 10:27:21,916 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2023-11-16 10:27:21,919 - update - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5.nc
+2023-11-16 10:27:21,955 - update - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5_orography.nc
+2023-11-16 10:27:22,081 - update - model_api - WARNING - Replacing forcing: pet
+2023-11-16 10:27:22,082 - update - model_api - WARNING - Replacing forcing: temp
+2023-11-16 10:27:22,083 - update - model_api - INFO - write_forcing.fn_out: None
+2023-11-16 10:27:22,083 - update - model_api - INFO - write_forcing.freq_out: M
+2023-11-16 10:27:22,083 - update - model_api - INFO - write_forcing.chunksize: 1
+2023-11-16 10:27:22,083 - update - model_api - INFO - write_forcing.decimals: 2
+2023-11-16 10:27:22,083 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
+2023-11-16 10:27:22,083 - update - wflow - INFO - Write forcing file
+2023-11-16 10:27:22,090 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
+2023-11-16 10:27:22,090 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2023-11-16 10:27:22,095 - update - wflow - INFO - Writting several forcing with freq M
+2023-11-16 10:27:22,095 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2023-11-16 10:27:22,099 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
+[########################################] | 100% Completed | 101.51 ms
+2023-11-16 10:27:22,362 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2023-11-16 10:27:22,545 - update - model_api - INFO - write_geoms.geom_fn: staticgeoms
+2023-11-16 10:27:22,545 - update - wflow - INFO - Writing model staticgeom to file.
 
 </pre></div></div>
 </div>
@@ -718,12 +721,12 @@ Options:
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># read wflow forcing; mask region outside the basin and compute the basin average</span>
 <span class="c1"># NOTE: only very limited forcing data is available from the artifacts</span>
 <span class="n">ds_forcing0</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mod0</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-    <span class="n">mod0</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">mod0</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
 <span class="p">)</span>
 <span class="n">ds_forcing0</span> <span class="o">=</span> <span class="n">ds_forcing0</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="n">ds_forcing0</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">ds_forcing0</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">])</span>
 
 <span class="n">ds_forcing1</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mod1</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-    <span class="n">mod1</span><span class="o">.</span><span class="n">staticmaps</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">mod1</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
 <span class="p">)</span>
 <span class="n">ds_forcing1</span> <span class="o">=</span> <span class="n">ds_forcing1</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="n">ds_forcing1</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">,</span> <span class="n">ds_forcing1</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">])</span>
 </pre></div>
@@ -858,8 +861,8 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=ac02cc09edc035673794"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=ac02cc09edc035673794"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -889,7 +892,7 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
     <div class="footer-items__end">
       
         <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
 </p></div>
       
     </div>
