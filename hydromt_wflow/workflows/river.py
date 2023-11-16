@@ -451,7 +451,7 @@ def river_width(
         values = _precip(ds_like, flwdir=flwdir, logger=logger, **data)
     else:
         if predictor not in ds_like:
-            raise ValueError(f"required {predictor} variable missing in staticmaps.")
+            raise ValueError(f"required {predictor} variable missing in grid.")
         values = ds_like[predictor].values
 
     # read river width observations

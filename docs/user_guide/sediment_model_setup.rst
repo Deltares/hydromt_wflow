@@ -62,7 +62,7 @@ a specific method see its documentation.
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
     * - :py:func:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
-    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+    * - :py:func:`~WflowModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
 
 
@@ -86,9 +86,9 @@ and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
      - Wflow sediment files
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.config`
      - wflow_sediment.toml
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps`
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.grid`
      - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms`
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.geoms`
      - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.forcing`
      - inmaps.nc
@@ -96,3 +96,7 @@ and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
      - instates.nc
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.results`
      - output.nc, output_scalar.nc, output.csv
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps` (deprecated, removed in hydromt_wflow v0.6.0)
+     - staticmaps.nc
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms` (deprecated, removed in hydromt_wflow v0.6.0)
+     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)

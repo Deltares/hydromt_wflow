@@ -17,36 +17,36 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
-def test_setup_staticmaps(example_wflow_model):
-    # Tests on setup_staticmaps_from_raster
-    example_wflow_model.setup_staticmaps_from_raster(
+def test_setup_grid(example_wflow_model):
+    # Tests on setup_grid_from_raster
+    example_wflow_model.setup_grid_from_raster(
         raster_fn="merit_hydro",
         reproject_method="average",
         variables=["elevtn"],
         wflow_variables=["input.vertical.altitude"],
         fill_method="nearest",
     )
-    assert "elevtn" in example_wflow_model.staticmaps
+    assert "elevtn" in example_wflow_model.grid
     assert example_wflow_model.get_config("input.vertical.altitude") == "elevtn"
 
-    example_wflow_model.setup_staticmaps_from_raster(
+    example_wflow_model.setup_grid_from_raster(
         raster_fn="globcover",
         reproject_method="mode",
         wflow_variables=["input.vertical.landuse"],
     )
-    assert "globcover" in example_wflow_model.staticmaps
+    assert "globcover" in example_wflow_model.grid
     assert example_wflow_model.get_config("input.vertical.landuse") == "globcover"
 
     # Test on exceptions
     with pytest.raises(ValueError, match="Length of variables"):
-        example_wflow_model.setup_staticmaps_from_raster(
+        example_wflow_model.setup_grid_from_raster(
             raster_fn="merit_hydro",
             reproject_method="average",
             variables=["elevtn", "lndslp"],
             wflow_variables=["input.vertical.altitude"],
         )
     with pytest.raises(ValueError, match="variables list is not provided"):
-        example_wflow_model.setup_staticmaps_from_raster(
+        example_wflow_model.setup_grid_from_raster(
             raster_fn="merit_hydro",
             reproject_method="average",
             wflow_variables=["input.vertical.altitude"],
@@ -103,14 +103,14 @@ def test_projected_crs(tmpdir):
     # Add more data eg landuse
     mod.setup_lulcmaps("globcover")
 
-    assert mod.staticmaps.raster.crs == 3857
-    assert np.quantile(mod.staticmaps["wflow_landuse"], 0.95) == 190.0  # urban
+    assert mod.grid.raster.crs == 3857
+    assert np.quantile(mod.grid["wflow_landuse"], 0.95) == 190.0  # urban
     assert mod.get_config("model.sizeinmetres") == True
 
 
 def test_setup_lake(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
-    lakes = example_wflow_model.staticgeoms["lakes"]
+    lakes = example_wflow_model.geoms["lakes"]
     lake_id = lakes["waterbody_id"].iloc[0]
     area = lakes["LakeArea"].iloc[0]
     dis = lakes["LakeAvgOut"].iloc[0]
@@ -151,10 +151,10 @@ def test_setup_lake(tmpdir, example_wflow_model):
 
     assert f"lake_sh_{lake_id}" in example_wflow_model.tables
     assert f"lake_hq_{lake_id}" in example_wflow_model.tables
-    assert 2 in np.unique(example_wflow_model.staticmaps["LakeStorFunc"].values)
-    assert 1 in np.unique(example_wflow_model.staticmaps["LakeOutflowFunc"].values)
+    assert 2 in np.unique(example_wflow_model.grid["LakeStorFunc"].values)
+    assert 1 in np.unique(example_wflow_model.grid["LakeOutflowFunc"].values)
     assert (
-        "LakeMaxStorage" not in example_wflow_model.staticmaps
+        "LakeMaxStorage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
@@ -199,16 +199,15 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         "ResTargetMinFrac",
     ]
     assert all(
-        x == True
-        for x in [k in example_wflow_model.staticmaps.keys() for k in required]
+        x == True for x in [k in example_wflow_model.grid.keys() for k in required]
     ), "1 or more reservoir map missing"
 
     # Check if all parameter maps contain x non-null values, where x equals
     # the number of reservoirs in the model area
-    staticmaps = example_wflow_model.staticmaps.where(
-        example_wflow_model.staticmaps.wflow_reservoirlocs != -999
+    grid = example_wflow_model.grid.where(
+        example_wflow_model.grid.wflow_reservoirlocs != -999
     )
-    stacked = staticmaps.wflow_reservoirlocs.stack(x=["lat", "lon"])
+    stacked = grid.wflow_reservoirlocs.stack(x=[grid.raster.y_dim, grid.raster.x_dim])
     stacked = stacked[stacked.notnull()]
     number_of_reservoirs = stacked.size
 
@@ -216,7 +215,12 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
         assert (
             np.count_nonzero(
                 ~np.isnan(
-                    staticmaps[i].sel(lat=stacked.lat.values, lon=stacked.lon.values)
+                    grid[i].sel(
+                        {
+                            grid.raster.y_dim: stacked[grid.raster.y_dim].values,
+                            grid.raster.x_dim: stacked[grid.raster.x_dim].values,
+                        }
+                    )
                 )
             )
             == number_of_reservoirs
@@ -258,6 +262,7 @@ def test_setup_rootzoneclim(example_wflow_model):
     # fill data with dummy precip and pet data - uniform over area
     ds["pet"] = ds["pet"] + test_data["pet"].to_xarray()
     ds["precip"] = ds["precip"] + test_data["precip"].to_xarray()
+    ds.raster.set_crs(ds_obs.raster.crs)
 
     ds_cc_hist = ds.copy()
     ds_cc_hist["pet"] = ds["pet"] * 1.05
@@ -279,14 +284,16 @@ def test_setup_rootzoneclim(example_wflow_model):
             index=indices,
             lon=(
                 ["index"],
-                example_wflow_model.staticgeoms["gauges_grdc"].geometry.x.values,
+                example_wflow_model.geoms["gauges_grdc"].geometry.x.values,
             ),
             lat=(
                 ["index"],
-                example_wflow_model.staticgeoms["gauges_grdc"].geometry.y.values,
+                example_wflow_model.geoms["gauges_grdc"].geometry.y.values,
             ),
         ),
     )
+    # ds_run.raster.set_crs(ds_obs.raster.crs)
+    # ds_run.raster.set_spatial_dims(x_dim="lon", y_dim="lat")
     # fill with dummy data
     for ind in indices:
         ds_run["discharge"].loc[dict(index=ind)] = test_data[f"Q_{ind}"]
@@ -298,34 +305,34 @@ def test_setup_rootzoneclim(example_wflow_model):
         forcing_cc_fut_fn=ds_cc_fut,
         start_hydro_year="Oct",
         start_field_capacity="Apr",
-        time_tuple=("2005-01-01", "2015-12-31"),
-        time_tuple_fut=("2005-01-01", "2017-12-31"),
+        time_tuple=("2005-01-01", "2020-12-31"),
+        time_tuple_fut=("2005-01-01", "2020-12-31"),
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
         update_toml_rootingdepth="RootingDepth_obs_2",
         rootzone_storage=True,
     )
 
-    assert "RootingDepth_obs_20" in example_wflow_model.staticmaps
-    assert "RootingDepth_cc_hist_20" in example_wflow_model.staticmaps
-    assert "RootingDepth_cc_fut_20" in example_wflow_model.staticmaps
+    assert "RootingDepth_obs_20" in example_wflow_model.grid
+    assert "RootingDepth_cc_hist_20" in example_wflow_model.grid
+    assert "RootingDepth_cc_fut_20" in example_wflow_model.grid
 
-    assert "rootzone_storage_obs_15" in example_wflow_model.staticmaps
-    assert "rootzone_storage_cc_hist_15" in example_wflow_model.staticmaps
-    assert "rootzone_storage_cc_fut_15" in example_wflow_model.staticmaps
+    assert "rootzone_storage_obs_15" in example_wflow_model.grid
+    assert "rootzone_storage_cc_hist_15" in example_wflow_model.grid
+    assert "rootzone_storage_cc_fut_15" in example_wflow_model.grid
 
     assert (
         example_wflow_model.get_config("input.vertical.rootingdepth")
         == "RootingDepth_obs_2"
     )
 
-    assert example_wflow_model.staticgeoms["rootzone_storage"].loc[1][
+    assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_obs_2"
     ] == pytest.approx(72.32875652734612, abs=0.5)
-    assert example_wflow_model.staticgeoms["rootzone_storage"].loc[1][
+    assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_cc_hist_2"
     ] == pytest.approx(70.26993058321949, abs=0.5)
-    assert example_wflow_model.staticgeoms["rootzone_storage"].loc[1][
+    assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_cc_fut_2"
     ] == pytest.approx(80.89081789601374, abs=0.5)
 
@@ -346,13 +353,13 @@ def test_setup_rootzoneclim(example_wflow_model):
         update_toml_rootingdepth="RootingDepth_obs_2",
     )
 
-    assert example_wflow_model.staticgeoms["rootzone_storage"].loc[1][
+    assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_obs_2"
     ] == pytest.approx(82.85684577620462, abs=0.5)
-    assert example_wflow_model.staticgeoms["rootzone_storage"].loc[1][
+    assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_cc_hist_2"
     ] == pytest.approx(82.44039441508069, abs=0.5)
-    assert example_wflow_model.staticgeoms["rootzone_storage"].loc[1][
+    assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_cc_fut_2"
     ] == pytest.approx(104.96931418911882, abs=0.5)
 
@@ -369,10 +376,10 @@ def test_setup_gauges(example_wflow_model):
         wdw=5,
         rel_error=0.05,
     )
-    gdf = example_wflow_model.staticgeoms["gauges_grdc_uparea"]
-    ds_samp = example_wflow_model.staticmaps[
-        ["wflow_river", "wflow_uparea"]
-    ].raster.sample(gdf, wdw=0)
+    gdf = example_wflow_model.geoms["gauges_grdc_uparea"]
+    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
+        gdf, wdw=0
+    )
     assert np.all(ds_samp["wflow_river"].values == 1)
     assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
 
@@ -384,7 +391,7 @@ def test_setup_gauges(example_wflow_model):
         snap_to_river=True,
         mask=None,
     )
-    gdf_snap = example_wflow_model.staticgeoms["gauges_stations_snapping"]
+    gdf_snap = example_wflow_model.geoms["gauges_stations_snapping"]
 
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
@@ -392,7 +399,7 @@ def test_setup_gauges(example_wflow_model):
         snap_to_river=False,
         mask=None,
     )
-    gdf_no_snap = example_wflow_model.staticgeoms["gauges_stations_no_snapping"]
+    gdf_no_snap = example_wflow_model.geoms["gauges_stations_no_snapping"]
 
     # Check that not all geometries of gdf_snap and gdf_no_snap are equal
     assert not gdf_snap.equals(gdf_no_snap)
@@ -421,14 +428,14 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         elevtn_map
     ]
 
-    assert mapname in example_wflow_model.staticmaps
+    assert mapname in example_wflow_model.grid
     assert example_wflow_model.get_config("model.river_routing") == "local-inertial"
     assert (
         example_wflow_model.get_config("input.lateral.river.bankfull_elevation")
         == mapname
     )
     assert (
-        example_wflow_model.staticmaps[mapname]
+        example_wflow_model.grid[mapname]
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[mapname])
     )
@@ -457,15 +464,15 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         flood_depths=flood_depths,
     )
 
-    assert "floodplain_volume" in example_wflow_model.staticmaps
+    assert "floodplain_volume" in example_wflow_model.grid
     assert example_wflow_model.get_config("model.floodplain_1d") == True
     assert example_wflow_model.get_config("model.land_routing") == "kinematic-wave"
     assert (
         example_wflow_model.get_config("input.lateral.river.floodplain.volume")
         == "floodplain_volume"
     )
-    assert np.all(example_wflow_model.staticmaps.flood_depth.values == flood_depths)
-    assert example_wflow_model.staticmaps.floodplain_volume.raster.mask_nodata().equals(
+    assert np.all(example_wflow_model.grid.flood_depth.values == flood_depths)
+    assert example_wflow_model.grid.floodplain_volume.raster.mask_nodata().equals(
         floodplain1d_testdata.floodplain_volume
     )
 
@@ -493,7 +500,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         elevtn_map
     ]
 
-    assert f"{mapname}_D4" in example_wflow_model.staticmaps
+    assert f"{mapname}_D4" in example_wflow_model.grid
     assert example_wflow_model.get_config("model.floodplain_1d") == False
     assert example_wflow_model.get_config("model.land_routing") == "local-inertial"
     assert (
@@ -505,7 +512,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         == f"{mapname}_D4"
     )
     assert (
-        example_wflow_model.staticmaps[f"{mapname}_D4"]
+        example_wflow_model.grid[f"{mapname}_D4"]
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
     )

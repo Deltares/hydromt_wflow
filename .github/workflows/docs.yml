@@ -1,50 +1,99 @@
-name: Build Docs
+name: Build Documentation
 
-# We don't want pushes (or PRs) to gh-pages to kick anything off
 on:
+  workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - tests/*
+      - hydromt_wflow/*
+      - docs/*
+      - examples/*
+      - pyproject.toml
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - tests/*
+      - hydromt_wflow/*
+      - docs/*
+      - examples/*
+      - pyproject.toml
 
 jobs:
   # Build docs on Linux
   Docs:
-    name: linux docs
-    runs-on: ubuntu-latest
-    env:
-      DOC_VERSION: dev
     defaults:
       run:
         shell: bash -l {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest" ] #, "macos-latest", "windows-latest"]
+        python-version: ['3.11']
+        include:
+        - os: ubuntu-latest
+          label: linux-64
+          prefix: /usr/share/miniconda3/envs/hydromt_wflow
+
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
-      - name: install tomli
-        run: pip install tomli
-      - name: Generate env spec
-        run: python make_env.py doc
-      - name: Setup environment
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: "3.9"
-          miniforge-variant: Mambaforge
-          channels: conda-forge,defaults
-          channel-priority: strict
-          environment-file: environment.yml
-          activate-environment: hydromt-wflow
 
-      - name: Install HydroMT-Wflow plugin
-        run: pip install .
-
-      - name: Build docs
+      - name: Generate env yaml
         run: |
-          pushd docs
-          make html
-          popd
+          pip install tomli
+          python make_env.py doc -p ${{ matrix.python-version }}.* -n hydromt_wflow
 
-      - name: Set doc version
-        run: echo "DOC_VERSION=$(python -c 'from hydromt_wflow import __version__ as v; print("dev" if "dev" in v else "v"+v.replace(".dev",""))')" >> $GITHUB_ENV
+      - name: Load cache
+        id: cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            /usr/share/miniconda3
+            ~/pycache
+            ./docs/_build
+          # the below two settings mean we'll alway srestore the cache
+          # but the cache hit output can tell us if we have to update afterwards
+          key: docs-${{ hashFiles('environment.yml')  }}
+          restore-keys: |
+            docs
+
+      - name: Failed cache restore
+        if: steps.cache.outputs.cache-matched-key == ''
+        run: |
+          echo "Failed to restore any cache. exiting..."
+          exit 1
+
+      # by avoiding the mamba setup stage by loading it from cache instead we save
+      # a lot of setup time, but we do have to do our own PATH management
+      # hence the exports
+      - name: Update environment
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          export PATH=/usr/share/miniconda3/bin:$PATH
+          mamba env update -n hydromt_wflow -f environment.yml
+
+      - name: Install HydroMT-core dev
+        run: |
+          export PATH=/usr/share/miniconda3/bin:$PATH
+          mamba run -n hydromt_wflow python -m pip install git+https://github.com/Deltares/hydromt.git@main --user
+
+      - name: Generate dummy docs
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          export PATH=/usr/share/miniconda3/bin:$PATH
+          PYTHONPYCACHEPREFIX=~/pycache mamba run -n hydromt_wflow sphinx-build ./docs ./docs/_build -b dummy
+
+      - name: Generate docs
+        if: ${{ github.event_name != 'pull_request' && !github.event.act }}
+        run: |
+          export PATH=/usr/share/miniconda3/bin:$PATH
+          PYTHONPYCACHEPREFIX=~/pycache mamba run -n hydromt_wflow sphinx-build -M html ./docs ./docs/_build
+          echo "DOC_VERSION=$(mamba run -n hydromt_wflow python -c 'from hydromt_wflow import __version__ as v; print("dev" if "dev" in v else "v"+v.replace(".dev",""))')" >> $GITHUB_ENV
 
       - name: Upload to GitHub Pages
         if: ${{ github.event_name != 'pull_request'}}
