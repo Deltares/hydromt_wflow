@@ -22,7 +22,6 @@ import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
-from hydromt.exceptions import NoDataException
 from hydromt.models.model_grid import GridModel
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
@@ -87,12 +86,10 @@ class WflowModel(GridModel):
         if data_libs is None:
             data_libs = []
         for lib, version in artifact_keys.items():
-            warnings.warn(
+            logger.warning(
                 "Adding a predefined data catalog as key-word argument is deprecated, "
                 f"add the catalog as '{lib}={version}'"
-                " to the data_libs list instead.",
-                DeprecationWarning,
-                stacklevel=2,
+                " to the data_libs list instead."
             )
             if not version:  # False or None
                 continue
@@ -113,7 +110,7 @@ class WflowModel(GridModel):
         self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
-        # To be depricated from v0.6.0 onwards
+        # To be deprecated from v0.6.0 onwards
         self._staticmaps = None
         self._staticgeoms = None
 
@@ -153,7 +150,7 @@ class WflowModel(GridModel):
         because calling hydromt build.
         You can find examples on how to reproject or prepare hydrography data in the
         `prepare flow directions example notebok
-        <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`.
+        <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`_.
 
         Adds model layers:
 
@@ -179,7 +176,7 @@ class WflowModel(GridModel):
             Name of data source for basin_index data linked to hydrography_fn.
         region : dict
             Dictionary describing region of interest.
-            See :py:function:~basin_mask.parse_region for all options
+            See :py:meth:`hydromt.workflows.basin_mask.parse_region()` for all options
         res : float
             Output model resolution
         upscale_method : {'ihu', 'eam', 'dmm'}
@@ -372,7 +369,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             For details about the river length smoothing,
             see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
-            see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+            see :py:meth:`hydromt.workflows.river_depth` for details, by default \
+                "powlaw"
         river_routing : {'kinematic-wave', 'local-inertial'}
             Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
@@ -383,7 +381,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
-            by default "wflow_dem",
+            by default "wflow_dem"
 
         See Also
         --------
@@ -550,11 +548,10 @@ Select from {routing_options}.'
 
         Adds model layers:
 
-        * **floodplain_volume** map: map with floodplain volumes, \
-has flood depth as third
-          dimension [m3] (for 1D floodplains)
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
-        (for 2D floodplains)
+        * **floodplain_volume** map: map with floodplain volumes, has flood depth as \
+            third dimension [m3] (for 1D floodplains)
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D \
+            floodplains)
 
         Parameters
         ----------
@@ -944,8 +941,8 @@ to run setup_river method first.'
         Adds model layers:
 
         * **csv.column** config: csv timeseries to save based on mapname locations
-        * **netcdf.variable** config: netcdf timeseries to save based
-        on mapname locations
+        * **netcdf.variable** config: netcdf timeseries to save based on mapname \
+            locations
 
         Parameters
         ----------
@@ -1779,16 +1776,16 @@ soil surface [mm/day]
         * **SoilThickness** map: soil thickness [mm]
         * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
         * **M** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth
-            (fitted with curve_fit (scipy.optimize)), bounds of M are checked
-        * **`M_`** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth
-            (fitted with numpy linalg regression), bounds of `M_` are checked
+KsatVer with soil depth (fitted with curve_fit (scipy.optimize)), bounds of M are \
+    checked
+        * **M_** map: model parameter [mm] that controls exponential decline of \
+KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` are \
+    checked
         * **M_original** map: M without checking bounds
-        * **`M_original_`** map: `M_` without checking bounds
+        * **M_original_** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **`f_`** map: scaling parameter controlling the decline of KsatVer [mm-1] \
+        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
         * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution \
 index at depth of 1st soil layer (100 mm) wflow_sbm
@@ -2576,11 +2573,9 @@ Run setup_soilmaps first"
 
     def read_staticmaps(self, **kwargs):
         """Read staticmaps."""
-        warnings.warn(
+        self.logger.warning(
             "read_staticmaps is deprecated. Use 'read_grid' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         self.read_grid(**kwargs)
 
@@ -2634,22 +2629,18 @@ Run setup_soilmaps first"
 
     def write_staticmaps(self, **kwargs):
         """Write staticmaps."""
-        warnings.warn(
+        self.logger.warning(
             "write_staticmaps is deprecated. Use 'write_grid' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         self.write_grid()
 
     def read_staticmaps_pcr(self, crs=4326, **kwargs):
         """Read and staticmaps at <root/staticmaps> and parse to xarray."""
-        warnings.warn(
+        self.logger.warning(
             "read_staticmaps_pcr as a method of this object is deprecated. "
             "Use 'read_staticmaps_pcr' for the 'pcrm' submodule instead. "
-            "Will be removed in hydrom_wflow v0.5.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.5.0"
         )
         if self._read and "chunks" not in kwargs:
             kwargs.update(chunks={"y": -1, "x": -1})
@@ -2657,17 +2648,15 @@ Run setup_soilmaps first"
             self.root,
             crs=crs,
             obj=self,
-            kwargs=kwargs,
+            **kwargs,
         )
 
     def write_staticmaps_pcr(self):
         """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
-        warnings.warn(
+        self.logger.warning(
             "write_staticmaps_pcr as a method of this object is deprecated. "
             "Use 'write_staticmaps_pcr' for the 'pcrm' submodule instead. "
-            "Will be removed in hydrom_wflow v0.5.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.5.0"
         )
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -2700,11 +2689,9 @@ Run setup_soilmaps first"
         geom_fn: str = "staticgeoms",
     ):
         """Read static geometries."""
-        warnings.warn(
+        self.logger.warning(
             "read_staticgeoms is deprecated. Use 'read_geoms' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         self.read_geoms(geom_fn)
 
@@ -2727,11 +2714,9 @@ Run setup_soilmaps first"
         geom_fn: str = "staticgeoms",
     ):
         """Write static geometries."""
-        warnings.warn(
+        self.logger.warning(
             "write_staticgeoms is deprecated. Use 'write_geoms' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         self.write_geoms(geom_fn)
 
@@ -3187,23 +3172,27 @@ change name input.path_forcing "
 
     @property
     def staticgeoms(self):
-        """Return static geometries."""
-        warnings.warn(
+        """Return static geometries.
+
+        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
+        :py:attr:`geoms` instead.
+        """
+        self.logger.warning(
             "staticgeoms is deprecated. Call 'geoms' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         return self.geoms
 
     @property
     def staticmaps(self):
-        """Return staticmaps."""
-        warnings.warn(
+        """Return staticmaps.
+
+        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
+        :py:attr:`grid` instead.
+        """
+        self.logger.warning(
             "staticmaps is deprecated. Call 'grid' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         return self.grid
 
@@ -3370,11 +3359,9 @@ change name input.path_forcing "
         crs=4326,
     ):
         """Clip staticmaps to subbasin."""
-        warnings.warn(
+        self.logger.warning(
             "clip_staticmaps is deprecated. Use 'clip_grid' instead. "
-            "Will be removed in hydrom_wflow v0.6.0",
-            DeprecationWarning,
-            stacklevel=2,
+            "Will be removed in hydromt_wflow v0.6.0"
         )
         self.clip_grid(region, buffer, align, crs)
 

@@ -68,7 +68,7 @@ a specific method see its documentation.
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
-    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+    * - :py:func:`~WflowModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
 
 
@@ -92,9 +92,9 @@ and :py:func:`~WflowModel.write_config` for the
      - Wflow files
    * - :py:attr:`~hydromt_wflow.WflowModel.config`
      - wflow_sbm.toml
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps`
+   * - :py:attr:`~hydromt_wflow.WflowModel.grid`
      - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticgeoms`
+   * - :py:attr:`~hydromt_wflow.WflowModel.geoms`
      - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
    * - :py:attr:`~hydromt_wflow.WflowModel.forcing`
      - inmaps.nc
@@ -104,3 +104,7 @@ and :py:func:`~WflowModel.write_config` for the
      - tabular data (csv format, e.g. lake_hq.csv, lake_sh.csv)
    * - :py:attr:`~hydromt_wflow.WflowModel.results`
      - output.nc, output_scalar.nc, output.csv
+   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps` (deprecated, removed in hydromt_wflow v0.6.0)
+     - staticmaps.nc
+   * - :py:attr:`~hydromt_wflow.WflowModel.staticgeoms` (deprecated, removed in hydromt_wflow v0.6.0)
+     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)

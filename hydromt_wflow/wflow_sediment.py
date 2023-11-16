@@ -405,7 +405,7 @@ particles characteristics.
 
         if not isfile(fn_map) and fn_map not in self.data_catalog:
             raise ValueError(f"Riverbed sediment mapping file not found: {fn_map}")
-        df = self.data_catalog.get_dataframe(fn_map, **kwargs)
+        df = self.data_catalog.get_dataframe(fn_map, driver_kwargs=kwargs)
 
         strord = self.grid[self._MAPS["strord"]].copy()
         # max streamorder value above which values get the same N_River value
