@@ -5,7 +5,6 @@ import codecs
 import glob
 import logging
 import os
-import warnings
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
 from typing import List, Optional, Union
@@ -22,6 +21,7 @@ import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
+from hydromt.exceptions import NoDataException
 from hydromt.models.model_grid import GridModel
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
