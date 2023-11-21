@@ -6,11 +6,9 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
+v0.4.0 (November 2023)
 ==========
-
-Added
------
+Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
 
 Changed
 -------
@@ -23,12 +21,7 @@ Changed
 
 Fixed
 -----
-
-Deprecated
-----------
-
-Documentation
--------------
+- Mainly stability fixes
 
 v0.3.0 (July 2023)
 ==================
