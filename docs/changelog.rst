@@ -8,6 +8,7 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 v0.4.0 (November 2023)
 ==========
+Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
 
 Changed
 -------
