@@ -24,7 +24,6 @@ Deprecated
 Documentation
 -------------
 
-
 v0.4.1 (November 2023)
 ======================
 Small update
