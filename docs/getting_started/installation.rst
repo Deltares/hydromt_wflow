@@ -49,6 +49,10 @@ You can install HydroMT-Wflow in a new environment called `hydromt-wflow`:
 
   $ mamba create -n hydromt-wflow -c conda-forge hydromt_wflow
 
+.. Note::
+
+    Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.
+
 Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:
 HydroMT-Wflow will be installed together with all optional (see above) and a few additional dependencies with:
 

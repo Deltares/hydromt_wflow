@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+v0.4.1 (November 2023)
+==========
+Small update
+
+Fixed
+-----
+- Make **v0.4.0** conda installable
+
 v0.4.0 (November 2023)
 ==========
 Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
