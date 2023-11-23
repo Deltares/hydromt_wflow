@@ -1,0 +1,106 @@
+[ Info: Wflow version `v0.7.2`
+[ Info: Initialize model variables for model type `sbm`.
+[ Info: Cyclic parameters are provided by `staticmaps.nc`.
+[ Info: Forcing parameters are provided by `inmaps.nc`.
+[ Info: Set `vertical.precipitation` using NetCDF variable `precip` as forcing parameter.
+[ Info: Set `vertical.temperature` using NetCDF variable `temp` as forcing parameter.
+[ Info: Set `vertical.potential_evaporation` using NetCDF variable `pet` as forcing parameter.
+[ Info: Set `vertical.leaf_area_index` using NetCDF variable `LAI` as cyclic parameter.
+┌ Info: General model settings
+│   reservoirs = true
+│   lakes = true
+│   snow = true
+│   masswasting = true
+└   glacier = true
+[ Info: Set `subcatchment` using NetCDF variable `wflow_subcatch`.
+[ Info: Set `river_location` using NetCDF variable `wflow_river`.
+[ Info: Set `lateral.river.width` using NetCDF variable `wflow_riverwidth`.
+[ Info: Set `lateral.river.length` using NetCDF variable `wflow_riverlength`.
+[ Info: Set `vertical.cfmax` using NetCDF variable `Cfmax`.
+[ Info: Set `vertical.tt` using NetCDF variable `TT`.
+[ Info: Set `vertical.tti` using NetCDF variable `TTI`.
+[ Info: Set `vertical.ttm` using NetCDF variable `TTM`.
+[ Info: Set `vertical.whc` using default value `0.1`.
+[ Info: Set `vertical.w_soil` using default value `0.1125`.
+[ Info: Set `vertical.cf_soil` using NetCDF variable `cf_soil`.
+[ Info: Set `vertical.g_tt` using default value `0.0`.
+[ Info: Set `vertical.g_cfmax` using default value `3.0`.
+[ Info: Set `vertical.g_sifrac` using default value `0.001`.
+[ Info: Set `vertical.glacierfrac` using default value `0.0`.
+[ Info: Set `vertical.glacierstore` using default value `5500.0`.
+[ Info: Set `vertical.theta_s` using NetCDF variable `thetaS`.
+[ Info: Set `vertical.theta_r` using NetCDF variable `thetaR`.
+[ Info: Set `vertical.kv_0` using NetCDF variable `KsatVer`.
+[ Info: Set `vertical.f` using NetCDF variable `f`.
+[ Info: Set `vertical.hb` using default value `10.0`.
+[ Info: Set `vertical.soilthickness` using NetCDF variable `SoilThickness`.
+[ Info: Set `vertical.infiltcappath` using NetCDF variable `InfiltCapPath`.
+[ Info: Set `vertical.infiltcapsoil` using NetCDF variable `InfiltCapSoil`.
+[ Info: Set `vertical.maxleakage` using NetCDF variable `MaxLeakage`.
+[ Info: Set `vertical.c` using NetCDF variable `c`.
+[ Info: Set `vertical.kvfrac` using default value `1.0`.
+[ Info: Set `vertical.waterfrac` using NetCDF variable `WaterFrac`.
+[ Info: Set `vertical.pathfrac` using NetCDF variable `PathFrac`.
+[ Info: Set `vertical.rootingdepth` using NetCDF variable `RootingDepth`.
+[ Info: Set `vertical.rootdistpar` using NetCDF variable `rootdistpar`.
+[ Info: Set `vertical.cap_hmax` using default value `2000.0`.
+[ Info: Set `vertical.cap_n` using default value `2.0`.
+[ Info: Set `vertical.et_reftopot` using default value `1.0`.
+[ Info: Set `vertical.specific_leaf` using NetCDF variable `Sl`.
+[ Info: Set `vertical.storage_wood` using NetCDF variable `Swood`.
+[ Info: Set `vertical.kext` using NetCDF variable `Kext`.
+[ Info: Set `lateral.river.reservoir.locs` using NetCDF variable `wflow_reservoirlocs`.
+[ Info: Set `lateral.river.reservoir.areas` using NetCDF variable `wflow_reservoirareas`.
+[ Info: Set `lateral.river.reservoir.demand` using NetCDF variable `ResDemand`.
+[ Info: Set `lateral.river.reservoir.maxrelease` using NetCDF variable `ResMaxRelease`.
+[ Info: Set `lateral.river.reservoir.maxvolume` using NetCDF variable `ResMaxVolume`.
+[ Info: Set `lateral.river.reservoir.area` using NetCDF variable `ResSimpleArea`.
+[ Info: Set `lateral.river.reservoir.targetfullfrac` using NetCDF variable `ResTargetFullFrac`.
+[ Info: Set `lateral.river.reservoir.targetminfrac` using NetCDF variable `ResTargetMinFrac`.
+[ Info: Read `2` reservoir locations.
+[ Info: Set `lateral.river.lake.locs` using NetCDF variable `wflow_lakelocs`.
+[ Info: Set `lateral.river.lake.areas` using NetCDF variable `wflow_lakeareas`.
+[ Info: Set `lateral.river.lake.area` using NetCDF variable `LakeArea`.
+[ Info: Set `lateral.river.lake.b` using NetCDF variable `Lake_b`.
+[ Info: Set `lateral.river.lake.e` using NetCDF variable `Lake_e`.
+[ Info: Set `lateral.river.lake.threshold` using NetCDF variable `LakeThreshold`.
+[ Info: Set `lateral.river.lake.linkedlakelocs` using NetCDF variable `LinkedLakeLocs`.
+[ Info: Set `lateral.river.lake.storfunc` using NetCDF variable `LakeStorFunc`.
+[ Info: Set `lateral.river.lake.outflowfunc` using NetCDF variable `LakeOutflowFunc`.
+[ Info: Set `lateral.river.lake.waterlevel` using NetCDF variable `LakeAvgLevel`.
+[ Info: Read `1` lake locations.
+[ Info: Set `ldd` using NetCDF variable `wflow_ldd`.
+[ Info: Set `lateral.land.slope` using NetCDF variable `Slope`.
+[ Info: Set `lateral.subsurface.ksathorfrac` using default value `10`.
+┌ Info: Kinematic wave approach is used for overland flow.
+└   iterate = true
+[ Info: Using a fixed sub-timestep (seconds) 3600 for kinematic wave overland flow.
+[ Info: Set `lateral.land.n` using NetCDF variable `N`.
+┌ Info: Kinematic wave approach is used for river flow.
+└   iterate = true
+[ Info: Using a fixed sub-timestep (seconds) 900 for kinematic wave river flow.
+[ Info: Set `lateral.river.n` using NetCDF variable `N_River`.
+[ Info: Set `lateral.river.bankfull_depth` using default value `1.0`.
+[ Info: Set `lateral.river.slope` using NetCDF variable `RiverSlope`.
+[ Info: Create a state output NetCDF file `run_results/outstate/outstates2.nc`.
+[ Info: Create an output CSV file `run_results/output2.csv` for scalar data.
+[ Info: Set `gauges_grdc` using NetCDF variable `wflow_gauges_grdc`.
+[ Info: Set `gauges_grdc` using NetCDF variable `wflow_gauges_grdc`.
+┌ Info: Adding scalar output for a map with a reducer function.
+│   fileformat = "CSV"
+│   param = "lateral.river.q_av"
+│   mapname = "gauges_grdc"
+└   reducer_name = "only"
+[ Info: Set initial conditions from default values.
+[ Info: Initialized model
+┌ Warning: The definition of `starttime` has changed (equal to model state time).
+│  Please update your settings TOML file by subtracting one model timestep Δt from the `starttime`, if it was used with a Wflow version up to v0.6.3.
+└ @ Wflow ~/.julia/packages/Wflow/MvUdN/src/Wflow.jl:216
+┌ Info: Run information
+│   model_type = "sbm"
+│   starttime = CFTime.DateTimeProlepticGregorian(2010-02-02T00:00:00)
+│   Δt = 86400 seconds
+│   endtime = CFTime.DateTimeProlepticGregorian(2010-02-10T00:00:00)
+└   nthreads() = 1
+[ Info: Simulation duration: 3 seconds, 572 milliseconds
+[ Info: Write output states to NetCDF file `run_results/outstate/outstates2.nc`.

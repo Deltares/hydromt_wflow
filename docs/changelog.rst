@@ -29,6 +29,31 @@ Deprecated
 Documentation
 -------------
 
+v0.4.1 (November 2023)
+======================
+Small update
+
+Fixed
+-----
+- Make HydroMT-Wflow **v0.4.0** conda installable
+
+v0.4.0 (November 2023)
+======================
+Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
+
+Changed
+-------
+- **WflowModel** and **WflowSedimentModel** now rely on `GridModel` from HydroMT
+- PCRaster methods are moved to `pcrm` submodule and are deprecated as methods for the **WflowModel** class
+- **read_staticgeoms**, **write_staticgeoms** and **staticgeoms** are now deprecated
+- Staticgeoms methods are superseded by **read_geoms**, **write_geoms** and **geoms**
+- **read_staticmaps**, **write_staticmaps** and **staticmaps** are now deprecated
+- Staticmaps methods are superseded by **read_grid**, **write_grid** and **grid**
+
+Fixed
+-----
+- Mainly stability fixes
+
 v0.3.0 (July 2023)
 ==================
 Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.

@@ -21,40 +21,25 @@ import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
-from hydromt.io import open_mfraster
-from hydromt.models.model_api import Model
+from hydromt.models.model_grid import GridModel
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
 from . import DATADIR, utils, workflows
+from .pcrm import read_staticmaps_pcr as read_pcr_func
+from .pcrm import write_staticmaps_pcr as write_pcr_func
 
 __all__ = ["WflowModel"]
 
 logger = logging.getLogger(__name__)
 
-# specify pcraster map types
-# NOTE non scalar (float) data types only
-PCR_VS_MAP = {
-    "wflow_ldd": "ldd",
-    "wflow_river": "bool",
-    "wflow_streamorder": "ordinal",
-    "wflow_gauges": "nominal",  # to avoid large memory usage in pcraster.aguila
-    "wflow_subcatch": "nominal",  # idem.
-    "wflow_landuse": "nominal",
-    "wflow_soil": "nominal",
-    "wflow_reservoirareas": "nominal",
-    "wflow_reservoirlocs": "nominal",
-    "wflow_lakeareas": "nominal",
-    "wflow_lakelocs": "nominal",
-    "wflow_glacierareas": "nominal",
-}
 
-
-class WflowModel(Model):
+class WflowModel(GridModel):
     """Wflow model class."""
 
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
+    _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
     _DATADIR = DATADIR
     _GEOMS = {}
     _MAPS = {
@@ -90,19 +75,32 @@ class WflowModel(Model):
 
     def __init__(
         self,
-        root=None,
-        mode="w",
-        config_fn=None,
-        data_libs=None,
-        deltares_data=False,
+        root: Optional[str] = None,
+        mode: Optional[str] = "w",
+        config_fn: Optional[str] = None,
+        data_libs: Union[List, str] = None,
         logger=logger,
+        **artifact_keys,
     ):
+        if data_libs is None:
+            data_libs = []
+        for lib, version in artifact_keys.items():
+            logger.warning(
+                "Adding a predefined data catalog as key-word argument is deprecated, "
+                f"add the catalog as '{lib}={version}'"
+                " to the data_libs list instead."
+            )
+            if not version:  # False or None
+                continue
+            elif isinstance(version, str):
+                lib += f"={version}"
+            data_libs = [lib] + data_libs
+
         super().__init__(
             root=root,
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
-            deltares_data=deltares_data,
             logger=logger,
         )
 
@@ -111,6 +109,9 @@ class WflowModel(Model):
         self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
+        # To be deprecated from v0.6.0 onwards
+        self._staticmaps = None
+        self._staticgeoms = None
 
     # COMPONENTS
     def setup_basemaps(
@@ -148,7 +149,7 @@ class WflowModel(Model):
         because calling hydromt build.
         You can find examples on how to reproject or prepare hydrography data in the
         `prepare flow directions example notebok
-        <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`.
+        <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`_.
 
         Adds model layers:
 
@@ -174,7 +175,7 @@ class WflowModel(Model):
             Name of data source for basin_index data linked to hydrography_fn.
         region : dict
             Dictionary describing region of interest.
-            See :py:function:~basin_mask.parse_region for all options
+            See :py:meth:`hydromt.workflows.basin_mask.parse_region()` for all options
         res : float
             Output model resolution
         upscale_method : {'ihu', 'eam', 'dmm'}
@@ -218,8 +219,8 @@ class WflowModel(Model):
 
         ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
         ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
-        self.logger.debug("Adding basins vector to staticgeoms.")
-        self.set_staticgeoms(geom, name="basins")
+        self.logger.debug("Adding basins vector to geoms.")
+        self.set_geoms(geom, name="basins")
 
         # Check on resolution (degree vs meter) depending on ds_org res/crs
         scale_ratio = int(np.round(res / ds_org.raster.res[0]))
@@ -259,20 +260,20 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
                 ),
             )
             ds_base["flwdir"] = da_flwdir
-        # Rename and add to staticmaps
+        # Rename and add to grid
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_base.data_vars}
-        self.set_staticmaps(ds_base.rename(rmdict))
+        self.set_grid(ds_base.rename(rmdict))
 
         # setup topography maps
         ds_topo = workflows.topography(
-            ds=ds_org, ds_like=self.staticmaps, method="average", logger=self.logger
+            ds=ds_org, ds_like=self.grid, method="average", logger=self.logger
         )
         ds_topo["lndslp"] = np.maximum(ds_topo["lndslp"], 0.0)
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
-        self.set_staticmaps(ds_topo.rename(rmdict))
+        self.set_grid(ds_topo.rename(rmdict))
         # set basin geometry
-        self.logger.debug("Adding region vector to staticgeoms.")
-        self.set_staticgeoms(self.region, name="region")
+        self.logger.debug("Adding region vector to geoms.")
+        self.set_geoms(self.region, name="region")
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
@@ -367,7 +368,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             For details about the river length smoothing,
             see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
-            see py:meth:`hydromt.workflows.river_depth` for details, by default "powlaw"
+            see :py:meth:`hydromt.workflows.river_depth` for details, by default \
+                "powlaw"
         river_routing : {'kinematic-wave', 'local-inertial'}
             Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
@@ -378,7 +380,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
-            by default "wflow_dem",
+            by default "wflow_dem"
 
         See Also
         --------
@@ -408,10 +410,10 @@ Select from {routing_options}.'
 
         # get rivmsk, rivlen, rivslp
         # read model maps and revert wflow to hydromt map names
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         ds_riv = workflows.river(
             ds=ds_hydro,
-            ds_model=self.staticmaps.rename(inv_rename),
+            ds_model=self.grid.rename(inv_rename),
             river_upa=river_upa,
             slope_len=slope_len,
             channel_dir="up",
@@ -424,12 +426,12 @@ Select from {routing_options}.'
         )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_staticmaps(ds_riv[dvars].rename(rmdict))
+        self.set_grid(ds_riv[dvars].rename(rmdict))
 
         # TODO make separate workflows.river_manning  method
         # Make N_River map from csv file with mapping
         # between streamorder and N_River value
-        strord = self.staticmaps[self._MAPS["strord"]].copy()
+        strord = self.grid[self._MAPS["strord"]].copy()
         df = self.data_catalog.get_dataframe(rivman_mapping_fn)
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
@@ -440,11 +442,11 @@ Select from {routing_options}.'
         strord.raster.set_nodata(-999)
         ds_nriver = workflows.landuse(
             da=strord,
-            ds_like=self.staticmaps,
+            ds_like=self.grid,
             df=df,
             logger=self.logger,
         )
-        self.set_staticmaps(ds_nriver)
+        self.set_grid(ds_nriver)
 
         # get rivdph, rivwth
         # while we still have setup_riverwidth one can skip river_bathymetry here
@@ -454,9 +456,9 @@ Select from {routing_options}.'
                 river_geom_fn, geom=self.region
             )
             # reread model data to get river maps
-            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
             ds_riv1 = workflows.river_bathymetry(
-                ds_model=self.staticmaps.rename(inv_rename),
+                ds_model=self.grid.rename(inv_rename),
                 gdf_riv=gdf_riv,
                 method=rivdph_method,
                 smooth_len=smooth_len,
@@ -466,13 +468,13 @@ Select from {routing_options}.'
                 **kwargs,
             )
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
-            self.set_staticmaps(ds_riv1.rename(rmdict))
+            self.set_grid(ds_riv1.rename(rmdict))
             # update config
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
-        self.logger.debug("Adding rivers vector to staticgeoms.")
-        self.staticgeoms.pop("rivers", None)  # remove old rivers if in staticgeoms
-        self.rivers  # add new rivers to staticgeoms
+        self.logger.debug("Adding rivers vector to geoms.")
+        self.geoms.pop("rivers", None)  # remove old rivers if in geoms
+        self.rivers  # add new rivers to geoms
 
         # Add hydrologically conditioned elevation map for the river, if required
         if river_routing == "local-inertial":
@@ -482,15 +484,15 @@ Select from {routing_options}.'
             name = f"hydrodem{postfix}"
 
             ds_out = flw.dem_adjust(
-                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
-                da_elevtn=self.staticmaps[elevtn_map],
-                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                da_flwdir=self.grid[self._MAPS["flwdir"]],
+                da_elevtn=self.grid[elevtn_map],
+                da_rivmsk=self.grid[self._MAPS["rivmsk"]],
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
                 logger=self.logger,
             ).rename(name)
-            self.set_staticmaps(ds_out)
+            self.set_grid(ds_out)
 
             # update toml model.river_routing
             self.logger.debug(
@@ -545,11 +547,10 @@ Select from {routing_options}.'
 
         Adds model layers:
 
-        * **floodplain_volume** map: map with floodplain volumes, \
-has flood depth as third
-          dimension [m3] (for 1D floodplains)
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
-        (for 2D floodplains)
+        * **floodplain_volume** map: map with floodplain volumes, has flood depth as \
+            third dimension [m3] (for 1D floodplains)
+        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D \
+            floodplains)
 
         Parameters
         ----------
@@ -563,7 +564,7 @@ has flood depth as third
             * Required variables: ['flwdir', 'uparea', 'elevtn']
         river_upa : float, optional
             (1D floodplains) minimum upstream area threshold for drain in the HAND.
-            Optional value, as it is inferred from the staticmaps metadata,
+            Optional value, as it is inferred from the grid metadata,
             to be consistent with setup_rivers.
         flood_depths : tuple of float, optional
             (1D floodplains) flood depths at which a volume is derived.
@@ -609,28 +610,28 @@ local intertial river routing"
             )
             ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
 
-            # try to get river uparea from staticmaps, throw error if not specified
+            # try to get river uparea from grid, throw error if not specified
             # or when found but different from specified value
-            new_river_upa = self.staticmaps[self._MAPS["rivmsk"]].attrs.get(
+            new_river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get(
                 "river_upa", river_upa
             )
             if new_river_upa is None:
                 raise ValueError(
                     "No value for `river_upa` specified, and the value cannot \
-be inferred from the staticmaps attributes"
+be inferred from the grid attributes"
                 )
             elif new_river_upa != river_upa and river_upa is not None:
                 raise ValueError(
                     f"Value specified for river_upa ({river_upa}) is different from \
-the value found in the staticmaps ({new_river_upa})"
+the value found in the grid ({new_river_upa})"
                 )
             self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
 
             # get river floodplain volume
-            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
             da_fldpln = workflows.river_floodplain_volume(
                 ds=ds_hydro,
-                ds_model=self.staticmaps.rename(inv_rename),
+                ds_model=self.grid.rename(inv_rename),
                 river_upa=new_river_upa,
                 flood_depths=flood_depths,
                 logger=self.logger,
@@ -638,22 +639,22 @@ the value found in the staticmaps ({new_river_upa})"
 
             # check if the layer already exists, since overwriting with different
             # flood_depth values is not working properly if this is the case
-            if "floodplain_volume" in self.staticmaps:
+            if "floodplain_volume" in self.grid:
                 self.logger.warning(
-                    "Layer `floodplain_volume` already in staticmaps, removing layer \
+                    "Layer `floodplain_volume` already in grid, removing layer \
 and `flood_depth` dimension to ensure correctly \
 setting new flood_depth dimensions"
                 )
-                self._staticmaps = self._staticmaps.drop_dims("flood_depth")
+                self._grid = self._grid.drop_dims("flood_depth")
 
-            self.set_staticmaps(da_fldpln, "floodplain_volume")
+            self.set_grid(da_fldpln, "floodplain_volume")
 
         elif floodplain_type == "2d":
             floodplain_1d = False
             land_routing = "local-inertial"
 
-            if elevtn_map not in self.staticmaps:
-                raise ValueError(f'"{elevtn_map}" not found in staticmaps')
+            if elevtn_map not in self.grid:
+                raise ValueError(f'"{elevtn_map}" not found in grid')
 
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
@@ -664,16 +665,16 @@ setting new flood_depth dimensions"
             name = f"hydrodem{postfix}_D{connectivity}"
             self.logger.info(f"Preparing {name} map for land routing.")
             ds_out = flw.dem_adjust(
-                da_flwdir=self.staticmaps[self._MAPS["flwdir"]],
-                da_elevtn=self.staticmaps[elevtn_map],
-                da_rivmsk=self.staticmaps[self._MAPS["rivmsk"]],
+                da_flwdir=self.grid[self._MAPS["flwdir"]],
+                da_elevtn=self.grid[elevtn_map],
+                da_rivmsk=self.grid[self._MAPS["rivmsk"]],
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
                 logger=self.logger,
             ).rename(name)
 
-            self.set_staticmaps(ds_out)
+            self.set_grid(ds_out)
 
         # Update config
         self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
@@ -753,7 +754,7 @@ setting new flood_depth dimensions"
             accumulated precipitation [m3/s].
             Uparea is based on the upstream area grid [km2].
             Other variables, e.g. bankfull discharge, can also be provided if present
-            in the staticmaps
+            in the grid
         fill : bool, optional
             If True (default), use estimate to fill gaps, outliers and lake/res areas
             in observed width data (if present);
@@ -778,7 +779,7 @@ setting new flood_depth dimensions"
 and will soon be removed. '
             'You can now use the "setup_river" method for all river parameters.'
         )
-        if self._MAPS["rivmsk"] not in self.staticmaps:
+        if self._MAPS["rivmsk"] not in self.grid:
             raise ValueError(
                 'The "setup_riverwidth" method requires \
 to run setup_river method first.'
@@ -799,9 +800,9 @@ to run setup_river method first.'
             da_climate.name = climate_fn
             data["da_climate"] = da_climate
 
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         da_rivwth = workflows.river_width(
-            ds_like=self.staticmaps.rename(inv_rename),
+            ds_like=self.grid.rename(inv_rename),
             flwdir=self.flwdir,
             data=data,
             fill=fill,
@@ -816,7 +817,7 @@ to run setup_river method first.'
             **kwargs,
         )
 
-        self.set_staticmaps(da_rivwth, name=self._MAPS["rivwth"])
+        self.set_grid(da_rivwth, name=self._MAPS["rivwth"])
 
     def setup_lulcmaps(
         self,
@@ -870,7 +871,7 @@ to run setup_river method first.'
             fn_map = f"{lulc_fn}_mapping_default"
         else:
             fn_map = lulc_mapping_fn
-        if not isfile(fn_map) and fn_map not in self.data_catalog.get_source_names():
+        if not isfile(fn_map) and fn_map not in self.data_catalog:
             raise ValueError(f"LULC mapping file not found: {fn_map}")
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
@@ -883,13 +884,13 @@ to run setup_river method first.'
         # process landuse
         ds_lulc_maps = workflows.landuse(
             da=da,
-            ds_like=self.staticmaps,
+            ds_like=self.grid,
             df=df_map,
             params=lulc_vars,
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
-        self.set_staticmaps(ds_lulc_maps.rename(rmdict))
+        self.set_grid(ds_lulc_maps.rename(rmdict))
 
     def setup_laimaps(self, lai_fn="modis_lai"):
         """
@@ -916,12 +917,12 @@ to run setup_river method first.'
         da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
         da_lai = workflows.lai(
             da=da,
-            ds_like=self.staticmaps,
+            ds_like=self.grid,
             logger=self.logger,
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_staticmaps(da_lai.rename(rmdict), name="LAI")
+        self.set_grid(da_lai.rename(rmdict), name="LAI")
 
     def setup_config_output_timeseries(
         self,
@@ -936,8 +937,8 @@ to run setup_river method first.'
         Adds model layers:
 
         * **csv.column** config: csv timeseries to save based on mapname locations
-        * **netcdf.variable** config: netcdf timeseries to save based
-        on mapname locations
+        * **netcdf.variable** config: netcdf timeseries to save based on mapname \
+            locations
 
         Parameters
         ----------
@@ -1034,30 +1035,30 @@ skipping adding gauge specific outputs to the toml."
             the wflow variable corresponding to the names in gauge_toml_header.
             By default saves lateral.river.q_av (for Q).
         """
-        # read existing staticgeoms; important to get the right basin when updating
-        # fix in set_staticgeoms / set_geoms method
-        self.staticgeoms
+        # read existing geoms; important to get the right basin when updating
+        # fix in set_geoms / set_geoms method
+        self.geoms
 
         self.logger.info("Gauges locations set based on river outlets.")
         idxs_out = self.flwdir.idxs_pit
         # Only keep river outlets for gauges
         if river_only:
             idxs_out = idxs_out[
-                (self.staticmaps[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
+                (self.grid[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
         da_out, idxs_out, ids_out = flw.gauge_map(
-            self.staticmaps,
+            self.grid,
             idxs=idxs_out,
             flwdir=self.flwdir,
             logger=self.logger,
         )
-        self.set_staticmaps(da_out, name=self._MAPS["gauges"])
-        points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs_out))
+        self.set_grid(da_out, name=self._MAPS["gauges"])
+        points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
         )
         gdf["fid"] = ids_out.astype(np.int32)
-        self.set_staticgeoms(gdf, name="gauges")
+        self.set_geoms(gdf, name="gauges")
         self.logger.info("Gauges map based on catchment river outlets added.")
 
         self.setup_config_output_timeseries(
@@ -1155,7 +1156,7 @@ gauge locations [-] (if derive_subcatch)
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
-            Map name in staticmaps (wflow_gauges_basename)
+            Map name in grid (wflow_gauges_basename)
             if None use the gauges_fn basename.
         toml_output : str, optional
             One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
@@ -1218,8 +1219,8 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             f"{gdf_gauges.index.size} {basename} gauge locations found within domain"
         )
 
-        # read existing staticgeoms; important to get the right basin when updating
-        self.staticgeoms
+        # read existing geoms; important to get the right basin when updating
+        self.geoms
         # Reproject to model crs
         gdf_gauges = gdf_gauges.to_crs(self.crs).copy()
 
@@ -1227,7 +1228,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
             gdf_gauges["geometry"]
         )
-        idxs = self.staticmaps.raster.xy_to_idx(xs, ys)
+        idxs = self.grid.raster.xy_to_idx(xs, ys)
         if index_col is not None and index_col in gdf_gauges.columns:
             gdf_gauges = gdf_gauges.set_index(index_col)
         if np.any(gdf_gauges.index == 0):
@@ -1239,11 +1240,11 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         if snap_to_river and mask is None:
             mask = self._MAPS["rivmsk"]
         if mask is not None:
-            mask = self.staticmaps[mask].values
+            mask = self.grid[mask].values
         if snap_uparea and "uparea" in gdf_gauges.columns:
             # Derive gauge map based on upstream area snapping
             da, idxs, ids = workflows.gauge_map_uparea(
-                self.staticmaps,
+                self.grid,
                 gdf_gauges,
                 uparea_name="wflow_uparea",
                 wdw=wdw,
@@ -1253,7 +1254,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         else:
             # Derive gauge map
             da, idxs, ids = flw.gauge_map(
-                self.staticmaps,
+                self.grid,
                 idxs=idxs,
                 ids=ids,
                 stream=mask,
@@ -1264,20 +1265,18 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             # Filter gauges that could not be snapped to rivers
             if snap_to_river:
                 ids_old = ids.copy()
-                da = da.where(
-                    self.staticmaps[self._MAPS["rivmsk"]] != 0, da.raster.nodata
-                )
+                da = da.where(self.grid[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
                 ids_new = np.unique(da.values[da.values > 0])
                 idxs = idxs[np.isin(ids_old, ids_new)]
                 ids = da.values.flat[idxs]
 
-        # Add to staticmaps
+        # Add to grid
         mapname = f'{str(self._MAPS["gauges"])}_{basename}'
-        self.set_staticmaps(da, name=mapname)
+        self.set_grid(da, name=mapname)
 
         # geoms
-        points = gpd.points_from_xy(*self.staticmaps.raster.idx_to_xy(idxs))
-        # if csv contains additional columns, these are also written in the staticgeoms
+        points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs))
+        # if csv contains additional columns, these are also written in the geoms
         gdf_snapped = gpd.GeoDataFrame(
             index=ids.astype(np.int32), geometry=points, crs=self.crs
         )
@@ -1291,8 +1290,8 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         df_attrs = pd.DataFrame(gdf_gauges.drop(columns="geometry"))
         df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
         gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
-        # Add gdf_snapped to staticgeoms
-        self.set_staticgeoms(gdf_snapped, name=mapname.replace("wflow_", ""))
+        # Add gdf_snapped to geoms
+        self.set_geoms(gdf_snapped, name=mapname.replace("wflow_", ""))
 
         # Add output timeseries for gauges in the toml
         self.setup_config_output_timeseries(
@@ -1304,13 +1303,11 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
 
         # add subcatch
         if derive_subcatch:
-            da_basins = flw.basin_map(self.staticmaps, self.flwdir, idxs=idxs, ids=ids)[
-                0
-            ]
+            da_basins = flw.basin_map(self.grid, self.flwdir, idxs=idxs, ids=ids)[0]
             mapname = self._MAPS["basins"] + "_" + basename
-            self.set_staticmaps(da_basins, name=mapname)
-            gdf_basins = self.staticmaps[mapname].raster.vectorize()
-            self.set_staticgeoms(gdf_basins, name=mapname.replace("wflow_", ""))
+            self.set_grid(da_basins, name=mapname)
+            gdf_basins = self.grid[mapname].raster.vectorize()
+            self.set_geoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
         self,
@@ -1344,13 +1341,13 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             )
             return
         else:
-            da_area = self.staticmaps.raster.rasterize(
+            da_area = self.grid.raster.rasterize(
                 gdf=gdf_org,
                 col_name=col2raster,
                 nodata=nodata,
                 all_touched=True,
             )
-        self.set_staticmaps(da_area.rename(col2raster))
+        self.set_grid(da_area.rename(col2raster))
 
     def setup_lakes(
         self,
@@ -1455,10 +1452,7 @@ rating curve fn {fn}. Skipping."
                     i = fns_ids.index(id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if (
-                        isfile(rating_fn)
-                        or rating_fn in self.data_catalog.get_source_names()
-                    ):
+                    if isfile(rating_fn) or rating_fn in self.data_catalog:
                         self.logger.info(
                             f"Preparing lake rating curve data from {rating_fn}"
                         )
@@ -1481,10 +1475,10 @@ Using default storage/outflow function parameters."
             ds_lakes, gdf_org, rating_dict, add_maxstorage=add_maxstorage
         )
 
-        # add to staticmaps
-        self.set_staticmaps(ds_lakes)
+        # add to grid
+        self.set_grid(ds_lakes)
         # write lakes with attr tables to static geoms.
-        self.set_staticgeoms(gdf_lakes, name="lakes")
+        self.set_geoms(gdf_lakes, name="lakes")
         # add the tables
         for k, v in rating_curves.items():
             self.set_tables(v, name=k)
@@ -1620,7 +1614,7 @@ Using default storage/outflow function parameters."
         # directly make the maps
         if ds_res is not None:
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
-            self.set_staticmaps(ds_res.rename(rmdict))
+            self.set_grid(ds_res.rename(rmdict))
 
             # add attributes
             # if present use directly
@@ -1662,15 +1656,15 @@ Using default storage/outflow function parameters."
             # add parameter attributes to polygone gdf:
             gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
 
-            # write reservoirs with param values to staticgeoms
-            self.set_staticgeoms(gdf_org, name="reservoirs")
+            # write reservoirs with param values to geoms
+            self.set_geoms(gdf_org, name="reservoirs")
 
             for name in gdf_org_points.columns[2:]:
                 gdf_org_points[name] = gdf_org_points[name].astype("float32")
                 da_res = ds_res.raster.rasterize(
                     gdf_org_points, col_name=name, dtype="float32", nodata=-999
                 )
-                self.set_staticmaps(da_res)
+                self.set_grid(da_res)
 
             # Save accuracy information on reservoir parameters
             if reservoir_accuracy is not None:
@@ -1714,7 +1708,7 @@ Using default storage/outflow function parameters."
             )
             # add waterbody maps
             uparea_name = self._MAPS["uparea"]
-            if uparea_name not in self.staticmaps.data_vars:
+            if uparea_name not in self.grid.data_vars:
                 self.logger.warning(
                     f"Upstream area map for {wb_type} outlet setup not found. "
                     "Database coordinates used instead"
@@ -1722,7 +1716,7 @@ Using default storage/outflow function parameters."
                 uparea_name = None
             ds_waterbody, gdf_wateroutlet = workflows.waterbodymaps(
                 gdf=gdf_org,
-                ds_like=self.staticmaps,
+                ds_like=self.grid,
                 wb_type=wb_type,
                 uparea_name=uparea_name,
                 logger=self.logger,
@@ -1738,7 +1732,7 @@ Using default storage/outflow function parameters."
             )
 
         # rasterize points polygons in raster.rasterize --
-        # you need staticmaps to know the grid
+        # you need grid to know the grid
         return gdf_org, ds_waterbody
 
     def setup_soilmaps(self, soil_fn="soilgrids", ptf_ksatver="brakensiek"):
@@ -1762,7 +1756,7 @@ soilgrids_2020,
         (3) the c parameter is computed as weighted average over wflow_sbm soil layers \
 in soilgrids_2020 versus at specific depths for soilgrids.
 
-        The following maps are added to staticmaps:
+        The following maps are added to grid:
 
         * **thetaS** map: average saturated soil water content [m3/m3]
         * **thetaR** map: average residual water content [m3/m3]
@@ -1771,16 +1765,16 @@ soil surface [mm/day]
         * **SoilThickness** map: soil thickness [mm]
         * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
         * **M** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth
-            (fitted with curve_fit (scipy.optimize)), bounds of M are checked
-        * **`M_`** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth
-            (fitted with numpy linalg regression), bounds of `M_` are checked
+KsatVer with soil depth (fitted with curve_fit (scipy.optimize)), bounds of M are \
+    checked
+        * **M_** map: model parameter [mm] that controls exponential decline of \
+KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` are \
+    checked
         * **M_original** map: M without checking bounds
-        * **`M_original_`** map: `M_` without checking bounds
+        * **M_original_** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **`f_`** map: scaling parameter controlling the decline of KsatVer [mm-1] \
+        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
         * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution \
 index at depth of 1st soil layer (100 mm) wflow_sbm
@@ -1813,12 +1807,12 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids(
             dsin,
-            self.staticmaps,
+            self.grid,
             ptf_ksatver,
             soil_fn,
             logger=self.logger,
         ).reset_coords(drop=True)
-        self.set_staticmaps(dsout)
+        self.set_grid(dsout)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
@@ -1880,16 +1874,16 @@ added to glacierstore [-]
             # add glacier maps
             ds_glac = workflows.glaciermaps(
                 gdf=gdf_org,
-                ds_like=self.staticmaps,
+                ds_like=self.grid,
                 id_column="simple_id",
                 elevtn_name=self._MAPS["elevtn"],
                 logger=self.logger,
             )
 
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
-            self.set_staticmaps(ds_glac.rename(rmdict))
+            self.set_grid(ds_glac.rename(rmdict))
 
-            self.set_staticgeoms(gdf_org, name="glaciers")
+            self.set_geoms(gdf_org, name="glaciers")
 
             for option in glac_toml:
                 self.set_config(option, glac_toml[option])
@@ -1913,20 +1907,20 @@ added to glacierstore [-]
         nodata: int or float
             nodata value
         kwargs
-            "param_name: value" pairs for constant staticmaps.
+            "param_name: value" pairs for constant grid.
 
         """
         for key, value in kwargs.items():
             nodata = np.dtype(dtype).type(nodata)
-            da_param = xr.where(
-                self.staticmaps[self._MAPS["basins"]], value, nodata
-            ).astype(dtype)
+            da_param = xr.where(self.grid[self._MAPS["basins"]], value, nodata).astype(
+                dtype
+            )
             da_param.raster.set_nodata(nodata)
 
             da_param = da_param.rename(key)
-            self.set_staticmaps(da_param)
+            self.set_grid(da_param)
 
-    def setup_staticmaps_from_raster(
+    def setup_grid_from_raster(
         self,
         raster_fn: str,
         reproject_method: str,
@@ -1935,7 +1929,7 @@ added to glacierstore [-]
         fill_method: Optional[str] = None,
     ) -> List[str]:
         """
-        Add data variable(s) from ``raster_fn`` to staticmaps object.
+        Add data variable(s) from ``raster_fn`` to grid object.
 
         If raster is a dataset, all variables will be added unless ``variables``
         list is specified. The config toml can also be updated to include
@@ -1943,7 +1937,7 @@ added to glacierstore [-]
 
         Adds model layers:
 
-        * **raster.name** or **variables** staticmaps: data from raster_fn
+        * **raster.name** or **variables** grid: data from raster_fn
 
         Parameters
         ----------
@@ -1955,7 +1949,7 @@ added to glacierstore [-]
 'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3', \
 'sum', 'rms']
         variables: list, optional
-            List of variables to add to staticmaps from raster_fn. By default all.
+            List of variables to add to grid from raster_fn. By default all.
         wflow_variables: list, optional
             List of corresponding wflow variables to update the config toml
             (e.g: ["input.vertical.altitude"]).
@@ -1970,7 +1964,7 @@ added to glacierstore [-]
         list
             Names of added model staticmap layers.
         """
-        self.logger.info(f"Preparing staticmaps data from raster source {raster_fn}")
+        self.logger.info(f"Preparing grid data from raster source {raster_fn}")
         # Read raster data and select variables
         ds = self.data_catalog.get_rasterdataset(
             raster_fn,
@@ -1983,9 +1977,9 @@ added to glacierstore [-]
         if fill_method is not None:
             ds = ds.raster.interpolate_na(method=fill_method)
         # Reprojection
-        ds_out = ds.raster.reproject_like(self.staticmaps, method=reproject_method)
-        # Add to staticmaps
-        self.set_staticmaps(ds_out)
+        ds_out = ds.raster.reproject_like(self.grid, method=reproject_method)
+        # Add to grid
+        self.set_grid(ds_out)
 
         # Update config
         if wflow_variables is not None:
@@ -2043,7 +2037,7 @@ one variable and variables list is not provided."
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
-        mask = self.staticmaps[self._MAPS["basins"]].values > 0
+        mask = self.grid[self._MAPS["basins"]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
             precip_fn,
@@ -2067,7 +2061,7 @@ one variable and variables list is not provided."
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
-            da_like=self.staticmaps[self._MAPS["elevtn"]],
+            da_like=self.grid[self._MAPS["elevtn"]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
@@ -2147,7 +2141,7 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
         endtime = self.get_config("endtime")
         timestep = self.get_config("timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
-        mask = self.staticmaps[self._MAPS["basins"]].values > 0
+        mask = self.grid[self._MAPS["basins"]].values > 0
 
         variables = ["temp"]
         if not skip_pet:
@@ -2198,7 +2192,7 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
 
         temp_in = hydromt.workflows.forcing.temp(
             ds["temp"],
-            dem_model=self.staticmaps[self._MAPS["elevtn"]],
+            dem_model=self.grid[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
             logger=self.logger,
@@ -2211,7 +2205,7 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
         ):  # also downscaled temp_min and temp_max for Penman needed
             temp_max_in = hydromt.workflows.forcing.temp(
                 ds["temp_max"],
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_model=self.grid[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 logger=self.logger,
@@ -2222,7 +2216,7 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
 
             temp_min_in = hydromt.workflows.forcing.temp(
                 ds["temp_min"],
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_model=self.grid[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 logger=self.logger,
@@ -2237,7 +2231,7 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
             pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
                 temp=temp_in,
-                dem_model=self.staticmaps[self._MAPS["elevtn"]],
+                dem_model=self.grid[self._MAPS["elevtn"]],
                 method=pet_method,
                 press_correction=press_correction,
                 wind_correction=wind_correction,
@@ -2393,7 +2387,7 @@ different return periods RP. Only if rootzone_storage is set to True!
             If set to True, requires to have run setup_laimaps.
         rootzone_storage : bool, optional
             Determines whether the rootzone storage maps
-            should be stored in the staticmaps or not. The default is False.
+            should be stored in the grid or not. The default is False.
         correct_cc_deficit : bool, optional
             Determines whether a bias-correction of the future deficit should be
             applied using the cc_hist deficit. Only works if the time periods of
@@ -2458,15 +2452,15 @@ the return_period argument.
 
         # check if setup_soilmaps and setup_laimaps were run if LAI =True and
         # if rooting_depth = True"
-        if (LAI == True) and ("LAI" not in self.staticmaps):
+        if (LAI == True) and ("LAI" not in self.grid):
             self.logger.error(
-                "LAI variable not found in staticmaps. \
+                "LAI variable not found in grid. \
 Set LAI to False or run setup_laimaps first"
             )
 
-        if ("thetaR" not in self.staticmaps) or ("thetaS" not in self.staticmaps):
+        if ("thetaR" not in self.grid) or ("thetaS" not in self.grid):
             self.logger.error(
-                "thetaS or thetaR variables not found in staticmaps. \
+                "thetaS or thetaR variables not found in grid. \
 Run setup_soilmaps first"
             )
 
@@ -2474,7 +2468,7 @@ Run setup_soilmaps first"
         dsout, gdf = workflows.rootzoneclim(
             dsrun=dsrun,
             ds_obs=ds_obs,
-            ds_like=self.staticmaps,
+            ds_like=self.grid,
             flwdir=self.flwdir,
             ds_cc_hist=ds_cc_hist,
             ds_cc_fut=ds_cc_fut,
@@ -2491,11 +2485,11 @@ Run setup_soilmaps first"
         )
 
         # set nodata value outside basin
-        dsout = dsout.where(self.staticmaps[self._MAPS["basins"]] > 0, -999)
+        dsout = dsout.where(self.grid[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
-        self.set_staticmaps(dsout)
-        self.set_staticgeoms(gdf, name="rootzone_storage")
+        self.set_grid(dsout)
+        self.set_geoms(gdf, name="rootzone_storage")
 
         # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
@@ -2504,10 +2498,10 @@ Run setup_soilmaps first"
     def read(self):
         """Read the complete model schematization and configuration from file."""
         self.read_config()
-        self.read_staticmaps()
+        self.read_grid()
         self.read_intbl()
         self.read_tables()
-        self.read_staticgeoms()
+        self.read_geoms()
         self.read_forcing()
         self.logger.info("Model read")
 
@@ -2521,19 +2515,17 @@ Run setup_soilmaps first"
         self.write_data_catalog()
         if self.config:  # try to read default if not yet set
             self.write_config()
-        if self._staticmaps:
-            self.write_staticmaps()
+        if self._grid:
+            self.write_grid()
         if self._tables:
             self.write_tables()
-        if (
-            self.staticgeoms
-        ):  ## force to read staticgeoms (bug deprecation in update mode)
-            self.write_staticgeoms()
+        if self._geoms:
+            self.write_geoms()
         if self._forcing:
             self.write_forcing()
 
-    def read_staticmaps(self, **kwargs):
-        """Read staticmaps."""
+    def read_grid(self, **kwargs):
+        """Read grid."""
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
 
@@ -2546,9 +2538,9 @@ Run setup_soilmaps first"
 
         if not self._write:
             # start fresh in read-only mode
-            self._staticmaps = xr.Dataset()
+            self._grid = xr.Dataset()
         if fn is not None and isfile(fn):
-            self.logger.info(f"Read staticmaps from {fn}")
+            self.logger.info(f"Read grid from {fn}")
             # FIXME: we need a smarter (lazy) solution for big models which also
             # works when overwriting / appending data in the same source!
             ds = xr.open_dataset(
@@ -2558,19 +2550,27 @@ Run setup_soilmaps first"
             # make sure internally maps are always North -> South oriented
             if ds.raster.res[1] > 0:
                 ds = ds.raster.flipud()
-            self.set_staticmaps(ds)
+            self.set_grid(ds)
         elif len(glob.glob(join(self.root, "staticmaps", "*.map"))) > 0:
             self.read_staticmaps_pcr()
 
-    def write_staticmaps(self):
-        """Write staticmaps."""
+    def read_staticmaps(self, **kwargs):
+        """Read staticmaps."""
+        self.logger.warning(
+            "read_staticmaps is deprecated. Use 'read_grid' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        self.read_grid(**kwargs)
+
+    def write_grid(self):
+        """Write grid."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # clean-up staticmaps and write CRS according to CF-conventions
+        # clean-up grid and write CRS according to CF-conventions
         # TODO replace later with hydromt.raster.gdal_compliant method
         # after core release
-        crs = self.staticmaps.raster.crs
-        ds_out = self.staticmaps.reset_coords()
+        crs = self.grid.raster.crs
+        ds_out = self.grid.reset_coords()
         # TODO?!
         # if ds_out.raster.res[1] < 0: # write data with South -> North orientation
         #     ds_out = ds_out.raster.flipud()
@@ -2580,7 +2580,7 @@ Run setup_soilmaps first"
         ds_out[y_dim].attrs.update(y_attrs)
         ds_out = ds_out.drop_vars(["mask", "spatial_ref", "ls"], errors="ignore")
         ds_out.rio.write_crs(crs, inplace=True)
-        ds_out.rio.write_transform(self.staticmaps.raster.transform, inplace=True)
+        ds_out.rio.write_transform(self.grid.raster.transform, inplace=True)
         ds_out.raster.set_spatial_dims()
 
         # Remove FillValue Nan for x_dim, y_dim
@@ -2601,103 +2601,107 @@ Run setup_soilmaps first"
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
-        self.logger.info(f"Write staticmaps to {fn}")
+        self.logger.info(f"Write grid to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
             # nodata is required for all but boolean fields
             if ds_out[v].dtype != "bool":
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn, encoding=encoding)
-        # self.write_staticmaps_pcr()
+        # self.write_grid_pcr()
+
+    def write_staticmaps(self, **kwargs):
+        """Write staticmaps."""
+        self.logger.warning(
+            "write_staticmaps is deprecated. Use 'write_grid' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        self.write_grid()
 
     def read_staticmaps_pcr(self, crs=4326, **kwargs):
         """Read and staticmaps at <root/staticmaps> and parse to xarray."""
+        self.logger.warning(
+            "read_staticmaps_pcr as a method of this object is deprecated. "
+            "Use 'read_staticmaps_pcr' for the 'pcrm' submodule instead. "
+            "Will be removed in hydromt_wflow v0.5.0"
+        )
         if self._read and "chunks" not in kwargs:
             kwargs.update(chunks={"y": -1, "x": -1})
-        fn = join(self.root, "staticmaps", "*.map")
-        fns = glob.glob(fn)
-        if len(fns) == 0:
-            self.logger.warning(f"No staticmaps found at {fn}")
-            return
-        self._staticmaps = open_mfraster(fns, **kwargs)
-        path = join(self.root, "staticmaps", "clim", "LAI*")
-        if len(glob.glob(path)) > 0:
-            da_lai = open_mfraster(
-                path, concat=True, concat_dim="time", logger=self.logger, **kwargs
-            )
-            self.set_staticmaps(da_lai, "LAI")
-
-        # reorganize c_0 etc maps
-        da_c = []
-        list_c = [v for v in self._staticmaps if str(v).startswith("c_")]
-        if len(list_c) > 0:
-            for i, v in enumerate(list_c):
-                da_c.append(self._staticmaps[f"c_{i:d}"])
-            da = xr.concat(
-                da_c, pd.Index(np.arange(len(list_c), dtype=int), name="layer")
-            ).transpose("layer", ...)
-            self.set_staticmaps(da, "c")
-
-        if self.crs is None:
-            if crs is None:
-                crs = 4326  # default to 4326
-            self.set_crs(crs)
+        read_pcr_func(
+            self.root,
+            crs=crs,
+            obj=self,
+            **kwargs,
+        )
 
     def write_staticmaps_pcr(self):
         """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
+        self.logger.warning(
+            "write_staticmaps_pcr as a method of this object is deprecated. "
+            "Use 'write_staticmaps_pcr' for the 'pcrm' submodule instead. "
+            "Will be removed in hydromt_wflow v0.5.0"
+        )
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        ds_out = self.staticmaps
-        if "LAI" in ds_out.data_vars:
-            ds_out = ds_out.rename_vars({"LAI": "clim/LAI"})
-        if "c" in ds_out.data_vars:
-            for layer in ds_out["layer"]:
-                ds_out[f"c_{layer.item():d}"] = ds_out["c"].sel(layer=layer)
-                ds_out[f"c_{layer.item():d}"].raster.set_nodata(
-                    ds_out["c"].raster.nodata
-                )
-            ds_out = ds_out.drop_vars(["c", "layer"])
-        self.logger.info("Writing (updated) staticmap files.")
-        # add datatypes for maps with same basenames, e.g. wflow_gauges_grdc
-        pcr_vs_map = PCR_VS_MAP.copy()
-        for var_name in ds_out.raster.vars:
-            base_name = "_".join(var_name.split("_")[:-1])  # clip _<postfix>
-            if base_name in PCR_VS_MAP:
-                pcr_vs_map.update({var_name: PCR_VS_MAP[base_name]})
-        ds_out.raster.to_mapstack(
-            root=join(self.root, "staticmaps"),
-            mask=True,
-            driver="PCRaster",
-            pcr_vs_map=pcr_vs_map,
-            logger=self.logger,
+        write_pcr_func(
+            self.staticmaps,
+            self.root,
         )
 
-    def read_staticgeoms(self):
-        """Read and staticgeoms at <root/staticgeoms> and parse to geopandas."""
+    def read_geoms(
+        self,
+        geom_fn: str = "staticgeoms",
+    ):
+        """Read and geoms at <root/geoms> and parse to geopandas."""
         if not self._write:
-            self._staticgeoms = dict()  # fresh start in read-only mode
+            self._geoms = dict()  # fresh start in read-only mode
         dir_default = join(self.root, "staticmaps.nc")
         dir_mod = dirname(
             self.get_config("input.path_static", abs_path=True, fallback=dir_default)
         )
-        fns = glob.glob(join(dir_mod, "staticgeoms", "*.geojson"))
+        fns = glob.glob(join(dir_mod, geom_fn, "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
             name = basename(fn).split(".")[0]
             if name != "region":
-                self.set_staticgeoms(gpd.read_file(fn), name=name)
+                self.set_geoms(gpd.read_file(fn), name=name)
 
-    def write_staticgeoms(self):
-        """Write staticmaps at <root/staticgeoms> in model ready format."""
-        # to write use self.staticgeoms[var].to_file()
+    def read_staticgeoms(
+        self,
+        geom_fn: str = "staticgeoms",
+    ):
+        """Read static geometries."""
+        self.logger.warning(
+            "read_staticgeoms is deprecated. Use 'read_geoms' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        self.read_geoms(geom_fn)
+
+    def write_geoms(
+        self,
+        geom_fn: str = "staticgeoms",
+    ):
+        """Write grid at <root/geoms> in model ready format."""
+        # to write use self.geoms[var].to_file()
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        if self.staticgeoms:
+        if self.geoms:
             self.logger.info("Writing model staticgeom to file.")
-            for name, gdf in self.staticgeoms.items():
-                fn_out = join(self.root, "staticgeoms", f"{name}.geojson")
+            for name, gdf in self.geoms.items():
+                fn_out = join(self.root, geom_fn, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
+
+    def write_staticgeoms(
+        self,
+        geom_fn: str = "staticgeoms",
+    ):
+        """Write static geometries."""
+        self.logger.warning(
+            "write_staticgeoms is deprecated. Use 'write_geoms' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        self.write_geoms(geom_fn)
 
     def read_forcing(self):
         """Read forcing."""
@@ -2956,7 +2960,7 @@ change name input.path_forcing "
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
-            # TODO ? align coords names and values of results nc with staticmaps
+            # TODO ? align coords names and values of results nc with grid
             self.set_results(ds, name="output")
 
         # Read scalar netcdf (netcdf section)
@@ -2976,7 +2980,7 @@ change name input.path_forcing "
         )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config, maps=self.staticmaps
+                csv_fn, config=self.config, maps=self.grid
             )
             for key in csv_dict:
                 # Add to results
@@ -3100,30 +3104,28 @@ change name input.path_forcing "
         """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd."""
         flwdir_name = flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
-            self.staticmaps[flwdir_name],
+            self.grid[flwdir_name],
             ftype=ftype,
             check_ftype=True,
-            mask=(self.staticmaps[self._MAPS["basins"]] > 0),
+            mask=(self.grid[self._MAPS["basins"]] > 0),
         )
 
     @property
     def basins(self):
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
-        if "basins" in self.staticgeoms:
-            gdf = self.staticgeoms["basins"]
-        elif self._MAPS["basins"] in self.staticmaps:
+        if "basins" in self.geoms:
+            gdf = self.geoms["basins"]
+        elif self._MAPS["basins"] in self.grid:
             gdf = (
-                self.staticmaps[self._MAPS["basins"]]
+                self.grid[self._MAPS["basins"]]
                 .raster.vectorize()
                 .set_index("value")
                 .sort_index()
             )
             gdf.index.name = self._MAPS["basins"]
-            self.set_staticgeoms(gdf, name="basins")
+            self.set_geoms(gdf, name="basins")
         else:
-            self.logger.warning(
-                f"Basin map {self._MAPS['basins']} not found in staticmaps."
-            )
+            self.logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
         return gdf
 
@@ -3134,10 +3136,10 @@ change name input.path_forcing "
         If available, the stream order and upstream area values are added to
         the geometry properties.
         """
-        if "rivers" in self.staticgeoms:
-            gdf = self.staticgeoms["rivers"]
-        elif self._MAPS["rivmsk"] in self.staticmaps:
-            rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
+        if "rivers" in self.geoms:
+            gdf = self.geoms["rivers"]
+        elif self._MAPS["rivmsk"] in self.grid:
+            rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
             # Check if there are river cells in the model before continuing
             if np.any(rivmsk):
                 # add stream order 'strord' column
@@ -3145,20 +3147,48 @@ change name input.path_forcing "
                 feats = self.flwdir.streams(mask=rivmsk, strord=strord)
                 gdf = gpd.GeoDataFrame.from_features(feats)
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
-                self.set_staticgeoms(gdf, name="rivers")
+                self.set_geoms(gdf, name="rivers")
         else:
             self.logger.warning("No river cells detected in the selected basin.")
             gdf = None
         return gdf
 
-    def clip_staticmaps(
+    @property
+    def staticgeoms(self):
+        """Return static geometries.
+
+        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
+        :py:attr:`geoms` instead.
+        """
+        self.logger.warning(
+            "staticgeoms is deprecated. Call 'geoms' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        return self.geoms
+
+    @property
+    def staticmaps(self):
+        """Return staticmaps.
+
+        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
+        :py:attr:`grid` instead.
+        """
+        self.logger.warning(
+            "staticmaps is deprecated. Call 'grid' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        return self.grid
+
+    ## WFLOW specific modification (clip for now) methods
+
+    def clip_grid(
         self,
         region,
         buffer=0,
         align=None,
         crs=4326,
     ):
-        """Clip staticmaps to subbasin.
+        """Clip grid to subbasin.
 
         Parameters
         ----------
@@ -3169,12 +3199,12 @@ change name input.path_forcing "
         align : float, optional
             Align bounds of region to raster with resolution <align>, by default None
         crs: int, optional
-            Default crs of the staticmaps to clip.
+            Default crs of the grid to clip.
 
         Returns
         -------
         xarray.DataSet
-            Clipped staticmaps.
+            Clipped grid.
         """
         basins_name = self._MAPS["basins"]
         flwdir_name = self._MAPS["flwdir"]
@@ -3188,7 +3218,7 @@ change name input.path_forcing "
             if kind == "subbasin" and bbox is None:
                 region.update(bbox=self.bounds)
             geom, _ = hydromt.workflows.get_basin_geometry(
-                ds=self.staticmaps,
+                ds=self.grid,
                 logger=self.logger,
                 kind=kind,
                 basins_name=basins_name,
@@ -3197,49 +3227,42 @@ change name input.path_forcing "
             )
         # clip based on subbasin args, geom or bbox
         if geom is not None:
-            ds_staticmaps = self.staticmaps.raster.clip_geom(
-                geom, align=align, buffer=buffer
+            ds_grid = self.grid.raster.clip_geom(geom, align=align, buffer=buffer)
+            ds_grid.coords["mask"] = ds_grid.raster.geometry_mask(geom)
+            ds_grid[basins_name] = ds_grid[basins_name].where(
+                ds_grid.coords["mask"], self.grid[basins_name].raster.nodata
             )
-            ds_staticmaps.coords["mask"] = ds_staticmaps.raster.geometry_mask(geom)
-            ds_staticmaps[basins_name] = ds_staticmaps[basins_name].where(
-                ds_staticmaps.coords["mask"], self.staticmaps[basins_name].raster.nodata
-            )
-            ds_staticmaps[basins_name].attrs.update(
-                _FillValue=self.staticmaps[basins_name].raster.nodata
+            ds_grid[basins_name].attrs.update(
+                _FillValue=self.grid[basins_name].raster.nodata
             )
         elif bbox is not None:
-            ds_staticmaps = self.staticmaps.raster.clip_bbox(
-                bbox, align=align, buffer=buffer
-            )
+            ds_grid = self.grid.raster.clip_bbox(bbox, align=align, buffer=buffer)
 
-        # Update flwdir staticmaps and staticgeoms
+        # Update flwdir grid and geoms
         if self.crs is None and crs is not None:
             self.set_crs(crs)
 
-        self._staticmaps = xr.Dataset()
-        self.set_staticmaps(ds_staticmaps)
+        self._grid = xr.Dataset()
+        self.set_grid(ds_grid)
 
         # add pits at edges after clipping
         self._flwdir = None  # make sure old flwdir object is removed
-        self.staticmaps[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
+        self.grid[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
-        # Reinitiliase staticgeoms and re-create basins/rivers
-        self._staticgeoms = dict()
+        # Reinitiliase geoms and re-create basins/rivers
+        self._geoms = dict()
         # self.basins
         # self.rivers
-        # now staticgeoms links to geoms which does not exist in every hydromt version
+        # now geoms links to geoms which does not exist in every hydromt version
         # remove when updating wflow to new objects
         # Basin shape
         basins = (
-            self.staticmaps[basins_name]
-            .raster.vectorize()
-            .set_index("value")
-            .sort_index()
+            self.grid[basins_name].raster.vectorize().set_index("value").sort_index()
         )
         basins.index.name = basins_name
-        self.set_staticgeoms(basins, name="basins")
+        self.set_geoms(basins, name="basins")
 
-        rivmsk = self.staticmaps[self._MAPS["rivmsk"]].values != 0
+        rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
         # Check if there are river cells in the model before continuing
         if np.any(rivmsk):
             # add stream order 'strord' column
@@ -3247,12 +3270,12 @@ change name input.path_forcing "
             feats = self.flwdir.streams(mask=rivmsk, strord=strord)
             gdf = gpd.GeoDataFrame.from_features(feats)
             gdf.crs = pyproj.CRS.from_user_input(self.crs)
-            self.set_staticgeoms(gdf, name="rivers")
+            self.set_geoms(gdf, name="rivers")
 
         # Update reservoir and lakes
         remove_reservoir = False
-        if self._MAPS["resareas"] in self.staticmaps:
-            reservoir = self.staticmaps[self._MAPS["resareas"]]
+        if self._MAPS["resareas"] in self.grid:
+            reservoir = self.grid[self._MAPS["resareas"]]
             if not np.any(reservoir > 0):
                 remove_reservoir = True
                 remove_maps = [
@@ -3265,11 +3288,11 @@ change name input.path_forcing "
                     "ResMaxRelease",
                     "ResMaxVolume",
                 ]
-                self._staticmaps = self.staticmaps.drop_vars(remove_maps)
+                self._grid = self.grid.drop_vars(remove_maps)
 
         remove_lake = False
-        if self._MAPS["lakeareas"] in self.staticmaps:
-            lake = self.staticmaps[self._MAPS["lakeareas"]]
+        if self._MAPS["lakeareas"] in self.grid:
+            lake = self.grid[self._MAPS["lakeareas"]]
             if not np.any(lake > 0):
                 remove_lake = True
                 remove_maps = [
@@ -3285,7 +3308,7 @@ change name input.path_forcing "
                     "Lake_b",
                     "Lake_e",
                 ]
-                self._staticmaps = self.staticmaps.drop_vars(remove_maps)
+                self._grid = self.grid.drop_vars(remove_maps)
 
             # Update tables
             ids = np.unique(lake)
@@ -3311,6 +3334,20 @@ change name input.path_forcing "
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
 
+    def clip_staticmaps(
+        self,
+        region,
+        buffer=0,
+        align=None,
+        crs=4326,
+    ):
+        """Clip staticmaps to subbasin."""
+        self.logger.warning(
+            "clip_staticmaps is deprecated. Use 'clip_grid' instead. "
+            "Will be removed in hydromt_wflow v0.6.0"
+        )
+        self.clip_grid(region, buffer, align, crs)
+
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
 
@@ -3323,6 +3360,6 @@ change name input.path_forcing "
         if len(self.forcing) > 0:
             self.logger.info("Clipping NetCDF forcing..")
             ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
-                self.staticmaps.raster.bounds
+                self.grid.raster.bounds
             )
             self.set_forcing(ds_forcing)

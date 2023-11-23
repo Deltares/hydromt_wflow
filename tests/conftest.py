@@ -1,5 +1,6 @@
 """add global fixtures."""
 import logging
+import platform
 from os.path import abspath, dirname, join
 
 import pytest
@@ -8,8 +9,12 @@ from hydromt.cli.cli_utils import parse_config
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 
+SUBDIR = ""
+if platform.system().lower() != "windows":
+    SUBDIR = "linux64"
+
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
+EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 
 
 @pytest.fixture()
@@ -74,7 +79,7 @@ def clipped_wflow_model():
 @pytest.fixture()
 def floodplain1d_testdata():
     data = xr.load_dataset(
-        join(TESTDATADIR, "floodplain_layers.nc"),
+        join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
         lock=False,
         mode="r",
     )
