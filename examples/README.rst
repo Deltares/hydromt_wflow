@@ -30,6 +30,14 @@ hydromt-wflow environment, do (these packages are also available in conda-forge)
   $ pip install jupyterlab
   $ pip install cartopy
 
+.. note::
+
+  To run the example notebook using pcraster, you will also need to install it from
+  conda-forge (not available on pypi):
+
+  .. code-block:: console
+
+    $ conda install -c conda-forge pcraster
 
 2 - Download the content of the examples and notebooks
 ******************************************************
