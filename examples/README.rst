@@ -57,7 +57,8 @@ You have two options:
     $ hydromt --models
 
     model plugins:
-     - dflowfm (hydromt_wflow 0.4.1)
+     - wflow (hydromt_wflow 0.4.1)
+     - wflow_sediment (hydromt_wflow 0.4.1)
     generic models (hydromt 0.9.1)
      - grid_model
      - vector_model
