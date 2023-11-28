@@ -5,6 +5,7 @@ import codecs
 import glob
 import logging
 import os
+from itertools import product
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
 from typing import List, Optional, Union
@@ -2490,6 +2491,54 @@ Run setup_soilmaps first"
 
         # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
+
+    def setup_water_demand(
+        self,
+        static_fn: str = "pcr_globwb",
+        static_vars: list = ["dom", "ind", "lsk"],
+        method: str = "nearest",
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        static_fn : str, optional
+            _description_, by default "pcr_globwb"
+        static_vars : list, optional
+            _description_, by default ["dom", "ind", "lsk"]
+        """
+        if not all([item in ["dom", "ind", "lsk"] for item in static_vars]):
+            raise ValueError("")
+
+        # Selecting data
+        static_data = self.data_catalog.get_rasterdataset(
+            static_fn,
+            geom=self.region,
+            buffer=2,
+            variables=[
+                f"{var}_{mode}" for var, mode in product(static_vars, ["gross", "net"])
+            ],
+        )
+
+        # Create static water demand rasters
+        static = workflows.demand.static(
+            static_data,
+            ds_like=self.grid,
+            method=method,
+        )
+        self.set_grid(static)
+
+        # Update the settings toml
+        for var in static.data_vars:
+            sname = var.split("_")[0]
+            lname = workflows.demand.map_vars[sname]
+            var.replace(sname, lname)
+            self.set_config(
+                "vertical.demand.",
+                var,
+            )
 
     # I/O
     def read(self):
