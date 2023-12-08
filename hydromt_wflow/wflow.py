@@ -2494,9 +2494,12 @@ Run setup_soilmaps first"
 
     def setup_water_demand(
         self,
-        static_fn: str = "pcr_globwb",
-        static_vars: list = ["dom", "ind", "lsk"],
-        method: str = "nearest",
+        non_irigation_fn: str = "pcr_globwb",
+        non_irigation_vars: list = ["dom", "ind", "lsk"],
+        non_irigation_method: str = "nearest",
+        population_fn: str = "worldpop_2020_constrained",
+        population_method: str = "sum",
+        admin_bounds_fn: str = "wb_countries",
     ):
         """_summary_.
 
@@ -2504,39 +2507,47 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        static_fn : str, optional
+        pcr_fn : str, optional
             _description_, by default "pcr_globwb"
-        static_vars : list, optional
+        pcr_vars : list, optional
             _description_, by default ["dom", "ind", "lsk"]
         """
-        if not all([item in ["dom", "ind", "lsk"] for item in static_vars]):
+        if not all([item in ["dom", "ind", "lsk"] for item in non_irigation_vars]):
             raise ValueError("")
 
         # Selecting data
-        static_data = self.data_catalog.get_rasterdataset(
-            static_fn,
+        non_irigation_raw = self.data_catalog.get_rasterdataset(
+            non_irigation_fn,
             geom=self.region,
             buffer=2,
             variables=[
-                f"{var}_{mode}" for var, mode in product(static_vars, ["gross", "net"])
+                f"{var}_{mode}"
+                for var, mode in product(non_irigation_vars, ["gross", "net"])
             ],
         )
+        pop_raw = self.data_catalog.get_rasterdataset(
+            population_fn,
+            geom=self.region,
+            buffer=2,
+        ).raster.mask_nodata()
 
         # Create static water demand rasters
-        static = workflows.demand.static(
-            static_data,
+        non_irigation, popu = workflows.demand.non_irigation(
+            non_irigation_raw,
             ds_like=self.grid,
-            method=method,
+            ds_method=non_irigation_method,
+            popu=pop_raw,
+            popu_method=population_method,
         )
-        self.set_grid(static)
+        self.set_grid(non_irigation)
+        self.set_grid(popu)
 
         # Update the settings toml
-        for var in static.data_vars:
-            sname = var.split("_")[0]
+        for var in non_irigation.data_vars:
+            sname, suffix = var.split("_")
             lname = workflows.demand.map_vars[sname]
-            var.replace(sname, lname)
             self.set_config(
-                "vertical.demand.",
+                f"vertical.{lname}.demand_{suffix}",
                 var,
             )
 
