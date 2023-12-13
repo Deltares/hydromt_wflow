@@ -120,7 +120,6 @@ def non_irigation(
         )
         new = new * popu_redist
         new = new.fillna(0.0)
-        new["spatial_ref"] = non_iri_scaled.spatial_ref
         non_iri_scaled[var] = new
         non_iri_scaled[var] = non_iri_scaled[var].assign_attrs(attrs)
 
@@ -129,7 +128,7 @@ def non_irigation(
 
 def allocate(
     ds_like: xr.Dataset,
-    admin_bounds: xr.DataArray,
+    admin_bounds: object,
     basins: xr.Dataset,
     rivers: xr.Dataset,
 ):
@@ -137,4 +136,71 @@ def allocate(
 
     _extended_summary_
     """
-    pass
+    # Split based on admin bounds
+    split_basins = basins.overlay(
+        admin_bounds,
+        how="union",
+    )
+    split_basins = split_basins[~split_basins["value"].isna()]
+
+    # Remove unneccessary stuff
+    cols = split_basins.columns.drop(["value", "geometry", "NAME_2"]).tolist()
+    split_basins.drop(cols, axis=1, inplace=True)
+    # Use this uid to dissolve on later
+    split_basins["uid"] = range(len(split_basins))
+
+    # Dissolve cut pieces back
+    for _, row in split_basins.iterrows():
+        if not str(row.NAME_2).lower() == "nan":
+            continue
+        touched = split_basins[split_basins.touches(row.geometry)]
+        uid = touched[touched["value"] == row.value].uid.values[0]
+        split_basins.loc[split_basins["uid"] == row.uid, "uid"] = uid
+    split_basins = split_basins.dissolve("uid", sort=False, as_index=False)
+
+    _count = 0
+
+    # Create touched and not touched by rivers datasets
+    while True:
+        # Ensure a break if it cannot be solved
+        if _count == 100:
+            break
+
+        # Everything touched by river based on difference
+        # (is not what we want, yet)
+        riv_touch = split_basins.sjoin(
+            rivers,
+        )
+
+        # Set no_riv and riv (what's touched and what's not)
+        no_riv = split_basins[~split_basins.geometry.isin(riv_touch.geometry)]
+        riv = split_basins[split_basins.geometry.isin(riv_touch.geometry)]
+
+        _n = 0
+
+        if no_riv.empty:
+            break
+
+        for _, row in no_riv.iterrows():
+            touched = riv[riv.touches(row.geometry)]
+            if touched.empty:
+                continue
+            if row.value in touched.value.values:
+                uid = touched[touched["value"] == row.value].uid.values[0]
+            else:
+                touched["area"] = touched.area
+                uid = touched[touched["area"] == touched["area"].max()].uid.values[0]
+            # Set the identifier to the new value
+            # (i.e. the touched basin)
+            split_basins.loc[split_basins["uid"] == row.uid, "uid"] = uid
+            _n += 1
+
+        # Ensure a break if nothing is touched
+        # This means that it cannot be solved
+        # TODO maybe look at iteratively buffering...
+        if _n == 0:
+            break
+
+        split_basins = split_basins.dissolve("uid", sort=False, as_index=False)
+        _count += 1
+        pass

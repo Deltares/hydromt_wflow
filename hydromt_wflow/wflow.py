@@ -2499,7 +2499,8 @@ Run setup_soilmaps first"
         non_irigation_method: str = "nearest",
         population_fn: str = "worldpop_2020_constrained",
         population_method: str = "sum",
-        admin_bounds_fn: str = "wb_countries",
+        admin_bounds_fn: str = "gadm",
+        admin_level: int = 0,
     ):
         """_summary_.
 
@@ -2541,6 +2542,22 @@ Run setup_soilmaps first"
         )
         self.set_grid(non_irigation)
         self.set_grid(popu)
+
+        # Will be fixes but for know this is done like this
+        # TODO fix in the future
+        admin_path = self.data_catalog[admin_bounds_fn].path
+        admin_bounds = self.data_catalog.get_geodataframe(
+            admin_path, geom=self.region, layer=f"level{admin_level}"
+        )
+
+        # Create the allocation grid
+        alloc = workflows.demand.allocate(
+            ds_like=self.grid,
+            admin_bounds=admin_bounds,
+            basins=self.geoms["basins"],
+            rivers=self.geoms["rivers"],
+        )
+        self.set_grid(alloc)
 
         # Update the settings toml
         for var in non_irigation.data_vars:

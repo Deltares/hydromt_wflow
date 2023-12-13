@@ -516,3 +516,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
     )
+
+
+def test_setup_demand():
+    pass
