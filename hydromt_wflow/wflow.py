@@ -2171,7 +2171,9 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
                     "penman-monteith_rh_simple",
                     "penman-monteith_tdew",
                 ]
-                ValueError(f"Unknown pet method {pet_method}, select from {methods}")
+                raise ValueError(
+                    f"Unknown pet method {pet_method}, select from {methods}"
+                )
 
         ds = self.data_catalog.get_rasterdataset(
             temp_pet_fn,
