@@ -2492,13 +2492,9 @@ Run setup_soilmaps first"
         # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
 
-    def setup_water_demand(
+    def setup_allocation(
         self,
-        non_irigation_fn: str = "pcr_globwb",
-        non_irigation_vars: list = ["dom", "ind", "lsk"],
-        non_irigation_method: str = "nearest",
-        population_fn: str = "worldpop_2020_constrained",
-        population_method: str = "sum",
+        min_area: float | int = 0,
         admin_bounds_fn: str = "gadm",
         admin_level: int = 0,
     ):
@@ -2508,10 +2504,66 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        pcr_fn : str, optional
+        min_area : float | int
+            _description_
+        admin_bounds_fn : str, optional
+            _description_, by default "gadm"
+        admin_level : int, optional
+            _description_, by default 0
+        """
+        # Will be fixes but for know this is done like this
+        # TODO fix in the future
+        admin_bounds = None
+        if admin_bounds_fn is not None:
+            admin_path = self.data_catalog[admin_bounds_fn].path
+            admin_bounds = self.data_catalog.get_geodataframe(
+                admin_path, geom=self.region, layer=f"level{admin_level}"
+            )
+            # Add this identifier for usage in the workflow
+            admin_bounds["admin_id"] = range(len(admin_bounds))
+
+        # Create the allocation grid
+        alloc = workflows.demand.allocate(
+            ds_like=self.grid,
+            min_area=min_area,
+            admin_bounds=admin_bounds,
+            basins=self.geoms["basins"],
+            rivers=self.geoms["rivers"],
+        )
+        self.set_grid(alloc)
+
+        # Update the settings toml
+        self.set_config("input.vertical.waterallocation.areas", "Allocation_id")
+
+    def setup_non_irigation(
+        self,
+        non_irigation_fn: str = "pcr_globwb",
+        non_irigation_vars: list = ["dom", "ind", "lsk"],
+        non_irigation_method: str = "nearest",
+        population_fn: str = "worldpop_2020_constrained",
+        population_method: str = "sum",
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        non_irigation_fn : str, optional
             _description_, by default "pcr_globwb"
-        pcr_vars : list, optional
+        non_irigation_vars : list, optional
             _description_, by default ["dom", "ind", "lsk"]
+        non_irigation_method : str, optional
+            _description_, by default "nearest"
+        population_fn : str, optional
+            _description_, by default "worldpop_2020_constrained"
+        population_method : str, optional
+            _description_, by default "sum"
+
+        Raises
+        ------
+        ValueError
+            _description_
         """
         if not all([item in ["dom", "ind", "lsk"] for item in non_irigation_vars]):
             raise ValueError("")
@@ -2543,28 +2595,12 @@ Run setup_soilmaps first"
         self.set_grid(non_irigation)
         self.set_grid(popu)
 
-        # Will be fixes but for know this is done like this
-        # TODO fix in the future
-        admin_path = self.data_catalog[admin_bounds_fn].path
-        admin_bounds = self.data_catalog.get_geodataframe(
-            admin_path, geom=self.region, layer=f"level{admin_level}"
-        )
-
-        # Create the allocation grid
-        alloc = workflows.demand.allocate(
-            ds_like=self.grid,
-            admin_bounds=admin_bounds,
-            basins=self.geoms["basins"],
-            rivers=self.geoms["rivers"],
-        )
-        self.set_grid(alloc)
-
-        # Update the settings toml
+        # Update the settings toml with non irigation stuff
         for var in non_irigation.data_vars:
             sname, suffix = var.split("_")
             lname = workflows.demand.map_vars[sname]
             self.set_config(
-                f"vertical.{lname}.demand_{suffix}",
+                f"input.vertical.{lname}.demand_{suffix}",
                 var,
             )
 

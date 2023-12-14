@@ -2,6 +2,7 @@
 
 import math
 
+import pandas as pd
 import xarray as xr
 from affine import Affine
 from hydromt.raster import full_from_transform
@@ -35,6 +36,33 @@ def transform_half_degree(
     w = round((right - left) / 0.5)
 
     return affine, w, h
+
+
+def touch_intersect(row, vector):
+    """_summary_.
+
+    _extended_summary_
+
+    Parameters
+    ----------
+    row : _type_
+        _description_
+    vector : _type_
+        _description_
+
+    Returns
+    -------
+    _type_
+        _description_
+    """
+    contain = True
+    _t = sum(vector.touches(row.geometry))
+    _i = sum(vector.intersects(row.geometry))
+    diff = abs(_i - _t)
+    if diff == 0:
+        contain = False
+    row["contain"] = contain
+    return row
 
 
 def non_irigation(
@@ -128,6 +156,7 @@ def non_irigation(
 
 def allocate(
     ds_like: xr.Dataset,
+    min_area: float | int,
     admin_bounds: object,
     basins: xr.Dataset,
     rivers: xr.Dataset,
@@ -135,29 +164,49 @@ def allocate(
     """_summary_.
 
     _extended_summary_
+
+    Parameters
+    ----------
+    ds_like : xr.Dataset
+        _description_
+    min_area : float | int
+        _description_
+    admin_bounds : object
+        _description_
+    basins : xr.Dataset
+        _description_
+    rivers : xr.Dataset
+        _description_
     """
     # Split based on admin bounds
-    split_basins = basins.overlay(
-        admin_bounds,
-        how="union",
-    )
-    split_basins = split_basins[~split_basins["value"].isna()]
+    sub_basins = basins.copy()
+    sub_basins["uid"] = range(len(sub_basins))
 
-    # Remove unneccessary stuff
-    cols = split_basins.columns.drop(["value", "geometry", "NAME_2"]).tolist()
-    split_basins.drop(cols, axis=1, inplace=True)
-    # Use this uid to dissolve on later
-    split_basins["uid"] = range(len(split_basins))
+    if admin_bounds is not None:
+        sub_basins = basins.overlay(
+            admin_bounds,
+            how="union",
+        )
+        sub_basins = sub_basins[~sub_basins["value"].isna()]
 
-    # Dissolve cut pieces back
-    for _, row in split_basins.iterrows():
-        if not str(row.NAME_2).lower() == "nan":
-            continue
-        touched = split_basins[split_basins.touches(row.geometry)]
-        uid = touched[touched["value"] == row.value].uid.values[0]
-        split_basins.loc[split_basins["uid"] == row.uid, "uid"] = uid
-    split_basins = split_basins.dissolve("uid", sort=False, as_index=False)
+        # Remove unneccessary stuff
+        cols = sub_basins.columns.drop(["value", "geometry", "admin_id"]).tolist()
+        sub_basins.drop(cols, axis=1, inplace=True)
+        # Use this uid to dissolve on later
+        sub_basins["uid"] = range(len(sub_basins))
 
+        # Dissolve cut pieces back
+        for _, row in sub_basins.iterrows():
+            if not str(row.admin_id).lower() == "nan":
+                continue
+            touched = sub_basins[sub_basins.touches(row.geometry)]
+            uid = touched[touched["value"] == row.value].uid.values[0]
+            sub_basins.loc[sub_basins["uid"] == row.uid, "uid"] = uid
+        sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
+
+    # Set the contain flag per geom
+    sub_basins = sub_basins.apply(lambda row: touch_intersect(row, rivers), axis=1)
+    sub_basins["sqkm"] = sub_basins.geometry.to_crs(3857).area / 1000**2
     _count = 0
 
     # Create touched and not touched by rivers datasets
@@ -168,13 +217,26 @@ def allocate(
 
         # Everything touched by river based on difference
         # (is not what we want, yet)
-        riv_touch = split_basins.sjoin(
-            rivers,
-        )
+        if _count != 0:
+            sub_basins = sub_basins.apply(
+                lambda row: touch_intersect(row, rivers), axis=1
+            )
+            sub_basins["sqkm"] = sub_basins.geometry.to_crs(3857).area / 1000**2
 
         # Set no_riv and riv (what's touched and what's not)
-        no_riv = split_basins[~split_basins.geometry.isin(riv_touch.geometry)]
-        riv = split_basins[split_basins.geometry.isin(riv_touch.geometry)]
+        no_riv = sub_basins[~sub_basins["contain"]]
+        riv = sub_basins[sub_basins["contain"]]
+
+        # Include minimal area option
+        min_basins = sub_basins[sub_basins["sqkm"] < min_area]
+        min_basins = min_basins[~min_basins.uid.isin(no_riv.uid)]
+        # Only concatenate if there are different small basins
+        # compared to basins that do not touch a river
+        if not min_basins.empty:
+            no_riv = pd.concat(
+                [no_riv, min_basins],
+                ignore_index=True,
+            )
 
         _n = 0
 
@@ -192,7 +254,7 @@ def allocate(
                 uid = touched[touched["area"] == touched["area"].max()].uid.values[0]
             # Set the identifier to the new value
             # (i.e. the touched basin)
-            split_basins.loc[split_basins["uid"] == row.uid, "uid"] = uid
+            sub_basins.loc[sub_basins["uid"] == row.uid, "uid"] = uid
             _n += 1
 
         # Ensure a break if nothing is touched
@@ -201,6 +263,16 @@ def allocate(
         if _n == 0:
             break
 
-        split_basins = split_basins.dissolve("uid", sort=False, as_index=False)
+        sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
         _count += 1
-        pass
+
+    alloc = full_from_transform(
+        ds_like.raster.transform,
+        ds_like.raster.shape,
+        crs=ds_like.raster.crs,
+        lazy=True,
+    )
+    alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=-9999)
+    alloc.name = "Allocation_id"
+    alloc = alloc.rename(dict(zip(alloc.dims, list(ds_like.dims)[:2])))
+    return alloc
