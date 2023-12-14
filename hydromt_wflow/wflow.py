@@ -2511,6 +2511,7 @@ Run setup_soilmaps first"
         admin_level : int, optional
             _description_, by default 0
         """
+        self.logger.info("Preparing water demand allocation map.")
         # Will be fixes but for know this is done like this
         # TODO fix in the future
         admin_bounds = None
@@ -2565,6 +2566,7 @@ Run setup_soilmaps first"
         ValueError
             _description_
         """
+        self.logger.info("Preparing non irigation demand maps.")
         if not all([item in ["dom", "ind", "lsk"] for item in non_irigation_vars]):
             raise ValueError("")
 

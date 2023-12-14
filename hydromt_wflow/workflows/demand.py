@@ -5,7 +5,7 @@ import math
 import pandas as pd
 import xarray as xr
 from affine import Affine
-from hydromt.raster import full_from_transform
+from hydromt.raster import full_from_transform, full_like
 
 map_vars = {
     "dom": "domestic",
@@ -266,13 +266,8 @@ def allocate(
         sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
         _count += 1
 
-    alloc = full_from_transform(
-        ds_like.raster.transform,
-        ds_like.raster.shape,
-        crs=ds_like.raster.crs,
-        lazy=True,
-    )
+    alloc = full_like(ds_like["dem_subgrid"], nodata=-9999, lazy=True).astype(int)
     alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=-9999)
     alloc.name = "Allocation_id"
-    alloc = alloc.rename(dict(zip(alloc.dims, list(ds_like.dims)[:2])))
+
     return alloc
