@@ -1093,7 +1093,7 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set a gauge map based on ``gauges_fn`` data.
 
-        Supported gauge datasets include "grdc"
+        Supported gauge datasets include data catlog entries, direct GeoDataFrame
         or "<path_to_source>" for user supplied csv or geometry files
         with gauge locations. If a csv file is provided, a "x" or "lon" and
         "y" or "lat" column is required and the first column will be used as
@@ -1132,8 +1132,9 @@ gauge locations [-] (if derive_subcatch)
 
         Parameters
         ----------
-        gauges_fn : str, Path, gpd.GeoDataFrame, optional
-            Known source name or path to gauges file geometry file, by default None.
+        gauges_fn : str, Path, gpd.GeoDataFrame
+            Catalog source name, path to gauges file geometry file or
+            geopandas.GeoDataFrame.
 
             * Required variables if snap_uparea is True: ["uparea"]
         index_col : str, optional
@@ -1191,16 +1192,21 @@ gauge locations [-] (if derive_subcatch)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
             )
-        elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
-            gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
-            )
-        elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
-            da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
-            gdf_gauges = da.vector.to_gdf()
-            # Check for point geometry
-            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                raise ValueError(f"{gauges_fn} contains other geometries than Point")
+        elif gauges_fn in self.data_catalog:
+            if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+                gdf_gauges = self.data_catalog.get_geodataframe(
+                    gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                )
+            elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
+                da = self.data_catalog.get_geodataset(
+                    gauges_fn, geom=self.basins, **kwargs
+                )
+                gdf_gauges = da.vector.to_gdf()
+                # Check for point geometry
+                if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                    raise ValueError(
+                        f"{gauges_fn} contains other geometries than Point"
+                    )
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or \
