@@ -11,6 +11,10 @@ Unreleased
 
 Added
 -----
+- Added setup for water demand for wflow
+- Added setup method **setup_allocation** to **WflowModel**
+- Added setup method **setup_non_irigation** to **WflowModel**
+- Added workflow functions **allocation** & **non_irigation** for water demand setup
 
 Changed
 -------

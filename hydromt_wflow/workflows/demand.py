@@ -7,6 +7,8 @@ import xarray as xr
 from affine import Affine
 from hydromt.raster import full_from_transform, full_like
 
+__all__ = ["allocate", "non_irigation"]
+
 map_vars = {
     "dom": "domestic",
     "ind": "industry",
