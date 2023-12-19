@@ -12,18 +12,48 @@ Unreleased
 Added
 -----
 - new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
+- **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
 
 Changed
 -------
 
 Fixed
 -----
+- **setup_reservoirs**: Fix error if optional columns 'Capacity_norm', 'Capacity_min', 'xout', 'yout' are not in reservoir_fn. Allow to pass kwargs to the get_data method.
+- **setup_lulcmaps**: Fix error when looking for mapping_fn in self.data_catalog
+- **setup_config_output_timeseries**: bugfix for reducer.
+- remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
 
 Deprecated
 ----------
 
 Documentation
 -------------
+
+v0.4.1 (November 2023)
+======================
+Small update
+
+Fixed
+-----
+- Make HydroMT-Wflow **v0.4.0** conda installable
+
+v0.4.0 (November 2023)
+======================
+Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
+
+Changed
+-------
+- **WflowModel** and **WflowSedimentModel** now rely on `GridModel` from HydroMT
+- PCRaster methods are moved to `pcrm` submodule and are deprecated as methods for the **WflowModel** class
+- **read_staticgeoms**, **write_staticgeoms** and **staticgeoms** are now deprecated
+- Staticgeoms methods are superseded by **read_geoms**, **write_geoms** and **geoms**
+- **read_staticmaps**, **write_staticmaps** and **staticmaps** are now deprecated
+- Staticmaps methods are superseded by **read_grid**, **write_grid** and **grid**
+
+Fixed
+-----
+- Mainly stability fixes
 
 v0.3.0 (July 2023)
 ==================
