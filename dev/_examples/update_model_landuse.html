@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-theme="light">
+<html lang="en" data-content_root="../" data-theme="light">
 
   <head>
     <meta charset="utf-8" />
@@ -18,12 +18,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
 
   
-  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -34,9 +34,9 @@
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
@@ -114,6 +114,7 @@
   <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
+
   
 
 <a class="navbar-brand logo" href="../index.html">
@@ -139,7 +140,8 @@
     
     <div class="me-auto navbar-header-items__center">
       
-        <div class="navbar-item"><nav class="navbar-nav">
+        <div class="navbar-item">
+<nav class="navbar-nav">
   <p class="sidebar-header-items__title"
      role="heading"
      aria-level="1"
@@ -192,6 +194,7 @@
       
         <div class="navbar-item navbar-persistent--container">
           
+
  <script>
  document.write(`
    <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -248,6 +251,7 @@
   
   
     <div class="navbar-persistent--mobile">
+
  <script>
  document.write(`
    <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -281,7 +285,8 @@
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item"><nav class="navbar-nav">
+          <div class="navbar-item">
+<nav class="navbar-nav">
   <p class="sidebar-header-items__title"
      role="heading"
      aria-level="1"
@@ -376,7 +381,8 @@
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
@@ -635,41 +641,41 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2023-11-22 16:07:18,957 - update - log - INFO - HydroMT version: 0.9.2.dev
-2023-11-22 16:07:18,957 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2023-11-22 16:07:18,957 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2023-11-22 16:07:18,957 - update - main - INFO - User settings:
-2023-11-22 16:07:19,307 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
-2023-11-22 16:07:19,307 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2023-11-22 16:07:19,357 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.0).
-2023-11-22 16:07:19,357 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2023-11-22 16:07:19,367 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2023-11-22 16:07:19,417 - update - wflow - INFO - Reading model intbl files.
-2023-11-22 16:07:19,417 - update - wflow - INFO - Reading model table files.
-2023-11-22 16:07:19,417 - update - wflow - INFO - Reading model staticgeom files.
-2023-11-22 16:07:19,509 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2023-11-22 16:07:19,526 - update - wflow - INFO - Model read
-2023-11-22 16:07:19,531 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2023-11-22 16:07:19,531 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2023-11-22 16:07:19,531 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2023-11-22 16:07:19,531 - update - wflow - INFO - Preparing LULC parameter maps.
-2023-11-22 16:07:19,535 - update - rasterdataset - INFO - Reading corine raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
-2023-11-22 16:07:19,596 - update - dataframe - INFO - Reading corine_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/corine_mapping.csv
-2023-11-22 16:07:19,712 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2023-11-22 16:07:19,823 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2023-11-22 16:07:19,916 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2023-11-22 16:07:20,010 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2023-11-22 16:07:20,104 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2023-11-22 16:07:20,195 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2023-11-22 16:07:20,288 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2023-11-22 16:07:20,383 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2023-11-22 16:07:20,498 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2023-11-22 16:07:20,500 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
-2023-11-22 16:07:20,534 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
-2023-11-22 16:07:20,714 - update - wflow - INFO - Writing model staticgeom to file.
-2023-11-22 16:07:20,844 - update - wflow - INFO - Write forcing file
-2023-11-22 16:07:20,854 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 100.92 ms
+2023-12-19 13:12:27,497 - update - log - INFO - HydroMT version: 0.9.2.dev
+2023-12-19 13:12:27,497 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2023-12-19 13:12:27,497 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-12-19 13:12:27,497 - update - main - INFO - User settings:
+2023-12-19 13:12:27,841 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
+2023-12-19 13:12:27,841 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2023-12-19 13:12:27,884 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
+2023-12-19 13:12:27,884 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2023-12-19 13:12:27,893 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2023-12-19 13:12:27,948 - update - wflow - INFO - Reading model intbl files.
+2023-12-19 13:12:27,948 - update - wflow - INFO - Reading model table files.
+2023-12-19 13:12:27,948 - update - wflow - INFO - Reading model staticgeom files.
+2023-12-19 13:12:28,036 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2023-12-19 13:12:28,054 - update - wflow - INFO - Model read
+2023-12-19 13:12:28,061 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2023-12-19 13:12:28,061 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2023-12-19 13:12:28,061 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2023-12-19 13:12:28,061 - update - wflow - INFO - Preparing LULC parameter maps.
+2023-12-19 13:12:28,065 - update - rasterdataset - INFO - Reading corine raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
+2023-12-19 13:12:28,130 - update - dataframe - INFO - Reading corine_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/corine_mapping.csv
+2023-12-19 13:12:28,243 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2023-12-19 13:12:28,355 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2023-12-19 13:12:28,449 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2023-12-19 13:12:28,543 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2023-12-19 13:12:28,637 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2023-12-19 13:12:28,733 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2023-12-19 13:12:28,828 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2023-12-19 13:12:28,920 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2023-12-19 13:12:29,025 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2023-12-19 13:12:29,027 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+2023-12-19 13:12:29,061 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2023-12-19 13:12:29,248 - update - wflow - INFO - Writing model staticgeom to file.
+2023-12-19 13:12:29,349 - update - wflow - INFO - Write forcing file
+2023-12-19 13:12:29,359 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
+[########################################] | 100% Completed | 100.93 ms
 
 </pre></div></div>
 </div>
@@ -781,7 +787,7 @@ Options:
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
     <a class="left-prev"
        href="../user_guide/wflow_update.html"
@@ -811,6 +817,7 @@ Options:
                 <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
   <div class="sidebar-secondary-item">
+
   <div class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
@@ -825,6 +832,7 @@ Options:
   </nav></div>
 
   <div class="sidebar-secondary-item">
+
   
   <div class="tocsection editthispage">
     <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/update_model_landuse.ipynb">
@@ -840,6 +848,7 @@ Options:
 </div>
 
   <div class="sidebar-secondary-item">
+
   <div class="tocsection sourcelink">
     <a href="../_sources/_examples/update_model_landuse.ipynb.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
@@ -860,8 +869,8 @@ Options:
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -869,6 +878,7 @@ Options:
     <div class="footer-items__start">
       
         <div class="footer-item">
+
   <p class="copyright">
     
       © Copyright Deltares.
@@ -878,6 +888,7 @@ Options:
 </div>
       
         <div class="footer-item">
+
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
@@ -890,8 +901,9 @@ Options:
   
     <div class="footer-items__end">
       
-        <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
 </p></div>
       
     </div>

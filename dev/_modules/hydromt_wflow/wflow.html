@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-theme="light">
+<html lang="en" data-content_root="../../" data-theme="light">
 
   <head>
     <meta charset="utf-8" />
@@ -17,12 +17,12 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="../../_static/styles/bootstrap.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
 
   
-  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=365ca57ee442770a23c6" rel="stylesheet" />
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
@@ -32,9 +32,9 @@
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6" />
-  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=365ca57ee442770a23c6"></script>
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=888ff710"></script>
@@ -108,6 +108,7 @@
   <div class="col-lg-3 navbar-header-items__start">
     
       <div class="navbar-item">
+
   
 
 <a class="navbar-brand logo" href="../../index.html">
@@ -133,7 +134,8 @@
     
     <div class="me-auto navbar-header-items__center">
       
-        <div class="navbar-item"><nav class="navbar-nav">
+        <div class="navbar-item">
+<nav class="navbar-nav">
   <p class="sidebar-header-items__title"
      role="heading"
      aria-level="1"
@@ -186,6 +188,7 @@
       
         <div class="navbar-item navbar-persistent--container">
           
+
  <script>
  document.write(`
    <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -242,6 +245,7 @@
   
   
     <div class="navbar-persistent--mobile">
+
  <script>
  document.write(`
    <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
@@ -271,7 +275,8 @@
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item"><nav class="navbar-nav">
+          <div class="navbar-item">
+<nav class="navbar-nav">
   <p class="sidebar-header-items__title"
      role="heading"
      aria-level="1"
@@ -1351,9 +1356,6 @@
 
 <span class="sd">            * Required variables: [&#39;LAI&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">lai_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">lai_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_laimaps.&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
         <span class="c1"># retrieve data for region</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LAI maps.&quot;</span><span class="p">)</span>
         <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">lai_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -1439,7 +1441,7 @@
                     <span class="s2">&quot;parameter&quot;</span><span class="p">:</span> <span class="n">param</span><span class="p">[</span><span class="n">o</span><span class="p">],</span>
                 <span class="p">}</span>
                 <span class="k">if</span> <span class="n">reducer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">gauge_toml_dict</span><span class="p">[</span><span class="s2">&quot;reducer&quot;</span><span class="p">]:</span> <span class="n">reducer</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+                    <span class="n">gauge_toml_dict</span><span class="p">[</span><span class="s2">&quot;reducer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reducer</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
                 <span class="c1"># If the gauge column/variable already exists skip writting twice</span>
                 <span class="k">if</span> <span class="n">gauge_toml_dict</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">toml_output</span><span class="p">][</span><span class="n">var_name</span><span class="p">]:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="n">toml_output</span><span class="p">][</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gauge_toml_dict</span><span class="p">)</span>
@@ -1785,10 +1787,6 @@
 <span class="sd">            Nodata value to use when rasterizing. Should match the dtype of col2raster.</span>
 <span class="sd">            By default -1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">area_fn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39;, skipping setup_areamap.&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing &#39;</span><span class="si">{</span><span class="n">col2raster</span><span class="si">}</span><span class="s2">&#39; map from &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
             <span class="n">area_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">dst_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
@@ -1816,6 +1814,7 @@
         <span class="n">rating_curve_fns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">add_maxstorage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate maps of lake areas and outlets.</span>
 
@@ -1875,9 +1874,14 @@
 <span class="sd">            If True, maximum storage of the lake is added to the output</span>
 <span class="sd">            (controlled lake) based on &#39;Vol_max&#39; [m3] column of lakes_fn.</span>
 <span class="sd">            By default False (natural lake).</span>
+<span class="sd">        kwargs: optional</span>
+<span class="sd">            Keyword arguments passed to the method</span>
+<span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Derive lake are and outlet maps</span>
-        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span><span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
+        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_lakes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span>
+            <span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
@@ -2034,6 +2038,9 @@
 <span class="sd">            JRC &#39;jrc&#39; (using hydroengine package). By default None.</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum reservoir area threshold [km2], by default 1.0 km2.</span>
+<span class="sd">        kwargs: optional</span>
+<span class="sd">            Keyword arguments passed to the method</span>
+<span class="sd">            hydromt.DataCatalog.get_rasterdataset()</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># rename to wflow naming convention</span>
@@ -2060,7 +2067,9 @@
             <span class="s2">&quot;input.lateral.river.reservoir.targetminfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTargetMinFrac&quot;</span><span class="p">,</span>
         <span class="p">}</span>
 
-        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span><span class="n">reservoirs_fn</span><span class="p">,</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">)</span>
+        <span class="n">gdf_org</span><span class="p">,</span> <span class="n">ds_res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_setup_waterbodies</span><span class="p">(</span>
+            <span class="n">reservoirs_fn</span><span class="p">,</span> <span class="s2">&quot;reservoir&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
         <span class="c1"># TODO: check if there are missing values in the above columns of</span>
         <span class="c1"># the parameters tbls =</span>
         <span class="c1"># if everything is present, skip calculate reservoirattrs() and</span>
@@ -2132,15 +2141,17 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">res_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_setup_waterbodies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">wb_type</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_setup_waterbodies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">wb_type</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Help with common workflow of setup_lakes and setup_reservoir.</span>
 
 <span class="sd">        See specific methods for more info about the arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># retrieve data for basin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing </span><span class="si">{</span><span class="n">wb_type</span><span class="si">}</span><span class="s2"> maps.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;predicate&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-            <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span>
+            <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
         <span class="c1"># skip small size waterbodies</span>
         <span class="k">if</span> <span class="s2">&quot;Area_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -2173,10 +2184,9 @@
                 <span class="n">uparea_name</span><span class="o">=</span><span class="n">uparea_name</span><span class="p">,</span>
                 <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># update xout and yout in gdf_org from gdf_wateroutlet:</span>
-            <span class="k">if</span> <span class="s2">&quot;xout&quot;</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;yout&quot;</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">gdf_org</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;xout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_wateroutlet</span><span class="p">[</span><span class="s2">&quot;xout&quot;</span><span class="p">]</span>
-                <span class="n">gdf_org</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;yout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_wateroutlet</span><span class="p">[</span><span class="s2">&quot;yout&quot;</span><span class="p">]</span>
+            <span class="c1"># update/replace xout and yout in gdf_org from gdf_wateroutlet:</span>
+            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;xout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_wateroutlet</span><span class="p">[</span><span class="s2">&quot;xout&quot;</span><span class="p">]</span>
+            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;yout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_wateroutlet</span><span class="p">[</span><span class="s2">&quot;yout&quot;</span><span class="p">]</span>
 
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -2488,12 +2498,12 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        precip_fn : str, default era5</span>
-<span class="sd">            Precipitation data source, see data/forcing_sources.yml.</span>
+<span class="sd">            Precipitation data source.</span>
 
 <span class="sd">            * Required variable: [&#39;precip&#39;]</span>
 <span class="sd">        precip_clim_fn : str, default None</span>
 <span class="sd">            High resolution climatology precipitation data source to correct</span>
-<span class="sd">            precipitation, see data/forcing_sources.yml.</span>
+<span class="sd">            precipitation.</span>
 
 <span class="sd">            * Required variable: [&#39;precip&#39;]</span>
 <span class="sd">        chunksize: int, optional</span>
@@ -2501,8 +2511,6 @@
 <span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
 <span class="sd">            large/small catchments. By default None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">precip_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">)</span>
         <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">)</span>
         <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
@@ -3906,7 +3914,7 @@
               
               
                 <footer class="prev-next-footer">
-                  <!-- Previous / next buttons -->
+                  
 <div class="prev-next-area">
 </div>
                 </footer>
@@ -3926,8 +3934,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/bootstrap.js?digest=365ca57ee442770a23c6"></script>
-<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=365ca57ee442770a23c6"></script>
+  <script src="../../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -3935,6 +3943,7 @@
     <div class="footer-items__start">
       
         <div class="footer-item">
+
   <p class="copyright">
     
       © Copyright Deltares.
@@ -3944,6 +3953,7 @@
 </div>
       
         <div class="footer-item">
+
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.6.
     <br/>
@@ -3956,8 +3966,9 @@
   
     <div class="footer-items__end">
       
-        <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.3.
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.14.4.
 </p></div>
       
     </div>
