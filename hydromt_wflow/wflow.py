@@ -2496,7 +2496,7 @@ Run setup_soilmaps first"
         self,
         min_area: float | int = 0,
         admin_bounds_fn: str = "gadm",
-        admin_level: int = 0,
+        admin_level: int = None,
     ):
         """_summary_.
 
@@ -2516,9 +2516,11 @@ Run setup_soilmaps first"
         # TODO fix in the future
         admin_bounds = None
         if admin_bounds_fn is not None:
-            admin_path = self.data_catalog[admin_bounds_fn].path
+            if admin_level is not None:
+                admin_bounds_fn += f"_level{admin_level}"
             admin_bounds = self.data_catalog.get_geodataframe(
-                admin_path, geom=self.region, layer=f"level{admin_level}"
+                admin_bounds_fn,
+                geom=self.region,
             )
             # Add this identifier for usage in the workflow
             admin_bounds["admin_id"] = range(len(admin_bounds))
