@@ -2545,6 +2545,7 @@ Run setup_soilmaps first"
         self,
         non_irigation_fn: str = "pcr_globwb",
         non_irigation_vars: list = ["dom", "ind", "lsk"],
+        non_irigation_year: int = None,
         non_irigation_method: str = "nearest",
         population_fn: str = "worldpop_2020_constrained",
         population_method: str = "sum",
@@ -2559,6 +2560,8 @@ Run setup_soilmaps first"
             _description_, by default "pcr_globwb"
         non_irigation_vars : list, optional
             _description_, by default ["dom", "ind", "lsk"]
+        non_irigation_year : int, optional
+            _description_, by default None
         non_irigation_method : str, optional
             _description_, by default "nearest"
         population_fn : str, optional
@@ -2576,6 +2579,8 @@ Run setup_soilmaps first"
             raise ValueError("")
 
         # Selecting data
+        if non_irigation_year is None:
+            non_irigation_year = 2005
         non_irigation_raw = self.data_catalog.get_rasterdataset(
             non_irigation_fn,
             geom=self.region,
@@ -2584,6 +2589,7 @@ Run setup_soilmaps first"
                 f"{var}_{mode}"
                 for var, mode in product(non_irigation_vars, ["gross", "net"])
             ],
+            version=non_irigation_year,
         )
         pop_raw = self.data_catalog.get_rasterdataset(
             population_fn,
