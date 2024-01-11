@@ -21,6 +21,7 @@ import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
+from hydromt.nodata import NoDataStrategy
 from hydromt.models.model_grid import GridModel
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
@@ -1186,14 +1187,27 @@ gauge locations [-] (if derive_subcatch)
                 code = self.crs
             kwargs.update(crs=code)
             gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                gauges_fn,
+                geom=self.basins,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
             gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                gauges_fn,
+                geom=self.basins,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
-            da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
+            da = self.data_catalog.get_geodataset(
+                gauges_fn,
+                geom=self.basins,
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
+            )
             gdf_gauges = da.vector.to_gdf()
             # Check for point geometry
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
@@ -1688,7 +1702,10 @@ Using default storage/outflow function parameters."
         if "predicate" not in kwargs:
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
-            waterbodies_fn, geom=self.basins, **kwargs
+            waterbodies_fn,
+            geom=self.basins,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
         )
         # skip small size waterbodies
         if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
@@ -1859,7 +1876,10 @@ added to glacierstore [-]
         # retrieve data for basin
         self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            glaciers_fn, geom=self.basins, predicate="intersects"
+            glaciers_fn,
+            geom=self.basins,
+            predicate="intersects",
+            handle_nodata=NoDataStrategy.IGNORE,
         )
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
