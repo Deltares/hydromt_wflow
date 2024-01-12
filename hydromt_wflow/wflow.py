@@ -2578,10 +2578,10 @@ Run setup_soilmaps first"
         )
 
         # derive subcatchments and tributaries
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.staticmaps}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         ds_out = workflows.wflow_1dmodel_connection(
             gdf_riv,
-            ds_model=self.staticmaps.rename(inv_rename),
+            ds_model=self.grid.rename(inv_rename),
             connection_method=connection_method,
             area_max=area_max,
             add_tributaries=add_tributaries,
@@ -2591,14 +2591,14 @@ Run setup_soilmaps first"
 
         # Derive tributary gauge map
         if "gauges" in ds_out.data_vars:
-            self.set_staticmaps(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
+            self.set_grid(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
             gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
             gdf_tributary["value"] = gdf_tributary["value"].astype(
                 ds_out["gauges"].dtype
             )
-            self.set_staticgeoms(gdf_tributary, name=f"gauges_{mapname}")
+            self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
 
             # Update toml
             if update_toml:
@@ -2611,20 +2611,18 @@ Run setup_soilmaps first"
                 )
 
         # Derive subcatchment map
-        self.set_staticmaps(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
+        self.set_grid(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
-        self.set_staticgeoms(gdf_subcatch, name=f"subcatch_{mapname}")
+        self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_staticmaps(
-            ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}"
-        )
+        self.set_grid(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
         )
-        self.set_staticgeoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
+        self.set_geoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
 
         # Update toml
         if update_toml:
