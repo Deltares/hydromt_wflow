@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
 
 Changed
 -------
@@ -18,6 +19,10 @@ Changed
 
 Fixed
 -----
+- **setup_reservoirs**: Fix error if optional columns 'Capacity_norm', 'Capacity_min', 'xout', 'yout' are not in reservoir_fn. Allow to pass kwargs to the get_data method.
+- **setup_lulcmaps**: Fix error when looking for mapping_fn in self.data_catalog
+- **setup_config_output_timeseries**: bugfix for reducer.
+- remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
 
 Deprecated
 ----------
