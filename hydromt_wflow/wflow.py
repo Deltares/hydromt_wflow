@@ -2578,6 +2578,9 @@ Run setup_soilmaps first"
         if not all([item in ["dom", "ind", "lsk"] for item in non_irigation_vars]):
             raise ValueError("")
 
+        # Set flag for cyclic data
+        _cyclic = False
+
         # Selecting data
         if non_irigation_year is None:
             non_irigation_year = 2005
@@ -2591,6 +2594,14 @@ Run setup_soilmaps first"
             ],
             version=non_irigation_year,
         )
+        if "time" in non_irigation_raw.coords:
+            _cyclic = True
+            non_irigation_raw["time"] = non_irigation_raw.time.astype("int32")
+
+        if _cyclic and self.get_config("input.cyclic") is None:
+            self.set_config("input.cyclic", [])
+
+        # Get population data
         pop_raw = self.data_catalog.get_rasterdataset(
             population_fn,
             geom=self.region,
@@ -2616,6 +2627,12 @@ Run setup_soilmaps first"
                 f"input.vertical.{lname}.demand_{suffix}",
                 var,
             )
+
+            # Also for the fact that these parameters are cyclic
+            if _cyclic:
+                self.config["input"]["cyclic"].append(
+                    f"input.vertical.{lname}.demand_{suffix}",
+                )
 
     # I/O
     def read(self):
