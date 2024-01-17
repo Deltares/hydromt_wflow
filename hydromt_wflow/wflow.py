@@ -2684,7 +2684,6 @@ Run setup_soilmaps first"
         workflows.demand.find_paddy
         workflows.demand.classify_pixels
         """
-
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_rasterdataset(
             irrigated_area_fn, bbox=self.grid.raster.bounds, buffer=3
