@@ -66,6 +66,8 @@ class WflowModel(GridModel):
         "glacareas": "wflow_glacierareas",
         "glacfracs": "wflow_glacierfrac",
         "glacstore": "wflow_glacierstore",
+        "paddy_area": "paddy_irrigation_areas",
+        "nonpaddy_area": "nonpaddy_irrigation_areas",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -2633,6 +2635,132 @@ Run setup_soilmaps first"
                 self.config["input"]["cyclic"].append(
                     f"input.vertical.{lname}.demand_{suffix}",
                 )
+
+    def setup_irrigation(
+        self,
+        irrigated_area_fn: str,
+        landuse_fn: str,
+        paddy_class: int = 12,
+        area_threshold: float = 0.6,
+        # crop_info_fn: str, TODO, required when adding the support for rootingdepth and cropfactor
+    ):
+        """
+        Add required information to simulate irrigation water demand.
+
+        The function requires data that contains information about the location of the
+        irrigated areas (`irrigated_area_fn`). This, combined with a landuse data that contains
+        a class for paddy (rice) land use (`landuse_fn`), determines which locations are
+        considered to be paddy irrigation (based on the `paddy_class`), and which locations are
+        considered to be non-paddy irrigation.
+
+        Next, these maps are reprojected to the model resolution, where a threshold
+        (`area_threshold`) determines when pixels are considered to be classified as irrigation
+        cells (both paddy and non-paddy). It adds the resulting maps to the input data.
+
+
+        Adds model layers:
+
+        * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
+        * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
+
+        Parameters
+        ----------
+        irrigated_area_fn: str
+            Name of the (gridded) dataset that contains the location of irrigated areas (as a
+            mask), `irrigated_area` for example
+        landuse_fn: str
+            Name of the landuse dataset that contains a classification for paddy/rice, use
+            `glcnmo` for example
+        paddy_class: int
+            Class in the landuse data that is considered as paddy or rice, by default 12
+            (matching the glcmno landuse data)
+        area_threshold: float
+            Fractional area of a (wflow) pixel before it gets classified as an irrigated pixel,
+            by default 0.6
+
+
+        See Also
+        --------
+        workflows.demand.find_paddy
+        workflows.demand.classify_pixels
+        """
+
+        # Extract irrigated area dataset
+        irrigated_area = self.data_catalog.get_rasterdataset(
+            irrigated_area_fn, bbox=self.grid.raster.bounds, buffer=3
+        )
+
+        # Extract landcover dataset (that includes a paddy/rice class)
+        landuse_da = self.data_catalog.get_rasterdataset(
+            landuse_fn, bbox=self.grid.raster.bounds, buffer=3
+        )
+
+        # Get paddy and nonpaddy masks
+        paddy, nonpaddy = workflows.demand.find_paddy(
+            landuse_da=landuse_da,
+            irrigated_area=irrigated_area,
+            paddy_class=paddy_class,
+        )
+
+        # Get paddy and non paddy pixels at model resolution
+        wflow_paddy = workflows.demand.classify_pixels(
+            da_crop=paddy,
+            da_model=self.grid[self._MAPS["basins"]].raster.mask_nodata(),
+            threshold=area_threshold,
+        )
+        wflow_nonpaddy = workflows.demand.classify_pixels(
+            da_crop=nonpaddy,
+            da_model=self.grid[self._MAPS["basins"]].raster.mask_nodata(),
+            threshold=area_threshold,
+        )
+
+        # Add maps to grid
+        self.set_grid(wflow_paddy, name=self._MAPS["paddy_area"])
+        self.set_grid(wflow_nonpaddy, name=self._MAPS["nonpaddy_area"])
+
+        # Update config
+        self.set_config(
+            "input.vertical.paddy.irrigation_areas", self._MAPS["paddy_area"]
+        )
+        self.set_config(
+            "input.vertical.nonpaddy.irrigation_areas", self._MAPS["nonpaddy_area"]
+        )
+
+        # TODO: Include this support for adjusted crop_factor and rooting depth maps?
+        # mirca_rain_ds = self.data_catalog.get_rasterdataset(
+        #     "mirca_rainfed_data",
+        #     bbox=self.grid.raster.bounds,
+        #     buffer=3,
+        # )
+        # mirca_irri_ds = self.data_catalog.get_rasterdataset(
+        #     "mirca_irrigated_data",
+        #     bbox=self.grid.raster.bounds,
+        #     buffer=3,
+        # )
+
+        # df = self.data_catalog.get_dataframe(crop_info_fn)
+        # # TODO: Make more flexible?
+        # rice_value = df.loc["Rice", "kc_mid"]
+
+        # cropfactor = workflows.demand.add_crop_maps(
+        #     ds_rain=mirca_rain_ds,
+        #     ds_irri=mirca_irri_ds,
+        #     paddy_value=rice_value,
+        #     mod=self,
+        #     default_value=1.0,
+        #     map_type="crop_factor",
+        # )
+        # # TODO: Make more flexible?
+        # rice_value = df.loc["Rice", "rootingdepth_irrigated"]
+
+        # rootingdepth = workflows.demand.add_crop_maps(
+        #     ds_rain=mirca_rain_ds,
+        #     ds_irri=mirca_irri_ds,
+        #     paddy_value=rice_value,
+        #     mod=self,
+        #     default_value=self.grid["RootingDepth"],
+        #     map_type="rootingdepth",
+        # )
 
     # I/O
     def read(self):

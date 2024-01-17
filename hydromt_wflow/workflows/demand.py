@@ -273,3 +273,94 @@ def allocate(
     alloc.name = "Allocation_id"
 
     return alloc
+
+
+# TODO: Add docstrings
+def classify_pixels(
+    da_crop: xr.DataArray,
+    da_model: xr.DataArray,
+    threshold: float,
+    nodata_value: float | int = -9999,
+):
+    # Convert crop map to an area map
+    da_area = da_crop * da_crop.raster.area_grid()
+    # Resample to model grid and sum areas
+    da_area2model = da_area.raster.reproject_like(da_model, method="sum")
+
+    # Calculate relative area
+    relative_area = da_area2model / da_area2model.raster.area_grid()
+
+    # Classify pixels with a 1 where it exceeds the threshold, and 0 where it doesnt.
+    crop_map = xr.where(relative_area >= threshold, 1, 0)
+    crop_map = xr.where(da_model.isnull(), nodata_value, crop_map)
+
+    # Fix nodata values
+    crop_map.raster.set_nodata(nodata_value)
+
+    return crop_map
+
+
+# TODO: Add docstrings
+def find_paddy(
+    landuse_da: xr.DataArray,
+    irrigated_area: xr.DataArray,
+    paddy_class: int,
+    nodata_value: float | int = -9999,
+):
+    # Resample irrigated area to landuse datasets
+    irr2lu = irrigated_area.raster.reproject_like(landuse_da)
+    # Mask pixels with paddies
+    paddy = xr.where((irr2lu != 0) & (landuse_da == paddy_class), 1, 0)
+    # Mask pixels that are irrigated, but not paddy
+    nonpaddy = xr.where((irr2lu != 0) & (landuse_da != paddy_class), 1, 0)
+    # Fix nodata values
+    paddy.raster.set_nodata(nodata_value)
+    nonpaddy.raster.set_nodata(nodata_value)
+    # Return two rasters
+    return paddy, nonpaddy
+
+
+# # TODO: Enable function when including the updating of rootingdepth and crop_factor maps
+# def add_crop_maps(
+#     ds_rain: xr.Dataset,
+#     ds_irri: xr.Dataset,
+#     mod,
+#     paddy_value: int,
+#     default_value: float,
+#     map_type: str = "crop_factor",
+# ):
+#     if map_type == "crop_factor":
+#         ds_layer_name = "crop_factor"
+#     elif map_type == "rootingdepth":
+#         ds_layer_name = "rootingdepth"
+
+#     # Start with rainfed (all pixels, and fill missing values with default value)
+#     rainfed_highres = ds_rain[ds_layer_name].raster.reproject_like(
+#         mod.grid.wflow_subcatch
+#     )
+#     # Fill missing values with default values
+#     rainfed_highres = rainfed_highres.where(~rainfed_highres.isnull(), default_value)
+#     # Mask to model domain
+#     crop_map = xr.where(
+#         mod.grid["wflow_dem"].raster.mask_nodata().isnull(), np.nan, rainfed_highres
+#     )
+
+#     # Add paddy values
+#     crop_map_paddy = paddy_value
+#     crop_map = xr.where(
+#         mod.grid["paddy_irrigation_areas"] == 1, crop_map_paddy, crop_map
+#     )
+
+#     # Resample to model resolution
+#     irrigated_highres = ds_irri[ds_layer_name].raster.reproject_like(
+#         mod.grid.wflow_subcatch
+#     )
+#     # Map values to the correct mask
+#     tmp = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, irrigated_highres, 0)
+#     # Fill missing values with the default crop factor (as it can happen that not all cells are
+#     # covered in this data)
+#     tmp = tmp.where(~tmp.isnull(), default_value)
+#     # Add data to crop_factop map
+#     crop_map = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, tmp, crop_map)
+
+#     return crop_map
