@@ -68,6 +68,7 @@ class WflowModel(GridModel):
         "glacstore": "wflow_glacierstore",
         "paddy_area": "paddy_irrigation_areas",
         "nonpaddy_area": "nonpaddy_irrigation_areas",
+        "crop_factor": "crop_factor",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -2642,6 +2643,9 @@ Run setup_soilmaps first"
         landuse_fn: str,
         paddy_class: int = 12,
         area_threshold: float = 0.6,
+        crop_irrigated_fn: str = "mirca_irrigated_data",
+        crop_rainfed_fn: str = "mirca_rainfed_data",
+        crop_info_fn: str = "mirca_crop_info"
         # crop_info_fn: str, TODO, required when adding the support for rootingdepth and
         # cropfactor
     ):
@@ -2679,6 +2683,15 @@ Run setup_soilmaps first"
         area_threshold: float
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
+        crop_irrigated_fn: str
+            Name of dataset that contains information about irrigated crops, by default
+            "mirca_irrigated_data",
+        crop_rainfed_fn: str
+            Name of dataset that contains information about rainfed crops, by default
+            "mirca_rainfed_data",
+        crop_info_fn: str
+            Name of dataframe that contains rootingdepth and cropfactor values for the
+            rice/paddy crop class"mirca_crop_info"
 
 
         See Also
@@ -2728,30 +2741,37 @@ Run setup_soilmaps first"
             "input.vertical.nonpaddy.irrigation_areas", self._MAPS["nonpaddy_area"]
         )
 
-        # TODO: Include this support for adjusted crop_factor and rooting depth maps?
-        # mirca_rain_ds = self.data_catalog.get_rasterdataset(
-        #     "mirca_rainfed_data",
-        #     bbox=self.grid.raster.bounds,
-        #     buffer=3,
-        # )
-        # mirca_irri_ds = self.data_catalog.get_rasterdataset(
-        #     "mirca_irrigated_data",
-        #     bbox=self.grid.raster.bounds,
-        #     buffer=3,
-        # )
+        # TODO: Include this support for adjusted crop_factor and rooting depth maps, or
+        # move to seperate function?
+        self.logger.info("Preparing crop factor maps.")
+        crop_rainfed_ds = self.data_catalog.get_rasterdataset(
+            crop_rainfed_fn,
+            bbox=self.grid.raster.bounds,
+            buffer=3,
+        )
+        crop_irrigated_ds = self.data_catalog.get_rasterdataset(
+            crop_irrigated_fn,
+            bbox=self.grid.raster.bounds,
+            buffer=3,
+        )
 
-        # df = self.data_catalog.get_dataframe(crop_info_fn)
-        # # TODO: Make more flexible?
-        # rice_value = df.loc["Rice", "kc_mid"]
+        df = self.data_catalog.get_dataframe(crop_info_fn)
+        # TODO: Make more flexible
+        rice_value = df.loc["Rice", "kc_mid"]
 
-        # cropfactor = workflows.demand.add_crop_maps(
-        #     ds_rain=mirca_rain_ds,
-        #     ds_irri=mirca_irri_ds,
-        #     paddy_value=rice_value,
-        #     mod=self,
-        #     default_value=1.0,
-        #     map_type="crop_factor",
-        # )
+        cropfactor = workflows.demand.add_crop_maps(
+            ds_rain=crop_rainfed_ds,
+            ds_irri=crop_irrigated_ds,
+            paddy_value=rice_value,
+            mod=self,
+            default_value=1.0,
+            map_type="crop_factor",
+        )
+
+        # Add maps to grid and update config
+        self.set_grid(cropfactor, name=self._MAPS["crop_factor"])
+        self.set_config("input.vertical.kc", self._MAPS["crop_factor"])
+
         # # TODO: Make more flexible?
         # rice_value = df.loc["Rice", "rootingdepth_irrigated"]
 
