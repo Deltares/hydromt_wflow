@@ -2642,20 +2642,22 @@ Run setup_soilmaps first"
         landuse_fn: str,
         paddy_class: int = 12,
         area_threshold: float = 0.6,
-        # crop_info_fn: str, TODO, required when adding the support for rootingdepth and cropfactor
+        # crop_info_fn: str, TODO, required when adding the support for rootingdepth and
+        # cropfactor
     ):
         """
         Add required information to simulate irrigation water demand.
 
         The function requires data that contains information about the location of the
-        irrigated areas (`irrigated_area_fn`). This, combined with a landuse data that contains
-        a class for paddy (rice) land use (`landuse_fn`), determines which locations are
-        considered to be paddy irrigation (based on the `paddy_class`), and which locations are
-        considered to be non-paddy irrigation.
+        irrigated areas (`irrigated_area_fn`). This, combined with a landuse data that
+        contains a class for paddy (rice) land use (`landuse_fn`), determines which
+        locations are considered to be paddy irrigation (based on the `paddy_class`),
+        and which locations are considered to be non-paddy irrigation.
 
         Next, these maps are reprojected to the model resolution, where a threshold
-        (`area_threshold`) determines when pixels are considered to be classified as irrigation
-        cells (both paddy and non-paddy). It adds the resulting maps to the input data.
+        (`area_threshold`) determines when pixels are considered to be classified as
+        irrigation cells (both paddy and non-paddy). It adds the resulting maps to the
+        input data.
 
 
         Adds model layers:
@@ -2666,17 +2668,17 @@ Run setup_soilmaps first"
         Parameters
         ----------
         irrigated_area_fn: str
-            Name of the (gridded) dataset that contains the location of irrigated areas (as a
-            mask), `irrigated_area` for example
+            Name of the (gridded) dataset that contains the location of irrigated areas
+            (as a mask), `irrigated_area` for example
         landuse_fn: str
-            Name of the landuse dataset that contains a classification for paddy/rice, use
-            `glcnmo` for example
+            Name of the landuse dataset that contains a classification for paddy/rice,
+            use `glcnmo` for example
         paddy_class: int
             Class in the landuse data that is considered as paddy or rice, by default 12
             (matching the glcmno landuse data)
         area_threshold: float
-            Fractional area of a (wflow) pixel before it gets classified as an irrigated pixel,
-            by default 0.6
+            Fractional area of a (wflow) pixel before it gets classified as an irrigated
+            pixel, by default 0.6
 
 
         See Also
@@ -2684,6 +2686,7 @@ Run setup_soilmaps first"
         workflows.demand.find_paddy
         workflows.demand.classify_pixels
         """
+        self.logger.info("Preparing irrigation maps.")
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_rasterdataset(
             irrigated_area_fn, bbox=self.grid.raster.bounds, buffer=3
