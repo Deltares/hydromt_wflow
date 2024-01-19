@@ -8,12 +8,12 @@ data libraries are set, you can build a model by using:
 
 .. code-block:: console
 
-    hydromt build wflow path/to/built_model -r "{'basin': [x, y]}" -i wflow_build.ini -d data_sources.yml -vvv
+    hydromt build wflow path/to/built_model -r "{'basin': [x, y]}" -i wflow_build.yml -d data_sources.yml -vvv
 
 
 .. Note::
   From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or --region flag.
-  The resolution (previously -r) argument has been moved to the setup_basemaps section in the .ini configuration file.
+  The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.
 
 The recommended `region options <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_
 for a proper implementation of this model are:
@@ -34,17 +34,17 @@ Settings to build or update a Wflow model are managed in a configuration file. I
 every option from each :ref:`model method <model_methods>` can be changed by the user
 in its corresponding section.
 
-Note that the order in which the components are listed in the ini file is important:
+Note that the order in which the components are listed in the configuration file is important:
 
 - `setup_basemaps` should always be run first to determine the model domain
 - `setup_rivers` should be run right after `setup_basemaps` as it influences several other setup components (lakes, reservoirs, riverwidth, gauges)
 
-Below is an example ini file that can be used to build a complete Wflow model
-:download:`.ini file <../_examples/wflow_build.ini>`. Each section corresponds
+Below is an example configuration file that can be used to build a complete Wflow model
+:download:`.yml file <../_examples/wflow_build.yml>`. Each section corresponds
 to a model component with the same name.
 
-.. literalinclude:: ../_examples/wflow_build.ini
-   :language: Ini
+.. literalinclude:: ../_examples/wflow_build.yml
+   :language: yaml
 
 Selecting data
 --------------
