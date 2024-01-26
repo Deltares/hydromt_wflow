@@ -482,7 +482,7 @@
 <li><p><strong>Update</strong> your model using the CLI or Python interface.</p></li>
 </ol>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">activate hydromt-wflow</span>
-<span class="go">hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.ini -d data_sources.yml -vvv</span>
+<span class="go">hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.yml -d data_sources.yml -vvv</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -494,9 +494,9 @@ folder, use the -o path/to/updated_model option of the CLI.</p>
 <p class="admonition-title">Tip</p>
 <p>By default all model data is written at the end of the update method. If your update however
 only affects a certain model data (e.g. staticmaps or forcing) you can add a write_* method
-(e.g. <cite>write_staticmaps</cite>, <cite>write_forcing</cite>) to the .ini file and only these data will be written.</p>
+(e.g. <cite>write_staticmaps</cite>, <cite>write_forcing</cite>) to the .yml file and only these data will be written.</p>
 <p>Note that the model config is often changed as part of the a model method and <cite>write_config</cite>
-should thus be added to the .ini file to keep the model data and config consistent.</p>
+should thus be added to the .yml file to keep the model data and config consistent.</p>
 </div>
 <div class="toctree-wrapper compound">
 </div>

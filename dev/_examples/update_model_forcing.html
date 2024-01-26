@@ -506,15 +506,15 @@
 <section id="Model-setup-configuration">
 <h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Link to this heading">#</a></h2>
 <p>Updating landuse is an easy step with the command line but sometimes, for example with forcing, you want to update several things at the same time. This is possible by preparing a <strong>configuration file</strong> that includes every methods and settings that you want to do during your update.</p>
-<p>The ini-file contains the model setup configuration and determines which methods are updated and in which sequence and sets optional arguments for each method. This configuration is passed to hydromt using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_ini_file&gt;</span></code>.</p>
-<p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_precip_forcing]</span></code>) corresponds with a model method which are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
-<p>Let’s open the example configuration file <strong>wflow_update_forcing.ini</strong> from the model repository [examples folder] and have a look at the settings.</p>
+<p>The HydroMT configuration file (YAML) contains the model setup configuration and determines which methods are updated and in which sequence and sets optional arguments for each method. This configuration is passed to hydromt using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_config_file&gt;</span></code>.</p>
+<p>Each header (without indent) (e.g. <code class="docutils literal notranslate"><span class="pre">setup_precip_forcing:</span></code>) corresponds with a model method which are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
+<p>Let’s open the example configuration file <strong>wflow_update_forcing.yml</strong> from the model repository [examples folder] and have a look at the settings.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_ini</span> <span class="o">=</span> <span class="s2">&quot;wflow_update_forcing.ini&quot;</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_ini</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_update_forcing.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
 </pre></div>
@@ -525,30 +525,29 @@
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[setup_config]                  # options parsed to wflow ini file &lt;section&gt;.&lt;option&gt;
-starttime = 2010-02-01T00:00:00
-endtime = 2010-02-10T00:00:00
-timestepsecs = 86400
-input.path_forcing = inmaps-chirps.nc
+setup_config:                  # options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;
+  starttime: 2010-02-01T00:00:00
+  endtime: 2010-02-10T00:00:00
+  timestepsecs: 86400
+  input.path_forcing: inmaps-chirps.nc
 
-[setup_precip_forcing]
-precip_fn       = chirps_global # source for precipitation.
-precip_clim_fn  = None          # source for high resolution climatology to correct precipitation.
+setup_precip_forcing:
+  precip_fn: chirps_global # source for precipitation.
 
-[setup_temp_pet_forcing]
-temp_pet_fn     = era5          # source for temperature and potential evapotranspiration.
-press_correction= True          # if True temperature is corrected with elevation lapse rate.
-temp_correction = True          # if True pressure is corrected with elevation lapse rate.
-dem_forcing_fn  = era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.
-pet_method      = debruin       # method to compute PET: {debruin, makkink}
-skip_pet        = False         # if True, only temperature is prepared.
+setup_temp_pet_forcing:
+  temp_pet_fn: era5          # source for temperature and potential evapotranspiration.
+  press_correction: True          # if True temperature is corrected with elevation lapse rate.
+  temp_correction: True          # if True pressure is corrected with elevation lapse rate.
+  dem_forcing_fn: era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.
+  pet_method: debruin       # method to compute PET: {debruin, makkink}
+  skip_pet: False         # if True, only temperature is prepared.
 
-[write_forcing]                 # Write forcing and re-write config if forcing filename or times are updated
-freq_out        = M             # Set frequency at which forcing files are written, following pandas offset aliases
+write_forcing:                # Write forcing and re-write config if forcing filename or times are updated
+  freq_out: M             # Set frequency at which forcing files are written, following pandas offset aliases
 
-[write_grid]              # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
+write_grid:             # to make sure that the staticmaps are written as well, can be skipped if update in the same model folder
 
-[write_geoms]             # to make sure that the staticgeoms are written as well, can be skipped if update in the same model folder
+write_geoms:             # to make sure that the staticgeoms are written as well, can be skipped if update in the same model folder
 
 </pre></div></div>
 </div>
@@ -558,6 +557,7 @@ freq_out        = M             # Set frequency at which forcing files are writt
 <li><p><strong>setup_precip_forcing</strong>: tells hydroMT how to prepare precipitation data including from which data source and with or without downscaling.</p></li>
 <li><p><strong>setup_temp_pet_forcing</strong>: tells hydroMT how to prepare temperature and potential evapotranspiration data including which data source, which computation method for PET and with or without downscaling.</p></li>
 </ul>
+<p>We also decide to not write our forcing not as one file but one file per month.</p>
 <p>You can find more information on the different methods and their options in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model methods)</a>.</p>
 <p>Here we can see that we will prepare daily forcing for 10 days in February 2010 using CHIRPS for precipitation and ERA5 for temperature and potential evapotranspiration.</p>
 </section>
@@ -624,7 +624,7 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_forcing<span class="w"> </span>-i<span class="w"> </span>wflow_update_forcing.ini<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
+<span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_forcing<span class="w"> </span>-i<span class="w"> </span>wflow_update_forcing.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
 </pre></div>
 </div>
 </div>
@@ -633,10 +633,10 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:33,988 - update - log - INFO - HydroMT version: 0.9.2
-2024-01-22 09:31:33,988 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2024-01-22 09:31:33,988 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2024-01-22 09:31:33,988 - update - main - INFO - User settings:
+2024-01-26 02:02:54,460 - update - log - INFO - HydroMT version: 0.9.2
+2024-01-26 02:02:54,460 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2024-01-26 02:02:54,460 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2024-01-26 02:02:54,460 - update - main - INFO - User settings:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -644,8 +644,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,319 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
-2024-01-22 09:31:34,319 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2024-01-26 02:02:54,781 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
+2024-01-26 02:02:54,781 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -653,9 +653,9 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,363 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
-2024-01-22 09:31:34,363 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-01-22 09:31:34,373 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2024-01-26 02:02:54,824 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
+2024-01-26 02:02:54,824 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-01-26 02:02:54,833 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -663,9 +663,9 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,428 - update - wflow - INFO - Reading model intbl files.
-2024-01-22 09:31:34,428 - update - wflow - INFO - Reading model table files.
-2024-01-22 09:31:34,428 - update - wflow - INFO - Reading model staticgeom files.
+2024-01-26 02:02:54,883 - update - wflow - INFO - Reading model intbl files.
+2024-01-26 02:02:54,883 - update - wflow - INFO - Reading model table files.
+2024-01-26 02:02:54,884 - update - wflow - INFO - Reading model staticgeom files.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -673,7 +673,11 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,534 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2024-01-26 02:02:54,987 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2024-01-26 02:02:55,003 - update - wflow - INFO - Model read
+2024-01-26 02:02:55,007 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2024-01-26 02:02:55,007 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2024-01-26 02:02:55,007 - update - model_api - INFO - setup_precip_forcing.chunksize: None
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -681,11 +685,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,552 - update - wflow - INFO - Model read
-2024-01-22 09:31:34,556 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2024-01-22 09:31:34,556 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2024-01-22 09:31:34,556 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2024-01-22 09:31:34,561 - update - rasterdataset - INFO - Reading chirps_global netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/chirps_global.nc
+2024-01-26 02:02:55,011 - update - rasterdataset - INFO - Reading chirps_global netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/chirps_global.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -693,18 +693,18 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,743 - update - model_api - WARNING - Replacing forcing: precip
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2024-01-22 09:31:34,744 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2024-01-22 09:31:34,748 - update - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5.nc
+2024-01-26 02:02:55,179 - update - model_api - WARNING - Replacing forcing: precip
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2024-01-26 02:02:55,180 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2024-01-26 02:02:55,183 - update - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -712,7 +712,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,797 - update - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5_orography.nc
+2024-01-26 02:02:55,227 - update - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/era5_orography.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -720,18 +720,14 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:34,985 - update - model_api - WARNING - Replacing forcing: pet
-2024-01-22 09:31:34,986 - update - model_api - WARNING - Replacing forcing: temp
-2024-01-22 09:31:34,987 - update - model_api - INFO - write_forcing.fn_out: None
-2024-01-22 09:31:34,987 - update - model_api - INFO - write_forcing.freq_out: M
-2024-01-22 09:31:34,987 - update - model_api - INFO - write_forcing.chunksize: 1
-2024-01-22 09:31:34,987 - update - model_api - INFO - write_forcing.decimals: 2
-2024-01-22 09:31:34,987 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
-2024-01-22 09:31:34,987 - update - wflow - INFO - Write forcing file
-2024-01-22 09:31:34,994 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
-2024-01-22 09:31:34,994 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
-2024-01-22 09:31:34,999 - update - wflow - INFO - Writting several forcing with freq M
-2024-01-22 09:31:34,999 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2024-01-26 02:02:55,409 - update - model_api - WARNING - Replacing forcing: pet
+2024-01-26 02:02:55,410 - update - model_api - WARNING - Replacing forcing: temp
+2024-01-26 02:02:55,411 - update - model_api - INFO - write_forcing.fn_out: None
+2024-01-26 02:02:55,411 - update - model_api - INFO - write_forcing.freq_out: M
+2024-01-26 02:02:55,411 - update - model_api - INFO - write_forcing.chunksize: 1
+2024-01-26 02:02:55,411 - update - model_api - INFO - write_forcing.decimals: 2
+2024-01-26 02:02:55,411 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
+2024-01-26 02:02:55,411 - update - wflow - INFO - Write forcing file
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -739,19 +735,23 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:35,004 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc</div></div>
+2024-01-26 02:02:55,416 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
+2024-01-26 02:02:55,416 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2024-01-26 02:02:55,421 - update - wflow - INFO - Writting several forcing with freq M
+2024-01-26 02:02:55,421 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2024-01-26 02:02:55,425 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc</div></div>
 </div>
 <dl>
-<dt>[                                        ] | 0% Completed | 378.36 us</dt><dd><blockquote>
+<dt>[                                        ] | 0% Completed | 486.39 us</dt><dd><blockquote>
 <div><p>&lt;/pre&gt;</p>
 </div></blockquote>
 </dd>
-<dt>[                                        ] | 0% Completed | 378.36 us</dt><dd><blockquote>
+<dt>[                                        ] | 0% Completed | 486.39 us</dt><dd><blockquote>
 <div><p>end{sphinxVerbatim}</p>
 </div></blockquote>
 </dd>
 </dl>
-<p>[                                        ] | 0% Completed | 378.36 us</p>
+<p>[                                        ] | 0% Completed | 486.39 us</p>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
@@ -759,22 +759,22 @@ Options:
 <div class="highlight"><pre></div></div>
 </div>
 <dl>
-<dt>[########################################] | 100% Completed | 101.54 ms</dt><dd><blockquote>
+<dt>[########################################] | 100% Completed | 102.70 ms</dt><dd><blockquote>
 <div><p>&lt;/pre&gt;</p>
 </div></blockquote>
 </dd>
-<dt>[########################################] | 100% Completed | 101.54 ms</dt><dd><blockquote>
+<dt>[########################################] | 100% Completed | 102.70 ms</dt><dd><blockquote>
 <div><p>end{sphinxVerbatim}</p>
 </div></blockquote>
 </dd>
 </dl>
-<p>[########################################] | 100% Completed | 101.54 ms</p>
+<p>[########################################] | 100% Completed | 102.70 ms</p>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:35,159 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2024-01-26 02:02:55,580 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -782,8 +782,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:31:35,343 - update - model_api - INFO - write_geoms.geom_fn: staticgeoms
-2024-01-22 09:31:35,343 - update - wflow - INFO - Writing model staticgeom to file.
+2024-01-26 02:02:55,764 - update - model_api - INFO - write_geoms.geom_fn: staticgeoms
+2024-01-26 02:02:55,764 - update - wflow - INFO - Writing model staticgeom to file.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -799,7 +799,7 @@ Options:
 <li><p><code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">wflow</span></code>: i.e. update a wflow model</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wflow_piave_subbasin</span></code>: original model folder</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">./wflow_piave_forcing</span></code>: output updated model folder</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_update_forcing.ini</span></code>: setup configuration file containing the components to update and their different options</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_update_forcing.yml</span></code>: setup configuration file containing the components to update and their different options</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">artifact_data</span></code>: specify to use the artifact_data catalog</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">v</span></code>: give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
 </ul>

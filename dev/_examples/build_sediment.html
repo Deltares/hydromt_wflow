@@ -569,16 +569,16 @@ Options:
 </section>
 <section id="Model-setup-configuration">
 <h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Link to this heading">#</a></h2>
-<p>The ini-file contains the model setup configuration and determines which methods are used to prepare the different components of a Wflow Sediment model and in which order and optionally sets non-default arguments for each method. This configuration is passed to HydroMT using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_ini_file&gt;</span></code>. We have prepared several example ini-files which are available in the model repository <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/tree/main/examples">examples folder</a> and from the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/sediment_build.html">docs
-(building a model)</a>.</p>
-<p>Each header as shown between <code class="docutils literal notranslate"><span class="pre">[...]</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">[setup_basemaps]</span></code>) corresponds to a model method. All model methods are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/sediment_model_setup.html">docs (model methods)</a>.</p>
-<p>We will load the default wflow sediment build ini file for inspection:</p>
+<p>The HydroMT configuration file (YAML) contains the model setup configuration and determines which methods are used to prepare the different components of a Wflow Sediment model and in which order and optionally sets non-default arguments for each method. This configuration is passed to HydroMT using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_config_file&gt;</span></code>. We have prepared several example files which are available in the model repository <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/tree/main/examples">examples folder</a> and
+from the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/sediment_build.html">docs (building a model)</a>.</p>
+<p>Each header (without indent) (e.g. <code class="docutils literal notranslate"><span class="pre">setup_basemaps:</span></code>) corresponds to a model method. All model methods are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/sediment_model_setup.html">docs (model methods)</a>.</p>
+<p>We will load the default wflow sediment build configuration yaml file for inspection:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_ini</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment_build.ini&quot;</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_ini</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment_build.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
 </pre></div>
@@ -589,70 +589,66 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[global]
-data_libs        = []               # add optional paths to data yml files
+setup_config:                     # options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;
+  starttime: 2010-01-01T00:00:00
+  endtime: 2010-03-31T00:00:00
+  timestepsecs: 86400
 
-[setup_config]                      # options parsed to wflow ini file &lt;section&gt;.&lt;option&gt;
-starttime = 2010-01-01T00:00:00
-endtime = 2010-03-31T00:00:00
-timestepsecs = 86400
+setup_basemaps:
+  hydrography_fn: merit_hydro      # source hydrography data {merit_hydro, merit_hydro_1k}
+  basin_index_fn: merit_hydro_index # source of basin index corresponding to hydrography_fn
+  upscale_method: ihu              # upscaling method for flow direction data, by default &#39;ihu&#39;
+  res: 0.00833           # build the model at a 30 arc sec (~1km) resolution
 
-[setup_basemaps]
-hydrography_fn   = merit_hydro      # source hydrography data {merit_hydro, merit_hydro_1k}
-basin_index_fn   = merit_hydro_index # source of basin index corresponding to hydrography_fn
-upscale_method   = ihu              # upscaling method for flow direction data, by default &#39;ihu&#39;
-res             = 0.00833           # build the model at a 30 arc sec (~1km) resolution
+setup_rivers:
+  hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
+  river_geom_fn: rivers_lin2019_v1 # river source data with river width and bankfull discharge
+  river_upa: 30               # minimum upstream area threshold for the river map [km2]
+  rivdph_method: powlaw           # method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}
+  min_rivdph: 1                # minimum river depth [m]
+  min_rivwth: 30               # minimum river width [m]
+  slope_len: 2000             # length over which tp calculate river slope [m]
+  smooth_len: 5000             # length over which to smooth river depth and river width [m]
 
-[setup_rivers]
-hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
-river_geom_fn    = rivers_lin2019_v1 # river source data with river width and bankfull discharge
-river_upa        = 30               # minimum upstream area threshold for the river map [km2]
-rivdph_method    = powlaw           # method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}
-min_rivdph       = 1                # minimum river depth [m]
-min_rivwth       = 30               # minimum river width [m]
-slope_len        = 2000             # length over which tp calculate river slope [m]
-smooth_len       = 5000             # length over which to smooth river depth and river width [m]
+setup_reservoirs:
+  reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes
+  timeseries_fn: gww           # additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.
+  min_area: 1.0           # minimum lake area to consider [km2]
 
-[setup_reservoirs]
-reservoirs_fn   = hydro_reservoirs  # source for reservoirs shape and attributes
-timeseries_fn   = gww           # additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.
-min_area        = 1.0           # minimum lake area to consider [km2]
+setup_lakes:
+  lakes_fn: hydro_lakes      # source for lakes based on hydroLAKES: {hydro_lakes}
+  min_area: 1.0              # minimum reservoir area to consider [km2]
 
-[setup_lakes]
-lakes_fn         = hydro_lakes      # source for lakes based on hydroLAKES: {hydro_lakes}
-min_area         = 1.0              # minimum reservoir area to consider [km2]
+setup_riverbedsed:
 
-[setup_riverbedsed]
-bedsed_mapping_fn = None             # path to a mapping csv file from streamorder to river bed particles characteristics
+setup_lulcmaps:
+  lulc_fn: globcover        # source for lulc maps: {globcover, vito, corine}
 
-[setup_lulcmaps]
-lulc_fn          = globcover        # source for lulc maps: {globcover, vito, corine}
+setup_laimaps:
+  lai_fn: modis_lai        # source for LAI: {modis_lai}
 
-[setup_laimaps]
-lai_fn           = modis_lai        # source for LAI: {modis_lai}
+setup_canopymaps:
+  canopy_fn: simard           # source for vegetation canopy height: {simard}
 
-[setup_canopymaps]
-canopy_fn        = simard           # source for vegetation canopy height: {simard}
+setup_soilmaps:
+  soil_fn: soilgrids        # source for soilmaps: {soilgrids}
+  usleK_method: renard           # method to compute the USLE K factor: {renard, epic}
 
-[setup_soilmaps]
-soil_fn          = soilgrids        # source for soilmaps: {soilgrids}
-usleK_method     = renard           # method to compute the USLE K factor: {renard, epic}
+setup_outlets:
+  river_only: True
 
-[setup_outlets]
-river_only = True
+setup_gauges:
+  gauges_fn: grdc             # If not None add gaugemap. Either a path or known gauges_fn: {grdc}
+  snap_to_river: True             # If True snaps gauges from source to river
+  derive_subcatch: False            # if True derive subcatch map based on gauges.
 
-[setup_gauges]
-gauges_fn        = grdc             # If not None add gaugemap. Either a path or known gauges_fn: {grdc}
-snap_to_river    = True             # If True snaps gauges from source to river
-derive_subcatch  = False            # if True derive subcatch map based on gauges.
-
-[setup_constant_pars]               # constant parameters values
-c_Bagnold = 0.0000175
-eros_expo = 1.5
-eros_ov = 0.9
-eros_spl_EUROSEM = 2.0
-exp_Bagnold = 1.4
-ResTrapEff = 1.0
+setup_constant_pars:             # constant parameters values
+  c_Bagnold: 0.0000175
+  eros_expo: 1.5
+  eros_ov: 0.9
+  eros_spl_EUROSEM: 2.0
+  exp_Bagnold: 1.4
+  ResTrapEff: 1.0
 
 </pre></div></div>
 </div>
@@ -665,8 +661,8 @@ ResTrapEff = 1.0
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
 <span class="c1"># NOTE: as of hydromt version 0.7.0 the region argument is optional and should be preceded by -r or --region</span>
-<span class="c1"># NOTE: the resolution argument has been removed since hydromt v0.7.0 and can now only be configured from .ini file under the setup_basemap header</span>
-<span class="o">!</span>hydromt<span class="w"> </span>build<span class="w"> </span>wflow_sediment<span class="w"> </span><span class="s2">&quot;./wflow_test_sediment&quot;</span><span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;{&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.70, 45.35, 12.95, 46.70]}&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_sediment_build.ini<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
+<span class="c1"># NOTE: the resolution argument has been removed since hydromt v0.7.0 and can now only be configured from the configuration file under the setup_basemap header</span>
+<span class="o">!</span>hydromt<span class="w"> </span>build<span class="w"> </span>wflow_sediment<span class="w"> </span><span class="s2">&quot;./wflow_test_sediment&quot;</span><span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;{&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.70, 45.35, 12.95, 46.70]}&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_sediment_build.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
 </pre></div>
 </div>
 </div>
@@ -675,10 +671,10 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:29:57,737 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/hydromt.log.
-2024-01-22 09:29:57,737 - build - log - INFO - HydroMT version: 0.9.2
-2024-01-22 09:29:57,738 - build - main - INFO - Building instance of wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment.
-2024-01-22 09:29:57,738 - build - main - INFO - User settings:
+2024-01-26 02:01:20,488 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/hydromt.log.
+2024-01-26 02:01:20,489 - build - log - INFO - HydroMT version: 0.9.2
+2024-01-26 02:01:20,489 - build - main - INFO - Building instance of wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment.
+2024-01-26 02:01:20,489 - build - main - INFO - User settings:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -686,7 +682,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:29:58,050 - build - wflow - WARNING - Adding a predefined data catalog as key-word argument is deprecated, add the catalog as &#39;deltares_data=False&#39; to the data_libs list instead.
+2024-01-26 02:01:20,827 - build - wflow - WARNING - Adding a predefined data catalog as key-word argument is deprecated, add the catalog as &#39;deltares_data=False&#39; to the data_libs list instead.
+2024-01-26 02:01:20,850 - build - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
+2024-01-26 02:01:20,850 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -694,10 +692,17 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:29:58,072 - build - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
-2024-01-22 09:29:58,072 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
-2024-01-22 09:29:58,115 - build - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.4.2.dev0).
-2024-01-22 09:29:58,115 - build - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-01-26 02:01:20,893 - build - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.4.2.dev0).
+2024-01-26 02:01:20,894 - build - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-01-26 02:01:20,901 - build - model_api - DEBUG - Setting model config options.
+2024-01-26 02:01:20,902 - build - model_api - DEBUG - Default config read from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml
+2024-01-26 02:01:20,903 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2024-01-26 02:01:20,903 - build - model_api - INFO - setup_basemaps.res: 0.00833
+2024-01-26 02:01:20,903 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2024-01-26 02:01:20,903 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2024-01-26 02:01:20,903 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2024-01-26 02:01:20,903 - build - wflow - INFO - Preparing base hydrography basemaps.
+2024-01-26 02:01:20,905 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -705,15 +710,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:29:58,124 - build - model_api - DEBUG - Setting model config options.
-2024-01-22 09:29:58,125 - build - model_api - DEBUG - Default config read from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/wflow_sediment.toml
-2024-01-22 09:29:58,125 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
-2024-01-22 09:29:58,125 - build - model_api - INFO - setup_basemaps.res: 0.00833
-2024-01-22 09:29:58,125 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
-2024-01-22 09:29:58,125 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
-2024-01-22 09:29:58,125 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
-2024-01-22 09:29:58,125 - build - wflow - INFO - Preparing base hydrography basemaps.
-2024-01-22 09:29:58,127 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2024-01-26 02:01:21,011 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -721,7 +718,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:29:58,232 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
+2024-01-26 02:01:24,372 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -729,7 +726,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:01,644 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2024-01-26 02:01:24,432 - build - wflow - DEBUG - Adding basins vector to geoms.
+2024-01-26 02:01:24,433 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
+2024-01-26 02:01:24,433 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -737,9 +736,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:01,706 - build - wflow - DEBUG - Adding basins vector to geoms.
-2024-01-22 09:30:01,706 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
-2024-01-22 09:30:01,707 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
+2024-01-26 02:01:24,493 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -747,8 +744,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:01,767 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
-2024-01-22 09:30:01,794 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2024-01-26 02:01:24,520 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -756,7 +752,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:16,482 - build - basemaps - DEBUG - Derive stream order.
+2024-01-26 02:01:38,963 - build - basemaps - DEBUG - Derive stream order.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -764,8 +760,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:16,642 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
-2024-01-22 09:30:16,642 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
+2024-01-26 02:01:39,120 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
+2024-01-26 02:01:39,120 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -773,18 +769,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:16,773 - build - wflow - DEBUG - Adding region vector to geoms.
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.args: ()
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.river_geom_fn: rivers_lin2019_v1
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.river_upa: 30
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.min_rivdph: 1
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.min_rivwth: 30
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.slope_len: 2000
-2024-01-22 09:30:16,779 - build - model_api - INFO - setup_rivers.smooth_len: 5000
-2024-01-22 09:30:16,779 - build - wflow - INFO - Preparing river maps.
-2024-01-22 09:30:16,780 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
+2024-01-26 02:01:39,250 - build - wflow - DEBUG - Adding region vector to geoms.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -792,7 +777,17 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:16,867 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.args: ()
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.river_geom_fn: rivers_lin2019_v1
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.river_upa: 30
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.min_rivdph: 1
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.min_rivwth: 30
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.slope_len: 2000
+2024-01-26 02:01:39,256 - build - model_api - INFO - setup_rivers.smooth_len: 5000
+2024-01-26 02:01:39,256 - build - wflow - INFO - Preparing river maps.
+2024-01-26 02:01:39,257 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/merit_hydro/{variable}.tif
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -800,7 +795,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:16,876 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2024-01-26 02:01:39,345 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2024-01-26 02:01:39,353 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -808,7 +804,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:16,974 - build - river - DEBUG - Derive river length.
+2024-01-26 02:01:39,450 - build - river - DEBUG - Derive river length.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -816,7 +812,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:21,939 - build - river - DEBUG - Derive river slope.
+2024-01-26 02:01:44,529 - build - river - DEBUG - Derive river slope.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -824,10 +820,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:22,558 - build - river - DEBUG - Derive rivwth from hydrography dataset.
-2024-01-22 09:30:22,566 - build - dataframe - INFO - Reading roughness_river_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/N_river_mapping.csv
-2024-01-22 09:30:22,573 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:22,578 - build - geodataframe - INFO - Reading rivers_lin2019_v1 vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/rivers_lin2019_v1.gpkg
+2024-01-26 02:01:45,139 - build - river - DEBUG - Derive rivwth from hydrography dataset.
+2024-01-26 02:01:45,152 - build - dataframe - INFO - Reading roughness_river_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/N_river_mapping.csv
+2024-01-26 02:01:45,159 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -835,7 +830,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:22,607 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
+2024-01-26 02:01:45,165 - build - geodataframe - INFO - Reading rivers_lin2019_v1 vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/rivers_lin2019_v1.gpkg
+2024-01-26 02:01:45,193 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -843,7 +839,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:22,810 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
+2024-01-26 02:01:45,397 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -851,7 +847,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:22,872 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
+2024-01-26 02:01:45,459 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -859,7 +855,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:27,204 - build - wflow - DEBUG - Adding rivers vector to geoms.
+2024-01-26 02:01:49,664 - build - wflow - DEBUG - Adding rivers vector to geoms.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -867,11 +863,18 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:27,822 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
-2024-01-22 09:30:27,822 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
-2024-01-22 09:30:27,823 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
-2024-01-22 09:30:27,823 - build - wflow - INFO - Preparing reservoir maps.
-2024-01-22 09:30:27,823 - build - geodataframe - INFO - Reading hydro_reservoirs vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_reservoirs.gpkg
+2024-01-26 02:01:50,274 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
+2024-01-26 02:01:50,274 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
+2024-01-26 02:01:50,274 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
+2024-01-26 02:01:50,274 - build - wflow - INFO - Preparing reservoir maps.
+2024-01-26 02:01:50,274 - build - geodataframe - INFO - Reading hydro_reservoirs vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_reservoirs.gpkg
+2024-01-26 02:01:50,297 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2024-01-26 02:01:50,299 - build - geodataframe - DEBUG - Convert units for 5 columns.
+2024-01-26 02:01:50,301 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
+2024-01-26 02:01:50,302 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
+2024-01-26 02:01:50,302 - build - model_api - INFO - setup_lakes.min_area: 1.0
+2024-01-26 02:01:50,302 - build - wflow - INFO - Preparing lake maps.
+2024-01-26 02:01:50,302 - build - geodataframe - INFO - Reading hydro_lakes vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_lakes.gpkg
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -879,18 +882,11 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:27,846 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2024-01-22 09:30:27,848 - build - geodataframe - DEBUG - Convert units for 5 columns.
-2024-01-22 09:30:27,851 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
-2024-01-22 09:30:27,851 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
-2024-01-22 09:30:27,851 - build - model_api - INFO - setup_lakes.min_area: 1.0
-2024-01-22 09:30:27,851 - build - wflow - INFO - Preparing lake maps.
-2024-01-22 09:30:27,851 - build - geodataframe - INFO - Reading hydro_lakes vector data from /home/runner/.hydromt_data/artifact_data/v0.0.8/hydro_lakes.gpkg
-2024-01-22 09:30:27,867 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2024-01-22 09:30:27,868 - build - geodataframe - DEBUG - Convert units for 1 columns.
-2024-01-22 09:30:27,870 - build - wflow - INFO - 1 lake(s) of sufficient size found within region.
-2024-01-22 09:30:27,875 - build - waterbodies - DEBUG - Setting lake outlet map based maximum upstream area.
-2024-01-22 09:30:27,885 - build - wflow - INFO - No rating curve data provided. Using default storage/outflow function parameters.
+2024-01-26 02:01:50,317 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2024-01-26 02:01:50,319 - build - geodataframe - DEBUG - Convert units for 1 columns.
+2024-01-26 02:01:50,320 - build - wflow - INFO - 1 lake(s) of sufficient size found within region.
+2024-01-26 02:01:50,325 - build - waterbodies - DEBUG - Setting lake outlet map based maximum upstream area.
+2024-01-26 02:01:50,334 - build - wflow - INFO - No rating curve data provided. Using default storage/outflow function parameters.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -898,10 +894,14 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:27,932 - build - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
-2024-01-22 09:30:27,932 - build - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2024-01-22 09:30:27,933 - build - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2024-01-22 09:30:27,939 - build - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,381 - build - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
+2024-01-26 02:01:50,381 - build - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2024-01-26 02:01:50,381 - build - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2024-01-26 02:01:50,387 - build - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,392 - build - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,397 - build - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,402 - build - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,406 - build - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -909,18 +909,15 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:27,944 - build - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:27,949 - build - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:27,954 - build - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:27,959 - build - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:27,968 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
-2024-01-22 09:30:27,968 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2024-01-22 09:30:27,968 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
-2024-01-22 09:30:27,968 - build - wflow - INFO - Preparing LULC parameter maps.
-2024-01-22 09:30:27,968 - build - rasterdataset - INFO - Reading globcover raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
-2024-01-22 09:30:27,982 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2024-01-22 09:30:27,983 - build - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
-2024-01-22 09:30:27,991 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2024-01-26 02:01:50,415 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
+2024-01-26 02:01:50,415 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2024-01-26 02:01:50,416 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
+2024-01-26 02:01:50,416 - build - wflow - INFO - Preparing LULC parameter maps.
+2024-01-26 02:01:50,416 - build - rasterdataset - INFO - Reading globcover raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
+2024-01-26 02:01:50,429 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2024-01-26 02:01:50,430 - build - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
+2024-01-26 02:01:50,438 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2024-01-26 02:01:50,456 - build - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -928,8 +925,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,009 - build - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:28,028 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,474 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,493 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,511 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -937,9 +935,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,047 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2024-01-22 09:30:28,066 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2024-01-22 09:30:28,084 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,529 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,547 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -947,9 +944,11 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,103 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2024-01-22 09:30:28,122 - build - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
-2024-01-22 09:30:28,141 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,566 - build - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,583 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2024-01-26 02:01:50,610 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
+2024-01-26 02:01:50,610 - build - wflow - INFO - Preparing LAI maps.
+2024-01-26 02:01:50,610 - build - rasterdataset - INFO - Reading modis_lai netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/modis_lai.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -957,9 +956,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,169 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
-2024-01-22 09:30:28,169 - build - wflow - INFO - Preparing LAI maps.
-2024-01-22 09:30:28,170 - build - rasterdataset - INFO - Reading modis_lai netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.8/modis_lai.nc
+2024-01-26 02:01:50,640 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2024-01-26 02:01:50,643 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2024-01-26 02:01:50,647 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -967,9 +966,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,202 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2024-01-22 09:30:28,205 - build - rasterdataset - DEBUG - Convert units for 1 variables.
-2024-01-22 09:30:28,210 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
+2024-01-26 02:01:50,715 - build - model_api - INFO - setup_canopymaps.canopy_fn: simard
+2024-01-26 02:01:50,715 - build - wflow_sediment - INFO - Preparing canopy height map.
+2024-01-26 02:01:50,716 - build - rasterdataset - INFO - Reading simard raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -977,9 +976,11 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,283 - build - model_api - INFO - setup_canopymaps.canopy_fn: simard
-2024-01-22 09:30:28,283 - build - wflow_sediment - INFO - Preparing canopy height map.
-2024-01-22 09:30:28,284 - build - rasterdataset - INFO - Reading simard raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
+2024-01-26 02:01:50,730 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2024-01-26 02:01:50,764 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2024-01-26 02:01:50,764 - build - model_api - INFO - setup_soilmaps.usleK_method: renard
+2024-01-26 02:01:50,764 - build - wflow_sediment - INFO - Preparing soil parameter maps.
+2024-01-26 02:01:50,766 - build - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -987,11 +988,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,298 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2024-01-22 09:30:28,324 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
-2024-01-22 09:30:28,324 - build - model_api - INFO - setup_soilmaps.usleK_method: renard
-2024-01-22 09:30:28,324 - build - wflow_sediment - INFO - Preparing soil parameter maps.
-2024-01-22 09:30:28,326 - build - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
+2024-01-26 02:01:51,154 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2024-01-26 02:01:51,162 - build - rasterdataset - DEBUG - Convert units for 21 variables.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -999,8 +997,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:28,719 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2024-01-22 09:30:28,727 - build - rasterdataset - DEBUG - Convert units for 21 variables.
+2024-01-26 02:01:51,471 - build - soilgrids - INFO - Interpolate NAN values for PercentClay
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1008,7 +1005,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:29,048 - build - soilgrids - INFO - Interpolate NAN values for PercentClay
+2024-01-26 02:01:51,487 - build - soilgrids - INFO - Interpolate NAN values for PercentSilt
+2024-01-26 02:01:51,504 - build - soilgrids - INFO - Interpolate NAN values for PercentOC
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1016,8 +1014,27 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:29,065 - build - soilgrids - INFO - Interpolate NAN values for PercentSilt
-2024-01-22 09:30:29,081 - build - soilgrids - INFO - Interpolate NAN values for PercentOC
+2024-01-26 02:01:51,532 - build - soilgrids - INFO - Interpolate NAN values for ErosK
+2024-01-26 02:01:51,553 - build - soilgrids - INFO - Interpolate NAN values for USLE_K
+2024-01-26 02:01:51,559 - build - model_api - INFO - setup_outlets.river_only: True
+2024-01-26 02:01:51,559 - build - model_api - INFO - setup_outlets.toml_output: csv
+2024-01-26 02:01:51,559 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;TSS&#39;]
+2024-01-26 02:01:51,559 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.SSconc&#39;]
+2024-01-26 02:01:51,559 - build - wflow - INFO - Gauges locations set based on river outlets.
+2024-01-26 02:01:51,566 - build - wflow - INFO - Gauges map based on catchment river outlets added.
+2024-01-26 02:01:51,566 - build - wflow - INFO - Adding [&#39;lateral.river.SSconc&#39;] to csv section of toml.
+2024-01-26 02:01:51,566 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
+2024-01-26 02:01:51,566 - build - model_api - INFO - setup_gauges.source_gdf: None
+2024-01-26 02:01:51,566 - build - model_api - INFO - setup_gauges.snap_to_river: True
+2024-01-26 02:01:51,566 - build - model_api - INFO - setup_gauges.mask: None
+2024-01-26 02:01:51,566 - build - model_api - INFO - setup_gauges.derive_subcatch: False
+2024-01-26 02:01:51,567 - build - model_api - INFO - setup_gauges.basename: None
+2024-01-26 02:01:51,567 - build - model_api - INFO - setup_gauges.toml_output: csv
+2024-01-26 02:01:51,567 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
+2024-01-26 02:01:51,567 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
+2024-01-26 02:01:51,567 - build - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
+2024-01-26 02:01:51,573 - build - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2024-01-26 02:01:51,575 - build - wflow - INFO - 3 grdc gauge locations found within domain
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1025,27 +1042,17 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:29,106 - build - soilgrids - INFO - Interpolate NAN values for ErosK
-2024-01-22 09:30:29,127 - build - soilgrids - INFO - Interpolate NAN values for USLE_K
-2024-01-22 09:30:29,132 - build - model_api - INFO - setup_outlets.river_only: True
-2024-01-22 09:30:29,132 - build - model_api - INFO - setup_outlets.toml_output: csv
-2024-01-22 09:30:29,132 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;TSS&#39;]
-2024-01-22 09:30:29,133 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.SSconc&#39;]
-2024-01-22 09:30:29,133 - build - wflow - INFO - Gauges locations set based on river outlets.
-2024-01-22 09:30:29,139 - build - wflow - INFO - Gauges map based on catchment river outlets added.
-2024-01-22 09:30:29,139 - build - wflow - INFO - Adding [&#39;lateral.river.SSconc&#39;] to csv section of toml.
-2024-01-22 09:30:29,139 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
-2024-01-22 09:30:29,139 - build - model_api - INFO - setup_gauges.source_gdf: None
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.snap_to_river: True
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.mask: None
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.derive_subcatch: False
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.basename: None
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.toml_output: csv
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
-2024-01-22 09:30:29,140 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
-2024-01-22 09:30:29,140 - build - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
-2024-01-22 09:30:29,146 - build - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2024-01-22 09:30:29,148 - build - wflow - INFO - 3 grdc gauge locations found within domain
+2024-01-26 02:01:52,157 - build - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
+2024-01-26 02:01:52,157 - build - model_api - INFO - setup_constant_pars.dtype: float32
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.nodata: -999
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.eros_expo: 1.5
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.eros_ov: 0.9
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
+2024-01-26 02:01:52,158 - build - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
+2024-01-26 02:01:52,167 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
+2024-01-26 02:01:52,175 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1053,17 +1060,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:29,740 - build - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
-2024-01-22 09:30:29,740 - build - model_api - INFO - setup_constant_pars.dtype: float32
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.nodata: -999
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.eros_expo: 1.5
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.eros_ov: 0.9
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
-2024-01-22 09:30:29,741 - build - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
-2024-01-22 09:30:29,750 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment
-2024-01-22 09:30:29,758 - build - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/wflow_sediment.toml
+2024-01-26 02:01:52,197 - build - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1071,15 +1068,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:29,780 - build - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_sediment/staticmaps.nc
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-01-22 09:30:29,955 - build - wflow - INFO - Writing model staticgeom to file.
+2024-01-26 02:01:52,375 - build - wflow - INFO - Writing model staticgeom to file.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1095,11 +1084,11 @@ ResTrapEff = 1.0
 <li><p><code class="docutils literal notranslate"><span class="pre">wflow_sediment</span></code> : i.e. build a wflow sediment model</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">./wflow_test_sediment</span></code> : output model folder</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&quot;{'subbasin':</span> <span class="pre">[12.2051,</span> <span class="pre">45.8331],</span> <span class="pre">'strord':</span> <span class="pre">4,</span> <span class="pre">'bounds':</span> <span class="pre">[11.70,</span> <span class="pre">45.35,</span> <span class="pre">12.95,</span> <span class="pre">46.70]}&quot;</span></code> : derive a subbasin with its outlet at the given x,y coordinates and within the given bounds [xmin, ymin, xmax, ymax] (WGS84) snapped to a river with minimum stream order (strord) of 4. All <em>REGION</em> options are described in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">docs</a></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_sediment_build.ini</span></code> : model setup configuration file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_sediment_build.yml</span></code> : model setup configuration file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">artifact_data</span></code> : use pre-defined artifact_data catalog.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-vv</span></code> : give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
 </ul>
-<p>Next we check which files have been created. The model root should contain two netcdf (.nc) files, one for the staticmaps and one for the forcing data, a wflow configuration (.toml) file. These files are sufficient to run the wflow sediment model. In addition several geometry (.geojson) files are saved in the <em>staticgeoms</em> folder. Finally, the setup process is logged in the hydromt.log file.</p>
+<p>Next we check which files have been created. The model root should contain two netcdf (.nc) files, one for the staticmaps and one for the forcing data, a wflow run configuration (.toml) file. These files are sufficient to run the wflow sediment model. In addition several geometry (.geojson) files are saved in the <em>staticgeoms</em> folder. Finally, the setup process is logged in the hydromt.log file.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -1123,17 +1112,17 @@ ResTrapEff = 1.0
 <div class="highlight"><pre>
 wflow_test_sediment
  - wflow_sediment.toml
- - staticmaps.nc
  - hydromt_data.yml
  - hydromt.log
+ - staticmaps.nc
 wflow_test_sediment/run_default
 wflow_test_sediment/staticgeoms
- - gauges.geojson
- - gauges_grdc.geojson
  - region.geojson
  - rivers.geojson
  - basins.geojson
  - lakes.geojson
+ - gauges_grdc.geojson
+ - gauges.geojson
 wflow_test_sediment/instate
 </pre></div></div>
 </div>
@@ -1149,13 +1138,13 @@ wflow_test_sediment/instate
 <section id="Add-Wflow-Sediment-layers-to-an-existing-Wflow-model">
 <h2>Add Wflow Sediment layers to an existing Wflow model<a class="headerlink" href="#Add-Wflow-Sediment-layers-to-an-existing-Wflow-model" title="Link to this heading">#</a></h2>
 <p>If you already have a hydrological <strong>Wflow</strong> model and you want to extend it in order to include <strong>sediment</strong> as well, then you do not need to build the wflow_sediment from scratch. You can instead <strong>update</strong> the wflow model with the additional components needed by wflow_sediment.</p>
-<p>These components are available in the template <strong>wflow_extend_sediment.ini</strong>:</p>
+<p>These components are available in the template <strong>wflow_extend_sediment.yml</strong>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_ini</span> <span class="o">=</span> <span class="s2">&quot;wflow_extend_sediment.ini&quot;</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_ini</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_extend_sediment.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
 </pre></div>
@@ -1166,42 +1155,39 @@ wflow_test_sediment/instate
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[global]
-data_libs        = []               # add optional paths to data yml files
+setup_config: # options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;
+  starttime: 2010-02-02T00:00:00
+  endtime: 2010-02-10T00:00:00
+  timestepsecs: 86400
+  input.path_forcing: inmaps-era5-2010.nc
+#   model.dolake: True               # uncomment if there are lakes in the wflow model
+#   model.doreservoir: True          # uncomment if there are reservoirs in the wflow model
 
-[setup_config]                      # options parsed to wflow ini file &lt;section&gt;.&lt;option&gt;
-starttime = 2010-02-02T00:00:00
-endtime = 2010-02-10T00:00:00
-timestepsecs = 86400
-input.path_forcing = inmaps-era5-2010.nc
-# model.dolake = True               # uncomment if there are lakes in the wflow model
-# model.doreservoir = True          # uncomment if there are reservoirs in the wflow model
+setup_riverbedsed:
+  bedsed_mapping_fn:       # path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used
 
-[setup_riverbedsed]
-bedsed_mapping_fn   = None             # path to a mapping csv file from streamorder to river bed particles characteristics
+setup_lulcmaps:
+  lulc_fn: globcover        # source for lulc maps: {globcover, vito, corine}
 
-[setup_lulcmaps]
-lulc_fn          = globcover        # source for lulc maps: {globcover, vito, corine}
+setup_canopymaps:
+  canopy_fn: simard           # source for vegetation canopy height: {simard}
 
-[setup_canopymaps]
-canopy_fn        = simard           # source for vegetation canopy height: {simard}
+setup_soilmaps:
+  soil_fn: soilgrids        # source for soilmaps: {soilgrids}
+  usleK_method: renard           # method to compute the USLE K factor: {renard, epic}
 
-[setup_soilmaps]
-soil_fn          = soilgrids        # source for soilmaps: {soilgrids}
-usleK_method     = renard           # method to compute the USLE K factor: {renard, epic}
+setup_gauges:
+  gauges_fn: grdc             # If not None add gaugemap. Either a path or known gauges_fn: {grdc}
+  snap_to_river: True             # If True snaps gauges from source to river
+  derive_subcatch: False            # if True derive subcatch map based on gauges.
 
-[setup_gauges]
-gauges_fn        = grdc             # If not None add gaugemap. Either a path or known gauges_fn: {grdc}
-snap_to_river    = True             # If True snaps gauges from source to river
-derive_subcatch  = False            # if True derive subcatch map based on gauges.
-
-[setup_constant_pars]               # constant parameters values
-c_Bagnold = 0.0000175
-eros_expo = 1.5
-eros_ov = 0.9
-eros_spl_EUROSEM = 2.0
-exp_Bagnold = 1.4
-ResTrapEff = 1.0
+setup_constant_pars:               # constant parameters values
+  c_Bagnold: 0.0000175
+  eros_expo: 1.5
+  eros_ov: 0.9
+  eros_spl_EUROSEM: 2.0
+  exp_Bagnold: 1.4
+  ResTrapEff: 1.0
 
 </pre></div></div>
 </div>
@@ -1211,7 +1197,7 @@ ResTrapEff = 1.0
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
-<span class="o">!</span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sediment<span class="w"> </span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./wflow_test_extend_sediment&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_extend_sediment.ini<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
+<span class="o">!</span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow_sediment<span class="w"> </span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="w"> </span>-o<span class="w"> </span><span class="s2">&quot;./wflow_test_extend_sediment&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_extend_sediment.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
 </pre></div>
 </div>
 </div>
@@ -1220,11 +1206,11 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:32,571 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
-2024-01-22 09:30:32,571 - update - log - INFO - HydroMT version: 0.9.2
-2024-01-22 09:30:32,571 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2024-01-22 09:30:32,571 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
-2024-01-22 09:30:32,571 - update - main - INFO - User settings:
+2024-01-26 02:01:54,805 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
+2024-01-26 02:01:54,805 - update - log - INFO - HydroMT version: 0.9.2
+2024-01-26 02:01:54,806 - update - main - INFO - Updating wflow_sediment model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2024-01-26 02:01:54,806 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2024-01-26 02:01:54,806 - update - main - INFO - User settings:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1232,9 +1218,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:32,901 - update - wflow - WARNING - Adding a predefined data catalog as key-word argument is deprecated, add the catalog as &#39;deltares_data=False&#39; to the data_libs list instead.
-2024-01-22 09:30:32,923 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
-2024-01-22 09:30:32,923 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2024-01-26 02:01:55,109 - update - wflow - WARNING - Adding a predefined data catalog as key-word argument is deprecated, add the catalog as &#39;deltares_data=False&#39; to the data_libs list instead.
+2024-01-26 02:01:55,129 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
+2024-01-26 02:01:55,130 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1242,11 +1228,11 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:32,976 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/hydromt.log.
-2024-01-22 09:30:32,977 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.4.2.dev0).
-2024-01-22 09:30:32,977 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-01-22 09:30:32,984 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
-2024-01-22 09:30:32,984 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2024-01-26 02:01:55,174 - update - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/hydromt.log.
+2024-01-26 02:01:55,174 - update - model_api - INFO - Initializing wflow_sediment model from hydromt_wflow (v0.4.2.dev0).
+2024-01-26 02:01:55,174 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-01-26 02:01:55,181 - update - model_api - ERROR - Model config file not found at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/wflow_sediment.toml
+2024-01-26 02:01:55,182 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1254,9 +1240,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,039 - update - wflow - INFO - Reading model intbl files.
-2024-01-22 09:30:33,039 - update - wflow - INFO - Reading model table files.
-2024-01-22 09:30:33,040 - update - wflow - INFO - Reading model staticgeom files.
+2024-01-26 02:01:55,233 - update - wflow - INFO - Reading model intbl files.
+2024-01-26 02:01:55,234 - update - wflow - INFO - Reading model table files.
+2024-01-26 02:01:55,234 - update - wflow - INFO - Reading model staticgeom files.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1264,7 +1250,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,151 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2024-01-26 02:01:55,341 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1272,16 +1258,17 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,170 - update - wflow - INFO - Model read
-2024-01-22 09:30:33,170 - update - log - DEBUG - Appending log messages to file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
-2024-01-22 09:30:33,175 - update - model_api - DEBUG - Setting model config options.
-2024-01-22 09:30:33,175 - update - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
-2024-01-22 09:30:33,175 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
-2024-01-22 09:30:33,176 - update - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
-2024-01-22 09:30:33,184 - update - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,189 - update - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,194 - update - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,198 - update - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,359 - update - wflow - INFO - Model read
+2024-01-26 02:01:55,359 - update - log - DEBUG - Appending log messages to file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/hydromt.log.
+2024-01-26 02:01:55,363 - update - model_api - DEBUG - Setting model config options.
+2024-01-26 02:01:55,363 - update - model_api - INFO - setup_riverbedsed.bedsed_mapping_fn: None
+2024-01-26 02:01:55,363 - update - wflow_sediment - INFO - Preparing riverbedsed parameter maps.
+2024-01-26 02:01:55,364 - update - dataframe - INFO - Reading riverbedsed_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow_sediment/riverbedsed_mapping.csv
+2024-01-26 02:01:55,372 - update - landuse - INFO - Deriving D50_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,376 - update - landuse - INFO - Deriving ClayF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,381 - update - landuse - INFO - Deriving SiltF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,385 - update - landuse - INFO - Deriving SandF_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,390 - update - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1289,14 +1276,13 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,203 - update - landuse - INFO - Deriving GravelF_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,214 - update - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
-2024-01-22 09:30:33,214 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2024-01-22 09:30:33,214 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
-2024-01-22 09:30:33,214 - update - wflow - INFO - Preparing LULC parameter maps.
-2024-01-22 09:30:33,218 - update - rasterdataset - INFO - Reading globcover raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
-2024-01-22 09:30:33,234 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2024-01-22 09:30:33,236 - update - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
+2024-01-26 02:01:55,401 - update - model_api - INFO - setup_lulcmaps.lulc_fn: globcover
+2024-01-26 02:01:55,401 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2024-01-26 02:01:55,401 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Cov_River&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;USLE_C&#39;, &#39;WaterFrac&#39;]
+2024-01-26 02:01:55,401 - update - wflow - INFO - Preparing LULC parameter maps.
+2024-01-26 02:01:55,405 - update - rasterdataset - INFO - Reading globcover raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/globcover.tif
+2024-01-26 02:01:55,421 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2024-01-26 02:01:55,422 - update - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1304,7 +1290,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,351 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2024-01-26 02:01:55,538 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1312,8 +1298,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,379 - update - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,398 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,564 - update - landuse - INFO - Deriving Cov_River using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,583 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1321,8 +1307,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,419 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,438 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,602 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,620 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,638 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1330,9 +1317,9 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,457 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,477 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,496 - update - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,656 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,674 - update - landuse - INFO - Deriving USLE_C using average resampling (nodata=-999.0).
+2024-01-26 02:01:55,692 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1340,10 +1327,10 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,515 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2024-01-22 09:30:33,546 - update - model_api - INFO - setup_canopymaps.canopy_fn: simard
-2024-01-22 09:30:33,546 - update - wflow_sediment - INFO - Preparing canopy height map.
-2024-01-22 09:30:33,549 - update - rasterdataset - INFO - Reading simard raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
+2024-01-26 02:01:55,721 - update - model_api - INFO - setup_canopymaps.canopy_fn: simard
+2024-01-26 02:01:55,721 - update - wflow_sediment - INFO - Preparing canopy height map.
+2024-01-26 02:01:55,724 - update - rasterdataset - INFO - Reading simard raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/simard.tif
+2024-01-26 02:01:55,737 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1351,11 +1338,10 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:33,564 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2024-01-22 09:30:33,602 - update - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
-2024-01-22 09:30:33,602 - update - model_api - INFO - setup_soilmaps.usleK_method: renard
-2024-01-22 09:30:33,602 - update - wflow_sediment - INFO - Preparing soil parameter maps.
-2024-01-22 09:30:33,607 - update - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
+2024-01-26 02:01:55,773 - update - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2024-01-26 02:01:55,773 - update - model_api - INFO - setup_soilmaps.usleK_method: renard
+2024-01-26 02:01:55,773 - update - wflow_sediment - INFO - Preparing soil parameter maps.
+2024-01-26 02:01:55,777 - update - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/soilgrids/{variable}.tif
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1363,8 +1349,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:34,018 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
-2024-01-22 09:30:34,026 - update - rasterdataset - DEBUG - Convert units for 21 variables.
+2024-01-26 02:01:56,163 - update - rasterdataset - DEBUG - Clip to [11.775, 45.808, 12.742, 46.692] (epsg:4326))
+2024-01-26 02:01:56,171 - update - rasterdataset - DEBUG - Convert units for 21 variables.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1372,9 +1358,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:34,383 - update - soilgrids - INFO - Interpolate NAN values for PercentClay
-2024-01-22 09:30:34,399 - update - soilgrids - INFO - Interpolate NAN values for PercentSilt
-2024-01-22 09:30:34,415 - update - soilgrids - INFO - Interpolate NAN values for PercentOC
+2024-01-26 02:01:56,492 - update - soilgrids - INFO - Interpolate NAN values for PercentClay
+2024-01-26 02:01:56,507 - update - soilgrids - INFO - Interpolate NAN values for PercentSilt
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1382,18 +1367,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:34,437 - update - soilgrids - INFO - Interpolate NAN values for ErosK
-2024-01-22 09:30:34,457 - update - soilgrids - INFO - Interpolate NAN values for USLE_K
-2024-01-22 09:30:34,464 - update - model_api - INFO - setup_gauges.gauges_fn: grdc
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.source_gdf: None
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.mask: None
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.basename: None
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.toml_output: csv
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
-2024-01-22 09:30:34,465 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
-2024-01-22 09:30:34,465 - update - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
+2024-01-26 02:01:56,522 - update - soilgrids - INFO - Interpolate NAN values for PercentOC
+2024-01-26 02:01:56,542 - update - soilgrids - INFO - Interpolate NAN values for ErosK
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1401,8 +1376,19 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:34,473 - update - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2024-01-22 09:30:34,474 - update - wflow - INFO - 3 grdc gauge locations found within domain
+2024-01-26 02:01:56,570 - update - soilgrids - INFO - Interpolate NAN values for USLE_K
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.gauges_fn: grdc
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.source_gdf: None
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.mask: None
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.basename: None
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.toml_output: csv
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;TSS&#39;]
+2024-01-26 02:01:56,578 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;]
+2024-01-26 02:01:56,578 - update - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.8/grdc.csv
+2024-01-26 02:01:56,586 - update - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2024-01-26 02:01:56,587 - update - wflow - INFO - 3 grdc gauge locations found within domain
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1410,17 +1396,16 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:36,271 - update - model_api - WARNING - Replacing geom: gauges_grdc
-2024-01-22 09:30:36,274 - update - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
-2024-01-22 09:30:36,274 - update - model_api - INFO - setup_constant_pars.dtype: float32
-2024-01-22 09:30:36,274 - update - model_api - INFO - setup_constant_pars.nodata: -999
-2024-01-22 09:30:36,274 - update - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
-2024-01-22 09:30:36,274 - update - model_api - INFO - setup_constant_pars.eros_expo: 1.5
-2024-01-22 09:30:36,274 - update - model_api - INFO - setup_constant_pars.eros_ov: 0.9
-2024-01-22 09:30:36,275 - update - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
-2024-01-22 09:30:36,275 - update - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
-2024-01-22 09:30:36,275 - update - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
-2024-01-22 09:30:36,287 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2024-01-26 02:01:58,272 - update - model_api - WARNING - Replacing geom: gauges_grdc
+2024-01-26 02:01:58,275 - update - wflow - INFO - Adding [&#39;lateral.river.q_riv&#39;, &#39;lateral.river.SSconc&#39;] to csv section of toml.
+2024-01-26 02:01:58,275 - update - model_api - INFO - setup_constant_pars.dtype: float32
+2024-01-26 02:01:58,275 - update - model_api - INFO - setup_constant_pars.nodata: -999
+2024-01-26 02:01:58,275 - update - model_api - INFO - setup_constant_pars.c_Bagnold: 1.75e-05
+2024-01-26 02:01:58,275 - update - model_api - INFO - setup_constant_pars.eros_expo: 1.5
+2024-01-26 02:01:58,276 - update - model_api - INFO - setup_constant_pars.eros_ov: 0.9
+2024-01-26 02:01:58,276 - update - model_api - INFO - setup_constant_pars.eros_spl_EUROSEM: 2.0
+2024-01-26 02:01:58,276 - update - model_api - INFO - setup_constant_pars.exp_Bagnold: 1.4
+2024-01-26 02:01:58,276 - update - model_api - INFO - setup_constant_pars.ResTrapEff: 1.0
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1428,8 +1413,8 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:36,292 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml
-2024-01-22 09:30:36,333 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticmaps.nc
+2024-01-26 02:01:58,289 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment
+2024-01-26 02:01:58,293 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/wflow_sediment.toml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1437,7 +1422,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:36,580 - update - wflow - INFO - Writing model staticgeom to file.
+2024-01-26 02:01:58,334 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1445,7 +1430,7 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:36,688 - update - wflow - INFO - Write forcing file
+2024-01-26 02:01:58,574 - update - wflow - INFO - Writing model staticgeom to file.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1453,39 +1438,47 @@ ResTrapEff = 1.0
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-01-22 09:30:36,700 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/inmaps-era5-2010.nc</div></div>
+2024-01-26 02:01:58,673 - update - wflow - INFO - Write forcing file
+2024-01-26 02:01:58,682 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_extend_sediment/inmaps-era5-2010.nc
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre></div></div>
 </div>
 <dl>
-<dt>[                                        ] | 0% Completed | 511.62 us</dt><dd><blockquote>
+<dt>[                                        ] | 0% Completed | 364.14 us</dt><dd><blockquote>
 <div><p>&lt;/pre&gt;</p>
 </div></blockquote>
 </dd>
-<dt>[                                        ] | 0% Completed | 511.62 us</dt><dd><blockquote>
+<dt>[                                        ] | 0% Completed | 364.14 us</dt><dd><blockquote>
 <div><p>end{sphinxVerbatim}</p>
 </div></blockquote>
 </dd>
 </dl>
-<p>[                                        ] | 0% Completed | 511.62 us</p>
+<p>[                                        ] | 0% Completed | 364.14 us</p>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre></div></div>
 </div>
-<p>[########################################] | 100% Completed | 101.03 ms</p>
+<p>[########################################] | 100% Completed | 100.78 ms</p>
 <blockquote>
 <div><blockquote>
 <div><p>&lt;/pre&gt;</p>
 </div></blockquote>
 </div></blockquote>
-<p>[########################################] | 100% Completed | 101.03 ms</p>
+<p>[########################################] | 100% Completed | 100.78 ms</p>
 <blockquote>
 <div><blockquote>
 <div><p>end{sphinxVerbatim}</p>
 </div></blockquote>
 </div></blockquote>
 <dl class="simple">
-<dt>[########################################] | 100% Completed | 101.03 ms</dt><dd><p>[0m</p>
+<dt>[########################################] | 100% Completed | 100.78 ms</dt><dd><p>[0m</p>
 </dd>
 </dl>
 <p>The example above means the following: run <strong>hydromt update</strong> with:</p>
@@ -1493,7 +1486,7 @@ ResTrapEff = 1.0
 <li><p><code class="docutils literal notranslate"><span class="pre">wflow_sediment</span></code> : i.e. update a wflow_sediment model (in our case a wflow model but with wflow_sediment components)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">wflow_piave_subbasin</span></code> : hydrological wflow model folder</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">&quot;./wflow_test_extend_sediment&quot;</span></code>: output combined wflow hydrology+sediment models</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_extend_sediment.ini</span></code> : setup configuration file containing wflow sediment specific components</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_extend_sediment.yml</span></code> : setup configuration file containing wflow sediment specific components</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">artifact_data</span></code> : use the pre-defined artifact_data catalog</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">-vv</span></code> : give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
 </ul>

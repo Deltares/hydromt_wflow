@@ -475,13 +475,13 @@
 <span id="wflow-build"></span><h1>Building a model<a class="headerlink" href="#building-a-model" title="Link to this heading">#</a></h1>
 <p>This plugin allows to build a complete model from available data. Once the configuration and
 data libraries are set, you can build a model by using:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">hydromt build wflow path/to/built_model -r &quot;{&#39;basin&#39;: [x, y]}&quot; -i wflow_build.ini -d data_sources.yml -vvv</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">hydromt build wflow path/to/built_model -r &quot;{&#39;basin&#39;: [x, y]}&quot; -i wflow_build.yml -d data_sources.yml -vvv</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or –region flag.
-The resolution (previously -r) argument has been moved to the setup_basemaps section in the .ini configuration file.</p>
+The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.</p>
 </div>
 <p>The recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">region options</a>
 for a proper implementation of this model are:</p>
@@ -498,107 +498,114 @@ You can find some examples on how to do this in the <a class="reference internal
 <p>Settings to build or update a Wflow model are managed in a configuration file. In this file,
 every option from each <a class="reference internal" href="wflow_model_setup.html#model-methods"><span class="std std-ref">model method</span></a> can be changed by the user
 in its corresponding section.</p>
-<p>Note that the order in which the components are listed in the ini file is important:</p>
+<p>Note that the order in which the components are listed in the configuration file is important:</p>
 <ul class="simple">
 <li><p><cite>setup_basemaps</cite> should always be run first to determine the model domain</p></li>
 <li><p><cite>setup_rivers</cite> should be run right after <cite>setup_basemaps</cite> as it influences several other setup components (lakes, reservoirs, riverwidth, gauges)</p></li>
 </ul>
-<p>Below is an example ini file that can be used to build a complete Wflow model
-<a class="reference download internal" download="" href="../_downloads/336698a43d8903408cbffc46fcfa04fd/wflow_build.ini"><code class="xref download docutils literal notranslate"><span class="pre">.ini</span> <span class="pre">file</span></code></a>. Each section corresponds
+<p>Below is an example configuration file that can be used to build a complete Wflow model
+<a class="reference download internal" download="" href="../_downloads/91e3b6c950554d08e2fce9e28e2a82f9/wflow_build.yml"><code class="xref download docutils literal notranslate"><span class="pre">.yml</span> <span class="pre">file</span></code></a>. Each section corresponds
 to a model component with the same name.</p>
-<div class="highlight-Ini notranslate"><div class="highlight"><pre><span></span><span class="na">[setup_config]                  # options parsed to wflow ini file &lt;section&gt;.&lt;option&gt;</span>
-<span class="na">starttime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2010-01-01T00:00:00</span>
-<span class="na">endtime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2010-03-31T00:00:00</span>
-<span class="na">timestepsecs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">86400</span>
-<span class="na">input.path_forcing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">inmaps-era5-2010.nc</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">setup_config</span><span class="p">:</span><span class="w">                 </span><span class="c1"># options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;</span>
+<span class="w">  </span><span class="nt">starttime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-01-01T00:00:00</span>
+<span class="w">  </span><span class="nt">endtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-03-31T00:00:00</span>
+<span class="w">  </span><span class="nt">timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
+<span class="w">  </span><span class="nt">input.path_forcing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inmaps-era5-2010.nc</span>
 
-<span class="k">[setup_basemaps]</span>
-<span class="na">hydrography_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
-<span class="na">basin_index_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro_index</span><span class="w"> </span><span class="c1"># source of basin index corresponding to hydrography_fn</span>
-<span class="na">upscale_method</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">ihu</span><span class="w">           </span><span class="c1"># upscaling method for flow direction data, by default &#39;ihu&#39;</span>
-<span class="na">res</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s">0.00833</span><span class="w">           </span><span class="c1"># build the model at a 30 arc sec (~1km) resolution</span>
+<span class="nt">setup_basemaps</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
+<span class="w">  </span><span class="nt">basin_index_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro_index</span><span class="w"> </span><span class="c1"># source of basin index corresponding to hydrography_fn</span>
+<span class="w">  </span><span class="nt">upscale_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ihu</span><span class="w">           </span><span class="c1"># upscaling method for flow direction data, by default &#39;ihu&#39;</span>
+<span class="w">  </span><span class="nt">res</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.00833</span><span class="w">           </span><span class="c1"># build the model at a 30 arc sec (~1km) resolution</span>
 
-<span class="k">[setup_rivers]</span>
-<span class="na">hydrography_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
-<span class="na">river_geom_fn</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">rivers_lin2019_v1</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
-<span class="na">river_upa</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">30</span><span class="w">               </span><span class="c1"># minimum upstream area threshold for the river map [km2]</span>
-<span class="na">rivdph_method</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span>
-<span class="na">min_rivdph</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">1</span><span class="w">                </span><span class="c1"># minimum river depth [m]</span>
-<span class="na">min_rivwth</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">30</span><span class="w">               </span><span class="c1"># minimum river width [m]</span>
-<span class="na">slope_len</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
-<span class="na">smooth_len</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
-<span class="c1"># river_routing    = local-inertial   # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
+<span class="nt">setup_rivers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="w">  </span><span class="nt">river_geom_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rivers_lin2019_v1</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
+<span class="w">  </span><span class="nt">river_upa</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum upstream area threshold for the river map [km2]</span>
+<span class="w">  </span><span class="nt">rivdph_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span>
+<span class="w">  </span><span class="nt">min_rivdph</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">                </span><span class="c1"># minimum river depth [m]</span>
+<span class="w">  </span><span class="nt">min_rivwth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum river width [m]</span>
+<span class="w">  </span><span class="nt">slope_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
+<span class="w">  </span><span class="nt">smooth_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
+<span class="w">  </span><span class="nt">river_routing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kinematic-wave</span><span class="w">   </span><span class="c1"># {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}</span>
 
-<span class="c1"># [setup_floodplains] # if 2D floodplains are required</span>
-<span class="c1"># hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
-<span class="c1"># floodplain_type = 2d #  # If two-dimensional floodplains are required</span>
-<span class="c1"># elevtn_map = wflow_dem  # {&#39;wflow_dem&#39;, &#39;dem_subgrid&#39;}</span>
+<span class="c1"># setup_floodplains: # if 2D floodplains are required</span>
+<span class="c1">#   hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="c1">#   floodplain_type: 2d #  # If two-dimensional floodplains are required</span>
+<span class="c1">#   elevtn_map: wflow_dem  # {&#39;wflow_dem&#39;, &#39;dem_subgrid&#39;}</span>
 
-<span class="c1"># [setup_floodplains] # if 1D floodplains are required</span>
-<span class="c1"># hydrography_fn   = merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
-<span class="c1"># floodplain_type = 1d    # If one-dimensional floodplains are required</span>
-<span class="c1"># flood_depths     = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0] # flood depths at which a volume is derived</span>
+<span class="c1"># setup_floodplains: # if 1D floodplains are required</span>
+<span class="c1">#   hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
+<span class="c1">#   floodplain_type: 1d    # If one-dimensional floodplains are required</span>
+<span class="c1">#   flood_depths: # flood depths at which a volume is derived</span>
+<span class="c1">#     - 0.5</span>
+<span class="c1">#     - 1.0</span>
+<span class="c1">#     - 1.5</span>
+<span class="c1">#     - 2.0</span>
+<span class="c1">#     - 2.5</span>
+<span class="c1">#     - 3.0</span>
+<span class="c1">#     - 4.0</span>
+<span class="c1">#     - 5.0</span>
 
+<span class="nt">setup_reservoirs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reservoirs_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_reservoirs</span><span class="w">  </span><span class="c1"># source for reservoirs shape and attributes</span>
+<span class="w">  </span><span class="nt">timeseries_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gww</span><span class="w">           </span><span class="c1"># additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.</span>
+<span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">           </span><span class="c1"># minimum lake area to consider [km2]</span>
 
-<span class="k">[setup_reservoirs]</span>
-<span class="na">reservoirs_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_reservoirs</span><span class="w">  </span><span class="c1"># source for reservoirs shape and attributes</span>
-<span class="na">timeseries_fn</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">gww</span><span class="w">           </span><span class="c1"># additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.</span>
-<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span><span class="w">           </span><span class="c1"># minimum lake area to consider [km2]</span>
+<span class="nt">setup_lakes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lakes_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_lakes</span><span class="w">   </span><span class="c1"># source for lakes based on hydroLAKES: {hydro_lakes}</span>
+<span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span><span class="w">          </span><span class="c1"># minimum reservoir area to consider [km2]</span>
 
-<span class="k">[setup_lakes]</span>
-<span class="na">lakes_fn</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">hydro_lakes</span><span class="w">   </span><span class="c1"># source for lakes based on hydroLAKES: {hydro_lakes}</span>
-<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">10.0</span><span class="w">          </span><span class="c1"># minimum reservoir area to consider [km2]</span>
+<span class="nt">setup_glaciers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">glaciers_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgi</span><span class="w">           </span><span class="c1"># source for glaciers based on Randolph Glacier Inventory {rgi}</span>
+<span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">           </span><span class="c1"># minimum glacier area to consider [km2]</span>
 
-<span class="k">[setup_glaciers]</span>
-<span class="na">glaciers_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">rgi</span><span class="w">           </span><span class="c1"># source for glaciers based on Randolph Glacier Inventory {rgi}</span>
-<span class="na">min_area</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">1.0</span><span class="w">           </span><span class="c1"># minimum glacier area to consider [km2]</span>
+<span class="nt">setup_lulcmaps</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lulc_fn </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover</span><span class="w">     </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
 
-<span class="k">[setup_lulcmaps]</span>
-<span class="na">lulc_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">globcover</span><span class="w">     </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
+<span class="nt">setup_laimaps</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lai_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modis_lai</span><span class="w">     </span><span class="c1"># source for LAI: {modis_lai}</span>
 
-<span class="k">[setup_laimaps]</span>
-<span class="na">lai_fn</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s">modis_lai</span><span class="w">     </span><span class="c1"># source for LAI: {modis_lai}</span>
+<span class="nt">setup_soilmaps</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">     </span><span class="c1"># source for soilmaps: {soilgrids}</span>
+<span class="w">  </span><span class="nt">ptf_ksatver</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">brakensiek</span><span class="w">    </span><span class="c1"># pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}</span>
 
-<span class="k">[setup_soilmaps]</span>
-<span class="na">soil_fn</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="s">soilgrids</span><span class="w">     </span><span class="c1"># source for soilmaps: {soilgrids}</span>
-<span class="na">ptf_ksatver</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">brakensiek</span><span class="w">    </span><span class="c1"># pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}</span>
+<span class="nt">setup_outlets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">river_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
 
-<span class="k">[setup_outlets]</span>
-<span class="na">river_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span>
+<span class="nt">setup_gauges</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">gauges_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grdc</span><span class="w">          </span><span class="c1"># if not None add gaugemap. Either a path or known gauges_fn: {grdc}</span>
+<span class="w">  </span><span class="nt">snap_to_river</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">          </span><span class="c1"># if True snaps gauges from source to river</span>
+<span class="w">  </span><span class="nt">derive_subcatch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">         </span><span class="c1"># if True derive subcatch map based on gauges.</span>
 
-<span class="k">[setup_gauges]</span>
-<span class="na">gauges_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">grdc</span><span class="w">          </span><span class="c1"># if not None add gaugemap. Either a path or known gauges_fn: {grdc}</span>
-<span class="na">snap_to_river</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True snaps gauges from source to river</span>
-<span class="na">derive_subcatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span><span class="w">         </span><span class="c1"># if True derive subcatch map based on gauges.</span>
+<span class="nt">setup_precip_forcing</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">precip_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">era5</span><span class="w">          </span><span class="c1"># source for precipitation.</span>
+<span class="w">  </span><span class="nt">precip_clim_fn</span><span class="p">:</span><span class="w">          </span><span class="c1"># source for high resolution climatology to correct precipitation if any.</span>
 
-<span class="k">[setup_precip_forcing]</span>
-<span class="na">precip_fn</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="s">era5</span><span class="w">          </span><span class="c1"># source for precipitation.</span>
-<span class="na">precip_clim_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">None</span><span class="w">          </span><span class="c1"># source for high resolution climatology to correct precipitation.</span>
+<span class="nt">setup_temp_pet_forcing</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">temp_pet_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">era5</span><span class="w">          </span><span class="c1"># source for temperature and potential evapotranspiration.</span>
+<span class="w">  </span><span class="nt">press_correction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">          </span><span class="c1"># if True temperature is corrected with elevation lapse rate.</span>
+<span class="w">  </span><span class="nt">temp_correction</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">          </span><span class="c1"># if True pressure is corrected with elevation lapse rate.</span>
+<span class="w">  </span><span class="nt">dem_forcing_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">era5_orography</span><span class="w"> </span><span class="c1"># source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.</span>
+<span class="w">  </span><span class="nt">pet_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">debruin</span><span class="w">       </span><span class="c1"># method to compute PET: {debruin, makkink}</span>
+<span class="w">  </span><span class="nt">skip_pet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">         </span><span class="c1"># if True, only temperature is prepared.</span>
 
-<span class="k">[setup_temp_pet_forcing]</span>
-<span class="na">temp_pet_fn</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">era5</span><span class="w">          </span><span class="c1"># source for temperature and potential evapotranspiration.</span>
-<span class="na">press_correction</span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True temperature is corrected with elevation lapse rate.</span>
-<span class="na">temp_correction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">True</span><span class="w">          </span><span class="c1"># if True pressure is corrected with elevation lapse rate.</span>
-<span class="na">dem_forcing_fn</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="s">era5_orography</span><span class="w"> </span><span class="c1"># source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.</span>
-<span class="na">pet_method</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="s">debruin</span><span class="w">       </span><span class="c1"># method to compute PET: {debruin, makkink}</span>
-<span class="na">skip_pet</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s">False</span><span class="w">         </span><span class="c1"># if True, only temperature is prepared.</span>
-
-<span class="k">[setup_constant_pars]</span>
-<span class="na">KsatHorFrac</span><span class="o">=</span><span class="s">100</span>
-<span class="na">Cfmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3.75653</span>
-<span class="na">cf_soil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.038</span>
-<span class="na">EoverR</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.11</span>
-<span class="na">InfiltCapPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5</span>
-<span class="na">InfiltCapSoil</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">600</span>
-<span class="na">MaxLeakage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
-<span class="na">rootdistpar</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">-500</span>
-<span class="na">TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
-<span class="na">TTI</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2</span>
-<span class="na">TTM</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
-<span class="na">WHC</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.1</span>
-<span class="na">G_Cfmax</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">5.3</span>
-<span class="na">G_SIfrac</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0.002</span>
-<span class="na">G_TT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1.3</span>
+<span class="nt">setup_constant_pars</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">KsatHorFrac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="nt">Cfmax</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.75653</span>
+<span class="w">  </span><span class="nt">cf_soil</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.038</span>
+<span class="w">  </span><span class="nt">EoverR</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.11</span>
+<span class="w">  </span><span class="nt">InfiltCapPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">InfiltCapSoil</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600</span>
+<span class="w">  </span><span class="nt">MaxLeakage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">rootdistpar</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-500</span>
+<span class="w">  </span><span class="nt">TT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">TTI</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">TTM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="nt">WHC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">  </span><span class="nt">G_Cfmax</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.3</span>
+<span class="w">  </span><span class="nt">G_SIfrac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.002</span>
+<span class="w">  </span><span class="nt">G_TT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.3</span>
 </pre></div>
 </div>
 </section>
