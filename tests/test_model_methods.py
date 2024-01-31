@@ -516,3 +516,18 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
     )
+
+
+def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
+    example_sediment_model.setup_lulcmaps(
+        lulc_fn="globcover",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_vars=["USLE_C"],
+        planted_forest_c=0.0881,
+        orchard_name="Orchard",
+        orchard_c=0.2188,
+    )
+    da = example_sediment_model.grid["USLE_C"].raster.sample(
+        planted_forest_testdata.geometry.centroid
+    )
+    assert np.all(da.values == np.array([0.0881, 0.2188]))

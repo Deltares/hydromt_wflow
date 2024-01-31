@@ -3,9 +3,11 @@ import logging
 import platform
 from os.path import abspath, dirname, join
 
+import geopandas as gpd
 import pytest
 import xarray as xr
 from hydromt.cli.cli_utils import parse_config
+from shapely.geometry import box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 
@@ -84,3 +86,12 @@ def floodplain1d_testdata():
         mode="r",
     )
     return data
+
+
+@pytest.fixture()
+def planted_forest_testdata():
+    bbox1 = [12.38, 46.12, 12.42, 46.16]
+    bbox2 = [12.21, 46.07, 12.26, 46.11]
+    gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
+    gdf["forest_type"] = ["Pine", "Orchard"]
+    return gdf
