@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
+- **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
 
 Changed
 -------
