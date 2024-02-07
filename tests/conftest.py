@@ -43,14 +43,14 @@ def example_models(example_wflow_model, example_sediment_model):
 
 @pytest.fixture()
 def wflow_ini():
-    config = join(TESTDATADIR, "wflow_piave_build_subbasin.ini")
+    config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
     opt = parse_config(config)
     return opt
 
 
 @pytest.fixture()
 def sediment_ini():
-    config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.ini")
+    config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
     opt = parse_config(config)
     return opt
 
