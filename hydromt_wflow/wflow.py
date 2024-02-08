@@ -1,4 +1,5 @@
 """Implement Wflow model class."""
+
 # Implement model class following model API
 
 import codecs
@@ -1222,10 +1223,9 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         if basename is None:
             basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
 
-        # Create gauge map, subcatch map and update toml
-        if gdf_gauges.index.size == 0:
-            self.logger.warning(f"No {gauges_fn} gauge locations found within domain")
-
+        # Check if there is data found
+        if gdf_gauges is None:
+            self.logger.info("Skipping method, as no data has been found")
             return
 
         # Create the gauges map
@@ -1438,6 +1438,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             lakes_fn, "lake", min_area, **kwargs
         )
         if ds_lakes is None:
+            self.logger.info("Skipping method, as no data has been found")
             return
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
         ds_lakes = ds_lakes.rename(rmdict)
@@ -1691,6 +1692,8 @@ Using default storage/outflow function parameters."
 
             for option in res_toml:
                 self.set_config(option, res_toml[option])
+        else:
+            self.logger.info("Skipping method, as no data has been found")
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
         """Help with common workflow of setup_lakes and setup_reservoir.
@@ -1707,6 +1710,11 @@ Using default storage/outflow function parameters."
             handle_nodata=NoDataStrategy.IGNORE,
             **kwargs,
         )
+        if gdf_org is None:
+            # Return two times None (similair to main function output), if there is no
+            # data found
+            return None, None
+
         # skip small size waterbodies
         if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
             min_area_m2 = min_area * 1e6
@@ -1881,6 +1889,11 @@ added to glacierstore [-]
             predicate="intersects",
             handle_nodata=NoDataStrategy.IGNORE,
         )
+        # Check if there are glaciers found
+        if gdf_org is None:
+            self.logger.info("Skipping method, as no data has been found")
+            return
+
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
             gdf_org = gdf_org[gdf_org["AREA"] >= min_area]
