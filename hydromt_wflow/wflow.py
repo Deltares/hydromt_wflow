@@ -1627,73 +1627,75 @@ Using default storage/outflow function parameters."
         # the parameters tbls =
         # if everything is present, skip calculate reservoirattrs() and
         # directly make the maps
-        if ds_res is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
-            self.set_grid(ds_res.rename(rmdict))
 
-            # add attributes
-            # if present use directly
-            resattributes = [
-                "waterbody_id",
-                "ResSimpleArea",
-                "ResMaxVolume",
-                "ResTargetMinFrac",
-                "ResTargetFullFrac",
-                "ResDemand",
-                "ResMaxRelease",
-            ]
-            if np.all(np.isin(resattributes, gdf_org.columns)):
-                intbl_reservoirs = gdf_org[resattributes]
-                reservoir_accuracy = None
-                reservoir_timeseries = None
-            # else compute
-            else:
-                (
-                    intbl_reservoirs,
-                    reservoir_accuracy,
-                    reservoir_timeseries,
-                ) = workflows.reservoirattrs(
-                    gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
-                )
-                intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
-
-            # create a geodf with id of reservoir and gemoetry at outflow location
-            gdf_org_points = gpd.GeoDataFrame(
-                gdf_org["waterbody_id"],
-                geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
-            )
-            intbl_reservoirs = intbl_reservoirs.rename(
-                columns={"expr1": "waterbody_id"}
-            )
-            gdf_org_points = gdf_org_points.merge(
-                intbl_reservoirs, on="waterbody_id"
-            )  # merge
-            # add parameter attributes to polygone gdf:
-            gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
-
-            # write reservoirs with param values to geoms
-            self.set_geoms(gdf_org, name="reservoirs")
-
-            for name in gdf_org_points.columns[2:]:
-                gdf_org_points[name] = gdf_org_points[name].astype("float32")
-                da_res = ds_res.raster.rasterize(
-                    gdf_org_points, col_name=name, dtype="float32", nodata=-999
-                )
-                self.set_grid(da_res)
-
-            # Save accuracy information on reservoir parameters
-            if reservoir_accuracy is not None:
-                reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
-
-            if reservoir_timeseries is not None:
-                reservoir_timeseries.to_csv(
-                    join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
-                )
-
-            for option in res_toml:
-                self.set_config(option, res_toml[option])
-        else:
+        # Skip method if no data is returned
+        if ds_res is None:
             self.logger.info("Skipping method, as no data has been found")
+            return
+
+        # Continue method if data has been found
+        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
+        self.set_grid(ds_res.rename(rmdict))
+
+        # add attributes
+        # if present use directly
+        resattributes = [
+            "waterbody_id",
+            "ResSimpleArea",
+            "ResMaxVolume",
+            "ResTargetMinFrac",
+            "ResTargetFullFrac",
+            "ResDemand",
+            "ResMaxRelease",
+        ]
+        if np.all(np.isin(resattributes, gdf_org.columns)):
+            intbl_reservoirs = gdf_org[resattributes]
+            reservoir_accuracy = None
+            reservoir_timeseries = None
+        # else compute
+        else:
+            (
+                intbl_reservoirs,
+                reservoir_accuracy,
+                reservoir_timeseries,
+            ) = workflows.reservoirattrs(
+                gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
+            )
+            intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
+
+        # create a geodf with id of reservoir and gemoetry at outflow location
+        gdf_org_points = gpd.GeoDataFrame(
+            gdf_org["waterbody_id"],
+            geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
+        )
+        intbl_reservoirs = intbl_reservoirs.rename(columns={"expr1": "waterbody_id"})
+        gdf_org_points = gdf_org_points.merge(
+            intbl_reservoirs, on="waterbody_id"
+        )  # merge
+        # add parameter attributes to polygone gdf:
+        gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
+
+        # write reservoirs with param values to geoms
+        self.set_geoms(gdf_org, name="reservoirs")
+
+        for name in gdf_org_points.columns[2:]:
+            gdf_org_points[name] = gdf_org_points[name].astype("float32")
+            da_res = ds_res.raster.rasterize(
+                gdf_org_points, col_name=name, dtype="float32", nodata=-999
+            )
+            self.set_grid(da_res)
+
+        # Save accuracy information on reservoir parameters
+        if reservoir_accuracy is not None:
+            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
+
+        if reservoir_timeseries is not None:
+            reservoir_timeseries.to_csv(
+                join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
+            )
+
+        for option in res_toml:
+            self.set_config(option, res_toml[option])
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
         """Help with common workflow of setup_lakes and setup_reservoir.
