@@ -1232,19 +1232,19 @@ gauge locations [-] (if derive_subcatch)
         elif gauges_fn in self.data_catalog:
             if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn,
-                geom=self.basins,
-                assert_gtype="Point",
-                handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
+                    gauges_fn,
+                    geom=self.basins,
+                    assert_gtype="Point",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
                 )
             elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
-            da = self.data_catalog.get_geodataset(
-                gauges_fn,
-                geom=self.basins,
-                handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
-            )
+                da = self.data_catalog.get_geodataset(
+                    gauges_fn,
+                    geom=self.basins,
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
+                )
                 gdf_gauges = da.vector.to_gdf()
                 # Check for point geometry
                 if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
