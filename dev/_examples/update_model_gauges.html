@@ -612,135 +612,49 @@ Options:
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:03,713 - update - log - INFO - HydroMT version: 0.9.4.dev0
-2024-02-13 15:30:03,713 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2024-02-13 15:30:03,713 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2024-02-13 15:30:03,713 - update - main - INFO - User settings:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:04,014 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
-2024-02-13 15:30:04,014 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-02-13 15:30:04,024 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:04,075 - update - wflow - INFO - Reading model intbl files.
-2024-02-13 15:30:04,075 - update - wflow - INFO - Reading model table files.
-2024-02-13 15:30:04,076 - update - wflow - INFO - Reading model staticgeom files.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:04,178 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:04,196 - update - wflow - INFO - Model read
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.index_col: None
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.mask: None
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.snap_uparea: False
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.wdw: 3
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.rel_error: 0.05
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.basename: test-flow
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.toml_output: csv
-2024-02-13 15:30:04,200 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
-2024-02-13 15:30:04,201 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
-2024-02-13 15:30:04,203 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
-2024-02-13 15:30:04,209 - update - wflow - INFO - 3 test-flow gauge locations found within domain
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:05,940 - update - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
-2024-02-13 15:30:05,941 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2024-02-13 15:30:05,941 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:05,980 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:06,270 - update - wflow - INFO - Writing model staticgeom to file.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:06,365 - update - wflow - INFO - Write forcing file
-2024-02-13 15:30:06,374 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc</div></div>
-</div>
-<dl>
-<dt>[                                        ] | 0% Completed | 357.86 us</dt><dd><blockquote>
-<div><p>&lt;/pre&gt;</p>
-</div></blockquote>
-</dd>
-<dt>[                                        ] | 0% Completed | 357.86 us</dt><dd><blockquote>
-<div><p>end{sphinxVerbatim}</p>
-</div></blockquote>
-</dd>
-</dl>
-<p>[                                        ] | 0% Completed | 357.86 us</p>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre></div></div>
+<div class="highlight"><pre>
+2024-02-13 15:37:41,970 - update - log - INFO - HydroMT version: 0.9.4.dev0
+2024-02-13 15:37:41,970 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2024-02-13 15:37:41,970 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2024-02-13 15:37:41,970 - update - main - INFO - User settings:
+2024-02-13 15:37:42,286 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
+2024-02-13 15:37:42,286 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-02-13 15:37:42,296 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2024-02-13 15:37:42,348 - update - wflow - INFO - Reading model intbl files.
+2024-02-13 15:37:42,348 - update - wflow - INFO - Reading model table files.
+2024-02-13 15:37:42,349 - update - wflow - INFO - Reading model staticgeom files.
+2024-02-13 15:37:42,451 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2024-02-13 15:37:42,469 - update - wflow - INFO - Model read
+2024-02-13 15:37:42,473 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.index_col: None
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.mask: None
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.snap_uparea: False
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.wdw: 3
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.rel_error: 0.05
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.basename: test-flow
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.toml_output: csv
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
+2024-02-13 15:37:42,474 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
+2024-02-13 15:37:42,477 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
+2024-02-13 15:37:42,483 - update - wflow - INFO - 3 test-flow gauge locations found within domain
+2024-02-13 15:37:44,251 - update - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
+2024-02-13 15:37:44,251 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2024-02-13 15:37:44,252 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
+2024-02-13 15:37:44,291 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2024-02-13 15:37:44,583 - update - wflow - INFO - Writing model staticgeom to file.
+2024-02-13 15:37:44,681 - update - wflow - INFO - Write forcing file
+2024-02-13 15:37:44,691 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
+[########################################] | 100% Completed | 100.90 ms
+
+</pre></div></div>
 </div>
-<p>[########################################] | 100% Completed | 100.83 ms</p>
-<blockquote>
-<div><blockquote>
-<div><p>&lt;/pre&gt;</p>
-</div></blockquote>
-</div></blockquote>
-<p>[########################################] | 100% Completed | 100.83 ms</p>
-<blockquote>
-<div><blockquote>
-<div><p>end{sphinxVerbatim}</p>
-</div></blockquote>
-</div></blockquote>
-<dl class="simple">
-<dt>[########################################] | 100% Completed | 100.83 ms</dt><dd><p>[0m</p>
-</dd>
-</dl>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">update</span> <span class="pre">wflow</span></code>: i.e. update a wflow model</p></li>
@@ -770,90 +684,41 @@ Options:
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:08,648 - update - log - INFO - HydroMT version: 0.9.4.dev0
-2024-02-13 15:30:08,648 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
-2024-02-13 15:30:08,648 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2024-02-13 15:30:08,648 - update - main - INFO - User settings:
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:08,947 - update - model_api - WARNING - Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms.
-2024-02-13 15:30:08,947 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
-2024-02-13 15:30:08,947 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-02-13 15:30:08,958 - update - wflow - INFO - Reading model staticgeom files.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:08,983 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.index_col: None
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.snap_to_river: False
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.mask: None
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.snap_uparea: False
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
-2024-02-13 15:30:09,122 - update - model_api - INFO - setup_gauges.wdw: 3
-2024-02-13 15:30:09,123 - update - model_api - INFO - setup_gauges.rel_error: 0.05
-2024-02-13 15:30:09,123 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2024-02-13 15:30:09,123 - update - model_api - INFO - setup_gauges.basename: test-rain
-2024-02-13 15:30:09,123 - update - model_api - INFO - setup_gauges.toml_output: csv
-2024-02-13 15:30:09,123 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
-2024-02-13 15:30:09,123 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
-2024-02-13 15:30:09,125 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
-2024-02-13 15:30:09,131 - update - wflow - INFO - 3 test-rain gauge locations found within domain
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:09,973 - update - wflow - INFO - Adding [&#39;vertical.precipitation&#39;] to csv section of toml.
-2024-02-13 15:30:09,973 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2024-02-13 15:30:09,973 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
-2024-02-13 15:30:09,975 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:10,014 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 15:30:10,306 - update - wflow - INFO - Writing model staticgeom to file.
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+2024-02-13 15:37:47,079 - update - log - INFO - HydroMT version: 0.9.4.dev0
+2024-02-13 15:37:47,079 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
+2024-02-13 15:37:47,080 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2024-02-13 15:37:47,080 - update - main - INFO - User settings:
+2024-02-13 15:37:47,381 - update - model_api - WARNING - Model dir already exists and files might be overwritten: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticgeoms.
+2024-02-13 15:37:47,381 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
+2024-02-13 15:37:47,381 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-02-13 15:37:47,392 - update - wflow - INFO - Reading model staticgeom files.
+2024-02-13 15:37:47,415 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.index_col: None
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.snap_to_river: False
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.mask: None
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.snap_uparea: False
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.wdw: 3
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.rel_error: 0.05
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.basename: test-rain
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.toml_output: csv
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
+2024-02-13 15:37:47,555 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
+2024-02-13 15:37:47,558 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
+2024-02-13 15:37:47,564 - update - wflow - INFO - 3 test-rain gauge locations found within domain
+2024-02-13 15:37:48,383 - update - wflow - INFO - Adding [&#39;vertical.precipitation&#39;] to csv section of toml.
+2024-02-13 15:37:48,383 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2024-02-13 15:37:48,383 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
+2024-02-13 15:37:48,385 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
+2024-02-13 15:37:48,423 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2024-02-13 15:37:48,713 - update - wflow - INFO - Writing model staticgeom to file.
 
 </pre></div></div>
 </div>
