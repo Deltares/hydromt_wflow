@@ -1,7 +1,9 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
+from typing import List
 
+import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -165,6 +167,66 @@ def pore_size_distrution_index_layers(ds, thetas):
     return ds_out
 
 
+def brooks_corey_layers(c_sl, soil_fn, wflow_layers, soildepth_cm):
+    # Go from wflow layer thickness to soil depths (cumulative)
+    wflow_depths = np.cumsum(wflow_layers)
+    # Check if the last wflow depth is less than 2000 mm (soilgrids limit)
+    if wflow_depths[-1] < 2000:
+        raise ValueError("The total depth of the wflow soil layers should be 2000 mm.")
+    # Add a zero for the first depth and 2000 for the last depth
+    wflow_depths = np.insert(wflow_depths, 0, 0)
+    wflow_depths = np.append(wflow_depths, 2000)
+    # Compute the thickness of the last layer
+    wflow_layers.append(2000 - wflow_depths[-2])
+
+    # Soil data depth
+    soildepth = soildepth_cm * 10
+
+    if soil_fn == "soilgrids_2020":
+        # make empty dataarray for c for the 4 sbm layers
+        ds_c = hydromt.raster.full_like(c_sl, np.nan)
+        ds_c.name = "c"
+        ds_c = ds_c.expand_dims(dim=dict(layer=np.arange(len(wflow_layers)))).copy()
+
+        # calc weighted average values of c over the sbm soil layers
+        for nl in range(len(wflow_layers)):
+            top_depth = wflow_depths[nl]
+            bottom_depth = wflow_depths[nl + 1]
+            c_nl_sum = None
+            for d in range(len(soildepth) - 1):
+                # wflow layer fully within soilgrid layer
+                if soildepth[d] <= top_depth and soildepth[d + 1] >= bottom_depth:
+                    c_nl = c_sl.sel(sl=d + 1) * (bottom_depth - top_depth)
+                # layer fully within wflow layer
+                elif soildepth[d] >= top_depth and soildepth[d + 1] <= bottom_depth:
+                    c_nl = c_sl.sel(sl=d + 1) * (soildepth[d + 1] - soildepth[d])
+                # bottom part of the layer wihtin wflow
+                elif soildepth[d] <= bottom_depth and soildepth[d + 1] >= bottom_depth:
+                    c_nl = c_sl.sel(sl=d + 1) * (bottom_depth - soildepth[d])
+                # top part of the layer within wflow
+                elif soildepth[d] <= top_depth and soildepth[d + 1] >= top_depth:
+                    c_nl = c_sl.sel(sl=d + 1) * (soildepth[d + 1] - top_depth)
+                # layer outside of wflow layer
+                else:
+                    c_nl = None
+                if c_nl is not None:
+                    if c_nl_sum is None:
+                        c_nl_sum = c_nl
+                    else:
+                        c_nl_sum = c_nl_sum + c_nl
+
+            ds_c.loc[dict(layer=nl)] = c_nl_sum / wflow_layers[nl]
+    else:
+        # for soilgrids 2017, keep the direct mapping calculation.
+        da_c = []
+        for i, sl_ind in enumerate(c_sl_index):
+            da_c.append(c_sl.sel(sl=sl_ind))
+        ds_c = xr.concat(
+            da_c, pd.Index(np.arange(len(c_sl_index), dtype=int), name="layer")
+        ).transpose("layer", ...)
+        ds_c.name = "c"
+
+
 def kv_layers(ds, thetas, ptf_name):
     """
     Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.
@@ -283,7 +345,14 @@ def constrain_M(M, popt_0, M_minmax):
     return M
 
 
-def soilgrids(ds, ds_like, ptfKsatVer, soil_fn, logger=logger):
+def soilgrids(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    ptfKsatVer: str = "brakensiek",
+    soil_fn: str = "soilgrids",
+    wflow_layers: List[int] = [100, 300, 800],
+    logger=logger,
+):
     """
     Return soil parameter maps at model resolution.
 
@@ -319,12 +388,8 @@ soil depth
 (fitted with curve_fit (scipy.optimize)), bounds are checked
     - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]
       (fitted with numpy linalg regression), bounds are checked
-    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at \
-depth 1st
-      soil layer (100 mm) wflow_sbm
-    - **c_1** : idem **c_0** at depth 2nd soil layer (400 mm) wflow_sbm
-    - **c_2** : idem **c_0** at depth 3rd soil layer (1200 mm) wflow_sbm
-    - **c_3** : idem **c_0** at depth 4th soil layer (> 1200 mm) wflow_sbm
+    - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
+index at depths for the wflow_sbm soil layers.
     - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \
 [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
     - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
@@ -342,6 +407,8 @@ depth 1st
         PTF to use for calculcation KsatVer.
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
+    wflow_layers : list
+        List of soil layer depths [cm] for which c is calculated.
 
     Returns
     -------
@@ -447,35 +514,10 @@ depth 1st
     lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
     lambda_sl = np.exp(lambda_sl)
 
-    if soil_fn == "soilgrids_2020":
-        # calculate c for each layer of lambda
-        c_sl = 3.0 + (2.0 / lambda_sl)
-        c_sl.name = "c_sl"
-
-        # make empty dataarray for c for the 4 sbm layers
-        ds_c = xr.full_like(soilthickness, np.nan)
-        ds_c.name = "c"
-        ds_c = ds_c.expand_dims(dim=dict(layer=[0, 1, 2, 3])).copy()
-        # calc weighted average values of c over the sbm soil layers
-        ds_c.loc[dict(layer=0)] = (
-            c_sl.sel(sl=1) * 50 + c_sl.sel(sl=2) * 50
-        ) / 100  # average over layer 0-100
-        ds_c.loc[dict(layer=1)] = (
-            c_sl.sel(sl=2) * 50 + c_sl.sel(sl=3) * 150 + c_sl.sel(sl=4) * 100
-        ) / 300  # average over layer 100-400
-        ds_c.loc[dict(layer=2)] = (
-            c_sl.sel(sl=4) * 200 + c_sl.sel(sl=5) * 400 + c_sl.sel(sl=6) * 200
-        ) / 800  # average over layer 400-1200
-        ds_c.loc[dict(layer=3)] = c_sl.sel(sl=6)  # layer >1200
-    else:
-        # for soilgrids 2017, keep the direct mapping calculation.
-        da_c = []
-        for i, sl_ind in enumerate(c_sl_index):
-            da_c.append(3.0 + (2.0 / lambda_sl.sel(sl=sl_ind)))
-        ds_c = xr.concat(
-            da_c, pd.Index(np.arange(len(c_sl_index), dtype=int), name="layer")
-        ).transpose("layer", ...)
-        ds_c.name = "c"
+    # Brooks Corey coefficient
+    c_sl = 3.0 + (2.0 / lambda_sl)
+    c_sl.name = "c_sl"
+    ds_c = brooks_corey_layers(c_sl, soil_fn, wflow_layers, soildepth_cm)
     ds_out["c"] = ds_c
 
     ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)

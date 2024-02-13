@@ -1735,7 +1735,12 @@ Using default storage/outflow function parameters."
         # you need grid to know the grid
         return gdf_org, ds_waterbody
 
-    def setup_soilmaps(self, soil_fn="soilgrids", ptf_ksatver="brakensiek"):
+    def setup_soilmaps(
+        self,
+        soil_fn="soilgrids",
+        ptf_ksatver="brakensiek",
+        wflow_thicknesslayers: List[int] = [100, 300, 800],
+    ):
         """
         Derive several (layered) soil parameters.
 
@@ -1754,7 +1759,7 @@ specific depths in soilgrids,
 the trapezoidal rule in soilgrids versus simple block weighted average in \
 soilgrids_2020,
         (3) the c parameter is computed as weighted average over wflow_sbm soil layers \
-in soilgrids_2020 versus at specific depths for soilgrids.
+defined in ``wflow_thicknesslayers``.
 
         The following maps are added to grid:
 
@@ -1776,11 +1781,8 @@ KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` ar
 (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
-        * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution \
-index at depth of 1st soil layer (100 mm) wflow_sbm
-        * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm
-        * **c_2** map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm
-        * **c_3** map: idem c_0 at depth 4th soil layer (> 1200 mm) wflow_sbm
+        * **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
+index at depths for the wflow_sbm soil layers.
         * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
 [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
         * **wflow_soil** map: soil texture based on USDA soil texture triangle \
@@ -1801,18 +1803,26 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
             Pedotransfer function (PTF) to use for calculation KsatVer
             (vertical saturated hydraulic conductivity [mm/day]).
             By default 'brakensiek'.
+        wflow_thicknesslayers : list of int, optional
+            Thickness of soil layers [mm] for wflow_sbm soil model.
+            By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
+            Used only for Brooks Corey coefficients.
         """
         self.logger.info("Preparing soil parameter maps.")
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids(
-            dsin,
-            self.grid,
-            ptf_ksatver,
-            soil_fn,
+            ds=dsin,
+            ds_like=self.grid,
+            ptfKsatVer=ptf_ksatver,
+            soil_fn=soil_fn,
+            wflow_layers=wflow_thicknesslayers,
             logger=self.logger,
         ).reset_coords(drop=True)
         self.set_grid(dsout)
+
+        # Update the toml file
+        self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
