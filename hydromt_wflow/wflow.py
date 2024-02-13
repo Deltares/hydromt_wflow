@@ -1,4 +1,5 @@
 """Implement Wflow model class."""
+
 # Implement model class following model API
 
 import codecs
@@ -22,6 +23,7 @@ import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
 from hydromt.models.model_grid import GridModel
+from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
@@ -1186,14 +1188,27 @@ gauge locations [-] (if derive_subcatch)
                 code = self.crs
             kwargs.update(crs=code)
             gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                gauges_fn,
+                geom=self.basins,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
             gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn, geom=self.basins, assert_gtype="Point", **kwargs
+                gauges_fn,
+                geom=self.basins,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
             )
         elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
-            da = self.data_catalog.get_geodataset(gauges_fn, geom=self.basins, **kwargs)
+            da = self.data_catalog.get_geodataset(
+                gauges_fn,
+                geom=self.basins,
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
+            )
             gdf_gauges = da.vector.to_gdf()
             # Check for point geometry
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
@@ -1208,10 +1223,9 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         if basename is None:
             basename = os.path.basename(gauges_fn).split(".")[0].replace("_", "-")
 
-        # Create gauge map, subcatch map and update toml
-        if gdf_gauges.index.size == 0:
-            self.logger.warning(f"No {gauges_fn} gauge locations found within domain")
-
+        # Check if there is data found
+        if gdf_gauges is None:
+            self.logger.info("Skipping method, as no data has been found")
             return
 
         # Create the gauges map
@@ -1424,6 +1438,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             lakes_fn, "lake", min_area, **kwargs
         )
         if ds_lakes is None:
+            self.logger.info("Skipping method, as no data has been found")
             return
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
         ds_lakes = ds_lakes.rename(rmdict)
@@ -1612,71 +1627,75 @@ Using default storage/outflow function parameters."
         # the parameters tbls =
         # if everything is present, skip calculate reservoirattrs() and
         # directly make the maps
-        if ds_res is not None:
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
-            self.set_grid(ds_res.rename(rmdict))
 
-            # add attributes
-            # if present use directly
-            resattributes = [
-                "waterbody_id",
-                "ResSimpleArea",
-                "ResMaxVolume",
-                "ResTargetMinFrac",
-                "ResTargetFullFrac",
-                "ResDemand",
-                "ResMaxRelease",
-            ]
-            if np.all(np.isin(resattributes, gdf_org.columns)):
-                intbl_reservoirs = gdf_org[resattributes]
-                reservoir_accuracy = None
-                reservoir_timeseries = None
-            # else compute
-            else:
-                (
-                    intbl_reservoirs,
-                    reservoir_accuracy,
-                    reservoir_timeseries,
-                ) = workflows.reservoirattrs(
-                    gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
-                )
-                intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
+        # Skip method if no data is returned
+        if ds_res is None:
+            self.logger.info("Skipping method, as no data has been found")
+            return
 
-            # create a geodf with id of reservoir and gemoetry at outflow location
-            gdf_org_points = gpd.GeoDataFrame(
-                gdf_org["waterbody_id"],
-                geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
+        # Continue method if data has been found
+        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
+        self.set_grid(ds_res.rename(rmdict))
+
+        # add attributes
+        # if present use directly
+        resattributes = [
+            "waterbody_id",
+            "ResSimpleArea",
+            "ResMaxVolume",
+            "ResTargetMinFrac",
+            "ResTargetFullFrac",
+            "ResDemand",
+            "ResMaxRelease",
+        ]
+        if np.all(np.isin(resattributes, gdf_org.columns)):
+            intbl_reservoirs = gdf_org[resattributes]
+            reservoir_accuracy = None
+            reservoir_timeseries = None
+        # else compute
+        else:
+            (
+                intbl_reservoirs,
+                reservoir_accuracy,
+                reservoir_timeseries,
+            ) = workflows.reservoirattrs(
+                gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
             )
-            intbl_reservoirs = intbl_reservoirs.rename(
-                columns={"expr1": "waterbody_id"}
+            intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
+
+        # create a geodf with id of reservoir and gemoetry at outflow location
+        gdf_org_points = gpd.GeoDataFrame(
+            gdf_org["waterbody_id"],
+            geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
+        )
+        intbl_reservoirs = intbl_reservoirs.rename(columns={"expr1": "waterbody_id"})
+        gdf_org_points = gdf_org_points.merge(
+            intbl_reservoirs, on="waterbody_id"
+        )  # merge
+        # add parameter attributes to polygone gdf:
+        gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
+
+        # write reservoirs with param values to geoms
+        self.set_geoms(gdf_org, name="reservoirs")
+
+        for name in gdf_org_points.columns[2:]:
+            gdf_org_points[name] = gdf_org_points[name].astype("float32")
+            da_res = ds_res.raster.rasterize(
+                gdf_org_points, col_name=name, dtype="float32", nodata=-999
             )
-            gdf_org_points = gdf_org_points.merge(
-                intbl_reservoirs, on="waterbody_id"
-            )  # merge
-            # add parameter attributes to polygone gdf:
-            gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
+            self.set_grid(da_res)
 
-            # write reservoirs with param values to geoms
-            self.set_geoms(gdf_org, name="reservoirs")
+        # Save accuracy information on reservoir parameters
+        if reservoir_accuracy is not None:
+            reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
 
-            for name in gdf_org_points.columns[2:]:
-                gdf_org_points[name] = gdf_org_points[name].astype("float32")
-                da_res = ds_res.raster.rasterize(
-                    gdf_org_points, col_name=name, dtype="float32", nodata=-999
-                )
-                self.set_grid(da_res)
+        if reservoir_timeseries is not None:
+            reservoir_timeseries.to_csv(
+                join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
+            )
 
-            # Save accuracy information on reservoir parameters
-            if reservoir_accuracy is not None:
-                reservoir_accuracy.to_csv(join(self.root, "reservoir_accuracy.csv"))
-
-            if reservoir_timeseries is not None:
-                reservoir_timeseries.to_csv(
-                    join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
-                )
-
-            for option in res_toml:
-                self.set_config(option, res_toml[option])
+        for option in res_toml:
+            self.set_config(option, res_toml[option])
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
         """Help with common workflow of setup_lakes and setup_reservoir.
@@ -1688,8 +1707,16 @@ Using default storage/outflow function parameters."
         if "predicate" not in kwargs:
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
-            waterbodies_fn, geom=self.basins, **kwargs
+            waterbodies_fn,
+            geom=self.basins,
+            handle_nodata=NoDataStrategy.IGNORE,
+            **kwargs,
         )
+        if gdf_org is None:
+            # Return two times None (similair to main function output), if there is no
+            # data found
+            return None, None
+
         # skip small size waterbodies
         if "Area_avg" in gdf_org.columns and gdf_org.geometry.size > 0:
             min_area_m2 = min_area * 1e6
@@ -1859,8 +1886,16 @@ added to glacierstore [-]
         # retrieve data for basin
         self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
-            glaciers_fn, geom=self.basins, predicate="intersects"
+            glaciers_fn,
+            geom=self.basins,
+            predicate="intersects",
+            handle_nodata=NoDataStrategy.IGNORE,
         )
+        # Check if there are glaciers found
+        if gdf_org is None:
+            self.logger.info("Skipping method, as no data has been found")
+            return
+
         # skip small size glacier
         if "AREA" in gdf_org.columns and gdf_org.geometry.size > 0:
             gdf_org = gdf_org[gdf_org["AREA"] >= min_area]

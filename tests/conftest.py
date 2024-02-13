@@ -1,4 +1,5 @@
 """add global fixtures."""
+
 import logging
 import platform
 from os.path import abspath, dirname, join
@@ -72,7 +73,7 @@ def example_wflow_results():
 @pytest.fixture()
 def clipped_wflow_model():
     root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod = WflowModel(root=root, mode="r")
+    mod = WflowModel(root=root, mode="r", data_libs="artifact_data")
     return mod
 
 
