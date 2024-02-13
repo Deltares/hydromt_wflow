@@ -2208,7 +2208,7 @@ one variable and variables list is not provided."
 
         Parameters
         ----------
-        temp_pet_fn : str, xarray.Dataset optional
+        temp_pet_fn : str, xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
             and reference evapotranspiration, see data/forcing_sources.yml.
 
