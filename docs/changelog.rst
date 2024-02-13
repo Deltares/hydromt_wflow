@@ -15,6 +15,7 @@ Added
 
 Changed
 -------
+- Remove default values for data sources in the different setup methods. (PR #227)
 
 Fixed
 -----
