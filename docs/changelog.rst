@@ -6,8 +6,9 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v0.5.0 (February 2024)
+======================
+Better handling of nodata and a switch from ini to yaml for configuration.
 
 Added
 -----
@@ -28,9 +29,12 @@ Fixed
 
 Deprecated
 ----------
+- **read_staticmaps_pcr** in favour of same method in **pcrm** submodule
+- **write_staticmaps_pcr** in favour of same method in **pcrm** submodule
 
 Documentation
 -------------
+- Extra information for most of the setup methods of **WflowModel** and **WWflowSedimentModel**
 
 v0.4.1 (November 2023)
 ======================
