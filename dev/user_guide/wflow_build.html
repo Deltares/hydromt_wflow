@@ -480,7 +480,7 @@ data libraries are set, you can build a model by using:</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or –region flag.
+<p>From HydroMT version 0.7.0 onwards the region argument is optional and should be preceded by a -r or --region flag.
 The resolution (previously -r) argument has been moved to the setup_basemaps section in the .yml configuration file.</p>
 </div>
 <p>The recommended <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">region options</a>
@@ -615,13 +615,14 @@ to a model component with the same name.</p>
 information on the different data sources so that HydroMT can process them for the different models. There
 are three ways for the user to select which data libraries to use:</p>
 <ul class="simple">
-<li><p>If no yaml file is selected, HydroMT will use the data stored in the
+<li><p>For testing and examples purposes, HydroMT can use the data stored in the
 <a class="reference external" href="https://github.com/DirkEilander/hydromt-artifacts">hydromt-artifacts</a>
-which contains an extract of global data for a small region around the Piave river in Northern Italy.</p></li>
-<li><p>Another options for Deltares users is to select the deltares-data library (requires access to the Deltares
-P-drive). In the command lines examples below, this is done by adding either <strong>–dd</strong> or <strong>–deltares-data</strong>
+which contains an extract of global data for a small region around the Piave river in Northern Italy. to
+use this predefined catalog, the user can add <strong>-d artifact_data</strong> to the build / update command line.</p></li>
+<li><p>Another options for Deltares users is to select the deltares_data library (requires access to the Deltares
+P-drive). In the command lines examples below, this is done by adding <strong>-d deltares_data</strong> predefined catalog
 to the build / update command line.</p></li>
-<li><p>Finally, the user can prepare its own yaml libary (or libraries) (see
+<li><p>Finally, the user can prepare its own yaml catalog (see
 <a class="reference external" href="https://deltares.github.io/hydromt/latest/index">HydroMT documentation</a> to check the guidelines).
 These user libraries can be added either in the command line using the <strong>-d</strong> option and path/to/yaml or in the <strong>ini file</strong>
 with the <strong>data_libs</strong> option in the [global] sections.</p></li>

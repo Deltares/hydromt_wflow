@@ -416,6 +416,7 @@
                   
   <h1>Source code for hydromt_wflow.wflow</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Implement Wflow model class.&quot;&quot;&quot;</span>
+
 <span class="c1"># Implement model class following model API</span>
 
 <span class="kn">import</span> <span class="nn">codecs</span>
@@ -439,6 +440,7 @@
 <span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
 <span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">flw</span>
 <span class="kn">from</span> <span class="nn">hydromt.models.model_grid</span> <span class="kn">import</span> <span class="n">GridModel</span>
+<span class="kn">from</span> <span class="nn">hydromt.nodata</span> <span class="kn">import</span> <span class="n">NoDataStrategy</span>
 <span class="kn">from</span> <span class="nn">pyflwdir</span> <span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
 <span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">box</span>
 
@@ -1631,14 +1633,27 @@
                 <span class="n">code</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">code</span><span class="p">)</span>
             <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-                <span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="n">gauges_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
             <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-                <span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+                <span class="n">gauges_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
-            <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
+                <span class="n">gauges_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
             <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
             <span class="c1"># Check for point geometry</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">)):</span>
@@ -1653,10 +1668,9 @@
         <span class="k">if</span> <span class="n">basename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">basename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">gauges_fn</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Create gauge map, subcatch map and update toml</span>
-        <span class="k">if</span> <span class="n">gdf_gauges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> gauge locations found within domain&quot;</span><span class="p">)</span>
-
+        <span class="c1"># Check if there is data found</span>
+        <span class="k">if</span> <span class="n">gdf_gauges</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
         <span class="c1"># Create the gauges map</span>
@@ -1875,6 +1889,7 @@
             <span class="n">lakes_fn</span><span class="p">,</span> <span class="s2">&quot;lake&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">ds_lakes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="n">ds_lakes</span> <span class="o">=</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span>
@@ -2066,71 +2081,75 @@
         <span class="c1"># the parameters tbls =</span>
         <span class="c1"># if everything is present, skip calculate reservoirattrs() and</span>
         <span class="c1"># directly make the maps</span>
-        <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
 
-            <span class="c1"># add attributes</span>
-            <span class="c1"># if present use directly</span>
-            <span class="n">resattributes</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ResMaxVolume&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ResTargetMinFrac&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ResTargetFullFrac&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ResDemand&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ResMaxRelease&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">resattributes</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
-                <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="n">resattributes</span><span class="p">]</span>
-                <span class="n">reservoir_accuracy</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">reservoir_timeseries</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="c1"># else compute</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="p">(</span>
-                    <span class="n">intbl_reservoirs</span><span class="p">,</span>
-                    <span class="n">reservoir_accuracy</span><span class="p">,</span>
-                    <span class="n">reservoir_timeseries</span><span class="p">,</span>
-                <span class="p">)</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirattrs</span><span class="p">(</span>
-                    <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
-                <span class="p">)</span>
-                <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">intbl_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">tbls</span><span class="p">)</span>
+        <span class="c1"># Skip method if no data is returned</span>
+        <span class="k">if</span> <span class="n">ds_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
 
-            <span class="c1"># create a geodf with id of reservoir and gemoetry at outflow location</span>
-            <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-                <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">],</span>
-                <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_org</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
+        <span class="c1"># Continue method if data has been found</span>
+        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+
+        <span class="c1"># add attributes</span>
+        <span class="c1"># if present use directly</span>
+        <span class="n">resattributes</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ResMaxVolume&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ResTargetMinFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ResTargetFullFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ResDemand&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ResMaxRelease&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">resattributes</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span><span class="p">)):</span>
+            <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="n">resattributes</span><span class="p">]</span>
+            <span class="n">reservoir_accuracy</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">reservoir_timeseries</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># else compute</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="p">(</span>
+                <span class="n">intbl_reservoirs</span><span class="p">,</span>
+                <span class="n">reservoir_accuracy</span><span class="p">,</span>
+                <span class="n">reservoir_timeseries</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">reservoirattrs</span><span class="p">(</span>
+                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">timeseries_fn</span><span class="o">=</span><span class="n">timeseries_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span>
             <span class="p">)</span>
-            <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">intbl_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;expr1&quot;</span><span class="p">:</span> <span class="s2">&quot;waterbody_id&quot;</span><span class="p">}</span>
+            <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">intbl_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">tbls</span><span class="p">)</span>
+
+        <span class="c1"># create a geodf with id of reservoir and gemoetry at outflow location</span>
+        <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">],</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_org</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">intbl_reservoirs</span> <span class="o">=</span> <span class="n">intbl_reservoirs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;expr1&quot;</span><span class="p">:</span> <span class="s2">&quot;waterbody_id&quot;</span><span class="p">})</span>
+        <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gdf_org_points</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+            <span class="n">intbl_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span>
+        <span class="p">)</span>  <span class="c1"># merge</span>
+        <span class="c1"># add parameter attributes to polygone gdf:</span>
+        <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">intbl_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">)</span>
+
+        <span class="c1"># write reservoirs with param values to geoms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gdf_org_points</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+            <span class="n">gdf_org_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_org_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+            <span class="n">da_res</span> <span class="o">=</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+                <span class="n">gdf_org_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
             <span class="p">)</span>
-            <span class="n">gdf_org_points</span> <span class="o">=</span> <span class="n">gdf_org_points</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
-                <span class="n">intbl_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span>
-            <span class="p">)</span>  <span class="c1"># merge</span>
-            <span class="c1"># add parameter attributes to polygone gdf:</span>
-            <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">intbl_reservoirs</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_res</span><span class="p">)</span>
 
-            <span class="c1"># write reservoirs with param values to geoms</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_org</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;reservoirs&quot;</span><span class="p">)</span>
+        <span class="c1"># Save accuracy information on reservoir parameters</span>
+        <span class="k">if</span> <span class="n">reservoir_accuracy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reservoir_accuracy</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;reservoir_accuracy.csv&quot;</span><span class="p">))</span>
 
-            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">gdf_org_points</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
-                <span class="n">gdf_org_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_org_points</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
-                <span class="n">da_res</span> <span class="o">=</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-                    <span class="n">gdf_org_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
-                <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_res</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reservoir_timeseries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reservoir_timeseries</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+                <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;reservoir_timeseries_</span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
 
-            <span class="c1"># Save accuracy information on reservoir parameters</span>
-            <span class="k">if</span> <span class="n">reservoir_accuracy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">reservoir_accuracy</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;reservoir_accuracy.csv&quot;</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">reservoir_timeseries</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">reservoir_timeseries</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-                    <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;reservoir_timeseries_</span><span class="si">{</span><span class="n">timeseries_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span><span class="p">)</span>
-                <span class="p">)</span>
-
-            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">res_toml</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">res_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">res_toml</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">res_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
 
     <span class="k">def</span> <span class="nf">_setup_waterbodies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">wb_type</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -2143,8 +2162,16 @@
         <span class="k">if</span> <span class="s2">&quot;predicate&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-            <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="n">waterbodies_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+            <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="k">if</span> <span class="n">gdf_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Return two times None (similair to main function output), if there is no</span>
+            <span class="c1"># data found</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
         <span class="c1"># skip small size waterbodies</span>
         <span class="k">if</span> <span class="s2">&quot;Area_avg&quot;</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">min_area_m2</span> <span class="o">=</span> <span class="n">min_area</span> <span class="o">*</span> <span class="mf">1e6</span>
@@ -2319,8 +2346,16 @@
         <span class="c1"># retrieve data for basin</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing glacier maps.&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-            <span class="n">glaciers_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span>
+            <span class="n">glaciers_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+            <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">,</span>
+            <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># Check if there are glaciers found</span>
+        <span class="k">if</span> <span class="n">gdf_org</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping method, as no data has been found&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
         <span class="c1"># skip small size glacier</span>
         <span class="k">if</span> <span class="s2">&quot;AREA&quot;</span> <span class="ow">in</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">gdf_org</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">gdf_org</span> <span class="o">=</span> <span class="n">gdf_org</span><span class="p">[</span><span class="n">gdf_org</span><span class="p">[</span><span class="s2">&quot;AREA&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_area</span><span class="p">]</span>
