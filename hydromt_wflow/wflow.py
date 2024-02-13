@@ -28,8 +28,6 @@ from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
 from . import DATADIR, utils, workflows
-from .pcrm import read_staticmaps_pcr as read_pcr_func
-from .pcrm import write_staticmaps_pcr as write_pcr_func
 
 __all__ = ["WflowModel"]
 
@@ -2756,36 +2754,6 @@ Run setup_soilmaps first"
             "Will be removed in hydromt_wflow v0.6.0"
         )
         self.write_grid()
-
-    def read_staticmaps_pcr(self, crs=4326, **kwargs):
-        """Read PCRaster maps in <root/staticmaps> and add to grid."""
-        self.logger.warning(
-            "read_staticmaps_pcr as a method of this object is deprecated. "
-            "Use 'read_staticmaps_pcr' from the 'pcrm' submodule instead. "
-            "Will be removed in hydromt_wflow v0.5.0"
-        )
-        if self._read and "chunks" not in kwargs:
-            kwargs.update(chunks={"y": -1, "x": -1})
-        read_pcr_func(
-            self.root,
-            crs=crs,
-            obj=self,
-            **kwargs,
-        )
-
-    def write_staticmaps_pcr(self):
-        """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
-        self.logger.warning(
-            "write_staticmaps_pcr as a method of this object is deprecated. "
-            "Use 'write_staticmaps_pcr' for the 'pcrm' submodule instead. "
-            "Will be removed in hydromt_wflow v0.5.0"
-        )
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        write_pcr_func(
-            self.staticmaps,
-            self.root,
-        )
 
     def read_geoms(
         self,
