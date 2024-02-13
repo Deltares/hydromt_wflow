@@ -631,10 +631,10 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:38,623 - update - log - INFO - HydroMT version: 0.9.4.dev0
-2024-02-13 12:20:38,623 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2024-02-13 12:20:38,623 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2024-02-13 12:20:38,623 - update - main - INFO - User settings:
+2024-02-13 15:30:20,386 - update - log - INFO - HydroMT version: 0.9.4.dev0
+2024-02-13 15:30:20,386 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2024-02-13 15:30:20,386 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2024-02-13 15:30:20,386 - update - main - INFO - User settings:
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -642,8 +642,10 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:38,949 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
-2024-02-13 12:20:38,949 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2024-02-13 15:30:20,709 - update - data_catalog - INFO - Reading data catalog archive artifact_data v0.0.8
+2024-02-13 15:30:20,709 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.8/data_catalog.yml
+2024-02-13 15:30:20,753 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
+2024-02-13 15:30:20,753 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -651,9 +653,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:38,992 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
-2024-02-13 12:20:38,992 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-02-13 12:20:39,001 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2024-02-13 15:30:20,762 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -661,9 +661,9 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,051 - update - wflow - INFO - Reading model intbl files.
-2024-02-13 12:20:39,051 - update - wflow - INFO - Reading model table files.
-2024-02-13 12:20:39,051 - update - wflow - INFO - Reading model staticgeom files.
+2024-02-13 15:30:20,814 - update - wflow - INFO - Reading model intbl files.
+2024-02-13 15:30:20,814 - update - wflow - INFO - Reading model table files.
+2024-02-13 15:30:20,814 - update - wflow - INFO - Reading model staticgeom files.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -671,7 +671,13 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,153 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2024-02-13 15:30:20,916 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2024-02-13 15:30:20,933 - update - wflow - INFO - Model read
+2024-02-13 15:30:20,937 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
+2024-02-13 15:30:20,937 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
+2024-02-13 15:30:20,937 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
+2024-02-13 15:30:20,937 - update - wflow - INFO - Preparing LULC parameter maps.
+2024-02-13 15:30:20,941 - update - rasterdataset - INFO - Reading corine raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -679,12 +685,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,170 - update - wflow - INFO - Model read
-2024-02-13 12:20:39,174 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2024-02-13 12:20:39,174 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2024-02-13 12:20:39,174 - update - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;]
-2024-02-13 12:20:39,174 - update - wflow - INFO - Preparing LULC parameter maps.
-2024-02-13 12:20:39,178 - update - rasterdataset - INFO - Reading corine raster data from /home/runner/.hydromt_data/artifact_data/v0.0.8/corine.tif
+2024-02-13 15:30:21,003 - update - dataframe - INFO - Reading corine_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/corine_mapping.csv
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -692,7 +693,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,241 - update - dataframe - INFO - Reading corine_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/corine_mapping.csv
+2024-02-13 15:30:21,114 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -700,7 +701,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,353 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
+2024-02-13 15:30:21,226 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -708,7 +709,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,462 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,321 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -716,7 +717,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,551 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,412 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -724,7 +725,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,642 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,504 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -732,7 +733,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,732 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,598 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -740,7 +741,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,828 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,692 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -748,7 +749,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:39,918 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,787 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -756,7 +757,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:40,008 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2024-02-13 15:30:21,891 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
+2024-02-13 15:30:21,893 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -764,8 +766,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:40,108 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2024-02-13 12:20:40,110 - update - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
+2024-02-13 15:30:21,926 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -773,7 +774,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:40,143 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
+2024-02-13 15:30:22,107 - update - wflow - INFO - Writing model staticgeom to file.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -781,16 +782,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:20:40,324 - update - wflow - INFO - Writing model staticgeom to file.
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-02-13 12:20:40,413 - update - wflow - INFO - Write forcing file
-2024-02-13 12:20:40,422 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc</div></div>
+2024-02-13 15:30:22,197 - update - wflow - INFO - Write forcing file
+2024-02-13 15:30:22,206 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc</div></div>
 </div>
 <dl>
 <dt>[                                        ] | 0% Completed | 374.86 us</dt><dd><blockquote>

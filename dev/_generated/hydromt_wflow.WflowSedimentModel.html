@@ -641,10 +641,10 @@
 <td><p>Read forcing.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_geoms.html#hydromt_wflow.WflowSedimentModel.read_geoms" title="hydromt_wflow.WflowSedimentModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_geoms</span></code></a>([geom_fn])</p></td>
-<td><p>Read and geoms at &lt;root/geoms&gt; and parse to geopandas.</p></td>
+<td><p>Read static geometries and adds to <code class="docutils literal notranslate"><span class="pre">geoms</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_grid.html#hydromt_wflow.WflowSedimentModel.read_grid" title="hydromt_wflow.WflowSedimentModel.read_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_grid</span></code></a>(**kwargs)</p></td>
-<td><p>Read grid.</p></td>
+<td><p>Read wflow static input and add to <code class="docutils literal notranslate"><span class="pre">grid</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_intbl</span></code>(**kwargs)</p></td>
 <td><p>Read and intbl files at &lt;root/intbl&gt; and parse to xarray.</p></td>
@@ -662,13 +662,13 @@
 <td><p>Read states at &lt;root/?/&gt; and parse to dict of xr.DataArray.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_staticgeoms</span></code>([geom_fn])</p></td>
-<td><p>Read static geometries.</p></td>
+<td><p>Read static geometries: DEPRECATED for read_geoms.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_staticmaps</span></code>(**kwargs)</p></td>
 <td><p>Read staticmaps.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_staticmaps_pcr</span></code>([crs])</p></td>
-<td><p>Read and staticmaps at &lt;root/staticmaps&gt; and parse to xarray.</p></td>
+<td><p>Read PCRaster maps in &lt;root/staticmaps&gt; and add to grid.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_tables</span></code>(**kwargs)</p></td>
 <td><p>Read table files at &lt;root&gt; and parse to dict of dataframes.</p></td>
@@ -718,7 +718,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_areamap</span></code></a>(area_fn, col2raster[, nodata])</p></td>
 <td><p>Set area map from vector data to save wflow outputs for specific area.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html#hydromt_wflow.WflowSedimentModel.setup_basemaps" title="hydromt_wflow.WflowSedimentModel.setup_basemaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basemaps</span></code></a>(region[, res, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_basemaps.html#hydromt_wflow.WflowSedimentModel.setup_basemaps" title="hydromt_wflow.WflowSedimentModel.setup_basemaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_basemaps</span></code></a>(region, hydrography_fn[, ...])</p></td>
 <td><p>Build the DEM and flow direction for a Wflow model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps" title="hydromt_wflow.WflowSedimentModel.setup_canopymaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_canopymaps</span></code></a>([canopy_fn])</p></td>
@@ -734,7 +734,7 @@
 <td><p>Generate constant parameter maps for all active model cells.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_floodplains</span></code>(hydrography_fn, ...[, ...])</p></td>
-<td><p>Add floodplain information to the model schematistation.</p></td>
+<td><p>Add floodplain information to the model schematisation.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges" title="hydromt_wflow.WflowSedimentModel.setup_gauges"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_gauges</span></code></a>([gauges_fn, source_gdf, ...])</p></td>
 <td><p>Set a gauge map based on <code class="docutils literal notranslate"><span class="pre">gauges_fn</span></code> data.</p></td>
@@ -760,8 +760,8 @@
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_grid_from_rasterdataset</span></code>(raster_fn[, ...])</p></td>
 <td><p>HYDROMT CORE METHOD: Add data variable(s) from <code class="docutils literal notranslate"><span class="pre">raster_fn</span></code> to grid object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_laimaps.html#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="hydromt_wflow.WflowSedimentModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a>([lai_fn])</p></td>
-<td><p>Set leaf area index (LAI) climatology maps per month.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_laimaps.html#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="hydromt_wflow.WflowSedimentModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a>(lai_fn)</p></td>
+<td><p>Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes" title="hydromt_wflow.WflowSedimentModel.setup_lakes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_lakes</span></code></a>([lakes_fn, min_area])</p></td>
 <td><p>Generate maps of lake areas and outlets.</p></td>
@@ -778,7 +778,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets" title="hydromt_wflow.WflowSedimentModel.setup_outlets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_outlets</span></code></a>([river_only, toml_output, ...])</p></td>
 <td><p>Set the default gauge map based on basin outlets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code>([precip_fn, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_precip_forcing</span></code>(precip_fn[, ...])</p></td>
 <td><p>Generate gridded precipitation forcing at model resolution.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_region</span></code>(region[, hydrography_fn, ...])</p></td>
@@ -794,7 +794,7 @@
 <td><p>Copy the functionality of WflowModel.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_riverwidth.html#hydromt_wflow.WflowSedimentModel.setup_riverwidth" title="hydromt_wflow.WflowSedimentModel.setup_riverwidth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_riverwidth</span></code></a>([predictor, fill, fit, ...])</p></td>
-<td><p>Set the river width parameter based on power-lay relationship with a predictor.</p></td>
+<td><p>Set the river width parameter based on power-law relationship with a predictor.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rootzoneclim</span></code>(run_fn, forcing_obs_fn[, ...])</p></td>
 <td><p>Set the RootingDepth.</p></td>
@@ -802,8 +802,8 @@
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps" title="hydromt_wflow.WflowSedimentModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_soilmaps</span></code></a>([soil_fn, usleK_method])</p></td>
 <td><p>Generate sediments based soil parameter maps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_temp_pet_forcing</span></code>([temp_pet_fn, ...])</p></td>
-<td><p>Generate gridded reference evapotranspiration forcing at model resolution.</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_temp_pet_forcing</span></code>(temp_pet_fn[, ...])</p></td>
+<td><p>Generate gridded temperature and reference evapotranspiration forcing.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_model_api</span></code>()</p></td>
 <td><p>Test compliance with HydroMT Model API.</p></td>
@@ -824,10 +824,10 @@
 <td><p>Write forcing at <code class="docutils literal notranslate"><span class="pre">fn_out</span></code> in model ready format.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_geoms.html#hydromt_wflow.WflowSedimentModel.write_geoms" title="hydromt_wflow.WflowSedimentModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_geoms</span></code></a>([geom_fn])</p></td>
-<td><p>Write grid at &lt;root/geoms&gt; in model ready format.</p></td>
+<td><p>Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.write_grid.html#hydromt_wflow.WflowSedimentModel.write_grid" title="hydromt_wflow.WflowSedimentModel.write_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_grid</span></code></a>()</p></td>
-<td><p>Write grid.</p></td>
+<td><p>Write grid to wflow static data file.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_intbl</span></code>()</p></td>
 <td><p>Write intbl at &lt;root/intbl&gt; in PCRaster table format.</p></td>
@@ -845,10 +845,10 @@
 <td><p>Write states at &lt;root/?/&gt; in model ready format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticgeoms</span></code>([geom_fn])</p></td>
-<td><p>Write static geometries.</p></td>
+<td><p>Write static geometries: DEPRECATED for write_geoms.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps</span></code>(**kwargs)</p></td>
-<td><p>Write staticmaps.</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps</span></code>()</p></td>
+<td><p>Write staticmaps: DEPRECATED for write_grid.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_staticmaps_pcr</span></code>()</p></td>
 <td><p>Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.</p></td>

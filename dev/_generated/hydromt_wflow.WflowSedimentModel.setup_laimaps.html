@@ -598,10 +598,10 @@
 <h1>hydromt_wflow.WflowSedimentModel.setup_laimaps<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-laimaps" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_laimaps">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_laimaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lai_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'modis_lai'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="Link to this definition">#</a></dt>
-<dd><p>Set leaf area index (LAI) climatology maps per month.</p>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_laimaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lai_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.1.2.dev0)"><span class="pre">DataArray</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="Link to this definition">#</a></dt>
+<dd><p>Set leaf area index (LAI) climatology maps per month [1,2,3,…,12].</p>
 <p>The values are resampled to the model resolution using the average value.
-The only <code class="docutils literal notranslate"><span class="pre">lai_fn</span></code> currently supported is “modis_lai” based on MODIS data.</p>
+Currently only directly cyclic LAI data is supported.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><dl class="simple">
@@ -613,9 +613,10 @@ correspond to bare soil, these are set to zero before resampling.</p>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>lai_fn</strong> (<em>{'modis_lai'}</em>) – <p>Name of data source for LAI parameters, see data/data_sources.yml.</p>
+<dd class="field-odd"><p><strong>lai_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.1.2.dev0)"><em>xarray.DataArray</em></a>) – <p>Name of RasterDataset source for LAI parameters, see data/data_sources.yml.</p>
 <ul class="simple">
-<li><p>Required variables: [‘LAI’]</p></li>
+<li><p>Required variables: ‘LAI’ [-]</p></li>
+<li><p>Required dimensions: ‘time’ = [1,2,3,…,12] (months)</p></li>
 </ul>
 </p>
 </dd>

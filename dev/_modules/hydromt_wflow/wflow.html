@@ -425,7 +425,7 @@
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 
@@ -542,23 +542,38 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_basemaps.html#hydromt_wflow.WflowModel.setup_basemaps">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_basemaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">region</span><span class="p">,</span>
-        <span class="n">res</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mf">120.0</span><span class="p">,</span>
-        <span class="n">hydrography_fn</span><span class="o">=</span><span class="s2">&quot;merit_hydro&quot;</span><span class="p">,</span>
-        <span class="n">basin_index_fn</span><span class="o">=</span><span class="s2">&quot;merit_hydro_index&quot;</span><span class="p">,</span>
-        <span class="n">upscale_method</span><span class="o">=</span><span class="s2">&quot;ihu&quot;</span><span class="p">,</span>
+        <span class="n">region</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">hydrography_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">basin_index_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">res</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">120.0</span><span class="p">,</span>
+        <span class="n">upscale_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ihu&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the DEM and flow direction for a Wflow model.</span>
 
-<span class="sd">        Setup basemaps sets the ``region`` of interest and ``res``</span>
+<span class="sd">        Setup basemaps sets the `region` of interest and `res`</span>
 <span class="sd">        (resolution in degrees) of the model.</span>
 <span class="sd">        All DEM and flow direction related maps are then build.</span>
 
+<span class="sd">        E.g. of `region` argument for a subbasin based on a point and snapped using</span>
+<span class="sd">        upstream area threshold in `hydrography_fn`, where the maximum boundary box of</span>
+<span class="sd">        the output subbasin is known:</span>
+<span class="sd">        region = {&#39;subbasin&#39;: [x,y], &#39;uparea&#39;: 10, &#39;bounds&#39;: [xmin, ymin, xmax, ymax]}</span>
+
+<span class="sd">        (Sub)Basin delination is done using hydromt.workflows.get_basin_geometry method.</span>
+<span class="sd">        Because the delineation is computed from the flow direction data in memory, to</span>
+<span class="sd">        avoid memory error when using large datasets in `hydrography_fn`, the user can</span>
+<span class="sd">        either supply &#39;bounds&#39; in `region` or a basin index dataset in `basin_index_fn`</span>
+<span class="sd">        to limit the flow direction data to the region of interest. The basin index</span>
+<span class="sd">        dataset is a GeoDataframe containing either basins polygons or bounding boxes of</span>
+<span class="sd">        basin boundaries. To select the correct basins, basin ID &#39;basins&#39; in</span>
+<span class="sd">        `hydrography_fn` and `basin_index_fn` should match.</span>
+
 <span class="sd">        If the model resolution is larger than the source data resolution,</span>
-<span class="sd">        the flow direction is upscaled using the ``upscale_method``, by default the</span>
+<span class="sd">        the flow direction is upscaled using the `upscale_method`, by default the</span>
 <span class="sd">        Iterative Hydrography Upscaling (IHU).</span>
-<span class="sd">        The default ``hydrography_fn`` is &quot;merit_hydro&quot;</span>
+
+<span class="sd">        The default `hydrography_fn` is &quot;merit_hydro&quot;</span>
 <span class="sd">        (`MERIT hydro &lt;http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html&gt;`_</span>
 <span class="sd">        at 3 arcsec resolution).</span>
 <span class="sd">        Alternative sources include &quot;merit_hydro_1k&quot; at 30 arcsec resolution.</span>
@@ -572,7 +587,7 @@
 <span class="sd">        hydrography data in order to avoid assumptions and reprojection errors.</span>
 <span class="sd">        If the user wishes to use a different CRS,</span>
 <span class="sd">        we recommend first to reproject the hydrography data seperately,</span>
-<span class="sd">        because calling hydromt build.</span>
+<span class="sd">        before calling hydromt build.</span>
 <span class="sd">        You can find examples on how to reproject or prepare hydrography data in the</span>
 <span class="sd">        `prepare flow directions example notebok</span>
 <span class="sd">        &lt;https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html&gt;`_.</span>
@@ -591,20 +606,27 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hydrography_fn : str</span>
-<span class="sd">            Name of data source for basemap parameters.</span>
-
-<span class="sd">            * Required variables: [&#39;flwdir&#39;, &#39;uparea&#39;, &#39;basins&#39;, &#39;strord&#39;, &#39;elevtn&#39;]</span>
-
-<span class="sd">            * Optional variables: [&#39;lndslp&#39;, &#39;mask&#39;]</span>
-<span class="sd">        basin_index_fn : str</span>
-<span class="sd">            Name of data source for basin_index data linked to hydrography_fn.</span>
 <span class="sd">        region : dict</span>
 <span class="sd">            Dictionary describing region of interest.</span>
 <span class="sd">            See :py:meth:`hydromt.workflows.basin_mask.parse_region()` for all options</span>
-<span class="sd">        res : float</span>
+<span class="sd">        hydrography_fn : str, xarray.Dataset</span>
+<span class="sd">            Name of RasterDataset source for basemap parameters.</span>
+
+<span class="sd">            * Required variables: &#39;flwdir&#39; [LLD or D8 or NEXTXY], &#39;elevtn&#39; [m+REF]</span>
+
+<span class="sd">            * Required variables if used with `basin_index_fn`: &#39;basins&#39; [-]</span>
+
+<span class="sd">            * Required variables if used for snapping in `region`: &#39;uparea&#39; [km2],</span>
+<span class="sd">                &#39;strord&#39; [-]</span>
+
+<span class="sd">            * Optional variables: &#39;lndslp&#39; [m/m], &#39;mask&#39; [bool]</span>
+<span class="sd">        basin_index_fn : str, geopandas.GeoDataFrame, optional</span>
+<span class="sd">            Name of GeoDataFrame source for basin_index data linked to hydrography_fn.</span>
+
+<span class="sd">            * Required variables: &#39;basid&#39; [-]</span>
+<span class="sd">        res : float, optional</span>
 <span class="sd">            Output model resolution</span>
-<span class="sd">        upscale_method : {&#39;ihu&#39;, &#39;eam&#39;, &#39;dmm&#39;}</span>
+<span class="sd">        upscale_method : {&#39;ihu&#39;, &#39;eam&#39;, &#39;dmm&#39;}, optional</span>
 <span class="sd">            Upscaling method for flow direction data, by default &#39;ihu&#39;.</span>
 
 <span class="sd">        See Also</span>
@@ -710,16 +732,18 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">hydrography_fn</span><span class="p">,</span>
-        <span class="n">river_geom_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">hydrography_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">river_geom_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">river_upa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">rivdph_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;powlaw&quot;</span><span class="p">,</span>
         <span class="n">slope_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2e3</span><span class="p">,</span>
-        <span class="n">min_rivlen_ratio</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">min_rivlen_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">min_rivdph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">smooth_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e3</span><span class="p">,</span>
-        <span class="n">rivman_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;roughness_river_mapping_default&quot;</span><span class="p">,</span>
+        <span class="n">rivman_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+            <span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;roughness_river_mapping_default&quot;</span><span class="p">,</span>
         <span class="n">elevtn_map</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_dem&quot;</span><span class="p">,</span>
         <span class="n">river_routing</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;kinematic-wave&quot;</span><span class="p">,</span>
         <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
@@ -753,7 +777,7 @@
 <span class="sd">        (default = 0.27) and hp (default = 0.30) parameters. For other methods see</span>
 <span class="sd">        :py:meth:`hydromt.workflows.river_depth`.</span>
 
-<span class="sd">        If ``river_routing`` is set to &quot;local-inertial&quot;, the bankfull elevantion map</span>
+<span class="sd">        If ``river_routing`` is set to &quot;local-inertial&quot;, the bankfull elevation map</span>
 <span class="sd">        can be conditioned based on the average cell elevation (&quot;wflow_dem&quot;)</span>
 <span class="sd">        or subgrid outlet pixel elevation (&quot;dem_subgrid&quot;).</span>
 <span class="sd">        The subgrid elevation might provide a better representation</span>
@@ -776,24 +800,25 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        hydrography_fn : str, Path</span>
-<span class="sd">            Name of data source for hydrography data.</span>
+<span class="sd">        hydrography_fn : str, Path, xarray.Dataset</span>
+<span class="sd">            Name of RasterDataset source for hydrography data.</span>
 <span class="sd">            Must be same as setup_basemaps for consistent results.</span>
 
-<span class="sd">            * Required variables: [&#39;flwdir&#39;, &#39;uparea&#39;, &#39;elevtn&#39;]</span>
-<span class="sd">            * Optional variables: [&#39;rivwth&#39;, &#39;qbankfull&#39;]</span>
-<span class="sd">        river_geom_fn : str, Path, optional</span>
-<span class="sd">            Name of data source for river data.</span>
+<span class="sd">            * Required variables: &#39;flwdir&#39; [LLD or D8 or NEXTXY], &#39;uparea&#39; [km2],</span>
+<span class="sd">                &#39;elevtn&#39;[m+REF]</span>
+<span class="sd">            * Optional variables: &#39;rivwth&#39; [m], &#39;qbankfull&#39; [m3/s]</span>
+<span class="sd">        river_geom_fn : str, Path, geopandas.GeoDataFrame, optional</span>
+<span class="sd">            Name of GeoDataFrame source for river data.</span>
 
-<span class="sd">            * Required variables: [&#39;rivwth&#39;, &#39;qbankfull&#39;]</span>
-<span class="sd">        river_upa : float</span>
-<span class="sd">            minimum upstream area threshold for the river map [km2]</span>
-<span class="sd">        slope_len : float</span>
-<span class="sd">            length over which the river slope is calculated [km]</span>
-<span class="sd">        min_rivlen_ratio: float</span>
+<span class="sd">            * Required variables: &#39;rivwth&#39; [m], &#39;qbankfull&#39; [m3/s]</span>
+<span class="sd">        river_upa : float, optional</span>
+<span class="sd">            Minimum upstream area threshold for the river map [km2]. By default 30.0</span>
+<span class="sd">        slope_len : float, optional</span>
+<span class="sd">            Length over which the river slope is calculated [km]. By default 2.0</span>
+<span class="sd">        min_rivlen_ratio: float, optional</span>
 <span class="sd">            Ratio of cell resolution used minimum length threshold in a moving</span>
 <span class="sd">            window based smoothing of river length, by default 0.0</span>
-<span class="sd">            The river length smoothing is skipped if min_riverlen_ratio = 0.</span>
+<span class="sd">            The river length smoothing is skipped if `min_riverlen_ratio` = 0.</span>
 <span class="sd">            For details about the river length smoothing,</span>
 <span class="sd">            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`</span>
 <span class="sd">        rivdph_method : {&#39;gvf&#39;, &#39;manning&#39;, &#39;powlaw&#39;}</span>
@@ -809,7 +834,8 @@
 <span class="sd">        min_rivwth : float, optional</span>
 <span class="sd">            Minimum river width [m], by default 30.0</span>
 <span class="sd">        elevtn_map : str, optional</span>
-<span class="sd">            by default &quot;wflow_dem&quot;</span>
+<span class="sd">            Name of the elevation map in the current WflowModel.grid.</span>
+<span class="sd">            By default &quot;wflow_dem&quot;</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -939,7 +965,7 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_floodplains.html#hydromt_wflow.WflowModel.setup_floodplains">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_floodplains</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">hydrography_fn</span><span class="p">,</span>
+        <span class="n">hydrography_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">floodplain_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="c1">### Options for 1D floodplains</span>
         <span class="n">river_upa</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -949,7 +975,7 @@
         <span class="n">connectivity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add floodplain information to the model schematistation.</span>
+<span class="sd">        Add floodplain information to the model schematisation.</span>
 
 <span class="sd">        The user can define what type of floodplains are required (1D or 2D),</span>
 <span class="sd">        through the ``floodplain_type`` argument.</span>
@@ -989,9 +1015,9 @@
 <span class="sd">        floodplain_type: {&quot;1d&quot;, &quot;2d&quot;}</span>
 <span class="sd">            Option defining the type of floodplains, see below what arguments</span>
 <span class="sd">            are related to the different floodplain types</span>
-<span class="sd">        hydrography_fn : str, Path</span>
-<span class="sd">            Name of data source for hydrography data. Must be same as setup_basemaps for</span>
-<span class="sd">            consistent results.</span>
+<span class="sd">        hydrography_fn : str, Path, xarray.Dataset</span>
+<span class="sd">            Name of RasterDataset source for hydrography data. Must be same as</span>
+<span class="sd">            setup_basemaps for consistent results.</span>
 
 <span class="sd">            * Required variables: [&#39;flwdir&#39;, &#39;uparea&#39;, &#39;elevtn&#39;]</span>
 <span class="sd">        river_upa : float, optional</span>
@@ -1153,16 +1179,16 @@
 
     <span class="k">def</span> <span class="nf">setup_riverwidth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">predictor</span><span class="o">=</span><span class="s2">&quot;discharge&quot;</span><span class="p">,</span>
-        <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">fit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">min_wth</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-        <span class="n">precip_fn</span><span class="o">=</span><span class="s2">&quot;chelsa&quot;</span><span class="p">,</span>
-        <span class="n">climate_fn</span><span class="o">=</span><span class="s2">&quot;koppen_geiger&quot;</span><span class="p">,</span>
+        <span class="n">predictor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;discharge&quot;</span><span class="p">,</span>
+        <span class="n">fill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">fit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">min_wth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">precip_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;chelsa&quot;</span><span class="p">,</span>
+        <span class="n">climate_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;koppen_geiger&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set the river width parameter based on power-lay relationship with a predictor.</span>
+<span class="sd">        Set the river width parameter based on power-law relationship with a predictor.</span>
 
 <span class="sd">        By default the riverwidth is estimated based on discharge as ``predictor``</span>
 <span class="sd">        and used to set the riverwidth globally based on pre-defined power-law</span>
@@ -1193,19 +1219,20 @@
 <span class="sd">            in observed width data (if present);</span>
 <span class="sd">            if False, set all riverwidths based on predictor</span>
 <span class="sd">            (automatic choice if no observations found)</span>
-<span class="sd">        fit : bool, optional kwarg</span>
+<span class="sd">        fit : bool, optional</span>
 <span class="sd">            If True, the power-law parameters are fitted on the fly</span>
 <span class="sd">            By default True for all but &quot;discharge&quot; predictor.</span>
 <span class="sd">            A-priori derived parameters will be overwritten if True.</span>
 <span class="sd">        a, b : float, optional kwarg</span>
 <span class="sd">            Manual power-law parameters</span>
-<span class="sd">        min_wth : float</span>
-<span class="sd">            minimum river width</span>
-<span class="sd">        precip_fn : {&#39;chelsa&#39;}</span>
+<span class="sd">        min_wth : float, optional</span>
+<span class="sd">            Minimum river width, by default 1.0</span>
+<span class="sd">        precip_fn : str, xarray.DataArray</span>
 <span class="sd">            Source of long term precipitation grid if the predictor</span>
-<span class="sd">            is set to &#39;discharge&#39; or &#39;precip&#39;.</span>
-<span class="sd">        climate_fn: {&#39;koppen_geiger&#39;}</span>
+<span class="sd">            is set to &#39;discharge&#39; or &#39;precip&#39;. By default &quot;chelsa&quot;.</span>
+<span class="sd">        climate_fn: str, xarray.DataArray</span>
 <span class="sd">            Source of long-term climate grid if the predictor is set to &#39;discharge&#39;.</span>
+<span class="sd">            By default &quot;koppen_geiger&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s1">&#39;The &quot;setup_riverwidth&quot; method has been deprecated </span><span class="se">\</span>
@@ -1256,9 +1283,9 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lulc_fn</span><span class="o">=</span><span class="s2">&quot;globcover&quot;</span><span class="p">,</span>
-        <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">lulc_vars</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
+        <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Kext&quot;</span><span class="p">,</span>
             <span class="s2">&quot;N&quot;</span><span class="p">,</span>
@@ -1270,13 +1297,16 @@
         <span class="p">],</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Derive several wflow maps are derived based on landuse-landcover (LULC) data.</span>
+<span class="sd">        Derive several wflow maps based on landuse-landcover (LULC) data.</span>
 
-<span class="sd">        Currently, ``lulc_fn`` can be set to the &quot;vito&quot;, &quot;globcover&quot;, &quot;esa_worldcover&quot;</span>
-<span class="sd">        or &quot;corine&quot;, of which lookup tables are constructed to convert lulc classses to</span>
+<span class="sd">        Lookup table `lulc_mapping_fn` columns are converted to lulc classes</span>
 <span class="sd">        model parameters based on literature. The data is remapped at its original</span>
 <span class="sd">        resolution and then resampled to the model resolution using the average</span>
 <span class="sd">        value, unless noted differently.</span>
+
+<span class="sd">        Currently, if `lulc_fn` is set to the &quot;vito&quot;, &quot;globcover&quot;, &quot;esa_worldcover&quot;</span>
+<span class="sd">        or &quot;corine&quot;, default lookup tables are available and will be used if</span>
+<span class="sd">        `lulc_mapping_fn` is not provided.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1291,11 +1321,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lulc_fn : {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;}</span>
-<span class="sd">            Name of data source in data_sources.yml file.</span>
-<span class="sd">        lulc_mapping_fn : str</span>
+<span class="sd">        lulc_fn : str, xarray.DataArray</span>
+<span class="sd">            Name of RasterDataset source in data_sources.yml file.</span>
+<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame</span>
 <span class="sd">            Path to a mapping csv file from landuse in source name to</span>
-<span class="sd">            parameter values in lulc_vars.</span>
+<span class="sd">            parameter values in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;,</span>
+<span class="sd">            &quot;corine&quot;, &quot;esa_worldcover&quot;}, a default mapping is used and this argument</span>
+<span class="sd">            becomes optional.</span>
 <span class="sd">        lulc_vars : list</span>
 <span class="sd">            List of landuse parameters to keep.</span>
 <span class="sd">            By default \</span>
@@ -1330,12 +1362,12 @@
 
 <div class="viewcode-block" id="WflowModel.setup_laimaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lai_fn</span><span class="o">=</span><span class="s2">&quot;modis_lai&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lai_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Set leaf area index (LAI) climatology maps per month.</span>
+<span class="sd">        Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].</span>
 
 <span class="sd">        The values are resampled to the model resolution using the average value.</span>
-<span class="sd">        The only ``lai_fn`` currently supported is &quot;modis_lai&quot; based on MODIS data.</span>
+<span class="sd">        Currently only directly cyclic LAI data is supported.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1345,10 +1377,12 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        lai_fn : {&#39;modis_lai&#39;}</span>
-<span class="sd">            Name of data source for LAI parameters, see data/data_sources.yml.</span>
+<span class="sd">        lai_fn : str, xarray.DataArray</span>
+<span class="sd">            Name of RasterDataset source for LAI parameters, see data/data_sources.yml.</span>
 
-<span class="sd">            * Required variables: [&#39;LAI&#39;]</span>
+<span class="sd">            * Required variables: &#39;LAI&#39; [-]</span>
+
+<span class="sd">            * Required dimensions: &#39;time&#39; = [1,2,3,...,12] (months)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># retrieve data for region</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LAI maps.&quot;</span><span class="p">)</span>
@@ -1537,7 +1571,7 @@
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a gauge map based on ``gauges_fn`` data.</span>
 
-<span class="sd">        Supported gauge datasets include &quot;grdc&quot;</span>
+<span class="sd">        Supported gauge datasets include data catlog entries, direct GeoDataFrame</span>
 <span class="sd">        or &quot;&lt;path_to_source&gt;&quot; for user supplied csv or geometry files</span>
 <span class="sd">        with gauge locations. If a csv file is provided, a &quot;x&quot; or &quot;lon&quot; and</span>
 <span class="sd">        &quot;y&quot; or &quot;lat&quot; column is required and the first column will be used as</span>
@@ -1576,10 +1610,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        gauges_fn : str, Path, gpd.GeoDataFrame, optional</span>
-<span class="sd">            Known source name or path to gauges file geometry file, by default None.</span>
+<span class="sd">        gauges_fn : str, Path, geopandas.GeoDataFrame</span>
+<span class="sd">            Catalog source name, path to gauges file geometry file or</span>
+<span class="sd">            geopandas.GeoDataFrame.</span>
 
-<span class="sd">            * Required variables if snap_uparea is True: [&quot;uparea&quot;]</span>
+<span class="sd">            * Required variables if snap_uparea is True: &#39;uparea&#39; [km2]</span>
 <span class="sd">        index_col : str, optional</span>
 <span class="sd">            Column in gauges_fn to use for ID values, by default None</span>
 <span class="sd">            (use the default index column)</span>
@@ -1639,25 +1674,28 @@
                 <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
-            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
-                <span class="n">gauges_fn</span><span class="p">,</span>
-                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
-                <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
-                <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
-            <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
-                <span class="n">gauges_fn</span><span class="p">,</span>
-                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
-                <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
-            <span class="c1"># Check for point geometry</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">)):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> contains other geometries than Point&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">gauges_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataFrame&quot;</span><span class="p">:</span>
+                <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                    <span class="n">gauges_fn</span><span class="p">,</span>
+                    <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                    <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                    <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
+                <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
+                    <span class="n">gauges_fn</span><span class="p">,</span>
+                    <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                    <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">gdf_gauges</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+                <span class="c1"># Check for point geometry</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">gdf_gauges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">)):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> contains other geometries than Point&quot;</span>
+                    <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> data source not found or </span><span class="se">\</span>
@@ -1773,7 +1811,7 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_areamap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">area_fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">area_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">col2raster</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">nodata</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1785,13 +1823,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        area_fn : str</span>
-<span class="sd">            Name of vector data corresponding to wflow output area.</span>
+<span class="sd">        area_fn : str, geopandas.GeoDataFrame</span>
+<span class="sd">            Name of GeoDataFrame data corresponding to wflow output area.</span>
 <span class="sd">        col2raster : str</span>
-<span class="sd">            Name of the column from the vector file to rasterize.</span>
+<span class="sd">            Name of the column from `area_fn` to rasterize.</span>
 <span class="sd">        nodata : int/float, optional</span>
-<span class="sd">            Nodata value to use when rasterizing. Should match the dtype of col2raster.</span>
-<span class="sd">            By default -1.</span>
+<span class="sd">            Nodata value to use when rasterizing. Should match the dtype of `col2raster`</span>
+<span class="sd">            . By default -1.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing &#39;</span><span class="si">{</span><span class="n">col2raster</span><span class="si">}</span><span class="s2">&#39; map from &#39;</span><span class="si">{</span><span class="n">area_fn</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
@@ -1816,8 +1854,8 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">lakes_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
-        <span class="n">rating_curve_fns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lakes_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
+        <span class="n">rating_curve_fns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">add_maxstorage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -1856,24 +1894,27 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        lakes_fn :</span>
-<span class="sd">            Name of data source for lake parameters, see data/data_sources.yml.</span>
+<span class="sd">            Name of GeoDataFrame source for lake parameters, see data/data_sources.yml.</span>
 
 <span class="sd">            * Required variables for direct use: \</span>
-<span class="sd">[&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Lake_b&#39;, &#39;Lake_e&#39;, \</span>
-<span class="sd">&#39;LakeOutflowFunc&#39;, &#39;LakeStorFunc&#39;, &#39;LakeThreshold&#39;, &#39;LinkedLakeLocs&#39;]</span>
+<span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; [m3/s], &#39;Lake_b&#39; [-], \</span>
+<span class="sd">&#39;Lake_e&#39; [-], &#39;LakeOutflowFunc&#39; [-], &#39;LakeStorFunc&#39; [-], &#39;LakeThreshold&#39; [m], \</span>
+<span class="sd">&#39;LinkedLakeLocs&#39; [-]</span>
 
 <span class="sd">            * Required variables for parameter estimation: \</span>
-<span class="sd">[&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;]</span>
-<span class="sd">        rating_curve_fns: str, Path, List[str], List[Path], optional</span>
-<span class="sd">            Data catalog entry/entries or path(s) containing rating curve values</span>
-<span class="sd">            for lakes. If None then will be derived from properties of lakes_fn.</span>
+<span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39;[m3/s]</span>
+<span class="sd">        rating_curve_fns: str, Path, pandas.DataFrame, List, optional</span>
+<span class="sd">            Data catalog entry/entries, path(s) or pandas.DataFrame containing rating</span>
+<span class="sd">            curve values for lakes. If None then will be derived from properties of</span>
+<span class="sd">            `lakes_fn`.</span>
 <span class="sd">            Assumes one file per lake (with all variables) and that the lake ID is</span>
 <span class="sd">            either in the filename or data catalog entry name (eg using placeholder).</span>
 <span class="sd">            The ID should be placed at the end separated by an underscore (eg</span>
 <span class="sd">            &#39;rating_curve_12.csv&#39; or &#39;rating_curve_12&#39;)</span>
 
-<span class="sd">            * Required variables: [&#39;elevtn&#39;, &#39;volume&#39;] for storage curve and \</span>
-<span class="sd">[&#39;elevtn&#39;, &#39;discharge&#39;] for discharge rating curve</span>
+<span class="sd">            * Required variables for storage curve: &#39;elevtn&#39; [m+REF], &#39;volume&#39; [m3]</span>
+
+<span class="sd">            * Required variables for rating curve: &#39;elevtn&#39; [m+REF], &#39;discharge&#39; [m3/s]</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum lake area threshold [km2], by default 10.0 km2.</span>
 <span class="sd">        add_maxstorage : bool, optional</span>
@@ -1975,7 +2016,7 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -2029,16 +2070,17 @@
 <span class="sd">            Name of data source for reservoir parameters, see data/data_sources.yml.</span>
 
 <span class="sd">            * Required variables for direct use: \</span>
-<span class="sd">[&#39;waterbody_id&#39;, &#39;ResSimpleArea&#39;, &#39;ResMaxVolume&#39;, &#39;ResTargetMinFrac&#39;, \</span>
-<span class="sd">&#39;ResTargetFullFrac&#39;, &#39;ResDemand&#39;, &#39;ResMaxRelease&#39;]</span>
+<span class="sd">&#39;waterbody_id&#39; [-], &#39;ResSimpleArea&#39; [m2], &#39;ResMaxVolume&#39; [m3], &#39;ResTargetMinFrac&#39; \</span>
+<span class="sd">[m3/m3], &#39;ResTargetFullFrac&#39; [m3/m3], &#39;ResDemand&#39; [m3/s], &#39;ResMaxRelease&#39; [m3/s]</span>
 
 <span class="sd">            * Required variables for computation with timeseries_fn: \</span>
-<span class="sd">[&#39;waterbody_id&#39;, &#39;Hylak_id&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, &#39;Dam_height&#39;]</span>
+<span class="sd">&#39;waterbody_id&#39; [-], &#39;Hylak_id&#39; [-], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; [m3/s], \</span>
+<span class="sd">&#39;Dam_height&#39; [m]</span>
 
 <span class="sd">            * Required variables for computation without timeseries_fn: \</span>
-<span class="sd">[&#39;waterbody_id&#39;, &#39;Area_avg&#39;, &#39;Vol_avg&#39;, &#39;Depth_avg&#39;, &#39;Dis_avg&#39;, \</span>
-<span class="sd">&#39;Capacity_max&#39;, &#39;Capacity_norm&#39;, &#39;Capacity_min&#39;, &#39;Dam_height&#39;]</span>
-<span class="sd">        timeseries_fn : str {&#39;gww&#39;, &#39;hydroengine&#39;, &#39;none&#39;}, optional</span>
+<span class="sd">&#39;waterbody_id&#39; [-], &#39;Area_avg&#39; [m2], &#39;Vol_avg&#39; [m3], &#39;Depth_avg&#39; [m], &#39;Dis_avg&#39; \</span>
+<span class="sd">[m3/s], &#39;Capacity_max&#39; [m3], &#39;Capacity_norm&#39; [m3], &#39;Capacity_min&#39; [m3], &#39;Dam_height&#39; [m]</span>
+<span class="sd">        timeseries_fn : {&#39;gww&#39;, &#39;hydroengine&#39;, None}, optional</span>
 <span class="sd">            Download and use time series of reservoir surface water area to calculate</span>
 <span class="sd">            and overwrite the reservoir volume/areas of the data source. Timeseries are</span>
 <span class="sd">            either downloaded from Global Water Watch &#39;gww&#39; (using gwwapi package) or</span>
@@ -2219,7 +2261,9 @@
 
 <div class="viewcode-block" id="WflowModel.setup_soilmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">soil_fn</span><span class="o">=</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="n">ptf_ksatver</span><span class="o">=</span><span class="s2">&quot;brakensiek&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="n">ptf_ksatver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive several (layered) soil parameters.</span>
 
@@ -2239,6 +2283,11 @@
 <span class="sd">soilgrids_2020,</span>
 <span class="sd">        (3) the c parameter is computed as weighted average over wflow_sbm soil layers \</span>
 <span class="sd">in soilgrids_2020 versus at specific depths for soilgrids.</span>
+
+<span class="sd">        The required data from soilgrids are soil bulk density &#39;bd_sl*&#39; [g/cm3], \</span>
+<span class="sd">clay content &#39;clyppt_sl*&#39; [%], silt content &#39;sltppt_sl*&#39; [%], organic carbon content \</span>
+<span class="sd">&#39;oc_sl*&#39; [%], pH &#39;ph_sl*&#39; [-], sand content &#39;sndppt_sl*&#39; [%] and soil thickness \</span>
+<span class="sd">&#39;soilthickness&#39; [cm].</span>
 
 <span class="sd">        The following maps are added to grid:</span>
 
@@ -2275,12 +2324,13 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        soil_fn : {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
-<span class="sd">            Name of data source for soil parameter maps, see data/data_sources.yml.</span>
+<span class="sd">            Name of RasterDataset source for soil parameter maps, see</span>
+<span class="sd">            data/data_sources.yml.</span>
 <span class="sd">            Should contain info for the 7 soil depths of soilgrids</span>
 <span class="sd">            (or 6 depths intervals for soilgrids_2020).</span>
 <span class="sd">            * Required variables: \</span>
-<span class="sd">[&#39;bd_sl*&#39;, &#39;clyppt_sl*&#39;, &#39;sltppt_sl*&#39;, &#39;oc_sl*&#39;, &#39;ph_sl*&#39;, \</span>
-<span class="sd">&#39;sndppt_sl*&#39;, &#39;soilthickness&#39;, &#39;tax_usda&#39;]</span>
+<span class="sd">&#39;bd_sl*&#39; [g/cm3], &#39;clyppt_sl*&#39; [%], &#39;sltppt_sl*&#39; [%], &#39;oc_sl*&#39; [%], &#39;ph_sl*&#39; [-], \</span>
+<span class="sd">&#39;sndppt_sl*&#39; [%], &#39;soilthickness&#39; [cm]</span>
 <span class="sd">        ptf_ksatver : {&#39;brakensiek&#39;, &#39;cosby&#39;}</span>
 <span class="sd">            Pedotransfer function (PTF) to use for calculation KsatVer</span>
 <span class="sd">            (vertical saturated hydraulic conductivity [mm/day]).</span>
@@ -2391,7 +2441,9 @@
 
 <div class="viewcode-block" id="WflowModel.setup_constant_pars">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_constant_pars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">setup_constant_pars</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate constant parameter maps for all active model cells.</span>
 
 <span class="sd">        Adds model layer:</span>
@@ -2423,10 +2475,10 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_grid_from_raster</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">raster_fn</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">raster_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">reproject_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">wflow_variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">wflow_variables</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fill_method</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2443,7 +2495,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        raster_fn: str</span>
-<span class="sd">            Source name of raster data in data_catalog.</span>
+<span class="sd">            Source name of RasterDataset in data_catalog.</span>
 <span class="sd">        reproject_method: str</span>
 <span class="sd">            Reprojection method from rasterio.enums.Resampling.</span>
 <span class="sd">            Available methods: [&#39;nearest&#39;, &#39;bilinear&#39;, &#39;cubic&#39;, &#39;cubic_spline&#39;, \</span>
@@ -2511,8 +2563,8 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_precip_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">precip_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5&quot;</span><span class="p">,</span>
-        <span class="n">precip_clim_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">precip_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
+        <span class="n">precip_clim_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2524,15 +2576,19 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        precip_fn : str, default era5</span>
-<span class="sd">            Precipitation data source.</span>
+<span class="sd">        precip_fn : str, xarray.DataArray</span>
+<span class="sd">            Precipitation RasterDataset source, see data/forcing_sources.yml.</span>
 
-<span class="sd">            * Required variable: [&#39;precip&#39;]</span>
-<span class="sd">        precip_clim_fn : str, default None</span>
-<span class="sd">            High resolution climatology precipitation data source to correct</span>
-<span class="sd">            precipitation.</span>
+<span class="sd">            * Required variable: &#39;precip&#39; [mm]</span>
 
-<span class="sd">            * Required variable: [&#39;precip&#39;]</span>
+<span class="sd">            * Required dimension: &#39;time&#39;  [timestamp]</span>
+<span class="sd">        precip_clim_fn : str, xarray.DataArray, optional</span>
+<span class="sd">            High resolution climatology precipitation RasterDataset source to correct</span>
+<span class="sd">            precipitation, see data/forcing_sources.yml.</span>
+
+<span class="sd">            * Required variable: &#39;precip&#39; [mm]</span>
+
+<span class="sd">            * Required dimension: &#39;time&#39;  [cyclic month]</span>
 <span class="sd">        chunksize: int, optional</span>
 <span class="sd">            Chunksize on time dimension for processing data (not for saving to disk!).</span>
 <span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
@@ -2584,19 +2640,38 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_temp_pet_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">temp_pet_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5&quot;</span><span class="p">,</span>
+        <span class="n">temp_pet_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">pet_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;debruin&quot;</span><span class="p">,</span>
         <span class="n">press_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">temp_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wind_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">wind_altitude</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
         <span class="n">reproj_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nearest_index&quot;</span><span class="p">,</span>
-        <span class="n">dem_forcing_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;era5_orography&quot;</span><span class="p">,</span>
+        <span class="n">dem_forcing_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">skip_pet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate gridded reference evapotranspiration forcing at model resolution.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate gridded temperature and reference evapotranspiration forcing.</span>
+
+<span class="sd">        If `temp_correction` is True, the temperature will be reprojected and then</span>
+<span class="sd">        downscaled to model resolution using the elevation lapse rate. For better</span>
+<span class="sd">        accuracy, you can provide the elevation grid of the climate data in</span>
+<span class="sd">        `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model</span>
+<span class="sd">        is used (&#39;wflow_dem&#39;).</span>
+
+<span class="sd">        To compute PET (`skip_pet` is False), several methods are available. Before</span>
+<span class="sd">        computation, both the temperature and pressure can be downscaled. Wind speed</span>
+<span class="sd">        should be given at 2m altitude and can be corrected if `wind_correction` is True</span>
+<span class="sd">        and the wind data altitude is provided in `wind_altitude` [m].</span>
+<span class="sd">        Several methods to compute pet are available: {&#39;debruin&#39;, &#39;makkink&#39;,</span>
+<span class="sd">        &#39;penman-monteith_rh_simple&#39;, &#39;penman-monteith_tdew&#39;}.</span>
+
+<span class="sd">        Depending on the methods, `temp_pet_fn` should contain temperature &#39;temp&#39; [°C],</span>
+<span class="sd">        pressure &#39;press_msl&#39; [hPa], incoming shortwave radiation &#39;kin&#39; [W/m2], outgoing</span>
+<span class="sd">        shortwave radiation &#39;kout&#39; [W/m2], wind speed &#39;wind&#39; [m/s], relative humidity</span>
+<span class="sd">        &#39;rh&#39; [%], dew point temperature &#39;temp_dew&#39; [°C], wind speed either total &#39;wind&#39;</span>
+<span class="sd">        or the U- &#39;wind10_u&#39; [m/s] and V- &#39;wind10_v&#39; components [m/s].</span>
 
 <span class="sd">        Adds model layer:</span>
 
@@ -2605,25 +2680,24 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        temp_pet_fn : str, optional</span>
-<span class="sd">            Name or path of data source with variables to calculate temperature</span>
+<span class="sd">        temp_pet_fn : str, xarray.Dataset</span>
+<span class="sd">            Name or path of RasterDataset source with variables to calculate temperature</span>
 <span class="sd">            and reference evapotranspiration, see data/forcing_sources.yml.</span>
-<span class="sd">            By default &#39;era5_daily_zarr&#39;.</span>
 
-<span class="sd">            * Required variable for temperature: [&#39;temp&#39;]</span>
+<span class="sd">            * Required variable for temperature: &#39;temp&#39; [°C]</span>
 
 <span class="sd">            * Required variables for De Bruin reference evapotranspiration: \</span>
-<span class="sd">[&#39;temp&#39;, &#39;press_msl&#39;, &#39;kin&#39;, &#39;kout&#39;]</span>
+<span class="sd">&#39;temp&#39; [°C], &#39;press_msl&#39; [hPa], &#39;kin&#39; [W/m2], &#39;kout&#39; [W/m2]</span>
 
 <span class="sd">            * Required variables for Makkink reference evapotranspiration: \</span>
-<span class="sd">[&#39;temp&#39;, &#39;press_msl&#39;, &#39;kin&#39;]</span>
+<span class="sd">&#39;temp&#39; [°C], &#39;press_msl&#39; [hPa], &#39;kin&#39;[W/m2]</span>
 
 <span class="sd">            * Required variables for daily Penman-Monteith \</span>
 <span class="sd">reference evapotranspiration: \</span>
-<span class="sd">either [&#39;temp&#39;, &#39;temp_min&#39;, &#39;temp_max&#39;, &#39;wind&#39;, &#39;rh&#39;, &#39;kin&#39;] \</span>
-<span class="sd">for &#39;penman-monteith_rh_simple&#39; or [&#39;temp&#39;, &#39;temp_min&#39;, &#39;temp_max&#39;, &#39;temp_dew&#39;, \</span>
-<span class="sd">&#39;wind&#39;, &#39;kin&#39;, &#39;press_msl&#39;, &quot;wind10_u&quot;, &quot;wind10_v&quot;] for &#39;penman-monteith_tdew&#39; \</span>
-<span class="sd">(these are the variables available in ERA5)</span>
+<span class="sd">either {&#39;temp&#39; [°C], &#39;temp_min&#39; [°C], &#39;temp_max&#39; [°C], &#39;wind&#39; [m/s], &#39;rh&#39; [%], &#39;kin&#39; \</span>
+<span class="sd">[W/m2]} for &#39;penman-monteith_rh_simple&#39; or {&#39;temp&#39; [°C], &#39;temp_min&#39; [°C], &#39;temp_max&#39; \</span>
+<span class="sd">[°C], &#39;temp_dew&#39; [°C], &#39;wind&#39; [m/s], &#39;kin&#39; [W/m2], &#39;press_msl&#39; [hPa], &#39;wind10_u&#39; [m/s],\</span>
+<span class="sd">&quot;wind10_v&quot; [m/s]} for &#39;penman-monteith_tdew&#39; (these are the variables available in ERA5)</span>
 <span class="sd">        pet_method : {&#39;debruin&#39;, &#39;makkink&#39;, &#39;penman-monteith_rh_simple&#39;, \</span>
 <span class="sd">&#39;penman-monteith_tdew&#39;}, optional</span>
 <span class="sd">            Reference evapotranspiration method, by default &#39;debruin&#39;.</span>
@@ -2635,15 +2709,24 @@
 <span class="sd">            Elevation data source with coverage of entire meteorological forcing domain.</span>
 <span class="sd">            If temp_correction is True and dem_forcing_fn is provided this is used in</span>
 <span class="sd">            combination with elevation at model resolution to correct the temperature.</span>
+
+<span class="sd">            * Required variable: &#39;elevtn&#39; [m+REF]</span>
+<span class="sd">        wind_correction : bool, optional</span>
+<span class="sd">            If True wind speed is corrected to wind at 2m altitude using</span>
+<span class="sd">            ``wind_altitude``. By default True.</span>
+<span class="sd">        wind_altitude : int, optional</span>
+<span class="sd">            Altitude of wind speed [m] variable, by default 10. Only used if</span>
+<span class="sd">            ``wind_correction`` is True.</span>
 <span class="sd">        skip_pet : bool, optional</span>
 <span class="sd">            If True calculate temp only.</span>
+<span class="sd">        reproj_method : str, optional</span>
+<span class="sd">            Reprojection method from rasterio.enums.Resampling. to reproject the climate</span>
+<span class="sd">            data to the model resolution. By default &#39;nearest_index&#39;.</span>
 <span class="sd">        chunksize: int, optional</span>
 <span class="sd">            Chunksize on time dimension for processing data (not for saving to disk!).</span>
 <span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
 <span class="sd">            large/small catchments. By default None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">temp_pet_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span>
         <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">)</span>
         <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">)</span>
         <span class="n">timestep</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">)</span>
@@ -2675,7 +2758,9 @@
                     <span class="s2">&quot;penman-monteith_rh_simple&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;penman-monteith_tdew&quot;</span><span class="p">,</span>
                 <span class="p">]</span>
-                <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown pet method </span><span class="si">{</span><span class="n">pet_method</span><span class="si">}</span><span class="s2">, select from </span><span class="si">{</span><span class="n">methods</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Unknown pet method </span><span class="si">{</span><span class="n">pet_method</span><span class="si">}</span><span class="s2">, select from </span><span class="si">{</span><span class="n">methods</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
             <span class="n">temp_pet_fn</span><span class="p">,</span>
@@ -3044,7 +3129,21 @@
 <div class="viewcode-block" id="WflowModel.read_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_grid.html#hydromt_wflow.WflowModel.read_grid">[docs]</a>
     <span class="k">def</span> <span class="nf">read_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read grid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read wflow static input and add to ``grid``.</span>
+
+<span class="sd">        Checks the path of the file in the config toml using both ``input.path_static``</span>
+<span class="sd">        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the</span>
+<span class="sd">        root folder.</span>
+
+<span class="sd">        If the file is not found, will try to read from the old PCRaster format if map</span>
+<span class="sd">        files are found in the ``staticmaps`` folder in the root folder using</span>
+<span class="sd">        read_staticmaps_pcr.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        read_staticmaps_pcr</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">)</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
 
@@ -3075,7 +3174,7 @@
 
 
     <span class="k">def</span> <span class="nf">read_staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read staticmaps.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read staticmaps. DEPRECATED for read_grid.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;read_staticmaps is deprecated. Use &#39;read_grid&#39; instead. &quot;</span>
             <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
@@ -3085,7 +3184,13 @@
 <div class="viewcode-block" id="WflowModel.write_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_grid.html#hydromt_wflow.WflowModel.write_grid">[docs]</a>
     <span class="k">def</span> <span class="nf">write_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write grid.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write grid to wflow static data file.</span>
+
+<span class="sd">        Checks the path of the file in the config toml using both ``input.path_static``</span>
+<span class="sd">        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the</span>
+<span class="sd">        root folder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
         <span class="c1"># clean-up grid and write CRS according to CF-conventions</span>
@@ -3131,10 +3236,9 @@
                 <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span></div>
 
-        <span class="c1"># self.write_grid_pcr()</span>
 
-    <span class="k">def</span> <span class="nf">write_staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write staticmaps.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">write_staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write staticmaps: DEPRECATED for write_grid.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;write_staticmaps is deprecated. Use &#39;write_grid&#39; instead. &quot;</span>
             <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
@@ -3144,10 +3248,10 @@
 <div class="viewcode-block" id="WflowModel.read_staticmaps_pcr">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_staticmaps_pcr.html#hydromt_wflow.WflowModel.read_staticmaps_pcr">[docs]</a>
     <span class="k">def</span> <span class="nf">read_staticmaps_pcr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read and staticmaps at &lt;root/staticmaps&gt; and parse to xarray.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read PCRaster maps in &lt;root/staticmaps&gt; and add to grid.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;read_staticmaps_pcr as a method of this object is deprecated. &quot;</span>
-            <span class="s2">&quot;Use &#39;read_staticmaps_pcr&#39; for the &#39;pcrm&#39; submodule instead. &quot;</span>
+            <span class="s2">&quot;Use &#39;read_staticmaps_pcr&#39; from the &#39;pcrm&#39; submodule instead. &quot;</span>
             <span class="s2">&quot;Will be removed in hydromt_wflow v0.5.0&quot;</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read</span> <span class="ow">and</span> <span class="s2">&quot;chunks&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
@@ -3183,7 +3287,13 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read and geoms at &lt;root/geoms&gt; and parse to geopandas.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read static geometries and adds to ``geoms``.</span>
+
+<span class="sd">        Assumes that the `geom_fn` folder is located in the same folder as the static</span>
+<span class="sd">        input data (``input.path_static``). If not found uses assumes they are in</span>
+<span class="sd">        &lt;root/geom_fm&gt;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_geoms</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># fresh start in read-only mode</span>
         <span class="n">dir_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">)</span>
@@ -3203,7 +3313,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read static geometries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read static geometries: DEPRECATED for read_geoms.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;read_staticgeoms is deprecated. Use &#39;read_geoms&#39; instead. &quot;</span>
             <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
@@ -3216,7 +3326,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write grid at &lt;root/geoms&gt; in model ready format.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.&quot;&quot;&quot;</span>
         <span class="c1"># to write use self.geoms[var].to_file()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -3231,7 +3341,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write static geometries.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write static geometries: DEPRECATED for write_geoms.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
             <span class="s2">&quot;write_staticgeoms is deprecated. Use &#39;write_geoms&#39; instead. &quot;</span>
             <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
@@ -3241,7 +3351,17 @@
 <div class="viewcode-block" id="WflowModel.read_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_forcing.html#hydromt_wflow.WflowModel.read_forcing">[docs]</a>
     <span class="k">def</span> <span class="nf">read_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read forcing.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Read forcing.</span>
+
+<span class="sd">        Checks the path of the file in the config toml using both ``input.path_forcing``</span>
+<span class="sd">        and ``dir_input``. If not found uses the default path ``inmaps.nc`` in the</span>
+<span class="sd">        root folder.</span>
+
+<span class="sd">        If several files are used using &#39;*&#39; in ``input.path_forcing``, all corresponding</span>
+<span class="sd">        files are read and merged into one xarray dataset before being splitted to one</span>
+<span class="sd">        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;inmaps.nc&quot;</span><span class="p">)</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
 

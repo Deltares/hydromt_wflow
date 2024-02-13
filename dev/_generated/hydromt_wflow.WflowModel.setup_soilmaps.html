@@ -598,7 +598,7 @@
 <h1>hydromt_wflow.WflowModel.setup_soilmaps<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-soilmaps" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_soilmaps">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_soilmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptf_ksatver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'brakensiek'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_soilmaps" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_soilmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptf_ksatver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'brakensiek'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_soilmaps" title="Link to this definition">#</a></dt>
 <dd><p>Derive several (layered) soil parameters.</p>
 <p>Based on a database with physical soil properties using available point-scale
 (pedo)transfer functions (PTFs) from literature with upscaling rules to
@@ -611,6 +611,7 @@ This leads to small changes in the workflow:
 (1) M parameter uses midpoint depths in soilgrids_2020 versus specific depths in soilgrids,
 (2) weighted average of soil properties over soil thickness is done with the trapezoidal rule in soilgrids versus simple block weighted average in soilgrids_2020,
 (3) the c parameter is computed as weighted average over wflow_sbm soil layers in soilgrids_2020 versus at specific depths for soilgrids.</p>
+<p>The required data from soilgrids are soil bulk density ‘bd_sl*’ [g/cm3], clay content ‘clyppt_sl*’ [%], silt content ‘sltppt_sl*’ [%], organic carbon content ‘oc_sl*’ [%], pH ‘ph_sl*’ [-], sand content ‘sndppt_sl*’ [%] and soil thickness ‘soilthickness’ [cm].</p>
 <p>The following maps are added to grid:</p>
 <ul class="simple">
 <li><p><strong>thetaS</strong> map: average saturated soil water content [m3/m3]</p></li>
@@ -634,10 +635,11 @@ This leads to small changes in the workflow:
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>soil_fn</strong> (<em>{'soilgrids'</em><em>, </em><em>'soilgrids_2020'}</em>) – Name of data source for soil parameter maps, see data/data_sources.yml.
+<li><p><strong>soil_fn</strong> (<em>{'soilgrids'</em><em>, </em><em>'soilgrids_2020'}</em>) – Name of RasterDataset source for soil parameter maps, see
+data/data_sources.yml.
 Should contain info for the 7 soil depths of soilgrids
 (or 6 depths intervals for soilgrids_2020).
-* Required variables: [‘bd_sl*’, ‘clyppt_sl*’, ‘sltppt_sl*’, ‘oc_sl*’, ‘ph_sl*’, ‘sndppt_sl*’, ‘soilthickness’, ‘tax_usda’]</p></li>
+* Required variables: ‘bd_sl*’ [g/cm3], ‘clyppt_sl*’ [%], ‘sltppt_sl*’ [%], ‘oc_sl*’ [%], ‘ph_sl*’ [-], ‘sndppt_sl*’ [%], ‘soilthickness’ [cm]</p></li>
 <li><p><strong>ptf_ksatver</strong> (<em>{'brakensiek'</em><em>, </em><em>'cosby'}</em>) – Pedotransfer function (PTF) to use for calculation KsatVer
 (vertical saturated hydraulic conductivity [mm/day]).
 By default ‘brakensiek’.</p></li>

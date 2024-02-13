@@ -600,6 +600,12 @@
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.read_forcing">
 <span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">read_forcing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.read_forcing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.read_forcing" title="Link to this definition">#</a></dt>
 <dd><p>Read forcing.</p>
+<p>Checks the path of the file in the config toml using both <code class="docutils literal notranslate"><span class="pre">input.path_forcing</span></code>
+and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code>. If not found uses the default path <code class="docutils literal notranslate"><span class="pre">inmaps.nc</span></code> in the
+root folder.</p>
+<p>If several files are used using ‘*’ in <code class="docutils literal notranslate"><span class="pre">input.path_forcing</span></code>, all corresponding
+files are read and merged into one xarray dataset before being splitted to one
+xarray dataaray per forcing variable in the hydromt <code class="docutils literal notranslate"><span class="pre">forcing</span></code> dictionnary.</p>
 </dd></dl>
 
 </section>

@@ -553,9 +553,9 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:22,124 - clip - log - INFO - HydroMT version: 0.9.4.dev0
-2024-02-13 12:19:22,124 - clip - main - INFO - Clipping instance of wflow model.
-2024-02-13 12:19:22,124 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2024-02-13 15:28:59,542 - clip - log - INFO - HydroMT version: 0.9.4.dev0
+2024-02-13 15:28:59,543 - clip - main - INFO - Clipping instance of wflow model.
+2024-02-13 15:28:59,543 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -563,10 +563,10 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:22,430 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
-2024-02-13 12:19:22,430 - clip - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-02-13 12:19:22,438 - clip - main - INFO - Reading model to clip
-2024-02-13 12:19:22,440 - clip - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2024-02-13 15:28:59,841 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.4.2.dev0).
+2024-02-13 15:28:59,841 - clip - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-02-13 15:28:59,849 - clip - main - INFO - Reading model to clip
+2024-02-13 15:28:59,851 - clip - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -574,7 +574,9 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:22,491 - clip - wflow - INFO - Reading model intbl files.
+2024-02-13 15:28:59,902 - clip - wflow - INFO - Reading model intbl files.
+2024-02-13 15:28:59,902 - clip - wflow - INFO - Reading model table files.
+2024-02-13 15:28:59,902 - clip - wflow - INFO - Reading model staticgeom files.
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -582,8 +584,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:22,491 - clip - wflow - INFO - Reading model table files.
-2024-02-13 12:19:22,492 - clip - wflow - INFO - Reading model staticgeom files.
+2024-02-13 15:29:00,004 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -591,9 +592,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:22,594 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2024-02-13 12:19:22,611 - clip - wflow - INFO - Model read
-2024-02-13 12:19:22,611 - clip - main - INFO - Clipping staticmaps
+2024-02-13 15:29:00,021 - clip - wflow - INFO - Model read
+2024-02-13 15:29:00,021 - clip - main - INFO - Clipping staticmaps
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -601,7 +601,7 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:25,659 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2024-02-13 15:29:03,018 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -609,15 +609,16 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:27,281 - clip - wflow - INFO - Reading model table files.
-2024-02-13 12:19:27,282 - clip - main - INFO - Clipping forcing
-2024-02-13 12:19:27,282 - clip - wflow - INFO - Clipping NetCDF forcing..
-2024-02-13 12:19:27,287 - clip - model_api - WARNING - Replacing forcing: precip
-2024-02-13 12:19:27,287 - clip - model_api - WARNING - Replacing forcing: pet
-2024-02-13 12:19:27,287 - clip - model_api - WARNING - Replacing forcing: temp
-2024-02-13 12:19:27,287 - clip - main - INFO - Writting clipped model
-2024-02-13 12:19:27,287 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2024-02-13 12:19:27,287 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2024-02-13 15:29:04,617 - clip - wflow - INFO - Reading model table files.
+2024-02-13 15:29:04,617 - clip - main - INFO - Clipping forcing
+2024-02-13 15:29:04,617 - clip - wflow - INFO - Clipping NetCDF forcing..
+2024-02-13 15:29:04,622 - clip - model_api - WARNING - Replacing forcing: precip
+2024-02-13 15:29:04,622 - clip - model_api - WARNING - Replacing forcing: pet
+2024-02-13 15:29:04,622 - clip - model_api - WARNING - Replacing forcing: temp
+2024-02-13 15:29:04,622 - clip - main - INFO - Writting clipped model
+2024-02-13 15:29:04,623 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2024-02-13 15:29:04,623 - clip - model_api - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2024-02-13 15:29:04,655 - clip - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -625,7 +626,8 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:27,320 - clip - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2024-02-13 15:29:04,892 - clip - wflow - INFO - Writing model staticgeom to file.
+2024-02-13 15:29:04,904 - clip - wflow - INFO - Write forcing file
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -633,41 +635,39 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-02-13 12:19:27,552 - clip - wflow - INFO - Writing model staticgeom to file.
-2024-02-13 12:19:27,564 - clip - wflow - INFO - Write forcing file
-2024-02-13 12:19:27,573 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc</div></div>
+2024-02-13 15:29:04,914 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc</div></div>
 </div>
 <dl>
-<dt>[                                        ] | 0% Completed | 370.42 us</dt><dd><blockquote>
+<dt>[                                        ] | 0% Completed | 388.19 us</dt><dd><blockquote>
 <div><p>&lt;/pre&gt;</p>
 </div></blockquote>
 </dd>
-<dt>[                                        ] | 0% Completed | 370.42 us</dt><dd><blockquote>
+<dt>[                                        ] | 0% Completed | 388.19 us</dt><dd><blockquote>
 <div><p>end{sphinxVerbatim}</p>
 </div></blockquote>
 </dd>
 </dl>
-<p>[                                        ] | 0% Completed | 370.42 us</p>
+<p>[                                        ] | 0% Completed | 388.19 us</p>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre></div></div>
 </div>
-<p>[########################################] | 100% Completed | 100.89 ms</p>
+<p>[########################################] | 100% Completed | 100.98 ms</p>
 <blockquote>
 <div><blockquote>
 <div><p>&lt;/pre&gt;</p>
 </div></blockquote>
 </div></blockquote>
-<p>[########################################] | 100% Completed | 100.89 ms</p>
+<p>[########################################] | 100% Completed | 100.98 ms</p>
 <blockquote>
 <div><blockquote>
 <div><p>end{sphinxVerbatim}</p>
 </div></blockquote>
 </div></blockquote>
 <dl class="simple">
-<dt>[########################################] | 100% Completed | 100.89 ms</dt><dd><p>[0m</p>
+<dt>[########################################] | 100% Completed | 100.98 ms</dt><dd><p>[0m</p>
 </dd>
 </dl>
 <p>The example above means the following: run <strong>hydromt clip</strong> with:</p>

@@ -599,7 +599,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.read_grid">
 <span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">read_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.read_grid" title="Link to this definition">#</a></dt>
-<dd><p>Read grid.</p>
+<dd><p>Read wflow static input and add to <code class="docutils literal notranslate"><span class="pre">grid</span></code>.</p>
+<p>Checks the path of the file in the config toml using both <code class="docutils literal notranslate"><span class="pre">input.path_static</span></code>
+and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code>. If not found uses the default path <code class="docutils literal notranslate"><span class="pre">staticmaps.nc</span></code> in the
+root folder.</p>
+<p>If the file is not found, will try to read from the old PCRaster format if map
+files are found in the <code class="docutils literal notranslate"><span class="pre">staticmaps</span></code> folder in the root folder using
+read_staticmaps_pcr.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_staticmaps_pcr</span></code></p>
+</div>
 </dd></dl>
 
 </section>
