@@ -183,32 +183,45 @@ def wflow_1dmodel_connection(
             trib_msk.raster.nodata,
         )
         gdf_trib = trib_msk.raster.vectorize()
-        gdf_trib["geometry"] = gdf_trib.centroid
-
-        # Merge with gdf_tributary if include_river_boundaries
-        # else only keep intersecting tributaries
-        if include_river_boundaries:
-            gdf_tributaries = pd.concat(
-                [gdf_tributaries, gdf_trib.drop(["value"], axis=1)]
-            )
+        # Test if there gdf_trib is empty
+        if gdf_trib.empty:
+            logger.info("No tributaries found")
+            if not include_river_boundaries:
+                gdf_tributaries = gpd.GeoDataFrame()
         else:
-            gdf_tributaries = gdf_trib.drop(["value"], axis=1)
-        gdf_tributaries.index = np.arange(1, len(gdf_tributaries) + 1)
+            gdf_trib["geometry"] = gdf_trib.centroid
+
+            # Merge with gdf_tributary if include_river_boundaries
+            # else only keep intersecting tributaries
+            if include_river_boundaries:
+                gdf_tributaries = pd.concat(
+                    [gdf_tributaries, gdf_trib.drop(["value"], axis=1)]
+                )
+            else:
+                gdf_tributaries = gdf_trib.drop(["value"], axis=1)
+            gdf_tributaries.index = np.arange(1, len(gdf_tributaries) + 1)
 
         # 7. Mask the tributaries out of the subatch_to_split map
-        # Derive the tributary basin map
-        da_trib_subbas, _ = hydromt.flw.basin_map(
-            ds_model,
-            flwdir=flwdir,
-            xy=(gdf_tributaries.geometry.x, gdf_tributaries.geometry.y),
-        )
-        da_trib_subbas.raster.set_crs(ds_model.raster.crs)
-        # Mask tributaries
-        da_flwdir_mask = ds_model["flwdir"].where(
-            (da_subcatch_to_split != da_subcatch_to_split.raster.nodata)
-            & (da_trib_subbas == da_trib_subbas.raster.nodata),
-            ds_model["flwdir"].raster.nodata,
-        )
+        if not gdf_tributaries.empty:
+            # Derive the tributary basin map
+            da_trib_subbas, _ = hydromt.flw.basin_map(
+                ds_model,
+                flwdir=flwdir,
+                xy=(gdf_tributaries.geometry.x, gdf_tributaries.geometry.y),
+            )
+            da_trib_subbas.raster.set_crs(ds_model.raster.crs)
+            # Mask tributaries
+            da_flwdir_mask = ds_model["flwdir"].where(
+                (da_subcatch_to_split != da_subcatch_to_split.raster.nodata)
+                & (da_trib_subbas == da_trib_subbas.raster.nodata),
+                ds_model["flwdir"].raster.nodata,
+            )
+        else:
+            # Mask subcatch to split only
+            da_flwdir_mask = ds_model["flwdir"].where(
+                da_subcatch_to_split != da_subcatch_to_split.raster.nodata,
+                ds_model["flwdir"].raster.nodata,
+            )
         flwdir_mask = hydromt.flw.flwdir_from_da(da_flwdir_mask)
 
     else:
