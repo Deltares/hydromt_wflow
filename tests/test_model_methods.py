@@ -518,6 +518,21 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
 
+def test_skip_nodata_reservoir(clipped_wflow_model):
+    # Using the clipped_wflow_model as the reservoirs are not in this model
+    clipped_wflow_model.setup_reservoirs(
+        reservoirs_fn="hydro_reservoirs",
+        min_area=0.0,
+    )
+    assert clipped_wflow_model.config["model"]["reservoirs"] == False
+    # Get names for two reservoir layers
+    for mapname in ["resareas", "reslocs"]:
+        # Check if layers are indeed not present in the model
+        assert (
+            clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
+        )
+
+
 def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     example_sediment_model.setup_lulcmaps(
         lulc_fn="globcover",
