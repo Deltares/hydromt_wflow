@@ -14,6 +14,7 @@ Added
 
 Changed
 -------
+- **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. #242
 
 Fixed
 -----
