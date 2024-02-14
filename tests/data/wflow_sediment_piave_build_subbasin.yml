@@ -1,0 +1,56 @@
+setup_config:
+
+setup_basemaps:
+  res: 0.016666666666666666
+  hydrography_fn: merit_hydro
+  basin_index_fn: merit_hydro_index
+  upscale_method: ihu
+
+setup_rivers:
+  hydrography_fn: merit_hydro
+  river_geom_fn: rivers_lin2019_v1
+  river_upa: 30
+  rivdph_method: powlaw
+  min_rivdph: 1
+  min_rivwth: 30
+  slope_len: 2000
+  smooth_len: 5000
+
+setup_reservoirs:
+  reservoirs_fn: hydro_reservoirs
+  min_area: 0.0
+
+setup_lakes:
+  lakes_fn: hydro_lakes
+  min_area: 1.0
+
+setup_riverbedsed:
+
+setup_lulcmaps:
+  lulc_fn: globcover
+
+setup_laimaps:
+  lai_fn: modis_lai
+
+setup_canopymaps:
+  canopy_fn: simard
+
+setup_soilmaps:
+  soil_fn: soilgrids
+  usleK_method: renard
+
+setup_outlets:
+  river_only: True
+
+setup_gauges:
+  gauges_fn: grdc
+  snap_to_river: True
+  derive_subcatch: False
+
+setup_constant_pars:
+  c_Bagnold: 0.0000175
+  eros_expo: 1.5
+  eros_ov: 0.9
+  eros_spl_EUROSEM: 2.0
+  exp_Bagnold: 1.4
+  ResTrapEff: 1.0

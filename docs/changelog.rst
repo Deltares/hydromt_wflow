@@ -12,23 +12,43 @@ Unreleased
 Added
 -----
 - new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
-- **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
 
 Changed
 -------
 
 Fixed
 -----
+
+
+v0.5.0 (February 2024)
+======================
+Better handling of nodata and a switch from ini to yaml for configuration.
+
+Added
+-----
+- **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
+
+Changed
+-------
+- Remove default values for data sources in the different setup methods. (PR #227)
+
+Fixed
+-----
 - **setup_reservoirs**: Fix error if optional columns 'Capacity_norm', 'Capacity_min', 'xout', 'yout' are not in reservoir_fn. Allow to pass kwargs to the get_data method.
 - **setup_lulcmaps**: Fix error when looking for mapping_fn in self.data_catalog
 - **setup_config_output_timeseries**: bugfix for reducer.
+- update hydromt configuration files from ini to yml format. PR #230
 - remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
+- Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229
 
 Deprecated
 ----------
+- **read_staticmaps_pcr** in favour of same method in **pcrm** submodule
+- **write_staticmaps_pcr** in favour of same method in **pcrm** submodule
 
 Documentation
 -------------
+- Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
 
 v0.4.1 (November 2023)
 ======================

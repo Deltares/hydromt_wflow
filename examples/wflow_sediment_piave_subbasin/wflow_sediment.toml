@@ -13,12 +13,12 @@ path_output = "outstate/outstates.nc"
 [input]
 path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
-gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
 subcatchment = "wflow_subcatch"
 forcing = [ "vertical.h_land", "vertical.interception", "vertical.precipitation", "vertical.q_land", "lateral.river.h_riv", "lateral.river.q_riv",]
 cyclic = [ "vertical.leaf_area_index",]
+gauges = "wflow_gauges"
 gauges_grdc = "wflow_gauges_grdc"
 
 [model]
@@ -124,6 +124,7 @@ reslocs = "wflow_reservoirlocs"
 lakearea = "LakeArea"
 lakeareas = "wflow_lakeareas"
 lakelocs = "wflow_lakelocs"
+bankfull_depth = "RiverDepth"
 
 [output.lateral.river]
 SSconc = "SSconc"

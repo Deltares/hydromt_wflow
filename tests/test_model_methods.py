@@ -583,3 +583,18 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
 
     assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms
     assert len(example_wflow_model.geoms["subcatch_1dmodel-nodes"]) == 7
+
+
+def test_skip_nodata_reservoir(clipped_wflow_model):
+    # Using the clipped_wflow_model as the reservoirs are not in this model
+    clipped_wflow_model.setup_reservoirs(
+        reservoirs_fn="hydro_reservoirs",
+        min_area=0.0,
+    )
+    assert clipped_wflow_model.config["model"]["reservoirs"] == False
+    # Get names for two reservoir layers
+    for mapname in ["resareas", "reslocs"]:
+        # Check if layers are indeed not present in the model
+        assert (
+            clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
+        )
