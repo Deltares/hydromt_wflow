@@ -6,6 +6,18 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+
 v0.5.0 (February 2024)
 ======================
 Better handling of nodata and a switch from ini to yaml for configuration.
