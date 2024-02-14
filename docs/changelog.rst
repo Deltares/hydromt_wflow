@@ -11,10 +11,24 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+v0.5.0 (February 2024)
+======================
+Better handling of nodata and a switch from ini to yaml for configuration.
+
+Added
+-----
 - **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
 
 Changed
 -------
+- Remove default values for data sources in the different setup methods. (PR #227)
 
 Fixed
 -----
@@ -23,12 +37,16 @@ Fixed
 - **setup_config_output_timeseries**: bugfix for reducer.
 - update hydromt configuration files from ini to yml format. PR #230
 - remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
+- Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229
 
 Deprecated
 ----------
+- **read_staticmaps_pcr** in favour of same method in **pcrm** submodule
+- **write_staticmaps_pcr** in favour of same method in **pcrm** submodule
 
 Documentation
 -------------
+- Extra information for most of the setup methods of **WflowModel** and **WWflowSedimentModel**
 
 v0.4.1 (November 2023)
 ======================
