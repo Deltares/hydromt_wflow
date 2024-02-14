@@ -19,7 +19,6 @@ Changed
 Fixed
 -----
 
-
 v0.5.0 (February 2024)
 ======================
 Better handling of nodata and a switch from ini to yaml for configuration.
