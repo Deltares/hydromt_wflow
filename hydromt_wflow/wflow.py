@@ -2641,7 +2641,7 @@ Run setup_soilmaps first"
         upstream boundary of the 1d river as an additional tributary using the
         `include_river_boundaries` option.
 
-        Optionnally, the toml file can also be updated to save lateral.river.inwater to
+        Optionally, the toml file can also be updated to save lateral.river.inwater to
         save all river inflows for the subcatchments and lateral.river.q_av for the
         tributaries using :py:meth:`hydromt_wflow.wflow.setup_config_output_timeseries`.
 
