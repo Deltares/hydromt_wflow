@@ -17,6 +17,33 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
+def test_setup_basemaps(tmpdir):
+    # Region
+    region = {
+        "basin": [12.2051, 45.8331],
+        "strord": 4,
+        "bounds": [11.70, 45.35, 12.95, 46.70],
+    }
+    mod = WflowModel(
+        root=str(tmpdir.join("wflow_base")),
+        mode="w",
+        data_libs=["artifact_data"],
+    )
+
+    hydrography = mod.data_catalog.get_rasterdataset("merit_hydro")
+    # Change dtype to uint32
+    hydrography["basins"] = hydrography["basins"].astype("uint32")
+
+    # Run setup_basemaps
+    mod.setup_basemaps(
+        region=region,
+        hydrography_fn=hydrography,
+        res=hydrography.raster.res[0],  # no upscaling
+    )
+
+    assert mod.grid["wflow_subcatch"].dtype == "int32"
+
+
 def test_setup_grid(example_wflow_model):
     # Tests on setup_grid_from_raster
     example_wflow_model.setup_grid_from_raster(
@@ -362,6 +389,22 @@ def test_setup_rootzoneclim(example_wflow_model):
     assert example_wflow_model.geoms["rootzone_storage"].loc[1][
         "rootzone_storage_cc_fut_2"
     ] == pytest.approx(104.96931418911882, abs=0.5)
+
+
+def test_setup_outlets(example_wflow_model):
+    # Update wflow_subcatch ID
+    new_subcatch = example_wflow_model.grid["wflow_subcatch"].copy()
+    new_subcatch = new_subcatch.where(new_subcatch == new_subcatch.raster.nodata, 1001)
+    example_wflow_model.set_grid(new_subcatch, "wflow_subcatch")
+
+    # Derive outlets
+    example_wflow_model.setup_outlets()
+
+    # Check if the ID is indeed 1001
+    val, count = np.unique(example_wflow_model.grid["wflow_gauges"], return_counts=True)
+    # 0 is no data
+    assert val[1] == 1001
+    assert count[1] == 1
 
 
 def test_setup_gauges(example_wflow_model):
