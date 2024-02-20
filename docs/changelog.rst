@@ -14,9 +14,11 @@ Added
 
 Changed
 -------
+- **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
 
 Fixed
 -----
+- Wrong dtype for wflow_subcatch map. PR #247
 
 v0.5.0 (February 2024)
 ======================
