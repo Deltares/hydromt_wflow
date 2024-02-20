@@ -19,6 +19,7 @@ Changed
 Fixed
 -----
 - Wrong dtype for wflow_subcatch map. PR #247
+- **setup_gauges**: Allow snapping to river/mask for snap_uparea method. PR #248
 
 v0.5.0 (February 2024)
 ======================
