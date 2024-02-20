@@ -1080,9 +1080,13 @@ skipping adding gauge specific outputs to the toml."
             idxs_out = idxs_out[
                 (self.grid[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
+        # Use the wflow_subcatch ids
+        if self._MAPS["basins"] in self.grid:
+            ids = self.grid[self._MAPS["basins"]].values.flat[idxs_out]
         da_out, idxs_out, ids_out = flw.gauge_map(
             self.grid,
             idxs=idxs_out,
+            ids=ids,
             flwdir=self.flwdir,
             logger=self.logger,
         )

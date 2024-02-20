@@ -391,6 +391,22 @@ def test_setup_rootzoneclim(example_wflow_model):
     ] == pytest.approx(104.96931418911882, abs=0.5)
 
 
+def test_setup_outlets(example_wflow_model):
+    # Update wflow_subcatch ID
+    new_subcatch = example_wflow_model.grid["wflow_subcatch"].copy()
+    new_subcatch = new_subcatch.where(new_subcatch == new_subcatch.raster.nodata, 1001)
+    example_wflow_model.set_grid(new_subcatch, "wflow_subcatch")
+
+    # Derive outlets
+    example_wflow_model.setup_outlets()
+
+    # Check if the ID is indeed 1001
+    val, count = np.unique(example_wflow_model.grid["wflow_gauges"], return_counts=True)
+    # 0 is no data
+    assert val[1] == 1001
+    assert count[1] == 1
+
+
 def test_setup_gauges(example_wflow_model):
     # uparea rename not in the latest artifact_data version
     example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
