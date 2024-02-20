@@ -34,7 +34,7 @@ def wflow_1dmodel_connection(
         tributary is larger than the area_max, it will be connected to the 1d river
         directly.
         - "nodes": subcatchments are derived based on the 1driver nodes (used as gauges
-        locations). WIth this method, large tributaries can also be derived separately
+        locations). With this method, large tributaries can also be derived separately
         using the add_tributaries option and adding a area_max threshold for the
         tributaries.
 
