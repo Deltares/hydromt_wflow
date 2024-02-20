@@ -1112,6 +1112,7 @@ skipping adding gauge specific outputs to the toml."
         max_dist: Optional[float] = 10e3,
         wdw: Optional[int] = 3,
         rel_error: Optional[float] = 0.05,
+        abs_error: Optional[float] = 50.0,
         derive_subcatch: Optional[bool] = False,
         basename: Optional[str] = None,
         toml_output: Optional[str] = "csv",
@@ -1187,7 +1188,11 @@ gauge locations [-] (if derive_subcatch)
         rel_error: float, optional
             Maximum relative error (default 0.05)
             between the gauge location upstream area and the upstream area of
-            the best fit grid cell, only used if snap_area is True.
+            the best fit grid cell, only used if snap_uparea is True.
+        abs_error: float, optional
+            Maximum absolute error (default 50.0)
+            between the gauge location upstream area and the upstream area of
+            the best fit grid cell, only used if snap_uparea is True.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
@@ -1297,8 +1302,10 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
                 self.grid,
                 gdf_gauges,
                 uparea_name="wflow_uparea",
+                mask=mask,
                 wdw=wdw,
                 rel_error=rel_error,
+                abs_error=abs_error,
                 logger=self.logger,
             )
         else:

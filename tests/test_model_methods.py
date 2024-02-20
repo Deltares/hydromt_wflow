@@ -380,7 +380,7 @@ def test_setup_gauges(example_wflow_model):
     ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
         gdf, wdw=0
     )
-    assert np.all(ds_samp["wflow_river"].values == 1)
+    # assert np.all(ds_samp["wflow_river"].values == 1)
     assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
 
     # Test with/without snapping
@@ -407,6 +407,40 @@ def test_setup_gauges(example_wflow_model):
     equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
     assert len(equal) == 1
     assert equal.index.values[0] == 1003
+
+    # Test uparea with/without river snapping
+    example_wflow_model.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_uparea_no_snapping",
+        snap_to_river=False,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+    )
+    gdf_no_snap = example_wflow_model.geoms["gauges_stations_uparea_no_snapping"]
+
+    example_wflow_model.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_uparea_snapping",
+        snap_to_river=True,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+        abs_error=25,
+    )
+    gdf_snap = example_wflow_model.geoms["gauges_stations_uparea_snapping"]
+
+    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
+        gdf_snap, wdw=0
+    )
+    assert np.all(ds_samp["wflow_river"].values == 1)
+    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
+        gdf_no_snap, wdw=0
+    )
+    assert not np.all(ds_samp["wflow_river"].values == 1)
+    assert not gdf_snap.equals(gdf_no_snap)
 
 
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])

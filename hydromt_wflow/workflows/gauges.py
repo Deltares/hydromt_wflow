@@ -18,6 +18,7 @@ def gauge_map_uparea(
     ds: xr.Dataset,
     gdf: gpd.GeoDataFrame,
     uparea_name: Optional[str] = "wflow_uparea",
+    mask: Optional[np.ndarray] = None,
     wdw: Optional[int] = 1,
     rel_error: float = 0.05,
     abs_error: float = 50,
@@ -40,6 +41,8 @@ def gauge_map_uparea(
         GeoDataFrame with gauge points and uparea column.
     uparea_name : str, optional
         Name of the upstream area variable in ``ds``, by default "wflow_uparea".
+    mask : np.ndarray, optional
+        Mask cells to apply the uparea snapping, by default None.
     wdw : int, optional
         Window size around the original location to search for the best matching cell,
         by default 1.
@@ -61,13 +64,23 @@ def gauge_map_uparea(
     if uparea_name not in ds:
         raise ValueError(f"uparea_name {uparea_name} not found in ds.")
 
+    ds = ds.copy()
+    # Add mask to ds
+    if mask is not None:
+        ds["mask"] = xr.DataArray(mask, dims=(ds.raster.y_dim, ds.raster.x_dim))
+
     ds_wdw = ds.raster.sample(gdf, wdw=wdw)
+    # Mask valid cells in ds_wdw
+    if mask is not None:
+        ds_wdw[uparea_name] = ds_wdw[uparea_name].where(
+            ds_wdw["mask"], ds_wdw[uparea_name].raster.nodata
+        )
     logger.debug(
         f"Snapping gauges points to best matching uparea cell within wdw (size={wdw})."
     )
     upa0 = xr.DataArray(gdf["uparea"], dims=("index"))
     upa_dff = np.abs(ds_wdw[uparea_name].where(ds_wdw[uparea_name] > 0).load() - upa0)
-    upa_check = np.logical_or((upa_dff / upa0) <= rel_error, upa_dff <= abs_error)
+    upa_check = np.logical_and((upa_dff / upa0) <= rel_error, upa_dff <= abs_error)
     # find best matching uparea cell in window
     i_wdw = upa_dff.argmin("wdw").load()
 
