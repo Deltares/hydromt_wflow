@@ -1047,6 +1047,11 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set the default gauge map based on basin outlets.
 
+        If wflow_subcatch is available, the catchment outlets IDs will be matching the
+        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.
+
+        Can also add csv/netcdf output settings in the TOML.
+
         Adds model layers:
 
         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
@@ -1083,6 +1088,8 @@ skipping adding gauge specific outputs to the toml."
         # Use the wflow_subcatch ids
         if self._MAPS["basins"] in self.grid:
             ids = self.grid[self._MAPS["basins"]].values.flat[idxs_out]
+        else:
+            ids = None
         da_out, idxs_out, ids_out = flw.gauge_map(
             self.grid,
             idxs=idxs_out,
