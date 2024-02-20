@@ -173,7 +173,10 @@ def brooks_corey_layers(c_sl, soil_fn, wflow_layers, soildepth_cm):
     wflow_depths = np.cumsum(wflow_thickness)
     # Check if the last wflow depth is less than 2000 mm (soilgrids limit)
     if wflow_depths[-1] > 2000:
-        raise ValueError("The total depth of the wflow soil layers should be 2000 mm.")
+        raise ValueError(
+            "The total depth of the wflow soil layers should be 2000 mm, as the \
+soilgrids data does not go deeper than 2 m."
+        )
     # Add a zero for the first depth and 2000 for the last depth
     wflow_depths = np.insert(wflow_depths, 0, 0)
     wflow_depths = np.append(wflow_depths, 2000)
