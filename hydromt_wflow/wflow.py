@@ -1853,8 +1853,8 @@ KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` ar
 (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
-        * **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
-index for the wflow_sbm soil layers.
+        * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
+a map for each of the wflow_sbm soil layers (n in total)
         * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
 [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
         * **wflow_soil** map: soil texture based on USDA soil texture triangle \
