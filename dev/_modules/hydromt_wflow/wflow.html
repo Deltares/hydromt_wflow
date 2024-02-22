@@ -1489,6 +1489,11 @@
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the default gauge map based on basin outlets.</span>
 
+<span class="sd">        If wflow_subcatch is available, the catchment outlets IDs will be matching the</span>
+<span class="sd">        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.</span>
+
+<span class="sd">        Can also add csv/netcdf output settings in the TOML.</span>
+
 <span class="sd">        Adds model layers:</span>
 
 <span class="sd">        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
@@ -1522,9 +1527,15 @@
             <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">idxs_out</span><span class="p">[</span>
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs_out</span><span class="p">]</span>
             <span class="p">]</span>
+        <span class="c1"># Use the wflow_subcatch ids</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flat</span><span class="p">[</span><span class="n">idxs_out</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ids</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">da_out</span><span class="p">,</span> <span class="n">idxs_out</span><span class="p">,</span> <span class="n">ids_out</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
             <span class="n">idxs</span><span class="o">=</span><span class="n">idxs_out</span><span class="p">,</span>
+            <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
             <span class="n">flwdir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flwdir</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>

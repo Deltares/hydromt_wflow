@@ -598,6 +598,9 @@
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_outlets">
 <span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_outlets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">river_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">toml_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'csv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_header</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['Q']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauge_toml_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['lateral.river.q_av']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_outlets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_outlets" title="Link to this definition">#</a></dt>
 <dd><p>Set the default gauge map based on basin outlets.</p>
+<p>If wflow_subcatch is available, the catchment outlets IDs will be matching the
+wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.</p>
+<p>Can also add csv/netcdf output settings in the TOML.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_gauges</strong> map: gauge IDs map from catchment outlets [-]</p></li>
