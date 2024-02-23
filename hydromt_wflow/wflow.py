@@ -1900,6 +1900,48 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
         ).reset_coords(drop=True)
         self.set_grid(dsout)
 
+    def setup_ksathorfrac(
+        self,
+        ksat_fn: str = "KsatHorFrac_global",
+        ksat_method: str = "BRT_250_KsatHorFrac_global",
+        scale_method: str = "average",
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        ksat_fn : str, optional
+            _description_, by default "KsatHorFrac_global"
+        ksat_method : str, optional
+            _description_, by default "BRT_250_KsatHorFrac_global"
+        scale_method : str, optional
+            _description_, by default "average"
+        """
+        self.logger.info("Preparing KsatHorFrac parameter map.")
+        # Get the data from the catalog
+        dain = self.data_catalog.get_rasterdataset(
+            ksat_fn,
+            geom = self.region,
+            buffer = 2,
+            variables=[ksat_method]
+        )
+        
+        # Create scaled ksathorfrac map
+        dsout = workflows.ksathorfrac(
+            dain,
+            ds_like=self.grid,
+            scale_method=scale_method,
+        )
+
+        # Set the grid
+        self.set_grid(dsout) # TODO of course
+        self.set_config(
+            "input.lateral.subsurface.ksathorfrac", 
+            "KsatHorFrac"
+        )
+
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
         Generate maps of glacier areas, area fraction and volume fraction.
