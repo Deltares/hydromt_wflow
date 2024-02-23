@@ -255,6 +255,33 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
 number of reservoirs in model area"
 
 
+def test_setup_ksathorfrac(tmpdir, example_wflow_model):
+    # Read the modeldata
+    model = "wflow"
+    example_wflow_model.read()
+    # Add the wflow datacatalog
+    example_wflow_model.data_catalog.from_yml(
+        "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/catalogs/wflow_data.yml"
+    )
+
+    # Set the output directory
+    destination = str(tmpdir.join(model))
+    example_wflow_model.set_root(destination, mode="w")
+
+    # Build the map
+    example_wflow_model.setup_ksathorfrac(ksat_fn="KsatHorFrac_global")
+    # Write and read the map
+    example_wflow_model.write_grid()
+    example_wflow_model.read_grid()
+
+    # Check values
+    values = example_wflow_model.grid.KsatHorFrac.raster.mask_nodata()
+    max_val = values.max().values
+    mean_val = values.mean().values
+    assert int(max_val * 100) == 68637
+    assert int(mean_val * 100) == 8637
+
+
 def test_setup_rootzoneclim(example_wflow_model):
     # load csv with dummy data for long timeseries of precip, pet and dummy Q data.
     test_data = pd.read_csv(

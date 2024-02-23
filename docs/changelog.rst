@@ -11,6 +11,8 @@ Unreleased
 
 Added
 -----
+- Catalog specifically for HydroMT-Wflow
+- Setup method for the **KsatHorFrac** parameter
 
 Changed
 -------
