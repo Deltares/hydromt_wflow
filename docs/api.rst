@@ -36,6 +36,7 @@ Setup components
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
+   WflowModel.setup_ksathorfrac
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
@@ -152,6 +153,7 @@ Setup components
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
    WflowSedimentModel.setup_laimaps
+   WflowSedimentModel.setup_ksathorfrac
    WflowSedimentModel.setup_canopymaps
    WflowSedimentModel.setup_soilmaps
    WflowSedimentModel.setup_riverwidth
@@ -243,6 +245,7 @@ Wflow workflows
    workflows.river
    workflows.river_bathymetry
    workflows.landuse
+   workflows.ksathorfrac
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.waterbodymaps
