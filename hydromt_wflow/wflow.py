@@ -1922,12 +1922,9 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
         self.logger.info("Preparing KsatHorFrac parameter map.")
         # Get the data from the catalog
         dain = self.data_catalog.get_rasterdataset(
-            ksat_fn,
-            geom = self.region,
-            buffer = 2,
-            variables=[ksat_method]
+            ksat_fn, geom=self.region, buffer=2, variables=[ksat_method]
         )
-        
+
         # Create scaled ksathorfrac map
         dsout = workflows.ksathorfrac(
             dain,
@@ -1936,11 +1933,8 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
         )
 
         # Set the grid
-        self.set_grid(dsout) # TODO of course
-        self.set_config(
-            "input.lateral.subsurface.ksathorfrac", 
-            "KsatHorFrac"
-        )
+        self.set_grid(dsout)  # TODO of course
+        self.set_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac")
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """

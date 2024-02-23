@@ -1,5 +1,4 @@
 """Functions for individual soil parameters."""
-from pathlib import Path
 
 import numpy as np
 import xarray as xr
@@ -34,16 +33,14 @@ def ksathorfrac(
     da = da.raster.reproject_like(
         ds_like,
         method=scale_method,
-    ) 
+    )
     # Scale the data back to normal values
-    da.values = 10**(da.values)
+    da.values = 10 ** (da.values)
 
     # Fill all nodata holes in the map
     da = da.interpolate_na(dim=da.raster.x_dim, method="linear")
     da = da.interpolate_na(
-        dim=da.raster.x_dim, 
-        method="nearest", 
-        fill_value="extrapolate"
+        dim=da.raster.x_dim, method="nearest", fill_value="extrapolate"
     )
 
     # Set outgoing name
