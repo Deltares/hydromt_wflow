@@ -394,6 +394,7 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">hydromt_wflow.WflowModel.setup_temp_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_constant_pars.html">hydromt_wflow.WflowModel.setup_constant_pars</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -530,6 +531,7 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html">hydromt_wflow.workflows.glaciermaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.read_csv_results.html">hydromt_wflow.read_csv_results</a></li>
@@ -661,7 +663,10 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_constant_pars</span></code></a>([dtype, nodata])</p></td>
 <td><p>Generate constant parameter maps for all active model cells.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster" title="hydromt_wflow.WflowModel.setup_grid_from_raster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_grid_from_raster</span></code></a>(raster_fn, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_1dmodel_connection.html#hydromt_wflow.WflowModel.setup_1dmodel_connection" title="hydromt_wflow.WflowModel.setup_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_1dmodel_connection</span></code></a>(river1d_fn)</p></td>
+<td><p>Connect wflow to a 1D model by deriving linked subcatch (and tributaries).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster" title="hydromt_wflow.WflowModel.setup_grid_from_raster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_grid_from_raster</span></code></a>(raster_fn, ...)</p></td>
 <td><p>Add data variable(s) from <code class="docutils literal notranslate"><span class="pre">raster_fn</span></code> to grid object.</p></td>
 </tr>
 </tbody>
@@ -1081,6 +1086,9 @@
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
 <td><p>Estimates the root zone storage parameter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html#hydromt_wflow.workflows.wflow_1dmodel_connection" title="hydromt_wflow.workflows.wflow_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.wflow_1dmodel_connection</span></code></a>(gdf_riv, ...)</p></td>
+<td><p>Connect wflow to a 1D model by deriving linked subcatchs (and tributaries).</p></td>
 </tr>
 </tbody>
 </table>

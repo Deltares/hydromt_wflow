@@ -3099,6 +3099,149 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.vertical.rootingdepth&quot;</span><span class="p">,</span> <span class="n">update_toml_rootingdepth</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_1dmodel_connection">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_1dmodel_connection.html#hydromt_wflow.WflowModel.setup_1dmodel_connection">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup_1dmodel_connection</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">river1d_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
+        <span class="n">connection_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subbasin_area&quot;</span><span class="p">,</span>
+        <span class="n">area_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">add_tributaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_river_boundaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">mapname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1dmodel&quot;</span><span class="p">,</span>
+        <span class="n">update_toml</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">toml_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Connect wflow to a 1D model by deriving linked subcatch (and tributaries).</span>
+
+<span class="sd">        There are two methods to connect models:</span>
+
+<span class="sd">            - `subbasin_area`: creates subcatchments linked to the 1d river based</span>
+<span class="sd">            on an area threshold (area_max) for the subbasin size. With this method,</span>
+<span class="sd">            if a tributary is larger than the `area_max`, it will be connected to</span>
+<span class="sd">            the 1d river directly.</span>
+<span class="sd">            - `nodes`: subcatchments are derived based on the 1driver nodes (used as</span>
+<span class="sd">            gauges locations). With this method, large tributaries can also be derived</span>
+<span class="sd">            separately using the `add_tributaries` option and adding a `area_max`</span>
+<span class="sd">            threshold for the tributaries.</span>
+
+<span class="sd">        If `add_tributary` option is on, you can decide to include or exclude the</span>
+<span class="sd">        upstream boundary of the 1d river as an additional tributary using the</span>
+<span class="sd">        `include_river_boundaries` option.</span>
+
+<span class="sd">        Optionally, the toml file can also be updated to save lateral.river.inwater to</span>
+<span class="sd">        save all river inflows for the subcatchments and lateral.river.q_av for the</span>
+<span class="sd">        tributaries using :py:meth:`hydromt_wflow.wflow.setup_config_output_timeseries`.</span>
+
+<span class="sd">        Adds model layer:</span>
+
+<span class="sd">        * **wflow_subcatch_{mapname}** map/geom:  connection subbasins between</span>
+<span class="sd">          wflow and the 1D model.</span>
+<span class="sd">        * **wflow_subcatch_riv_{mapname}** map/geom:  connection subbasins between</span>
+<span class="sd">          wflow and the 1D model for river cells only.</span>
+<span class="sd">        * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries</span>
+<span class="sd">          flowing into the 1D model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        river1d_fn : str, Path, gpd.GeoDataFrame</span>
+<span class="sd">            GeodataFrame with the 1D model river network and nodes where to derive</span>
+<span class="sd">            subbasins for connection_method **nodes**.</span>
+<span class="sd">        connection_method : str, default subbasin_area</span>
+<span class="sd">            Method to connect wflow to the 1D model. Available methods are {</span>
+<span class="sd">                &#39;subbasin_area&#39;, &#39;nodes&#39;}.</span>
+<span class="sd">        area_max : float, default 10.0</span>
+<span class="sd">            Maximum area [km2] of the subbasins to connect to the 1D model in km2 with</span>
+<span class="sd">            connection_method **subbasin_area** or **nodes** with add_tributaries</span>
+<span class="sd">            set to True.</span>
+<span class="sd">        add_tributaries : bool, default True</span>
+<span class="sd">            If True, derive tributaries for the subbasins larger than area_max. Always</span>
+<span class="sd">            True for **subbasin_area** method.</span>
+<span class="sd">        include_river_boundaries : bool, default True</span>
+<span class="sd">            If True, include the upstream boundary(ies) of the 1d river as an</span>
+<span class="sd">            additional tributary(ies).</span>
+<span class="sd">        mapname : str, default 1dmodel</span>
+<span class="sd">            Name of the map to save the subcatchments and tributaries in the wflow model</span>
+<span class="sd">            staticmaps and geoms (wflow_subcatch_{mapname}).</span>
+<span class="sd">        update_toml : bool, default True</span>
+<span class="sd">            If True, updates the wflow configuration file to save the required outputs</span>
+<span class="sd">            for the 1D model.</span>
+<span class="sd">        toml_output : str, optional</span>
+<span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow</span>
+<span class="sd">            toml file or do nothing. By default, &#39;netcdf&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check connection method values</span>
+        <span class="k">if</span> <span class="n">connection_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;subbasin_area&quot;</span><span class="p">,</span> <span class="s2">&quot;nodes&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown connection method </span><span class="si">{</span><span class="n">connection_method</span><span class="si">}</span><span class="s2">,&quot;</span>
+                <span class="s2">&quot;select from [&#39;subbasin_area&#39;, &#39;nodes&#39;]&quot;</span>
+            <span class="p">)</span>
+        <span class="c1"># read 1d model river network</span>
+        <span class="n">gdf_riv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+            <span class="n">river1d_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># derive subcatchments and tributaries</span>
+        <span class="n">inv_rename</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">}</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">wflow_1dmodel_connection</span><span class="p">(</span>
+            <span class="n">gdf_riv</span><span class="p">,</span>
+            <span class="n">ds_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">inv_rename</span><span class="p">),</span>
+            <span class="n">connection_method</span><span class="o">=</span><span class="n">connection_method</span><span class="p">,</span>
+            <span class="n">area_max</span><span class="o">=</span><span class="n">area_max</span><span class="p">,</span>
+            <span class="n">add_tributaries</span><span class="o">=</span><span class="n">add_tributaries</span><span class="p">,</span>
+            <span class="n">include_river_boundaries</span><span class="o">=</span><span class="n">include_river_boundaries</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Derive tributary gauge map</span>
+        <span class="k">if</span> <span class="s2">&quot;gauges&quot;</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;wflow_gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Derive the gauges staticgeoms</span>
+            <span class="n">gdf_tributary</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+            <span class="n">gdf_tributary</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_tributary</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid</span>
+            <span class="n">gdf_tributary</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_tributary</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_tributary</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Update toml</span>
+            <span class="k">if</span> <span class="n">update_toml</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setup_config_output_timeseries</span><span class="p">(</span>
+                    <span class="n">mapname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;wflow_gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
+                    <span class="n">header</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">],</span>
+                    <span class="n">param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lateral.river.q_av&quot;</span><span class="p">],</span>
+                    <span class="n">reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Derive subcatchment map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;wflow_subcatch_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">gdf_subcatch</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+        <span class="n">gdf_subcatch</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_subcatch</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_subcatch</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatch_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># Subcatchment map for river cells only (to be able to save river outputs</span>
+        <span class="c1"># in wflow)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch_riv&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;wflow_subcatch_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">gdf_subcatch_riv</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch_riv&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+        <span class="n">gdf_subcatch_riv</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_subcatch_riv</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_subcatch_riv</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;subcatch_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Update toml</span>
+        <span class="k">if</span> <span class="n">update_toml</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setup_config_output_timeseries</span><span class="p">(</span>
+                <span class="n">mapname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;wflow_subcatch_riv_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
+                <span class="n">header</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Qlat&quot;</span><span class="p">],</span>
+                <span class="n">param</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lateral.river.inwater&quot;</span><span class="p">],</span>
+                <span class="n">reducer</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sum&quot;</span><span class="p">],</span>
+            <span class="p">)</span></div>
+
+
     <span class="c1"># I/O</span>
 <div class="viewcode-block" id="WflowModel.read">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read">[docs]</a>
