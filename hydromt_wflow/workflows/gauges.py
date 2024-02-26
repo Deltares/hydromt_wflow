@@ -64,6 +64,16 @@ def gauge_map_uparea(
     if uparea_name not in ds:
         raise ValueError(f"uparea_name {uparea_name} not found in ds.")
 
+    # Find if there are any nodata in gdf["uparea"]
+    if gdf["uparea"].isna().any():
+        logger.warning(
+            "There are NaN values in the gauges uparea."
+            "Uparea from wflow will be used ie no snapping if mask is None."
+        )
+        uparea_wflow = ds[uparea_name].raster.sample(gdf, wdw=0)
+        # Replace nan values in gdf with uparea from wflow
+        gdf["uparea"] = gdf["uparea"].fillna(uparea_wflow.to_pandas())
+
     ds = ds.copy()
     # Add mask to ds
     if mask is not None:

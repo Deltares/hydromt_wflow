@@ -427,7 +427,7 @@ def test_setup_gauges(example_wflow_model):
     assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
 
     # Test with/without snapping
-    stations_fn = join(EXAMPLEDIR, "test_stations.csv")
+    stations_fn = join(TESTDATADIR, "test_stations.csv")
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
         basename="stations_snapping",
