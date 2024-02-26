@@ -2618,7 +2618,7 @@ Run setup_soilmaps first"
         connection_method: str = "subbasin_area",
         area_max: float = 10.0,
         add_tributaries: bool = True,
-        include_river_boundaries: bool = False,
+        include_river_boundaries: bool = True,
         mapname: str = "1dmodel",
         update_toml: bool = True,
         toml_output: str = "netcdf",
@@ -2669,7 +2669,7 @@ Run setup_soilmaps first"
         add_tributaries : bool, default True
             If True, derive tributaries for the subbasins larger than area_max. Always
             True for **subbasin_area** method.
-        include_river_boundaries : bool, default False
+        include_river_boundaries : bool, default True
             If True, include the upstream boundary(ies) of the 1d river as an
             additional tributary(ies).
         mapname : str, default 1dmodel

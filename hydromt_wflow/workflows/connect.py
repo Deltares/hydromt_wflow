@@ -21,7 +21,7 @@ def wflow_1dmodel_connection(
     connection_method: str = "subbasin_area",
     area_max: float = 10.0,
     add_tributaries: bool = True,
-    include_river_boundaries: bool = False,
+    include_river_boundaries: bool = True,
     logger=logger,
 ) -> xr.Dataset:
     """
@@ -58,7 +58,7 @@ def wflow_1dmodel_connection(
     add_tributaries : bool, default True
         If True, derive tributaries for the subbasins larger than area_max. Always True
         for **subbasin_area** method.
-    include_river_boundaries : bool, default False
+    include_river_boundaries : bool, default True
         If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
     logger : logging.Logger, optional
@@ -247,6 +247,8 @@ def wflow_1dmodel_connection(
     else:
         # Get the nodes from gdf_riv
         logger.info("Deriving subbasins based on 1D river nodes snapped to wflow river")
+        # from multiline to line
+        gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
         nodes = []
         for bi, branch in gdf_riv.iterrows():
             nodes.append([Point(branch.geometry.coords[0]), bi])  # start
