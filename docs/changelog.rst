@@ -11,10 +11,11 @@ Unreleased
 
 Added
 -----
+- workflow to compute brooks coreay c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
 
 Changed
 -------
-- **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. #242
+- **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
 
 Fixed
 -----

@@ -13,7 +13,7 @@ from . import ptf
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["soilgrids", "soilgrids_sediment"]
+__all__ = ["soilgrids", "soilgrids_sediment", "soilgrids_brooks_corey"]
 
 # soilgrids_2017
 soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
@@ -30,6 +30,46 @@ nodata = -9999.0
 c_sl_index = [2, 4, 6, 7]  # v2017 direct mapping
 # c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,
 # averages are taken instead.
+
+
+def concat_layers(
+    ds: xr.Dataset,
+    soil_fn: str = "soilgrids",
+    variables: List[str] = ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"],
+):
+    """
+    Preprocess functions to concat soilgrids along a layer dimension.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing soil properties.
+    soil_fn : str
+        soilgrids version {'soilgrids', 'soilgrids_2020'}
+    variables : list
+        List of soil properties to concat.
+    """
+    if soil_fn == "soilgrids_2020":
+        nb_sl = 6
+    else:
+        nb_sl = 7
+    ds = ds.assign_coords(sl=np.arange(1, nb_sl + 1))
+
+    for var in variables:
+        da_prop = []
+        for i in np.arange(1, nb_sl + 1):
+            da_prop.append(ds[f"{var}_sl{i}"])
+            # remove layer from ds
+            ds = ds.drop_vars(f"{var}_sl{i}")
+        da = xr.concat(
+            da_prop,
+            pd.Index(np.arange(1, nb_sl + 1, dtype=int), name="sl"),
+        ).transpose("sl", ...)
+        da.name = var
+        # add concat maps to ds
+        ds[f"{var}"] = da
+
+    return ds
 
 
 def average_soillayers_block(ds, soilthickness):
@@ -167,7 +207,54 @@ def pore_size_distrution_index_layers(ds, thetas):
     return ds_out
 
 
-def brooks_corey_layers(c_sl, soil_fn, wflow_layers, soildepth_cm):
+def brooks_corey_layers(
+    thetas_sl: xr.Dataset,
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    soil_fn: str = "soilgrids",
+    wflow_layers: List[int] = [100, 300, 800],
+    soildepth_cm: np.array = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]),
+):
+    """
+    Determine Brooks Corey coefficient per wflow soil layer depth.
+
+    First pore size distribution index is computed based on theta_s and other soil
+    parameters and scaled to the model resolution.
+
+    Then the Brooks Corey coefficient is computed for each wflow soil layer depth
+    by weighted averaging the pore size distribution index over the soil thickness.
+
+    Parameters
+    ----------
+    thetas_sl: xarray.Dataset
+        Dataset containing thetaS at each soil layer depth.
+    ds: xarray.Dataset
+        Dataset containing soil properties at each soil depth.
+    ds_like: xarray.Dataset
+        Dataset at model resolution for reprojection.
+    soil_fn: str
+        soilgrids version {'soilgrids', 'soilgrids_2020'}
+    wflow_layers: list
+        List of soil layer depths [cm] for which c is calculated.
+    soildepth_cm: np.array
+        Depth of each soil layers [cm].
+
+    Returns
+    -------
+    ds_c : xarray.Dataset
+        Dataset containing c for the wflow_sbm soil layers.
+    """
+    # Get pore size distribution index
+    lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
+    lambda_sl = np.log(lambda_sl_hr)
+    lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
+    lambda_sl = np.exp(lambda_sl)
+
+    # Brooks Corey coefficient
+    c_sl = 3.0 + (2.0 / lambda_sl)
+    c_sl.name = "c_sl"
+
+    # Resample for the wflow layers
     wflow_thickness = wflow_layers.copy()
     # Go from wflow layer thickness to soil depths (cumulative)
     wflow_depths = np.cumsum(wflow_thickness)
@@ -441,24 +528,8 @@ index for the wflow_sbm soil layers.
     # ds = xr.where(ds["sltppt_sl1"] == ds["sltppt_sl1"].raster.nodata, np.nan, ds)
     ds = ds.raster.mask_nodata()
 
-    # add new coordinate sl to merge layers
-    ds = ds.assign_coords(sl=np.arange(1, len(soildepth_cm_midpoint) + 1))
-
-    for var in ["bd", "oc", "ph", "clyppt", "sltppt", "sndppt"]:
-        da_prop = []
-        for i in np.arange(1, len(soildepth_cm_midpoint) + 1):
-            da_prop.append(ds[f"{var}_sl{i}"])
-            # remove layer from ds
-            ds = ds.drop_vars(f"{var}_sl{i}")
-        da = xr.concat(
-            da_prop,
-            pd.Index(
-                np.arange(1, len(soildepth_cm_midpoint) + 1, dtype=int), name="sl"
-            ),
-        ).transpose("sl", ...)
-        da.name = var
-        # add concat maps to ds
-        ds[f"{var}"] = da
+    # concat along a sl dimension
+    ds = concat_layers(ds, soil_fn)
 
     logger.info("calculate and resample thetaS")
     thetas_sl = xr.apply_ufunc(
@@ -513,15 +584,14 @@ index for the wflow_sbm soil layers.
     kv_sl = np.exp(kv_sl)
 
     logger.info("calculate and resample pore size distribution index")
-    lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
-    lambda_sl = np.log(lambda_sl_hr)
-    lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
-    lambda_sl = np.exp(lambda_sl)
-
-    # Brooks Corey coefficient
-    c_sl = 3.0 + (2.0 / lambda_sl)
-    c_sl.name = "c_sl"
-    ds_c = brooks_corey_layers(c_sl, soil_fn, wflow_layers, soildepth_cm)
+    ds_c = brooks_corey_layers(
+        thetas_sl=thetas_sl,
+        ds=ds,
+        ds_like=ds_like,
+        soil_fn=soil_fn,
+        wflow_layers=wflow_layers,
+        soildepth_cm=soildepth_cm,
+    )
     ds_out["c"] = ds_c
 
     ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)
@@ -607,6 +677,75 @@ index for the wflow_sbm soil layers.
         ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
         ds_out[var] = ds_out[var].fillna(nodata).astype(dtype)
         ds_out[var].raster.set_nodata(np.dtype(dtype).type(nodata))
+
+    return ds_out
+
+
+def soilgrids_brooks_corey(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    soil_fn: str = "soilgrids",
+    wflow_layers: List[int] = [100, 300, 800],
+    logger=logger,
+):
+    """
+    Determine Brooks Corey coefficient per wflow soil layer depth.
+
+    First pore size distribution index is computed based on theta_s and other soil
+    parameters and scaled to the model resolution.
+
+    Then the Brooks Corey coefficient is computed for each wflow soil layer depth
+    by weighted averaging the pore size distribution index over the soil thickness.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing soil properties.
+    ds_like : xarray.DataArray
+        Dataset at model resolution.
+    soil_fn : str
+        soilgrids version {'soilgrids', 'soilgrids_2020'}
+    wflow_layers : list
+        List of wflow soil layer depths [cm] over which c is calculated.
+
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing c for the wflow_sbm soil layers.
+    """
+    if soil_fn == "soilgrids_2020" or soil_fn == "soilgrids":
+        soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
+    else:
+        raise ValueError("Only soilgrids_2020 and soilgrids are supported.")
+
+    ds_out = xr.Dataset(coords=ds_like.raster.coords)
+    ds = ds.raster.mask_nodata()
+    # concat along a sl dimension
+    ds = concat_layers(ds, soil_fn)
+
+    logger.info("calculate and resample thetaS")
+    thetas_sl = xr.apply_ufunc(
+        ptf.thetas_toth,
+        ds["ph"],
+        ds["bd"],
+        ds["clyppt"],
+        ds["sltppt"],
+        dask="parallelized",
+        output_dtypes=[float],
+        keep_attrs=True,
+    )
+
+    logger.info("calculate and resample pore size distribution index")
+    # Brooks Corey coefficient
+    ds_c = brooks_corey_layers(
+        thetas_sl=thetas_sl,
+        ds=ds,
+        ds_like=ds_like,
+        soil_fn=soil_fn,
+        wflow_layers=wflow_layers,
+        soildepth_cm=soildepth_cm,
+    )
+    ds_out["c"] = ds_c
 
     return ds_out
 

@@ -245,6 +245,7 @@ Wflow workflows
    workflows.landuse
    workflows.soilgrids
    workflows.soilgrids_sediment
+   workflows.soilgrids_brooks_corey
    workflows.waterbodymaps
    workflows.reservoirattrs
    workflows.lakeattrs
