@@ -1047,6 +1047,11 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set the default gauge map based on basin outlets.
 
+        If wflow_subcatch is available, the catchment outlets IDs will be matching the
+        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.
+
+        Can also add csv/netcdf output settings in the TOML.
+
         Adds model layers:
 
         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
@@ -1080,9 +1085,15 @@ skipping adding gauge specific outputs to the toml."
             idxs_out = idxs_out[
                 (self.grid[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
+        # Use the wflow_subcatch ids
+        if self._MAPS["basins"] in self.grid:
+            ids = self.grid[self._MAPS["basins"]].values.flat[idxs_out]
+        else:
+            ids = None
         da_out, idxs_out, ids_out = flw.gauge_map(
             self.grid,
             idxs=idxs_out,
+            ids=ids,
             flwdir=self.flwdir,
             logger=self.logger,
         )
@@ -2619,6 +2630,146 @@ Run setup_soilmaps first"
 
         # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
+
+    def setup_1dmodel_connection(
+        self,
+        river1d_fn: Union[str, Path, gpd.GeoDataFrame],
+        connection_method: str = "subbasin_area",
+        area_max: float = 10.0,
+        add_tributaries: bool = True,
+        include_river_boundaries: bool = True,
+        mapname: str = "1dmodel",
+        update_toml: bool = True,
+        toml_output: str = "netcdf",
+    ):
+        """
+        Connect wflow to a 1D model by deriving linked subcatch (and tributaries).
+
+        There are two methods to connect models:
+
+            - `subbasin_area`: creates subcatchments linked to the 1d river based
+            on an area threshold (area_max) for the subbasin size. With this method,
+            if a tributary is larger than the `area_max`, it will be connected to
+            the 1d river directly.
+            - `nodes`: subcatchments are derived based on the 1driver nodes (used as
+            gauges locations). With this method, large tributaries can also be derived
+            separately using the `add_tributaries` option and adding a `area_max`
+            threshold for the tributaries.
+
+        If `add_tributary` option is on, you can decide to include or exclude the
+        upstream boundary of the 1d river as an additional tributary using the
+        `include_river_boundaries` option.
+
+        Optionally, the toml file can also be updated to save lateral.river.inwater to
+        save all river inflows for the subcatchments and lateral.river.q_av for the
+        tributaries using :py:meth:`hydromt_wflow.wflow.setup_config_output_timeseries`.
+
+        Adds model layer:
+
+        * **wflow_subcatch_{mapname}** map/geom:  connection subbasins between
+          wflow and the 1D model.
+        * **wflow_subcatch_riv_{mapname}** map/geom:  connection subbasins between
+          wflow and the 1D model for river cells only.
+        * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries
+          flowing into the 1D model.
+
+        Parameters
+        ----------
+        river1d_fn : str, Path, gpd.GeoDataFrame
+            GeodataFrame with the 1D model river network and nodes where to derive
+            subbasins for connection_method **nodes**.
+        connection_method : str, default subbasin_area
+            Method to connect wflow to the 1D model. Available methods are {
+                'subbasin_area', 'nodes'}.
+        area_max : float, default 10.0
+            Maximum area [km2] of the subbasins to connect to the 1D model in km2 with
+            connection_method **subbasin_area** or **nodes** with add_tributaries
+            set to True.
+        add_tributaries : bool, default True
+            If True, derive tributaries for the subbasins larger than area_max. Always
+            True for **subbasin_area** method.
+        include_river_boundaries : bool, default True
+            If True, include the upstream boundary(ies) of the 1d river as an
+            additional tributary(ies).
+        mapname : str, default 1dmodel
+            Name of the map to save the subcatchments and tributaries in the wflow model
+            staticmaps and geoms (wflow_subcatch_{mapname}).
+        update_toml : bool, default True
+            If True, updates the wflow configuration file to save the required outputs
+            for the 1D model.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
+            toml file or do nothing. By default, 'netcdf'.
+        """
+        # Check connection method values
+        if connection_method not in ["subbasin_area", "nodes"]:
+            raise ValueError(
+                f"Unknown connection method {connection_method},"
+                "select from ['subbasin_area', 'nodes']"
+            )
+        # read 1d model river network
+        gdf_riv = self.data_catalog.get_geodataframe(
+            river1d_fn,
+            geom=self.region,
+            buffer=2,
+        )
+
+        # derive subcatchments and tributaries
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        ds_out = workflows.wflow_1dmodel_connection(
+            gdf_riv,
+            ds_model=self.grid.rename(inv_rename),
+            connection_method=connection_method,
+            area_max=area_max,
+            add_tributaries=add_tributaries,
+            include_river_boundaries=include_river_boundaries,
+            logger=self.logger,
+        )
+
+        # Derive tributary gauge map
+        if "gauges" in ds_out.data_vars:
+            self.set_grid(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
+            # Derive the gauges staticgeoms
+            gdf_tributary = ds_out["gauges"].raster.vectorize()
+            gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
+            gdf_tributary["value"] = gdf_tributary["value"].astype(
+                ds_out["gauges"].dtype
+            )
+            self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
+
+            # Update toml
+            if update_toml:
+                self.setup_config_output_timeseries(
+                    mapname=f"wflow_gauges_{mapname}",
+                    toml_output=toml_output,
+                    header=["Q"],
+                    param=["lateral.river.q_av"],
+                    reducer=None,
+                )
+
+        # Derive subcatchment map
+        self.set_grid(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
+        gdf_subcatch = ds_out["subcatch"].raster.vectorize()
+        gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
+        self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
+        # Subcatchment map for river cells only (to be able to save river outputs
+        # in wflow)
+        self.set_grid(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
+        gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
+        gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
+            ds_out["subcatch"].dtype
+        )
+        self.set_geoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
+
+        # Update toml
+        if update_toml:
+            self.setup_config_output_timeseries(
+                mapname=f"wflow_subcatch_riv_{mapname}",
+                toml_output=toml_output,
+                header=["Qlat"],
+                param=["lateral.river.inwater"],
+                reducer=["sum"],
+            )
 
     # I/O
     def read(self):

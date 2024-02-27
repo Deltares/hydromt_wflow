@@ -21,6 +21,7 @@ For a static (non-interactive) view of the examples follow one of the links belo
 *   `Update Wflow model: landuse <../_examples/update_model_landuse.ipynb>`_
 *   `Update Wflow model: forcing <../_examples/update_model_forcing.ipynb>`_
 *   `Update Wflow model: gauges <../_examples/update_model_gauges.ipynb>`_
+*   `Update Wflow model (pyhton): connect to a 1D river model <../_examples/connect_to_1d_model.ipynb>`_
 
 **Clip model from command line interface**
 
