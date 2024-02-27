@@ -96,3 +96,11 @@ def planted_forest_testdata():
     gdf = gpd.GeoDataFrame(geometry=[box(*bbox1), box(*bbox2)], crs="EPSG:4326")
     gdf["forest_type"] = ["Pine", "Orchard"]
     return gdf
+
+
+@pytest.fixture()
+def rivers1d():
+    data = gpd.read_file(
+        join(TESTDATADIR, "rivers.geojson"),
+    )
+    return data
