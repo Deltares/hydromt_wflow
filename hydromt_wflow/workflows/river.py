@@ -10,7 +10,7 @@ import xarray as xr
 from hydromt import flw, gis_utils, stats, workflows
 from scipy.optimize import curve_fit
 
-from hydromt_wflow import DATADIR  # global var
+from hydromt_wflow.utils import DATADIR  # global var
 
 logger = logging.getLogger(__name__)
 

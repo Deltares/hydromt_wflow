@@ -8,7 +8,7 @@ import xarray as xr
 
 from hydromt_wflow.wflow import WflowModel
 
-from . import DATADIR
+from .utils import DATADIR
 from .workflows import landuse, soilgrids_sediment
 
 __all__ = ["WflowSedimentModel"]
