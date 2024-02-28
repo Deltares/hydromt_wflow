@@ -3,17 +3,19 @@ meta:
   root: p:/wflow_global
   version: 2024.1
 
-KsatHorFrac_global:
+ksathorfrac_global:
   crs: 4326
   data_type: RasterDataset
   driver: raster
-  kwargs:
+  driver_kwargs:
     chunks:
       x: 2400
       y: 2400
   meta:
-    category: Soil parameters
+    category: soil
     resolution: 225 metres
     resolution_real: 7.5 arc seconds
-    source_author: Awad Mohammed Ali
+    source_author: Awad Mohammed Ali - Deltares
+    source_info:  KsatHorFrac estimated with Random Forest (RF) and Boosted Regression Trees (BRT) methods. These ML-based transfer functions are trained on soilgrids and validated with CAMELS-UK dataset in the UK. With these global maps, we expect good results in regions with geology and soil types similar to the UK. For other regions, this has still to be tested.
+    source_version: 1.0
   path: hydromt_staging/ksathorfrac_thesis_awadali/*.tif
