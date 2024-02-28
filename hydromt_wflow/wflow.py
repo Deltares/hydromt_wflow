@@ -1929,7 +1929,7 @@ dataset was created, by default 'BRT_250_KsatHorFrac_global'.
         # See if a method is supplied
         variables = []
         variables.append(ksat_method)
-        if ksat_method is not None:
+        if ksat_method is None:
             variables = None
 
         # Get the data from the catalog
@@ -1939,6 +1939,10 @@ dataset was created, by default 'BRT_250_KsatHorFrac_global'.
             buffer=2,
             variables=variables,
         )
+
+        # Ensure its a DataArray
+        if isinstance(dain, xr.Dataset):
+            dain = dain.to_dataarray()
 
         # Create scaled ksathorfrac map
         dsout = workflows.ksathorfrac(

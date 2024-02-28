@@ -261,7 +261,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     example_wflow_model.read()
     # Add the wflow datacatalog
     example_wflow_model.data_catalog.from_yml(
-        "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/catalogs/wflow_data.yml"
+        "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/catalogs/wflow_deltares_data.yml"
     )
 
     # Set the output directory
@@ -269,7 +269,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     example_wflow_model.set_root(destination, mode="w")
 
     # Build the map
-    example_wflow_model.setup_ksathorfrac(ksat_fn="KsatHorFrac_global")
+    example_wflow_model.setup_ksathorfrac(ksat_fn="ksathorfrac_global")
     # Write and read the map
     example_wflow_model.write_grid()
     example_wflow_model.read_grid()
