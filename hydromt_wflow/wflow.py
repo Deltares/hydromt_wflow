@@ -27,7 +27,8 @@ from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
-from . import DATADIR, utils, workflows
+from . import utils, workflows
+from .utils import DATADIR
 
 __all__ = ["WflowModel"]
 
@@ -1902,27 +1903,41 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
 
     def setup_ksathorfrac(
         self,
-        ksat_fn: str = "KsatHorFrac_global",
-        ksat_method: str = "BRT_250_KsatHorFrac_global",
+        ksat_fn: str = "ksathorfrac_global",
+        ksat_method: str | None = "BRT_250_KsatHorFrac_global",
         scale_method: str = "average",
     ):
-        """_summary_.
+        """Set KsatHorFrac parameter values from a predetermined map.
 
-        _extended_summary_
+        This predetermined map contains 'calibrated' values of of the KsatHorFrac \
+parameter. This map is either selected from the wflow Deltares data or created \
+by a third party/ individual.
 
         Parameters
         ----------
         ksat_fn : str, optional
-            _description_, by default "KsatHorFrac_global"
+            The identifier of the KsatHorFrac dataset in the data catalog, \
+by default "KsatHorFrac_global"
         ksat_method : str, optional
-            _description_, by default "BRT_250_KsatHorFrac_global"
+            The identifier of the method via which this version of the KsatHorFrac \
+dataset was created, by default 'BRT_250_KsatHorFrac_global'.
         scale_method : str, optional
-            _description_, by default "average"
+            The resampling method when up- or downscaled, by default "average"
         """
         self.logger.info("Preparing KsatHorFrac parameter map.")
+
+        # See if a method is supplied
+        variables = []
+        variables.append(ksat_method)
+        if ksat_method is not None:
+            variables = None
+
         # Get the data from the catalog
         dain = self.data_catalog.get_rasterdataset(
-            ksat_fn, geom=self.region, buffer=2, variables=[ksat_method]
+            ksat_fn,
+            geom=self.region,
+            buffer=2,
+            variables=variables,
         )
 
         # Create scaled ksathorfrac map
