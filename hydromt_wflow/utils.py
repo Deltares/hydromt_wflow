@@ -1,4 +1,5 @@
 """Some utilities from the Wflow plugin."""
+from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Union
 
@@ -8,6 +9,8 @@ from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
 
 __all__ = ["read_csv_results"]
+
+DATADIR = join(dirname(abspath(__file__)), "data")
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
