@@ -153,7 +153,6 @@ Setup components
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
    WflowSedimentModel.setup_laimaps
-   WflowSedimentModel.setup_ksathorfrac
    WflowSedimentModel.setup_canopymaps
    WflowSedimentModel.setup_soilmaps
    WflowSedimentModel.setup_riverwidth
