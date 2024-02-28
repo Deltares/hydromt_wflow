@@ -11,8 +11,9 @@ Unreleased
 
 Added
 -----
-- Catalog specifically for HydroMT-Wflow
-- Setup method for the **KsatHorFrac** parameter
+- Catalog specifically for HydroMT-Wflow.
+- Setup method for the **KsatHorFrac** parameter. PR #249
+- Workflow function **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. PR #249
 
 Changed
 -------
