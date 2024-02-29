@@ -4,6 +4,7 @@ import logging
 import platform
 from os.path import abspath, dirname, join
 
+import geopandas as gpd
 import pytest
 import xarray as xr
 from hydromt.cli.cli_utils import parse_config
@@ -83,5 +84,13 @@ def floodplain1d_testdata():
         join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
         lock=False,
         mode="r",
+    )
+    return data
+
+
+@pytest.fixture()
+def rivers1d():
+    data = gpd.read_file(
+        join(TESTDATADIR, "rivers.geojson"),
     )
     return data

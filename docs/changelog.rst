@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Catalog specifically for HydroMT-Wflow.
+- new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - Setup method for the **KsatHorFrac** parameter. PR #249
 - Workflow function **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. PR #249
 
@@ -51,7 +52,7 @@ Deprecated
 
 Documentation
 -------------
-- Extra information for most of the setup methods of **WflowModel** and **WWflowSedimentModel**
+- Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
 
 v0.4.1 (November 2023)
 ======================
