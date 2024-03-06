@@ -1,7 +1,7 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
 import logging
-from os.path import abspath, dirname, join
+from os.path import abspath, dirname, isfile, join
 
 import numpy as np
 
@@ -641,3 +641,32 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         assert (
             clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
         )
+
+
+def test_setup_cold_states(example_wflow_model, tmpdir):
+    # Create states
+    example_wflow_model.setup_cold_states()
+    states = example_wflow_model.states.copy()
+
+    assert "q_land" in example_wflow_model.states
+    assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
+    assert np.isclose(
+        example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,
+        559.73975,
+    )
+    assert np.isclose(
+        example_wflow_model.states["ssf"].raster.mask_nodata().mean().values, 67.45569
+    )
+
+    # test write
+    example_wflow_model.set_root(str(tmpdir.join("wflow_cold_states")), mode="r+")
+    example_wflow_model.write_states()
+
+    assert isfile(str(tmpdir.join("wflow_cold_states", "instate", "instates.nc")))
+
+    # test read
+    example_wflow_model.read_states()
+
+    xr.testing.assert_equal(
+        xr.merge(states.values()), xr.merge(example_wflow_model.states.values())
+    )

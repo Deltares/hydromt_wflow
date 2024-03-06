@@ -2763,6 +2763,62 @@ Run setup_soilmaps first"
                 reducer=["sum"],
             )
 
+    def setup_cold_states(
+        self,
+        timestamp: str = None,
+    ) -> None:
+        """Prepare cold states for Wflow.
+
+        To be run last as this requires some soil parameters or constant_pars to be
+        computed already.
+
+        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        cold states for them if they are present in the basin.
+
+        This function is mainly useful in case the wflow model is read into Delft-FEWS.
+
+        Adds model layer:
+        * **satwaterdepth**: saturated store [mm]
+        * **snow**: snow storage [mm]
+        * **tsoil**: top soil temperature [°C]
+        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
+        * **snowwater**: liquid water content in the snow pack [mm]
+        * **canopystorage**: canopy storage [mm]
+        * **q_river**: river discharge [m3/s]
+        * **h_river**: river water level [m]
+        * **h_av_river**: river average water level [m]
+        * **ssf**: subsurface flow [m3/d]
+        * **h_land**: land water level [m]
+        * **h_av_land**: land average water level[m]
+        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+            overland flow in x/y directions for local-inertial [m3/s]
+
+        If lakes, also adds:
+        * **waterlevel_lake**: lake water level [m]
+
+        If reservoirs, also adds:
+        * **volume_reservoir**: reservoir volume [m3]
+
+        If glaciers, also adds:
+        * **glacierstore**: water within the glacier [mm]
+
+        Parameters
+        ----------
+        timestamp : str, optional
+            Timestamp of the cold states. By default uses the (starttime - timestepsecs)
+            from the config.
+        """
+        states = workflows.prepare_cold_states(
+            self.grid,
+            config=self.config,
+            timestamp=timestamp,
+        )
+
+        self.set_states(states)
+
+        # Update config to read the states
+        self.set_config("model.reinit", False)
+
     # I/O
     def read(self):
         """Read the complete model schematization and configuration from file."""
@@ -2771,6 +2827,7 @@ Run setup_soilmaps first"
         self.read_intbl()
         self.read_tables()
         self.read_geoms()
+        self.read_states()
         self.read_forcing()
         self.logger.info("Model read")
 
@@ -2790,6 +2847,8 @@ Run setup_soilmaps first"
             self.write_tables()
         if self._geoms:
             self.write_geoms()
+        if self._states:
+            self.write_states()
         if self._forcing:
             self.write_forcing()
 
@@ -3206,17 +3265,47 @@ change name input.path_forcing "
             # file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
     def read_states(self):
-        """Read states at <root/?/> and parse to dict of xr.DataArray."""
+        """Read states at <root/instate/> and parse to dict of xr.DataArray."""
+        fn_default = join(self.root, "instate", "instates.nc")
+        fn = self.get_config("state.path_input", abs_path=True, fallback=fn_default)
+
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
-        # raise NotImplementedError()
 
-    def write_states(self):
-        """Write states at <root/?/> in model ready format."""
+        if fn is not None and isfile(fn):
+            self.logger.info(f"Read states from {fn}")
+            ds = xr.open_dataset(fn, mask_and_scale=False)
+            for v in ds.data_vars:
+                self.set_states(ds[v])
+
+    def write_states(self, fn_out: Union[str, Path] = None):
+        """Write states at <root/instate/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
+
+        if self.states:
+            self.logger.info("Writting states file")
+
+            # get output filename
+            if fn_out is not None:
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
+            else:
+                fn_out = self.get_config("state.path_input", abs_path=True)
+
+            # merge, process and write forcing
+            ds = xr.merge(self.states.values())
+
+            # make sure no _FillValue is written to the time dimension
+            ds["time"].attrs.pop("_FillValue", None)
+
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
+
+            # write states
+            ds.to_netcdf(fn_out, mode="w")
 
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
@@ -3637,3 +3726,27 @@ change name input.path_forcing "
                 self.grid.raster.bounds
             )
             self.set_forcing(ds_forcing)
+
+    def clip_states(self, crs=4326, **kwargs):
+        """Return clippped states for subbasin.
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped states.
+        """
+        if len(self.states) > 0:
+            self.logger.info("Clipping NetCDF states..")
+            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+                self.grid.raster.bounds
+            )
+            # Check for reservoirs/lakes presence in the clipped model
+            remove_maps = []
+            if self._MAPS["resareas"] not in self.grid:
+                if "volume_reservoir" in ds_states:
+                    remove_maps.extend(["volume_reservoir"])
+            if self._MAPS["lakeareas"] not in self.grid:
+                if "waterlevel_lake" in ds_states:
+                    remove_maps.extend(["waterlevel_lake"])
+            ds_states = ds_states.drop_vars(remove_maps)
+            self.set_states(ds_states)
