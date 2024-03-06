@@ -116,6 +116,7 @@ General methods
    WflowModel.set_states
    WflowModel.read_states
    WflowModel.write_states
+   WflowModel.clip_states
 
    WflowModel.set_results
    WflowModel.read_results
