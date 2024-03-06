@@ -2271,7 +2271,10 @@
 <div class="viewcode-block" id="WflowModel.setup_soilmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="n">ptf_ksatver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+        <span class="n">ptf_ksatver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span><span class="p">,</span>
+        <span class="n">wflow_thicknesslayers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive several (layered) soil parameters.</span>
@@ -2291,7 +2294,7 @@
 <span class="sd">the trapezoidal rule in soilgrids versus simple block weighted average in \</span>
 <span class="sd">soilgrids_2020,</span>
 <span class="sd">        (3) the c parameter is computed as weighted average over wflow_sbm soil layers \</span>
-<span class="sd">in soilgrids_2020 versus at specific depths for soilgrids.</span>
+<span class="sd">defined in ``wflow_thicknesslayers``.</span>
 
 <span class="sd">        The required data from soilgrids are soil bulk density &#39;bd_sl*&#39; [g/cm3], \</span>
 <span class="sd">clay content &#39;clyppt_sl*&#39; [%], silt content &#39;sltppt_sl*&#39; [%], organic carbon content \</span>
@@ -2318,11 +2321,8 @@
 <span class="sd">(fitted with curve_fit (scipy.optimize)), bounds are checked</span>
 <span class="sd">        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \</span>
 <span class="sd">(fitted with numpy linalg regression), bounds are checked</span>
-<span class="sd">        * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution \</span>
-<span class="sd">index at depth of 1st soil layer (100 mm) wflow_sbm</span>
-<span class="sd">        * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm</span>
-<span class="sd">        * **c_2** map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm</span>
-<span class="sd">        * **c_3** map: idem c_0 at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</span>
+<span class="sd">        * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \</span>
+<span class="sd">a map for each of the wflow_sbm soil layers (n in total)</span>
 <span class="sd">        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \</span>
 <span class="sd">[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
 <span class="sd">        * **wflow_soil** map: soil texture based on USDA soil texture triangle \</span>
@@ -2344,18 +2344,26 @@
 <span class="sd">            Pedotransfer function (PTF) to use for calculation KsatVer</span>
 <span class="sd">            (vertical saturated hydraulic conductivity [mm/day]).</span>
 <span class="sd">            By default &#39;brakensiek&#39;.</span>
+<span class="sd">        wflow_thicknesslayers : list of int, optional</span>
+<span class="sd">            Thickness of soil layers [mm] for wflow_sbm soil model.</span>
+<span class="sd">            By default [100, 300, 800] for layers at depths 100, 400, 1200 and &gt;1200 mm.</span>
+<span class="sd">            Used only for Brooks Corey coefficients.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing soil parameter maps.&quot;</span><span class="p">)</span>
         <span class="c1"># TODO add variables list with required variable names</span>
         <span class="n">dsin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">soil_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">soilgrids</span><span class="p">(</span>
-            <span class="n">dsin</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
-            <span class="n">ptf_ksatver</span><span class="p">,</span>
-            <span class="n">soil_fn</span><span class="p">,</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">dsin</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">ptfKsatVer</span><span class="o">=</span><span class="n">ptf_ksatver</span><span class="p">,</span>
+            <span class="n">soil_fn</span><span class="o">=</span><span class="n">soil_fn</span><span class="p">,</span>
+            <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_thicknesslayers</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">reset_coords</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span>
+
+        <span class="c1"># Update the toml file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.thicknesslayers&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.setup_glaciers">

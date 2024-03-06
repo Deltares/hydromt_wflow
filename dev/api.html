@@ -525,6 +525,7 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
@@ -639,7 +640,7 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim" title="hydromt_wflow.WflowModel.setup_rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_rootzoneclim</span></code></a>(run_fn, ...[, ...])</p></td>
 <td><p>Set the RootingDepth.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_soilmaps</span></code></a>([soil_fn, ptf_ksatver])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_soilmaps</span></code></a>([soil_fn, ...])</p></td>
 <td><p>Derive several (layered) soil parameters.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_outlets.html#hydromt_wflow.WflowModel.setup_outlets" title="hydromt_wflow.WflowModel.setup_outlets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_outlets</span></code></a>([river_only, ...])</p></td>
@@ -1063,31 +1064,34 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse" title="hydromt_wflow.workflows.landuse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.landuse</span></code></a>(da, ds_like, df[, logger, ...])</p></td>
 <td><p>Return landuse map and related parameter maps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids" title="hydromt_wflow.workflows.soilgrids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids</span></code></a>(ds, ds_like, ptfKsatVer, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids" title="hydromt_wflow.workflows.soilgrids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids</span></code></a>(ds, ds_like[, ...])</p></td>
 <td><p>Return soil parameter maps at model resolution.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment" title="hydromt_wflow.workflows.soilgrids_sediment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids_sediment</span></code></a>(ds, ds_like, ...)</p></td>
 <td><p>Return soil parameter maps for sediment modelling at model resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps" title="hydromt_wflow.workflows.waterbodymaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.waterbodymaps</span></code></a>(gdf, ds_like[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_brooks_corey.html#hydromt_wflow.workflows.soilgrids_brooks_corey" title="hydromt_wflow.workflows.soilgrids_brooks_corey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids_brooks_corey</span></code></a>(ds, ds_like)</p></td>
+<td><p>Determine Brooks Corey coefficient per wflow soil layer depth.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps" title="hydromt_wflow.workflows.waterbodymaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.waterbodymaps</span></code></a>(gdf, ds_like[, ...])</p></td>
 <td><p>Return waterbody (reservoir/lake) maps (see list below).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs" title="hydromt_wflow.workflows.reservoirattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.reservoirattrs</span></code></a>(gdf[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs" title="hydromt_wflow.workflows.reservoirattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.reservoirattrs</span></code></a>(gdf[, ...])</p></td>
 <td><p>Return reservoir attributes (see list below) needed for modelling.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs" title="hydromt_wflow.workflows.lakeattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.lakeattrs</span></code></a>(ds, gdf[, rating_dict, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs" title="hydromt_wflow.workflows.lakeattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.lakeattrs</span></code></a>(ds, gdf[, rating_dict, ...])</p></td>
 <td><p>Return lake attributes (see list below) needed for modelling.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html#hydromt_wflow.workflows.glaciermaps" title="hydromt_wflow.workflows.glaciermaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glaciermaps</span></code></a>(gdf, ds_like[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html#hydromt_wflow.workflows.glaciermaps" title="hydromt_wflow.workflows.glaciermaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glaciermaps</span></code></a>(gdf, ds_like[, ...])</p></td>
 <td><p>Return glacier maps (see list below) at model resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html#hydromt_wflow.workflows.glacierattrs" title="hydromt_wflow.workflows.glacierattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glacierattrs</span></code></a>(gdf[, TT, Cfmax, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html#hydromt_wflow.workflows.glacierattrs" title="hydromt_wflow.workflows.glacierattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glacierattrs</span></code></a>(gdf[, TT, Cfmax, ...])</p></td>
 <td><p>Return glacier intbls (see list below).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
 <td><p>Estimates the root zone storage parameter.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html#hydromt_wflow.workflows.wflow_1dmodel_connection" title="hydromt_wflow.workflows.wflow_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.wflow_1dmodel_connection</span></code></a>(gdf_riv, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html#hydromt_wflow.workflows.wflow_1dmodel_connection" title="hydromt_wflow.workflows.wflow_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.wflow_1dmodel_connection</span></code></a>(gdf_riv, ...)</p></td>
 <td><p>Connect wflow to a 1D model by deriving linked subcatchs (and tributaries).</p></td>
 </tr>
 </tbody>

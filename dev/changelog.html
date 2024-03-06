@@ -447,11 +447,13 @@
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>new function <strong>setup_1dmodel_connection</strong> to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/210">PR #210</a></p></li>
+<li><p>workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p><strong>setup_soilmaps</strong>: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242</p></li>
 <li><p><strong>setup_outlets</strong>: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247</p></li>
 </ul>
 </section>

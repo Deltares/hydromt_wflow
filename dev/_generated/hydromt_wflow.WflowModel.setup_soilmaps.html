@@ -525,6 +525,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
@@ -598,7 +599,7 @@
 <h1>hydromt_wflow.WflowModel.setup_soilmaps<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-soilmaps" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_soilmaps">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_soilmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptf_ksatver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'brakensiek'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_soilmaps" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_soilmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptf_ksatver</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'brakensiek'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wflow_thicknesslayers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[100,</span> <span class="pre">300,</span> <span class="pre">800]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_soilmaps" title="Link to this definition">#</a></dt>
 <dd><p>Derive several (layered) soil parameters.</p>
 <p>Based on a database with physical soil properties using available point-scale
 (pedo)transfer functions (PTFs) from literature with upscaling rules to
@@ -610,7 +611,7 @@ while “soilgrids_2020” provides data averaged over 6 depth intervals.
 This leads to small changes in the workflow:
 (1) M parameter uses midpoint depths in soilgrids_2020 versus specific depths in soilgrids,
 (2) weighted average of soil properties over soil thickness is done with the trapezoidal rule in soilgrids versus simple block weighted average in soilgrids_2020,
-(3) the c parameter is computed as weighted average over wflow_sbm soil layers in soilgrids_2020 versus at specific depths for soilgrids.</p>
+(3) the c parameter is computed as weighted average over wflow_sbm soil layers defined in <code class="docutils literal notranslate"><span class="pre">wflow_thicknesslayers</span></code>.</p>
 <p>The required data from soilgrids are soil bulk density ‘bd_sl*’ [g/cm3], clay content ‘clyppt_sl*’ [%], silt content ‘sltppt_sl*’ [%], organic carbon content ‘oc_sl*’ [%], pH ‘ph_sl*’ [-], sand content ‘sndppt_sl*’ [%] and soil thickness ‘soilthickness’ [cm].</p>
 <p>The following maps are added to grid:</p>
 <ul class="simple">
@@ -625,10 +626,7 @@ This leads to small changes in the workflow:
 <li><p><strong>M_original_</strong> map: <cite>M_</cite> without checking bounds</p></li>
 <li><p><strong>f</strong> map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</p></li>
 <li><p><strong>f_</strong> map: scaling parameter controlling the decline of KsatVer [mm-1] (fitted with numpy linalg regression), bounds are checked</p></li>
-<li><p><strong>c_0</strong> map: Brooks Corey coefficient [-] based on pore size distribution index at depth of 1st soil layer (100 mm) wflow_sbm</p></li>
-<li><p><strong>c_1</strong> map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm</p></li>
-<li><p><strong>c_2</strong> map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm</p></li>
-<li><p><strong>c_3</strong> map: idem c_0 at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</p></li>
+<li><p><strong>c_n</strong> map: Brooks Corey coefficients [-] based on pore size distribution, a map for each of the wflow_sbm soil layers (n in total)</p></li>
 <li><p><strong>KsatVer_[z]cm</strong> map: KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
 <li><p><strong>wflow_soil</strong> map: soil texture based on USDA soil texture triangle (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])</p></li>
 </ul>
@@ -643,6 +641,9 @@ Should contain info for the 7 soil depths of soilgrids
 <li><p><strong>ptf_ksatver</strong> (<em>{'brakensiek'</em><em>, </em><em>'cosby'}</em>) – Pedotransfer function (PTF) to use for calculation KsatVer
 (vertical saturated hydraulic conductivity [mm/day]).
 By default ‘brakensiek’.</p></li>
+<li><p><strong>wflow_thicknesslayers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Thickness of soil layers [mm] for wflow_sbm soil model.
+By default [100, 300, 800] for layers at depths 100, 400, 1200 and &gt;1200 mm.
+Used only for Brooks Corey coefficients.</p></li>
 </ul>
 </dd>
 </dl>

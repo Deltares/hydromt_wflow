@@ -418,7 +418,9 @@
 <span></span><span class="sd">&quot;&quot;&quot;Soilgrid workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
 
+<span class="kn">import</span> <span class="nn">hydromt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
@@ -428,7 +430,7 @@
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="s2">&quot;soilgrids_sediment&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="s2">&quot;soilgrids_sediment&quot;</span><span class="p">,</span> <span class="s2">&quot;soilgrids_brooks_corey&quot;</span><span class="p">]</span>
 
 <span class="c1"># soilgrids_2017</span>
 <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
@@ -445,6 +447,46 @@
 <span class="n">c_sl_index</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># v2017 direct mapping</span>
 <span class="c1"># c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,</span>
 <span class="c1"># averages are taken instead.</span>
+
+
+<span class="k">def</span> <span class="nf">concat_layers</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+    <span class="n">variables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bd&quot;</span><span class="p">,</span> <span class="s2">&quot;oc&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">,</span> <span class="s2">&quot;clyppt&quot;</span><span class="p">,</span> <span class="s2">&quot;sltppt&quot;</span><span class="p">,</span> <span class="s2">&quot;sndppt&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preprocess functions to concat soilgrids along a layer dimension.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing soil properties.</span>
+<span class="sd">    soil_fn : str</span>
+<span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
+<span class="sd">    variables : list</span>
+<span class="sd">        List of soil properties to concat.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span><span class="p">:</span>
+        <span class="n">nb_sl</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">nb_sl</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nb_sl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+        <span class="n">da_prop</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nb_sl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">da_prop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">_sl</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
+            <span class="c1"># remove layer from ds</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">_sl</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="n">da_prop</span><span class="p">,</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nb_sl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sl&quot;</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">&quot;sl&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+        <span class="n">da</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">var</span>
+        <span class="c1"># add concat maps to ds</span>
+        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
+
+    <span class="k">return</span> <span class="n">ds</span>
 
 
 <span class="k">def</span> <span class="nf">average_soillayers_block</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
@@ -582,6 +624,121 @@
     <span class="k">return</span> <span class="n">ds_out</span>
 
 
+<span class="k">def</span> <span class="nf">brooks_corey_layers</span><span class="p">(</span>
+    <span class="n">thetas_sl</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+    <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
+    <span class="n">soildepth_cm</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">]),</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine Brooks Corey coefficient per wflow soil layer depth.</span>
+
+<span class="sd">    First pore size distribution index is computed based on theta_s and other soil</span>
+<span class="sd">    parameters and scaled to the model resolution.</span>
+
+<span class="sd">    Then the Brooks Corey coefficient is computed for each wflow soil layer depth</span>
+<span class="sd">    by weighted averaging the pore size distribution index over the soil thickness.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    thetas_sl: xarray.Dataset</span>
+<span class="sd">        Dataset containing thetaS at each soil layer depth.</span>
+<span class="sd">    ds: xarray.Dataset</span>
+<span class="sd">        Dataset containing soil properties at each soil depth.</span>
+<span class="sd">    ds_like: xarray.Dataset</span>
+<span class="sd">        Dataset at model resolution for reprojection.</span>
+<span class="sd">    soil_fn: str</span>
+<span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
+<span class="sd">    wflow_layers: list</span>
+<span class="sd">        List of soil layer depths [cm] for which c is calculated.</span>
+<span class="sd">    soildepth_cm: np.array</span>
+<span class="sd">        Depth of each soil layers [cm].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_c : xarray.Dataset</span>
+<span class="sd">        Dataset containing c for the wflow_sbm soil layers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get pore size distribution index</span>
+    <span class="n">lambda_sl_hr</span> <span class="o">=</span> <span class="n">pore_size_distrution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas_sl</span><span class="p">)</span>
+    <span class="n">lambda_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lambda_sl_hr</span><span class="p">)</span>
+    <span class="n">lambda_sl</span> <span class="o">=</span> <span class="n">lambda_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">lambda_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lambda_sl</span><span class="p">)</span>
+
+    <span class="c1"># Brooks Corey coefficient</span>
+    <span class="n">c_sl</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">lambda_sl</span><span class="p">)</span>
+    <span class="n">c_sl</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;c_sl&quot;</span>
+
+    <span class="c1"># Resample for the wflow layers</span>
+    <span class="n">wflow_thickness</span> <span class="o">=</span> <span class="n">wflow_layers</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Go from wflow layer thickness to soil depths (cumulative)</span>
+    <span class="n">wflow_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">wflow_thickness</span><span class="p">)</span>
+    <span class="c1"># Check if the last wflow depth is less than 2000 mm (soilgrids limit)</span>
+    <span class="k">if</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">2000</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;The total depth of the wflow soil layers should be 2000 mm, as the </span><span class="se">\</span>
+<span class="s2">soilgrids data does not go deeper than 2 m.&quot;</span>
+        <span class="p">)</span>
+    <span class="c1"># Add a zero for the first depth and 2000 for the last depth</span>
+    <span class="n">wflow_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">wflow_depths</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">wflow_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wflow_depths</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+    <span class="c1"># Compute the thickness of the last layer</span>
+    <span class="n">wflow_thickness</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">2000</span> <span class="o">-</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+
+    <span class="c1"># Soil data depth</span>
+    <span class="n">soildepth</span> <span class="o">=</span> <span class="n">soildepth_cm</span> <span class="o">*</span> <span class="mi">10</span>
+
+    <span class="c1"># make empty dataarray for c for the 4 sbm layers</span>
+    <span class="n">ds_c</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">c_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+        <span class="n">crs</span><span class="o">=</span><span class="n">c_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="n">wflow_thickness</span><span class="p">,</span> <span class="s2">&quot;soil_fn&quot;</span><span class="p">:</span> <span class="n">soil_fn</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">ds_c</span> <span class="o">=</span> <span class="n">ds_c</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wflow_thickness</span><span class="p">))))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># calc weighted average values of c over the sbm soil layers</span>
+    <span class="k">for</span> <span class="n">nl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wflow_thickness</span><span class="p">)):</span>
+        <span class="n">top_depth</span> <span class="o">=</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="n">nl</span><span class="p">]</span>
+        <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="n">nl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">c_nl_sum</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">soildepth</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span><span class="p">:</span>
+                <span class="n">c_av</span> <span class="o">=</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c_av</span> <span class="o">=</span> <span class="p">(</span><span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">d</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="c1"># wflow layer fully within soilgrid layer</span>
+            <span class="k">if</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">top_depth</span> <span class="ow">and</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">bottom_depth</span><span class="p">:</span>
+                <span class="n">c_nl</span> <span class="o">=</span> <span class="n">c_av</span> <span class="o">*</span> <span class="p">(</span><span class="n">bottom_depth</span> <span class="o">-</span> <span class="n">top_depth</span><span class="p">)</span>
+            <span class="c1"># layer fully within wflow layer</span>
+            <span class="k">elif</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">top_depth</span> <span class="ow">and</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">bottom_depth</span><span class="p">:</span>
+                <span class="n">c_nl</span> <span class="o">=</span> <span class="n">c_av</span> <span class="o">*</span> <span class="p">(</span><span class="n">soildepth</span><span class="p">[</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+            <span class="c1"># bottom part of the layer wihtin wflow</span>
+            <span class="k">elif</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">bottom_depth</span> <span class="ow">and</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">bottom_depth</span><span class="p">:</span>
+                <span class="n">c_nl</span> <span class="o">=</span> <span class="n">c_av</span> <span class="o">*</span> <span class="p">(</span><span class="n">bottom_depth</span> <span class="o">-</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span><span class="p">])</span>
+            <span class="c1"># top part of the layer within wflow</span>
+            <span class="k">elif</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">top_depth</span> <span class="ow">and</span> <span class="n">soildepth</span><span class="p">[</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">top_depth</span><span class="p">:</span>
+                <span class="n">c_nl</span> <span class="o">=</span> <span class="n">c_av</span> <span class="o">*</span> <span class="p">(</span><span class="n">soildepth</span><span class="p">[</span><span class="n">d</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">top_depth</span><span class="p">)</span>
+            <span class="c1"># layer outside of wflow layer</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c_nl</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Add to the sum</span>
+            <span class="k">if</span> <span class="n">c_nl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">c_nl_sum</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">c_nl_sum</span> <span class="o">=</span> <span class="n">c_nl</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">c_nl_sum</span> <span class="o">=</span> <span class="n">c_nl_sum</span> <span class="o">+</span> <span class="n">c_nl</span>
+
+        <span class="n">ds_c</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">nl</span><span class="p">)]</span> <span class="o">=</span> <span class="n">c_nl_sum</span> <span class="o">/</span> <span class="n">wflow_thickness</span><span class="p">[</span><span class="n">nl</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">ds_c</span>
+
+
 <span class="k">def</span> <span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.</span>
@@ -702,7 +859,14 @@
 
 <div class="viewcode-block" id="soilgrids">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids">[docs]</a>
-<span class="k">def</span> <span class="nf">soilgrids</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">ptfKsatVer</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">soilgrids</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ptfKsatVer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span><span class="p">,</span>
+    <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+    <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return soil parameter maps at model resolution.</span>
 
@@ -738,12 +902,8 @@
 <span class="sd">(fitted with curve_fit (scipy.optimize)), bounds are checked</span>
 <span class="sd">    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]</span>
 <span class="sd">      (fitted with numpy linalg regression), bounds are checked</span>
-<span class="sd">    - **c_0** : Brooks Corey coefficient [-] based on pore size distribution index at \</span>
-<span class="sd">depth 1st</span>
-<span class="sd">      soil layer (100 mm) wflow_sbm</span>
-<span class="sd">    - **c_1** : idem **c_0** at depth 2nd soil layer (400 mm) wflow_sbm</span>
-<span class="sd">    - **c_2** : idem **c_0** at depth 3rd soil layer (1200 mm) wflow_sbm</span>
-<span class="sd">    - **c_3** : idem **c_0** at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</span>
+<span class="sd">    - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \</span>
+<span class="sd">index for the wflow_sbm soil layers.</span>
 <span class="sd">    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \</span>
 <span class="sd">[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
 <span class="sd">    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \</span>
@@ -761,6 +921,8 @@
 <span class="sd">        PTF to use for calculcation KsatVer.</span>
 <span class="sd">    soil_fn : str</span>
 <span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
+<span class="sd">    wflow_layers : list</span>
+<span class="sd">        List of soil layer depths [cm] for which c is calculated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -772,14 +934,10 @@
         <span class="n">soildepth_cm_midpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.5</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">22.5</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">])</span>
         <span class="n">soildepth_cm_midpoint_surface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">22.5</span><span class="p">,</span> <span class="mf">45.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">,</span> <span class="mf">150.0</span><span class="p">])</span>
         <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
-        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
-        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm_midpoint</span>
         <span class="n">soildepth_mm_midpoint_surface</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm_midpoint_surface</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
-        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
         <span class="n">soildepth_cm_midpoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
-        <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
         <span class="n">soildepth_mm_midpoint_surface</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">soildepth_cm</span>
 
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
@@ -789,24 +947,8 @@
     <span class="c1"># ds = xr.where(ds[&quot;sltppt_sl1&quot;] == ds[&quot;sltppt_sl1&quot;].raster.nodata, np.nan, ds)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
 
-    <span class="c1"># add new coordinate sl to merge layers</span>
-    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">soildepth_cm_midpoint</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-
-    <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;bd&quot;</span><span class="p">,</span> <span class="s2">&quot;oc&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">,</span> <span class="s2">&quot;clyppt&quot;</span><span class="p">,</span> <span class="s2">&quot;sltppt&quot;</span><span class="p">,</span> <span class="s2">&quot;sndppt&quot;</span><span class="p">]:</span>
-        <span class="n">da_prop</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">soildepth_cm_midpoint</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">da_prop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">_sl</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span>
-            <span class="c1"># remove layer from ds</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">_sl</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">da</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="n">da_prop</span><span class="p">,</span>
-            <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">soildepth_cm_midpoint</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sl&quot;</span>
-            <span class="p">),</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">&quot;sl&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-        <span class="n">da</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">var</span>
-        <span class="c1"># add concat maps to ds</span>
-        <span class="n">ds</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
+    <span class="c1"># concat along a sl dimension</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">concat_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample thetaS&quot;</span><span class="p">)</span>
     <span class="n">thetas_sl</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
@@ -861,40 +1003,14 @@
     <span class="n">kv_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">kv_sl</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample pore size distribution index&quot;</span><span class="p">)</span>
-    <span class="n">lambda_sl_hr</span> <span class="o">=</span> <span class="n">pore_size_distrution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas_sl</span><span class="p">)</span>
-    <span class="n">lambda_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">lambda_sl_hr</span><span class="p">)</span>
-    <span class="n">lambda_sl</span> <span class="o">=</span> <span class="n">lambda_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">lambda_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">lambda_sl</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span><span class="p">:</span>
-        <span class="c1"># calculate c for each layer of lambda</span>
-        <span class="n">c_sl</span> <span class="o">=</span> <span class="mf">3.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">lambda_sl</span><span class="p">)</span>
-        <span class="n">c_sl</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;c_sl&quot;</span>
-
-        <span class="c1"># make empty dataarray for c for the 4 sbm layers</span>
-        <span class="n">ds_c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">soilthickness</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-        <span class="n">ds_c</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
-        <span class="n">ds_c</span> <span class="o">=</span> <span class="n">ds_c</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="c1"># calc weighted average values of c over the sbm soil layers</span>
-        <span class="n">ds_c</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">50</span>
-        <span class="p">)</span> <span class="o">/</span> <span class="mi">100</span>  <span class="c1"># average over layer 0-100</span>
-        <span class="n">ds_c</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">+</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">150</span> <span class="o">+</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-        <span class="p">)</span> <span class="o">/</span> <span class="mi">300</span>  <span class="c1"># average over layer 100-400</span>
-        <span class="n">ds_c</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="mi">200</span> <span class="o">+</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">400</span> <span class="o">+</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="mi">200</span>
-        <span class="p">)</span> <span class="o">/</span> <span class="mi">800</span>  <span class="c1"># average over layer 400-1200</span>
-        <span class="n">ds_c</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="mi">3</span><span class="p">)]</span> <span class="o">=</span> <span class="n">c_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>  <span class="c1"># layer &gt;1200</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># for soilgrids 2017, keep the direct mapping calculation.</span>
-        <span class="n">da_c</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sl_ind</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c_sl_index</span><span class="p">):</span>
-            <span class="n">da_c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">3.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">lambda_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">sl_ind</span><span class="p">)))</span>
-        <span class="n">ds_c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="n">da_c</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">c_sl_index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;layer&quot;</span><span class="p">)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">&quot;layer&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-        <span class="n">ds_c</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;c&quot;</span>
+    <span class="n">ds_c</span> <span class="o">=</span> <span class="n">brooks_corey_layers</span><span class="p">(</span>
+        <span class="n">thetas_sl</span><span class="o">=</span><span class="n">thetas_sl</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+        <span class="n">ds_like</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
+        <span class="n">soil_fn</span><span class="o">=</span><span class="n">soil_fn</span><span class="p">,</span>
+        <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_layers</span><span class="p">,</span>
+        <span class="n">soildepth_cm</span><span class="o">=</span><span class="n">soildepth_cm</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_c</span>
 
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;KsatVer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kv_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
@@ -980,6 +1096,78 @@
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">nodata</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<div class="viewcode-block" id="soilgrids_brooks_corey">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_brooks_corey.html#hydromt_wflow.workflows.soilgrids_brooks_corey">[docs]</a>
+<span class="k">def</span> <span class="nf">soilgrids_brooks_corey</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+    <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine Brooks Corey coefficient per wflow soil layer depth.</span>
+
+<span class="sd">    First pore size distribution index is computed based on theta_s and other soil</span>
+<span class="sd">    parameters and scaled to the model resolution.</span>
+
+<span class="sd">    Then the Brooks Corey coefficient is computed for each wflow soil layer depth</span>
+<span class="sd">    by weighted averaging the pore size distribution index over the soil thickness.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing soil properties.</span>
+<span class="sd">    ds_like : xarray.DataArray</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">    soil_fn : str</span>
+<span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
+<span class="sd">    wflow_layers : list</span>
+<span class="sd">        List of wflow soil layer depths [cm] over which c is calculated.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_out : xarray.Dataset</span>
+<span class="sd">        Dataset containing c for the wflow_sbm soil layers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span> <span class="ow">or</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">:</span>
+        <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only soilgrids_2020 and soilgrids are supported.&quot;</span><span class="p">)</span>
+
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span>
+    <span class="c1"># concat along a sl dimension</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">concat_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample thetaS&quot;</span><span class="p">)</span>
+    <span class="n">thetas_sl</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="n">ptf</span><span class="o">.</span><span class="n">thetas_toth</span><span class="p">,</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ph&quot;</span><span class="p">],</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;bd&quot;</span><span class="p">],</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;clyppt&quot;</span><span class="p">],</span>
+        <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sltppt&quot;</span><span class="p">],</span>
+        <span class="n">dask</span><span class="o">=</span><span class="s2">&quot;parallelized&quot;</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample pore size distribution index&quot;</span><span class="p">)</span>
+    <span class="c1"># Brooks Corey coefficient</span>
+    <span class="n">ds_c</span> <span class="o">=</span> <span class="n">brooks_corey_layers</span><span class="p">(</span>
+        <span class="n">thetas_sl</span><span class="o">=</span><span class="n">thetas_sl</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+        <span class="n">ds_like</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
+        <span class="n">soil_fn</span><span class="o">=</span><span class="n">soil_fn</span><span class="p">,</span>
+        <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_layers</span><span class="p">,</span>
+        <span class="n">soildepth_cm</span><span class="o">=</span><span class="n">soildepth_cm</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_c</span>
 
     <span class="k">return</span> <span class="n">ds_out</span></div>
 

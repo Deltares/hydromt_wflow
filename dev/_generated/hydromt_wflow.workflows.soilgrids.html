@@ -525,6 +525,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.waterbodymaps.html">hydromt_wflow.workflows.waterbodymaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.reservoirattrs.html">hydromt_wflow.workflows.reservoirattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lakeattrs.html">hydromt_wflow.workflows.lakeattrs</a></li>
@@ -598,7 +599,7 @@
 <h1>hydromt_wflow.workflows.soilgrids<a class="headerlink" href="#hydromt-wflow-workflows-soilgrids" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.soilgrids">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">soilgrids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ptfKsatVer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">soilgrids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ptfKsatVer:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'brakensiek',</span> <span class="pre">soil_fn:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'soilgrids',</span> <span class="pre">wflow_layers:</span> <span class="pre">~typing.List[int]</span> <span class="pre">=</span> <span class="pre">[100,</span> <span class="pre">300,</span> <span class="pre">800],</span> <span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids" title="Link to this definition">#</a></dt>
 <dd><p>Return soil parameter maps at model resolution.</p>
 <p>Based on soil properties from SoilGrids datasets.
 Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties
@@ -626,11 +627,7 @@ E. and Rossiter, D., 2020. SoilGrids 2.0: producing quality-assessed soil inform
 <li><p><strong>f</strong> : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</p></li>
 <li><p><strong>f_</strong> : scaling parameter controlling the decline of KsatVer [mm-1]
 (fitted with numpy linalg regression), bounds are checked</p></li>
-<li><p><strong>c_0</strong> : Brooks Corey coefficient [-] based on pore size distribution index at depth 1st
-soil layer (100 mm) wflow_sbm</p></li>
-<li><p><strong>c_1</strong> : idem <strong>c_0</strong> at depth 2nd soil layer (400 mm) wflow_sbm</p></li>
-<li><p><strong>c_2</strong> : idem <strong>c_0</strong> at depth 3rd soil layer (1200 mm) wflow_sbm</p></li>
-<li><p><strong>c_3</strong> : idem <strong>c_0</strong> at depth 4th soil layer (&gt; 1200 mm) wflow_sbm</p></li>
+<li><p><strong>c_</strong> map: Brooks Corey coefficients [-] based on pore size distribution index for the wflow_sbm soil layers.</p></li>
 <li><p><strong>KsatVer_[z]cm</strong> : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
 <li><p><strong>wflow_soil</strong> : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</p></li>
 </ul>
@@ -641,6 +638,7 @@ soil layer (100 mm) wflow_sbm</p></li>
 <li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.2.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
 <li><p><strong>ptfKsatVer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – PTF to use for calculcation KsatVer.</p></li>
 <li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – soilgrids version {‘soilgrids’, ‘soilgrids_2020’}</p></li>
+<li><p><strong>wflow_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – List of soil layer depths [cm] for which c is calculated.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
