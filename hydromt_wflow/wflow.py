@@ -20,6 +20,7 @@ import pyflwdir
 import pyproj
 import toml
 import xarray as xr
+import yaml
 from dask.diagnostics import ProgressBar
 from hydromt import flw
 from hydromt.models.model_grid import GridModel
@@ -28,7 +29,6 @@ from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
 from . import utils, workflows
-from .utils import DATADIR
 
 __all__ = ["WflowModel"]
 
@@ -41,7 +41,6 @@ class WflowModel(GridModel):
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
     _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
-    _DATADIR = DATADIR
     _GEOMS = {}
     _MAPS = {
         "flwdir": "wflow_ldd",
@@ -72,7 +71,6 @@ class WflowModel(GridModel):
         "instate",
         "run_default",
     ]
-    _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
         self,
@@ -83,6 +81,10 @@ class WflowModel(GridModel):
         logger=logger,
         **artifact_keys,
     ):
+        # Set predefined catalogs for further use
+        self._predefined_catalogs = {}
+        self._get_predifined_catalogs()
+
         if data_libs is None:
             data_libs = []
         for lib, version in artifact_keys.items():
@@ -97,6 +99,13 @@ class WflowModel(GridModel):
                 lib += f"={version}"
             data_libs = [lib] + data_libs
 
+        # Separate the wflow predefined libs
+        wflow_libs = []
+        _found = [item in self._predefined_catalogs.keys() for item in data_libs]
+        _found = list(np.where(_found)[0])
+        for idx in _found:
+            wflow_libs.append(data_libs.pop(idx))
+
         super().__init__(
             root=root,
             mode=mode,
@@ -105,14 +114,31 @@ class WflowModel(GridModel):
             logger=logger,
         )
 
+        # Set the predefined parameter catalog if connection can be made
+        self.data_catalog.predefined_catalogs.update(self._predefined_catalogs)
+        if self._predefined_catalogs:
+            self.data_catalog.from_predefined_catalogs("wflow_parameters")
+            for lib in wflow_libs:
+                self.data_catalog.from_predefined_catalogs(lib)
+
         # wflow specific
         self._intbl = dict()
         self._tables = dict()
         self._flwdir = None
-        self.data_catalog.from_yml(self._CATALOGS)
         # To be deprecated from v0.6.0 onwards
         self._staticmaps = None
         self._staticgeoms = None
+
+    def _get_predifined_catalogs(self):
+        """_summary_."""
+        res = utils.get_remote_resource(utils.PREDEFINED_CATALOGS, timeout=300)
+        # Only set data is there is data
+        if res is None:
+            logger.warning(
+                "Predefined catalogs specifically for wflow are not available."
+            )
+            return
+        self._predefined_catalogs = yaml.safe_load(res)
 
     # COMPONENTS
     def setup_basemaps(
@@ -3321,46 +3347,46 @@ change name input.path_forcing "
             raise IOError("Model opened in read-only mode")
         # raise NotImplementedError()
 
-    def read_intbl(self, **kwargs):
-        """Read and intbl files at <root/intbl> and parse to xarray."""
-        if not self._write:
-            self._intbl = dict()  # start fresh in read-only mode
-        if not self._read:
-            self.logger.info("Reading default intbl files.")
-            fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
-        else:
-            self.logger.info("Reading model intbl files.")
-            fns = glob.glob(join(self.root, "intbl", "*.tbl"))
-        if len(fns) > 0:
-            for fn in fns:
-                name = basename(fn).split(".")[0]
-                tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
-                tbl.columns = [
-                    f"expr{i+1}" if i + 1 < len(tbl.columns) else "value"
-                    for i in range(len(tbl.columns))
-                ]  # rename columns
-                self.set_intbl(tbl, name=name)
+    # def read_intbl(self, **kwargs):
+    #     """Read and intbl files at <root/intbl> and parse to xarray."""
+    #     if not self._write:
+    #         self._intbl = dict()  # start fresh in read-only mode
+    #     if not self._read:
+    #         self.logger.info("Reading default intbl files.")
+    #         fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
+    #     else:
+    #         self.logger.info("Reading model intbl files.")
+    #         fns = glob.glob(join(self.root, "intbl", "*.tbl"))
+    #     if len(fns) > 0:
+    #         for fn in fns:
+    #             name = basename(fn).split(".")[0]
+    #             tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
+    #             tbl.columns = [
+    #                 f"expr{i+1}" if i + 1 < len(tbl.columns) else "value"
+    #                 for i in range(len(tbl.columns))
+    #             ]  # rename columns
+    #             self.set_intbl(tbl, name=name)
 
-    def write_intbl(self):
-        """Write intbl at <root/intbl> in PCRaster table format."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.intbl:
-            self.logger.info("Writing intbl files.")
-            for name in self.intbl:
-                fn_out = join(self.root, "intbl", f"{name}.tbl")
-                self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
+    # def write_intbl(self):
+    #     """Write intbl at <root/intbl> in PCRaster table format."""
+    #     if not self._write:
+    #         raise IOError("Model opened in read-only mode")
+    #     if self.intbl:
+    #         self.logger.info("Writing intbl files.")
+    #         for name in self.intbl:
+    #             fn_out = join(self.root, "intbl", f"{name}.tbl")
+    #             self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
 
-    def set_intbl(self, df, name):
-        """Add intbl <pandas.DataFrame> to model."""
-        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
-            raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if name in self._intbl:
-            if not self._write:
-                raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
-            elif self._read:
-                self.logger.warning(f"Overwriting intbl: {name}")
-        self._intbl[name] = df
+    # def set_intbl(self, df, name):
+    #     """Add intbl <pandas.DataFrame> to model."""
+    #     if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
+    #         raise ValueError("df type not recognized, should be pandas.DataFrame.")
+    #     if name in self._intbl:
+    #         if not self._write:
+    #             raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
+    #         elif self._read:
+    #             self.logger.warning(f"Overwriting intbl: {name}")
+    #     self._intbl[name] = df
 
     def read_tables(self, **kwargs):
         """Read table files at <root> and parse to dict of dataframes."""

@@ -260,9 +260,9 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     model = "wflow"
     example_wflow_model.read()
     # Add the wflow datacatalog
-    example_wflow_model.data_catalog.from_yml(
-        "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/catalogs/wflow_deltares_data.yml"
-    )
+    # example_wflow_model.data_catalog.from_yml(
+    #     "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/catalogs/wflow_deltares_data.yml"
+    # )
 
     # Set the output directory
     destination = str(tmpdir.join(model))

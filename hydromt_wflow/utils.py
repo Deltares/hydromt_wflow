@@ -1,16 +1,59 @@
 """Some utilities from the Wflow plugin."""
+import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Union
 
 import numpy as np
+import requests
 import xarray as xr
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
 
 __all__ = ["read_csv_results"]
 
+logger = logging.getLogger(__name__)
+
 DATADIR = join(dirname(abspath(__file__)), "data")
+PREDEFINED_CATALOGS = "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/predefined_catalogs.yml"
+
+
+def get_remote_resource(
+    url: Path | str,
+    timeout: int = 300,  # 5 min max timeout
+) -> str | None:
+    """_summary_.
+
+    _extended_summary_
+
+    Parameters
+    ----------
+    url : Path | str
+        _description_
+    timeout : int, optional
+        _description_, by default 300
+
+    Returns
+    -------
+    tuple
+        _description_
+    """
+    res = None
+    error_type = None
+
+    # Simple try except for
+    try:
+        _r = requests.request("GET", url, timeout=timeout)
+        if not str(_r.status_code).startswith("2"):
+            raise requests.ConnectionError(f"HTTP CODE: {_r.status_code}")
+        res = _r.content.decode("utf-8")
+    except requests.RequestException as e:
+        error_type = type(e).__name__
+
+    if error_type is not None:
+        logger.warning(f"{error_type}: Unable to establish connection to '{url}'")
+
+    return res
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
