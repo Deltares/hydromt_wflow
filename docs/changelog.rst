@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
 - new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
 

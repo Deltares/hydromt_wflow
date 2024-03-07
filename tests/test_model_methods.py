@@ -641,3 +641,18 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         assert (
             clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
         )
+
+
+def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
+    example_sediment_model.setup_lulcmaps(
+        lulc_fn="globcover",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_vars=["USLE_C"],
+        planted_forest_c=0.0881,
+        orchard_name="Orchard",
+        orchard_c=0.2188,
+    )
+    da = example_sediment_model.grid["USLE_C"].raster.sample(
+        planted_forest_testdata.geometry.centroid
+    )
+    assert np.all(da.values == np.array([0.0881, 0.2188]))
