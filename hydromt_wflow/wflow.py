@@ -122,7 +122,7 @@ class WflowModel(GridModel):
                 self.data_catalog.from_predefined_catalogs(lib)
 
         # wflow specific
-        self._intbl = dict()
+        # self._intbl = dict()
         self._tables = dict()
         self._flwdir = None
         # To be deprecated from v0.6.0 onwards
@@ -2849,7 +2849,7 @@ Run setup_soilmaps first"
         """Read the complete model schematization and configuration from file."""
         self.read_config()
         self.read_grid()
-        self.read_intbl()
+        # self.read_intbl()
         self.read_tables()
         self.read_geoms()
         self.read_forcing()

@@ -28,7 +28,6 @@ def example_wflow_model():
         mode="r",
         data_libs=[
             "artifact_data",
-            "wflow_artifact_data",
         ],
         logger=logger,
     )
