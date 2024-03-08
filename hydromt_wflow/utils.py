@@ -14,7 +14,7 @@ __all__ = ["read_csv_results"]
 
 logger = logging.getLogger(__name__)
 
-DATADIR = join(dirname(abspath(__file__)), "data")
+DATADIR = join(dirname(abspath(__file__)), "toml")
 PREDEFINED_CATALOGS = "https://raw.githubusercontent.com/Deltares/hydromt_wflow/setup_ksat/data/predefined_catalogs.yml"
 
 

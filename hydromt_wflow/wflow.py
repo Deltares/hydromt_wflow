@@ -41,6 +41,7 @@ class WflowModel(GridModel):
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
     _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
+    _DATADIR = utils.DATADIR
     _GEOMS = {}
     _MAPS = {
         "flwdir": "wflow_ldd",

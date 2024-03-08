@@ -1,0 +1,138 @@
+# This is an example TOML configuration file. It is used to test the wflow configuration
+# features, and can also be used to work towards an example of what we want the
+# configuration file to look like.
+# Relative file paths are interpreted as being relative to this TOML file.
+# TOML documentation: https://github.com/toml-lang/toml
+
+casename = "wflow_sediment"
+
+calendar = "proleptic_gregorian"
+starttime = 2010-02-01T00:00:00
+endtime = 2010-02-10T00:00:00
+time_units = "days since 1900-01-01 00:00:00"
+timestepsecs = 86400
+dir_output = "run_default"
+
+[state]
+path_input = "instate/instates.nc"
+path_output = "outstate/outstates.nc"
+
+# if listed, the variable must be present in the NetCDF or error
+# if not listed, the variable can get a default value if it has one
+
+[state.lateral.river]
+clayload = "clayload"
+siltload = "siltload"
+sandload = "sandload"
+saggload = "saggload"
+laggload = "laggload"
+gravload = "gravload"
+claystore = "claystore"
+siltstore = "siltstore"
+sandstore = "sandstore"
+saggstore = "saggstore"
+laggstore = "laggstore"
+gravstore = "gravstore"
+outclay = "outclay"
+outsilt = "outsilt"
+outsand = "outsand"
+outsagg = "outsagg"
+outlagg = "outlagg"
+outgrav = "outgrav"
+
+[input]
+path_forcing = "inmaps.nc"
+path_static = "staticmaps.nc"
+
+# these are not directly part of the model
+ldd = "wflow_ldd"
+river_location = "wflow_river"
+subcatchment = "wflow_subcatch"
+
+# specify the internal IDs of the parameters which vary over time
+# the external name mapping needs to be below together with the other mappings
+forcing = [
+  "vertical.h_land",
+  "vertical.interception",
+  "vertical.precipitation",
+  "vertical.q_land",
+  "lateral.river.h_riv",
+  "lateral.river.q_riv",
+]
+
+cyclic = ["vertical.leaf_area_index"]
+
+[input.vertical]
+altitude = "wflow_dem"
+canopyheight = "CanopyHeight"
+erosk = "ErosK"
+erosspl = "eros_spl_EUROSEM"
+erosov = "eros_ov"
+h_land = "lwl" # forcing
+interception = "int" # forcing
+kext = "Kext"
+leaf_area_index = "LAI" # cyclic
+pathfrac = "PathFrac"
+precipitation = "prec" # forcing
+q_land = "lro" # forcing
+slope = "Slope"
+specific_leaf = "Sl"
+storage_wood = "Swood"
+usleC = "USLE_C"
+usleK = "USLE_K"
+pclay = "PercentClay"
+psilt = "PercentSilt"
+rivcell = "wflow_river"
+# Reservoir
+resareas = "wflow_reservoirareas"
+# Lake
+lakeareas = "wflow_lakeareas"
+
+[input.lateral.land]
+slope = "Slope"
+
+[input.lateral.river]
+h_riv = "rwl" # forcing
+q_riv = "rro" # forcing
+cbagnold = "c_Bagnold"
+d50 = "D50_River"
+d50engelund = "D50_River"
+ebagnold = "exp_Bagnold"
+fclayriv = "ClayF_River"
+fsiltriv = "SiltF_River"
+fsandriv = "SandF_River"
+fgravriv = "GravelF_River"
+length = "wflow_riverlength"
+slope = "RiverSlope"
+width = "wflow_riverwidth"
+# Reservoir
+resarea = "ResSimpleArea"
+restrapeff = "ResTrapEff"
+resareas = "wflow_reservoirareas"
+reslocs = "wflow_reservoirlocs"
+# Lake
+lakearea = "LakeArea"
+lakeareas = "wflow_lakeareas"
+lakelocs = "wflow_lakelocs"
+
+[model]
+type = "sediment"
+reinit = true
+runrivermodel = true
+doreservoir = false
+dolake = false
+rainerosmethod = "answers" # Rainfall erosion equation: ["answers", "eurosem"]
+landtransportmethod = "yalinpart" # Overland flow transport capacity method: ["yalinpart", "govers", "yalin"]
+rivtransportmethod = "bagnold" # River flow transport capacity method: ["bagnold", "engelund", "yang", "kodatie", "molinas"]
+
+[output]
+path = "output.nc"
+
+[output.vertical]
+soilloss = "soilloss"
+
+[output.lateral.river]
+SSconc = "SSconc"
+
+[csv]
+path = "output.csv"
