@@ -848,12 +848,22 @@ to run setup_river method first.'
             )
             da_precip.name = precip_fn
             data["da_precip"] = da_precip
+            # Add the regr tabular data
+            df_precip = self.data_catalog.get_dataframe(
+                f"regr_{precip_fn}_mapping_default"
+            )
+            data["regr_map"] = df_precip
         if predictor == "discharge":
             da_climate = self.data_catalog.get_rasterdataset(
                 climate_fn, geom=self.region, buffer=2
             )
             da_climate.name = climate_fn
             data["da_climate"] = da_climate
+            # Add the climate tabular data
+            df_climate = self.data_catalog.get_dataframe(
+                f"{climate_fn}_mapping_default",
+            )
+            data["clim_map"] = df_climate
 
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         da_rivwth = workflows.river_width(
@@ -3356,46 +3366,43 @@ change name input.path_forcing "
             raise IOError("Model opened in read-only mode")
         # raise NotImplementedError()
 
-    # def read_intbl(self, **kwargs):
-    #     """Read and intbl files at <root/intbl> and parse to xarray."""
-    #     if not self._write:
-    #         self._intbl = dict()  # start fresh in read-only mode
-    #     if not self._read:
-    #         self.logger.info("Reading default intbl files.")
-    #         fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
-    #     else:
-    #         self.logger.info("Reading model intbl files.")
-    #         fns = glob.glob(join(self.root, "intbl", "*.tbl"))
-    #     if len(fns) > 0:
-    #         for fn in fns:
-    #             name = basename(fn).split(".")[0]
-    #             tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
-    #             tbl.columns = [
-    #                 f"expr{i+1}" if i + 1 < len(tbl.columns) else "value"
-    #                 for i in range(len(tbl.columns))
-    #             ]  # rename columns
-    #             self.set_intbl(tbl, name=name)
+    def read_intbl(self, **kwargs):
+        """Read and intbl files at <root/intbl> and parse to xarray."""
+        if not self._write:
+            self._intbl = dict()  # start fresh in read-only mode
+        else:
+            self.logger.info("Reading model intbl files.")
+            fns = glob.glob(join(self.root, "intbl", "*.tbl"))
+        if len(fns) > 0:
+            for fn in fns:
+                name = basename(fn).split(".")[0]
+                tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
+                tbl.columns = [
+                    f"expr{i+1}" if i + 1 < len(tbl.columns) else "value"
+                    for i in range(len(tbl.columns))
+                ]  # rename columns
+                self.set_intbl(tbl, name=name)
 
-    # def write_intbl(self):
-    #     """Write intbl at <root/intbl> in PCRaster table format."""
-    #     if not self._write:
-    #         raise IOError("Model opened in read-only mode")
-    #     if self.intbl:
-    #         self.logger.info("Writing intbl files.")
-    #         for name in self.intbl:
-    #             fn_out = join(self.root, "intbl", f"{name}.tbl")
-    #             self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
+    def write_intbl(self):
+        """Write intbl at <root/intbl> in PCRaster table format."""
+        if not self._write:
+            raise IOError("Model opened in read-only mode")
+        if self.intbl:
+            self.logger.info("Writing intbl files.")
+            for name in self.intbl:
+                fn_out = join(self.root, "intbl", f"{name}.tbl")
+                self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
 
-    # def set_intbl(self, df, name):
-    #     """Add intbl <pandas.DataFrame> to model."""
-    #     if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
-    #         raise ValueError("df type not recognized, should be pandas.DataFrame.")
-    #     if name in self._intbl:
-    #         if not self._write:
-    #             raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
-    #         elif self._read:
-    #             self.logger.warning(f"Overwriting intbl: {name}")
-    #     self._intbl[name] = df
+    def set_intbl(self, df, name):
+        """Add intbl <pandas.DataFrame> to model."""
+        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
+            raise ValueError("df type not recognized, should be pandas.DataFrame.")
+        if name in self._intbl:
+            if not self._write:
+                raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
+            elif self._read:
+                self.logger.warning(f"Overwriting intbl: {name}")
+        self._intbl[name] = df
 
     def read_tables(self, **kwargs):
         """Read table files at <root> and parse to dict of dataframes."""
