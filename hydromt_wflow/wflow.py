@@ -1908,6 +1908,61 @@ a map for each of the wflow_sbm soil layers (n in total)
         # Update the toml file
         self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
+    def setup_ksathorfrac(
+        self,
+        ksat_fn: Union[str, xr.DataArray],
+        variable: str | None = None,
+        resampling_method: str = "average",
+    ):
+        """Set KsatHorFrac parameter values from a predetermined map.
+
+        This predetermined map contains (preferably) 'calibrated' values of \
+the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \
+or created by a third party/ individual.
+
+        Parameters
+        ----------
+        ksat_fn : str, optional
+            The identifier of the KsatHorFrac dataset in the data catalog.
+        variable : str | None, optional
+            The identifier of the method via which this version of the KsatHorFrac \
+dataset was created (as multiple can exist), by default None.
+        resampling_method : str, optional
+            The resampling method when up- or downscaled, by default "average"
+        """
+        self.logger.info("Preparing KsatHorFrac parameter map.")
+
+        if isinstance(ksat_fn, str):
+            # Get the data from the catalog
+            dain = self.data_catalog.get_rasterdataset(
+                ksat_fn,
+                geom=self.region,
+                buffer=2,
+                variables=variable,
+                single_var_as_array=True,
+            )
+        else:
+            dain = ksat_fn.copy()
+
+        # Ensure its a DataArray
+        if isinstance(dain, xr.Dataset):
+            raise ValueError(
+                f"The ksathorfrac data should be \
+in a xarray.DataArray format; it's in a {type(dain).__name__} format. \
+This could indicate the absence of a correct 'variable' value."
+            )
+
+        # Create scaled ksathorfrac map
+        dsout = workflows.ksathorfrac(
+            dain,
+            ds_like=self.grid,
+            resampling_method=resampling_method,
+        )
+
+        # Set the grid
+        self.set_grid(dsout)  # TODO of course
+        self.set_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac")
+
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
         Generate maps of glacier areas, area fraction and volume fraction.
