@@ -8,7 +8,7 @@ def ksathorfrac(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     resampling_method: str,
-) -> xr.Dataset:
+) -> xr.DataArray:
     """Create KsatHorfrac map.
 
     Based on the data properties of the WflowModel.
@@ -44,10 +44,8 @@ the predefined KsatHorFrac map.
         dim=da.raster.x_dim, method="nearest", fill_value="extrapolate"
     )
 
-    # Set outgoing name
-    da.name = "KsatHorFrac"
     # Set the default no fill value for doubles
     da = da.fillna(-9999.0)
     da.raster.set_nodata(-9999.0)
     # Return as a dataset to be used for 'set_grid'
-    return da.to_dataset()
+    return da

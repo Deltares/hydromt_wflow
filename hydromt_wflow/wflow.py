@@ -1932,17 +1932,13 @@ dataset was created (as multiple can exist), by default None.
         """
         self.logger.info("Preparing KsatHorFrac parameter map.")
 
-        if isinstance(ksat_fn, str):
-            # Get the data from the catalog
-            dain = self.data_catalog.get_rasterdataset(
-                ksat_fn,
-                geom=self.region,
-                buffer=2,
-                variables=variable,
-                single_var_as_array=True,
-            )
-        else:
-            dain = ksat_fn.copy()
+        dain = self.data_catalog.get_rasterdataset(
+            ksat_fn,
+            geom=self.region,
+            buffer=2,
+            variables=variable,
+            single_var_as_array=True,
+        )
 
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
@@ -1959,9 +1955,19 @@ This could indicate the absence of a correct 'variable' value."
             resampling_method=resampling_method,
         )
 
+        # Set the output variable name
+        if not isinstance(ksat_fn, str):
+            bname = ksat_fn.name if ksat_fn.name is not None else "KsatHorFrac"
+        else:
+            bname = ksat_fn  # base name of the outgoing layer name
+
+        lname = bname
+        if variable is not None:
+            lname += f"_{variable}"
+
         # Set the grid
-        self.set_grid(dsout)  # TODO of course
-        self.set_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac")
+        self.set_grid(dsout, name=lname)  # TODO of course
+        self.set_config("input.lateral.subsurface.ksathorfrac", lname)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
