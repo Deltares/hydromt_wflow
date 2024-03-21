@@ -14,7 +14,7 @@ To add or change one or more components of an existing Wflow model the ``update`
 .. code-block:: console
 
     activate hydromt-wflow
-    hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.ini -d data_sources.yml -vvv
+    hydromt update wflow path/to/model_to_update -o path/to/updated_model -i wflow_update.yml -d data_sources.yml -vvv
 
 .. NOTE::
 
@@ -25,10 +25,10 @@ To add or change one or more components of an existing Wflow model the ``update`
 
     By default all model data is written at the end of the update method. If your update however
     only affects a certain model data (e.g. staticmaps or forcing) you can add a write_* method
-    (e.g. `write_staticmaps`, `write_forcing`) to the .ini file and only these data will be written.
+    (e.g. `write_staticmaps`, `write_forcing`) to the .yml file and only these data will be written.
 
     Note that the model config is often changed as part of the a model method and `write_config`
-    should thus be added to the .ini file to keep the model data and config consistent.
+    should thus be added to the .yml file to keep the model data and config consistent.
 
 .. toctree::
     :hidden:

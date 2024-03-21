@@ -25,7 +25,9 @@ Fixed
 - **setup_reservoirs**: Fix error if optional columns 'Capacity_norm', 'Capacity_min', 'xout', 'yout' are not in reservoir_fn. Allow to pass kwargs to the get_data method.
 - **setup_lulcmaps**: Fix error when looking for mapping_fn in self.data_catalog
 - **setup_config_output_timeseries**: bugfix for reducer.
+- update hydromt configuration files from ini to yml format. PR #230
 - remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
+- Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229
 
 Deprecated
 ----------
