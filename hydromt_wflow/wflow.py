@@ -2409,6 +2409,58 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    def setup_pet_forcing(
+        self,
+        pet_fn: Union[str, xr.DataArray],
+        chunksize: Optional[int] = None,
+    ):
+        """
+        Prepare PET forcing from existig PET data.
+
+        Adds model layer:
+
+        * **pet**: reference evapotranspiration [mm]
+
+        Parameters
+        ----------
+        pet_fn: str, xr.DataArray
+            RasterDataset source or data for PET to be resampled.
+
+            * Required variable: 'pet' [mm]
+
+        chunksize: int, optional
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
+
+        """
+        self.logger.info("Preparing potential evapotranspiration forcing maps.")
+
+        starttime = self.get_config("starttime")
+        endtime = self.get_config("endtime")
+        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+
+        pet = self.data_catalog.get_rasterdataset(
+            pet_fn,
+            geom=self.region,
+            buffer=2,
+            variables=["pet"],
+            time_tuple=(starttime, endtime),
+        )
+
+        pet_out = workflows.forcing.pet(
+            pet=pet,
+            ds_like=self.grid,
+            freq=freq,
+            mask_name=self._MAPS["basins"],
+            chunksize=chunksize,
+            logger=self.logger,
+        )
+
+        # Update meta attributes (used for default output filename later)
+        pet_out.attrs.update({"pet_fn": pet_fn})
+        self.set_forcing(pet_out, name="pet")
+
     def setup_rootzoneclim(
         self,
         run_fn: Union[str, Path, xr.Dataset],

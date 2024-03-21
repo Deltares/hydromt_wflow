@@ -2,6 +2,7 @@
 
 from .basemaps import *
 from .connect import *
+from .forcing import *
 from .gauges import *
 from .glaciers import *
 from .landuse import *
