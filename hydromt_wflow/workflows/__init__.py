@@ -1,6 +1,7 @@
 """HydroMT wflow workflows."""
 
 from .basemaps import *
+from .connect import *
 from .demand import *
 from .gauges import *
 from .glaciers import *

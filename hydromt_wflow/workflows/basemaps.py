@@ -214,6 +214,9 @@ parametrization of distributed hydrological models.
             if basins is None:
                 basins = flwdir_out.basins(idxs=flwdir_out.idxs_pit).astype(np.int32)
             ds_out[basins_name] = xr.Variable(dims, basins, attrs=dict(_FillValue=0))
+        else:
+            # make sure dtype in ds_out is np.int32
+            ds_out[basins_name] = ds_out[basins_name].astype(np.int32)
         # upstream area
         if uparea_name not in ds_out.data_vars:
             uparea = flwdir_out.upstream_area("km2")  # km2

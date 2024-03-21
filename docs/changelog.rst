@@ -11,6 +11,24 @@ Unreleased
 
 Added
 -----
+- new function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
+- workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
+
+Changed
+-------
+- **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
+- **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
+
+Fixed
+-----
+- Wrong dtype for wflow_subcatch map. PR #247
+
+v0.5.0 (February 2024)
+======================
+Better handling of nodata and a switch from ini to yaml for configuration.
+
+Added
+-----
 - **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
 - Added setup for water demand for wflow
 - Added setup method **setup_allocation** to **WflowModel**
@@ -19,6 +37,7 @@ Added
 
 Changed
 -------
+- Remove default values for data sources in the different setup methods. (PR #227)
 
 Fixed
 -----
@@ -31,9 +50,12 @@ Fixed
 
 Deprecated
 ----------
+- **read_staticmaps_pcr** in favour of same method in **pcrm** submodule
+- **write_staticmaps_pcr** in favour of same method in **pcrm** submodule
 
 Documentation
 -------------
+- Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
 
 v0.4.1 (November 2023)
 ======================

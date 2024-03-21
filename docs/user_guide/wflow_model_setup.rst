@@ -68,6 +68,8 @@ a specific method see its documentation.
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
+    * - :py:func:`~WflowModel.setup_1dmodel_connection`
+      -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
     * - :py:func:`~WflowModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
 

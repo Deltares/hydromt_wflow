@@ -9,7 +9,7 @@ import os
 from itertools import product
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import geopandas as gpd
 
@@ -29,8 +29,6 @@ from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
 from . import DATADIR, utils, workflows
-from .pcrm import read_staticmaps_pcr as read_pcr_func
-from .pcrm import write_staticmaps_pcr as write_pcr_func
 
 __all__ = ["WflowModel"]
 
@@ -122,23 +120,38 @@ class WflowModel(GridModel):
     # COMPONENTS
     def setup_basemaps(
         self,
-        region,
-        res=1 / 120.0,
-        hydrography_fn="merit_hydro",
-        basin_index_fn="merit_hydro_index",
-        upscale_method="ihu",
+        region: Dict,
+        hydrography_fn: Union[str, xr.Dataset],
+        basin_index_fn: Union[str, xr.Dataset] = None,
+        res: Union[float, int] = 1 / 120.0,
+        upscale_method: str = "ihu",
     ):
         """
         Build the DEM and flow direction for a Wflow model.
 
-        Setup basemaps sets the ``region`` of interest and ``res``
+        Setup basemaps sets the `region` of interest and `res`
         (resolution in degrees) of the model.
         All DEM and flow direction related maps are then build.
 
+        E.g. of `region` argument for a subbasin based on a point and snapped using
+        upstream area threshold in `hydrography_fn`, where the maximum boundary box of
+        the output subbasin is known:
+        region = {'subbasin': [x,y], 'uparea': 10, 'bounds': [xmin, ymin, xmax, ymax]}
+
+        (Sub)Basin delination is done using hydromt.workflows.get_basin_geometry method.
+        Because the delineation is computed from the flow direction data in memory, to
+        avoid memory error when using large datasets in `hydrography_fn`, the user can
+        either supply 'bounds' in `region` or a basin index dataset in `basin_index_fn`
+        to limit the flow direction data to the region of interest. The basin index
+        dataset is a GeoDataframe containing either basins polygons or bounding boxes of
+        basin boundaries. To select the correct basins, basin ID 'basins' in
+        `hydrography_fn` and `basin_index_fn` should match.
+
         If the model resolution is larger than the source data resolution,
-        the flow direction is upscaled using the ``upscale_method``, by default the
+        the flow direction is upscaled using the `upscale_method`, by default the
         Iterative Hydrography Upscaling (IHU).
-        The default ``hydrography_fn`` is "merit_hydro"
+
+        The default `hydrography_fn` is "merit_hydro"
         (`MERIT hydro <http://hydro.iis.u-tokyo.ac.jp/~yamadai/MERIT_Hydro/index.html>`_
         at 3 arcsec resolution).
         Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
@@ -152,7 +165,7 @@ class WflowModel(GridModel):
         hydrography data in order to avoid assumptions and reprojection errors.
         If the user wishes to use a different CRS,
         we recommend first to reproject the hydrography data seperately,
-        because calling hydromt build.
+        before calling hydromt build.
         You can find examples on how to reproject or prepare hydrography data in the
         `prepare flow directions example notebok
         <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`_.
@@ -171,20 +184,27 @@ class WflowModel(GridModel):
 
         Parameters
         ----------
-        hydrography_fn : str
-            Name of data source for basemap parameters.
-
-            * Required variables: ['flwdir', 'uparea', 'basins', 'strord', 'elevtn']
-
-            * Optional variables: ['lndslp', 'mask']
-        basin_index_fn : str
-            Name of data source for basin_index data linked to hydrography_fn.
         region : dict
             Dictionary describing region of interest.
             See :py:meth:`hydromt.workflows.basin_mask.parse_region()` for all options
-        res : float
+        hydrography_fn : str, xarray.Dataset
+            Name of RasterDataset source for basemap parameters.
+
+            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'elevtn' [m+REF]
+
+            * Required variables if used with `basin_index_fn`: 'basins' [-]
+
+            * Required variables if used for snapping in `region`: 'uparea' [km2],
+                'strord' [-]
+
+            * Optional variables: 'lndslp' [m/m], 'mask' [bool]
+        basin_index_fn : str, geopandas.GeoDataFrame, optional
+            Name of GeoDataFrame source for basin_index data linked to hydrography_fn.
+
+            * Required variables: 'basid' [-]
+        res : float, optional
             Output model resolution
-        upscale_method : {'ihu', 'eam', 'dmm'}
+        upscale_method : {'ihu', 'eam', 'dmm'}, optional
             Upscaling method for flow direction data, by default 'ihu'.
 
         See Also
@@ -287,16 +307,18 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
     def setup_rivers(
         self,
-        hydrography_fn,
-        river_geom_fn=None,
+        hydrography_fn: Union[str, xr.Dataset],
+        river_geom_fn: Union[str, gpd.GeoDataFrame] = None,
         river_upa: float = 30,
         rivdph_method: str = "powlaw",
         slope_len: float = 2e3,
-        min_rivlen_ratio=0.0,
+        min_rivlen_ratio: float = 0.0,
         min_rivdph: float = 1,
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
-        rivman_mapping_fn: str = "roughness_river_mapping_default",
+        rivman_mapping_fn: Union[
+            str, Path, pd.DataFrame
+        ] = "roughness_river_mapping_default",
         elevtn_map: str = "wflow_dem",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
@@ -330,7 +352,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
         :py:meth:`hydromt.workflows.river_depth`.
 
-        If ``river_routing`` is set to "local-inertial", the bankfull elevantion map
+        If ``river_routing`` is set to "local-inertial", the bankfull elevation map
         can be conditioned based on the average cell elevation ("wflow_dem")
         or subgrid outlet pixel elevation ("dem_subgrid").
         The subgrid elevation might provide a better representation
@@ -353,24 +375,25 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         Parameters
         ----------
-        hydrography_fn : str, Path
-            Name of data source for hydrography data.
+        hydrography_fn : str, Path, xarray.Dataset
+            Name of RasterDataset source for hydrography data.
             Must be same as setup_basemaps for consistent results.
 
-            * Required variables: ['flwdir', 'uparea', 'elevtn']
-            * Optional variables: ['rivwth', 'qbankfull']
-        river_geom_fn : str, Path, optional
-            Name of data source for river data.
+            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+                'elevtn'[m+REF]
+            * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
+        river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
+            Name of GeoDataFrame source for river data.
 
-            * Required variables: ['rivwth', 'qbankfull']
-        river_upa : float
-            minimum upstream area threshold for the river map [km2]
-        slope_len : float
-            length over which the river slope is calculated [km]
-        min_rivlen_ratio: float
+            * Required variables: 'rivwth' [m], 'qbankfull' [m3/s]
+        river_upa : float, optional
+            Minimum upstream area threshold for the river map [km2]. By default 30.0
+        slope_len : float, optional
+            Length over which the river slope is calculated [km]. By default 2.0
+        min_rivlen_ratio: float, optional
             Ratio of cell resolution used minimum length threshold in a moving
             window based smoothing of river length, by default 0.0
-            The river length smoothing is skipped if min_riverlen_ratio = 0.
+            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
             For details about the river length smoothing,
             see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
@@ -386,7 +409,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         min_rivwth : float, optional
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
-            by default "wflow_dem"
+            Name of the elevation map in the current WflowModel.grid.
+            By default "wflow_dem"
 
         See Also
         --------
@@ -513,7 +537,7 @@ Select from {routing_options}.'
 
     def setup_floodplains(
         self,
-        hydrography_fn,
+        hydrography_fn: Union[str, xr.Dataset],
         floodplain_type: str,
         ### Options for 1D floodplains
         river_upa: Optional[float] = None,
@@ -523,7 +547,7 @@ Select from {routing_options}.'
         connectivity: int = 4,
     ):
         """
-        Add floodplain information to the model schematistation.
+        Add floodplain information to the model schematisation.
 
         The user can define what type of floodplains are required (1D or 2D),
         through the ``floodplain_type`` argument.
@@ -563,9 +587,9 @@ Select from {routing_options}.'
         floodplain_type: {"1d", "2d"}
             Option defining the type of floodplains, see below what arguments
             are related to the different floodplain types
-        hydrography_fn : str, Path
-            Name of data source for hydrography data. Must be same as setup_basemaps for
-            consistent results.
+        hydrography_fn : str, Path, xarray.Dataset
+            Name of RasterDataset source for hydrography data. Must be same as
+            setup_basemaps for consistent results.
 
             * Required variables: ['flwdir', 'uparea', 'elevtn']
         river_upa : float, optional
@@ -726,16 +750,16 @@ setting new flood_depth dimensions"
 
     def setup_riverwidth(
         self,
-        predictor="discharge",
-        fill=False,
-        fit=False,
-        min_wth=1.0,
-        precip_fn="chelsa",
-        climate_fn="koppen_geiger",
+        predictor: str = "discharge",
+        fill: bool = False,
+        fit: bool = False,
+        min_wth: float = 1.0,
+        precip_fn: Union[str, xr.DataArray] = "chelsa",
+        climate_fn: Union[str, xr.DataArray] = "koppen_geiger",
         **kwargs,
     ):
         """
-        Set the river width parameter based on power-lay relationship with a predictor.
+        Set the river width parameter based on power-law relationship with a predictor.
 
         By default the riverwidth is estimated based on discharge as ``predictor``
         and used to set the riverwidth globally based on pre-defined power-law
@@ -766,19 +790,20 @@ setting new flood_depth dimensions"
             in observed width data (if present);
             if False, set all riverwidths based on predictor
             (automatic choice if no observations found)
-        fit : bool, optional kwarg
+        fit : bool, optional
             If True, the power-law parameters are fitted on the fly
             By default True for all but "discharge" predictor.
             A-priori derived parameters will be overwritten if True.
         a, b : float, optional kwarg
             Manual power-law parameters
-        min_wth : float
-            minimum river width
-        precip_fn : {'chelsa'}
+        min_wth : float, optional
+            Minimum river width, by default 1.0
+        precip_fn : str, xarray.DataArray
             Source of long term precipitation grid if the predictor
-            is set to 'discharge' or 'precip'.
-        climate_fn: {'koppen_geiger'}
+            is set to 'discharge' or 'precip'. By default "chelsa".
+        climate_fn: str, xarray.DataArray
             Source of long-term climate grid if the predictor is set to 'discharge'.
+            By default "koppen_geiger".
         """
         self.logger.warning(
             'The "setup_riverwidth" method has been deprecated \
@@ -827,9 +852,9 @@ to run setup_river method first.'
 
     def setup_lulcmaps(
         self,
-        lulc_fn="globcover",
-        lulc_mapping_fn=None,
-        lulc_vars=[
+        lulc_fn: Union[str, xr.DataArray],
+        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        lulc_vars: List = [
             "landuse",
             "Kext",
             "N",
@@ -841,13 +866,16 @@ to run setup_river method first.'
         ],
     ):
         """
-        Derive several wflow maps are derived based on landuse-landcover (LULC) data.
+        Derive several wflow maps based on landuse-landcover (LULC) data.
 
-        Currently, ``lulc_fn`` can be set to the "vito", "globcover", "esa_worldcover"
-        or "corine", of which lookup tables are constructed to convert lulc classses to
+        Lookup table `lulc_mapping_fn` columns are converted to lulc classes
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average
         value, unless noted differently.
+
+        Currently, if `lulc_fn` is set to the "vito", "globcover", "esa_worldcover"
+        or "corine", default lookup tables are available and will be used if
+        `lulc_mapping_fn` is not provided.
 
         Adds model layers:
 
@@ -862,11 +890,13 @@ to run setup_river method first.'
 
         Parameters
         ----------
-        lulc_fn : {"globcover", "vito", "corine"}
-            Name of data source in data_sources.yml file.
-        lulc_mapping_fn : str
+        lulc_fn : str, xarray.DataArray
+            Name of RasterDataset source in data_sources.yml file.
+        lulc_mapping_fn : str, Path, pd.DataFrame
             Path to a mapping csv file from landuse in source name to
-            parameter values in lulc_vars.
+            parameter values in lulc_vars. If lulc_fn is one of {"globcover", "vito",
+            "corine", "esa_worldcover"}, a default mapping is used and this argument
+            becomes optional.
         lulc_vars : list
             List of landuse parameters to keep.
             By default \
@@ -898,12 +928,12 @@ to run setup_river method first.'
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
-    def setup_laimaps(self, lai_fn="modis_lai"):
+    def setup_laimaps(self, lai_fn: Union[str, xr.DataArray]):
         """
-        Set leaf area index (LAI) climatology maps per month.
+        Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].
 
         The values are resampled to the model resolution using the average value.
-        The only ``lai_fn`` currently supported is "modis_lai" based on MODIS data.
+        Currently only directly cyclic LAI data is supported.
 
         Adds model layers:
 
@@ -913,10 +943,12 @@ to run setup_river method first.'
 
         Parameters
         ----------
-        lai_fn : {'modis_lai'}
-            Name of data source for LAI parameters, see data/data_sources.yml.
+        lai_fn : str, xarray.DataArray
+            Name of RasterDataset source for LAI parameters, see data/data_sources.yml.
 
-            * Required variables: ['LAI']
+            * Required variables: 'LAI' [-]
+
+            * Required dimensions: 'time' = [1,2,3,...,12] (months)
         """
         # retrieve data for region
         self.logger.info("Preparing LAI maps.")
@@ -1019,6 +1051,11 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set the default gauge map based on basin outlets.
 
+        If wflow_subcatch is available, the catchment outlets IDs will be matching the
+        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.
+
+        Can also add csv/netcdf output settings in the TOML.
+
         Adds model layers:
 
         * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
@@ -1052,9 +1089,15 @@ skipping adding gauge specific outputs to the toml."
             idxs_out = idxs_out[
                 (self.grid[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
+        # Use the wflow_subcatch ids
+        if self._MAPS["basins"] in self.grid:
+            ids = self.grid[self._MAPS["basins"]].values.flat[idxs_out]
+        else:
+            ids = None
         da_out, idxs_out, ids_out = flw.gauge_map(
             self.grid,
             idxs=idxs_out,
+            ids=ids,
             flwdir=self.flwdir,
             logger=self.logger,
         )
@@ -1096,7 +1139,7 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set a gauge map based on ``gauges_fn`` data.
 
-        Supported gauge datasets include "grdc"
+        Supported gauge datasets include data catlog entries, direct GeoDataFrame
         or "<path_to_source>" for user supplied csv or geometry files
         with gauge locations. If a csv file is provided, a "x" or "lon" and
         "y" or "lat" column is required and the first column will be used as
@@ -1135,10 +1178,11 @@ gauge locations [-] (if derive_subcatch)
 
         Parameters
         ----------
-        gauges_fn : str, Path, gpd.GeoDataFrame, optional
-            Known source name or path to gauges file geometry file, by default None.
+        gauges_fn : str, Path, geopandas.GeoDataFrame
+            Catalog source name, path to gauges file geometry file or
+            geopandas.GeoDataFrame.
 
-            * Required variables if snap_uparea is True: ["uparea"]
+            * Required variables if snap_uparea is True: 'uparea' [km2]
         index_col : str, optional
             Column in gauges_fn to use for ID values, by default None
             (use the default index column)
@@ -1198,25 +1242,28 @@ gauge locations [-] (if derive_subcatch)
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
-        elif self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
-            gdf_gauges = self.data_catalog.get_geodataframe(
-                gauges_fn,
-                geom=self.basins,
-                assert_gtype="Point",
-                handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
-            )
-        elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
-            da = self.data_catalog.get_geodataset(
-                gauges_fn,
-                geom=self.basins,
-                handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
-            )
-            gdf_gauges = da.vector.to_gdf()
-            # Check for point geometry
-            if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
-                raise ValueError(f"{gauges_fn} contains other geometries than Point")
+        elif gauges_fn in self.data_catalog:
+            if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+                gdf_gauges = self.data_catalog.get_geodataframe(
+                    gauges_fn,
+                    geom=self.basins,
+                    assert_gtype="Point",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
+                )
+            elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
+                da = self.data_catalog.get_geodataset(
+                    gauges_fn,
+                    geom=self.basins,
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
+                )
+                gdf_gauges = da.vector.to_gdf()
+                # Check for point geometry
+                if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
+                    raise ValueError(
+                        f"{gauges_fn} contains other geometries than Point"
+                    )
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or \
@@ -1329,7 +1376,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
 
     def setup_areamap(
         self,
-        area_fn: str,
+        area_fn: Union[str, gpd.GeoDataFrame],
         col2raster: str,
         nodata: Union[int, float] = -1,
     ):
@@ -1341,13 +1388,13 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
 
         Parameters
         ----------
-        area_fn : str
-            Name of vector data corresponding to wflow output area.
+        area_fn : str, geopandas.GeoDataFrame
+            Name of GeoDataFrame data corresponding to wflow output area.
         col2raster : str
-            Name of the column from the vector file to rasterize.
+            Name of the column from `area_fn` to rasterize.
         nodata : int/float, optional
-            Nodata value to use when rasterizing. Should match the dtype of col2raster.
-            By default -1.
+            Nodata value to use when rasterizing. Should match the dtype of `col2raster`
+            . By default -1.
         """
         self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
@@ -1369,8 +1416,8 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
 
     def setup_lakes(
         self,
-        lakes_fn: Union[str, Path],
-        rating_curve_fns: List[Union[str, Path]] = None,
+        lakes_fn: Union[str, Path, gpd.GeoDataFrame],
+        rating_curve_fns: List[Union[str, Path, pd.DataFrame]] = None,
         min_area: float = 10.0,
         add_maxstorage: bool = False,
         **kwargs,
@@ -1409,24 +1456,27 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         Parameters
         ----------
         lakes_fn :
-            Name of data source for lake parameters, see data/data_sources.yml.
+            Name of GeoDataFrame source for lake parameters, see data/data_sources.yml.
 
             * Required variables for direct use: \
-['waterbody_id', 'Area_avg', 'Depth_avg', 'Dis_avg', 'Lake_b', 'Lake_e', \
-'LakeOutflowFunc', 'LakeStorFunc', 'LakeThreshold', 'LinkedLakeLocs']
+'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'Lake_b' [-], \
+'Lake_e' [-], 'LakeOutflowFunc' [-], 'LakeStorFunc' [-], 'LakeThreshold' [m], \
+'LinkedLakeLocs' [-]
 
             * Required variables for parameter estimation: \
-['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
-        rating_curve_fns: str, Path, List[str], List[Path], optional
-            Data catalog entry/entries or path(s) containing rating curve values
-            for lakes. If None then will be derived from properties of lakes_fn.
+'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
+        rating_curve_fns: str, Path, pandas.DataFrame, List, optional
+            Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
+            curve values for lakes. If None then will be derived from properties of
+            `lakes_fn`.
             Assumes one file per lake (with all variables) and that the lake ID is
             either in the filename or data catalog entry name (eg using placeholder).
             The ID should be placed at the end separated by an underscore (eg
             'rating_curve_12.csv' or 'rating_curve_12')
 
-            * Required variables: ['elevtn', 'volume'] for storage curve and \
-['elevtn', 'discharge'] for discharge rating curve
+            * Required variables for storage curve: 'elevtn' [m+REF], 'volume' [m3]
+
+            * Required variables for rating curve: 'elevtn' [m+REF], 'discharge' [m3/s]
         min_area : float, optional
             Minimum lake area threshold [km2], by default 10.0 km2.
         add_maxstorage : bool, optional
@@ -1525,7 +1575,7 @@ Using default storage/outflow function parameters."
 
     def setup_reservoirs(
         self,
-        reservoirs_fn: str,
+        reservoirs_fn: Union[str, gpd.GeoDataFrame],
         timeseries_fn: str = None,
         min_area: float = 1.0,
         **kwargs,
@@ -1579,16 +1629,17 @@ Using default storage/outflow function parameters."
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
             * Required variables for direct use: \
-['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', \
-'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
+'waterbody_id' [-], 'ResSimpleArea' [m2], 'ResMaxVolume' [m3], 'ResTargetMinFrac' \
+[m3/m3], 'ResTargetFullFrac' [m3/m3], 'ResDemand' [m3/s], 'ResMaxRelease' [m3/s]
 
             * Required variables for computation with timeseries_fn: \
-['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
+'waterbody_id' [-], 'Hylak_id' [-], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' [m3/s], \
+'Dam_height' [m]
 
             * Required variables for computation without timeseries_fn: \
-['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', \
-'Capacity_max', 'Capacity_norm', 'Capacity_min', 'Dam_height']
-        timeseries_fn : str {'gww', 'hydroengine', 'none'}, optional
+'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' \
+[m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3], 'Capacity_min' [m3], 'Dam_height' [m]
+        timeseries_fn : {'gww', 'hydroengine', None}, optional
             Download and use time series of reservoir surface water area to calculate
             and overwrite the reservoir volume/areas of the data source. Timeseries are
             either downloaded from Global Water Watch 'gww' (using gwwapi package) or
@@ -1766,7 +1817,12 @@ Using default storage/outflow function parameters."
         # you need grid to know the grid
         return gdf_org, ds_waterbody
 
-    def setup_soilmaps(self, soil_fn="soilgrids", ptf_ksatver="brakensiek"):
+    def setup_soilmaps(
+        self,
+        soil_fn: str = "soilgrids",
+        ptf_ksatver: str = "brakensiek",
+        wflow_thicknesslayers: List[int] = [100, 300, 800],
+    ):
         """
         Derive several (layered) soil parameters.
 
@@ -1785,7 +1841,12 @@ specific depths in soilgrids,
 the trapezoidal rule in soilgrids versus simple block weighted average in \
 soilgrids_2020,
         (3) the c parameter is computed as weighted average over wflow_sbm soil layers \
-in soilgrids_2020 versus at specific depths for soilgrids.
+defined in ``wflow_thicknesslayers``.
+
+        The required data from soilgrids are soil bulk density 'bd_sl*' [g/cm3], \
+clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon content \
+'oc_sl*' [%], pH 'ph_sl*' [-], sand content 'sndppt_sl*' [%] and soil thickness \
+'soilthickness' [cm].
 
         The following maps are added to grid:
 
@@ -1807,11 +1868,8 @@ KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` ar
 (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
-        * **c_0** map: Brooks Corey coefficient [-] based on pore size distribution \
-index at depth of 1st soil layer (100 mm) wflow_sbm
-        * **c_1** map: idem c_0 at depth 2nd soil layer (400 mm) wflow_sbm
-        * **c_2** map: idem c_0 at depth 3rd soil layer (1200 mm) wflow_sbm
-        * **c_3** map: idem c_0 at depth 4th soil layer (> 1200 mm) wflow_sbm
+        * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
+a map for each of the wflow_sbm soil layers (n in total)
         * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
 [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
         * **wflow_soil** map: soil texture based on USDA soil texture triangle \
@@ -1822,28 +1880,37 @@ index at depth of 1st soil layer (100 mm) wflow_sbm
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
-            Name of data source for soil parameter maps, see data/data_sources.yml.
+            Name of RasterDataset source for soil parameter maps, see
+            data/data_sources.yml.
             Should contain info for the 7 soil depths of soilgrids
             (or 6 depths intervals for soilgrids_2020).
             * Required variables: \
-['bd_sl*', 'clyppt_sl*', 'sltppt_sl*', 'oc_sl*', 'ph_sl*', \
-'sndppt_sl*', 'soilthickness', 'tax_usda']
+'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%], 'oc_sl*' [%], 'ph_sl*' [-], \
+'sndppt_sl*' [%], 'soilthickness' [cm]
         ptf_ksatver : {'brakensiek', 'cosby'}
             Pedotransfer function (PTF) to use for calculation KsatVer
             (vertical saturated hydraulic conductivity [mm/day]).
             By default 'brakensiek'.
+        wflow_thicknesslayers : list of int, optional
+            Thickness of soil layers [mm] for wflow_sbm soil model.
+            By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
+            Used only for Brooks Corey coefficients.
         """
         self.logger.info("Preparing soil parameter maps.")
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         dsout = workflows.soilgrids(
-            dsin,
-            self.grid,
-            ptf_ksatver,
-            soil_fn,
+            ds=dsin,
+            ds_like=self.grid,
+            ptfKsatVer=ptf_ksatver,
+            soil_fn=soil_fn,
+            wflow_layers=wflow_thicknesslayers,
             logger=self.logger,
         ).reset_coords(drop=True)
         self.set_grid(dsout)
+
+        # Update the toml file
+        self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
@@ -1932,7 +1999,9 @@ added to glacierstore [-]
                 "Skipping glacier procedures!"
             )
 
-    def setup_constant_pars(self, dtype="float32", nodata=-999, **kwargs):
+    def setup_constant_pars(
+        self, dtype: str = "float32", nodata: Union[int, float] = -999, **kwargs
+    ):
         """Generate constant parameter maps for all active model cells.
 
         Adds model layer:
@@ -1961,10 +2030,10 @@ added to glacierstore [-]
 
     def setup_grid_from_raster(
         self,
-        raster_fn: str,
+        raster_fn: Union[str, xr.Dataset],
         reproject_method: str,
-        variables: Optional[List] = None,
-        wflow_variables: Optional[List] = None,
+        variables: Optional[List[str]] = None,
+        wflow_variables: Optional[List[str]] = None,
         fill_method: Optional[str] = None,
     ) -> List[str]:
         """
@@ -1981,7 +2050,7 @@ added to glacierstore [-]
         Parameters
         ----------
         raster_fn: str
-            Source name of raster data in data_catalog.
+            Source name of RasterDataset in data_catalog.
         reproject_method: str
             Reprojection method from rasterio.enums.Resampling.
             Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
@@ -2046,8 +2115,8 @@ one variable and variables list is not provided."
 
     def setup_precip_forcing(
         self,
-        precip_fn: str = "era5",
-        precip_clim_fn: Optional[str] = None,
+        precip_fn: Union[str, xr.DataArray],
+        precip_clim_fn: Optional[Union[str, xr.DataArray]] = None,
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
@@ -2059,15 +2128,19 @@ one variable and variables list is not provided."
 
         Parameters
         ----------
-        precip_fn : str, default era5
-            Precipitation data source.
+        precip_fn : str, xarray.DataArray
+            Precipitation RasterDataset source, see data/forcing_sources.yml.
 
-            * Required variable: ['precip']
-        precip_clim_fn : str, default None
-            High resolution climatology precipitation data source to correct
-            precipitation.
+            * Required variable: 'precip' [mm]
 
-            * Required variable: ['precip']
+            * Required dimension: 'time'  [timestamp]
+        precip_clim_fn : str, xarray.DataArray, optional
+            High resolution climatology precipitation RasterDataset source to correct
+            precipitation, see data/forcing_sources.yml.
+
+            * Required variable: 'precip' [mm]
+
+            * Required dimension: 'time'  [cyclic month]
         chunksize: int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
@@ -2116,19 +2189,38 @@ one variable and variables list is not provided."
 
     def setup_temp_pet_forcing(
         self,
-        temp_pet_fn: str = "era5",
+        temp_pet_fn: Union[str, xr.Dataset],
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
         wind_correction: bool = True,
         wind_altitude: int = 10,
         reproj_method: str = "nearest_index",
-        dem_forcing_fn: str = "era5_orography",
+        dem_forcing_fn: Union[str, xr.DataArray] = None,
         skip_pet: str = False,
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
-        """Generate gridded reference evapotranspiration forcing at model resolution.
+        """Generate gridded temperature and reference evapotranspiration forcing.
+
+        If `temp_correction` is True, the temperature will be reprojected and then
+        downscaled to model resolution using the elevation lapse rate. For better
+        accuracy, you can provide the elevation grid of the climate data in
+        `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
+        is used ('wflow_dem').
+
+        To compute PET (`skip_pet` is False), several methods are available. Before
+        computation, both the temperature and pressure can be downscaled. Wind speed
+        should be given at 2m altitude and can be corrected if `wind_correction` is True
+        and the wind data altitude is provided in `wind_altitude` [m].
+        Several methods to compute pet are available: {'debruin', 'makkink',
+        'penman-monteith_rh_simple', 'penman-monteith_tdew'}.
+
+        Depending on the methods, `temp_pet_fn` should contain temperature 'temp' [°C],
+        pressure 'press_msl' [hPa], incoming shortwave radiation 'kin' [W/m2], outgoing
+        shortwave radiation 'kout' [W/m2], wind speed 'wind' [m/s], relative humidity
+        'rh' [%], dew point temperature 'temp_dew' [°C], wind speed either total 'wind'
+        or the U- 'wind10_u' [m/s] and V- 'wind10_v' components [m/s].
 
         Adds model layer:
 
@@ -2137,25 +2229,24 @@ one variable and variables list is not provided."
 
         Parameters
         ----------
-        temp_pet_fn : str, optional
-            Name or path of data source with variables to calculate temperature
+        temp_pet_fn : str, xarray.Dataset
+            Name or path of RasterDataset source with variables to calculate temperature
             and reference evapotranspiration, see data/forcing_sources.yml.
-            By default 'era5_daily_zarr'.
 
-            * Required variable for temperature: ['temp']
+            * Required variable for temperature: 'temp' [°C]
 
             * Required variables for De Bruin reference evapotranspiration: \
-['temp', 'press_msl', 'kin', 'kout']
+'temp' [°C], 'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
 
             * Required variables for Makkink reference evapotranspiration: \
-['temp', 'press_msl', 'kin']
+'temp' [°C], 'press_msl' [hPa], 'kin'[W/m2]
 
             * Required variables for daily Penman-Monteith \
 reference evapotranspiration: \
-either ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin'] \
-for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', \
-'wind', 'kin', 'press_msl', "wind10_u", "wind10_v"] for 'penman-monteith_tdew' \
-(these are the variables available in ERA5)
+either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%], 'kin' \
+[W/m2]} for 'penman-monteith_rh_simple' or {'temp' [°C], 'temp_min' [°C], 'temp_max' \
+[°C], 'temp_dew' [°C], 'wind' [m/s], 'kin' [W/m2], 'press_msl' [hPa], 'wind10_u' [m/s],\
+"wind10_v" [m/s]} for 'penman-monteith_tdew' (these are the variables available in ERA5)
         pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', \
 'penman-monteith_tdew'}, optional
             Reference evapotranspiration method, by default 'debruin'.
@@ -2167,15 +2258,24 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
             Elevation data source with coverage of entire meteorological forcing domain.
             If temp_correction is True and dem_forcing_fn is provided this is used in
             combination with elevation at model resolution to correct the temperature.
+
+            * Required variable: 'elevtn' [m+REF]
+        wind_correction : bool, optional
+            If True wind speed is corrected to wind at 2m altitude using
+            ``wind_altitude``. By default True.
+        wind_altitude : int, optional
+            Altitude of wind speed [m] variable, by default 10. Only used if
+            ``wind_correction`` is True.
         skip_pet : bool, optional
             If True calculate temp only.
+        reproj_method : str, optional
+            Reprojection method from rasterio.enums.Resampling. to reproject the climate
+            data to the model resolution. By default 'nearest_index'.
         chunksize: int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
         """
-        if temp_pet_fn is None:
-            return
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         timestep = self.get_config("timestepsecs")
@@ -2207,7 +2307,9 @@ for 'penman-monteith_rh_simple' or ['temp', 'temp_min', 'temp_max', 'temp_dew', 
                     "penman-monteith_rh_simple",
                     "penman-monteith_tdew",
                 ]
-                ValueError(f"Unknown pet method {pet_method}, select from {methods}")
+                raise ValueError(
+                    f"Unknown pet method {pet_method}, select from {methods}"
+                )
 
         ds = self.data_catalog.get_rasterdataset(
             temp_pet_fn,
@@ -2533,6 +2635,146 @@ Run setup_soilmaps first"
         # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
 
+    def setup_1dmodel_connection(
+        self,
+        river1d_fn: Union[str, Path, gpd.GeoDataFrame],
+        connection_method: str = "subbasin_area",
+        area_max: float = 10.0,
+        add_tributaries: bool = True,
+        include_river_boundaries: bool = True,
+        mapname: str = "1dmodel",
+        update_toml: bool = True,
+        toml_output: str = "netcdf",
+    ):
+        """
+        Connect wflow to a 1D model by deriving linked subcatch (and tributaries).
+
+        There are two methods to connect models:
+
+            - `subbasin_area`: creates subcatchments linked to the 1d river based
+            on an area threshold (area_max) for the subbasin size. With this method,
+            if a tributary is larger than the `area_max`, it will be connected to
+            the 1d river directly.
+            - `nodes`: subcatchments are derived based on the 1driver nodes (used as
+            gauges locations). With this method, large tributaries can also be derived
+            separately using the `add_tributaries` option and adding a `area_max`
+            threshold for the tributaries.
+
+        If `add_tributary` option is on, you can decide to include or exclude the
+        upstream boundary of the 1d river as an additional tributary using the
+        `include_river_boundaries` option.
+
+        Optionally, the toml file can also be updated to save lateral.river.inwater to
+        save all river inflows for the subcatchments and lateral.river.q_av for the
+        tributaries using :py:meth:`hydromt_wflow.wflow.setup_config_output_timeseries`.
+
+        Adds model layer:
+
+        * **wflow_subcatch_{mapname}** map/geom:  connection subbasins between
+          wflow and the 1D model.
+        * **wflow_subcatch_riv_{mapname}** map/geom:  connection subbasins between
+          wflow and the 1D model for river cells only.
+        * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries
+          flowing into the 1D model.
+
+        Parameters
+        ----------
+        river1d_fn : str, Path, gpd.GeoDataFrame
+            GeodataFrame with the 1D model river network and nodes where to derive
+            subbasins for connection_method **nodes**.
+        connection_method : str, default subbasin_area
+            Method to connect wflow to the 1D model. Available methods are {
+                'subbasin_area', 'nodes'}.
+        area_max : float, default 10.0
+            Maximum area [km2] of the subbasins to connect to the 1D model in km2 with
+            connection_method **subbasin_area** or **nodes** with add_tributaries
+            set to True.
+        add_tributaries : bool, default True
+            If True, derive tributaries for the subbasins larger than area_max. Always
+            True for **subbasin_area** method.
+        include_river_boundaries : bool, default True
+            If True, include the upstream boundary(ies) of the 1d river as an
+            additional tributary(ies).
+        mapname : str, default 1dmodel
+            Name of the map to save the subcatchments and tributaries in the wflow model
+            staticmaps and geoms (wflow_subcatch_{mapname}).
+        update_toml : bool, default True
+            If True, updates the wflow configuration file to save the required outputs
+            for the 1D model.
+        toml_output : str, optional
+            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
+            toml file or do nothing. By default, 'netcdf'.
+        """
+        # Check connection method values
+        if connection_method not in ["subbasin_area", "nodes"]:
+            raise ValueError(
+                f"Unknown connection method {connection_method},"
+                "select from ['subbasin_area', 'nodes']"
+            )
+        # read 1d model river network
+        gdf_riv = self.data_catalog.get_geodataframe(
+            river1d_fn,
+            geom=self.region,
+            buffer=2,
+        )
+
+        # derive subcatchments and tributaries
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        ds_out = workflows.wflow_1dmodel_connection(
+            gdf_riv,
+            ds_model=self.grid.rename(inv_rename),
+            connection_method=connection_method,
+            area_max=area_max,
+            add_tributaries=add_tributaries,
+            include_river_boundaries=include_river_boundaries,
+            logger=self.logger,
+        )
+
+        # Derive tributary gauge map
+        if "gauges" in ds_out.data_vars:
+            self.set_grid(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
+            # Derive the gauges staticgeoms
+            gdf_tributary = ds_out["gauges"].raster.vectorize()
+            gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
+            gdf_tributary["value"] = gdf_tributary["value"].astype(
+                ds_out["gauges"].dtype
+            )
+            self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
+
+            # Update toml
+            if update_toml:
+                self.setup_config_output_timeseries(
+                    mapname=f"wflow_gauges_{mapname}",
+                    toml_output=toml_output,
+                    header=["Q"],
+                    param=["lateral.river.q_av"],
+                    reducer=None,
+                )
+
+        # Derive subcatchment map
+        self.set_grid(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
+        gdf_subcatch = ds_out["subcatch"].raster.vectorize()
+        gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
+        self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
+        # Subcatchment map for river cells only (to be able to save river outputs
+        # in wflow)
+        self.set_grid(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
+        gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
+        gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
+            ds_out["subcatch"].dtype
+        )
+        self.set_geoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
+
+        # Update toml
+        if update_toml:
+            self.setup_config_output_timeseries(
+                mapname=f"wflow_subcatch_riv_{mapname}",
+                toml_output=toml_output,
+                header=["Qlat"],
+                param=["lateral.river.inwater"],
+                reducer=["sum"],
+            )
+
     def setup_allocation(
         self,
         min_area: float | int = 0,
@@ -2680,7 +2922,7 @@ Run setup_soilmaps first"
         area_threshold: float = 0.6,
         crop_irrigated_fn: str = "mirca_irrigated_data",
         crop_rainfed_fn: str = "mirca_rainfed_data",
-        crop_info_fn: str = "mirca_crop_info"
+        crop_info_fn: str = "mirca_crop_info",
         # crop_info_fn: str, TODO, required when adding the support for rootingdepth and
         # cropfactor
     ):
@@ -2850,7 +3092,21 @@ Run setup_soilmaps first"
             self.write_forcing()
 
     def read_grid(self, **kwargs):
-        """Read grid."""
+        """
+        Read wflow static input and add to ``grid``.
+
+        Checks the path of the file in the config toml using both ``input.path_static``
+        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
+        root folder.
+
+        If the file is not found, will try to read from the old PCRaster format if map
+        files are found in the ``staticmaps`` folder in the root folder using
+        read_staticmaps_pcr.
+
+        See Also
+        --------
+        read_staticmaps_pcr
+        """
         fn_default = join(self.root, "staticmaps.nc")
         fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
 
@@ -2880,7 +3136,7 @@ Run setup_soilmaps first"
             self.read_staticmaps_pcr()
 
     def read_staticmaps(self, **kwargs):
-        """Read staticmaps."""
+        """Read staticmaps. DEPRECATED for read_grid."""
         self.logger.warning(
             "read_staticmaps is deprecated. Use 'read_grid' instead. "
             "Will be removed in hydromt_wflow v0.6.0"
@@ -2888,7 +3144,13 @@ Run setup_soilmaps first"
         self.read_grid(**kwargs)
 
     def write_grid(self):
-        """Write grid."""
+        """
+        Write grid to wflow static data file.
+
+        Checks the path of the file in the config toml using both ``input.path_static``
+        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
+        root folder.
+        """
         if not self._write:
             raise IOError("Model opened in read-only mode")
         # clean-up grid and write CRS according to CF-conventions
@@ -2933,51 +3195,26 @@ Run setup_soilmaps first"
             if ds_out[v].dtype != "bool":
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn, encoding=encoding)
-        # self.write_grid_pcr()
 
-    def write_staticmaps(self, **kwargs):
-        """Write staticmaps."""
+    def write_staticmaps(self):
+        """Write staticmaps: DEPRECATED for write_grid."""
         self.logger.warning(
             "write_staticmaps is deprecated. Use 'write_grid' instead. "
             "Will be removed in hydromt_wflow v0.6.0"
         )
         self.write_grid()
 
-    def read_staticmaps_pcr(self, crs=4326, **kwargs):
-        """Read and staticmaps at <root/staticmaps> and parse to xarray."""
-        self.logger.warning(
-            "read_staticmaps_pcr as a method of this object is deprecated. "
-            "Use 'read_staticmaps_pcr' for the 'pcrm' submodule instead. "
-            "Will be removed in hydromt_wflow v0.5.0"
-        )
-        if self._read and "chunks" not in kwargs:
-            kwargs.update(chunks={"y": -1, "x": -1})
-        read_pcr_func(
-            self.root,
-            crs=crs,
-            obj=self,
-            **kwargs,
-        )
-
-    def write_staticmaps_pcr(self):
-        """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
-        self.logger.warning(
-            "write_staticmaps_pcr as a method of this object is deprecated. "
-            "Use 'write_staticmaps_pcr' for the 'pcrm' submodule instead. "
-            "Will be removed in hydromt_wflow v0.5.0"
-        )
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        write_pcr_func(
-            self.staticmaps,
-            self.root,
-        )
-
     def read_geoms(
         self,
         geom_fn: str = "staticgeoms",
     ):
-        """Read and geoms at <root/geoms> and parse to geopandas."""
+        """
+        Read static geometries and adds to ``geoms``.
+
+        Assumes that the `geom_fn` folder is located in the same folder as the static
+        input data (``input.path_static``). If not found uses assumes they are in
+        <root/geom_fm>.
+        """
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
         dir_default = join(self.root, "staticmaps.nc")
@@ -2996,7 +3233,7 @@ Run setup_soilmaps first"
         self,
         geom_fn: str = "staticgeoms",
     ):
-        """Read static geometries."""
+        """Read static geometries: DEPRECATED for read_geoms."""
         self.logger.warning(
             "read_staticgeoms is deprecated. Use 'read_geoms' instead. "
             "Will be removed in hydromt_wflow v0.6.0"
@@ -3007,7 +3244,7 @@ Run setup_soilmaps first"
         self,
         geom_fn: str = "staticgeoms",
     ):
-        """Write grid at <root/geoms> in model ready format."""
+        """Write geoms in <root/geom_fn> in GeoJSON format."""
         # to write use self.geoms[var].to_file()
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3021,7 +3258,7 @@ Run setup_soilmaps first"
         self,
         geom_fn: str = "staticgeoms",
     ):
-        """Write static geometries."""
+        """Write static geometries: DEPRECATED for write_geoms."""
         self.logger.warning(
             "write_staticgeoms is deprecated. Use 'write_geoms' instead. "
             "Will be removed in hydromt_wflow v0.6.0"
@@ -3029,7 +3266,17 @@ Run setup_soilmaps first"
         self.write_geoms(geom_fn)
 
     def read_forcing(self):
-        """Read forcing."""
+        """
+        Read forcing.
+
+        Checks the path of the file in the config toml using both ``input.path_forcing``
+        and ``dir_input``. If not found uses the default path ``inmaps.nc`` in the
+        root folder.
+
+        If several files are used using '*' in ``input.path_forcing``, all corresponding
+        files are read and merged into one xarray dataset before being splitted to one
+        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.
+        """
         fn_default = join(self.root, "inmaps.nc")
         fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
 

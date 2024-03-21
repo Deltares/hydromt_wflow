@@ -47,6 +47,7 @@ Setup components
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
    WflowModel.setup_constant_pars
+   WflowModel.setup_1dmodel_connection
    WflowModel.setup_grid_from_raster
 
 Attributes
@@ -249,12 +250,14 @@ Wflow workflows
    workflows.landuse
    workflows.soilgrids
    workflows.soilgrids_sediment
+   workflows.soilgrids_brooks_corey
    workflows.waterbodymaps
    workflows.reservoirattrs
    workflows.lakeattrs
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim
+   workflows.wflow_1dmodel_connection
 
 
 .. _methods:
