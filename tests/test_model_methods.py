@@ -1,6 +1,7 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
 import logging
+from itertools import product
 from os.path import abspath, dirname, join
 
 import numpy as np
@@ -10,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from hydromt.raster import full_like
 
 from hydromt_wflow.wflow import WflowModel
 
@@ -253,6 +255,37 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
             == number_of_reservoirs
         ), f"Number of non-null values in {i} not equal to \
 number of reservoirs in model area"
+
+
+def test_setup_ksathorfrac(tmpdir, example_wflow_model):
+    # Read the modeldata
+    model = "wflow"
+    example_wflow_model.read()
+    # Create dummy ksat data
+    da = full_like(example_wflow_model.grid["KsatHorFrac"])
+    data = np.zeros(da.shape)
+    for x, y in product(*[range(item) for item in da.shape]):
+        data[x, y] = 750 - ((x + y) ** 0.4 * 114.07373)
+    da.values = data
+
+    # Set the output directory
+    destination = str(tmpdir.join(model))
+    example_wflow_model.set_root(destination, mode="w")
+
+    # Build the map
+    example_wflow_model.setup_ksathorfrac(
+        ksat_fn=da,
+    )
+    # Write and read the map
+    example_wflow_model.write_grid()
+    example_wflow_model.read_grid()
+
+    # Check values
+    values = example_wflow_model.grid.KsatHorFrac.raster.mask_nodata()
+    max_val = values.max().values
+    mean_val = values.mean().values
+    assert int(max_val * 100) == 43175
+    assert int(mean_val * 100) == 22020
 
 
 def test_setup_rootzoneclim(example_wflow_model):
