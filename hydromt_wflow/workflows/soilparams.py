@@ -25,8 +25,8 @@ the predefined KsatHorFrac map.
 
     Returns
     -------
-    xr.Dataset
-        A xarray Dataset containing the scaled KsatHorFrac values.
+    xr.DataArray
+        A xarray DataArray containing the scaled KsatHorFrac values.
     """
     # Transfer data to a logaritmic scale
     da = np.log10(da)

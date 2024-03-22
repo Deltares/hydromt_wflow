@@ -1925,8 +1925,8 @@ or created by a third party/ individual.
         ksat_fn : str, optional
             The identifier of the KsatHorFrac dataset in the data catalog.
         variable : str | None, optional
-            The identifier of the method via which this version of the KsatHorFrac \
-dataset was created (as multiple can exist), by default None.
+            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
+``ksat_fn`` contains several variables. By default None.
         resampling_method : str, optional
             The resampling method when up- or downscaled, by default "average"
         """
@@ -1943,13 +1943,12 @@ dataset was created (as multiple can exist), by default None.
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
             raise ValueError(
-                f"The ksathorfrac data should be \
-in a xarray.DataArray format; it's in a {type(dain).__name__} format. \
-This could indicate the absence of a correct 'variable' value."
+                "The ksathorfrac data contains several variables. \
+Select the variable to use for ksathorfrac using 'variable' argument."
             )
 
         # Create scaled ksathorfrac map
-        dsout = workflows.ksathorfrac(
+        daout = workflows.ksathorfrac(
             dain,
             ds_like=self.grid,
             resampling_method=resampling_method,
@@ -1966,7 +1965,7 @@ This could indicate the absence of a correct 'variable' value."
             lname += f"_{variable}"
 
         # Set the grid
-        self.set_grid(dsout, name=lname)  # TODO of course
+        self.set_grid(daout, name=lname)
         self.set_config("input.lateral.subsurface.ksathorfrac", lname)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
