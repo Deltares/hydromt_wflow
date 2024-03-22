@@ -365,3 +365,72 @@ def add_crop_maps(
     crop_map = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, tmp, crop_map)
 
     return crop_map
+
+
+# TODO: Add docstring
+def calc_kv_at_depth(depth, kv_0, f):
+    kv_z = kv_0 * np.exp(-f * depth)
+    return kv_z
+
+
+# TODO: Add docstring
+def calc_kvfrac(kv_depth, target):
+    kvfrac = target / kv_depth
+    return kvfrac
+
+
+# TODO: Add docstring
+def update_kvfrac(
+    ds_model, kv0_mask, f_mask, wflow_thicknesslayers, target_conductivity
+):
+    # Convert to np.array
+    wflow_thicknesslayers = np.array(wflow_thicknesslayers)
+    target_conductivity = np.array(target_conductivity)
+
+    # Prepare emtpy dataarray
+    da_kvfrac = full_like(ds_model["c"])
+    # Set all values to 1
+    da_kvfrac = da_kvfrac.where(ds_model.wflow_dem.raster.mask_nodata().isnull(), 1.0)
+
+    # Get the actual depths
+    wflow_depths = np.cumsum(wflow_thicknesslayers)
+    # Find the index of the layers where a kvfrac should be set
+    idx = np.where(target_conductivity is not None)[0]
+    # Find the corresponding depths
+    [wflow_depths[i] for i in idx]
+
+    # Loop through the target_conductivity values
+    for idx, target in enumerate(target_conductivity):
+        if target is not None:
+            depth = wflow_depths[idx]
+            # Calculate the kv at that depth (only for the pixels that have paddy
+            # fields)
+            kv_depth = calc_kv_at_depth(depth=depth, kv_0=kv0_mask, f=f_mask)
+            paddy_values = calc_kvfrac(kv_depth=kv_depth, target=target)
+            # Set the values in the correct places
+            kvfrac = xr.where(
+                paddy_values.raster.mask_nodata().isnull(),
+                da_kvfrac.loc[dict(layer=idx)],
+                paddy_values,
+            )
+            kvfrac = kvfrac.fillna(-9999)
+            # Update layer in dataarray
+            da_kvfrac.loc[dict(layer=idx)] = kvfrac
+
+    return da_kvfrac
+
+
+# TODO: Add docstring
+def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
+    # Compute min and max of LAI
+    lai_min = da_lai.min(dim="time")
+    lai_max = da_lai.max(dim="time")
+    # Determine critical threshold
+    ct = lai_min + threshold * (lai_max - lai_min)
+    # Set missing value and dtype
+    trigger = xr.where(da_lai >= ct, 1, 0)
+    trigger = trigger.where(~ct.isnull())
+    trigger = trigger.fillna(na_value).astype(dtype)
+    trigger.raster.set_nodata(np.dtype(dtype).type(na_value))
+
+    return trigger

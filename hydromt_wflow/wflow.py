@@ -69,6 +69,11 @@ class WflowModel(GridModel):
         "paddy_area": "paddy_irrigation_areas",
         "nonpaddy_area": "nonpaddy_irrigation_areas",
         "crop_factor": "crop_factor",
+        "ksat_ver": "KsatVer",
+        "f": "f",
+        "kvfrac": "kvfrac",
+        "leaf_area_index": "LAI",
+        "irrigation_trigger": "irrigation_trigger",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -2923,9 +2928,24 @@ Run setup_soilmaps first"
         crop_irrigated_fn: str = "mirca_irrigated_data",
         crop_rainfed_fn: str = "mirca_rainfed_data",
         crop_info_fn: str = "mirca_crop_info",
-        # crop_info_fn: str, TODO, required when adding the support for rootingdepth and
-        # cropfactor
-    ):
+        soil_fn: str = "soilgrids",
+        wflow_thicknesslayers: List[int] = [
+            50,
+            100,
+            50,
+            200,
+            800,
+        ],
+        target_conductivity: List[Union[None, int, float]] = [
+            None,
+            None,
+            5,
+            None,
+            None,
+        ],
+        lai_threshold: float = 0.2,
+    ):  # TODO: Update docstring, and perhaps seperate into seperate functions, as it is
+        # currently a massive function
         """
         Add required information to simulate irrigation water demand.
 
@@ -2976,7 +2996,14 @@ Run setup_soilmaps first"
         workflows.demand.find_paddy
         workflows.demand.classify_pixels
         """
+        if len(wflow_thicknesslayers) != len(target_conductivity):
+            raise ValueError(
+                "Lengths of wflow_thicknesslayers and target_conductivity does not "
+                "match"
+            )
+
         self.logger.info("Preparing irrigation maps.")
+
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_rasterdataset(
             irrigated_area_fn, bbox=self.grid.raster.bounds, buffer=3
@@ -3060,6 +3087,94 @@ Run setup_soilmaps first"
         #     default_value=self.grid["RootingDepth"],
         #     map_type="rootingdepth",
         # )
+
+        # Update thickness layers, only when different layers are requested
+        update_c = True
+        if len(self.get_config("model.thicknesslayers")) == len(wflow_thicknesslayers):
+            if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
+                self.logger.info(
+                    "same thickness already present, skipping updating `c` parameter"
+                )
+                update_c = False
+        if update_c:
+            self.logger.info(
+                "Different thicknesslayers requested, updating `c` parameter"
+            )
+            dsin = self.data_catalog.get_rasterdataset(
+                soil_fn, geom=self.region, buffer=2
+            )
+
+            ds_out = workflows.soilgrids_brooks_corey(
+                ds=dsin,
+                ds_like=self.grid,
+                soil_fn=soil_fn,
+                wflow_layers=wflow_thicknesslayers,
+            )
+            for var in ds_out:
+                dtype = np.float32
+                self.logger.debug(f"Interpolate nodata (NaN) values for {var}")
+                ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+                ds_out[var] = ds_out[var].where(
+                    ~self.grid[self._MAPS["elevtn"]].raster.mask_nodata().isnull()
+                )
+                ds_out[var] = ds_out[var].fillna(-9999).astype(dtype)
+                ds_out[var].raster.set_nodata(np.dtype(dtype).type(-9999))
+
+            # Remove current `c` variable, and remove `layer` dimension, to prevent
+            # issues with different dimension sizes
+            # Use `_grid` as `grid` cannot be set
+            vars_to_drop = [
+                var for var in self.grid.variables if "layer" in self.grid[var].dims
+            ]
+            # TODO: Improve warning, and check that this potentially can go wrong when
+            # updating a model with more floodplain layers/soil layers in the current
+            # workflow, as the set_grid function does not really properly deal with 3D
+            # data.
+            self.logger.info(
+                "Dropping these variables, as they depend on the layer dimension: "
+                f"{vars_to_drop}"
+            )
+            self._grid = self.grid.drop(vars_to_drop)
+            self.grid["c"] = ds_out["c"]
+            # Update config
+            self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+
+        # Set kvfrac maps, determine the fraction required to reach target_conductivity
+        # Using to wflow exponential decline to determine the conductivity at the
+        # required depth Find value at the bottom of the required layer and infer
+        # required correction factor for that layer Values are only set for locations
+        # with paddy irrigation, all other cells are set to be equal to 1
+        kv0 = self.grid[self._MAPS["ksat_ver"]]
+        f = self.grid[self._MAPS["f"]]
+        paddy_mask = self.grid[self._MAPS["paddy_area"]]
+        kv0_mask = kv0.where(paddy_mask == 1)
+        f_mask = f.where(paddy_mask == 1)
+
+        # Compute the kv_frac
+        da_kvfrac = workflows.demand.update_kvfrac(
+            ds_model=self.grid,
+            kv0_mask=kv0_mask,
+            f_mask=f_mask,
+            wflow_thicknesslayers=wflow_thicknesslayers,
+            target_conductivity=target_conductivity,
+        )
+
+        # Add to grid and config
+        self.grid[self._MAPS["kvfrac"]] = da_kvfrac
+        self.set_config("input.vertical.kvfrac", self._MAPS["kvfrac"])
+
+        # Add irrigation_trigger based on LAI values, based on
+        # https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2018JG004881
+        irri_trigger = workflows.demand.calc_lai_threshold(
+            da_lai=self.grid[self._MAPS["leaf_area_index"]].raster.mask_nodata(),
+            threshold=lai_threshold,
+        )
+
+        # Add to grid and config
+        self.set_grid(irri_trigger, name=self._MAPS["irrigation_trigger"])
+        self.set_config(
+            "input.vertical.irrigation_trigger", self._MAPS["irrigation_trigger"]
+        )
 
     # I/O
     def read(self):
