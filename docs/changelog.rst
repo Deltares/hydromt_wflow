@@ -31,6 +31,10 @@ Better handling of nodata and a switch from ini to yaml for configuration.
 Added
 -----
 - **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
+- Added setup for water demand for wflow
+- Added setup method **setup_allocation** to **WflowModel**
+- Added setup method **setup_non_irigation** to **WflowModel**
+- Added workflow functions **allocation** & **non_irigation** for water demand setup
 
 Changed
 -------

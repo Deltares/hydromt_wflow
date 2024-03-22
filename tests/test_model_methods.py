@@ -674,3 +674,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         assert (
             clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
         )
+
+
+def test_setup_demand():
+    pass
