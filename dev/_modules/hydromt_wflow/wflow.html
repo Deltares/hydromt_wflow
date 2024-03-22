@@ -2366,6 +2366,66 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.thicknesslayers&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span></div>
 
 
+    <span class="k">def</span> <span class="nf">setup_ksathorfrac</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ksat_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
+        <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">resampling_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set KsatHorFrac parameter values from a predetermined map.</span>
+
+<span class="sd">        This predetermined map contains (preferably) &#39;calibrated&#39; values of \</span>
+<span class="sd">the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \</span>
+<span class="sd">or created by a third party/ individual.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ksat_fn : str, optional</span>
+<span class="sd">            The identifier of the KsatHorFrac dataset in the data catalog.</span>
+<span class="sd">        variable : str | None, optional</span>
+<span class="sd">            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \</span>
+<span class="sd">``ksat_fn`` contains several variables. By default None.</span>
+<span class="sd">        resampling_method : str, optional</span>
+<span class="sd">            The resampling method when up- or downscaled, by default &quot;average&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing KsatHorFrac parameter map.&quot;</span><span class="p">)</span>
+
+        <span class="n">dain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+            <span class="n">ksat_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="n">variable</span><span class="p">,</span>
+            <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Ensure its a DataArray</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dain</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The ksathorfrac data contains several variables. </span><span class="se">\</span>
+<span class="s2">Select the variable to use for ksathorfrac using &#39;variable&#39; argument.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Create scaled ksathorfrac map</span>
+        <span class="n">daout</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">ksathorfrac</span><span class="p">(</span>
+            <span class="n">dain</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">resampling_method</span><span class="o">=</span><span class="n">resampling_method</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Set the output variable name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ksat_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">bname</span> <span class="o">=</span> <span class="n">ksat_fn</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">ksat_fn</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;KsatHorFrac&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bname</span> <span class="o">=</span> <span class="n">ksat_fn</span>  <span class="c1"># base name of the outgoing layer name</span>
+
+        <span class="n">lname</span> <span class="o">=</span> <span class="n">bname</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lname</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Set the grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">daout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">lname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.subsurface.ksathorfrac&quot;</span><span class="p">,</span> <span class="n">lname</span><span class="p">)</span>
+
 <div class="viewcode-block" id="WflowModel.setup_glaciers">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_glaciers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glaciers_fn</span><span class="o">=</span><span class="s2">&quot;rgi&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
