@@ -1908,6 +1908,66 @@ a map for each of the wflow_sbm soil layers (n in total)
         # Update the toml file
         self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
+    def setup_ksathorfrac(
+        self,
+        ksat_fn: Union[str, xr.DataArray],
+        variable: str | None = None,
+        resampling_method: str = "average",
+    ):
+        """Set KsatHorFrac parameter values from a predetermined map.
+
+        This predetermined map contains (preferably) 'calibrated' values of \
+the KsatHorFrac parameter. This map is either selected from the wflow Deltares data \
+or created by a third party/ individual.
+
+        Parameters
+        ----------
+        ksat_fn : str, optional
+            The identifier of the KsatHorFrac dataset in the data catalog.
+        variable : str | None, optional
+            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
+``ksat_fn`` contains several variables. By default None.
+        resampling_method : str, optional
+            The resampling method when up- or downscaled, by default "average"
+        """
+        self.logger.info("Preparing KsatHorFrac parameter map.")
+
+        dain = self.data_catalog.get_rasterdataset(
+            ksat_fn,
+            geom=self.region,
+            buffer=2,
+            variables=variable,
+            single_var_as_array=True,
+        )
+
+        # Ensure its a DataArray
+        if isinstance(dain, xr.Dataset):
+            raise ValueError(
+                "The ksathorfrac data contains several variables. \
+Select the variable to use for ksathorfrac using 'variable' argument."
+            )
+
+        # Create scaled ksathorfrac map
+        daout = workflows.ksathorfrac(
+            dain,
+            ds_like=self.grid,
+            resampling_method=resampling_method,
+        )
+
+        # Set the output variable name
+        if not isinstance(ksat_fn, str):
+            bname = ksat_fn.name if ksat_fn.name is not None else "KsatHorFrac"
+        else:
+            bname = ksat_fn  # base name of the outgoing layer name
+
+        lname = bname
+        if variable is not None:
+            lname += f"_{variable}"
+
+        # Set the grid
+        self.set_grid(daout, name=lname)
+        self.set_config("input.lateral.subsurface.ksathorfrac", lname)
+
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
         Generate maps of glacier areas, area fraction and volume fraction.

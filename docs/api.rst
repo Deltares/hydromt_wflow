@@ -36,6 +36,7 @@ Setup components
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
+   WflowModel.setup_ksathorfarc
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
@@ -246,6 +247,7 @@ Wflow workflows
    workflows.river_bathymetry
    workflows.pet
    workflows.landuse
+   workflows.ksathorfrac
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey
