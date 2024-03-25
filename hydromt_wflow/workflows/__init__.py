@@ -8,5 +8,6 @@ from .landuse import *
 from .river import *
 from .rootzoneclim import *
 from .soilgrids import *
+from .soilparams import *
 from .states import *
 from .waterbodies import *
