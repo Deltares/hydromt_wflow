@@ -23,6 +23,13 @@ def _compare_wflow_models(mod0, mod1):
     if mod0._grid is not None:
         maps = mod0.grid.raster.vars
         assert np.all(mod0.crs == mod1.crs), "map crs grid"
+        # check on dims names and values
+        for dim in mod1._grid.dims:
+            try:
+                xr.testing.assert_identical(mod1._grid[dim], mod0._grid[dim])
+            except AssertionError:
+                raise AssertionError(f"dim {dim} in map not identical")
+
         for name in maps:
             map0 = mod0.grid[name].fillna(0)
             if name not in mod1.grid:
@@ -49,7 +56,7 @@ def _compare_wflow_models(mod0, mod1):
                     else f"nodata {map1.raster.nodata} instead of \
 {map0.raster.nodata}; {err}"
                 )
-                notclose = ~np.isclose(map0, map1)
+                notclose = ~np.equal(map0, map1)
                 ncells = int(np.sum(notclose))
                 if ncells > 0:
                     # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
@@ -87,7 +94,7 @@ def test_model_class(model, example_models):
     mod = example_models[model]
     mod.read()
     # run test_model_api() method
-    non_compliant_list = mod.test_model_api()
+    non_compliant_list = mod._test_model_api()
     assert len(non_compliant_list) == 0
 
 
@@ -110,7 +117,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     # Build model
     mod1.build(region=region, opt=opt)
     # Check if model is api compliant
-    non_compliant_list = mod1.test_model_api()
+    non_compliant_list = mod1._test_model_api()
     assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
@@ -141,7 +148,7 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     example_wflow_model.clip_forcing()
     example_wflow_model.write()
     # Check if model is api compliant
-    non_compliant_list = example_wflow_model.test_model_api()
+    non_compliant_list = example_wflow_model._test_model_api()
     assert len(non_compliant_list) == 0
 
     # Compare with model from examples folder
