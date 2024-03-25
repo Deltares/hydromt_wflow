@@ -2808,7 +2808,7 @@ Run setup_soilmaps first"
             Timestamp of the cold states. By default uses the (starttime - timestepsecs)
             from the config.
         """
-        states = workflows.prepare_cold_states(
+        states, states_config = workflows.prepare_cold_states(
             self.grid,
             config=self.config,
             timestamp=timestamp,
@@ -2818,6 +2818,9 @@ Run setup_soilmaps first"
 
         # Update config to read the states
         self.set_config("model.reinit", False)
+        # Update states variables names in config
+        for option in states_config:
+            self.set_config(option, states_config[option])
 
     # I/O
     def read(self):

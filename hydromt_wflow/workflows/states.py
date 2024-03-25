@@ -1,5 +1,7 @@
 """Workflow for wflow model states."""
 
+from typing import Dict, Tuple
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -15,7 +17,7 @@ def prepare_cold_states(
     ds_like: xr.Dataset,
     config: dict,
     timestamp: str = None,
-):
+) -> Tuple[xr.Dataset, Dict[str, str]]:
     """
     Prepare cold states for Wflow.
 
@@ -63,6 +65,13 @@ def prepare_cold_states(
     timestamp : str, optional
         Timestamp of the cold states. By default uses the starttime
         from the config.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset containing the cold states.
+    dict
+        Config dictionary with the cold states variable names.
     """
     # Defaults
     nodata = -9999.0
@@ -82,13 +91,32 @@ def prepare_cold_states(
     # Create empty dataset
     ds_out = xr.Dataset()
 
+    # Base output config dict for states
+    states_config = {
+        "state.vertical.satwaterdepth": "satwaterdepth",
+        "state.vertical.snow": "snow",
+        "state.vertical.tsoil": "tsoil",
+        "state.vertical.ustorelayerdepth": "ustorelayerdepth",
+        "state.vertical.snowwater": "snowwater",
+        "state.vertical.canopystorage": "canopystorage",
+        "state.lateral.subsurface.ssf": "ssf",
+        "state.lateral.land.h": "h_land",
+        "state.lateral.land.h_av": "h_av_land",
+        "state.lateral.river.q": "q_river",
+        "state.lateral.river.h": "h_river",
+        "state.lateral.river.h_av": "h_av_river",
+    }
+
     # Map with constant values or zeros for basin
     zeromap = ["tsoil", "snow", "snowwater", "canopystorage", "h_land", "h_av_land"]
     land_routing = config["model"].get("land_routing", "kinematic-wave")
     if land_routing == "local-inertial":
         zeromap.extend(["qx_land", "qy_land"])
+        states_config["state.lateral.land.qx"] = "qx_land"
+        states_config["state.lateral.land.qy"] = "qy_land"
     else:
         zeromap.extend(["q_land"])
+        states_config["state.lateral.land.q"] = "q_land"
 
     for var in zeromap:
         if var == "tsoil":
@@ -166,6 +194,8 @@ def prepare_cold_states(
     # 1D floodplain
     if config["model"].get("floodplain_1d", False):
         zeromap_riv.extend(["q_floodplain", "h_floodplain"])
+        states_config["state.lateral.floodplain.q"] = "q_floodplain"
+        states_config["state.lateral.floodplain.h"] = "h_floodplain"
     for var in zeromap_riv:
         value = 0.0
         da_param = grid_from_constant(
@@ -204,6 +234,8 @@ def prepare_cold_states(
         resvol.raster.set_nodata(nodata)
         ds_out["volume_reservoir"] = resvol
 
+        states_config["state.lateral.river.reservoir.volume"] = "volume_reservoir"
+
     # lake
     if config["model"].get("lakes", False):
         ll = get_grid_from_config(
@@ -212,7 +244,11 @@ def prepare_cold_states(
             grid=ds_like,
             fallback="LakeAvgLevel",
         )
+        ll = ll.where(ll != ll.raster.nodata, nodata)
+        ll.raster.set_nodata(nodata)
         ds_out["waterlevel_lake"] = ll
+
+        states_config["state.lateral.river.lake.waterlevel"] = "waterlevel_lake"
 
     # glacier
     if config["model"].get("glacier", False):
@@ -230,7 +266,9 @@ def prepare_cold_states(
             )
             ds_out["glacierstore"] = glacstore
 
+        states_config["state.vertical.glacierstore"] = "glacierstore"
+
     # Add time dimension
     ds_out = ds_out.expand_dims(dim=dict(time=[timestamp]))
 
-    return ds_out
+    return ds_out, states_config
