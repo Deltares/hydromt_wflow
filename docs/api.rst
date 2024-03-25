@@ -36,7 +36,7 @@ Setup components
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
-   WflowModel.setup_ksathorfarc
+   WflowModel.setup_ksathorfrac
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
@@ -101,8 +101,6 @@ General methods
    WflowModel.read_grid
    WflowModel.write_grid
    WflowModel.clip_grid
-   WflowModel.read_staticmaps_pcr
-   WflowModel.write_staticmaps_pcr
 
    WflowModel.set_geoms
    WflowModel.read_geoms
