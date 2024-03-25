@@ -2707,12 +2707,12 @@ Run setup_soilmaps first"
 
         There are two methods to connect models:
 
-        - `subbasin_area`: 
+        - `subbasin_area`:
             creates subcatchments linked to the 1d river based
             on an area threshold (area_max) for the subbasin size. With this method,
             if a tributary is larger than the `area_max`, it will be connected to
             the 1d river directly.
-        - `nodes`: 
+        - `nodes`:
             subcatchments are derived based on the 1driver nodes (used as
             gauges locations). With this method, large tributaries can also be derived
             separately using the `add_tributaries` option and adding a `area_max`
