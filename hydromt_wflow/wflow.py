@@ -3359,11 +3359,14 @@ change name input.path_forcing "
             self.logger.info("Writting states file")
 
             # get output filename
+            fn_default = join(self.root, "instate", "instates.nc")
             if fn_out is not None:
                 self.set_config("state.path_input", fn_out)
                 self.write_config()  # re-write config
             else:
-                fn_out = self.get_config("state.path_input", abs_path=True)
+                fn_out = self.get_config(
+                    "state.path_input", abs_path=True, fallback=fn_default
+                )
 
             # merge, process and write forcing
             ds = xr.merge(self.states.values())
