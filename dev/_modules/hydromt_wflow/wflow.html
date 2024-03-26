@@ -2366,6 +2366,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.thicknesslayers&quot;</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_ksathorfrac">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_ksathorfrac.html#hydromt_wflow.WflowModel.setup_ksathorfrac">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_ksathorfrac</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ksat_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
@@ -2424,7 +2426,8 @@
 
         <span class="c1"># Set the grid</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">daout</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">lname</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.subsurface.ksathorfrac&quot;</span><span class="p">,</span> <span class="n">lname</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.subsurface.ksathorfrac&quot;</span><span class="p">,</span> <span class="n">lname</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="WflowModel.setup_glaciers">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers">[docs]</a>
@@ -3185,11 +3188,13 @@
 
 <span class="sd">        There are two methods to connect models:</span>
 
-<span class="sd">            - `subbasin_area`: creates subcatchments linked to the 1d river based</span>
+<span class="sd">        - `subbasin_area`:</span>
+<span class="sd">            creates subcatchments linked to the 1d river based</span>
 <span class="sd">            on an area threshold (area_max) for the subbasin size. With this method,</span>
 <span class="sd">            if a tributary is larger than the `area_max`, it will be connected to</span>
 <span class="sd">            the 1d river directly.</span>
-<span class="sd">            - `nodes`: subcatchments are derived based on the 1driver nodes (used as</span>
+<span class="sd">        - `nodes`:</span>
+<span class="sd">            subcatchments are derived based on the 1driver nodes (used as</span>
 <span class="sd">            gauges locations). With this method, large tributaries can also be derived</span>
 <span class="sd">            separately using the `add_tributaries` option and adding a `area_max`</span>
 <span class="sd">            threshold for the tributaries.</span>

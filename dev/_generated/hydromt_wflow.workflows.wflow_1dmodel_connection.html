@@ -385,6 +385,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps.html">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksathorfrac.html">hydromt_wflow.WflowModel.setup_ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html">hydromt_wflow.WflowModel.setup_rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_outlets.html">hydromt_wflow.WflowModel.setup_outlets</a></li>
@@ -603,18 +604,24 @@
 <span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">wflow_1dmodel_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf_riv:</span> <span class="pre">~geopandas.geodataframe.GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_model:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_method:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'subbasin_area'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_max:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_tributaries:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_river_boundaries:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.connect</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.2.1.dev0)"><span class="pre">Dataset</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/connect.html#wflow_1dmodel_connection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.wflow_1dmodel_connection" title="Link to this definition">#</a></dt>
 <dd><p>Connect wflow to a 1D model by deriving linked subcatchs (and tributaries).</p>
 <p>There are two methods to connect models:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>“subbasin_area”: creates subcatchments linked to the 1d river based on an</p></li>
-</ul>
-<p>area threshold (area_max) for the subbasin size. With this method, if a
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>subbasin_area</cite>:</dt><dd><p>creates subcatchments linked to the 1d river based on an
+area threshold (area_max) for the subbasin size. With this method, if a
 tributary is larger than the area_max, it will be connected to the 1d river
-directly.
-- “nodes”: subcatchments are derived based on the 1driver nodes (used as gauges
+directly.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>nodes</cite>:</dt><dd><p>subcatchments are derived based on the 1driver nodes (used as gauges
 locations). With this method, large tributaries can also be derived separately
 using the add_tributaries option and adding a area_max threshold for the
 tributaries.</p>
-</div></blockquote>
+</dd>
+</dl>
+</li>
+</ul>
 <p>If <cite>add_tributary</cite> option is on, you can decide to include or exclude the upstream
 boundary of the 1d river as an additionnal tributary using the
 <cite>include_river_boundaries</cite> option.</p>

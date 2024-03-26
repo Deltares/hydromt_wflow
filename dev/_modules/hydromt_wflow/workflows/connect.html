@@ -448,11 +448,13 @@
 
 <span class="sd">    There are two methods to connect models:</span>
 
-<span class="sd">        - &quot;subbasin_area&quot;: creates subcatchments linked to the 1d river based on an</span>
+<span class="sd">    - `subbasin_area`:</span>
+<span class="sd">        creates subcatchments linked to the 1d river based on an</span>
 <span class="sd">        area threshold (area_max) for the subbasin size. With this method, if a</span>
 <span class="sd">        tributary is larger than the area_max, it will be connected to the 1d river</span>
 <span class="sd">        directly.</span>
-<span class="sd">        - &quot;nodes&quot;: subcatchments are derived based on the 1driver nodes (used as gauges</span>
+<span class="sd">    - `nodes`:</span>
+<span class="sd">        subcatchments are derived based on the 1driver nodes (used as gauges</span>
 <span class="sd">        locations). With this method, large tributaries can also be derived separately</span>
 <span class="sd">        using the add_tributaries option and adding a area_max threshold for the</span>
 <span class="sd">        tributaries.</span>
