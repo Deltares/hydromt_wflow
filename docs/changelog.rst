@@ -22,7 +22,8 @@ Changed
 
 Fixed
 -----
-- Wrong dtype for wflow_subcatch map. PR #247
+- Wrong dtype for wflow_subcatch map. PR #247,
+- Removed building a wflow model without a config file in the build notebook.
 
 v0.5.0 (February 2024)
 ======================
