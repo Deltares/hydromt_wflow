@@ -3358,15 +3358,20 @@ change name input.path_forcing "
         if self.states:
             self.logger.info("Writting states file")
 
-            # get output filename
-            fn_default = join(self.root, "instate", "instates.nc")
+            # get output filename and if needed update and re-write the config
+            update_config = False
             if fn_out is not None:
-                self.set_config("state.path_input", fn_out)
-                self.write_config()  # re-write config
+                update_config = True
             else:
                 fn_out = self.get_config(
-                    "state.path_input", abs_path=True, fallback=fn_default
+                    "state.path_input", abs_path=True, fallback=None
                 )
+                if fn_out is None:
+                    fn_out = join(self.root, "instate", "instates.nc")
+                    update_config = True
+            if update_config:
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
 
             # merge, process and write forcing
             ds = xr.merge(self.states.values())
