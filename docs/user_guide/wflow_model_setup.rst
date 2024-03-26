@@ -67,6 +67,8 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
     * - :py:func:`~WflowModel.setup_temp_pet_forcing`
+      -  Setup gridded temperature and optionally compute reference evapotranspiration forcing at model resolution.
+    * - :py:func:`~WflowModel.setup_pet_forcing`
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.

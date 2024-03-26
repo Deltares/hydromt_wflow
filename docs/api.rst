@@ -45,6 +45,7 @@ Setup components
    WflowModel.setup_config_output_timeseries
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
+   WflowModel.setup_pet_forcing
    WflowModel.setup_constant_pars
    WflowModel.setup_1dmodel_connection
    WflowModel.setup_grid_from_raster
@@ -242,6 +243,7 @@ Wflow workflows
    workflows.topography
    workflows.river
    workflows.river_bathymetry
+   workflows.pet
    workflows.landuse
    workflows.ksathorfrac
    workflows.soilgrids
