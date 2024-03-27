@@ -13,6 +13,7 @@ Added
 -----
 - New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
+- new function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
 - Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
 - better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
 - new function **setup_cold_states** to prepare cold states for WflowModel. PR #252
@@ -25,7 +26,8 @@ Changed
 
 Fixed
 -----
-- Wrong dtype for wflow_subcatch map. PR #247
+- Wrong dtype for wflow_subcatch map. PR #247,
+- Removed building a wflow model without a config file in the build notebook.
 
 v0.5.0 (February 2024)
 ======================

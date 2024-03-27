@@ -98,6 +98,17 @@ def rivers1d():
 
 
 @pytest.fixture()
+def da_pet(example_wflow_model):
+    da = example_wflow_model.data_catalog.get_rasterdataset(
+        "era5", geom=example_wflow_model.region, buffer=2, variables=["temp"]
+    )
+    da = 0.5 * (0.45 * da + 8)  # simple pet from Bradley Criddle
+    da.name = "pet"
+
+    return da
+
+
+@pytest.fixture()
 def demda():
     np.random.seed(11)
     da = xr.DataArray(
