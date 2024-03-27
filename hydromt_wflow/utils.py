@@ -1,5 +1,5 @@
 """Some utilities from the Wflow plugin."""
-from os.path import abspath, join
+from os.path import abspath, join, relpath
 from pathlib import Path
 from typing import Dict, Optional, Union
 
@@ -10,6 +10,53 @@ from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 
 __all__ = ["read_csv_results", "get_config", "get_grid_from_config"]
+
+
+def make_path_relative(
+    target: Path | str,
+    root: Path | str,
+    max_depth: int = 5,
+) -> Path:
+    """Make a path relative to another.
+
+    The target path will be made relative to the root path.
+    This will be done when the following conditions are met:
+
+    - `target` and `root` are on the same mount
+    - directory depth difference does not exceed `max_depth`
+
+    Parameters
+    ----------
+    target : Path | str
+        The path that is to be made relative.
+    root : Path | str
+        The path that is used as the root againts which `target` is made relative.
+    max_depth : int, optional
+        The max difference allowed in depth between the `target` path and \
+the `root` path, by default 5
+
+    Returns
+    -------
+    Path
+        Relative path (or absolute when conditions are not met).
+    """
+    # ensure pathlib objects
+    target = Path(target)
+    root = Path(root)
+    # check for the mount
+    if target.drive != root.drive:
+        return target
+    # get the relative path
+    rel_path = Path(
+        relpath(
+            target,
+            root,
+        )
+    )
+    # If it exceeds the maximum depth
+    if len(rel_path.parts) > max_depth:
+        return target
+    return rel_path
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:

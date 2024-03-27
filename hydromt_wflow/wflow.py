@@ -3370,7 +3370,11 @@ change name input.path_forcing "
                     fn_out = join(self.root, "instate", "instates.nc")
                     update_config = True
             if update_config:
-                self.set_config("state.path_input", fn_out)
+                cfg_fn_out = utils.make_path_relative(
+                    fn_out,
+                    self.root,
+                )
+                self.set_config("state.path_input", cfg_fn_out.as_posix())
                 self.write_config()  # re-write config
 
             # merge, process and write forcing
