@@ -2945,6 +2945,61 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">temp_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_pet_forcing">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_pet_forcing.html#hydromt_wflow.WflowModel.setup_pet_forcing">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup_pet_forcing</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pet_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
+        <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prepare PET forcing from existig PET data.</span>
+
+<span class="sd">        Adds model layer:</span>
+
+<span class="sd">        * **pet**: reference evapotranspiration [mm]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        pet_fn: str, xr.DataArray</span>
+<span class="sd">            RasterDataset source or data for PET to be resampled.</span>
+
+<span class="sd">            * Required variable: &#39;pet&#39; [mm]</span>
+
+<span class="sd">        chunksize: int, optional</span>
+<span class="sd">            Chunksize on time dimension for processing data (not for saving to disk!).</span>
+<span class="sd">            If None the data chunksize is used, this can however be optimized for</span>
+<span class="sd">            large/small catchments. By default None.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing potential evapotranspiration forcing maps.&quot;</span><span class="p">)</span>
+
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+
+        <span class="n">pet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+            <span class="n">pet_fn</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">],</span>
+            <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">pet_out</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">pet</span><span class="p">(</span>
+            <span class="n">pet</span><span class="o">=</span><span class="n">pet</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+            <span class="n">mask_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">],</span>
+            <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update meta attributes (used for default output filename later)</span>
+        <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;pet_fn&quot;</span><span class="p">:</span> <span class="n">pet_fn</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">pet_out</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;pet&quot;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="WflowModel.setup_rootzoneclim">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_rootzoneclim</span><span class="p">(</span>
