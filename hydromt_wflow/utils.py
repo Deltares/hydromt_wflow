@@ -1,6 +1,6 @@
 """Some utilities from the Wflow plugin."""
 from os.path import abspath, join, relpath
-from pathlib import Path
+from pathlib import Path, WindowsPath
 from typing import Dict, Optional, Union
 
 import numpy as np
@@ -10,6 +10,18 @@ from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 
 __all__ = ["read_csv_results", "get_config", "get_grid_from_config"]
+
+
+def posix_mount_check(
+    target: Path,
+    root: Path,
+):
+    """Check mount on unix systems."""
+    target_mount = target.parts[1]
+    root_mount = root.parts[1]
+    if target_mount != root_mount:
+        return False
+    return True
 
 
 def make_path_relative(
@@ -44,8 +56,14 @@ the `root` path, by default 5
     target = Path(target)
     root = Path(root)
     # check for the mount
-    if target.drive != root.drive:
+    same_mount = True
+    if isinstance(target, WindowsPath):
+        same_mount = target.drive == root.drive
+    else:
+        same_mount = posix_mount_check(target, root)
+    if not same_mount:
         return target
+
     # get the relative path
     rel_path = Path(
         relpath(

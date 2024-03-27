@@ -283,3 +283,4 @@ Utility methods
    :toctree: _generated
 
    utils.get_grid_from_config
+   utils.make_path_relative
