@@ -36,7 +36,7 @@ Setup components
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
-   WflowModel.setup_ksathorfarc
+   WflowModel.setup_ksathorfrac
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
@@ -45,6 +45,7 @@ Setup components
    WflowModel.setup_config_output_timeseries
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
+   WflowModel.setup_pet_forcing
    WflowModel.setup_constant_pars
    WflowModel.setup_1dmodel_connection
    WflowModel.setup_grid_from_raster
@@ -101,8 +102,6 @@ General methods
    WflowModel.read_grid
    WflowModel.write_grid
    WflowModel.clip_grid
-   WflowModel.read_staticmaps_pcr
-   WflowModel.write_staticmaps_pcr
 
    WflowModel.set_geoms
    WflowModel.read_geoms
@@ -244,6 +243,7 @@ Wflow workflows
    workflows.topography
    workflows.river
    workflows.river_bathymetry
+   workflows.pet
    workflows.landuse
    workflows.ksathorfrac
    workflows.soilgrids

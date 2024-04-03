@@ -628,6 +628,19 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
 
+def test_setup_pet_forcing(example_wflow_model, da_pet):
+    example_wflow_model.setup_pet_forcing(
+        pet_fn=da_pet,
+    )
+
+    assert "pet" in example_wflow_model.forcing
+    # used to be debruin before update
+    assert "pet_method" not in example_wflow_model.forcing["pet"].attrs
+    assert example_wflow_model.forcing["pet"].min().values == da_pet.min().values
+    mean_val = example_wflow_model.forcing["pet"].mean().values
+    assert int(mean_val * 1000) == 2984
+
+
 def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     # test subbasin_area method with river boundaries
     example_wflow_model.setup_1dmodel_connection(
