@@ -3370,6 +3370,68 @@
             <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_cold_states">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_cold_states.html#hydromt_wflow.WflowModel.setup_cold_states">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup_cold_states</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare cold states for Wflow.</span>
+
+<span class="sd">        To be run last as this requires some soil parameters or constant_pars to be</span>
+<span class="sd">        computed already.</span>
+
+<span class="sd">        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create</span>
+<span class="sd">        cold states for them if they are present in the basin.</span>
+
+<span class="sd">        This function is mainly useful in case the wflow model is read into Delft-FEWS.</span>
+
+<span class="sd">        Adds model layer:</span>
+<span class="sd">        * **satwaterdepth**: saturated store [mm]</span>
+<span class="sd">        * **snow**: snow storage [mm]</span>
+<span class="sd">        * **tsoil**: top soil temperature [°C]</span>
+<span class="sd">        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]</span>
+<span class="sd">        * **snowwater**: liquid water content in the snow pack [mm]</span>
+<span class="sd">        * **canopystorage**: canopy storage [mm]</span>
+<span class="sd">        * **q_river**: river discharge [m3/s]</span>
+<span class="sd">        * **h_river**: river water level [m]</span>
+<span class="sd">        * **h_av_river**: river average water level [m]</span>
+<span class="sd">        * **ssf**: subsurface flow [m3/d]</span>
+<span class="sd">        * **h_land**: land water level [m]</span>
+<span class="sd">        * **h_av_land**: land average water level[m]</span>
+<span class="sd">        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or</span>
+<span class="sd">            overland flow in x/y directions for local-inertial [m3/s]</span>
+
+<span class="sd">        If lakes, also adds:</span>
+<span class="sd">        * **waterlevel_lake**: lake water level [m]</span>
+
+<span class="sd">        If reservoirs, also adds:</span>
+<span class="sd">        * **volume_reservoir**: reservoir volume [m3]</span>
+
+<span class="sd">        If glaciers, also adds:</span>
+<span class="sd">        * **glacierstore**: water within the glacier [mm]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timestamp : str, optional</span>
+<span class="sd">            Timestamp of the cold states. By default uses the (starttime - timestepsecs)</span>
+<span class="sd">            from the config.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">states</span><span class="p">,</span> <span class="n">states_config</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">prepare_cold_states</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+            <span class="n">timestamp</span><span class="o">=</span><span class="n">timestamp</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+        <span class="c1"># Update config to read the states</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reinit&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Update states variables names in config</span>
+        <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">states_config</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">states_config</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
+
+
     <span class="c1"># I/O</span>
 <div class="viewcode-block" id="WflowModel.read">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read">[docs]</a>
@@ -3380,6 +3442,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">read_intbl</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_tables</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_geoms</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_states</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_forcing</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model read&quot;</span><span class="p">)</span></div>
 
@@ -3402,6 +3465,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">write_tables</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geoms</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_geoms</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_states</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_forcing</span><span class="p">()</span></div>
 
@@ -3424,13 +3489,16 @@
 <span class="sd">        --------</span>
 <span class="sd">        read_staticmaps_pcr</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">)</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
+        <span class="n">fn_default</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+            <span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
-                <span class="n">input_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
+                <span class="n">input_dir</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input directory found </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -3497,13 +3565,16 @@
             <span class="n">encoding</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
         <span class="c1"># filename</span>
-        <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">)</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
+        <span class="n">fn_default</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+            <span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="c1"># Append inputdir if required</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
-                <span class="n">input_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
+                <span class="n">input_dir</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="c1"># Check if all sub-folders in fn exists and if not create them</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn</span><span class="p">)):</span>
@@ -3606,13 +3677,19 @@
 <span class="sd">        files are read and merged into one xarray dataset before being splitted to one</span>
 <span class="sd">        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;inmaps.nc&quot;</span><span class="p">)</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
+        <span class="n">fn_default</span> <span class="o">=</span> <span class="s2">&quot;inmaps.nc&quot;</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+            <span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
-                <span class="n">input_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">)</span>
+                <span class="n">input_dir</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+                    <span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span>
+                    <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">,</span>
+                <span class="p">),</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input directory found </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -3689,15 +3766,24 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">fn_out</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn_out</span><span class="p">):</span>
-                    <span class="c1"># get rid of * in case model had multiple forcing files and</span>
-                    <span class="c1"># write to single nc file.</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Writing multiple forcing files to one file&quot;</span><span class="p">)</span>
-                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">),</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn_out</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
+                <span class="n">fn_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fn_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn_name</span><span class="p">):</span>
+                        <span class="c1"># get rid of * in case model had multiple forcing files and</span>
+                        <span class="c1"># write to single nc file.</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Writing multiple forcing files to one file&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">fn_name</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
+                            <span class="n">dirname</span><span class="p">(</span><span class="n">fn_name</span><span class="p">),</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fn_out</span> <span class="o">=</span> <span class="kc">None</span>
 
                 <span class="c1"># get deafult filename if file exists</span>
                 <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_out</span><span class="p">):</span>
@@ -3727,7 +3813,11 @@
                     <span class="n">fn_default</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;inmaps</span><span class="si">{</span><span class="n">sourceP</span><span class="si">}{</span><span class="n">sourceT</span><span class="si">}{</span><span class="n">methodPET</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">yr0</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">yr1</span><span class="si">}</span><span class="s2">.nc&quot;</span>
                     <span class="p">)</span>
-                    <span class="n">fn_default_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">fn_default_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">fn_default_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn_default_path</span><span class="p">):</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                             <span class="s2">&quot;Netcdf default forcing file already exists, </span><span class="se">\</span>
@@ -3839,21 +3929,72 @@
 <div class="viewcode-block" id="WflowModel.read_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_states.html#hydromt_wflow.WflowModel.read_states">[docs]</a>
     <span class="k">def</span> <span class="nf">read_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read states at &lt;root/?/&gt; and parse to dict of xr.DataArray.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.&quot;&quot;&quot;</span>
+        <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;instate&quot;</span><span class="p">,</span> <span class="s2">&quot;instates.nc&quot;</span><span class="p">)</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+            <span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
+                <span class="n">input_dir</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input directory found </span><span class="si">{</span><span class="n">input_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="c1"># start fresh in read-only mode</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_states</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
-        <span class="c1"># raise NotImplementedError()</span>
+        <span class="k">if</span> <span class="n">fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">isfile</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Read states from </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">mask_and_scale</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">v</span><span class="p">])</span></div>
+
 
 <div class="viewcode-block" id="WflowModel.write_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write states at &lt;root/?/&gt; in model ready format.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">write_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write states at &lt;root/instate/&gt; in model ready format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span></div>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
 
-        <span class="c1"># raise NotImplementedError()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writting states file&quot;</span><span class="p">)</span>
+
+            <span class="c1"># get output filename and if needed update and re-write the config</span>
+            <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fn_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+                    <span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">fn_name</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;instate&quot;</span><span class="p">,</span> <span class="s2">&quot;instates.nc&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;state.path_input&quot;</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_name</span><span class="p">)</span>
+
+            <span class="c1"># merge, process and write forcing</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+            <span class="c1"># make sure no _FillValue is written to the time dimension</span>
+            <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+            <span class="c1"># Check if all sub-folders in fn_out exists and if not create them</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">)):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn_out</span><span class="p">))</span>
+
+            <span class="c1"># write states</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="WflowModel.read_results">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_results.html#hydromt_wflow.WflowModel.read_results">[docs]</a>
@@ -4294,6 +4435,33 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">ds_forcing</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WflowModel.clip_states">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.clip_states.html#hydromt_wflow.WflowModel.clip_states">[docs]</a>
+    <span class="k">def</span> <span class="nf">clip_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return clippped states for subbasin.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.DataSet</span>
+<span class="sd">            Clipped states.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Clipping NetCDF states..&quot;</span><span class="p">)</span>
+            <span class="n">ds_states</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_bbox</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span>
+            <span class="p">)</span>
+            <span class="c1"># Check for reservoirs/lakes presence in the clipped model</span>
+            <span class="n">remove_maps</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;resareas&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;volume_reservoir&quot;</span> <span class="ow">in</span> <span class="n">ds_states</span><span class="p">:</span>
+                    <span class="n">remove_maps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;volume_reservoir&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;lakeareas&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s2">&quot;waterlevel_lake&quot;</span> <span class="ow">in</span> <span class="n">ds_states</span><span class="p">:</span>
+                    <span class="n">remove_maps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;waterlevel_lake&quot;</span><span class="p">])</span>
+            <span class="n">ds_states</span> <span class="o">=</span> <span class="n">ds_states</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">ds_states</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

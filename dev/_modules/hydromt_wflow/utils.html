@@ -416,15 +416,17 @@
                   
   <h1>Source code for hydromt_wflow.utils</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Some utilities from the Wflow plugin.&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">join</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">hydromt.io</span> <span class="kn">import</span> <span class="n">open_timeseries_from_table</span>
 <span class="kn">from</span> <span class="nn">hydromt.vector</span> <span class="kn">import</span> <span class="n">GeoDataArray</span>
+<span class="kn">from</span> <span class="nn">hydromt.workflows.grid</span> <span class="kn">import</span> <span class="n">grid_from_constant</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;read_csv_results&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;read_csv_results&quot;</span><span class="p">,</span> <span class="s2">&quot;get_config&quot;</span><span class="p">,</span> <span class="s2">&quot;get_grid_from_config&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="read_csv_results">
@@ -589,6 +591,150 @@
         <span class="n">csv_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">da</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da</span>
 
     <span class="k">return</span> <span class="n">csv_dict</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">abs_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get a config value at key(s).</span>
+
+<span class="sd">    Copy of hydromt.Model.get_config method to parse config outside of Model functions.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    hydromt.Model.get_config</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : tuple or string</span>
+<span class="sd">        keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
+<span class="sd">        or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
+<span class="sd">    config : dict, optional</span>
+<span class="sd">        config dict to get the values from.</span>
+<span class="sd">    fallback: any, optional</span>
+<span class="sd">        fallback value if key(s) not found in config, by default None.</span>
+<span class="sd">    abs_path: bool, optional</span>
+<span class="sd">        If True return the absolute path relative to the model root,</span>
+<span class="sd">        by deafult False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    value : any type</span>
+<span class="sd">        dictionary value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;.&quot;</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">branch</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># reads config at first call</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+            <span class="k">break</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">branch</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">fallback</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">abs_path</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;root path is required to get absolute path from relative path&quot;</span>
+                <span class="p">)</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abspath</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">value</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<div class="viewcode-block" id="get_grid_from_config">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.utils.get_grid_from_config.html#hydromt_wflow.get_grid_from_config">[docs]</a>
+<span class="k">def</span> <span class="nf">get_grid_from_config</span><span class="p">(</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{},</span>
+    <span class="n">grid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">fallback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">abs_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">nodata</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">,</span>
+    <span class="n">mask_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get actual grid values from config including scale and offset.</span>
+
+<span class="sd">    Calls get_config and applies value, scale and offset if available.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : tuple or string</span>
+<span class="sd">        keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
+<span class="sd">        or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        config dict to get the values from.</span>
+<span class="sd">    grid : xr.Dataset</span>
+<span class="sd">        grid dataset to get the values from.</span>
+<span class="sd">    fallback: any, optional</span>
+<span class="sd">        fallback value if key(s) not found in config, by default None.</span>
+<span class="sd">    abs_path: bool, optional</span>
+<span class="sd">        If True return the absolute path relative to the model root,</span>
+<span class="sd">        by default False.</span>
+<span class="sd">    nodata: int or float, optional</span>
+<span class="sd">        nodata value to use for the DataArray, by default -9999. Used only if the</span>
+<span class="sd">        variable in config is described using value only.</span>
+<span class="sd">    mask_name: str, optional</span>
+<span class="sd">        Name of the mask variable in grid. Used only if the variable in config is</span>
+<span class="sd">        described using value only.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    da : xr.DataArray</span>
+<span class="sd">        DataArray with actual grid values</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    get_config</span>
+<span class="sd">    hydromt.workflows.grid.grid_from_constant</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get config value</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">fallback</span><span class="o">=</span><span class="n">fallback</span><span class="p">,</span>
+        <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span>
+        <span class="n">abs_path</span><span class="o">=</span><span class="n">abs_path</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># direct map in grid</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;grid variable </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2"> not found in staticmaps.&quot;</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># dict type</span>
+        <span class="c1"># constant value in config</span>
+        <span class="k">if</span> <span class="s2">&quot;value&quot;</span> <span class="ow">in</span> <span class="n">var</span><span class="p">:</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">grid_from_constant</span><span class="p">(</span>
+                <span class="n">grid</span><span class="p">,</span>
+                <span class="n">constant</span><span class="o">=</span><span class="n">var</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
+                <span class="n">mask_name</span><span class="o">=</span><span class="n">mask_name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># else scale and offset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">var_name</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;netcdf.variable.name&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">var</span><span class="p">)</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="c1"># apply scale and offset</span>
+            <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;grid variable </span><span class="si">{</span><span class="n">var_name</span><span class="si">}</span><span class="s2"> not found in staticmaps.&quot;</span><span class="p">)</span>
+            <span class="n">da</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">+</span> <span class="n">offset</span>
+
+    <span class="k">return</span> <span class="n">da</span></div>
 
 </pre></div>
 

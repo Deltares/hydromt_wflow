@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>hydromt_wflow.WflowModel.config &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.workflows.prepare_cold_states &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -42,12 +42,12 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=36754332"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.config';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.prepare_cold_states';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.grid" href="hydromt_wflow.WflowModel.grid.html" />
-    <link rel="prev" title="hydromt_wflow.WflowModel.root" href="hydromt_wflow.WflowModel.root.html" />
+    <link rel="next" title="hydromt_wflow.read_csv_results" href="hydromt_wflow.read_csv_results.html" />
+    <link rel="prev" title="hydromt_wflow.workflows.wflow_1dmodel_connection" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -400,12 +400,12 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.crs.html">hydromt_wflow.WflowModel.crs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.res.html">hydromt_wflow.WflowModel.res</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.root.html">hydromt_wflow.WflowModel.root</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.config.html">hydromt_wflow.WflowModel.config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.grid.html">hydromt_wflow.WflowModel.grid</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.geoms.html">hydromt_wflow.WflowModel.geoms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html">hydromt_wflow.WflowModel.staticmaps</a></li>
@@ -521,7 +521,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.read_results.html">hydromt_wflow.WflowSedimentModel.read_results</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.set_flwdir.html">hydromt_wflow.WflowSedimentModel.set_flwdir</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.hydrography.html">hydromt_wflow.workflows.hydrography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.topography.html">hydromt_wflow.workflows.topography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
@@ -539,7 +539,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.glacierattrs.html">hydromt_wflow.workflows.glacierattrs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.prepare_cold_states</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.read_csv_results.html">hydromt_wflow.read_csv_results</a></li>
@@ -605,12 +605,68 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="hydromt-wflow-wflowmodel-config">
-<h1>hydromt_wflow.WflowModel.config<a class="headerlink" href="#hydromt-wflow-wflowmodel-config" title="Link to this heading">#</a></h1>
-<dl class="py property">
-<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.config">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#hydromt_wflow.WflowModel.config" title="Link to this definition">#</a></dt>
-<dd><p>Model configuration. Returns a (nested) dictionary.</p>
+  <section id="hydromt-wflow-workflows-prepare-cold-states">
+<h1>hydromt_wflow.workflows.prepare_cold_states<a class="headerlink" href="#hydromt-wflow-workflows-prepare-cold-states" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="hydromt_wflow.workflows.prepare_cold_states">
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">prepare_cold_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.3.1.dev0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.12)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.3.1.dev0)"><span class="pre">Dataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/states.html#prepare_cold_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.prepare_cold_states" title="Link to this definition">#</a></dt>
+<dd><p>Prepare cold states for Wflow.</p>
+<p>Compute cold states variables:
+* <strong>satwaterdepth</strong>: saturated store [mm]
+* <strong>snow</strong>: snow storage [mm]
+* <strong>tsoil</strong>: top soil temperature [°C]
+* <strong>ustorelayerdepth</strong>: amount of water in the unsaturated store, per layer [mm]
+* <strong>snowwater</strong>: liquid water content in the snow pack [mm]
+* <strong>canopystorage</strong>: canopy storage [mm]
+* <strong>q_river</strong>: river discharge [m3/s]
+* <strong>h_river</strong>: river water level [m]
+* <strong>h_av_river</strong>: river average water level [m]
+* <strong>ssf</strong>: subsurface flow [m3/d]
+* <strong>h_land</strong>: land water level [m]
+* <strong>h_av_land</strong>: land average water level[m]
+* <strong>q_land</strong> or <strong>qx_land**+**qy_land</strong>: overland flow for kinwave [m3/s] or</p>
+<blockquote>
+<div><p>overland flow in x/y directions for local-inertial [m3/s]</p>
+</div></blockquote>
+<p>If lakes, also adds:
+* <strong>waterlevel_lake</strong>: lake water level [m]</p>
+<p>If reservoirs, also adds:
+* <strong>volume_reservoir</strong>: reservoir volume [m3]</p>
+<p>If glaciers, also adds:
+* <strong>glacierstore</strong>: water within the glacier [mm]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds_like</strong> (<em>xr.Dataset</em>) – <p>Dataset containing the staticmaps grid and variables to prepare some of the
+states.</p>
+<ul>
+<li><p>Required variables: wflow_subcatch, wflow_river</p></li>
+<li><dl class="simple">
+<dt>Other required variables (exact name from the wflow config): c, soilthickness,</dt><dd><p>theta_s, theta_r, kv_0, f, slope, ksathorfrac</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Optional variables (exact name from the wflow config): reservoir.locs,</dt><dd><p>glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,
+lake.waterlevel</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)"><em>dict</em></a>) – Wflow configuration dictionary.</p></li>
+<li><p><strong>timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Timestamp of the cold states. By default uses the starttime
+from the config.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>xr.Dataset</em> – Dataset containing the cold states.</p></li>
+<li><p><em>dict</em> – Config dictionary with the cold states variable names.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -626,20 +682,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.WflowModel.root.html"
+       href="hydromt_wflow.workflows.wflow_1dmodel_connection.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.root</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.wflow_1dmodel_connection</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.WflowModel.grid.html"
+       href="hydromt_wflow.read_csv_results.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.grid</p>
+        <p class="prev-next-title">hydromt_wflow.read_csv_results</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -661,7 +717,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.config"><code class="docutils literal notranslate"><span class="pre">WflowModel.config</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.workflows.prepare_cold_states"><code class="docutils literal notranslate"><span class="pre">prepare_cold_states()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -669,7 +725,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.config.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.workflows.prepare_cold_states.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -684,7 +740,7 @@
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/_generated/hydromt_wflow.WflowModel.config.rst.txt">
+    <a href="../_sources/_generated/hydromt_wflow.workflows.prepare_cold_states.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
