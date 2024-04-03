@@ -2993,16 +2993,16 @@ Run setup_soilmaps first"
         --------
         read_staticmaps_pcr
         """
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        fn_default = "staticmaps.nc"
+        fn = self.get_config(
+            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config(
-                    "input.path_static", fallback=os.path.relpath(fn_default, self.root)
-                ),
+                self.get_config("input.path_static", fallback=fn_default),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3066,16 +3066,16 @@ Run setup_soilmaps first"
             encoding[v] = {"_FillValue": None}
 
         # filename
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        fn_default = "staticmaps.nc"
+        fn = self.get_config(
+            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
+        )
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config(
-                    "input.path_static", fallback=os.path.relpath(fn_default, self.root)
-                ),
+                self.get_config("input.path_static", fallback=fn_default),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
@@ -3169,8 +3169,10 @@ Run setup_soilmaps first"
         files are read and merged into one xarray dataset before being splitted to one
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.
         """
-        fn_default = join(self.root, "inmaps.nc")
-        fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
+        fn_default = "inmaps.nc"
+        fn = self.get_config(
+            "input.path_forcing", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
@@ -3178,7 +3180,7 @@ Run setup_soilmaps first"
                 input_dir,
                 self.get_config(
                     "input.path_forcing",
-                    fallback=os.path.relpath(fn_default, self.root),
+                    fallback=fn_default,
                 ),
             )
             self.logger.info(f"Input directory found {input_dir}")
@@ -3253,20 +3255,24 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 self.set_config("input.path_forcing", fn_out)
                 self.write_config()  # re-write config
             else:
-                fn_out = self.get_config("input.path_forcing", abs_path=True)
-                if fn_out is not None:
-                    if "*" in basename(fn_out):
+                fn_name = self.get_config("input.path_forcing", abs_path=False)
+                if fn_name is not None:
+                    if "*" in basename(fn_name):
                         # get rid of * in case model had multiple forcing files and
                         # write to single nc file.
                         self.logger.warning(
                             "Writing multiple forcing files to one file"
                         )
-                        fn_out = join(
-                            dirname(fn_out), basename(fn_out).replace("*", "")
+                        fn_name = join(
+                            dirname(fn_name), basename(fn_name).replace("*", "")
                         )
                     if self.get_config("dir_input") is not None:
                         input_dir = self.get_config("dir_input", abs_path=True)
-                        fn_out = join(input_dir, os.path.relpath(fn_out))
+                        fn_out = join(input_dir, fn_name)
+                    else:
+                        fn_out = join(self.root, fn_name)
+                else:
+                    fn_out = None
 
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
@@ -3410,16 +3416,16 @@ change name input.path_forcing "
 
     def read_states(self):
         """Read states at <root/instate/> and parse to dict of xr.DataArray."""
-        fn_default = join(self.root, "instate", "instates.nc")
-        fn = self.get_config("state.path_input", abs_path=True, fallback=fn_default)
+        fn_default = join("instate", "instates.nc")
+        fn = self.get_config(
+            "state.path_input", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config(
-                    "state.path_input", fallback=os.path.relpath(fn_default, self.root)
-                ),
+                self.get_config("state.path_input", fallback=fn_default),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
