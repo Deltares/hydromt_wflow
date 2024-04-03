@@ -85,7 +85,7 @@ parametrization of distributed hydrological models.
     outidx = None
     if "mask" not in ds.coords and xy is None:
         ds.coords["mask"] = xr.Variable(
-            dims=ds.raster.dims, data=np.ones(ds.raster.shape, dtype=np.bool)
+            dims=ds.raster.dims, data=np.ones(ds.raster.shape, dtype=bool)
         )
     elif "mask" not in ds.coords:
         # NOTE if no subbasin mask is provided calculate it here
@@ -154,7 +154,7 @@ parametrization of distributed hydrological models.
             mask_int.raster.set_nodata(-1)  # change nodata value
             ds_out.coords["mask"] = mask_int.raster.reproject_like(
                 da_flw, method="nearest"
-            ).astype(np.bool)
+            ).astype(bool)
             basins = ds_out["mask"].values.astype(np.int32)
             logger.warning(
                 "The basin delineation might be wrong as no original resolution outlets"
