@@ -441,6 +441,7 @@ def test_setup_outlets(example_wflow_model):
 
 
 def test_setup_gauges(example_wflow_model):
+    # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
     example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
     example_wflow_model.setup_gauges(
@@ -459,7 +460,7 @@ def test_setup_gauges(example_wflow_model):
     # assert np.all(ds_samp["wflow_river"].values == 1)
     assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
 
-    # Test with/without snapping
+    # 2. Test with/without snapping to mask
     stations_fn = join(TESTDATADIR, "test_stations.csv")
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
@@ -484,7 +485,7 @@ def test_setup_gauges(example_wflow_model):
     assert len(equal) == 1
     assert equal.index.values[0] == 1003
 
-    # Test uparea with/without river snapping
+    # 3. Test uparea with/without river snapping
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
         basename="stations_uparea_no_snapping",
@@ -493,8 +494,32 @@ def test_setup_gauges(example_wflow_model):
         snap_uparea=True,
         wdw=5,
         rel_error=0.05,
+        fillna=False,
     )
     gdf_no_snap = example_wflow_model.geoms["gauges_stations_uparea_no_snapping"]
+    # Only two gauges have uparea values and fillna is False
+    assert gdf_no_snap.index.size == 2
+
+    example_wflow_model.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_uparea_no_snapping_fillna",
+        snap_to_river=False,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+        fillna=True,
+    )
+    gdf_no_snap_fillna = example_wflow_model.geoms[
+        "gauges_stations_uparea_no_snapping_fillna"
+    ]
+    # Two gauges have uparea values and fillna is True
+    assert gdf_no_snap_fillna.index.size == 3
+    # Not all gauges are in the river as snap_to_river is False
+    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
+        gdf_no_snap_fillna, wdw=0
+    )
+    assert not np.all(ds_samp["wflow_river"].values == 1)
 
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
@@ -505,18 +530,17 @@ def test_setup_gauges(example_wflow_model):
         wdw=5,
         rel_error=0.05,
         abs_error=25,
+        fillna=False,
     )
     gdf_snap = example_wflow_model.geoms["gauges_stations_uparea_snapping"]
-
+    # Only one gauge has uparea value and is in the river
+    # (the one with NaN for upstream area would have ended in the river if fillna=True)
+    assert gdf_snap.index.size == 1
+    # Check that they are all in the river
     ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
         gdf_snap, wdw=0
     )
     assert np.all(ds_samp["wflow_river"].values == 1)
-    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
-        gdf_no_snap, wdw=0
-    )
-    assert not np.all(ds_samp["wflow_river"].values == 1)
-    assert not gdf_snap.equals(gdf_no_snap)
 
 
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])

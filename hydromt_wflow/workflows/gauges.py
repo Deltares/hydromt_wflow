@@ -22,6 +22,7 @@ def gauge_map_uparea(
     wdw: Optional[int] = 1,
     rel_error: float = 0.05,
     abs_error: float = 50,
+    fillna: bool = False,
     logger=logger,
 ):
     """
@@ -50,6 +51,8 @@ def gauge_map_uparea(
         Relative error threshold to accept the best matching cell, by default 0.05.
     abs_error : float, optional
         Absolute error threshold to accept the best matching cell, by default (50 km2).
+    fillna : bool, optional
+        Fill NaN values in gdf["uparea"] with uparea from ds, by default False.
 
     Returns
     -------
@@ -64,15 +67,27 @@ def gauge_map_uparea(
     if uparea_name not in ds:
         raise ValueError(f"uparea_name {uparea_name} not found in ds.")
 
+    # Original number of gauges
+    nb_gauges_before_snapping = gdf.index.size
+
     # Find if there are any nodata in gdf["uparea"]
     if gdf["uparea"].isna().any():
-        logger.warning(
-            "There are NaN values in the gauges uparea."
-            "Uparea from wflow will be used ie no snapping if mask is None."
-        )
-        uparea_wflow = ds[uparea_name].raster.sample(gdf, wdw=0)
-        # Replace nan values in gdf with uparea from wflow
-        gdf["uparea"] = gdf["uparea"].fillna(uparea_wflow.to_pandas())
+        # Index of gauges with NaN values
+        nodata_gauges = list(gdf.index[gdf["uparea"].isna()])
+        if fillna:
+            logger.warning(
+                f"Gauges with ID {nodata_gauges} have NaN values for uparea."
+                "They will be ignored."
+            )
+            # Replace nan values in gdf with uparea from wflow
+            uparea_wflow = ds[uparea_name].raster.sample(gdf, wdw=0)
+            gdf["uparea"] = gdf["uparea"].fillna(uparea_wflow.to_pandas())
+        else:
+            logger.warning(
+                f"Gauges with ID {nodata_gauges} have NaN values for uparea."
+                "Uparea from wflow will be used and they won't be snapped."
+            )
+            gdf = gdf[gdf["uparea"].notna()]
 
     ds = ds.copy()
     # Add mask to ds
@@ -115,6 +130,12 @@ def gauge_map_uparea(
         stream=None,
         flwdir=None,
         logger=logger,
+    )
+
+    # Final message
+    logger.info(
+        f"Snapped {idxs_out.size}/{nb_gauges_before_snapping} gauge points "
+        "to best matching uparea cell."
     )
 
     return da, idxs_out, ids_out
