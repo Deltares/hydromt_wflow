@@ -2999,7 +2999,10 @@ Run setup_soilmaps first"
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+                input_dir,
+                self.get_config(
+                    "input.path_static", fallback=os.path.relpath(fn_default, self.root)
+                ),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3069,7 +3072,10 @@ Run setup_soilmaps first"
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+                input_dir,
+                self.get_config(
+                    "input.path_static", fallback=os.path.relpath(fn_default, self.root)
+                ),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
@@ -3169,7 +3175,11 @@ Run setup_soilmaps first"
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_forcing", fallback=fn_default)
+                input_dir,
+                self.get_config(
+                    "input.path_forcing",
+                    fallback=os.path.relpath(fn_default, self.root),
+                ),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3244,14 +3254,19 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 self.write_config()  # re-write config
             else:
                 fn_out = self.get_config("input.path_forcing", abs_path=True)
-                if "*" in basename(fn_out):
-                    # get rid of * in case model had multiple forcing files and
-                    # write to single nc file.
-                    self.logger.warning("Writing multiple forcing files to one file")
-                    fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
-                if self.get_config("dir_input") is not None:
-                    input_dir = self.get_config("dir_input", abs_path=True)
-                    fn_out = join(input_dir, fn_out)
+                if fn_out is not None:
+                    if "*" in basename(fn_out):
+                        # get rid of * in case model had multiple forcing files and
+                        # write to single nc file.
+                        self.logger.warning(
+                            "Writing multiple forcing files to one file"
+                        )
+                        fn_out = join(
+                            dirname(fn_out), basename(fn_out).replace("*", "")
+                        )
+                    if self.get_config("dir_input") is not None:
+                        input_dir = self.get_config("dir_input", abs_path=True)
+                        fn_out = join(input_dir, os.path.relpath(fn_out))
 
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
@@ -3281,7 +3296,11 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     fn_default = (
                         f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
                     )
-                    fn_default_path = join(self.root, fn_default)
+                    if self.get_config("dir_input") is not None:
+                        input_dir = self.get_config("dir_input", abs_path=True)
+                        fn_default_path = join(input_dir, fn_default)
+                    else:
+                        fn_default_path = join(self.root, fn_default)
                     if isfile(fn_default_path):
                         self.logger.warning(
                             "Netcdf default forcing file already exists, \
@@ -3394,6 +3413,16 @@ change name input.path_forcing "
         fn_default = join(self.root, "instate", "instates.nc")
         fn = self.get_config("state.path_input", abs_path=True, fallback=fn_default)
 
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir,
+                self.get_config(
+                    "state.path_input", fallback=os.path.relpath(fn_default, self.root)
+                ),
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
@@ -3413,23 +3442,22 @@ change name input.path_forcing "
             self.logger.info("Writting states file")
 
             # get output filename and if needed update and re-write the config
-            update_config = False
             if fn_out is not None:
-                update_config = True
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
             else:
-                fn_out = self.get_config(
-                    "state.path_input", abs_path=True, fallback=None
+                fn_name = self.get_config(
+                    "state.path_input", abs_path=False, fallback=None
                 )
                 if fn_out is None:
-                    fn_out = join(self.root, "instate", "instates.nc")
-                    update_config = True
-            if update_config:
-                cfg_fn_out = utils.make_path_relative(
-                    fn_out,
-                    self.root,
-                )
-                self.set_config("state.path_input", cfg_fn_out.as_posix())
-                self.write_config()  # re-write config
+                    fn_name = join("instate", "instates.nc")
+                    self.set_config("state.path_input", fn_name)
+                    self.write_config()  # re-write config
+                if self.get_config("dir_input") is not None:
+                    input_dir = self.get_config("dir_input", abs_path=True)
+                    fn_out = join(input_dir, fn_name)
+                else:
+                    fn_out = join(self.root, fn_name)
 
             # merge, process and write forcing
             ds = xr.merge(self.states.values())
