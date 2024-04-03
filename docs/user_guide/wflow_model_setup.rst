@@ -76,6 +76,8 @@ a specific method see its documentation.
       -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
     * - :py:func:`~WflowModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
+    * - :py:func:`~WflowModel.setup_cold_states`
+      -  Setup wflow cold states based on data in staticmaps.
 
 
 .. _model_components:

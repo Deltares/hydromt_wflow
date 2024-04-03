@@ -5,6 +5,7 @@ import platform
 from os.path import abspath, dirname, join
 
 import geopandas as gpd
+import numpy as np
 import pytest
 import xarray as xr
 from hydromt.cli.cli_utils import parse_config
@@ -104,4 +105,18 @@ def da_pet(example_wflow_model):
     da = 0.5 * (0.45 * da + 8)  # simple pet from Bradley Criddle
     da.name = "pet"
 
+    return da
+
+
+@pytest.fixture()
+def demda():
+    np.random.seed(11)
+    da = xr.DataArray(
+        data=np.random.rand(15, 10),
+        dims=("y", "x"),
+        coords={"y": -np.arange(0, 1500, 100), "x": np.arange(0, 1000, 100)},
+        attrs=dict(_FillValue=-9999),
+    )
+    # NOTE epsg 3785 is deprecated https://epsg.io/3785
+    da.raster.set_crs(3857)
     return da

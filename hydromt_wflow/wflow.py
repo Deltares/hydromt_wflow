@@ -2885,6 +2885,65 @@ Run setup_soilmaps first"
                 reducer=["sum"],
             )
 
+    def setup_cold_states(
+        self,
+        timestamp: str = None,
+    ) -> None:
+        """Prepare cold states for Wflow.
+
+        To be run last as this requires some soil parameters or constant_pars to be
+        computed already.
+
+        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        cold states for them if they are present in the basin.
+
+        This function is mainly useful in case the wflow model is read into Delft-FEWS.
+
+        Adds model layer:
+        * **satwaterdepth**: saturated store [mm]
+        * **snow**: snow storage [mm]
+        * **tsoil**: top soil temperature [°C]
+        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
+        * **snowwater**: liquid water content in the snow pack [mm]
+        * **canopystorage**: canopy storage [mm]
+        * **q_river**: river discharge [m3/s]
+        * **h_river**: river water level [m]
+        * **h_av_river**: river average water level [m]
+        * **ssf**: subsurface flow [m3/d]
+        * **h_land**: land water level [m]
+        * **h_av_land**: land average water level[m]
+        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+            overland flow in x/y directions for local-inertial [m3/s]
+
+        If lakes, also adds:
+        * **waterlevel_lake**: lake water level [m]
+
+        If reservoirs, also adds:
+        * **volume_reservoir**: reservoir volume [m3]
+
+        If glaciers, also adds:
+        * **glacierstore**: water within the glacier [mm]
+
+        Parameters
+        ----------
+        timestamp : str, optional
+            Timestamp of the cold states. By default uses the (starttime - timestepsecs)
+            from the config.
+        """
+        states, states_config = workflows.prepare_cold_states(
+            self.grid,
+            config=self.config,
+            timestamp=timestamp,
+        )
+
+        self.set_states(states)
+
+        # Update config to read the states
+        self.set_config("model.reinit", False)
+        # Update states variables names in config
+        for option in states_config:
+            self.set_config(option, states_config[option])
+
     # I/O
     def read(self):
         """Read the complete model schematization and configuration from file."""
@@ -2893,6 +2952,7 @@ Run setup_soilmaps first"
         self.read_intbl()
         self.read_tables()
         self.read_geoms()
+        self.read_states()
         self.read_forcing()
         self.logger.info("Model read")
 
@@ -2912,6 +2972,8 @@ Run setup_soilmaps first"
             self.write_tables()
         if self._geoms:
             self.write_geoms()
+        if self._states:
+            self.write_states()
         if self._forcing:
             self.write_forcing()
 
@@ -2931,13 +2993,16 @@ Run setup_soilmaps first"
         --------
         read_staticmaps_pcr
         """
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        fn_default = "staticmaps.nc"
+        fn = self.get_config(
+            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+                input_dir,
+                self.get_config("input.path_static", fallback=fn_default),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3001,13 +3066,16 @@ Run setup_soilmaps first"
             encoding[v] = {"_FillValue": None}
 
         # filename
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        fn_default = "staticmaps.nc"
+        fn = self.get_config(
+            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
+        )
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+                input_dir,
+                self.get_config("input.path_static", fallback=fn_default),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
@@ -3101,13 +3169,19 @@ Run setup_soilmaps first"
         files are read and merged into one xarray dataset before being splitted to one
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.
         """
-        fn_default = join(self.root, "inmaps.nc")
-        fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
+        fn_default = "inmaps.nc"
+        fn = self.get_config(
+            "input.path_forcing", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_forcing", fallback=fn_default)
+                input_dir,
+                self.get_config(
+                    "input.path_forcing",
+                    fallback=fn_default,
+                ),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3181,15 +3255,24 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 self.set_config("input.path_forcing", fn_out)
                 self.write_config()  # re-write config
             else:
-                fn_out = self.get_config("input.path_forcing", abs_path=True)
-                if "*" in basename(fn_out):
-                    # get rid of * in case model had multiple forcing files and
-                    # write to single nc file.
-                    self.logger.warning("Writing multiple forcing files to one file")
-                    fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
-                if self.get_config("dir_input") is not None:
-                    input_dir = self.get_config("dir_input", abs_path=True)
-                    fn_out = join(input_dir, fn_out)
+                fn_name = self.get_config("input.path_forcing", abs_path=False)
+                if fn_name is not None:
+                    if "*" in basename(fn_name):
+                        # get rid of * in case model had multiple forcing files and
+                        # write to single nc file.
+                        self.logger.warning(
+                            "Writing multiple forcing files to one file"
+                        )
+                        fn_name = join(
+                            dirname(fn_name), basename(fn_name).replace("*", "")
+                        )
+                    if self.get_config("dir_input") is not None:
+                        input_dir = self.get_config("dir_input", abs_path=True)
+                        fn_out = join(input_dir, fn_name)
+                    else:
+                        fn_out = join(self.root, fn_name)
+                else:
+                    fn_out = None
 
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
@@ -3219,7 +3302,11 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     fn_default = (
                         f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
                     )
-                    fn_default_path = join(self.root, fn_default)
+                    if self.get_config("dir_input") is not None:
+                        input_dir = self.get_config("dir_input", abs_path=True)
+                        fn_default_path = join(input_dir, fn_default)
+                    else:
+                        fn_default_path = join(self.root, fn_default)
                     if isfile(fn_default_path):
                         self.logger.warning(
                             "Netcdf default forcing file already exists, \
@@ -3328,17 +3415,68 @@ change name input.path_forcing "
             # file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
     def read_states(self):
-        """Read states at <root/?/> and parse to dict of xr.DataArray."""
+        """Read states at <root/instate/> and parse to dict of xr.DataArray."""
+        fn_default = join("instate", "instates.nc")
+        fn = self.get_config(
+            "state.path_input", abs_path=True, fallback=join(self.root, fn_default)
+        )
+
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir,
+                self.get_config("state.path_input", fallback=fn_default),
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
-        # raise NotImplementedError()
 
-    def write_states(self):
-        """Write states at <root/?/> in model ready format."""
+        if fn is not None and isfile(fn):
+            self.logger.info(f"Read states from {fn}")
+            ds = xr.open_dataset(fn, mask_and_scale=False)
+            for v in ds.data_vars:
+                self.set_states(ds[v])
+
+    def write_states(self, fn_out: Union[str, Path] = None):
+        """Write states at <root/instate/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
+
+        if self.states:
+            self.logger.info("Writting states file")
+
+            # get output filename and if needed update and re-write the config
+            if fn_out is not None:
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
+            else:
+                fn_name = self.get_config(
+                    "state.path_input", abs_path=False, fallback=None
+                )
+                if fn_out is None:
+                    fn_name = join("instate", "instates.nc")
+                    self.set_config("state.path_input", fn_name)
+                    self.write_config()  # re-write config
+                if self.get_config("dir_input") is not None:
+                    input_dir = self.get_config("dir_input", abs_path=True)
+                    fn_out = join(input_dir, fn_name)
+                else:
+                    fn_out = join(self.root, fn_name)
+
+            # merge, process and write forcing
+            ds = xr.merge(self.states.values())
+
+            # make sure no _FillValue is written to the time dimension
+            ds["time"].attrs.pop("_FillValue", None)
+
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
+
+            # write states
+            ds.to_netcdf(fn_out, mode="w")
 
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
@@ -3759,3 +3897,27 @@ change name input.path_forcing "
                 self.grid.raster.bounds
             )
             self.set_forcing(ds_forcing)
+
+    def clip_states(self, crs=4326, **kwargs):
+        """Return clippped states for subbasin.
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped states.
+        """
+        if len(self.states) > 0:
+            self.logger.info("Clipping NetCDF states..")
+            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+                self.grid.raster.bounds
+            )
+            # Check for reservoirs/lakes presence in the clipped model
+            remove_maps = []
+            if self._MAPS["resareas"] not in self.grid:
+                if "volume_reservoir" in ds_states:
+                    remove_maps.extend(["volume_reservoir"])
+            if self._MAPS["lakeareas"] not in self.grid:
+                if "waterlevel_lake" in ds_states:
+                    remove_maps.extend(["waterlevel_lake"])
+            ds_states = ds_states.drop_vars(remove_maps)
+            self.set_states(ds_states)
