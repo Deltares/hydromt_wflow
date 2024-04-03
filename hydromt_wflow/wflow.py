@@ -1352,6 +1352,13 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
                 idxs = idxs[np.isin(ids_old, ids_new)]
                 ids = da.values.flat[idxs]
 
+        # Check if there are gauges left
+        if ids.size == 0:
+            self.logger.warning(
+                "No gauges found within domain after snapping, skipping method."
+            )
+            return
+
         # Add to grid
         mapname = f'{str(self._MAPS["gauges"])}_{basename}'
         self.set_grid(da, name=mapname)
