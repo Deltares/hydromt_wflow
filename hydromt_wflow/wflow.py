@@ -2976,7 +2976,7 @@ Run setup_soilmaps first"
             # Also for the fact that these parameters are cyclic
             if _cyclic:
                 self.config["input"]["cyclic"].append(
-                    f"input.vertical.{lname}.demand_{suffix}",
+                    f"vertical.{lname}.demand_{suffix}",
                 )
 
     def setup_irrigation(
@@ -3230,15 +3230,18 @@ Run setup_soilmaps first"
             threshold=lai_threshold,
         )
 
-        # Add to grid and config
+        # Add to grid
         self.set_grid(irri_trigger, name=self._MAPS["irrigation_trigger"])
-        self.set_config(
-            "input.vertical.nonpaddy.irrigation_trigger",
-            self._MAPS["irrigation_trigger"],
-        )
-        self.set_config(
-            "input.vertical.paddy.irrigation_trigger", self._MAPS["irrigation_trigger"]
-        )
+
+        # Update config
+        for paddy_class in ["paddy", "nonpaddy"]:
+            self.set_config(
+                f"input.vertical.{paddy_class}.irrigation_trigger",
+                self._MAPS["irrigation_trigger"],
+            )
+            self.config["input"]["cyclic"].append(
+                f"vertical.{paddy_class}.irrigation_trigger",
+            )
 
     # I/O
     def read(self):
