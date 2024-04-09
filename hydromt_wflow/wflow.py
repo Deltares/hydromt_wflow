@@ -3233,7 +3233,11 @@ Run setup_soilmaps first"
         # Add to grid and config
         self.set_grid(irri_trigger, name=self._MAPS["irrigation_trigger"])
         self.set_config(
-            "input.vertical.irrigation_trigger", self._MAPS["irrigation_trigger"]
+            "input.vertical.nonpaddy.irrigation_trigger",
+            self._MAPS["irrigation_trigger"],
+        )
+        self.set_config(
+            "input.vertical.paddy.irrigation_trigger", self._MAPS["irrigation_trigger"]
         )
 
     # I/O
