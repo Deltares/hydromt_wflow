@@ -1,7 +1,8 @@
 """Unit tests for hydromt_wflow methods and workflows."""
 
 import logging
-from os.path import abspath, dirname, join
+from itertools import product
+from os.path import abspath, dirname, isfile, join
 
 import numpy as np
 
@@ -10,6 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from hydromt.raster import full_like
 
 from hydromt_wflow.wflow import WflowModel
 
@@ -253,6 +255,37 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
             == number_of_reservoirs
         ), f"Number of non-null values in {i} not equal to \
 number of reservoirs in model area"
+
+
+def test_setup_ksathorfrac(tmpdir, example_wflow_model):
+    # Read the modeldata
+    model = "wflow"
+    example_wflow_model.read()
+    # Create dummy ksat data
+    da = full_like(example_wflow_model.grid["KsatHorFrac"])
+    data = np.zeros(da.shape)
+    for x, y in product(*[range(item) for item in da.shape]):
+        data[x, y] = 750 - ((x + y) ** 0.4 * 114.07373)
+    da.values = data
+
+    # Set the output directory
+    destination = str(tmpdir.join(model))
+    example_wflow_model.set_root(destination, mode="w")
+
+    # Build the map
+    example_wflow_model.setup_ksathorfrac(
+        ksat_fn=da,
+    )
+    # Write and read the map
+    example_wflow_model.write_grid()
+    example_wflow_model.read_grid()
+
+    # Check values
+    values = example_wflow_model.grid.KsatHorFrac.raster.mask_nodata()
+    max_val = values.max().values
+    mean_val = values.mean().values
+    assert int(max_val * 100) == 43175
+    assert int(mean_val * 100) == 22020
 
 
 def test_setup_rootzoneclim(example_wflow_model):
@@ -561,6 +594,19 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
 
+def test_setup_pet_forcing(example_wflow_model, da_pet):
+    example_wflow_model.setup_pet_forcing(
+        pet_fn=da_pet,
+    )
+
+    assert "pet" in example_wflow_model.forcing
+    # used to be debruin before update
+    assert "pet_method" not in example_wflow_model.forcing["pet"].attrs
+    assert example_wflow_model.forcing["pet"].min().values == da_pet.min().values
+    mean_val = example_wflow_model.forcing["pet"].mean().values
+    assert int(mean_val * 1000) == 2984
+
+
 def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     # test subbasin_area method with river boundaries
     example_wflow_model.setup_1dmodel_connection(
@@ -656,3 +702,32 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         planted_forest_testdata.geometry.centroid
     )
     assert np.all(da.values == np.array([0.0881, 0.2188]))
+
+
+def test_setup_cold_states(example_wflow_model, tmpdir):
+    # Create states
+    example_wflow_model.setup_cold_states()
+    states = example_wflow_model.states.copy()
+
+    assert "q_land" in example_wflow_model.states
+    assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
+    assert np.isclose(
+        example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,
+        559.73975,
+    )
+    assert np.isclose(
+        example_wflow_model.states["ssf"].raster.mask_nodata().mean().values, 67.45569
+    )
+
+    # test write
+    example_wflow_model.set_root(str(tmpdir.join("wflow_cold_states")), mode="r+")
+    example_wflow_model.write_states()
+
+    assert isfile(str(tmpdir.join("wflow_cold_states", "instate", "instates.nc")))
+
+    # test read
+    example_wflow_model.read_states()
+
+    xr.testing.assert_equal(
+        xr.merge(states.values()), xr.merge(example_wflow_model.states.values())
+    )

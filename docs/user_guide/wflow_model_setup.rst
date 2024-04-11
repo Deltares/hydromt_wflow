@@ -45,13 +45,15 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_reservoirs`
       - This component generates maps of reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
     * - :py:func:`~WflowModel.setup_glaciers`
-      - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice convertion fraction.
+      - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.
     * - :py:func:`~WflowModel.setup_lulcmaps`
       - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
     * - :py:func:`~WflowModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
     * - :py:func:`~WflowModel.setup_soilmaps`
-      - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rulesto ensure flux matching across scales.
+      - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
+    * - :py:func:`~WflowModel.setup_ksathorfrac`
+      - This component prepares ksathorfrac from existing ksathorfrac data.
     * - :py:func:`~WflowModel.setup_rootzoneclim`
       - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
     * - :py:func:`~WflowModel.setup_outlets`
@@ -65,6 +67,8 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
     * - :py:func:`~WflowModel.setup_temp_pet_forcing`
+      -  Setup gridded temperature and optionally compute reference evapotranspiration forcing at model resolution.
+    * - :py:func:`~WflowModel.setup_pet_forcing`
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
@@ -72,6 +76,8 @@ a specific method see its documentation.
       -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
     * - :py:func:`~WflowModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
+    * - :py:func:`~WflowModel.setup_cold_states`
+      -  Setup wflow cold states based on data in staticmaps.
 
 
 .. _model_components:
