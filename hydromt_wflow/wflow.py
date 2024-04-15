@@ -2875,7 +2875,7 @@ Run setup_soilmaps first"
 
         # Create the allocation grid
         alloc = workflows.demand.allocate(
-            ds_like=self.grid,
+            da_like=self.grid[self._MAPS["elevtn"]],
             min_area=min_area,
             admin_bounds=admin_bounds,
             basins=self.geoms["basins"],

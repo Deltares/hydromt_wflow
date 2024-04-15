@@ -158,7 +158,7 @@ def non_irigation(
 
 
 def allocate(
-    ds_like: xr.Dataset,
+    da_like: xr.DataArray,
     min_area: float | int,
     admin_bounds: object,
     basins: xr.Dataset,
@@ -170,7 +170,7 @@ def allocate(
 
     Parameters
     ----------
-    ds_like : xr.Dataset
+    da_like : xr.DataArray
         _description_
     min_area : float | int
         _description_
@@ -269,7 +269,7 @@ def allocate(
         sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
         _count += 1
 
-    alloc = full_like(ds_like["dem_subgrid"], nodata=-9999, lazy=True).astype(int)
+    alloc = full_like(da_like, nodata=-9999, lazy=True).astype(int)
     alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=-9999)
     alloc.name = "Allocation_id"
 
