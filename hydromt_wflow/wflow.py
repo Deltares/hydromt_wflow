@@ -74,6 +74,7 @@ class WflowModel(GridModel):
         "kvfrac": "kvfrac",
         "leaf_area_index": "LAI",
         "irrigation_trigger": "irrigation_trigger",
+        "allocation_regions": "allocation_regions",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -2884,7 +2885,12 @@ Run setup_soilmaps first"
         self.set_grid(alloc)
 
         # Update the settings toml
-        self.set_config("input.vertical.waterallocation.areas", "Allocation_id")
+        self.set_config(
+            "input.vertical.waterallocation.areas", self._MAPS["allocation_regions"]
+        )
+
+        # Add alloc to geoms
+        self.set_geoms(alloc.raster.vectorize(), name=self._MAPS["allocation_regions"])
 
     def setup_non_irigation(
         self,
