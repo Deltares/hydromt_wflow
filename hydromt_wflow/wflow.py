@@ -2882,7 +2882,7 @@ Run setup_soilmaps first"
             basins=self.geoms["basins"],
             rivers=self.geoms["rivers"],
         )
-        self.set_grid(alloc)
+        self.set_grid(alloc, name=self._MAPS["allocation_regions"])
 
         # Update the settings toml
         self.set_config(
