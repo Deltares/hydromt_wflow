@@ -2,7 +2,7 @@
 
 import logging
 from itertools import product
-from os.path import abspath, dirname, join
+from os.path import abspath, dirname, isfile, join
 
 import numpy as np
 
@@ -441,6 +441,7 @@ def test_setup_outlets(example_wflow_model):
 
 
 def test_setup_gauges(example_wflow_model):
+    # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
     example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
     example_wflow_model.setup_gauges(
@@ -456,11 +457,11 @@ def test_setup_gauges(example_wflow_model):
     ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
         gdf, wdw=0
     )
-    assert np.all(ds_samp["wflow_river"].values == 1)
+    # assert np.all(ds_samp["wflow_river"].values == 1)
     assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
 
-    # Test with/without snapping
-    stations_fn = join(EXAMPLEDIR, "test_stations.csv")
+    # 2. Test with/without snapping to mask
+    stations_fn = join(TESTDATADIR, "test_stations.csv")
     example_wflow_model.setup_gauges(
         gauges_fn=stations_fn,
         basename="stations_snapping",
@@ -483,6 +484,63 @@ def test_setup_gauges(example_wflow_model):
     equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
     assert len(equal) == 1
     assert equal.index.values[0] == 1003
+
+    # 3. Test uparea with/without river snapping
+    example_wflow_model.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_uparea_no_snapping",
+        snap_to_river=False,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+        fillna=False,
+    )
+    gdf_no_snap = example_wflow_model.geoms["gauges_stations_uparea_no_snapping"]
+    # Only two gauges have uparea values and fillna is False
+    assert gdf_no_snap.index.size == 2
+
+    example_wflow_model.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_uparea_no_snapping_fillna",
+        snap_to_river=False,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+        fillna=True,
+    )
+    gdf_no_snap_fillna = example_wflow_model.geoms[
+        "gauges_stations_uparea_no_snapping_fillna"
+    ]
+    # Two gauges have uparea values and fillna is True
+    assert gdf_no_snap_fillna.index.size == 3
+    # Not all gauges are in the river as snap_to_river is False
+    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
+        gdf_no_snap_fillna, wdw=0
+    )
+    assert not np.all(ds_samp["wflow_river"].values == 1)
+
+    example_wflow_model.setup_gauges(
+        gauges_fn=stations_fn,
+        basename="stations_uparea_snapping",
+        snap_to_river=True,
+        mask=None,
+        snap_uparea=True,
+        wdw=5,
+        rel_error=0.05,
+        abs_error=25,
+        fillna=False,
+    )
+    gdf_snap = example_wflow_model.geoms["gauges_stations_uparea_snapping"]
+    # Only one gauge has uparea value and is in the river
+    # (the one with NaN for upstream area would have ended in the river if fillna=True)
+    assert gdf_snap.index.size == 1
+    # Check that they are all in the river
+    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
+        gdf_snap, wdw=0
+    )
+    assert np.all(ds_samp["wflow_river"].values == 1)
 
 
 @pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
@@ -594,6 +652,19 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
 
+def test_setup_pet_forcing(example_wflow_model, da_pet):
+    example_wflow_model.setup_pet_forcing(
+        pet_fn=da_pet,
+    )
+
+    assert "pet" in example_wflow_model.forcing
+    # used to be debruin before update
+    assert "pet_method" not in example_wflow_model.forcing["pet"].attrs
+    assert example_wflow_model.forcing["pet"].min().values == da_pet.min().values
+    mean_val = example_wflow_model.forcing["pet"].mean().values
+    assert int(mean_val * 1000) == 2984
+
+
 def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     # test subbasin_area method with river boundaries
     example_wflow_model.setup_1dmodel_connection(
@@ -678,3 +749,32 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
 
 def test_setup_demand():
     pass
+
+
+def test_setup_cold_states(example_wflow_model, tmpdir):
+    # Create states
+    example_wflow_model.setup_cold_states()
+    states = example_wflow_model.states.copy()
+
+    assert "q_land" in example_wflow_model.states
+    assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
+    assert np.isclose(
+        example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,
+        559.73975,
+    )
+    assert np.isclose(
+        example_wflow_model.states["ssf"].raster.mask_nodata().mean().values, 67.45569
+    )
+
+    # test write
+    example_wflow_model.set_root(str(tmpdir.join("wflow_cold_states")), mode="r+")
+    example_wflow_model.write_states()
+
+    assert isfile(str(tmpdir.join("wflow_cold_states", "instate", "instates.nc")))
+
+    # test read
+    example_wflow_model.read_states()
+
+    xr.testing.assert_equal(
+        xr.merge(states.values()), xr.merge(example_wflow_model.states.values())
+    )

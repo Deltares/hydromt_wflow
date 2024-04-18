@@ -1127,17 +1127,19 @@ skipping adding gauge specific outputs to the toml."
         self,
         gauges_fn: Union[str, Path, gpd.GeoDataFrame],
         index_col: Optional[str] = None,
-        snap_to_river: Optional[bool] = True,
+        snap_to_river: bool = True,
         mask: Optional[np.ndarray] = None,
-        snap_uparea: Optional[bool] = False,
-        max_dist: Optional[float] = 10e3,
-        wdw: Optional[int] = 3,
-        rel_error: Optional[float] = 0.05,
-        derive_subcatch: Optional[bool] = False,
+        snap_uparea: bool = False,
+        max_dist: float = 10e3,
+        wdw: int = 3,
+        rel_error: float = 0.05,
+        abs_error: float = 50.0,
+        fillna: bool = False,
+        derive_subcatch: bool = False,
         basename: Optional[str] = None,
-        toml_output: Optional[str] = "csv",
-        gauge_toml_header: Optional[List[str]] = ["Q", "P"],
-        gauge_toml_param: Optional[List[str]] = [
+        toml_output: str = "csv",
+        gauge_toml_header: List[str] = ["Q", "P"],
+        gauge_toml_param: List[str] = [
             "lateral.river.q_av",
             "vertical.precipitation",
         ],
@@ -1151,19 +1153,24 @@ skipping adding gauge specific outputs to the toml."
         "y" or "lat" column is required and the first column will be used as
         IDs in the map.
 
-        There are three available methods to prepare the gauge map:
+        There are four available methods to prepare the gauge map:
 
         * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.
           The gauge locations are used as is.
-        * snapping to mask: the gauge locations are snapped to a boolean mask map:
+        * snapping to mask: the gauge locations are snapped to a boolean mask map based
+          on the closest dowsntream cell within the mask:
           either provide ``mask`` or set ``snap_to_river=True``
-          to snap to the river (default).
+          to snap to the river cells (default).
           ``max_dist`` can be used to set the maximum distance to snap to the mask.
         * snapping based on upstream area matching: : ``snap_uparea=True``.
           The gauge locations are snapped to the closest matching upstream area value.
           Requires gauges_fn to have an ``uparea`` [km2] column. The closest value will
-          be looked for in a cell window of size ``wdw`` and the difference between
-          the gauge and the closest value should be smaller than ``rel_error``.
+          be looked for in a cell window of size ``wdw`` and the absolute and relative
+          differences between the gauge and the closest value should be smaller than
+          ``abs_error`` and ``rel_error``.
+        * snapping based on upstream area matching and mask: ``snap_uparea=True``,
+          ``mask`` or ``snap_to_river=True``. The gauge locations are snapped to the
+            closest matching upstream area value within the mask.
 
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived
         from the gauge locations.
@@ -1208,7 +1215,15 @@ gauge locations [-] (if derive_subcatch)
         rel_error: float, optional
             Maximum relative error (default 0.05)
             between the gauge location upstream area and the upstream area of
-            the best fit grid cell, only used if snap_area is True.
+            the best fit grid cell, only used if snap_uparea is True.
+        abs_error: float, optional
+            Maximum absolute error (default 50.0)
+            between the gauge location upstream area and the upstream area of
+            the best fit grid cell, only used if snap_uparea is True.
+        fillna: bool, optional
+            Fill missing values in the gauges uparea column with the values from wflow
+            upstream area (ie no snapping). By default False and the gauges with NaN
+            values are skipped.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
@@ -1227,6 +1242,9 @@ gauge locations [-] (if derive_subcatch)
             the wflow variable corresponding to the names in gauge_toml_header.
             By default saves lateral.river.q_av (for Q) and
             vertical.precipitation (for P).
+        kwargs : dict, optional
+            Additional keyword arguments to pass to the get_data method ie
+            get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
         """
         # Read data
         kwargs = {}
@@ -1318,8 +1336,11 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
                 self.grid,
                 gdf_gauges,
                 uparea_name="wflow_uparea",
+                mask=mask,
                 wdw=wdw,
                 rel_error=rel_error,
+                abs_error=abs_error,
+                fillna=fillna,
                 logger=self.logger,
             )
         else:
@@ -1340,6 +1361,13 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
                 ids_new = np.unique(da.values[da.values > 0])
                 idxs = idxs[np.isin(ids_old, ids_new)]
                 ids = da.values.flat[idxs]
+
+        # Check if there are gauges left
+        if ids.size == 0:
+            self.logger.warning(
+                "No gauges found within domain after snapping, skipping method."
+            )
+            return
 
         # Add to grid
         mapname = f'{str(self._MAPS["gauges"])}_{basename}'
@@ -2479,6 +2507,58 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         temp_out.attrs.update(opt_attr)
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    def setup_pet_forcing(
+        self,
+        pet_fn: Union[str, xr.DataArray],
+        chunksize: Optional[int] = None,
+    ):
+        """
+        Prepare PET forcing from existig PET data.
+
+        Adds model layer:
+
+        * **pet**: reference evapotranspiration [mm]
+
+        Parameters
+        ----------
+        pet_fn: str, xr.DataArray
+            RasterDataset source or data for PET to be resampled.
+
+            * Required variable: 'pet' [mm]
+
+        chunksize: int, optional
+            Chunksize on time dimension for processing data (not for saving to disk!).
+            If None the data chunksize is used, this can however be optimized for
+            large/small catchments. By default None.
+
+        """
+        self.logger.info("Preparing potential evapotranspiration forcing maps.")
+
+        starttime = self.get_config("starttime")
+        endtime = self.get_config("endtime")
+        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+
+        pet = self.data_catalog.get_rasterdataset(
+            pet_fn,
+            geom=self.region,
+            buffer=2,
+            variables=["pet"],
+            time_tuple=(starttime, endtime),
+        )
+
+        pet_out = workflows.forcing.pet(
+            pet=pet,
+            ds_like=self.grid,
+            freq=freq,
+            mask_name=self._MAPS["basins"],
+            chunksize=chunksize,
+            logger=self.logger,
+        )
+
+        # Update meta attributes (used for default output filename later)
+        pet_out.attrs.update({"pet_fn": pet_fn})
+        self.set_forcing(pet_out, name="pet")
+
     def setup_rootzoneclim(
         self,
         run_fn: Union[str, Path, xr.Dataset],
@@ -2717,11 +2797,13 @@ Run setup_soilmaps first"
 
         There are two methods to connect models:
 
-            - `subbasin_area`: creates subcatchments linked to the 1d river based
+        - `subbasin_area`:
+            creates subcatchments linked to the 1d river based
             on an area threshold (area_max) for the subbasin size. With this method,
             if a tributary is larger than the `area_max`, it will be connected to
             the 1d river directly.
-            - `nodes`: subcatchments are derived based on the 1driver nodes (used as
+        - `nodes`:
+            subcatchments are derived based on the 1driver nodes (used as
             gauges locations). With this method, large tributaries can also be derived
             separately using the `add_tributaries` option and adding a `area_max`
             threshold for the tributaries.
@@ -3249,6 +3331,65 @@ Run setup_soilmaps first"
                 f"vertical.{paddy_class}.irrigation_trigger",
             )
 
+    def setup_cold_states(
+        self,
+        timestamp: str = None,
+    ) -> None:
+        """Prepare cold states for Wflow.
+
+        To be run last as this requires some soil parameters or constant_pars to be
+        computed already.
+
+        To be run after setup_lakes, setup_reservoirs and setup_glaciers to also create
+        cold states for them if they are present in the basin.
+
+        This function is mainly useful in case the wflow model is read into Delft-FEWS.
+
+        Adds model layer:
+        * **satwaterdepth**: saturated store [mm]
+        * **snow**: snow storage [mm]
+        * **tsoil**: top soil temperature [°C]
+        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
+        * **snowwater**: liquid water content in the snow pack [mm]
+        * **canopystorage**: canopy storage [mm]
+        * **q_river**: river discharge [m3/s]
+        * **h_river**: river water level [m]
+        * **h_av_river**: river average water level [m]
+        * **ssf**: subsurface flow [m3/d]
+        * **h_land**: land water level [m]
+        * **h_av_land**: land average water level[m]
+        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+            overland flow in x/y directions for local-inertial [m3/s]
+
+        If lakes, also adds:
+        * **waterlevel_lake**: lake water level [m]
+
+        If reservoirs, also adds:
+        * **volume_reservoir**: reservoir volume [m3]
+
+        If glaciers, also adds:
+        * **glacierstore**: water within the glacier [mm]
+
+        Parameters
+        ----------
+        timestamp : str, optional
+            Timestamp of the cold states. By default uses the (starttime - timestepsecs)
+            from the config.
+        """
+        states, states_config = workflows.prepare_cold_states(
+            self.grid,
+            config=self.config,
+            timestamp=timestamp,
+        )
+
+        self.set_states(states)
+
+        # Update config to read the states
+        self.set_config("model.reinit", False)
+        # Update states variables names in config
+        for option in states_config:
+            self.set_config(option, states_config[option])
+
     # I/O
     def read(self):
         """Read the complete model schematization and configuration from file."""
@@ -3257,6 +3398,7 @@ Run setup_soilmaps first"
         self.read_intbl()
         self.read_tables()
         self.read_geoms()
+        self.read_states()
         self.read_forcing()
         self.logger.info("Model read")
 
@@ -3276,6 +3418,8 @@ Run setup_soilmaps first"
             self.write_tables()
         if self._geoms:
             self.write_geoms()
+        if self._states:
+            self.write_states()
         if self._forcing:
             self.write_forcing()
 
@@ -3295,13 +3439,16 @@ Run setup_soilmaps first"
         --------
         read_staticmaps_pcr
         """
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        fn_default = "staticmaps.nc"
+        fn = self.get_config(
+            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+                input_dir,
+                self.get_config("input.path_static", fallback=fn_default),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3365,13 +3512,16 @@ Run setup_soilmaps first"
             encoding[v] = {"_FillValue": None}
 
         # filename
-        fn_default = join(self.root, "staticmaps.nc")
-        fn = self.get_config("input.path_static", abs_path=True, fallback=fn_default)
+        fn_default = "staticmaps.nc"
+        fn = self.get_config(
+            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
+        )
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_static", fallback=fn_default)
+                input_dir,
+                self.get_config("input.path_static", fallback=fn_default),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
@@ -3465,13 +3615,19 @@ Run setup_soilmaps first"
         files are read and merged into one xarray dataset before being splitted to one
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.
         """
-        fn_default = join(self.root, "inmaps.nc")
-        fn = self.get_config("input.path_forcing", abs_path=True, fallback=fn_default)
+        fn_default = "inmaps.nc"
+        fn = self.get_config(
+            "input.path_forcing", abs_path=True, fallback=join(self.root, fn_default)
+        )
 
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
-                input_dir, self.get_config("input.path_forcing", fallback=fn_default)
+                input_dir,
+                self.get_config(
+                    "input.path_forcing",
+                    fallback=fn_default,
+                ),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -3545,15 +3701,24 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 self.set_config("input.path_forcing", fn_out)
                 self.write_config()  # re-write config
             else:
-                fn_out = self.get_config("input.path_forcing", abs_path=True)
-                if "*" in basename(fn_out):
-                    # get rid of * in case model had multiple forcing files and
-                    # write to single nc file.
-                    self.logger.warning("Writing multiple forcing files to one file")
-                    fn_out = join(dirname(fn_out), basename(fn_out).replace("*", ""))
-                if self.get_config("dir_input") is not None:
-                    input_dir = self.get_config("dir_input", abs_path=True)
-                    fn_out = join(input_dir, fn_out)
+                fn_name = self.get_config("input.path_forcing", abs_path=False)
+                if fn_name is not None:
+                    if "*" in basename(fn_name):
+                        # get rid of * in case model had multiple forcing files and
+                        # write to single nc file.
+                        self.logger.warning(
+                            "Writing multiple forcing files to one file"
+                        )
+                        fn_name = join(
+                            dirname(fn_name), basename(fn_name).replace("*", "")
+                        )
+                    if self.get_config("dir_input") is not None:
+                        input_dir = self.get_config("dir_input", abs_path=True)
+                        fn_out = join(input_dir, fn_name)
+                    else:
+                        fn_out = join(self.root, fn_name)
+                else:
+                    fn_out = None
 
                 # get deafult filename if file exists
                 if fn_out is None or isfile(fn_out):
@@ -3583,7 +3748,11 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     fn_default = (
                         f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
                     )
-                    fn_default_path = join(self.root, fn_default)
+                    if self.get_config("dir_input") is not None:
+                        input_dir = self.get_config("dir_input", abs_path=True)
+                        fn_default_path = join(input_dir, fn_default)
+                    else:
+                        fn_default_path = join(self.root, fn_default)
                     if isfile(fn_default_path):
                         self.logger.warning(
                             "Netcdf default forcing file already exists, \
@@ -3692,17 +3861,68 @@ change name input.path_forcing "
             # file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
     def read_states(self):
-        """Read states at <root/?/> and parse to dict of xr.DataArray."""
+        """Read states at <root/instate/> and parse to dict of xr.DataArray."""
+        fn_default = join("instate", "instates.nc")
+        fn = self.get_config(
+            "state.path_input", abs_path=True, fallback=join(self.root, fn_default)
+        )
+
+        if self.get_config("dir_input") is not None:
+            input_dir = self.get_config("dir_input", abs_path=True)
+            fn = join(
+                input_dir,
+                self.get_config("state.path_input", fallback=fn_default),
+            )
+            self.logger.info(f"Input directory found {input_dir}")
+
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
-        # raise NotImplementedError()
 
-    def write_states(self):
-        """Write states at <root/?/> in model ready format."""
+        if fn is not None and isfile(fn):
+            self.logger.info(f"Read states from {fn}")
+            ds = xr.open_dataset(fn, mask_and_scale=False)
+            for v in ds.data_vars:
+                self.set_states(ds[v])
+
+    def write_states(self, fn_out: Union[str, Path] = None):
+        """Write states at <root/instate/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
+
+        if self.states:
+            self.logger.info("Writting states file")
+
+            # get output filename and if needed update and re-write the config
+            if fn_out is not None:
+                self.set_config("state.path_input", fn_out)
+                self.write_config()  # re-write config
+            else:
+                fn_name = self.get_config(
+                    "state.path_input", abs_path=False, fallback=None
+                )
+                if fn_out is None:
+                    fn_name = join("instate", "instates.nc")
+                    self.set_config("state.path_input", fn_name)
+                    self.write_config()  # re-write config
+                if self.get_config("dir_input") is not None:
+                    input_dir = self.get_config("dir_input", abs_path=True)
+                    fn_out = join(input_dir, fn_name)
+                else:
+                    fn_out = join(self.root, fn_name)
+
+            # merge, process and write forcing
+            ds = xr.merge(self.states.values())
+
+            # make sure no _FillValue is written to the time dimension
+            ds["time"].attrs.pop("_FillValue", None)
+
+            # Check if all sub-folders in fn_out exists and if not create them
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
+
+            # write states
+            ds.to_netcdf(fn_out, mode="w")
 
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
@@ -4123,3 +4343,27 @@ change name input.path_forcing "
                 self.grid.raster.bounds
             )
             self.set_forcing(ds_forcing)
+
+    def clip_states(self, crs=4326, **kwargs):
+        """Return clippped states for subbasin.
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped states.
+        """
+        if len(self.states) > 0:
+            self.logger.info("Clipping NetCDF states..")
+            ds_states = xr.merge(self.states.values()).raster.clip_bbox(
+                self.grid.raster.bounds
+            )
+            # Check for reservoirs/lakes presence in the clipped model
+            remove_maps = []
+            if self._MAPS["resareas"] not in self.grid:
+                if "volume_reservoir" in ds_states:
+                    remove_maps.extend(["volume_reservoir"])
+            if self._MAPS["lakeareas"] not in self.grid:
+                if "waterlevel_lake" in ds_states:
+                    remove_maps.extend(["waterlevel_lake"])
+            ds_states = ds_states.drop_vars(remove_maps)
+            self.set_states(ds_states)

@@ -47,9 +47,11 @@ Setup components
    WflowModel.setup_config_output_timeseries
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
+   WflowModel.setup_pet_forcing
    WflowModel.setup_constant_pars
    WflowModel.setup_1dmodel_connection
    WflowModel.setup_grid_from_raster
+   WflowModel.setup_cold_states
 
 Attributes
 ----------
@@ -103,8 +105,6 @@ General methods
    WflowModel.read_grid
    WflowModel.write_grid
    WflowModel.clip_grid
-   WflowModel.read_staticmaps_pcr
-   WflowModel.write_staticmaps_pcr
 
    WflowModel.set_geoms
    WflowModel.read_geoms
@@ -118,6 +118,7 @@ General methods
    WflowModel.set_states
    WflowModel.read_states
    WflowModel.write_states
+   WflowModel.clip_states
 
    WflowModel.set_results
    WflowModel.read_results
@@ -248,6 +249,7 @@ Wflow workflows
    workflows.topography
    workflows.river
    workflows.river_bathymetry
+   workflows.pet
    workflows.landuse
    workflows.ksathorfrac
    workflows.soilgrids
@@ -260,6 +262,7 @@ Wflow workflows
    workflows.glacierattrs
    workflows.rootzoneclim
    workflows.wflow_1dmodel_connection
+   workflows.prepare_cold_states
 
 
 .. _methods:
@@ -276,3 +279,11 @@ Input/Output methods
    read_csv_results
    pcrm.read_staticmaps_pcr
    pcrm.write_staticmaps_pcr
+
+Utility methods
+---------------
+
+.. autosummary::
+   :toctree: _generated
+
+   utils.get_grid_from_config
