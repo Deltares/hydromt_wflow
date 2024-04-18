@@ -1117,17 +1117,19 @@ skipping adding gauge specific outputs to the toml."
         self,
         gauges_fn: Union[str, Path, gpd.GeoDataFrame],
         index_col: Optional[str] = None,
-        snap_to_river: Optional[bool] = True,
+        snap_to_river: bool = True,
         mask: Optional[np.ndarray] = None,
-        snap_uparea: Optional[bool] = False,
-        max_dist: Optional[float] = 10e3,
-        wdw: Optional[int] = 3,
-        rel_error: Optional[float] = 0.05,
-        derive_subcatch: Optional[bool] = False,
+        snap_uparea: bool = False,
+        max_dist: float = 10e3,
+        wdw: int = 3,
+        rel_error: float = 0.05,
+        abs_error: float = 50.0,
+        fillna: bool = False,
+        derive_subcatch: bool = False,
         basename: Optional[str] = None,
-        toml_output: Optional[str] = "csv",
-        gauge_toml_header: Optional[List[str]] = ["Q", "P"],
-        gauge_toml_param: Optional[List[str]] = [
+        toml_output: str = "csv",
+        gauge_toml_header: List[str] = ["Q", "P"],
+        gauge_toml_param: List[str] = [
             "lateral.river.q_av",
             "vertical.precipitation",
         ],
@@ -1141,19 +1143,24 @@ skipping adding gauge specific outputs to the toml."
         "y" or "lat" column is required and the first column will be used as
         IDs in the map.
 
-        There are three available methods to prepare the gauge map:
+        There are four available methods to prepare the gauge map:
 
         * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.
           The gauge locations are used as is.
-        * snapping to mask: the gauge locations are snapped to a boolean mask map:
+        * snapping to mask: the gauge locations are snapped to a boolean mask map based
+          on the closest dowsntream cell within the mask:
           either provide ``mask`` or set ``snap_to_river=True``
-          to snap to the river (default).
+          to snap to the river cells (default).
           ``max_dist`` can be used to set the maximum distance to snap to the mask.
         * snapping based on upstream area matching: : ``snap_uparea=True``.
           The gauge locations are snapped to the closest matching upstream area value.
           Requires gauges_fn to have an ``uparea`` [km2] column. The closest value will
-          be looked for in a cell window of size ``wdw`` and the difference between
-          the gauge and the closest value should be smaller than ``rel_error``.
+          be looked for in a cell window of size ``wdw`` and the absolute and relative
+          differences between the gauge and the closest value should be smaller than
+          ``abs_error`` and ``rel_error``.
+        * snapping based on upstream area matching and mask: ``snap_uparea=True``,
+          ``mask`` or ``snap_to_river=True``. The gauge locations are snapped to the
+            closest matching upstream area value within the mask.
 
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived
         from the gauge locations.
@@ -1198,7 +1205,15 @@ gauge locations [-] (if derive_subcatch)
         rel_error: float, optional
             Maximum relative error (default 0.05)
             between the gauge location upstream area and the upstream area of
-            the best fit grid cell, only used if snap_area is True.
+            the best fit grid cell, only used if snap_uparea is True.
+        abs_error: float, optional
+            Maximum absolute error (default 50.0)
+            between the gauge location upstream area and the upstream area of
+            the best fit grid cell, only used if snap_uparea is True.
+        fillna: bool, optional
+            Fill missing values in the gauges uparea column with the values from wflow
+            upstream area (ie no snapping). By default False and the gauges with NaN
+            values are skipped.
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
@@ -1217,6 +1232,9 @@ gauge locations [-] (if derive_subcatch)
             the wflow variable corresponding to the names in gauge_toml_header.
             By default saves lateral.river.q_av (for Q) and
             vertical.precipitation (for P).
+        kwargs : dict, optional
+            Additional keyword arguments to pass to the get_data method ie
+            get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
         """
         # Read data
         kwargs = {}
@@ -1308,8 +1326,11 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
                 self.grid,
                 gdf_gauges,
                 uparea_name="wflow_uparea",
+                mask=mask,
                 wdw=wdw,
                 rel_error=rel_error,
+                abs_error=abs_error,
+                fillna=fillna,
                 logger=self.logger,
             )
         else:
@@ -1330,6 +1351,13 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
                 ids_new = np.unique(da.values[da.values > 0])
                 idxs = idxs[np.isin(ids_old, ids_new)]
                 ids = da.values.flat[idxs]
+
+        # Check if there are gauges left
+        if ids.size == 0:
+            self.logger.warning(
+                "No gauges found within domain after snapping, skipping method."
+            )
+            return
 
         # Add to grid
         mapname = f'{str(self._MAPS["gauges"])}_{basename}'

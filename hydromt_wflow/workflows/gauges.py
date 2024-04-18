@@ -18,9 +18,11 @@ def gauge_map_uparea(
     ds: xr.Dataset,
     gdf: gpd.GeoDataFrame,
     uparea_name: Optional[str] = "wflow_uparea",
+    mask: Optional[np.ndarray] = None,
     wdw: Optional[int] = 1,
     rel_error: float = 0.05,
     abs_error: float = 50,
+    fillna: bool = False,
     logger=logger,
 ):
     """
@@ -40,6 +42,8 @@ def gauge_map_uparea(
         GeoDataFrame with gauge points and uparea column.
     uparea_name : str, optional
         Name of the upstream area variable in ``ds``, by default "wflow_uparea".
+    mask : np.ndarray, optional
+        Mask cells to apply the uparea snapping, by default None.
     wdw : int, optional
         Window size around the original location to search for the best matching cell,
         by default 1.
@@ -47,6 +51,8 @@ def gauge_map_uparea(
         Relative error threshold to accept the best matching cell, by default 0.05.
     abs_error : float, optional
         Absolute error threshold to accept the best matching cell, by default (50 km2).
+    fillna : bool, optional
+        Fill NaN values in gdf["uparea"] with uparea from ds, by default False.
 
     Returns
     -------
@@ -60,17 +66,58 @@ def gauge_map_uparea(
     """
     if uparea_name not in ds:
         raise ValueError(f"uparea_name {uparea_name} not found in ds.")
+    if gdf["uparea"].isna().all():
+        raise ValueError(
+            "All gauges have NaN values for uparea. Use another method for snapping."
+        )
+
+    # Original number of gauges
+    nb_gauges_before_snapping = gdf.index.size
+
+    # Find if there are any nodata in gdf["uparea"]
+    if gdf["uparea"].isna().any():
+        # Index of gauges with NaN values
+        nodata_gauges = list(gdf.index[gdf["uparea"].isna()])
+        if fillna:
+            logger.warning(
+                f"Gauges with ID {nodata_gauges} have NaN values for uparea."
+                "Uparea from wflow will be used and they won't be snapped."
+            )
+            # Replace nan values in gdf with uparea from wflow
+            uparea_wflow = ds[uparea_name].raster.sample(gdf, wdw=0)
+            gdf["uparea"] = gdf["uparea"].fillna(uparea_wflow.to_pandas())
+        else:
+            logger.warning(
+                f"Gauges with ID {nodata_gauges} have NaN values for uparea."
+                "They will be ignored."
+            )
+            gdf = gdf[gdf["uparea"].notna()]
+
+    ds = ds.copy()
+    # Add mask to ds
+    if mask is not None:
+        ds["mask"] = xr.DataArray(mask, dims=(ds.raster.y_dim, ds.raster.x_dim))
 
     ds_wdw = ds.raster.sample(gdf, wdw=wdw)
+    # Mask valid cells in ds_wdw
+    if mask is not None:
+        ds_wdw[uparea_name] = ds_wdw[uparea_name].where(
+            ds_wdw["mask"], ds_wdw[uparea_name].raster.nodata
+        )
     logger.debug(
         f"Snapping gauges points to best matching uparea cell within wdw (size={wdw})."
     )
     upa0 = xr.DataArray(gdf["uparea"], dims=("index"))
     upa_dff = np.abs(ds_wdw[uparea_name].where(ds_wdw[uparea_name] > 0).load() - upa0)
-    upa_check = np.logical_or((upa_dff / upa0) <= rel_error, upa_dff <= abs_error)
+    upa_check = np.logical_and((upa_dff / upa0) <= rel_error, upa_dff <= abs_error)
+
+    # drop index will all nan values
+    upa_dff = upa_dff.dropna(dim="index", how="all")
+    upa_check = upa_check.sel(index=upa_dff.index)
+    ds_wdw = ds_wdw.sel(index=upa_dff.index)
+
     # find best matching uparea cell in window
     i_wdw = upa_dff.argmin("wdw").load()
-
     idx_valid = np.where(upa_check.isel(wdw=i_wdw).values)[0]
     if idx_valid.size < gdf.index.size:
         logger.warning(
@@ -92,6 +139,12 @@ def gauge_map_uparea(
         stream=None,
         flwdir=None,
         logger=logger,
+    )
+
+    # Final message
+    logger.info(
+        f"Snapped {idxs_out.size}/{nb_gauges_before_snapping} gauge points "
+        "to best matching uparea cell."
     )
 
     return da, idxs_out, ids_out
