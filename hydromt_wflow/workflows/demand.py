@@ -2,6 +2,7 @@
 
 import math
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -9,7 +10,7 @@ from affine import Affine
 from hydromt.gis_utils import utm_crs
 from hydromt.raster import full_from_transform, full_like
 
-__all__ = ["allocate", "non_irrigation"]
+__all__ = ["allocation_areas", "non_irrigation"]
 
 map_vars = {
     "dom": "domestic",
@@ -20,15 +21,18 @@ map_vars = {
 
 def transform_half_degree(
     bbox: tuple | list,
-):
-    """_summary_.
-
-    _extended_summary_
+) -> tuple:
+    """Transform a bbox into a covering box with a 0.5 degree resolution.
 
     Parameters
     ----------
     bbox : tuple | list
-        _description_
+        A bounding box in the format of (minx, miny, maxx, maxy).
+
+    Returns
+    -------
+    tuple
+        Affine matrix (geospatial transform), width and height
     """
     left = round(math.floor(bbox[0] * 2) / 2, 1)
     bottom = round(math.floor(bbox[1] * 2) / 2, 1)
@@ -42,22 +46,23 @@ def transform_half_degree(
     return affine, w, h
 
 
-def touch_intersect(row, vector):
-    """_summary_.
-
-    _extended_summary_
+def touch_intersect(
+    row: pd.Series,
+    vector: gpd.GeoDataFrame,
+) -> pd.Series:
+    """Find if a geometry (row) has unequal intersects and touches.
 
     Parameters
     ----------
-    row : _type_
-        _description_
-    vector : _type_
-        _description_
+    row : pd.Series
+        Row from a GeoDataFrame.
+    vector : gpd.GeoDataFrame
+        GeoDataFrame to test touches and intersects with.
 
     Returns
     -------
-    _type_
-        _description_
+    pd.Series
+        A row containing the boolean of equal touches and intersects.
     """
     contain = True
     _t = sum(vector.touches(row.geometry))
@@ -75,15 +80,26 @@ def non_irrigation(
     ds_method: str,
     popu: xr.Dataset,
     popu_method: str,
-):
-    """_summary_.
-
-    _extended_summary_
+) -> tuple:
+    """Create non-irrigation water demand maps.
 
     Parameters
     ----------
     ds : xr.Dataset
-        _description_
+        Raw non-irrigation data dataset.
+    ds_like : xr.Dataset
+        Dataset at wflow model domain and resolution.
+    ds_method : str
+        Non-irrigation data resampling method.
+    popu : xr.Dataset
+        Population dataset (number of people per gridcell).
+    popu_method : str
+        Population data resampling method.
+
+    Returns
+    -------
+    tuple
+        Non-irrigation data at model resolution, Population data at model resolution.
     """
     # Reproject to up or downscale
     non_irri_scaled = ds.raster.reproject_like(
@@ -107,7 +123,7 @@ def non_irrigation(
             method=popu_method,
         )
 
-    popu_scaled.name = "Population_scaled"
+    popu_scaled.name = "population"
 
     # Get transform at half degree resolution
     transform, width, height = transform_half_degree(
@@ -158,29 +174,35 @@ def non_irrigation(
     return non_irri_scaled, popu_scaled
 
 
-def allocate(
+def allocation_areas(
     da_like: xr.DataArray,
     min_area: float | int,
     admin_bounds: object,
-    basins: xr.Dataset,
-    rivers: xr.Dataset,
-):
-    """_summary_.
+    basins: gpd.GeoDataFrame,
+    rivers: gpd.GeoDataFrame,
+) -> xr.DataArray:
+    """Create water allocation area.
 
-    _extended_summary_
+    Based on current wflow model domain and resolution and making use of
+    the model basins and optional administrative boundaries.
 
     Parameters
     ----------
     da_like : xr.DataArray
-        _description_
+        A grid covering the wflow model domain.
     min_area : float | int
-        _description_
+        The minimum area an allocation area should have.
     admin_bounds : object
-        _description_
+        Administrative boundaries, e.g. sovereign nations.
     basins : xr.Dataset
-        _description_
+        The wflow model basins.
     rivers : xr.Dataset
-        _description_
+        The wflow model rivers.
+
+    Returns
+    -------
+    xr.DataArray
+        The water demand allocation areas.
     """
     # Split based on admin bounds
     sub_basins = basins.copy()
@@ -209,6 +231,9 @@ def allocate(
         sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
 
     # Set the contain flag per geom
+    # TODO figure out the code below for more precise allocation areas
+    # sub_basins = sub_basins.explode(index_parts=False, ignore_index=True)
+    # sub_basins["uid"] = range(len(sub_basins))
     sub_basins = sub_basins.apply(lambda row: touch_intersect(row, rivers), axis=1)
 
     # Calculate the area based on a more latum utm projection
@@ -251,7 +276,7 @@ def allocate(
             break
 
         for _, row in no_riv.iterrows():
-            touched = riv[riv.touches(row.geometry)]
+            touched = riv[riv.touches(row.geometry) | riv.intersects(row.geometry)]
             if touched.empty:
                 continue
             if row.value in touched.value.values:
@@ -275,7 +300,7 @@ def allocate(
 
     alloc = full_like(da_like, nodata=-9999, lazy=True).astype(int)
     alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=-9999)
-    alloc.name = "Allocation_id"
+    alloc.name = "allocation_areas"
 
     return alloc
 

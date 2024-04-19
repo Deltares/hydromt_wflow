@@ -2925,19 +2925,28 @@ Run setup_soilmaps first"
 
     def setup_allocation_areas(
         self,
-        admin_bounds_fn: str | None = None,
+        admin_bounds_fn: Union[str, gpd.GeoDataFrame] | None = None,
         min_area: float | int = 0,
     ):
-        """_summary_.
+        """Create water demand allocation areas.
 
-        _extended_summary_
+        The areas are based on the wflow model basins (at model resolution), the
+        wflow model rivers and optional provided administrative boundaries.
+
+        The allocations area will be an intersection the the wflow model basins and the
+        administrative boundaries (if provided). Small area that do not contain any
+        river cells will be merged with their larger bordering neighbors. The same
+        is done for those areas (even if they contain river cells) that fall under the
+        `min_area` threshold.
 
         Parameters
         ----------
-        admin_bounds_fn : str, optional
-            _description_, by default "gadm"
-        min_area : float | int
-            _description_
+        admin_bounds_fn : Union[str, gpd.GeoDataFrame] | None, optional
+            Administrative boundaries in geopandas GeoDataFrame format, this could be
+            e.g. the boundaries of sovereign nations, by default None
+        min_area : float | int, optional
+            The minimum area in square kilometers the allocation area is ought to be.
+            A value of 30 sqkm for most cases is adequate, by default 0
         """
         self.logger.info("Preparing water demand allocation map.")
         # Will be fixes but for know this is done like this
@@ -2952,7 +2961,7 @@ Run setup_soilmaps first"
             admin_bounds["admin_id"] = range(len(admin_bounds))
 
         # Create the allocation grid
-        alloc = workflows.demand.allocate(
+        alloc = workflows.demand.allocation_areas(
             da_like=self.grid[self._MAPS["elevtn"]],
             min_area=min_area,
             admin_bounds=admin_bounds,
@@ -2977,29 +2986,46 @@ Run setup_soilmaps first"
         non_irrigation_method: str = "nearest",
         population_method: str = "sum",
     ):
-        """_summary_.
+        """Create non-irrigation water demand maps.
 
-        _extended_summary_
+        These maps are created from a supplied dataset that either contains one
+        or all of the following variables:
+        - `Domestic` water demand
+        - `Industrial` water demand
+        - `Livestock` water demand
+
+        For each of these datasets/ variables a gross and a netto water demand
+        should be provided.
+
+        Concerning the `domestic` water demand, this non-irrigation map is not simply
+        resampled based on the `non_irrigation_method` but rather based on a provided
+        population dataset to more accurately distribute the domestic water demand.
 
         Parameters
         ----------
-        non_irrigation_fn : Union[str, xr.Dataset]
-            _description_
+        non_irrigation_fn : Union[str, dict, xr.Dataset]
+            The non-irrigation dataset. This can either be the dataset directly
+            (xr.Dataset), a string referring to an entry in the data catalog or
+            a dictionary containing the name of the dataset (keyword: `source`) and
+            any optional keyword arguments (e.g. `version`).
         population_fn : Union[str, xr.Dataset]
-            _description_
+            The population dataset. Either provided as a dataset directly or as
+            a string referring to an entry in the data catalog.
         variables : list, optional
-            _description_, by default ["dom", "ind", "lsk"]
-        non_irrigation_year : int, optional
-            _description_, by default None
-        non_irrigation_method : str, optional
-            _description_, by default "nearest"
-        population_method : str, optional
-            _description_, by default "sum"
+            The variables to be processed. These variables should be either or all of
+            'dom', 'ind' or 'lsk' (abbriviations for domestic, industry and livestock).
+            When e.g. `dom` is supplied as variable the following entries in the
+            `non_irrigation_fn` dataset are needed:
 
-        Raises
-        ------
-        ValueError
-            _description_
+            * `dom_gross`
+            * `dom_net`
+
+            To cover both gross and netto demand, by default ["dom", "ind", "lsk"]
+        non_irrigation_method : str, optional
+            Resampling method for the non-irrigation maps (excluding domestic),
+            by default "nearest"
+        population_method : str, optional
+            Resampling method for the population data, by default "sum"
         """
         self.logger.info("Preparing non irigation demand maps.")
         if not all([item in ["dom", "ind", "lsk"] for item in variables]):
@@ -3040,7 +3066,7 @@ Run setup_soilmaps first"
             popu_method=population_method,
         )
         self.set_grid(non_irigation)
-        self.set_grid(popu)
+        self.set_grid(popu, name="population")
 
         # Update the settings toml with non irigation stuff
         for var in non_irigation.data_vars:

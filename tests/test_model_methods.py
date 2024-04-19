@@ -747,7 +747,15 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         )
 
 
-def test_setup_demand():
+def test_setup_allocation_areas(example_wflow_model, tmpdir):
+    pass
+
+
+def test_setup_non_irrigation(example_wflow_model, tmpdir):
+    pass
+
+
+def test_setup_irrigation(example_wflow_model, tmpdir):
     pass
 
 
