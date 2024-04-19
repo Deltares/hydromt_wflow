@@ -1,17 +1,15 @@
-setup_allocation:
+setup_allocation_areas:
   min_area: 30
-  admin_bounds_fn: gadm
-  admin_level: 2
+  admin_bounds_fn: gadm_level2
 
-setup_non_irigation:
-  non_irigation_fn: pcr_globwb
-  non_irigation_vars:
+setup_non_irrigation:
+  non_irrigation_fn: pcr_globwb
+  population_fn: worldpop_2020_constrained
+  variables:
     - dom
     - ind
     - lsk
-  non_irigation_year: 2005
-  non_irigation_method: nearest
-  population_fn: worldpop_2020_constrained
+  non_irrigation_method: nearest
   population_method: sum
 
 setup_irrigation:
