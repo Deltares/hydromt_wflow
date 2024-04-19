@@ -8,7 +8,7 @@ import xarray as xr
 from affine import Affine
 from hydromt.raster import full_from_transform, full_like
 
-__all__ = ["allocate", "non_irigation"]
+__all__ = ["allocate", "non_irrigation"]
 
 map_vars = {
     "dom": "domestic",
@@ -68,7 +68,7 @@ def touch_intersect(row, vector):
     return row
 
 
-def non_irigation(
+def non_irrigation(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
     ds_method: str,
@@ -85,7 +85,7 @@ def non_irigation(
         _description_
     """
     # Reproject to up or downscale
-    non_iri_scaled = ds.raster.reproject_like(
+    non_irri_scaled = ds.raster.reproject_like(
         ds_like,
         method=ds_method,
     )
@@ -137,24 +137,24 @@ def non_irigation(
     popu_redist = popu_scaled / popu_redist
 
     # Setup downscaled non irigation domestic data
-    non_iri_down = non_iri_scaled.raster.reproject_like(
+    non_irri_down = non_irri_scaled.raster.reproject_like(
         dda,
         method="sum",
     )
 
     # Loop through the domestic variables
     for var in ["dom_gross", "dom_net"]:
-        attrs = non_iri_scaled[var].attrs
-        new = non_iri_down[var].raster.reproject_like(
-            non_iri_scaled,
+        attrs = non_irri_scaled[var].attrs
+        new = non_irri_down[var].raster.reproject_like(
+            non_irri_scaled,
             method="nearest",
         )
         new = new * popu_redist
         new = new.fillna(0.0)
-        non_iri_scaled[var] = new
-        non_iri_scaled[var] = non_iri_scaled[var].assign_attrs(attrs)
+        non_irri_scaled[var] = new
+        non_irri_scaled[var] = non_irri_scaled[var].assign_attrs(attrs)
 
-    return non_iri_scaled, popu_scaled
+    return non_irri_scaled, popu_scaled
 
 
 def allocate(

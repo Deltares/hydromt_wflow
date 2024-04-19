@@ -74,7 +74,7 @@ class WflowModel(GridModel):
         "kvfrac": "kvfrac",
         "leaf_area_index": "LAI",
         "irrigation_trigger": "irrigation_trigger",
-        "allocation_regions": "allocation_regions",
+        "allocation_areas": "allocation_areas",
     }
     _FOLDERS = [
         "staticgeoms",
@@ -2923,11 +2923,10 @@ Run setup_soilmaps first"
                 reducer=["sum"],
             )
 
-    def setup_allocation(
+    def setup_allocation_areas(
         self,
+        admin_bounds_fn: str | None = None,
         min_area: float | int = 0,
-        admin_bounds_fn: str = "gadm",
-        admin_level: int = None,
     ):
         """_summary_.
 
@@ -2935,20 +2934,16 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        min_area : float | int
-            _description_
         admin_bounds_fn : str, optional
             _description_, by default "gadm"
-        admin_level : int, optional
-            _description_, by default 0
+        min_area : float | int
+            _description_
         """
         self.logger.info("Preparing water demand allocation map.")
         # Will be fixes but for know this is done like this
         # TODO fix in the future
         admin_bounds = None
         if admin_bounds_fn is not None:
-            if admin_level is not None:
-                admin_bounds_fn += f"_level{admin_level}"
             admin_bounds = self.data_catalog.get_geodataframe(
                 admin_bounds_fn,
                 geom=self.region,
@@ -2964,23 +2959,22 @@ Run setup_soilmaps first"
             basins=self.geoms["basins"],
             rivers=self.geoms["rivers"],
         )
-        self.set_grid(alloc, name=self._MAPS["allocation_regions"])
+        self.set_grid(alloc, name=self._MAPS["allocation_areas"])
 
         # Update the settings toml
         self.set_config(
-            "input.vertical.waterallocation.areas", self._MAPS["allocation_regions"]
+            "input.vertical.waterallocation.areas", self._MAPS["allocation_areas"]
         )
 
         # Add alloc to geoms
-        self.set_geoms(alloc.raster.vectorize(), name=self._MAPS["allocation_regions"])
+        self.set_geoms(alloc.raster.vectorize(), name=self._MAPS["allocation_areas"])
 
-    def setup_non_irigation(
+    def setup_non_irrigation(
         self,
-        non_irigation_fn: str = "pcr_globwb",
-        non_irigation_vars: list = ["dom", "ind", "lsk"],
-        non_irigation_year: int = None,
-        non_irigation_method: str = "nearest",
-        population_fn: str = "worldpop_2020_constrained",
+        non_irrigation_fn: Union[str, dict, xr.Dataset],
+        population_fn: Union[str, xr.Dataset],
+        variables: list = ["dom", "ind", "lsk"],
+        non_irrigation_method: str = "nearest",
         population_method: str = "sum",
     ):
         """_summary_.
@@ -2989,16 +2983,16 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        non_irigation_fn : str, optional
-            _description_, by default "pcr_globwb"
-        non_irigation_vars : list, optional
+        non_irrigation_fn : Union[str, xr.Dataset]
+            _description_
+        population_fn : Union[str, xr.Dataset]
+            _description_
+        variables : list, optional
             _description_, by default ["dom", "ind", "lsk"]
-        non_irigation_year : int, optional
+        non_irrigation_year : int, optional
             _description_, by default None
-        non_irigation_method : str, optional
+        non_irrigation_method : str, optional
             _description_, by default "nearest"
-        population_fn : str, optional
-            _description_, by default "worldpop_2020_constrained"
         population_method : str, optional
             _description_, by default "sum"
 
@@ -3008,24 +3002,20 @@ Run setup_soilmaps first"
             _description_
         """
         self.logger.info("Preparing non irigation demand maps.")
-        if not all([item in ["dom", "ind", "lsk"] for item in non_irigation_vars]):
+        if not all([item in ["dom", "ind", "lsk"] for item in variables]):
             raise ValueError("")
 
         # Set flag for cyclic data
         _cyclic = False
 
         # Selecting data
-        if non_irigation_year is None:
-            non_irigation_year = 2005
         non_irigation_raw = self.data_catalog.get_rasterdataset(
-            non_irigation_fn,
+            non_irrigation_fn,
             geom=self.region,
             buffer=2,
             variables=[
-                f"{var}_{mode}"
-                for var, mode in product(non_irigation_vars, ["gross", "net"])
+                f"{var}_{mode}" for var, mode in product(variables, ["gross", "net"])
             ],
-            version=non_irigation_year,
         )
         if "time" in non_irigation_raw.coords:
             _cyclic = True
@@ -3042,10 +3032,10 @@ Run setup_soilmaps first"
         ).raster.mask_nodata()
 
         # Create static water demand rasters
-        non_irigation, popu = workflows.demand.non_irigation(
+        non_irigation, popu = workflows.demand.non_irrigation(
             non_irigation_raw,
             ds_like=self.grid,
-            ds_method=non_irigation_method,
+            ds_method=non_irrigation_method,
             popu=pop_raw,
             popu_method=population_method,
         )
@@ -4367,3 +4357,28 @@ change name input.path_forcing "
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
+
+    def set_grid(
+        self,
+        data: Union[xr.DataArray, xr.Dataset, np.ndarray],
+        name: Optional[str] = None,
+    ):
+        """Add data to grid.
+
+        All layers of grid must have identical spatial coordinates.
+        This is an inherited method from HydroMT-core's GridModel.set_grid to
+        deal with multiple time axes.
+
+        Parameters
+        ----------
+        data: xarray.DataArray or xarray.Dataset
+            new map layer to add to grid
+        name: str, optional
+            Name of new map layer, this is used to overwrite the name of a DataArray
+            and ignored if data is a Dataset
+        """
+        pass
+
+        # fall back on default set_grid behaviour
+        GridModel.set_grid(self, data, name)
+        pass
