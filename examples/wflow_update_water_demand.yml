@@ -1,0 +1,37 @@
+setup_allocation:
+  min_area: 30
+  admin_bounds_fn: gadm
+  admin_level: 2
+
+setup_non_irigation:
+  non_irigation_fn: pcr_globwb
+  non_irigation_vars:
+    - dom
+    - ind
+    - lsk
+  non_irigation_year: 2005
+  non_irigation_method: nearest
+  population_fn: worldpop_2020_constrained
+  population_method: sum
+
+setup_irrigation:
+  irrigated_area_fn: irrigated_area
+  landuse_fn: glcnmo
+  paddy_class: 12
+  area_threshold: 0.6
+  crop_irrigated_fn: mirca_irrigated_data
+  crop_rainfed_fn: mirca_rainfed_data
+  crop_info_fn: mirca_crop_info
+  wflow_thicknesslayers:
+    - 50
+    - 100
+    - 50
+    - 200
+    - 800
+  target_conductivity:
+    - null
+    - null
+    - 5
+    - null
+    - null
+  lai_threshold: 0.2
