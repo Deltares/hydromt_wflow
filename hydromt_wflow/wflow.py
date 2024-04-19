@@ -4377,8 +4377,21 @@ change name input.path_forcing "
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
         """
-        pass
+        if "time" in data.dims:
+            tname = "time"
+            time_axes = {
+                k: v for k, v in dict(self.grid.dims).items() if k.startswith("time")
+            }
+            if data["time"].size not in time_axes.values():
+                tname = f"time_{data['time'].size}" if "time" in time_axes else tname
+            else:
+                k = list(
+                    filter(lambda x: time_axes[x] == data["time"].size, time_axes)
+                )[0]
+                tname = k
+
+            if tname != "time":
+                data = data.rename_dims({"time": tname})
 
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
-        pass
