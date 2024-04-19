@@ -38,6 +38,7 @@ Setup components
    WflowModel.setup_laimaps
    WflowModel.setup_allocation
    WflowModel.setup_non_irigation
+   WflowModel.setup_irigation
    WflowModel.setup_ksathorfarc
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
