@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from affine import Affine
+from hydromt.gis_utils import utm_crs
 from hydromt.raster import full_from_transform, full_like
 
 __all__ = ["allocate", "non_irrigation"]
@@ -209,7 +210,10 @@ def allocate(
 
     # Set the contain flag per geom
     sub_basins = sub_basins.apply(lambda row: touch_intersect(row, rivers), axis=1)
-    sub_basins["sqkm"] = sub_basins.geometry.to_crs(3857).area / 1000**2
+
+    # Calculate the area based on a more latum utm projection
+    crs = utm_crs(da_like.raster.bounds)
+    sub_basins["sqkm"] = sub_basins.geometry.to_crs(crs).area / 1000**2
     _count = 0
 
     # Create touched and not touched by rivers datasets
@@ -224,7 +228,7 @@ def allocate(
             sub_basins = sub_basins.apply(
                 lambda row: touch_intersect(row, rivers), axis=1
             )
-            sub_basins["sqkm"] = sub_basins.geometry.to_crs(3857).area / 1000**2
+            sub_basins["sqkm"] = sub_basins.geometry.to_crs(crs).area / 1000**2
 
         # Set no_riv and riv (what's touched and what's not)
         no_riv = sub_basins[~sub_basins["contain"]]
