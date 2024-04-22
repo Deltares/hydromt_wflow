@@ -3,6 +3,7 @@
 import logging
 from itertools import product
 from os.path import abspath, dirname, isfile, join
+from pathlib import Path
 
 import numpy as np
 
@@ -748,11 +749,69 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
 
 
 def test_setup_allocation_areas(example_wflow_model, tmpdir):
-    pass
+    # Read the data and set new root
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+
+    # Use the method
+    example_wflow_model.setup_allocation_areas(
+        admin_bounds_fn="gadm_level2",
+        min_area=30,
+    )
+
+    # Assert entries
+    assert "allocation_areas" in example_wflow_model.geoms
+    assert "allocation_areas" in example_wflow_model.grid
+
+    # Write to the drive
+    example_wflow_model.write_geoms()
+
+    # Assert output values
+    assert Path(tmpdir, "staticgeoms", "allocation_areas.geojson").exists()
+    assert len(example_wflow_model.geoms["allocation_areas"]) == 5
+    # on unique values
+
+    uni = example_wflow_model.geoms["allocation_areas"].value.unique()
+    assert np.all(np.sort(uni) == [4, 5, 8])
 
 
 def test_setup_non_irrigation(example_wflow_model, tmpdir):
-    pass
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+
+    # Use the method
+    example_wflow_model.setup_non_irrigation(
+        non_irrigation_fn="pcr_globwb",
+        population_fn="worldpop_2020_constrained",
+    )
+
+    # Assert entries
+    assert "dom_gross" in example_wflow_model.grid
+    assert "population" in example_wflow_model.grid
+
+    # Assert some values
+    dom_gross_vals = example_wflow_model.grid.dom_gross.isel(
+        latitude=32, longitude=26
+    ).values
+    assert int(np.mean(dom_gross_vals) * 100) == 134
+    popu_val = example_wflow_model.grid.population.isel(
+        latitude=32, longitude=26
+    ).values
+    assert int(popu_val) == 7843
+
+    ind_mean = example_wflow_model.grid.ind_gross.mean().values
+    assert int(ind_mean * 10000) == 829
 
 
 def test_setup_irrigation(example_wflow_model, tmpdir):
