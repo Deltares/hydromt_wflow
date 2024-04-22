@@ -13,11 +13,12 @@ Added
 -----
 - New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
-- new function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
+- New function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
 - Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
-- better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
-- new function **setup_cold_states** to prepare cold states for WflowModel. PR #252
-- new utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
+- Better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
+- New function **setup_cold_states** to prepare cold states for WflowModel. PR #252
+- New utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
+- New functions (properly) for setting up water demand: **setup_allocation_areas**, **setup_non_irrigation** and **setup_irrigation**. `PR #226 <https://github.com/Deltares/hydromt_wflow/pull/226>`
 
 Changed
 -------
@@ -37,10 +38,6 @@ Better handling of nodata and a switch from ini to yaml for configuration.
 Added
 -----
 - **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
-- Added setup for water demand for wflow
-- Added setup method **setup_allocation** to **WflowModel**
-- Added setup method **setup_non_irigation** to **WflowModel**
-- Added workflow functions **allocation** & **non_irigation** for water demand setup
 
 Changed
 -------

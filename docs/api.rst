@@ -36,9 +36,9 @@ Setup components
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
-   WflowModel.setup_allocation
-   WflowModel.setup_non_irigation
-   WflowModel.setup_irigation
+   WflowModel.setup_allocation_areas
+   WflowModel.setup_non_irrigation
+   WflowModel.setup_irrigation
    WflowModel.setup_ksathorfarc
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
@@ -244,8 +244,8 @@ Wflow workflows
 .. autosummary::
    :toctree: _generated
 
-   workflows.allocate
-   workflows.non_irigation
+   workflows.allocation_areas
+   workflows.non_irrigation
    workflows.hydrography
    workflows.topography
    workflows.river
