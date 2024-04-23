@@ -2851,8 +2851,24 @@ Run setup_soilmaps first"
             )
             self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
 
+            # Add a check that all gauges are on the river
+            if (
+                self.grid[self._MAPS["rivmsk"]].raster.sample(gdf_tributary)
+                == self.grid[self._MAPS["rivmsk"]].raster.nodata
+            ).any():
+                river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get("river_upa", "")
+                self.logger.warning(
+                    "Not all tributary gauges are on the river network and river "
+                    "discharge canot be saved. You should use a higher threshold "
+                    f"for the subbasin area than {area_max} to match better the "
+                    f"wflow river in your model {river_upa}."
+                )
+                all_gauges_on_river = False
+            else:
+                all_gauges_on_river = True
+
             # Update toml
-            if update_toml:
+            if update_toml and all_gauges_on_river:
                 self.setup_config_output_timeseries(
                     mapname=f"wflow_gauges_{mapname}",
                     toml_output=toml_output,

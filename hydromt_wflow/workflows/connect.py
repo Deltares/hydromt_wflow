@@ -146,7 +146,9 @@ def wflow_1dmodel_connection(
         subids = rivmerge.index[rivmerge > rivlen_avg * 5].values
         subcatch_to_split = gdf_edges_subbas[gdf_edges_subbas["value"].isin(subids)]
         subcatch_to_split = subcatch_to_split.to_crs(ds_model.raster.crs)
-        da_subcatch_to_split = ds_model.raster.rasterize(subcatch_to_split)
+        da_subcatch_to_split = ds_model.raster.rasterize(
+            subcatch_to_split, col_name="value"
+        ).astype(np.float32)
 
         # First tributaries are the edges that are not included in the subcatch_to_split
         gdf_tributaries = riv1d_edges[~riv1d_edges.index.isin(subids)]
@@ -184,6 +186,16 @@ def wflow_1dmodel_connection(
             & (flwdir.downstream(da_flwpaths) != da_flwpaths.raster.nodata),
             trib_msk.raster.nodata,
         )
+        # Make sure we vectorize to single cells and not to polygons for adjacent cells
+        trib_msk = trib_msk.stack(z=(trib_msk.raster.y_dim, trib_msk.raster.x_dim))
+        nodata = trib_msk.raster.nodata
+        trib_msk = trib_msk.where(trib_msk != nodata, drop=True)
+        trib_msk.values = np.arange(1, len(trib_msk) + 1)
+        trib_msk = trib_msk.unstack(fill_value=nodata)
+        trib_msk = trib_msk.reindex_like(
+            da_subcatch_to_split, fill_value=nodata
+        ).astype(np.int32)
+
         gdf_trib = trib_msk.raster.vectorize()
         # Test if there gdf_trib is empty
         if gdf_trib.empty:
