@@ -177,7 +177,7 @@ def non_irrigation(
 def allocation_areas(
     da_like: xr.DataArray,
     min_area: float | int,
-    admin_bounds: object,
+    admin_bounds: gpd.GeoDataFrame,
     basins: gpd.GeoDataFrame,
     rivers: gpd.GeoDataFrame,
 ) -> xr.DataArray:
@@ -192,11 +192,11 @@ def allocation_areas(
         A grid covering the wflow model domain.
     min_area : float | int
         The minimum area an allocation area should have.
-    admin_bounds : object
+    admin_bounds : gpd.GeoDataFrame
         Administrative boundaries, e.g. sovereign nations.
-    basins : xr.Dataset
+    basins : gpd.GeoDataFrame
         The wflow model basins.
-    rivers : xr.Dataset
+    rivers : gpd.GeoDataFrame
         The wflow model rivers.
 
     Returns
