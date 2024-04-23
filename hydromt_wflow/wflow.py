@@ -3076,6 +3076,8 @@ Run setup_soilmaps first"
                 f"input.vertical.{lname}.demand_{suffix}",
                 var,
             )
+            # Set flag
+            self.set_config(f"model.water_demand.{lname}", True)
 
             # Also for the fact that these parameters are cyclic
             if _cyclic:
@@ -3202,6 +3204,8 @@ Run setup_soilmaps first"
         self.set_grid(wflow_nonpaddy, name=self._MAPS["nonpaddy_area"])
 
         # Update config
+        self.set_config("model.water_demand.paddy", True)
+        self.set_config("model.water_demand.nonpaddy", True)
         self.set_config(
             "input.vertical.paddy.irrigation_areas", self._MAPS["paddy_area"]
         )
