@@ -39,7 +39,7 @@ Setup components
    WflowModel.setup_allocation_areas
    WflowModel.setup_non_irrigation
    WflowModel.setup_irrigation
-   WflowModel.setup_ksathorfarc
+   WflowModel.setup_ksathorfrac
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
