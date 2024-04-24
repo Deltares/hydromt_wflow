@@ -18,6 +18,7 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import pyproj
+import shapely
 import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
@@ -214,6 +215,21 @@ class WflowModel(GridModel):
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
 
+        # Check on resolution (degree vs meter) depending on ds_org res/crs
+        scale_ratio = int(np.round(res / ds_org.raster.res[0]))
+        if scale_ratio < 1:
+            raise ValueError(
+                f"The model resolution {res} should be \
+larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
+            )
+        if ds_org.raster.crs.is_geographic:
+            if res > 1:  # 111 km
+                raise ValueError(
+                    f"The model resolution {res} should be smaller than 1 degree \
+(111km) for geographic coordinate systems. "
+                    "Make sure you provided res in degree rather than in meters."
+                )
+
         # get basin geometry and clip data
         kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
         xy = None
@@ -239,25 +255,17 @@ class WflowModel(GridModel):
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
 
+        # Set the basins geometry
         ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
         ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
         self.logger.debug("Adding basins vector to geoms.")
-        self.set_geoms(geom, name="basins")
 
-        # Check on resolution (degree vs meter) depending on ds_org res/crs
-        scale_ratio = int(np.round(res / ds_org.raster.res[0]))
-        if scale_ratio < 1:
-            raise ValueError(
-                f"The model resolution {res} should be \
-larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
-            )
-        if ds_org.raster.crs.is_geographic:
-            if res > 1:  # 111 km
-                raise ValueError(
-                    f"The model resolution {res} should be smaller than 1 degree \
-(111km) for geographic coordinate systems. "
-                    "Make sure you provided res in degree rather than in meters."
-                )
+        # Set name based on scale_factor
+        basins_suffix = ""
+        if scale_ratio != 1:
+            basins_suffix = "_highres"
+        self.set_geoms(geom, name=f"basins{basins_suffix}")
+
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
             ds=ds_org,
@@ -285,6 +293,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         # Rename and add to grid
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
+        # Call basins once to set it
+        self.basins
 
         # setup topography maps
         ds_topo = workflows.topography(
@@ -1251,7 +1261,7 @@ gauge locations [-] (if derive_subcatch)
             kwargs.update(crs=code)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
-                geom=self.basins,
+                geom=self.basins_highres,
                 assert_gtype="Point",
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
@@ -1260,7 +1270,7 @@ gauge locations [-] (if derive_subcatch)
             if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
-                    geom=self.basins,
+                    geom=self.basins_highres,
                     assert_gtype="Point",
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
@@ -1268,7 +1278,7 @@ gauge locations [-] (if derive_subcatch)
             elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
-                    geom=self.basins,
+                    geom=self.basins_highres,
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1422,7 +1432,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         """
         self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
-            area_fn, geom=self.basins, dst_crs=self.crs
+            area_fn, geom=self.basins_highres, dst_crs=self.crs
         )
         if gdf_org.empty:
             self.logger.warning(
@@ -1787,7 +1797,7 @@ Using default storage/outflow function parameters."
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
             waterbodies_fn,
-            geom=self.basins,
+            geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
             **kwargs,
         )
@@ -2042,7 +2052,7 @@ added to glacierstore [-]
         self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
             glaciers_fn,
-            geom=self.basins,
+            geom=self.basins_highres,
             predicate="intersects",
             handle_nodata=NoDataStrategy.IGNORE,
         )
@@ -3163,6 +3173,7 @@ Run setup_soilmaps first"
     def write_geoms(
         self,
         geom_fn: str = "staticgeoms",
+        precision: int = 5,
     ):
         """Write geoms in <root/geom_fn> in GeoJSON format."""
         # to write use self.geoms[var].to_file()
@@ -3170,7 +3181,14 @@ Run setup_soilmaps first"
             raise IOError("Model opened in read-only mode")
         if self.geoms:
             self.logger.info("Writing model staticgeom to file.")
+            grid_size = 10 ** (-precision)
             for name, gdf in self.geoms.items():
+                # TODO change to geopandas functionality once geopandas 1.0.0 comes
+                # See https://github.com/geopandas/geopandas/releases/tag/v1.0.0-alpha1
+                gdf.geometry = shapely.set_precision(
+                    gdf.geometry,
+                    grid_size=grid_size,
+                )
                 fn_out = join(self.root, geom_fn, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
 
@@ -3684,11 +3702,19 @@ change name input.path_forcing "
                 .set_index("value")
                 .sort_index()
             )
-            gdf.index.name = self._MAPS["basins"]
             self.set_geoms(gdf, name="basins")
         else:
             self.logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
+        return gdf
+
+    @property
+    def basins_highres(self):
+        """Returns a high resolution basin(s) geometry."""
+        if "basins_highres" in self.geoms:
+            gdf = self.geoms["basins_highres"]
+        else:
+            gdf = self.basins
         return gdf
 
     @property
