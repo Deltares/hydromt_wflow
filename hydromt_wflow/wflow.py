@@ -3087,14 +3087,14 @@ Run setup_soilmaps first"
 
     def setup_irrigation(
         self,
-        irrigated_area_fn: str,
-        landuse_fn: str,
+        irrigated_area_fn: Union[str, Path, xr.DataArray],
+        landuse_fn: Union[str, Path, xr.DataArray] = "glcnmo",
         paddy_class: int = 12,
         area_threshold: float = 0.6,
-        crop_irrigated_fn: str = "mirca_irrigated_data",
-        crop_rainfed_fn: str = "mirca_rainfed_data",
-        crop_info_fn: str = "mirca_crop_info",
-        soil_fn: str = "soilgrids",
+        crop_irrigated_fn: Union[str, Path, xr.Dataset] = "mirca_irrigated_data",
+        crop_rainfed_fn: Union[str, Path, xr.Dataset] = "mirca_rainfed_data",
+        crop_info_fn: Union[str, Path, pd.DataFrame] = "mirca_crop_info",
+        soil_fn: Union[str, Path, xr.Dataset] = "soilgrids",
         wflow_thicknesslayers: List[int] = [
             50,
             100,
@@ -3110,8 +3110,7 @@ Run setup_soilmaps first"
             None,
         ],
         lai_threshold: float = 0.2,
-    ):  # TODO: Update docstring, and perhaps seperate into seperate functions, as it is
-        # currently a massive function
+    ):
         """
         Add required information to simulate irrigation water demand.
 
@@ -3126,18 +3125,52 @@ Run setup_soilmaps first"
         irrigation cells (both paddy and non-paddy). It adds the resulting maps to the
         input data.
 
+        In order to correct the potential (reference) evaporation to values that match
+        the crop for that pixel, a crop factor is being set. This is done in two
+        different steps:
+            - For the pixels with irrigated crops, the crop factor is extracted from the
+              `crop_irrigated_fn` data. For the paddy/rice fields, the crop factor is
+              extracted from the `crop_info_fn` data.
+            - For the pixels that are rainfed, the crop factor is extracted from the
+              `crop_irrigated_fn` data
+
+        To allow for water to pool on the surface (for paddy/rice fields), the layers in
+        the model can be updated to new depths, such that we can allow a thin layer with
+        limited vertical conductivity. These updated layers means that the `c` parameter
+        needs to be calculated again. Next, the kvfrac layer corrects the vertical
+        conductivity (by multiplying) such that the bottom of the layer corresponds to
+        the `target_conductivity` for that layer. This currently assumes the wflow
+        models to have an exponential declining vertical conductivity (using the `f`
+        parameter). If no target_conductivity is specified for a layer (`None`), the
+        kvfrac value is set to 1.
+
+        To determine when irrigation is allowed to occur, an irrigation trigger map is
+        defined. This is a cyclic map, that defines (with a mask) when irrigation is
+        expected to occur. This is done based on the Leaf Area Index (LAI), that is
+        already present in the wflow model configuration. We follow the procedure
+        described by Peano et al. (2019). They describe a threshold value based on the
+        LAI variability to determine the growing season. This threshold is defined as
+        20% (default value) of the LAI variability, but can be adjusted via the
+        `lai_threshold` argument.
 
         Adds model layers:
 
         * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
         * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
+        * **crop_factor**: Map with crop factor values [-]
+        * **c**: Brooks Corey coefficients [-] based on pore size distribution, a map
+          for each of the wflow_sbm soil layers (updated based on the newly specified
+          layers)
+        * **kvfrac**: Map with a multiplication factor for the vertical conductivity [-]
+        * **irrigation_trigger**: Map with monthly values, indicating whether irrigation
+          is allowed (1) or not (0) [-]
 
         Parameters
         ----------
-        irrigated_area_fn: str
+        irrigated_area_fn: str, Path, xarray.DataArray
             Name of the (gridded) dataset that contains the location of irrigated areas
             (as a mask), `irrigated_area` for example
-        landuse_fn: str
+        landuse_fn: str, Path, xr.DataArray
             Name of the landuse dataset that contains a classification for paddy/rice,
             use `glcnmo` for example
         paddy_class: int
@@ -3146,21 +3179,38 @@ Run setup_soilmaps first"
         area_threshold: float
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
-        crop_irrigated_fn: str
+        crop_irrigated_fn: str, Path, xarray.Dataset
             Name of dataset that contains information about irrigated crops, by default
-            "mirca_irrigated_data",
-        crop_rainfed_fn: str
+            "mirca_irrigated_data"
+        crop_rainfed_fn: str, Path, xarray.Dataset
             Name of dataset that contains information about rainfed crops, by default
-            "mirca_rainfed_data",
-        crop_info_fn: str
-            Name of dataframe that contains rootingdepth and cropfactor values for the
-            rice/paddy crop class"mirca_crop_info"
+            "mirca_rainfed_data"
+        crop_info_fn: str, Path, pd.DataFrame
+            Name of dataframe that contains cropfactor values for the rice/paddy crop
+            class, by default "mirca_crop_info"
+        soil_fn: str, Path, xarray.Dataset
+            Soil data to be used to recalculate the Brooks-Corey coefficients (`c`
+            parameter), based on the provided `wflow_thicknesslayers`, by default
+            "soilgrids", but should ideally be equal to the data used in
+            `setup_soilmaps`
+        wflow_thicknesslayers: list
+            List of thickness per layer [mm], by default `[50, 100, 50, 200, 800, ]`
+        target_conductivity: list
+            List of target vertical conductivities [mm/day] for each layer. Set value to
+            `None` if no specific value is required, by default `[None, None, 5, None,
+            None, ]`
+        lai_threshold: float
+            Value to be used to determine the irrigation trigger
 
 
         See Also
         --------
-        workflows.demand.find_paddy
-        workflows.demand.classify_pixels
+        workflows.demand.find_paddy workflows.demand.classify_pixels
+
+        Peano, D., Materia, S., Collalti, A., Alessandri, A., Anav, A., Bombelli, A., &
+        Gualdi, S. (2019). Global variability of simulated and observed vegetation
+        growing season. Journal of Geophysical Research: Biogeosciences, 124, 3569–3587.
+        https://doi.org/10.1029/2018JG004881
         """
         if len(wflow_thicknesslayers) != len(target_conductivity):
             raise ValueError(
@@ -3213,8 +3263,7 @@ Run setup_soilmaps first"
             "input.vertical.nonpaddy.irrigation_areas", self._MAPS["nonpaddy_area"]
         )
 
-        # TODO: Include this support for adjusted crop_factor and rooting depth maps, or
-        # move to seperate function?
+        # Add crop factor information
         self.logger.info("Preparing crop factor maps.")
         crop_rainfed_ds = self.data_catalog.get_rasterdataset(
             crop_rainfed_fn,
@@ -3226,11 +3275,11 @@ Run setup_soilmaps first"
             bbox=self.grid.raster.bounds,
             buffer=3,
         )
-
+        # Read dataframe to get rice crop factor
         df = self.data_catalog.get_dataframe(crop_info_fn)
         # TODO: Make more flexible
         rice_value = df.loc["Rice", "kc_mid"]
-
+        # Generate crop factor map
         cropfactor = workflows.demand.add_crop_maps(
             ds_rain=crop_rainfed_ds,
             ds_irri=crop_irrigated_ds,
@@ -3244,7 +3293,7 @@ Run setup_soilmaps first"
         self.set_grid(cropfactor, name=self._MAPS["crop_factor"])
         self.set_config("input.vertical.kc", self._MAPS["crop_factor"])
 
-        # # TODO: Make more flexible?
+        # TODO: Include support for updating rooting depth maps at some point
         # rice_value = df.loc["Rice", "rootingdepth_irrigated"]
 
         # rootingdepth = workflows.demand.add_crop_maps(
@@ -3264,6 +3313,7 @@ Run setup_soilmaps first"
                     "same thickness already present, skipping updating `c` parameter"
                 )
                 update_c = False
+
         if update_c:
             self.logger.info(
                 "Different thicknesslayers requested, updating `c` parameter"
@@ -3294,12 +3344,9 @@ Run setup_soilmaps first"
             vars_to_drop = [
                 var for var in self.grid.variables if "layer" in self.grid[var].dims
             ]
-            # TODO: Improve warning, and check that this potentially can go wrong when
-            # updating a model with more floodplain layers/soil layers in the current
-            # workflow, as the set_grid function does not really properly deal with 3D
-            # data.
+            # Temporarily drop variables
             self.logger.info(
-                "Dropping these variables, as they depend on the layer dimension: "
+                "Temporarily dropping these variables, as they depend on the layer dimension: "
                 f"{vars_to_drop}"
             )
             self._grid = self.grid.drop(vars_to_drop)
@@ -3331,8 +3378,7 @@ Run setup_soilmaps first"
         self.grid[self._MAPS["kvfrac"]] = da_kvfrac
         self.set_config("input.vertical.kvfrac", self._MAPS["kvfrac"])
 
-        # Add irrigation_trigger based on LAI values, based on
-        # https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2018JG004881
+        # Add irrigation_trigger based on LAI values
         irri_trigger = workflows.demand.calc_lai_threshold(
             da_lai=self.grid[self._MAPS["leaf_area_index"]].raster.mask_nodata(),
             threshold=lai_threshold,

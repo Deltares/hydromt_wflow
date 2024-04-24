@@ -305,13 +305,17 @@ def allocation_areas(
     return alloc
 
 
-# TODO: Add docstrings
 def classify_pixels(
     da_crop: xr.DataArray,
     da_model: xr.DataArray,
     threshold: float,
     nodata_value: float | int = -9999,
 ):
+    """
+    Function to classify pixels based on a (fractional) threshold. Pixels with a value
+    above this threshold are set to be irrigated, and pixels below this value as
+    rainfed.
+    """
     # Convert crop map to an area map
     da_area = da_crop * da_crop.raster.area_grid()
     # Resample to model grid and sum areas
@@ -330,13 +334,16 @@ def classify_pixels(
     return crop_map
 
 
-# TODO: Add docstrings
 def find_paddy(
     landuse_da: xr.DataArray,
     irrigated_area: xr.DataArray,
     paddy_class: int,
     nodata_value: float | int = -9999,
 ):
+    """
+    Find the location of paddy crops by finding the overlap between the irrigated area
+    grid, and a landcover map that has a separate class for rice/paddy fields.
+    """
     # Resample irrigated area to landuse datasets
     irr2lu = irrigated_area.raster.reproject_like(landuse_da)
     # Mask pixels with paddies
@@ -350,7 +357,6 @@ def find_paddy(
     return paddy, nonpaddy
 
 
-# TODO: Add docstring
 def add_crop_maps(
     ds_rain: xr.Dataset,
     ds_irri: xr.Dataset,
@@ -359,6 +365,11 @@ def add_crop_maps(
     default_value: float,
     map_type: str = "crop_factor",
 ):
+    """
+    Function that adds crop_factor maps to the model, based on (MIRCA) datasets with
+    rainfed and irrigated crop information. First adds the value for the paddy fields,
+    followed by the non paddy irrigated crops. All other cells are treated as rainfed.
+    """
     if map_type == "crop_factor":
         ds_layer_name = "crop_factor"
     elif map_type == "rootingdepth":
@@ -376,10 +387,7 @@ def add_crop_maps(
     )
 
     # Add paddy values
-    crop_map_paddy = paddy_value
-    crop_map = xr.where(
-        mod.grid["paddy_irrigation_areas"] == 1, crop_map_paddy, crop_map
-    )
+    crop_map = xr.where(mod.grid["paddy_irrigation_areas"] == 1, paddy_value, crop_map)
 
     # Resample to model resolution
     irrigated_highres = ds_irri[ds_layer_name].raster.reproject_like(
@@ -396,22 +404,32 @@ def add_crop_maps(
     return crop_map
 
 
-# TODO: Add docstring
 def calc_kv_at_depth(depth, kv_0, f):
+    """
+    Calculate the kv value at a certain depth, based on the kv at the surface, the f
+    parameter that describes the exponential decline and the depth
+    """
     kv_z = kv_0 * np.exp(-f * depth)
     return kv_z
 
 
-# TODO: Add docstring
 def calc_kvfrac(kv_depth, target):
+    """
+    Calculate the kvfrac based on the kv value at a certain depth and the target value.
+    """
     kvfrac = target / kv_depth
     return kvfrac
 
 
-# TODO: Add docstring
 def update_kvfrac(
     ds_model, kv0_mask, f_mask, wflow_thicknesslayers, target_conductivity
 ):
+    """
+    Calculate kvfrac values for each layer, such that the bottom of the layer equals to
+    the target_conductivity. Calculation assumes exponentially declining vertical
+    conductivities, based on the f parameter. If no target_conducitivity is specified,
+    kvfrac is set to be equal to 1.
+    """
     # Convert to np.array
     wflow_thicknesslayers = np.array(wflow_thicknesslayers)
     target_conductivity = np.array(target_conductivity)
@@ -449,8 +467,11 @@ def update_kvfrac(
     return da_kvfrac
 
 
-# TODO: Add docstring
 def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
+    """
+    Calculate irrigation trigger based on LAI threshold. Trigger is set to 1 when the
+    LAI is bigger than 20% of the variation (set by the threshold value)
+    """
     # Compute min and max of LAI
     lai_min = da_lai.min(dim="time")
     lai_max = da_lai.max(dim="time")
