@@ -3346,8 +3346,8 @@ Run setup_soilmaps first"
             ]
             # Temporarily drop variables
             self.logger.info(
-                "Temporarily dropping these variables, as they depend on the layer dimension: "
-                f"{vars_to_drop}"
+                "Temporarily dropping these variables, as they depend on the layer "
+                f"dimension: {vars_to_drop}"
             )
             self._grid = self.grid.drop(vars_to_drop)
             self.grid["c"] = ds_out["c"]

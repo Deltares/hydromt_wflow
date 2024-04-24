@@ -311,10 +311,26 @@ def classify_pixels(
     threshold: float,
     nodata_value: float | int = -9999,
 ):
-    """
-    Function to classify pixels based on a (fractional) threshold. Pixels with a value
-    above this threshold are set to be irrigated, and pixels below this value as
-    rainfed.
+    """Classifies pixels based on a (fractional) threshold.
+
+    Pixels with a value above this threshold are set to be irrigated, and pixels below
+    this value as rainfed.
+
+    Parameters
+    ----------
+    da_crop: xr.DataArray
+        Data with crop mask
+    da_model: xr.DataArray
+        Layer of the wflow model (used for reprojecting)
+    threshold: float
+        Threshold above which pixels are classified as irrigated
+    nodata_value: float | int = -9999
+        Value to be used for nodata
+
+    Returns
+    -------
+    crop_map: xr.DataArray
+        Mask with classified pixels
     """
     # Convert crop map to an area map
     da_area = da_crop * da_crop.raster.area_grid()
@@ -340,9 +356,28 @@ def find_paddy(
     paddy_class: int,
     nodata_value: float | int = -9999,
 ):
-    """
-    Find the location of paddy crops by finding the overlap between the irrigated area
+    """Find the location of paddy crops.
+
+    Done by finding the overlap between the irrigated area
     grid, and a landcover map that has a separate class for rice/paddy fields.
+
+    Parameters
+    ----------
+    landuse_da: xr.DataArray
+        Map with landuse classes (must contain a class for paddy)
+    irrigated_area: xr.DataArray
+        Mask with irrigated areas
+    paddy_class: int
+        Class that matches the rice or paddy land cover type
+    nodata_value: float | int = -9999
+        Value to be used as nodata value
+
+    Returns
+    -------
+    paddy: xr.DataArray
+        Mask with pixels classified as paddy or rice fields
+    nonpaddy: xr.DataArray
+        Maks with pixels classified as non paddy irrigation
     """
     # Resample irrigated area to landuse datasets
     irr2lu = irrigated_area.raster.reproject_like(landuse_da)
@@ -365,10 +400,32 @@ def add_crop_maps(
     default_value: float,
     map_type: str = "crop_factor",
 ):
-    """
-    Function that adds crop_factor maps to the model, based on (MIRCA) datasets with
-    rainfed and irrigated crop information. First adds the value for the paddy fields,
-    followed by the non paddy irrigated crops. All other cells are treated as rainfed.
+    """Add crop_factor maps to the model.
+
+    Based on (MIRCA) datasets with rainfed and irrigated crop information. First adds
+    the value for the paddy fields, followed by the non paddy irrigated crops. All other
+    cells are treated as rainfed.
+
+    Parameters
+    ----------
+    ds_rain: xr.Dataset
+        Dataset with crop information for rainfed crops
+    ds_irri: xr.Dataset
+        Dataset with crop information for irrigated crops
+    mod: WflowModel
+        WflowModel object with grid information, used to find the model domain, and
+        locations of paddy and nonpaddy irrigation
+    paddy_value: int
+        Value to be used for locations with paddy irrigation
+    default_value: float
+        Fallback value for rainfed data
+    map_type: str = "crop_factor"
+        Type of data requested, currently supports {"crop_factor" and "rootingdepth"}
+
+    Returns
+    -------
+    crop_map: xr.DataArray
+        Map with the values for the requested map_type
     """
     if map_type == "crop_factor":
         ds_layer_name = "crop_factor"
@@ -406,16 +463,45 @@ def add_crop_maps(
 
 def calc_kv_at_depth(depth, kv_0, f):
     """
-    Calculate the kv value at a certain depth, based on the kv at the surface, the f
-    parameter that describes the exponential decline and the depth
+    Calculate the kv value at a certain depth.
+
+    Value is based on the kv at the surface, the f parameter that describes the
+    exponential decline and the depth.
+
+    Parameters
+    ----------
+    depth
+        Depth at which kv needs to be calculated
+    kv_0
+        The vertical conductitivity at the surface
+    f
+        The value describing the exponential decline
+
+    Returns
+    -------
+    kv_z
+        The kv value at the requested depth
     """
     kv_z = kv_0 * np.exp(-f * depth)
     return kv_z
 
 
 def calc_kvfrac(kv_depth, target):
-    """
-    Calculate the kvfrac based on the kv value at a certain depth and the target value.
+    """Calculate the kvfrac.
+
+    Based on the kv value at a certain depth and the target value.
+
+    Parameters
+    ----------
+    kv_depth:
+        Value of kv at a certain depth
+    target:
+        Target kv value
+
+    Returns
+    -------
+    kvfrac:
+        The value which kv_depths needs to be multiplied with to reach the target value
     """
     kvfrac = target / kv_depth
     return kvfrac
@@ -425,10 +511,30 @@ def update_kvfrac(
     ds_model, kv0_mask, f_mask, wflow_thicknesslayers, target_conductivity
 ):
     """
-    Calculate kvfrac values for each layer, such that the bottom of the layer equals to
-    the target_conductivity. Calculation assumes exponentially declining vertical
-    conductivities, based on the f parameter. If no target_conducitivity is specified,
-    kvfrac is set to be equal to 1.
+    Calculate kvfrac values for each layer.
+
+    Done such that the bottom of the layer equals to the target_conductivity.
+    Calculation assumes exponentially declining vertical conductivities, based on the f
+    parameter. If no target_conducitivity is specified, kvfrac is set to be equal to 1.
+
+    Parameters
+    ----------
+    ds_model
+        Dataset of the wflow model
+    kv0_mask
+        Values of vertical conductivity at the surface, masked to paddy locations
+    f_mask
+        Values of the f parameter, masked to paddy locations
+    wflow_thicknesslayers
+        List of requested layers in the wflow model
+    target_conductivity
+        List of target conductivities for each layer (None if no target value is
+        requested)
+
+    Returns
+    -------
+    da_kvfrac
+        Maps for each layer with the required kvfrac value
     """
     # Convert to np.array
     wflow_thicknesslayers = np.array(wflow_thicknesslayers)
@@ -469,8 +575,27 @@ def update_kvfrac(
 
 def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
     """
-    Calculate irrigation trigger based on LAI threshold. Trigger is set to 1 when the
-    LAI is bigger than 20% of the variation (set by the threshold value)
+    Calculate irrigation trigger based on LAI threshold.
+
+    Trigger is set to 1 when the LAI is bigger than 20% of the variation (set by the
+    threshold value).
+
+    Parameters
+    ----------
+    da_lai
+        Dataarray with LAI values
+    threshold
+        Value to be used as threshold
+    dtype
+        Datatype for the resulting map
+    na_value
+        Value for nodata
+
+    Returns
+    -------
+    trigger:
+        Maps with a value of 1 where the LAI indicates growing season, and 0 for all
+        other pixels
     """
     # Compute min and max of LAI
     lai_min = da_lai.min(dim="time")
