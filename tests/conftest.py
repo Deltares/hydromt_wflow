@@ -104,6 +104,7 @@ def da_pet(example_wflow_model):
     )
     da = 0.5 * (0.45 * da + 8)  # simple pet from Bradley Criddle
     da.name = "pet"
+    da = da.astype("float64")
 
     return da
 
