@@ -261,10 +261,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         self.logger.debug("Adding basins vector to geoms.")
 
         # Set name based on scale_factor
-        basins_suffix = ""
         if scale_ratio != 1:
-            basins_suffix = "_highres"
-        self.set_geoms(geom, name=f"basins{basins_suffix}")
+            self.set_geoms(geom, name="basins_highres")
 
         # setup hydrography maps and set staticmap attribute with renamed maps
         ds_base, _ = workflows.hydrography(
@@ -1261,7 +1259,7 @@ gauge locations [-] (if derive_subcatch)
             kwargs.update(crs=code)
             gdf_gauges = self.data_catalog.get_geodataframe(
                 gauges_fn,
-                geom=self.basins_highres,
+                geom=self.basins,
                 assert_gtype="Point",
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
@@ -1270,7 +1268,7 @@ gauge locations [-] (if derive_subcatch)
             if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
-                    geom=self.basins_highres,
+                    geom=self.basins,
                     assert_gtype="Point",
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
@@ -1278,7 +1276,7 @@ gauge locations [-] (if derive_subcatch)
             elif self.data_catalog[gauges_fn].data_type == "GeoDataset":
                 da = self.data_catalog.get_geodataset(
                     gauges_fn,
-                    geom=self.basins_highres,
+                    geom=self.basins,
                     handle_nodata=NoDataStrategy.IGNORE,
                     **kwargs,
                 )
@@ -1432,7 +1430,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         """
         self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
-            area_fn, geom=self.basins_highres, dst_crs=self.crs
+            area_fn, geom=self.basins, dst_crs=self.crs
         )
         if gdf_org.empty:
             self.logger.warning(
@@ -1797,7 +1795,7 @@ Using default storage/outflow function parameters."
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
             waterbodies_fn,
-            geom=self.basins_highres,
+            geom=self.basins,
             handle_nodata=NoDataStrategy.IGNORE,
             **kwargs,
         )
@@ -2052,7 +2050,7 @@ added to glacierstore [-]
         self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
             glaciers_fn,
-            geom=self.basins_highres,
+            geom=self.basins,
             predicate="intersects",
             handle_nodata=NoDataStrategy.IGNORE,
         )
@@ -3623,7 +3621,7 @@ change name input.path_forcing "
         if len(fns) > 0:
             for fn in fns:
                 name = basename(fn).split(".")[0]
-                tbl = pd.read_csv(fn)
+                tbl = pd.read_csv(fn, float_precision="round_trip")
                 self.set_tables(tbl, name=name)
 
     def write_tables(self):
@@ -3706,15 +3704,6 @@ change name input.path_forcing "
         else:
             self.logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
-        return gdf
-
-    @property
-    def basins_highres(self):
-        """Returns a high resolution basin(s) geometry."""
-        if "basins_highres" in self.geoms:
-            gdf = self.geoms["basins_highres"]
-        else:
-            gdf = self.basins
         return gdf
 
     @property
