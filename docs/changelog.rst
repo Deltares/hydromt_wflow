@@ -24,10 +24,12 @@ Changed
 -------
 - **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
 - **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
+- wflow forcing data type should always be float32. PR #268
 
 Fixed
 -----
-- Wrong dtype for wflow_subcatch map. PR #247,
+- Wrong dtype for wflow_subcatch map. PR #247
+- **setup_gauges**: Allow snapping to river/mask for snap_uparea method. PR #248
 - Removed building a wflow model without a config file in the build notebook.
 
 v0.5.0 (February 2024)
