@@ -23,6 +23,7 @@ Changed
 -------
 - **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
 - **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
+- wflow forcing data type should always be float32. PR #268
 
 Fixed
 -----

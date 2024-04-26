@@ -2242,6 +2242,7 @@ one variable and variables list is not provided."
             time_tuple=(starttime, endtime),
             variables=["precip"],
         )
+        precip = precip.astype("float32")
 
         if chunksize is not None:
             precip = precip.chunk({"time": chunksize})
@@ -2254,6 +2255,7 @@ one variable and variables list is not provided."
                 buffer=2,
                 variables=["precip"],
             )
+            clim = clim.astype("float32")
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
@@ -2387,7 +2389,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             else:
                 methods = [
                     "debruin",
-                    "makking",
+                    "makkink",
                     "penman-monteith_rh_simple",
                     "penman-monteith_tdew",
                 ]
@@ -2405,6 +2407,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         )
         if chunksize is not None:
             ds = ds.chunk({"time": chunksize})
+        for var in ds.data_vars:
+            ds[var] = ds[var].astype("float32")
 
         dem_forcing = None
         if dem_forcing_fn is not None:
@@ -2414,6 +2418,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 buffer=2,
                 variables=["elevtn"],
             ).squeeze()
+            dem_forcing = dem_forcing.astype("float32")
 
         temp_in = hydromt.workflows.forcing.temp(
             ds["temp"],
@@ -2535,6 +2540,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             variables=["pet"],
             time_tuple=(starttime, endtime),
         )
+        pet = pet.astype("float32")
 
         pet_out = workflows.forcing.pet(
             pet=pet,

@@ -658,6 +658,8 @@ def test_setup_pet_forcing(example_wflow_model, da_pet):
     )
 
     assert "pet" in example_wflow_model.forcing
+    # Check dtype
+    assert example_wflow_model.forcing["pet"].dtype == "float32"
     # used to be debruin before update
     assert "pet_method" not in example_wflow_model.forcing["pet"].attrs
     assert example_wflow_model.forcing["pet"].min().values == da_pet.min().values
