@@ -49,6 +49,7 @@ Setup components
    WflowModel.setup_constant_pars
    WflowModel.setup_1dmodel_connection
    WflowModel.setup_grid_from_raster
+   WflowModel.setup_cold_states
 
 Attributes
 ----------
@@ -115,6 +116,7 @@ General methods
    WflowModel.set_states
    WflowModel.read_states
    WflowModel.write_states
+   WflowModel.clip_states
 
    WflowModel.set_results
    WflowModel.read_results
@@ -256,6 +258,7 @@ Wflow workflows
    workflows.glacierattrs
    workflows.rootzoneclim
    workflows.wflow_1dmodel_connection
+   workflows.prepare_cold_states
 
 
 .. _methods:
@@ -272,3 +275,11 @@ Input/Output methods
    read_csv_results
    pcrm.read_staticmaps_pcr
    pcrm.write_staticmaps_pcr
+
+Utility methods
+---------------
+
+.. autosummary::
+   :toctree: _generated
+
+   utils.get_grid_from_config

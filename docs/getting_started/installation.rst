@@ -49,15 +49,6 @@ You can install HydroMT-Wflow in a new environment called `hydromt-wflow`:
 
   $ mamba create -n hydromt-wflow -c conda-forge hydromt_wflow
 
-.. Note::
-
-    Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.
-
-.. code-block:: console
-
-  $ pip install gwwapi
-  $ pip install hydroengine
-
 Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:
 HydroMT-Wflow will be installed together with all optional (see above) and a few additional dependencies with:
 
@@ -70,6 +61,15 @@ HydroMT-Wflow will be installed together with all optional (see above) and a few
     If you already have this environment with this name either remove it with
     `conda env remove -n hydromt-wflow` **or** set a new name for the environment
     by changing `-n <name>` to the name of your new environment.
+
+.. Note::
+
+    Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately (in the activated environment).
+
+.. code-block:: console
+
+  $ pip install gwwapi
+  $ pip install hydroengine
 
 Install HydroMT-Wflow in an existing environment
 ------------------------------------------------
@@ -89,6 +89,7 @@ channels the installation may fail.
 
 .. code-block:: console
 
+  $ conda activate <environment_name>
   $ pip install gwwapi
   $ pip install hydroengine
 
