@@ -269,9 +269,10 @@ parametrization of distributed hydrological models.
     logger.debug(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
     if np.any(np.asarray(ds_out.raster.shape) == 1):
         raise ValueError(
-            "The output extent should at least consist of two cells on each axis. "
-            "Consider using a larger domain or higher spatial resolution. "
-            "For subbasin models, consider a (higher) threshold to snap the outlet."
+            "The output extent at model resolution should at least consist of two "
+            "cells on each axis. Consider using a larger domain or higher spatial "
+            "resolution. For subbasin models, consider a (higher) threshold to snap "
+            "the outlet."
         )
     return ds_out, flwdir_out
 

@@ -418,10 +418,11 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         self.logger.info("Preparing river maps.")
 
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
-        if river_upa > self.grid[self._MAPS["uparea"]].max():
+        if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
             raise ValueError(
                 f"river_upa threshold {river_upa} should be larger than the maximum \
-uparea in the grid {self.grid[self._MAPS['uparea']].max()}"
+uparea in the grid {float(self.grid[self._MAPS['uparea']].max())} in order to create \
+river cells."
             )
 
         rivdph_methods = ["gvf", "manning", "powlaw"]

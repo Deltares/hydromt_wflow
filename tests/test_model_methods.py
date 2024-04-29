@@ -64,7 +64,7 @@ def test_setup_basemaps(tmpdir):
             hydrography_fn=hydrography,
         )
     assert str(error.value).startswith(
-        "The output extent should at least consist of two cells on each axis."
+        "The output extent at model resolution should at least consist of two cells on"
     )
 
 
