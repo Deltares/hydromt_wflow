@@ -1795,7 +1795,7 @@ Using default storage/outflow function parameters."
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
             waterbodies_fn,
-            geom=self.basins,
+            geom=self.basins_highres,
             handle_nodata=NoDataStrategy.IGNORE,
             **kwargs,
         )
@@ -2050,7 +2050,7 @@ added to glacierstore [-]
         self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
             glaciers_fn,
-            geom=self.basins,
+            geom=self.basins_highres,
             predicate="intersects",
             handle_nodata=NoDataStrategy.IGNORE,
         )
@@ -3171,7 +3171,7 @@ Run setup_soilmaps first"
     def write_geoms(
         self,
         geom_fn: str = "staticgeoms",
-        precision: int = 5,
+        precision: int = 6,
     ):
         """Write geoms in <root/geom_fn> in GeoJSON format."""
         # to write use self.geoms[var].to_file()
@@ -3179,6 +3179,9 @@ Run setup_soilmaps first"
             raise IOError("Model opened in read-only mode")
         if self.geoms:
             self.logger.info("Writing model staticgeom to file.")
+            # Set projection to 1 decimal if projected crs
+            if self.crs.is_projected:
+                precision = 1
             grid_size = 10 ** (-precision)
             for name, gdf in self.geoms.items():
                 # TODO change to geopandas functionality once geopandas 1.0.0 comes
@@ -3704,6 +3707,15 @@ change name input.path_forcing "
         else:
             self.logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
+        return gdf
+    
+    @property
+    def basins_highres(self):
+        """Returns a high resolution basin(s) geometry."""
+        if "basins_highres" in self.geoms:
+            gdf = self.geoms["basins_highres"]
+        else:
+            gdf = self.basins
         return gdf
 
     @property

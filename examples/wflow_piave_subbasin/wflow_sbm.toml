@@ -27,7 +27,7 @@ masswasting = true
 snow = true
 reinit = true
 reservoirs = true
-lakes = false
+lakes = true
 glacier = true
 kin_wave_iteration = true
 kw_river_tstep = 900
@@ -138,6 +138,9 @@ h = "h_land"
 [state.lateral.river.reservoir]
 volume = "volume_reservoir"
 
+[state.lateral.river.lake]
+waterlevel = "waterlevel_lake"
+
 [input.lateral.river.reservoir]
 area = "ResSimpleArea"
 areas = "wflow_reservoirareas"
@@ -147,3 +150,15 @@ maxrelease = "ResMaxRelease"
 maxvolume = "ResMaxVolume"
 targetfullfrac = "ResTargetFullFrac"
 targetminfrac = "ResTargetMinFrac"
+
+[input.lateral.river.lake]
+area = "LakeArea"
+areas = "wflow_lakeareas"
+b = "Lake_b"
+e = "Lake_e"
+locs = "wflow_lakelocs"
+outflowfunc = "LakeOutflowFunc"
+storfunc = "LakeStorFunc"
+threshold = "LakeThreshold"
+linkedlakelocs = "LinkedLakeLocs"
+waterlevel = "LakeAvgLevel"
