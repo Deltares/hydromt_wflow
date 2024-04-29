@@ -91,8 +91,9 @@ def floodplain1d_testdata():
 
 @pytest.fixture()
 def rivers1d():
+    # Also for linux the data is in the normal example folder
     data = gpd.read_file(
-        join(EXAMPLEDIR, "data", "rivers.geojson"),
+        join(dirname(abspath(__file__)), "..", "examples", "data", "rivers.geojson"),
     )
     return data
 
