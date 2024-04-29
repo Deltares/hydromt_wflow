@@ -475,14 +475,6 @@ for the difference between both.</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hydromt-wflow<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.</p>
-</div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
-<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
-</pre></div>
-</div>
 <p>Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:
 HydroMT-Wflow will be installed together with all optional (see above) and a few additional dependencies with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt-wflow
@@ -493,6 +485,14 @@ HydroMT-Wflow will be installed together with all optional (see above) and a few
 <p>If you already have this environment with this name either remove it with
 <cite>conda env remove -n hydromt-wflow</cite> <strong>or</strong> set a new name for the environment
 by changing <cite>-n &lt;name&gt;</cite> to the name of your new environment.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately (in the activated environment).</p>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
+</pre></div>
 </div>
 </section>
 <section id="install-hydromt-wflow-in-an-existing-environment">
@@ -508,7 +508,8 @@ channels the installation may fail.</p>
 <p class="admonition-title">Note</p>
 <p>Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.</p>
 </div>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>&lt;environment_name&gt;
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
 <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
 </pre></div>
 </div>
