@@ -3708,7 +3708,7 @@ change name input.path_forcing "
             self.logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
         return gdf
-    
+
     @property
     def basins_highres(self):
         """Returns a high resolution basin(s) geometry."""
