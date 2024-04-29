@@ -1,7 +1,6 @@
 """Implement the Wflow Sediment model class."""
 
 import logging
-from os.path import isfile
 from pathlib import Path
 from typing import List, Optional, Union
 
@@ -258,6 +257,8 @@ class WflowSedimentModel(WflowModel):
         max_dist: Optional[float] = 10e3,
         wdw: Optional[int] = 3,
         rel_error: Optional[float] = 0.05,
+        abs_error: float = 50.0,
+        fillna: bool = False,
         derive_subcatch: Optional[bool] = False,
         basename: Optional[str] = None,
         toml_output: Optional[str] = "csv",
@@ -293,6 +294,8 @@ class WflowSedimentModel(WflowModel):
             max_dist=max_dist,
             wdw=wdw,
             rel_error=rel_error,
+            abs_error=abs_error,
+            fillna=fillna,
             derive_subcatch=derive_subcatch,
             basename=basename,
             toml_output=toml_output,
@@ -405,7 +408,7 @@ in lulc_vars.
             usle_c = self.grid.raster.rasterize(
                 gdf=planted_forest,
                 col_name="USLE_C",
-                nodata=-999,
+                nodata=self.grid["USLE_C"].raster.nodata,
                 all_touched=False,
             )
             # Cover nodata with the USLE_C map from all landuse classes
@@ -448,18 +451,17 @@ particles characteristics. If None reverts to default values.
         else:
             fn_map = bedsed_mapping_fn
 
-        if not isfile(fn_map) and fn_map not in self.data_catalog:
-            raise ValueError(f"Riverbed sediment mapping file not found: {fn_map}")
         df = self.data_catalog.get_dataframe(fn_map)
 
         strord = self.grid[self._MAPS["strord"]].copy()
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
+        nodata = df.index[-1]
         # if streamroder value larger than max_str, assign last value
         strord = strord.where(strord <= max_str, max_str)
         # handle missing value (last row of csv is mapping of nan values)
-        strord = strord.where(strord != strord.raster.nodata, -999)
-        strord.raster.set_nodata(-999)
+        strord = strord.where(strord != strord.raster.nodata, nodata)
+        strord.raster.set_nodata(nodata)
 
         ds_riversed = landuse(
             da=strord,

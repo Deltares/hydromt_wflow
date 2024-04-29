@@ -461,11 +461,12 @@ Select from {routing_options}.'
         df = self.data_catalog.get_dataframe(rivman_mapping_fn)
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
+        nodata = df.index[-1]
         # if streamorder value larger than max_str, assign last value
         strord = strord.where(strord <= max_str, max_str)
         # handle missing value (last row of csv is mapping of missing values)
-        strord = strord.where(strord != strord.raster.nodata, -999)
-        strord.raster.set_nodata(-999)
+        strord = strord.where(strord != strord.raster.nodata, nodata)
+        strord.raster.set_nodata(nodata)
         ds_nriver = workflows.landuse(
             da=strord,
             ds_like=self.grid,
