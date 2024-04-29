@@ -2747,7 +2747,7 @@ Run setup_soilmaps first"
         self,
         river1d_fn: Union[str, Path, gpd.GeoDataFrame],
         connection_method: str = "subbasin_area",
-        area_max: float = 10.0,
+        area_max: float = 30.0,
         add_tributaries: bool = True,
         include_river_boundaries: bool = True,
         mapname: str = "1dmodel",

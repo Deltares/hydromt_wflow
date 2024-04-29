@@ -19,7 +19,7 @@ def wflow_1dmodel_connection(
     gdf_riv: gpd.GeoDataFrame,
     ds_model: xr.Dataset,
     connection_method: str = "subbasin_area",
-    area_max: float = 10.0,
+    area_max: float = 30.0,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
     logger=logger,
@@ -88,6 +88,26 @@ def wflow_1dmodel_connection(
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
     if connection_method == "subbasin_area" or add_tributaries:
+        # 0. Check that the max_area is not too small
+        # Should be bigger than the wflow river threshold
+        # Get from attrs if available for newer wflow models built with hydromt
+        riv_upa = ds_model["rivmsk"].attrs.get("river_upa", None)
+        if riv_upa is None:
+            # Derive from the uparea and rivmsk
+            riv_upa = xr.where(ds_model["rivmsk"] > 0, ds_model["uparea"], np.nan)
+            riv_upa = float(riv_upa.min())
+        if area_max < riv_upa:
+            new_area_max = np.ceil(riv_upa / 0.5) * 0.5
+            logger.warning(
+                f"The area_max {area_max} is smaller than the minimum upstream area of "
+                f"the wflow river {riv_upa} which means tributaries will "
+                "not be connected to the wflow river. Changing and setting area_max to "
+                f"{new_area_max} km2. "
+                f"To keep {area_max} km2 threshold, please update the wflow model to "
+                "include more detailed rivers."
+            )
+            area_max = new_area_max
+
         logger.info("Linking 1D river to wflow river")
         # 1. Derive the river edges / boundaries
         # merge multilinestrings in gdf_riv to linestrings

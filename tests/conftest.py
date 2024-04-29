@@ -92,7 +92,7 @@ def floodplain1d_testdata():
 @pytest.fixture()
 def rivers1d():
     data = gpd.read_file(
-        join(TESTDATADIR, "rivers.geojson"),
+        join(EXAMPLEDIR, "data", "rivers.geojson"),
     )
     return data
 
