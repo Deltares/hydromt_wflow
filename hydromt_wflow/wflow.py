@@ -469,11 +469,12 @@ Select from {routing_options}.'
         df = self.data_catalog.get_dataframe(rivman_mapping_fn)
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
+        nodata = df.index[-1]
         # if streamorder value larger than max_str, assign last value
         strord = strord.where(strord <= max_str, max_str)
         # handle missing value (last row of csv is mapping of missing values)
-        strord = strord.where(strord != strord.raster.nodata, -999)
-        strord.raster.set_nodata(-999)
+        strord = strord.where(strord != strord.raster.nodata, nodata)
+        strord.raster.set_nodata(nodata)
         ds_nriver = workflows.landuse(
             da=strord,
             ds_like=self.grid,
@@ -911,8 +912,7 @@ to run setup_river method first.'
             fn_map = f"{lulc_fn}_mapping_default"
         else:
             fn_map = lulc_mapping_fn
-        if not isfile(fn_map) and fn_map not in self.data_catalog:
-            raise ValueError(f"LULC mapping file not found: {fn_map}")
+
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]

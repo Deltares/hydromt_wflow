@@ -771,6 +771,21 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         )
 
 
+def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
+    example_sediment_model.setup_lulcmaps(
+        lulc_fn="globcover",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_vars=["USLE_C"],
+        planted_forest_c=0.0881,
+        orchard_name="Orchard",
+        orchard_c=0.2188,
+    )
+    da = example_sediment_model.grid["USLE_C"].raster.sample(
+        planted_forest_testdata.geometry.centroid
+    )
+    assert np.all(da.values == np.array([0.0881, 0.2188]))
+
+
 def test_setup_cold_states(example_wflow_model, tmpdir):
     # Create states
     example_wflow_model.setup_cold_states()

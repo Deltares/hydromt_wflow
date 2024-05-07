@@ -15,6 +15,7 @@ Added
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
 - new function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
 - Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
+- **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
 - better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
 - new function **setup_cold_states** to prepare cold states for WflowModel. PR #252
 - new utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
