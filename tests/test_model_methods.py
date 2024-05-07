@@ -45,6 +45,28 @@ def test_setup_basemaps(tmpdir):
 
     assert mod.grid["wflow_subcatch"].dtype == "int32"
 
+    # Test for too small basins
+    region = {"subbasin": [12.572061, 46.601984]}
+
+    with pytest.raises(ValueError) as error:  # noqa PT011
+        mod.setup_basemaps(
+            region=region,
+            hydrography_fn=hydrography,
+        )
+    assert str(error.value).startswith(
+        "(Sub)basin at original resolution should at least consist of two cells"
+    )
+
+    region = {"subbasin": [12.572061, 46.600359]}
+    with pytest.raises(ValueError) as error:  # noqa PT011
+        mod.setup_basemaps(
+            region=region,
+            hydrography_fn=hydrography,
+        )
+    assert str(error.value).startswith(
+        "The output extent at model resolution should at least consist of two cells on"
+    )
+
 
 def test_setup_grid(example_wflow_model):
     # Tests on setup_grid_from_raster
