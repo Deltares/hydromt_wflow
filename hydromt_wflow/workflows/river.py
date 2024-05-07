@@ -521,7 +521,7 @@ def _width_fit(
     p0=[0.15, 0.65],
     logger=logger,  # rhine uparea based
 ):
-    outliers = np.full(np.sum(mask), False, dtype=np.bool)
+    outliers = np.full(np.sum(mask), False, dtype=bool)
     a, b = None, None
     # check if sufficient data
     if np.sum(mask) > 10:

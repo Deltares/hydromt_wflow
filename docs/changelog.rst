@@ -30,6 +30,7 @@ Fixed
 - Wrong dtype for wflow_subcatch map. PR #247
 - **setup_gauges**: Allow snapping to river/mask for snap_uparea method. PR #248
 - Removed building a wflow model without a config file in the build notebook.
+- Deprecated np.bool and earlier error message for subbasin delination. PR #263
 
 v0.5.0 (February 2024)
 ======================
