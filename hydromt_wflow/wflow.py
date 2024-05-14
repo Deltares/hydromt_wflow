@@ -3171,7 +3171,7 @@ Run setup_soilmaps first"
     def write_geoms(
         self,
         geom_fn: str = "staticgeoms",
-        precision: int = 6,
+        precision: int | None = None,
     ):
         """Write geoms in <root/geom_fn> in GeoJSON format."""
         # to write use self.geoms[var].to_file()
@@ -3180,9 +3180,13 @@ Run setup_soilmaps first"
         if self.geoms:
             self.logger.info("Writing model staticgeom to file.")
             # Set projection to 1 decimal if projected crs
-            if self.crs.is_projected:
-                precision = 1
-            grid_size = 10 ** (-precision)
+            _precision = precision
+            if precision is None:
+                if self.crs.is_projected:
+                    _precision = 1
+                else:
+                    _precision = 6
+            grid_size = 10 ** (-_precision)
             for name, gdf in self.geoms.items():
                 # TODO change to geopandas functionality once geopandas 1.0.0 comes
                 # See https://github.com/geopandas/geopandas/releases/tag/v1.0.0-alpha1
