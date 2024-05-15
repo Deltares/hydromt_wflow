@@ -840,7 +840,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing" title="hydromt_wflow.WflowModel.write_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_forcing</span></code></a>([fn_out, freq_out, chunksize, ...])</p></td>
 <td><p>Write forcing at <code class="docutils literal notranslate"><span class="pre">fn_out</span></code> in model ready format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms" title="hydromt_wflow.WflowModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_geoms</span></code></a>([geom_fn])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms" title="hydromt_wflow.WflowModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_geoms</span></code></a>([geom_fn, precision])</p></td>
 <td><p>Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.write_grid.html#hydromt_wflow.WflowModel.write_grid" title="hydromt_wflow.WflowModel.write_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_grid</span></code></a>()</p></td>
@@ -881,76 +881,79 @@
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.basins.html#hydromt_wflow.WflowModel.basins" title="hydromt_wflow.WflowModel.basins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">basins</span></code></a></p></td>
 <td><p>Returns a basin(s) geometry as a geopandas.GeoDataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bounds</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">basins_highres</span></code></p></td>
+<td><p>Returns a high resolution basin(s) geometry.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bounds</span></code></p></td>
 <td><p>Returns the bounding box of the model grid.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.config.html#hydromt_wflow.WflowModel.config" title="hydromt_wflow.WflowModel.config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">config</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.config.html#hydromt_wflow.WflowModel.config" title="hydromt_wflow.WflowModel.config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">config</span></code></a></p></td>
 <td><p>Model configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">coords</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">coords</span></code></p></td>
 <td><p>Returns the coordinates of model staticmaps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.crs.html#hydromt_wflow.WflowModel.crs" title="hydromt_wflow.WflowModel.crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.crs.html#hydromt_wflow.WflowModel.crs" title="hydromt_wflow.WflowModel.crs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crs</span></code></a></p></td>
 <td><p>Returns coordinate reference system embedded in the model grid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dims</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">dims</span></code></p></td>
 <td><p>Returns spatial dimension names of staticmaps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.flwdir.html#hydromt_wflow.WflowModel.flwdir" title="hydromt_wflow.WflowModel.flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flwdir</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.flwdir.html#hydromt_wflow.WflowModel.flwdir" title="hydromt_wflow.WflowModel.flwdir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flwdir</span></code></a></p></td>
 <td><p>Return the pyflwdir.FlwdirRaster object parsed from wflow ldd.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.forcing.html#hydromt_wflow.WflowModel.forcing" title="hydromt_wflow.WflowModel.forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forcing</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.forcing.html#hydromt_wflow.WflowModel.forcing" title="hydromt_wflow.WflowModel.forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">forcing</span></code></a></p></td>
 <td><p>Model forcing.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.geoms.html#hydromt_wflow.WflowModel.geoms" title="hydromt_wflow.WflowModel.geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geoms</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.geoms.html#hydromt_wflow.WflowModel.geoms" title="hydromt_wflow.WflowModel.geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geoms</span></code></a></p></td>
 <td><p>Model geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.grid.html#hydromt_wflow.WflowModel.grid" title="hydromt_wflow.WflowModel.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.grid.html#hydromt_wflow.WflowModel.grid" title="hydromt_wflow.WflowModel.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a></p></td>
 <td><p>Model static gridded data as xarray.Dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">height</span></code></p></td>
 <td><p>Returns the height of the model staticmaps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">intbl</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">intbl</span></code></p></td>
 <td><p>Return a dictionary of pandas.DataFrames representing wflow intbl files.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maps</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">maps</span></code></p></td>
 <td><p>Model maps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.region.html#hydromt_wflow.WflowModel.region" title="hydromt_wflow.WflowModel.region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">region</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.region.html#hydromt_wflow.WflowModel.region" title="hydromt_wflow.WflowModel.region"><code class="xref py py-obj docutils literal notranslate"><span class="pre">region</span></code></a></p></td>
 <td><p>Returns the geometry of the model area of interest.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.res.html#hydromt_wflow.WflowModel.res" title="hydromt_wflow.WflowModel.res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">res</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.res.html#hydromt_wflow.WflowModel.res" title="hydromt_wflow.WflowModel.res"><code class="xref py py-obj docutils literal notranslate"><span class="pre">res</span></code></a></p></td>
 <td><p>Returns the resolution of the model grid.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.results.html#hydromt_wflow.WflowModel.results" title="hydromt_wflow.WflowModel.results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.results.html#hydromt_wflow.WflowModel.results" title="hydromt_wflow.WflowModel.results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results</span></code></a></p></td>
 <td><p>Model results.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.rivers.html#hydromt_wflow.WflowModel.rivers" title="hydromt_wflow.WflowModel.rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rivers</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.rivers.html#hydromt_wflow.WflowModel.rivers" title="hydromt_wflow.WflowModel.rivers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rivers</span></code></a></p></td>
 <td><p>Return a river geometry as a geopandas.GeoDataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.root.html#hydromt_wflow.WflowModel.root" title="hydromt_wflow.WflowModel.root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">root</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.root.html#hydromt_wflow.WflowModel.root" title="hydromt_wflow.WflowModel.root"><code class="xref py py-obj docutils literal notranslate"><span class="pre">root</span></code></a></p></td>
 <td><p>Path to model folder.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></p></td>
 <td><p>Returns the shape of the model staticmaps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.states.html#hydromt_wflow.WflowModel.states" title="hydromt_wflow.WflowModel.states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">states</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.states.html#hydromt_wflow.WflowModel.states" title="hydromt_wflow.WflowModel.states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">states</span></code></a></p></td>
 <td><p>Model states.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.staticgeoms.html#hydromt_wflow.WflowModel.staticgeoms" title="hydromt_wflow.WflowModel.staticgeoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">staticgeoms</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.staticgeoms.html#hydromt_wflow.WflowModel.staticgeoms" title="hydromt_wflow.WflowModel.staticgeoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">staticgeoms</span></code></a></p></td>
 <td><p>Return static geometries.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html#hydromt_wflow.WflowModel.staticmaps" title="hydromt_wflow.WflowModel.staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">staticmaps</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html#hydromt_wflow.WflowModel.staticmaps" title="hydromt_wflow.WflowModel.staticmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">staticmaps</span></code></a></p></td>
 <td><p>Return staticmaps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.tables.html#hydromt_wflow.WflowModel.tables" title="hydromt_wflow.WflowModel.tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tables</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.tables.html#hydromt_wflow.WflowModel.tables" title="hydromt_wflow.WflowModel.tables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tables</span></code></a></p></td>
 <td><p>Return a dictionary of pandas.DataFrames representing wflow intbl files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code></p></td>
 <td><p>Returns spatial transform of the model grid.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">width</span></code></p></td>
 <td><p>Returns the width of the model staticmaps.</p></td>
 </tr>
 </tbody>

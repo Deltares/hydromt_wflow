@@ -435,6 +435,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">pyflwdir</span>
 <span class="kn">import</span> <span class="nn">pyproj</span>
+<span class="kn">import</span> <span class="nn">shapely</span>
 <span class="kn">import</span> <span class="nn">toml</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
@@ -638,6 +639,21 @@
         <span class="c1"># retrieve global data (lazy!)</span>
         <span class="n">ds_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">hydrography_fn</span><span class="p">)</span>
 
+        <span class="c1"># Check on resolution (degree vs meter) depending on ds_org res/crs</span>
+        <span class="n">scale_ratio</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">res</span> <span class="o">/</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">scale_ratio</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> should be </span><span class="se">\</span>
+<span class="s2">larger than the </span><span class="si">{</span><span class="n">hydrography_fn</span><span class="si">}</span><span class="s2"> resolution </span><span class="si">{</span><span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 111 km</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> should be smaller than 1 degree </span><span class="se">\</span>
+<span class="s2">(111km) for geographic coordinate systems. &quot;</span>
+                    <span class="s2">&quot;Make sure you provided res in degree rather than in meters.&quot;</span>
+                <span class="p">)</span>
+
         <span class="c1"># get basin geometry and clip data</span>
         <span class="n">kind</span><span class="p">,</span> <span class="n">region</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">parse_region</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="n">xy</span> <span class="o">=</span> <span class="kc">None</span>
@@ -663,25 +679,15 @@
         <span class="k">if</span> <span class="n">geom</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">geom</span><span class="o">.</span><span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;wflow region geometry has no CRS&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Set the basins geometry</span>
         <span class="n">ds_org</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">clip_geom</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="n">res</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">ds_org</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">geometry_mask</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Adding basins vector to geoms.&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Check on resolution (degree vs meter) depending on ds_org res/crs</span>
-        <span class="n">scale_ratio</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">res</span> <span class="o">/</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
-        <span class="k">if</span> <span class="n">scale_ratio</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> should be </span><span class="se">\</span>
-<span class="s2">larger than the </span><span class="si">{</span><span class="n">hydrography_fn</span><span class="si">}</span><span class="s2"> resolution </span><span class="si">{</span><span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">ds_org</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">res</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 111 km</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;The model resolution </span><span class="si">{</span><span class="n">res</span><span class="si">}</span><span class="s2"> should be smaller than 1 degree </span><span class="se">\</span>
-<span class="s2">(111km) for geographic coordinate systems. &quot;</span>
-                    <span class="s2">&quot;Make sure you provided res in degree rather than in meters.&quot;</span>
-                <span class="p">)</span>
+        <span class="c1"># Set name based on scale_factor</span>
+        <span class="k">if</span> <span class="n">scale_ratio</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">)</span>
+
         <span class="c1"># setup hydrography maps and set staticmap attribute with renamed maps</span>
         <span class="n">ds_base</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">hydrography</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">=</span><span class="n">ds_org</span><span class="p">,</span>
@@ -709,6 +715,8 @@
         <span class="c1"># Rename and add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_base</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_base</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+        <span class="c1"># Call basins once to set it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
 
         <span class="c1"># setup topography maps</span>
         <span class="n">ds_topo</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">topography</span><span class="p">(</span>
@@ -2250,7 +2258,7 @@
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
             <span class="n">waterbodies_fn</span><span class="p">,</span>
-            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
             <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
@@ -2513,7 +2521,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing glacier maps.&quot;</span><span class="p">)</span>
         <span class="n">gdf_org</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
             <span class="n">glaciers_fn</span><span class="p">,</span>
-            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+            <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins_highres</span><span class="p">,</span>
             <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">,</span>
             <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
         <span class="p">)</span>
@@ -3682,6 +3690,7 @@
     <span class="k">def</span> <span class="nf">write_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
+        <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.&quot;&quot;&quot;</span>
         <span class="c1"># to write use self.geoms[var].to_file()</span>
@@ -3689,7 +3698,21 @@
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Writing model staticgeom to file.&quot;</span><span class="p">)</span>
+            <span class="c1"># Set projection to 1 decimal if projected crs</span>
+            <span class="n">_precision</span> <span class="o">=</span> <span class="n">precision</span>
+            <span class="k">if</span> <span class="n">precision</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_projected</span><span class="p">:</span>
+                    <span class="n">_precision</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_precision</span> <span class="o">=</span> <span class="mi">6</span>
+            <span class="n">grid_size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">_precision</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># TODO change to geopandas functionality once geopandas 1.0.0 comes</span>
+                <span class="c1"># See https://github.com/geopandas/geopandas/releases/tag/v1.0.0-alpha1</span>
+                <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">set_precision</span><span class="p">(</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+                    <span class="n">grid_size</span><span class="o">=</span><span class="n">grid_size</span><span class="p">,</span>
+                <span class="p">)</span>
                 <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">geom_fn</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.geojson&quot;</span><span class="p">)</span>
                 <span class="n">gdf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GeoJSON&quot;</span><span class="p">)</span></div>
 
@@ -4142,7 +4165,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+                <span class="n">tbl</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">float_precision</span><span class="o">=</span><span class="s2">&quot;round_trip&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_tables</span><span class="p">(</span><span class="n">tbl</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
 
@@ -4231,11 +4254,19 @@
                 <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
                 <span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;basins&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Basin map </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s1">&#39;basins&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> not found in grid.&quot;</span><span class="p">)</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">gdf</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">basins_highres</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a high resolution basin(s) geometry.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;basins_highres&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basins</span>
         <span class="k">return</span> <span class="n">gdf</span>
 
     <span class="nd">@property</span>

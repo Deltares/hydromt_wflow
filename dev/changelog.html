@@ -446,6 +446,7 @@
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p>If applicable, basins geometry based on the higher resolution DEM is stored seperately under <strong>basins_highres</strong> <cite>PR #266 &lt;https://github.com/Deltares/hydromt_wflow/pull/266&gt;</cite></p></li>
 <li><p>New function <strong>setup_1dmodel_connection</strong> to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/210">PR #210</a></p></li>
 <li><p>New setup method for the <strong>KsatHorFrac</strong> parameter <strong>setup_ksathorfarc</strong> to up-downscale existing ksathorfrac maps. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/255">PR #255</a></p></li>
 <li><p>new function <strong>setup_pet_forcing</strong> to reproject existing pet data rather than computing from other meteo data. PR #257</p></li>
@@ -459,6 +460,7 @@
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p>Basins geometry (<strong>basins</strong>) is now based on the actual wflow model resolution basins, instead of based on the supplied DEM <cite>PR #266 &lt;https://github.com/Deltares/hydromt_wflow/pull/266&gt;</cite></p></li>
 <li><p><strong>setup_soilmaps</strong>: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242</p></li>
 <li><p><strong>setup_outlets</strong>: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247</p></li>
 <li><p>wflow forcing data type should always be float32. PR #268</p></li>
