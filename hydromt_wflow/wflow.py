@@ -883,7 +883,7 @@ to run setup_river method first.'
             "N": "input.lateral.land.n",
             "PathFrac": "input.vertical.pathfrac",
             "RootingDepth": "input.vertical.rootingdepth",
-            "Sl": "input.vertical.storage_leaf",
+            "Sl": "input.vertical.specific_leaf",
             "Swood": "input.vertical.storage_wood",
             "WaterFrac": "input.vertical.waterfrac",
             "alpha_h1": "input.vertical.alpha_h1",
