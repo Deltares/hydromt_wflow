@@ -11,25 +11,30 @@ Unreleased
 
 Added
 -----
+- If applicable, basins geometry based on the higher resolution DEM is stored seperately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`
 - New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
 - New function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
 - Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
 - Better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
+- **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
 - New function **setup_cold_states** to prepare cold states for WflowModel. PR #252
 - New utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
 - New functions (properly) for setting up water demand: **setup_allocation_areas**, **setup_non_irrigation** and **setup_irrigation**. `PR #226 <https://github.com/Deltares/hydromt_wflow/pull/226>`
 
 Changed
 -------
+- Basins geometry (**basins**) is now based on the actual wflow model resolution basins, instead of based on the supplied DEM `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`
 - **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
 - **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
+- wflow forcing data type should always be float32. PR #268
 
 Fixed
 -----
 - Wrong dtype for wflow_subcatch map. PR #247
 - **setup_gauges**: Allow snapping to river/mask for snap_uparea method. PR #248
 - Removed building a wflow model without a config file in the build notebook.
+- Deprecated np.bool and earlier error message for subbasin delination. PR #263
 
 v0.5.0 (February 2024)
 ======================
