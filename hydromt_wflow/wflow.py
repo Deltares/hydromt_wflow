@@ -867,16 +867,17 @@ to run setup_river method first.'
         self,
         lulc_fn: Union[str, xr.DataArray],
         lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        lulc_vars: List = [
-            "landuse",
-            "Kext",
-            "N",
-            "PathFrac",
-            "RootingDepth",
-            "Sl",
-            "Swood",
-            "WaterFrac",
-        ],
+        lulc_vars: Dict = {
+            "landuse": None,
+            "Kext": "input.vertical.kext",
+            "N": "input.lateral.land.n",
+            "PathFrac": "input.vertical.pathfrac",
+            "RootingDepth": "input.vertical.rootingdepth",
+            "Sl": "input.vertical.specific_leaf",
+            "Swood": "input.vertical.storage_wood",
+            "WaterFrac": "input.vertical.waterfrac",
+            "alpha_h1": "input.vertical.alpha_h1",
+        },
     ):
         """
         Derive several wflow maps based on landuse-landcover (LULC) data.
@@ -887,7 +888,7 @@ to run setup_river method first.'
         value, unless noted differently.
 
         Currently, if `lulc_fn` is set to the "vito", "globcover", "esa_worldcover"
-        or "corine", default lookup tables are available and will be used if
+        "corine" or "glmnco", default lookup tables are available and will be used if
         `lulc_mapping_fn` is not provided.
 
         Adds model layers:
@@ -900,6 +901,8 @@ to run setup_river method first.'
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
         * **N** map: Manning Roughness [-]
+        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
+          (0.0 or 1.0) [-]
 
         Parameters
         ----------
@@ -908,12 +911,12 @@ to run setup_river method first.'
         lulc_mapping_fn : str, Path, pd.DataFrame
             Path to a mapping csv file from landuse in source name to
             parameter values in lulc_vars. If lulc_fn is one of {"globcover", "vito",
-            "corine", "esa_worldcover"}, a default mapping is used and this argument
-            becomes optional.
-        lulc_vars : list
-            List of landuse parameters to keep.
+            "corine", "esa_worldcover", "glmnco"}, a default mapping is used and this
+            argument becomes optional.
+        lulc_vars : dict
+            Dictionary of landuse parameters to keep and their internal wflow name.
             By default \
-["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
+["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac", "alpha_h1"]
         """
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -939,6 +942,11 @@ to run setup_river method first.'
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
+
+        # Add entries to the config
+        for name, wflow_param in lulc_vars.items():
+            if wflow_param is not None:
+                self.set_config(wflow_param, name)
 
     def setup_laimaps(self, lai_fn: Union[str, xr.DataArray]):
         """

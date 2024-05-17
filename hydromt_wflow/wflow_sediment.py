@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -309,17 +309,17 @@ class WflowSedimentModel(WflowModel):
         lulc_fn: Union[str, Path, xr.DataArray],
         lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
         planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
-        lulc_vars: List[str] = [
-            "landuse",
-            "Cov_River",
-            "Kext",
-            "N",
-            "PathFrac",
-            "Sl",
-            "Swood",
-            "USLE_C",
-            "WaterFrac",
-        ],
+        lulc_vars: Dict = {
+            "landuse": None,
+            "Cov_River": None,
+            "Kext": "input.vertical.kext",
+            "N": None,
+            "PathFrac": "input.vertical.pathfrac",
+            "Sl": None,
+            "Swood": "input.vertical.storage_wood",
+            "USLE_C": "input.vertical.usleC",
+            "WaterFrac": None,
+        },
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
         orchard_c: float = 0.2188,
