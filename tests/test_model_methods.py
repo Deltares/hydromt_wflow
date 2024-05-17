@@ -812,7 +812,7 @@ def test_setup_allocation_areas(example_wflow_model, tmpdir):
 
     # Assert output values
     assert Path(tmpdir, "staticgeoms", "allocation_areas.geojson").exists()
-    assert len(example_wflow_model.geoms["allocation_areas"]) == 6
+    assert len(example_wflow_model.geoms["allocation_areas"]) == 3
     # on unique values
 
     uni = example_wflow_model.geoms["allocation_areas"].value.unique()
