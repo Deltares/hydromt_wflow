@@ -2,6 +2,10 @@ setup_allocation_areas:
   min_area: 30
   admin_bounds_fn: gadm_level2
 
+# # Update model with GLCNMO landuse data, in order to be consistent with the irrigation data
+# setup_lulcmaps:
+#   lulc_fn: glcnmo
+
 setup_non_irrigation:
   non_irrigation_fn: pcr_globwb
   population_fn: worldpop_2020_constrained
@@ -33,3 +37,21 @@ setup_irrigation:
     - null
     - null
   lai_threshold: 0.2
+  additional_parameters:
+    vertical.paddy:
+      h_min: 20
+      h_opt: 50
+      h_max: 80
+    h_values: # values in a list from h1, h2, h3_high, h3_low, h4
+      paddy:
+        - 100
+        - 55
+        - -160
+        - -250
+        - -16000
+      nonpaddy:
+        - 0
+        - -100
+        - -400
+        - -1000
+        - -15849

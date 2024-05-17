@@ -910,6 +910,8 @@ to run setup_river method first.'
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
         * **N** map: Manning Roughness [-]
+        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
+          (0.0 or 1.0) [-]
 
         Parameters
         ----------
@@ -3132,6 +3134,17 @@ Run setup_soilmaps first"
             None,
         ],
         lai_threshold: float = 0.2,
+        additional_parameters: dict = {
+            "vertical.paddy": {
+                "h_min": 20,
+                "h_opt": 50,
+                "h_max": 80,
+            },
+            "h_values": {  # values in a list from h1, h2, h3_high, h3_low, h4
+                "paddy": [100, 55, -160, -250, -16000],
+                "nonpaddy": [0, -100, -400, -1000, -15849],
+            },
+        },
     ):
         """
         Add required information to simulate irrigation water demand.
@@ -3186,6 +3199,9 @@ Run setup_soilmaps first"
         * **kvfrac**: Map with a multiplication factor for the vertical conductivity [-]
         * **irrigation_trigger**: Map with monthly values, indicating whether irrigation
           is allowed (1) or not (0) [-]
+        * **h_n** maps: Soil water pressure head of the root water uptake reduction
+          function (Feddes), provided for h1, h2, h3_high, h3_low, h4, with separate
+          values for paddy and non-paddy pixels [cm]
 
         Parameters
         ----------
@@ -3223,6 +3239,20 @@ Run setup_soilmaps first"
             None, ]`
         lai_threshold: float
             Value to be used to determine the irrigation trigger
+        additional_parameters: dict
+            Dictionary to provide additional paramaters to the model, by default `{
+                "vertical.paddy": {
+                    "h_min": 20, "h_opt": 50, "h_max": 80,
+                }, "h_values": {  # values in a list from h1, h2, h3_high, h3_low, h4
+                    "paddy": [100, 55, -160, -250, -16000], "nonpaddy": [0, -100, -400,
+                    -1000, -15849],
+                },
+            }` The entries under `vertical.paddy` will be added as constant values in
+            the toml file, through the `vertical.paddy.h_min.value = 20` interface. The
+            values are expected to be given in mm, and represent the following: `h_min`
+            is the minimum required water depth for the irrigated rice field, `h_opt`
+            the optimal water depth for the rice field, and `h_max` this water depth
+            when the rice field starts spilling water.
 
 
         See Also
@@ -3418,6 +3448,28 @@ Run setup_soilmaps first"
             self.config["input"]["cyclic"].append(
                 f"vertical.{paddy_class}.irrigation_trigger",
             )
+
+        ## Add extra parameters to model config
+        # Names and order in which the `h_values` are expected to be entered
+        h_names = ["h1", "h2", "h3_high", "h3_low", "h4"]
+
+        for key, values in additional_parameters.items():
+            # If the key starts with vertical, assume it should be set as a constant
+            # value
+            if key.startswith("vertical"):
+                for subkey, value in values.items():
+                    self.set_config(f"input.{key}.{subkey}.value", value)
+            # If the key is `h_values` add maps with those values (masked for paddy) and
+            # add the 5 layers
+            elif key == "h_values":
+                for idx, h_name in enumerate(h_names):
+                    da = xr.where(
+                        self.grid[self._MAPS["paddy_area"]] == 1,
+                        values["paddy"][idx],
+                        values["nonpaddy"][idx],
+                    )
+                    self.set_grid(da, h_name)
+                    self.set_config(f"input.vertical.{h_name}", h_name)
 
     def setup_cold_states(
         self,
