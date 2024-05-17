@@ -236,7 +236,6 @@ def allocation_areas(
     # TODO figure out the code below for more precise allocation areas
     sub_basins = sub_basins.explode(index_parts=False, ignore_index=True)
     sub_basins["uid"] = range(len(sub_basins))
-    sub_basins = sub_basins.apply(lambda row: touch_intersect(row, rivers), axis=1)
     admin_bounds = None
 
     # Define the surround matrix for convolution
