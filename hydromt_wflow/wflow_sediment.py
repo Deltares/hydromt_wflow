@@ -381,7 +381,7 @@ in lulc_vars.
         )
 
         # If available, improve USLE C map with planted forest data
-        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+        if "USLE_C" in list(lulc_vars.keys()) and planted_forest_fn is not None:
             # Add a USLE_C column with default value
             self.logger.info(
                 "Correcting USLE_C with planted forest and orchards"
