@@ -7,8 +7,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from affine import Affine
-from hydromt.gis_utils import utm_crs
 from hydromt.raster import full_from_transform, full_like
+from scipy.ndimage import convolve
 
 __all__ = ["allocation_areas", "non_irrigation"]
 
@@ -204,6 +204,8 @@ def allocation_areas(
     xr.DataArray
         The water demand allocation areas.
     """
+    # Set variables
+    nodata = -9999
     # Split based on admin bounds
     sub_basins = basins.copy()
     sub_basins["uid"] = range(len(sub_basins))
@@ -232,76 +234,65 @@ def allocation_areas(
 
     # Set the contain flag per geom
     # TODO figure out the code below for more precise allocation areas
-    # sub_basins = sub_basins.explode(index_parts=False, ignore_index=True)
-    # sub_basins["uid"] = range(len(sub_basins))
+    sub_basins = sub_basins.explode(index_parts=False, ignore_index=True)
+    sub_basins["uid"] = range(len(sub_basins))
     sub_basins = sub_basins.apply(lambda row: touch_intersect(row, rivers), axis=1)
+    admin_bounds = None
 
-    # Calculate the area based on a more latum utm projection
-    crs = utm_crs(da_like.raster.bounds)
-    sub_basins["sqkm"] = sub_basins.geometry.to_crs(crs).area / 1000**2
+    # Define the surround matrix for convolution
+    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+    # Setup the allocation grid based on exploded geometries
+    # TODO get exploded geometries from something raster based
+    alloc = full_like(da_like, nodata=nodata, lazy=True).astype(int)
+    alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=nodata)
+
+    # Get the areas per exploded area
+    alloc_area = alloc.to_dataset()
+    alloc_area["area"] = da_like.raster.area_grid()
+    area = alloc_area.groupby("uid").sum().area
+    del alloc_area
+    area = area.drop_sel(uid=nodata) / 1e6
+
     _count = 0
 
-    # Create touched and not touched by rivers datasets
+    # Solve the area iteratively
     while True:
-        # Ensure a break if it cannot be solved
+        # Break if cannot be solved
         if _count == 100:
             break
 
-        # Everything touched by river based on difference
-        # (is not what we want, yet)
-        if _count != 0:
-            sub_basins = sub_basins.apply(
-                lambda row: touch_intersect(row, rivers), axis=1
-            )
-            sub_basins["sqkm"] = sub_basins.geometry.to_crs(crs).area / 1000**2
+        riv = np.setdiff1d(
+            np.unique(alloc.where(da_like == 1, nodata)),
+            [-9999],
+        )
+        no_riv = np.setdiff1d(area.uid.values, riv)
 
-        # Set no_riv and riv (what's touched and what's not)
-        no_riv = sub_basins[~sub_basins["contain"]]
-        riv = sub_basins[sub_basins["contain"]]
+        # Also look at minimum areas
+        area_riv = area.sel(uid=riv)
+        area_mask = area_riv < min_area
+        no_riv = np.append(no_riv, area_riv.uid[area_mask].values)
 
-        # Include minimal area option
-        min_basins = sub_basins[sub_basins["sqkm"] < min_area]
-        min_basins = min_basins[~min_basins.uid.isin(no_riv.uid)]
-        # Only concatenate if there are different small basins
-        # compared to basins that do not touch a river
-        if not min_basins.empty:
-            no_riv = pd.concat(
-                [no_riv, min_basins],
-                ignore_index=True,
-            )
-
-        _n = 0
-
-        if no_riv.empty:
+        # Solved, so break
+        if no_riv.size == 0:
             break
 
-        for _, row in no_riv.iterrows():
-            touched = riv[riv.touches(row.geometry) | riv.intersects(row.geometry)]
-            if touched.empty:
-                continue
-            if row.value in touched.value.values:
-                uid = touched[touched["value"] == row.value].uid.values[0]
-            else:
-                touched["area"] = touched.area
-                uid = touched[touched["area"] == touched["area"].max()].uid.values[0]
-            # Set the identifier to the new value
-            # (i.e. the touched basin)
-            sub_basins.loc[sub_basins["uid"] == row.uid, "uid"] = uid
-            _n += 1
+        # Loop through all 'loose' area and merge those
+        for val in no_riv:
+            mask = alloc == val
+            rnd = convolve(mask.astype(int).values, kernel, mode="constant")
+            nbs = np.setdiff1d(
+                np.unique(alloc.values[np.where(rnd > 0)]), [nodata, val]
+            )
+            del rnd
+            area_nbs = area.sel(uid=nbs)
+            new_uid = area_nbs.uid[area_nbs.argmax(dim="uid")].values
+            alloc = alloc.where(alloc != val, new_uid)
 
-        # Ensure a break if nothing is touched
-        # This means that it cannot be solved
-        # TODO maybe look at iteratively buffering...
-        if _n == 0:
-            break
-
-        sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
+        # Take out the merged areas and append counter
+        area = area.sel(uid=np.setdiff1d(np.unique(alloc.values), [nodata]))
         _count += 1
 
-    alloc = full_like(da_like, nodata=-9999, lazy=True).astype(int)
-    alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=-9999)
     alloc.name = "allocation_areas"
-
     return alloc
 
 
