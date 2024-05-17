@@ -937,7 +937,7 @@ to run setup_river method first.'
             da=da,
             ds_like=self.grid,
             df=df_map,
-            params=lulc_vars,
+            params=list(lulc_vars.keys()),
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
