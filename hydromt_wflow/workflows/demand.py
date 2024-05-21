@@ -179,7 +179,6 @@ def allocation_areas(
     min_area: float | int,
     admin_bounds: gpd.GeoDataFrame,
     basins: gpd.GeoDataFrame,
-    rivers: gpd.GeoDataFrame,
 ) -> xr.DataArray:
     """Create water allocation area.
 
@@ -196,8 +195,6 @@ def allocation_areas(
         Administrative boundaries, e.g. sovereign nations.
     basins : gpd.GeoDataFrame
         The wflow model basins.
-    rivers : gpd.GeoDataFrame
-        The wflow model rivers.
 
     Returns
     -------
@@ -238,8 +235,6 @@ def allocation_areas(
     sub_basins["uid"] = range(len(sub_basins))
     admin_bounds = None
 
-    # Define the surround matrix for convolution
-    kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
     # Setup the allocation grid based on exploded geometries
     # TODO get exploded geometries from something raster based
     alloc = full_like(da_like, nodata=nodata, lazy=True).astype(int)
@@ -253,12 +248,16 @@ def allocation_areas(
     area = area.drop_sel(uid=nodata) / 1e6
 
     _count = 0
+    old_no_riv = None
 
     # Solve the area iteratively
     while True:
         # Break if cannot be solved
         if _count == 100:
             break
+
+        # Define the surround matrix for convolution
+        kernel = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
 
         riv = np.setdiff1d(
             np.unique(alloc.where(da_like == 1, nodata)),
@@ -275,6 +274,9 @@ def allocation_areas(
         if no_riv.size == 0:
             break
 
+        if np.array_equal(np.sort(no_riv), old_no_riv):
+            kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
+
         # Loop through all 'loose' area and merge those
         for val in no_riv:
             mask = alloc == val
@@ -283,6 +285,8 @@ def allocation_areas(
                 np.unique(alloc.values[np.where(rnd > 0)]), [nodata, val]
             )
             del rnd
+            if nbs.size == 0:
+                continue
             area_nbs = area.sel(uid=nbs)
             new_uid = area_nbs.uid[area_nbs.argmax(dim="uid")].values
             alloc = alloc.where(alloc != val, new_uid)
@@ -290,6 +294,7 @@ def allocation_areas(
         # Take out the merged areas and append counter
         area = area.sel(uid=np.setdiff1d(np.unique(alloc.values), [nodata]))
         _count += 1
+        old_no_riv = np.sort(no_riv)
 
     alloc.name = "allocation_areas"
     return alloc

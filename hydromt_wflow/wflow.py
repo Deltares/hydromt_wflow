@@ -2990,7 +2990,6 @@ Run setup_soilmaps first"
             min_area=min_area,
             admin_bounds=admin_bounds,
             basins=self.geoms["basins"],
-            rivers=self.geoms["rivers"],
         )
         self.set_grid(alloc, name=self._MAPS["allocation_areas"])
 
