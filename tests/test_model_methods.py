@@ -816,7 +816,7 @@ def test_setup_allocation_areas(example_wflow_model, tmpdir):
     # on unique values
 
     uni = example_wflow_model.geoms["allocation_areas"].value.unique()
-    assert np.all(np.sort(uni) == [4, 5, 8])
+    assert np.all(np.sort(uni) == [36, 37, 57])
 
 
 def test_setup_non_irrigation(example_wflow_model, tmpdir):
