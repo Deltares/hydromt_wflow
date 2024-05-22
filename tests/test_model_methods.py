@@ -13,6 +13,7 @@ import pytest
 import xarray as xr
 from hydromt.raster import full_like
 
+from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
@@ -308,6 +309,58 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     mean_val = values.mean().values
     assert int(max_val * 100) == 43175
     assert int(mean_val * 100) == 22020
+
+
+def test_setup_lai(tmpdir, example_wflow_model):
+    # Use vito and MODIS lai data for testing
+    # Read LAI data
+    da_lai = example_wflow_model.data_catalog.get_rasterdataset(
+        "modis_lai", geom=example_wflow_model.region, buffer=2
+    )
+    # Read landuse data
+    da_landuse = example_wflow_model.data_catalog.get_rasterdataset(
+        "vito", geom=example_wflow_model.region, buffer=2
+    )
+
+    # Derive mapping for using the method any
+    df_lai_any = workflows.lulc_lai_mapping(
+        da_lulc=da_landuse,
+        da_lai=da_lai.copy(),
+        resampling_method="any",
+        lulc_zero_classes=[80, 200, 0],
+    )
+    # Check that all landuse classes are present in the mapping
+    assert np.all(df_lai_any.index.values == np.unique(da_landuse))
+
+    # Try with the other two methods
+    df_lai_mode = workflows.lulc_lai_mapping(
+        da_lulc=da_landuse,
+        da_lai=da_lai.copy(),
+        resampling_method="mode",
+        lulc_zero_classes=[80, 200, 0],
+    )
+    df_lai_q3 = workflows.lulc_lai_mapping(
+        da_lulc=da_landuse,
+        da_lai=da_lai.copy(),
+        resampling_method="q3",
+        lulc_zero_classes=[80, 200, 0],
+    )
+    # Check the number of landuse classes in the mapping tables
+    assert len(df_lai_any[df_lai_any.samples == 0]) == 1
+    assert len(df_lai_mode[df_lai_mode.samples == 0]) == 3
+    assert len(df_lai_q3[df_lai_q3.samples == 0]) == 3
+    # Check number of samples for landuse class 20 with the different methods
+    assert int(df_lai_any.loc[20].samples) == 2481
+    assert int(df_lai_mode.loc[20].samples) == 59
+    assert int(df_lai_q3.loc[20].samples) == 4
+
+    # Try to use the mapping tables to setup the LAI
+    example_wflow_model.setup_laimaps_from_lulc_mapping(
+        lulc_fn="vito",
+        lai_mapping_fn=df_lai_any,
+    )
+
+    assert "LAI" in example_wflow_model.grid
 
 
 def test_setup_rootzoneclim(example_wflow_model):
