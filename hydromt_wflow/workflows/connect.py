@@ -95,6 +95,9 @@ def wflow_1dmodel_connection(
         gdf_riv = gdf_riv.to_crs(ds_model.raster.crs)
     # Derive flwdir
     flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
+    # Basin mask
+    basin_mask = ds_model["basins"].raster.vectorize()
+    basin_mask = basin_mask.buffer(-2 * max(ds_model.raster.res, key=abs))
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
@@ -123,6 +126,8 @@ def wflow_1dmodel_connection(
         # 1. Derive the river edges / boundaries
         # merge multilinestrings in gdf_riv to linestrings
         riv1d = gdf_riv.explode(index_parts=True).reset_index(drop=True)
+        # clip to basins
+        riv1d = riv1d.clip(basin_mask)
         # get the edges of the riv1d
         riv1d_edges = riv1d.geometry.apply(lambda x: Point(x.coords[0]))
         riv1d_edges = pd.concat(
@@ -297,6 +302,8 @@ def wflow_1dmodel_connection(
         logger.info("Deriving subbasins based on 1D river nodes snapped to wflow river")
         # from multiline to line
         gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
+        # Clip to basin
+        gdf_riv = gdf_riv.clip(basin_mask)
         nodes = []
         for bi, branch in gdf_riv.iterrows():
             nodes.append([Point(branch.geometry.coords[0]), bi])  # start
