@@ -1,9 +1,12 @@
 """Implement the Wflow Sediment model class."""
 
 import logging
-from os.path import isfile
+from pathlib import Path
+from typing import List, Optional, Union
 
+import geopandas as gpd
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from hydromt_wflow.wflow import WflowModel
@@ -33,11 +36,10 @@ class WflowSedimentModel(WflowModel):
 
     def __init__(
         self,
-        root=None,
-        mode="w",
-        config_fn=None,
-        data_libs=None,
-        deltares_data=False,
+        root: Optional[str] = None,
+        mode: Optional[str] = "w",
+        config_fn: Optional[str] = None,
+        data_libs: Union[List, str] = [],
         logger=logger,
     ):
         super().__init__(
@@ -45,7 +47,6 @@ class WflowSedimentModel(WflowModel):
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
-            deltares_data=deltares_data,
             logger=logger,
         )
 
@@ -62,7 +63,11 @@ class WflowSedimentModel(WflowModel):
 
         self.config["model"].pop("river_routing", None)
 
-    def setup_lakes(self, lakes_fn="hydro_lakes", min_area=1.0):
+    def setup_lakes(
+        self,
+        lakes_fn: Union[str, Path, gpd.GeoDataFrame] = "hydro_lakes",
+        min_area: float = 1.0,
+    ):
         """Generate maps of lake areas and outlets.
 
         Also generates well as parameters with average lake area,
@@ -109,8 +114,8 @@ class WflowSedimentModel(WflowModel):
 
     def setup_reservoirs(
         self,
-        reservoirs_fn: str,
-        timeseries_fn: str = None,
+        reservoirs_fn: Union[str, Path, gpd.GeoDataFrame],
+        timeseries_fn: Union[str, Path, pd.DataFrame] = None,
         min_area: float = 1.0,
         **kwargs,
     ):
@@ -203,10 +208,10 @@ class WflowSedimentModel(WflowModel):
 
     def setup_outlets(
         self,
-        river_only=True,
-        toml_output="csv",
-        gauge_toml_header=["TSS"],
-        gauge_toml_param=["lateral.river.SSconc"],
+        river_only: bool = True,
+        toml_output: str = "csv",
+        gauge_toml_header: List[str] = ["TSS"],
+        gauge_toml_param: List[str] = ["lateral.river.SSconc"],
     ):
         """Set the default gauge map based on basin outlets.
 
@@ -244,88 +249,67 @@ class WflowSedimentModel(WflowModel):
 
     def setup_gauges(
         self,
-        gauges_fn=None,
-        source_gdf=None,
-        snap_to_river=True,
-        mask=None,
-        derive_subcatch=False,
-        basename=None,
-        toml_output="csv",
-        gauge_toml_header=["Q", "TSS"],
-        gauge_toml_param=["lateral.river.q_riv", "lateral.river.SSconc"],
+        gauges_fn: Union[str, Path, gpd.GeoDataFrame],
+        index_col: Optional[str] = None,
+        snap_to_river: Optional[bool] = True,
+        mask: Optional[np.ndarray] = None,
+        snap_uparea: Optional[bool] = False,
+        max_dist: Optional[float] = 10e3,
+        wdw: Optional[int] = 3,
+        rel_error: Optional[float] = 0.05,
+        abs_error: float = 50.0,
+        fillna: bool = False,
+        derive_subcatch: Optional[bool] = False,
+        basename: Optional[str] = None,
+        toml_output: Optional[str] = "csv",
+        gauge_toml_header: Optional[List[str]] = ["Q", "TSS"],
+        gauge_toml_param: Optional[List[str]] = [
+            "lateral.river.q_riv",
+            "lateral.river.SSconc",
+        ],
         **kwargs,
     ):
         """Set a gauge map based on ``gauges_fn`` data.
 
-        Supported gauge datasets include "grdc"
-        or "<path_to_source>" for user supplied csv or geometry files \
-with gauge locations.
-        If a csv file is provided, a "x" or "lon" and "y" or "lat" column is required
-        and the first column will be used as IDs in the map. If ``snap_to_river`` is set
-        to True, the gauge location will be snapped to the boolean river mask. If
-        ``derive_subcatch`` is set to True, an additonal subcatch map is derived from
-        the gauge locations.
+        This function directly calls the ``setup_gauges`` function of the WflowModel,
+        see py:meth:`hydromt_wflow.wflow.WflowModel.setup_gauges` for more details.
 
-        Adds model layers:
+        The only differences are the default values for the arguments:
 
-        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
-        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] \
-(if derive_subcatch)
-        * **gauges_source** geom: polygon of gauges from source
-        * **subcatch_source** geom: polygon of subcatchment based on \
-gauge locations [-] (if derive_subcatch)
+        - ``gauge_toml_header`` defaults to ["Q", "TSS"]
+        - ``gauge_toml_param`` defaults to ["lateral.river.q_riv",
+            "lateral.river.SSconc"]
 
-        Parameters
-        ----------
-        gauges_fn : str, {"grdc"}, optional
-            Known source name or path to gauges file geometry file, by default None.
-        source_gdf : geopandas.GeoDataFame, optional
-            Direct gauges file geometry, by default None.
-        snap_to_river : bool, optional
-            Snap point locations to the closest downstream river cell, by default True
-        mask : np.boolean, optional
-            If provided snaps to the mask, else snaps to the river (default).
-        derive_subcatch : bool, optional
-            Derive subcatch map for gauges, by default False
-        derive_outlet : bool, optional
-            Derive gaugemap based on catchment outlets, by default True
-        basename : str, optional
-            Map name in grid (wflow_gauges_basename).
-            If None use the gauges_fn basename.
-        toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of \
-wflow toml file or do nothing.
-            By default, 'csv'.
-        gauge_toml_header : list, optional
-            Save specific model parameters in csv section.
-            This option defines the header of the csv file.
-            By default saves Q (for lateral.river.q_riv) and
-            TSS (for lateral.river.SSconc).
-        gauge_toml_param: list, optional
-            Save specific model parameters in csv section.
-            This option defines the wflow variable corresponding to the
-            names in gauge_toml_header.
-            By default saves lateral.river.q_riv (for Q) and
-            lateral.river.SSconc (for TSS).
+        See Also
+        --------
+        WflowModel.setup_gauges
         """
         # # Add new outputcsv section in the config
         super().setup_gauges(
             gauges_fn=gauges_fn,
-            source_gdf=source_gdf,
+            index_col=index_col,
             snap_to_river=snap_to_river,
             mask=mask,
+            snap_uparea=snap_uparea,
+            max_dist=max_dist,
+            wdw=wdw,
+            rel_error=rel_error,
+            abs_error=abs_error,
+            fillna=fillna,
             derive_subcatch=derive_subcatch,
             basename=basename,
             toml_output=toml_output,
             gauge_toml_header=gauge_toml_header,
             gauge_toml_param=gauge_toml_param,
+            **kwargs,
         )
 
     def setup_lulcmaps(
         self,
-        lulc_fn="globcover",
-        lulc_mapping_fn=None,
-        lulc_vars=[
+        lulc_fn: Union[str, Path, xr.DataArray],
+        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
+        lulc_vars: List[str] = [
             "landuse",
             "Cov_River",
             "Kext",
@@ -336,6 +320,9 @@ wflow toml file or do nothing.
             "USLE_C",
             "WaterFrac",
         ],
+        planted_forest_c: float = 0.0881,
+        orchard_name: str = "Orchard",
+        orchard_c: float = 0.2188,
     ):
         """Derive several wflow maps based on landuse-landcover (LULC) data.
 
@@ -345,6 +332,12 @@ wflow toml file or do nothing.
         resolution and then resampled to the model resolution using the average
         value, unless noted differently.
 
+        The USLE C factor map can be refined for planted forests using the planted
+        forest data source. The planted forest data source is a polygon layer with
+        planted forest polygons and optionnally a column with the forest type to
+        identify orchards. The default value for orchards is 0.2188, the default
+        value for other planted forests is 0.0881.
+
         Adds model layers:
 
         * **landuse** map: Landuse class [-]
@@ -353,7 +346,7 @@ wflow toml file or do nothing.
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]
         * **Swood** map: Fraction of wood in the vegetation/plant [-]
-        * **USLE_C** map: Cover managment factor from the USLE equation [-]
+        * **USLE_C** map: Cover management factor from the USLE equation [-]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
         * **N** map: Manning Roughness [-]
@@ -365,16 +358,71 @@ wflow toml file or do nothing.
         lulc_mapping_fn : str
             Path to a mapping csv file from landuse in source name to parameter values \
 in lulc_vars.
+        planted_forest_fn : str, Path, gpd.GeoDataFrame
+            GeoDataFrame source with polygons of planted forests.
+
+            * Optional variable: ["forest_type"]
+
         lulc_vars : list
             List of landuse parameters to keep.
             By default: \
 ["landuse","Cov_river","Kext","N","PathFrac","USLE_C","Sl","Swood","WaterFrac"]
+        planted_forest_c : float, optional
+            Value of USLE C factor for planted forest, by default 0.0881.
+        orchard_name : str, optional
+            Name of orchard landuse class in the "forest_type" column of
+            ``planted_forest_fn``, by default "Orchard".
+        orchard_c : float, optional
+            Value of USLE C factor for orchards, by default 0.2188.
         """
+        # Prepare all default parameters
         super().setup_lulcmaps(
             lulc_fn=lulc_fn, lulc_mapping_fn=lulc_mapping_fn, lulc_vars=lulc_vars
         )
 
-    def setup_riverbedsed(self, bedsed_mapping_fn=None, **kwargs):
+        # If available, improve USLE C map with planted forest data
+        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+            # Add a USLE_C column with default value
+            self.logger.info(
+                "Correcting USLE_C with planted forest and orchards"
+                "using {planted_forest_fn}."
+            )
+            # Read forest data
+            planted_forest = self.data_catalog.get_geodataframe(
+                planted_forest_fn,
+                geom=self.basins,
+                buffer=1,
+                predicate="intersects",
+                handle_nodata="IGNORE",
+            )
+            if planted_forest is None:
+                self.logger.warning("No Planted forest data found within domain.")
+                return
+            planted_forest["USLE_C"] = planted_forest_c
+            # If forest_type column is available, update USLE_C value for orchards
+            if "forest_type" in planted_forest.columns:
+                planted_forest.loc[
+                    planted_forest["forest_type"] == orchard_name, "USLE_C"
+                ] = orchard_c
+            # Rasterize forest data
+            usle_c = self.grid.raster.rasterize(
+                gdf=planted_forest,
+                col_name="USLE_C",
+                nodata=self.grid["USLE_C"].raster.nodata,
+                all_touched=False,
+            )
+            # Cover nodata with the USLE_C map from all landuse classes
+            usle_c = usle_c.where(
+                usle_c != usle_c.raster.nodata,
+                self.grid["USLE_C"],
+            )
+            # Add to grid
+            self.set_grid(usle_c)
+
+    def setup_riverbedsed(
+        self,
+        bedsed_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+    ):
         """Generate sediments based river bed characteristics maps.
 
         Adds model layers:
@@ -389,7 +437,7 @@ in lulc_vars.
         ----------
         bedsed_mapping_fn : str
             Path to a mapping csv file from streamorder to river bed \
-particles characteristics.
+particles characteristics. If None reverts to default values.
 
             * Required variable: \
 ['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
@@ -403,18 +451,17 @@ particles characteristics.
         else:
             fn_map = bedsed_mapping_fn
 
-        if not isfile(fn_map) and fn_map not in self.data_catalog:
-            raise ValueError(f"Riverbed sediment mapping file not found: {fn_map}")
-        df = self.data_catalog.get_dataframe(fn_map, driver_kwargs=kwargs)
+        df = self.data_catalog.get_dataframe(fn_map)
 
         strord = self.grid[self._MAPS["strord"]].copy()
         # max streamorder value above which values get the same N_River value
         max_str = df.index[-2]
+        nodata = df.index[-1]
         # if streamroder value larger than max_str, assign last value
         strord = strord.where(strord <= max_str, max_str)
         # handle missing value (last row of csv is mapping of nan values)
-        strord = strord.where(strord != strord.raster.nodata, -999)
-        strord.raster.set_nodata(-999)
+        strord = strord.where(strord != strord.raster.nodata, nodata)
+        strord.raster.set_nodata(nodata)
 
         ds_riversed = landuse(
             da=strord,
@@ -427,7 +474,7 @@ particles characteristics.
 
     def setup_canopymaps(
         self,
-        canopy_fn="simard",
+        canopy_fn: Union[str, Path, xr.DataArray],
     ):
         """Generate sediments based canopy height maps.
 
@@ -437,8 +484,8 @@ particles characteristics.
 
         Parameters
         ----------
-        canopy_fn : {"simard"}
-            Name of canopy height data source in data_sources.yml file.
+        canopy_fn :
+            Canopy height data source (DataArray).
         """
         self.logger.info("Preparing canopy height map.")
 
@@ -461,8 +508,8 @@ particles characteristics.
 
     def setup_soilmaps(
         self,
-        soil_fn="soilgrids",
-        usleK_method="renard",
+        soil_fn: str = "soilgrids",
+        usleK_method: str = "renard",
     ):
         """Generate sediments based soil parameter maps.
 

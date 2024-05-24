@@ -45,6 +45,28 @@ def test_setup_basemaps(tmpdir):
 
     assert mod.grid["wflow_subcatch"].dtype == "int32"
 
+    # Test for too small basins
+    region = {"subbasin": [12.572061, 46.601984]}
+
+    with pytest.raises(ValueError) as error:  # noqa PT011
+        mod.setup_basemaps(
+            region=region,
+            hydrography_fn=hydrography,
+        )
+    assert str(error.value).startswith(
+        "(Sub)basin at original resolution should at least consist of two cells"
+    )
+
+    region = {"subbasin": [12.572061, 46.600359]}
+    with pytest.raises(ValueError) as error:  # noqa PT011
+        mod.setup_basemaps(
+            region=region,
+            hydrography_fn=hydrography,
+        )
+    assert str(error.value).startswith(
+        "The output extent at model resolution should at least consist of two cells on"
+    )
+
 
 def test_setup_grid(example_wflow_model):
     # Tests on setup_grid_from_raster
@@ -741,6 +763,21 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         assert (
             clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
         )
+
+
+def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
+    example_sediment_model.setup_lulcmaps(
+        lulc_fn="globcover",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_vars=["USLE_C"],
+        planted_forest_c=0.0881,
+        orchard_name="Orchard",
+        orchard_c=0.2188,
+    )
+    da = example_sediment_model.grid["USLE_C"].raster.sample(
+        planted_forest_testdata.geometry.centroid
+    )
+    assert np.all(da.values == np.array([0.0881, 0.2188]))
 
 
 def test_setup_cold_states(example_wflow_model, tmpdir):

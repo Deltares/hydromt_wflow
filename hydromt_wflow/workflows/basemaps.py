@@ -85,7 +85,7 @@ parametrization of distributed hydrological models.
     outidx = None
     if "mask" not in ds.coords and xy is None:
         ds.coords["mask"] = xr.Variable(
-            dims=ds.raster.dims, data=np.ones(ds.raster.shape, dtype=np.bool)
+            dims=ds.raster.dims, data=np.ones(ds.raster.shape, dtype=bool)
         )
     elif "mask" not in ds.coords:
         # NOTE if no subbasin mask is provided calculate it here
@@ -99,9 +99,27 @@ parametrization of distributed hydrological models.
         # NOTE: this mask is passed on from get_basin_geometry method
         logger.debug("Mask in dataset assumed to represent subbasins.")
     ncells = np.sum(ds["mask"].values)
-    logger.debug(f"(Sub)basin at original resolution has {ncells} cells.")
-
     scale_ratio = int(np.round(res / ds.raster.res[0]))
+
+    if ncells < 4:
+        raise ValueError(
+            "(Sub)basin at original resolution should at least consist of two cells on "
+            f"each axis and the total number of cells is {ncells}. "
+            "Consider using a larger domain or higher spatial resolution. "
+            "For subbasin models, consider a (higher) threshold on for example "
+            "upstream area or stream order to snap the outlet."
+        )
+    elif ncells < 100 and scale_ratio > 1:
+        logger.warning(
+            f"(Sub)basin at original resolution is small and has {ncells} cells. "
+            "This may results in errors later when upscaling flow directions. "
+            "If so, consider using a larger domain or higher spatial resolution. "
+            "For subbasin models, consider a (higher) threshold on for example "
+            "upstream area or stream order to snap the outlet."
+        )
+    else:
+        logger.debug(f"(Sub)basin at original resolution has {ncells} cells.")
+
     if scale_ratio > 1:  # upscale flwdir
         if flwdir is None:
             # NOTE initialize with mask is FALSE
@@ -154,7 +172,7 @@ parametrization of distributed hydrological models.
             mask_int.raster.set_nodata(-1)  # change nodata value
             ds_out.coords["mask"] = mask_int.raster.reproject_like(
                 da_flw, method="nearest"
-            ).astype(np.bool)
+            ).astype(bool)
             basins = ds_out["mask"].values.astype(np.int32)
             logger.warning(
                 "The basin delineation might be wrong as no original resolution outlets"
@@ -251,9 +269,10 @@ parametrization of distributed hydrological models.
     logger.debug(f"Outlet coordinates ({len(xy_pit[0])}/{npits}): {xy_pit_str}.")
     if np.any(np.asarray(ds_out.raster.shape) == 1):
         raise ValueError(
-            "The output extent should at consist of two cells on each axis. "
-            "Consider using a larger domain or higher spatial resolution. "
-            "For subbasin models, consider a (higher) threshold to snap the outlet."
+            "The output extent at model resolution should at least consist of two "
+            "cells on each axis. Consider using a larger domain or higher spatial "
+            "resolution. For subbasin models, consider a (higher) threshold to snap "
+            "the outlet."
         )
     return ds_out, flwdir_out
 

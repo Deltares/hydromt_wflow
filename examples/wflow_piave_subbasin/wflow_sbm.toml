@@ -13,12 +13,12 @@ path_output = "outstate/outstates.nc"
 [input]
 path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
-gauges = "wflow_gauges"
 ldd = "wflow_ldd"
 river_location = "wflow_river"
 subcatchment = "wflow_subcatch"
 forcing = [ "vertical.precipitation", "vertical.temperature", "vertical.potential_evaporation",]
 cyclic = [ "vertical.leaf_area_index",]
+gauges = "wflow_gauges"
 gauges_grdc = "wflow_gauges_grdc"
 
 [model]
@@ -110,9 +110,9 @@ h_av = "h_av_river"
 ssf = "ssf"
 
 [state.lateral.land]
+q = "q_land"
 h = "h_land"
 h_av = "h_av_land"
-q = "q_land"
 
 [input.lateral.river]
 length = "wflow_riverlength"
