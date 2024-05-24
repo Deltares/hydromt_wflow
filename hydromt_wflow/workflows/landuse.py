@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["landuse", "lai"]
 
 
-RESAMPLING = {"landuse": "nearest", "lai": "average"}
+RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
 DTYPES = {"landuse": np.int16}
 
 
