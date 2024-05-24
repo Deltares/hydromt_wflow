@@ -882,10 +882,10 @@ to run setup_river method first.'
         """
         Derive several wflow maps based on landuse-landcover (LULC) data.
 
-        Lookup table `lulc_mapping_fn` columns are converted to lulc classes
-        model parameters based on literature. The data is remapped at its original
-        resolution and then resampled to the model resolution using the average
-        value, unless noted differently.
+        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
+        parameters based on literature. The data is remapped at its original resolution
+        and then resampled to the model resolution using the average value, unless noted
+        differently.
 
         Currently, if `lulc_fn` is set to the "vito", "globcover", "esa_worldcover"
         "corine" or "glmnco", default lookup tables are available and will be used if
@@ -902,21 +902,26 @@ to run setup_river method first.'
         * **WaterFrac** map: The fraction of open water per grid cell [-]
         * **N** map: Manning Roughness [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
-          (0.0 or 1.0) [-]
+          (0 or 1) [-]
 
         Parameters
         ----------
         lulc_fn : str, xarray.DataArray
             Name of RasterDataset source in data_sources.yml file.
         lulc_mapping_fn : str, Path, pd.DataFrame
-            Path to a mapping csv file from landuse in source name to
-            parameter values in lulc_vars. If lulc_fn is one of {"globcover", "vito",
-            "corine", "esa_worldcover", "glmnco"}, a default mapping is used and this
-            argument becomes optional.
+            Path to a mapping csv file from landuse in source name to parameter values
+            in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
+            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            becomes optional.
         lulc_vars : dict
-            Dictionary of landuse parameters to keep and their internal wflow name.
-            By default \
-["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac", "alpha_h1"]
+            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
+            and their internal wflow name (or None to skip adding to the toml). By
+            default \
+{"landuse": None, "Kext": "input.vertical.kext", "N": "input.lateral.land.n",
+        "PathFrac": "input.vertical.pathfrac", "RootingDepth":
+        "input.vertical.rootingdepth", "Sl": "input.vertical.specific_leaf", "Swood":
+        "input.vertical.storage_wood", "WaterFrac": "input.vertical.waterfrac",
+        "alpha_h1": "input.vertical.alpha_h1"}
         """
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:

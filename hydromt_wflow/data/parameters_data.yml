@@ -1,7 +1,7 @@
 corine_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -24,7 +24,7 @@ corine_mapping_default:
 esa_worldcover_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -47,7 +47,7 @@ esa_worldcover_mapping_default:
 globcover_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -70,7 +70,7 @@ globcover_mapping_default:
 vito_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -93,7 +93,7 @@ vito_mapping_default:
 glcnmo_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -116,7 +116,7 @@ glcnmo_mapping_default:
 koppen_geiger_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: class
   meta:
     category: landuse
@@ -127,7 +127,7 @@ koppen_geiger_mapping_default:
 regr_chelsa_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: source
   meta:
     category: hydrography
@@ -138,7 +138,7 @@ regr_chelsa_mapping_default:
 roughness_river_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       N_River: float32
@@ -151,7 +151,7 @@ roughness_river_mapping_default:
 riverbedsed_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       D50_River: float32

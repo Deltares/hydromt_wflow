@@ -311,14 +311,11 @@ class WflowSedimentModel(WflowModel):
         planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
         lulc_vars: Dict = {
             "landuse": None,
-            "Cov_River": None,
             "Kext": "input.vertical.kext",
-            "N": None,
             "PathFrac": "input.vertical.pathfrac",
-            "Sl": None,
+            "Sl": "input.vertical.specific_leaf",
             "Swood": "input.vertical.storage_wood",
             "USLE_C": "input.vertical.usleC",
-            "WaterFrac": None,
         },
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
@@ -326,30 +323,27 @@ class WflowSedimentModel(WflowModel):
     ):
         """Derive several wflow maps based on landuse-landcover (LULC) data.
 
-        Currently, ``lulc_fn`` can be set to the "vito", "globcover"
-        or "corine", fo which lookup tables are constructed to convert lulc classses to
+        Currently, ``lulc_fn`` can be set to the "vito", "globcover", "corine" or
+        "glmnco", of which lookup tables are constructed to convert lulc classses to
         model parameters based on literature. The data is remapped at its original
-        resolution and then resampled to the model resolution using the average
-        value, unless noted differently.
+        resolution and then resampled to the model resolution using the average value,
+        unless noted differently.
 
         The USLE C factor map can be refined for planted forests using the planted
         forest data source. The planted forest data source is a polygon layer with
         planted forest polygons and optionnally a column with the forest type to
-        identify orchards. The default value for orchards is 0.2188, the default
-        value for other planted forests is 0.0881.
+        identify orchards. The default value for orchards is 0.2188, the default value
+        for other planted forests is 0.0881.
 
         Adds model layers:
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **Cov_river** map: vegetation coefficent reducing stream bank erosion [-].
         * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
         * **Sl** map: Specific leaf storage [mm]
         * **Swood** map: Fraction of wood in the vegetation/plant [-]
         * **USLE_C** map: Cover management factor from the USLE equation [-]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
 
         Parameters
         ----------
@@ -363,10 +357,13 @@ in lulc_vars.
 
             * Optional variable: ["forest_type"]
 
-        lulc_vars : list
-            List of landuse parameters to keep.
-            By default: \
-["landuse","Cov_river","Kext","N","PathFrac","USLE_C","Sl","Swood","WaterFrac"]
+        lulc_vars : dict
+            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
+            and their internal wflow name (or None to skip adding to the toml). By
+            default: \
+{"landuse": None, "Kext": "input.vertical.kext", "PathFrac": "input.vertical.pathfrac",
+        "Sl": "input.vertical.specific_leaf", "Swood": "input.vertical.storage_wood",
+        "USLE_C": "input.vertical.usleC"}
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
