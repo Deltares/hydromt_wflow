@@ -12,7 +12,7 @@ __all__ = ["landuse", "lai"]
 
 
 RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
-DTYPES = {"landuse": np.int16}
+DTYPES = {"landuse": np.int16, "alpha_h1": np.int16}
 
 
 # def landuse(da, ds_like, data_catalog, fn_map, logger=logger, params=None):
