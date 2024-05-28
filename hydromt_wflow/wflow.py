@@ -394,7 +394,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             Must be same as setup_basemaps for consistent results.
 
             * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
-                'elevtn'[m+REF]
+              'elevtn'[m+REF]
             * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
@@ -927,11 +927,10 @@ to run setup_river method first.'
             Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
             and their internal wflow name (or None to skip adding to the toml). By
             default \
-{"landuse": None, "Kext": "input.vertical.kext", "N": "input.lateral.land.n",
-        "PathFrac": "input.vertical.pathfrac", "RootingDepth":
-        "input.vertical.rootingdepth", "Sl": "input.vertical.specific_leaf", "Swood":
-        "input.vertical.storage_wood", "WaterFrac": "input.vertical.waterfrac",
-        "alpha_h1": "input.vertical.alpha_h1"}
+{"landuse": None, "Kext": "input.vertical.kext", "N": "input.lateral.land.n", \
+"PathFrac": "input.vertical.pathfrac", "RootingDepth": "input.vertical.rootingdepth", \
+"Sl": "input.vertical.specific_leaf", "Swood": "input.vertical.storage_wood", \
+"WaterFrac": "input.vertical.waterfrac", "alpha_h1": "input.vertical.alpha_h1"}
         """
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1199,7 +1198,7 @@ skipping adding gauge specific outputs to the toml."
           ``abs_error`` and ``rel_error``.
         * snapping based on upstream area matching and mask: ``snap_uparea=True``,
           ``mask`` or ``snap_to_river=True``. The gauge locations are snapped to the
-            closest matching upstream area value within the mask.
+          closest matching upstream area value within the mask.
 
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived
         from the gauge locations.
@@ -3160,34 +3159,35 @@ Run setup_soilmaps first"
         Add required information to simulate irrigation water demand.
 
         The function requires data that contains information about the location of the
-        irrigated areas (`irrigated_area_fn`). This, combined with a landuse data that
-        contains a class for paddy (rice) land use (`landuse_fn`), determines which
-        locations are considered to be paddy irrigation (based on the `paddy_class`),
+        irrigated areas (``irrigated_area_fn``). This, combined with a landuse data that
+        contains a class for paddy (rice) land use (``landuse_fn``), determines which
+        locations are considered to be paddy irrigation (based on the ``paddy_class``),
         and which locations are considered to be non-paddy irrigation.
 
         Next, these maps are reprojected to the model resolution, where a threshold
-        (`area_threshold`) determines when pixels are considered to be classified as
+        (``area_threshold``) determines when pixels are considered to be classified as
         irrigation cells (both paddy and non-paddy). It adds the resulting maps to the
         input data.
 
         In order to correct the potential (reference) evaporation to values that match
         the crop for that pixel, a crop factor is being set. This is done in two
         different steps:
-            - For the pixels with irrigated crops, the crop factor is extracted from the
-              `crop_irrigated_fn` data. For the paddy/rice fields, the crop factor is
-              extracted from the `crop_info_fn` data.
-            - For the pixels that are rainfed, the crop factor is extracted from the
-              `crop_irrigated_fn` data
+
+        * For the pixels with irrigated crops, the crop factor is extracted from the
+          ``crop_irrigated_fn`` data. For the paddy/rice fields, the crop factor is
+          extracted from the ``crop_info_fn`` data.
+        * For the pixels that are rainfed, the crop factor is extracted from the
+          ``crop_irrigated_fn`` data
 
         To allow for water to pool on the surface (for paddy/rice fields), the layers in
         the model can be updated to new depths, such that we can allow a thin layer with
-        limited vertical conductivity. These updated layers means that the `c` parameter
-        needs to be calculated again. Next, the kvfrac layer corrects the vertical
-        conductivity (by multiplying) such that the bottom of the layer corresponds to
-        the `target_conductivity` for that layer. This currently assumes the wflow
-        models to have an exponential declining vertical conductivity (using the `f`
-        parameter). If no target_conductivity is specified for a layer (`None`), the
-        kvfrac value is set to 1.
+        limited vertical conductivity. These updated layers means that the ``c``
+        parameter needs to be calculated again. Next, the kvfrac layer corrects the
+        vertical conductivity (by multiplying) such that the bottom of the layer
+        corresponds to the ``target_conductivity`` for that layer. This currently
+        assumes the wflow models to have an exponential declining vertical conductivity
+        (using the ``f`` parameter). If no target_conductivity is specified for a layer
+        (``None``), the kvfrac value is set to 1.
 
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
@@ -3196,7 +3196,7 @@ Run setup_soilmaps first"
         described by Peano et al. (2019). They describe a threshold value based on the
         LAI variability to determine the growing season. This threshold is defined as
         20% (default value) of the LAI variability, but can be adjusted via the
-        `lai_threshold` argument.
+        ``lai_threshold`` argument.
 
         Adds model layers:
 
@@ -3217,10 +3217,10 @@ Run setup_soilmaps first"
         ----------
         irrigated_area_fn: str, Path, xarray.DataArray
             Name of the (gridded) dataset that contains the location of irrigated areas
-            (as a mask), `irrigated_area` for example
+            (as a mask), "irrigated_area" for example
         landuse_fn: str, Path, xr.DataArray
             Name of the landuse dataset that contains a classification for paddy/rice,
-            use `glcnmo` for example
+            use "glcnmo" for example
         paddy_class: int
             Class in the landuse data that is considered as paddy or rice, by default 12
             (matching the glcmno landuse data)
@@ -3238,37 +3238,37 @@ Run setup_soilmaps first"
             class, by default "mirca_crop_info"
         soil_fn: str, Path, xarray.Dataset
             Soil data to be used to recalculate the Brooks-Corey coefficients (`c`
-            parameter), based on the provided `wflow_thicknesslayers`, by default
+            parameter), based on the provided ``wflow_thicknesslayers``, by default
             "soilgrids", but should ideally be equal to the data used in
-            `setup_soilmaps`
+            :py:meth:`setup_soilmaps`
         wflow_thicknesslayers: list
-            List of thickness per layer [mm], by default `[50, 100, 50, 200, 800, ]`
+            List of thickness per layer [mm], by default ``[50, 100, 50, 200, 800, ]``
         target_conductivity: list
             List of target vertical conductivities [mm/day] for each layer. Set value to
-            `None` if no specific value is required, by default `[None, None, 5, None,
-            None, ]`
+            `None` if no specific value is required, by default ``[None, None, 5, None,
+            None, ]``
         lai_threshold: float
             Value to be used to determine the irrigation trigger
         additional_parameters: dict
-            Dictionary to provide additional paramaters to the model, by default `{
-                "vertical.paddy": {
-                    "h_min": 20, "h_opt": 50, "h_max": 80,
-                }, "h_values": {  # values in a list from h1, h2, h3_high, h3_low, h4
-                    "paddy": [100, 55, -160, -250, -16000], "nonpaddy": [0, -100, -400,
-                    -1000, -15849],
-                },
-            }` The entries under `vertical.paddy` will be added as constant values in
-            the toml file, through the `vertical.paddy.h_min.value = 20` interface. The
-            values are expected to be given in mm, and represent the following: `h_min`
-            is the minimum required water depth for the irrigated rice field, `h_opt`
-            the optimal water depth for the rice field, and `h_max` this water depth
-            when the rice field starts spilling water.
+            Dictionary to provide additional paramaters to the model, by default \
+``{"vertical.paddy": {"h_min": 20, "h_opt": 50, "h_max": 80,}, "h_values": {"paddy": \
+[100, 55, -160, -250, -16000], "nonpaddy": [0, -100, -400, -1000, -15849],},}`` \
+            The entries under ``vertical.paddy`` will be added as constant values in
+            the toml file, through the ``vertical.paddy.h_min.value = 20`` interface.
+            The values are expected to be given in mm, and represent the following:
+            ``h_min`` is the minimum required water depth for the irrigated rice field,
+            ``h_opt`` the optimal water depth for the rice field, and ``h_max`` this
+            water depth when the rice field starts spilling water. The ``h_values``
+            represent the values in a list representing h1, h2, h3_high, h3_low, h4.
 
 
         See Also
         --------
-        workflows.demand.find_paddy workflows.demand.classify_pixels
+        workflows.demand.find_paddy
+        workflows.demand.classify_pixels
 
+        References
+        ----------
         Peano, D., Materia, S., Collalti, A., Alessandri, A., Anav, A., Bombelli, A., &
         Gualdi, S. (2019). Global variability of simulated and observed vegetation
         growing season. Journal of Geophysical Research: Biogeosciences, 124, 3569–3587.
@@ -3324,6 +3324,7 @@ Run setup_soilmaps first"
         self.set_config(
             "input.vertical.nonpaddy.irrigation_areas", self._MAPS["nonpaddy_area"]
         )
+        self.set_config("state.vertical.paddy.h", "h_paddy")
 
         # Add crop factor information
         self.logger.info("Preparing crop factor maps.")
@@ -3495,7 +3496,8 @@ Run setup_soilmaps first"
 
         This function is mainly useful in case the wflow model is read into Delft-FEWS.
 
-        Adds model layer:
+        Adds model layers:
+
         * **satwaterdepth**: saturated store [mm]
         * **snow**: snow storage [mm]
         * **tsoil**: top soil temperature [°C]
@@ -3509,16 +3511,23 @@ Run setup_soilmaps first"
         * **h_land**: land water level [m]
         * **h_av_land**: land average water level[m]
         * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
-            overland flow in x/y directions for local-inertial [m3/s]
+          overland flow in x/y directions for local-inertial [m3/s]
 
         If lakes, also adds:
+
         * **waterlevel_lake**: lake water level [m]
 
         If reservoirs, also adds:
+
         * **volume_reservoir**: reservoir volume [m3]
 
         If glaciers, also adds:
+
         * **glacierstore**: water within the glacier [mm]
+
+        If paddy, also adds:
+
+        * **h_paddy**: water on the paddy fields [mm]
 
         Parameters
         ----------
