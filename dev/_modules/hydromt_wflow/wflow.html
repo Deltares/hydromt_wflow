@@ -28,7 +28,7 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
@@ -39,7 +39,7 @@
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/wflow';</script>
     <link rel="icon" href="../../_static/hydromt-icon.svg"/>
@@ -1300,27 +1300,28 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Kext&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;N&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;PathFrac&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;RootingDepth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Sl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Swood&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;WaterFrac&quot;</span><span class="p">,</span>
-        <span class="p">],</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;Kext&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.kext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="s2">&quot;input.lateral.land.n&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PathFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.pathfrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;RootingDepth&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.rootingdepth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Sl&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.specific_leaf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Swood&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.storage_wood&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;WaterFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.waterfrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alpha_h1&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.alpha_h1&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive several wflow maps based on landuse-landcover (LULC) data.</span>
 
-<span class="sd">        Lookup table `lulc_mapping_fn` columns are converted to lulc classes</span>
-<span class="sd">        model parameters based on literature. The data is remapped at its original</span>
-<span class="sd">        resolution and then resampled to the model resolution using the average</span>
-<span class="sd">        value, unless noted differently.</span>
+<span class="sd">        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model</span>
+<span class="sd">        parameters based on literature. The data is remapped at its original resolution</span>
+<span class="sd">        and then resampled to the model resolution using the average value, unless noted</span>
+<span class="sd">        differently.</span>
 
 <span class="sd">        Currently, if `lulc_fn` is set to the &quot;vito&quot;, &quot;globcover&quot;, &quot;esa_worldcover&quot;</span>
-<span class="sd">        or &quot;corine&quot;, default lookup tables are available and will be used if</span>
+<span class="sd">        &quot;corine&quot; or &quot;glmnco&quot;, default lookup tables are available and will be used if</span>
 <span class="sd">        `lulc_mapping_fn` is not provided.</span>
 
 <span class="sd">        Adds model layers:</span>
@@ -1333,20 +1334,27 @@
 <span class="sd">        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]</span>
 <span class="sd">        * **WaterFrac** map: The fraction of open water per grid cell [-]</span>
 <span class="sd">        * **N** map: Manning Roughness [-]</span>
+<span class="sd">        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1</span>
+<span class="sd">          (0 or 1) [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        lulc_fn : str, xarray.DataArray</span>
 <span class="sd">            Name of RasterDataset source in data_sources.yml file.</span>
 <span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame</span>
-<span class="sd">            Path to a mapping csv file from landuse in source name to</span>
-<span class="sd">            parameter values in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;,</span>
-<span class="sd">            &quot;corine&quot;, &quot;esa_worldcover&quot;}, a default mapping is used and this argument</span>
+<span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
+<span class="sd">            in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;,</span>
+<span class="sd">            &quot;esa_worldcover&quot;, &quot;glmnco&quot;}, a default mapping is used and this argument</span>
 <span class="sd">            becomes optional.</span>
-<span class="sd">        lulc_vars : list</span>
-<span class="sd">            List of landuse parameters to keep.</span>
-<span class="sd">            By default \</span>
-<span class="sd">[&quot;landuse&quot;,&quot;Kext&quot;,&quot;N&quot;,&quot;PathFrac&quot;,&quot;RootingDepth&quot;,&quot;Sl&quot;,&quot;Swood&quot;,&quot;WaterFrac&quot;]</span>
+<span class="sd">        lulc_vars : dict</span>
+<span class="sd">            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare</span>
+<span class="sd">            and their internal wflow name (or None to skip adding to the toml). By</span>
+<span class="sd">            default \</span>
+<span class="sd">{&quot;landuse&quot;: None, &quot;Kext&quot;: &quot;input.vertical.kext&quot;, &quot;N&quot;: &quot;input.lateral.land.n&quot;,</span>
+<span class="sd">        &quot;PathFrac&quot;: &quot;input.vertical.pathfrac&quot;, &quot;RootingDepth&quot;:</span>
+<span class="sd">        &quot;input.vertical.rootingdepth&quot;, &quot;Sl&quot;: &quot;input.vertical.specific_leaf&quot;, &quot;Swood&quot;:</span>
+<span class="sd">        &quot;input.vertical.storage_wood&quot;, &quot;WaterFrac&quot;: &quot;input.vertical.waterfrac&quot;,</span>
+<span class="sd">        &quot;alpha_h1&quot;: &quot;input.vertical.alpha_h1&quot;}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LULC parameter maps.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">lulc_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1367,11 +1375,16 @@
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
             <span class="n">df</span><span class="o">=</span><span class="n">df_map</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="n">lulc_vars</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">lulc_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+
+        <span class="c1"># Add entries to the config</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">wflow_param</span> <span class="ow">in</span> <span class="n">lulc_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">wflow_param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">wflow_param</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.setup_laimaps">
