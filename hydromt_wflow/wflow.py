@@ -3794,6 +3794,7 @@ change name input.path_forcing "
         buffer=0,
         align=None,
         crs=4326,
+        inverse: bool = False,
     ):
         """Clip grid to subbasin.
 
@@ -3832,6 +3833,8 @@ change name input.path_forcing "
                 flwdir_name=flwdir_name,
                 **region,
             )
+        if inverse:
+            geom = self.basins.overlay(geom, how="difference")
         # clip based on subbasin args, geom or bbox
         if geom is not None:
             ds_grid = self.grid.raster.clip_geom(geom, align=align, buffer=buffer)
@@ -3954,6 +3957,17 @@ change name input.path_forcing "
             "Will be removed in hydromt_wflow v0.6.0"
         )
         self.clip_grid(region, buffer, align, crs)
+
+    def clip_geoms(
+        self,
+        crs=4326,
+        **kwargs,
+    ):
+        """Clip the geometries based on new grid."""
+        for key, geom in self.geoms.items():
+            self.geoms[key] = geom.clip(
+                self.basins.dissolve(),
+            )
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
