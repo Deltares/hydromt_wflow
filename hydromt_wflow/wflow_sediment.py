@@ -361,9 +361,9 @@ in lulc_vars.
             Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
             and their internal wflow name (or None to skip adding to the toml). By
             default: \
-{"landuse": None, "Kext": "input.vertical.kext", "PathFrac": "input.vertical.pathfrac",
-        "Sl": "input.vertical.specific_leaf", "Swood": "input.vertical.storage_wood",
-        "USLE_C": "input.vertical.usleC"}
+{"landuse": None, "Kext": "input.vertical.kext", "PathFrac": \
+"input.vertical.pathfrac", "Sl": "input.vertical.specific_leaf", "Swood": \
+"input.vertical.storage_wood", "USLE_C": "input.vertical.usleC"}
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
