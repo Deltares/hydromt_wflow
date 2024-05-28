@@ -25,7 +25,12 @@ EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 def example_wflow_model():
     logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    mod = WflowModel(root=root, mode="r", data_libs="artifact_data", logger=logger)
+    mod = WflowModel(
+        root=root,
+        mode="r",
+        data_libs=["artifact_data"],
+        logger=logger,
+    )
     return mod
 
 
@@ -34,7 +39,10 @@ def example_sediment_model():
     logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
-        root=root, mode="r", data_libs="artifact_data", logger=logger
+        root=root,
+        mode="r",
+        data_libs=["artifact_data"],
+        logger=logger,
     )
     return mod
 
@@ -76,7 +84,11 @@ def example_wflow_results():
 @pytest.fixture()
 def clipped_wflow_model():
     root = join(EXAMPLEDIR, "wflow_piave_clip")
-    mod = WflowModel(root=root, mode="r", data_libs="artifact_data")
+    mod = WflowModel(
+        root=root,
+        mode="r",
+        data_libs=["artifact_data"],
+    )
     return mod
 
 
