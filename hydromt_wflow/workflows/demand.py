@@ -453,8 +453,8 @@ def add_crop_maps(
         )
         # Map values to the correct mask
         tmp = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, irrigated_highres, 0)
-        # Fill missing values with the default crop factor (as it can happen that not all
-        # cells are covered in this data)
+        # Fill missing values with the default crop factor (as it can happen that not
+        # all cells are covered in this data)
         tmp = tmp.where(~tmp.isnull(), default_value)
         # Add data to crop_factop map
         crop_map = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, tmp, crop_map)

@@ -953,8 +953,7 @@ def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
     assert kvfrac_values[2] != 1.0
     assert kvfrac_values[5] == 1.0
 
-    # assert ds.kvfrac.raster.mask_nodata().mean().values == 1.0 # TODO: fix test for when paddys are present
-    # Test values for updated C # TODO: fix test for when paddys are present
+    # Test values for updated C
     c_values = ds.c.sel(latitude=45.89, longitude=12.10, method="nearest").values
     assert np.isclose(c_values[0], 9.220022)
     assert np.isclose(c_values[2], 9.553196)
