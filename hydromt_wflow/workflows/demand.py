@@ -446,6 +446,8 @@ def add_crop_maps(
     ds_rain: xr.Dataset,
     ds_irri: xr.Dataset,
     mod,
+    do_paddy: bool,
+    do_nonpaddy: bool,
     paddy_value: int,
     default_value: float,
     map_type: str = "crop_factor",
@@ -494,19 +496,23 @@ def add_crop_maps(
     )
 
     # Add paddy values
-    crop_map = xr.where(mod.grid["paddy_irrigation_areas"] == 1, paddy_value, crop_map)
+    if do_paddy:
+        crop_map = xr.where(
+            mod.grid["paddy_irrigation_areas"] == 1, paddy_value, crop_map
+        )
 
-    # Resample to model resolution
-    irrigated_highres = ds_irri[ds_layer_name].raster.reproject_like(
-        mod.grid.wflow_subcatch
-    )
-    # Map values to the correct mask
-    tmp = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, irrigated_highres, 0)
-    # Fill missing values with the default crop factor (as it can happen that not all
-    # cells are covered in this data)
-    tmp = tmp.where(~tmp.isnull(), default_value)
-    # Add data to crop_factop map
-    crop_map = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, tmp, crop_map)
+    if do_nonpaddy:
+        # Resample to model resolution
+        irrigated_highres = ds_irri[ds_layer_name].raster.reproject_like(
+            mod.grid.wflow_subcatch
+        )
+        # Map values to the correct mask
+        tmp = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, irrigated_highres, 0)
+        # Fill missing values with the default crop factor (as it can happen that not
+        # all cells are covered in this data)
+        tmp = tmp.where(~tmp.isnull(), default_value)
+        # Add data to crop_factop map
+        crop_map = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, tmp, crop_map)
 
     return crop_map
 

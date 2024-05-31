@@ -853,7 +853,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     assert int(ind_mean * 10000) == 829
 
 
-def test_setup_irrigation(example_wflow_model, tmpdir):
+def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(
@@ -884,12 +884,59 @@ def test_setup_irrigation(example_wflow_model, tmpdir):
     ds = example_wflow_model.grid
 
     # Assert entries
-    assert "paddy_irrigation_areas" in ds
+    assert "paddy_irrigation_areas" not in ds
     assert "nonpaddy_irrigation_areas" in ds
     assert "crop_factor" in ds
     assert "c" in ds
-    assert "kvfrac" in ds
+    assert "kvfrac" not in ds
     assert "irrigation_trigger" in ds
+
+    # Assert the irrigation_trigger map has the same shape as LAI
+    assert ds.irrigation_trigger.shape[0] == ds.LAI.shape[0]
+
+    # There is no paddy in this region
+    assert ds.nonpaddy_irrigation_areas.raster.mask_nodata().sum().values == 9
+    assert np.isclose(ds.crop_factor.raster.mask_nodata().mean().values, 1.01844)
+    # Check if more irrigation is allowed during summer than winter
+    assert (
+        ds.irrigation_trigger.raster.mask_nodata().sel(time=2).sum().values
+        < ds.irrigation_trigger.raster.mask_nodata().sel(time=8).sum().values
+    )
+
+
+def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+
+    # Settings to be used for updating and checking later
+    layers = [50, 100, 50, 200, 800]
+
+    # Note: 11 this not NOT a rice class, but chosen just for testing purposes
+    example_wflow_model.setup_irrigation(
+        irrigated_area_fn="irrigated_area",
+        landuse_fn="glcnmo",
+        paddy_class=11,
+        area_threshold=0.6,
+        crop_irrigated_fn="mirca_irrigated_data",
+        crop_rainfed_fn="mirca_rainfed_data",
+        crop_info_fn="mirca_crop_info",
+        wflow_thicknesslayers=layers,
+        target_conductivity=[None, None, 5, None, None],
+        lai_threshold=0.2,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid
+
+    # Assert entries
+    assert "paddy_irrigation_areas" in ds
+    assert "kvfrac" in ds
 
     # Assert layers are updated
     assert example_wflow_model.config["model"]["thicknesslayers"] == layers
@@ -898,25 +945,19 @@ def test_setup_irrigation(example_wflow_model, tmpdir):
     assert ds.c.shape[0] == len(layers) + 1
     assert ds.kvfrac.shape[0] == len(layers) + 1
 
-    # Assert the irrigation_trigger map has the same shape as LAI
-    assert ds.irrigation_trigger.shape[0] == ds.LAI.shape[0]
+    # Test kvfrac is not 1 at the right layer for a paddy cell
+    kvfrac_values = ds.kvfrac.sel(
+        latitude=45.89, longitude=12.10, method="nearest"
+    ).values
+    assert kvfrac_values[0] == 1.0
+    assert kvfrac_values[2] != 1.0
+    assert kvfrac_values[5] == 1.0
 
-    # There is no paddy in this region
-    assert ds.paddy_irrigation_areas.raster.mask_nodata().sum().values == 0
-    assert ds.nonpaddy_irrigation_areas.raster.mask_nodata().sum().values == 9
-    # kvfrac should be equal to one, since there is no paddy in this basin
-    assert ds.kvfrac.raster.mask_nodata().mean().values == 1.0
-    assert np.isclose(ds.crop_factor.raster.mask_nodata().mean().values, 1.01844)
-    # Check if more irrigation is allowed during summer than winter
-    assert (
-        ds.irrigation_trigger.raster.mask_nodata().sel(time=2).sum().values
-        < ds.irrigation_trigger.raster.mask_nodata().sel(time=8).sum().values
-    )
     # Test values for updated C
-    c_values = ds.c.sel(latitude=45.90, longitude=12.05, method="nearest").values
-    assert np.isclose(c_values[0], 9.74654)
-    assert np.isclose(c_values[2], 10.567758)
-    assert np.isclose(c_values[5], 12.487115)
+    c_values = ds.c.sel(latitude=45.89, longitude=12.10, method="nearest").values
+    assert np.isclose(c_values[0], 9.220022)
+    assert np.isclose(c_values[2], 9.553196)
+    assert np.isclose(c_values[5], 9.849495)
 
 
 def test_setup_cold_states(example_wflow_model, tmpdir):

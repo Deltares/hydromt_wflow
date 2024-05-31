@@ -3356,21 +3356,31 @@ Run setup_soilmaps first"
             da_model=self.grid[self._MAPS["basins"]].raster.mask_nodata(),
             threshold=area_threshold,
         )
-
-        # Add maps to grid
-        self.set_grid(wflow_paddy, name=self._MAPS["paddy_area"])
-        self.set_grid(wflow_nonpaddy, name=self._MAPS["nonpaddy_area"])
-
-        # Update config
-        self.set_config("model.water_demand.paddy", True)
-        self.set_config("model.water_demand.nonpaddy", True)
-        self.set_config(
-            "input.vertical.paddy.irrigation_areas", self._MAPS["paddy_area"]
+        # Check if paddy and non paddy are present
+        do_paddy = True if wflow_paddy.raster.mask_nodata().sum().values != 0 else False
+        do_nonpaddy = (
+            True if wflow_nonpaddy.raster.mask_nodata().sum().values != 0 else False
         )
-        self.set_config(
-            "input.vertical.nonpaddy.irrigation_areas", self._MAPS["nonpaddy_area"]
-        )
-        self.set_config("state.vertical.paddy.h", "h_paddy")
+
+        self.set_config("model.water_demand.paddy", do_paddy)
+        self.set_config("model.water_demand.nonpaddy", do_nonpaddy)
+
+        if do_paddy:
+            # Add maps to grid
+            self.set_grid(wflow_paddy, name=self._MAPS["paddy_area"])
+            # Update config
+            self.set_config(
+                "input.vertical.paddy.irrigation_areas", self._MAPS["paddy_area"]
+            )
+            self.set_config("state.vertical.paddy.h", "h_paddy")
+
+        if do_nonpaddy:
+            # Add maps to grid
+            self.set_grid(wflow_nonpaddy, name=self._MAPS["nonpaddy_area"])
+            # Update config
+            self.set_config(
+                "input.vertical.nonpaddy.irrigation_areas", self._MAPS["nonpaddy_area"]
+            )
 
         # Add crop factor information
         self.logger.info("Preparing crop factor maps.")
@@ -3393,6 +3403,8 @@ Run setup_soilmaps first"
             ds_rain=crop_rainfed_ds,
             ds_irri=crop_irrigated_ds,
             paddy_value=rice_value,
+            do_paddy=do_paddy,
+            do_nonpaddy=do_nonpaddy,
             mod=self,
             default_value=1.0,
             map_type="crop_factor",
@@ -3416,7 +3428,12 @@ Run setup_soilmaps first"
 
         # Update thickness layers, only when different layers are requested
         update_c = True
-        if len(self.get_config("model.thicknesslayers")) == len(wflow_thicknesslayers):
+        if do_paddy == False:
+            self.logger.info("No paddy field found, will not update the thickness")
+            update_c = False
+        elif len(self.get_config("model.thicknesslayers")) == len(
+            wflow_thicknesslayers
+        ):
             if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
                 self.logger.info(
                     "same thickness already present, skipping updating `c` parameter"
@@ -3468,24 +3485,29 @@ Run setup_soilmaps first"
         # required depth Find value at the bottom of the required layer and infer
         # required correction factor for that layer Values are only set for locations
         # with paddy irrigation, all other cells are set to be equal to 1
-        kv0 = self.grid[self._MAPS["ksat_ver"]]
-        f = self.grid[self._MAPS["f"]]
-        paddy_mask = self.grid[self._MAPS["paddy_area"]]
-        kv0_mask = kv0.where(paddy_mask == 1)
-        f_mask = f.where(paddy_mask == 1)
+        if do_paddy:
+            self.logger.info("Adding kvfrac map")
+            kv0 = self.grid[self._MAPS["ksat_ver"]]
+            f = self.grid[self._MAPS["f"]]
+            paddy_mask = wflow_paddy
+            kv0_mask = kv0.where(paddy_mask == 1)
+            f_mask = f.where(paddy_mask == 1)
 
-        # Compute the kv_frac
-        da_kvfrac = workflows.demand.update_kvfrac(
-            ds_model=self.grid,
-            kv0_mask=kv0_mask,
-            f_mask=f_mask,
-            wflow_thicknesslayers=wflow_thicknesslayers,
-            target_conductivity=target_conductivity,
-        )
+            # Compute the kv_frac
+            da_kvfrac = workflows.demand.update_kvfrac(
+                ds_model=self.grid,
+                kv0_mask=kv0_mask,
+                f_mask=f_mask,
+                wflow_thicknesslayers=wflow_thicknesslayers,
+                target_conductivity=target_conductivity,
+            )
 
-        # Add to grid and config
-        self.grid[self._MAPS["kvfrac"]] = da_kvfrac
-        self.set_config("input.vertical.kvfrac", self._MAPS["kvfrac"])
+            # Add to grid and config
+            self.grid[self._MAPS["kvfrac"]] = da_kvfrac
+            self.set_config("input.vertical.kvfrac", self._MAPS["kvfrac"])
+
+        else:
+            self.logger.info("No paddy fields found, skipping setting the kvfrac map")
 
         # Add irrigation_trigger based on LAI values
         irri_trigger = workflows.demand.calc_lai_threshold(
@@ -3497,7 +3519,16 @@ Run setup_soilmaps first"
         self.set_grid(irri_trigger, name=self._MAPS["irrigation_trigger"])
 
         # Update config
-        for paddy_class in ["paddy", "nonpaddy"]:
+        if do_paddy and do_nonpaddy:
+            paddy_classes = ["paddy", "nonpaddy"]
+        elif do_paddy:
+            paddy_classes = ["paddy"]
+        elif do_nonpaddy:
+            paddy_classes = ["nonpaddy"]
+        else:
+            paddy_classes = []
+
+        for paddy_class in paddy_classes:
             self.set_config(
                 f"input.vertical.{paddy_class}.irrigation_trigger",
                 self._MAPS["irrigation_trigger"],
@@ -3512,16 +3543,19 @@ Run setup_soilmaps first"
 
         for key, values in additional_parameters.items():
             # If the key starts with vertical, assume it should be set as a constant
-            # value
+            # value (only do this if paddy/nonpaddy fields are found)
             if key.startswith("vertical"):
                 for subkey, value in values.items():
-                    self.set_config(f"input.{key}.{subkey}.value", value)
+                    if subkey.startswith("paddy") and do_paddy:
+                        self.set_config(f"input.{key}.{subkey}.value", value)
+                    elif subkey.startswith("nonpaddy") and do_nonpaddy:
+                        self.set_config(f"input.{key}.{subkey}.value", value)
             # If the key is `h_values` add maps with those values (masked for paddy) and
-            # add the 5 layers
-            elif key == "h_values":
+            # add the 5 layers (only when irrigation is present)
+            elif key == "h_values" and (do_paddy or do_nonpaddy):
                 for idx, h_name in enumerate(h_names):
                     da = xr.where(
-                        self.grid[self._MAPS["paddy_area"]] == 1,
+                        wflow_paddy == 1,
                         values["paddy"][idx],
                         values["nonpaddy"][idx],
                     )
