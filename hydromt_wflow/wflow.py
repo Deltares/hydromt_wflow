@@ -3048,6 +3048,7 @@ Run setup_soilmaps first"
             When `allocation_areas` is provided, the source areas created by the
             `setup_allocation_areas` will be used for this setup method.
         """
+        self.logger.info("Preparing surface water fraction map.")
         # Load the data
         gwfrac_raw = self.data_catalog.get_rasterdataset(
             gwfrac_fn,
@@ -3067,6 +3068,7 @@ Run setup_soilmaps first"
 
         # check wether to use the models own allocation areas
         if waterareas_fn == "allocation_areas":
+            self.logger("Using wflow model allocation areas.")
             waterareas = self.grid[waterareas_fn]
         else:
             waterareas = self.data_catalog.get_rasterdataset(
