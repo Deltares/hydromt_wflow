@@ -10,7 +10,7 @@ from affine import Affine
 from hydromt.raster import full_from_transform, full_like
 from scipy.ndimage import convolve
 
-__all__ = ["allocation_areas", "non_irrigation"]
+__all__ = ["allocation_areas", "non_irrigation", "waterfrac_cell"]
 
 map_vars = {
     "dom": "domestic",
@@ -298,6 +298,61 @@ def allocation_areas(
 
     alloc.name = "allocation_areas"
     return alloc
+
+
+def waterfrac_cell(
+    ds_like: xr.Dataset,
+    gwfrac: xr.DataArray,
+    gwbodies: xr.DataArray,
+    ncfrac: xr.DataArray,
+    waterareas: xr.DataArray,
+) -> xr.DataArray:
+    """_summary_."""
+    # Resample the data to model resolution
+    gwfrac_mr = gwfrac.raster.reproject_like(
+        ds_like,
+        method="nearest",
+    )
+    gwfrac_mr.load()
+    gwbodies_mr = gwbodies.raster.reproject_like(
+        ds_like,
+        method="nearest",
+    )
+    gwbodies_mr.load()
+    ncfrac_mr = ncfrac.raster.reproject_like(
+        ds_like,
+        method="nearest",
+    )
+    ncfrac_mr.load()
+    waterareas_mr = waterareas.raster.reproject_like(
+        ds_like,
+        method="nearest",
+    )
+    waterareas_mr = waterareas_mr.where(waterareas_mr != waterareas_mr.raster.nodata, 0)
+    waterareas_mr.load()
+
+    # Get the fractions based on area count
+    w_pixels = np.take(
+        np.bincount(
+            waterareas_mr.values.flatten(), weights=gwbodies_mr.values.flatten()
+        ),
+        waterareas_mr.values,
+    )
+    a_pixels = np.take(
+        np.bincount(
+            waterareas_mr.values.flatten(),
+            weights=gwbodies_mr.values.flatten() * 0.0 + 1.0,
+        ),
+        waterareas_mr.values,
+    )
+
+    w_frac = np.minimum(
+        gwfrac_mr * (a_pixels / (w_pixels + 0.01)),
+        1 - ncfrac_mr,
+    )
+    w_frac = w_frac.where(gwbodies_mr != 0, 0)
+
+    return 1 - w_frac
 
 
 def classify_pixels(

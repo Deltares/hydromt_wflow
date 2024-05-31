@@ -3011,6 +3011,52 @@ Run setup_soilmaps first"
         # Add alloc to geoms
         self.set_geoms(alloc.raster.vectorize(), name=self._MAPS["allocation_areas"])
 
+    def setup_surfacewater_frac(
+        self,
+        gwfrac_fn: Union[str, xr.DataArray],
+        gwbodies_fn: Union[str, xr.DataArray],
+        ncfrac_fn: Union[str, xr.DataArray],
+        waterareas_fn: Union[str, xr.DataArray],
+    ):
+        """_summary_."""
+        # Load the data
+        gwfrac_raw = self.data_catalog.get_rasterdataset(
+            gwfrac_fn,
+            geom=self.region,
+            buffer=2,
+        )
+        gwbodies = self.data_catalog.get_rasterdataset(
+            gwbodies_fn,
+            geom=self.region,
+            buffer=2,
+        )
+        ncfrac = self.data_catalog.get_rasterdataset(
+            ncfrac_fn,
+            geom=self.region,
+            buffer=2,
+        )
+
+        # check wether to use the models own allocation areas
+        if waterareas_fn == "allocation_areas":
+            waterareas = self.grid[waterareas_fn]
+        else:
+            waterareas = self.data_catalog.get_rasterdataset(
+                waterareas_fn,
+                geom=self.region,
+                buffer=2,
+            )
+
+        # Call the workflow
+        w_frac = workflows.demand.waterfrac_cell(
+            self.grid,
+            gwfrac=gwfrac_raw,
+            gwbodies=gwbodies,
+            ncfrac=ncfrac,
+            waterareas=waterareas,
+        )
+
+        self.set_grid(w_frac, name="surfacewaterfrac")
+
     def setup_non_irrigation(
         self,
         non_irrigation_fn: Union[str, dict, xr.Dataset],
