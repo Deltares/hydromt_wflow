@@ -3068,7 +3068,7 @@ Run setup_soilmaps first"
 
         # check wether to use the models own allocation areas
         if waterareas_fn == "allocation_areas":
-            self.logger("Using wflow model allocation areas.")
+            self.logger.info("Using wflow model allocation areas.")
             waterareas = self.grid[waterareas_fn]
         else:
             waterareas = self.data_catalog.get_rasterdataset(
