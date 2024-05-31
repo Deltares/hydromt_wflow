@@ -10,7 +10,7 @@ from affine import Affine
 from hydromt.raster import full_from_transform, full_like
 from scipy.ndimage import convolve
 
-__all__ = ["allocation_areas", "non_irrigation", "waterfrac_cell"]
+__all__ = ["allocation_areas", "non_irrigation", "surfacewaterfrac"]
 
 map_vars = {
     "dom": "domestic",
@@ -300,59 +300,105 @@ def allocation_areas(
     return alloc
 
 
-def waterfrac_cell(
-    ds_like: xr.Dataset,
-    gwfrac: xr.DataArray,
+def surfacewaterfrac(
+    da_like: xr.DataArray,
+    gwfrac_raw: xr.DataArray,
     gwbodies: xr.DataArray,
     ncfrac: xr.DataArray,
     waterareas: xr.DataArray,
 ) -> xr.DataArray:
-    """_summary_."""
+    """_summary_.
+
+    _extended_summary_
+
+    Parameters
+    ----------
+    da_like : xr.DataArray
+        _description_
+    gwfrac_raw : xr.DataArray
+        _description_
+    gwbodies : xr.DataArray
+        _description_
+    ncfrac : xr.DataArray
+        _description_
+    waterareas : xr.DataArray
+        _description_
+
+    Returns
+    -------
+    xr.DataArray
+        _description_
+    """
     # Resample the data to model resolution
-    gwfrac_mr = gwfrac.raster.reproject_like(
-        ds_like,
+    gwfrac_raw_mr = gwfrac_raw.raster.reproject_like(
+        da_like,
         method="nearest",
     )
-    gwfrac_mr.load()
+    x, y = np.where(~np.isnan(gwfrac_raw_mr))
     gwbodies_mr = gwbodies.raster.reproject_like(
-        ds_like,
+        da_like,
         method="nearest",
     )
-    gwbodies_mr.load()
     ncfrac_mr = ncfrac.raster.reproject_like(
-        ds_like,
+        da_like,
         method="nearest",
     )
-    ncfrac_mr.load()
     waterareas_mr = waterareas.raster.reproject_like(
-        ds_like,
+        da_like,
         method="nearest",
     )
-    waterareas_mr = waterareas_mr.where(waterareas_mr != waterareas_mr.raster.nodata, 0)
-    waterareas_mr.load()
+    waterareas_mr = waterareas_mr.where(
+        waterareas_mr != waterareas_mr.raster.nodata,
+        0,
+    )
 
     # Get the fractions based on area count
     w_pixels = np.take(
         np.bincount(
-            waterareas_mr.values.flatten(), weights=gwbodies_mr.values.flatten()
+            waterareas_mr.values[x, y],
+            weights=gwbodies_mr.values[x, y],
         ),
-        waterareas_mr.values,
+        waterareas_mr.values[x, y],
     )
     a_pixels = np.take(
         np.bincount(
-            waterareas_mr.values.flatten(),
-            weights=gwbodies_mr.values.flatten() * 0.0 + 1.0,
+            waterareas_mr.values[x, y],
+            weights=gwbodies_mr.values[x, y] * 0.0 + 1.0,
         ),
-        waterareas_mr.values,
+        waterareas_mr.values[x, y],
     )
 
-    w_frac = np.minimum(
-        gwfrac_mr * (a_pixels / (w_pixels + 0.01)),
-        1 - ncfrac_mr,
+    # Determine the groundwater fraction
+    gwfrac_val = np.minimum(
+        gwfrac_raw_mr.values[x, y] * (a_pixels / (w_pixels + 0.01)),
+        1 - ncfrac_mr.values[x, y],
     )
-    w_frac = w_frac.where(gwbodies_mr != 0, 0)
+    gwfrac_val[np.where(gwbodies_mr.values[x, y] == 0)] = 0
+    # invert to get surface water frac
+    gwfrac_val = 1 - gwfrac_val
 
-    return 1 - w_frac
+    # create the dataarray for the fraction
+    gwfrac = xr.full_like(
+        gwfrac_raw_mr,
+        fill_value=np.nan,
+        dtype=np.float32,
+    ).load()
+    gwfrac.name = "SurfaceWaterFrac"
+    gwfrac.attrs = {"_FillValue": -9999}
+    gwfrac = gwfrac.copy()
+
+    # Set and interpolate the values
+    gwfrac.values[x, y] = gwfrac_val
+    gwfrac = gwfrac.interpolate_na(dim=gwfrac.raster.x_dim, method="linear")
+    gwfrac = gwfrac.interpolate_na(
+        dim=gwfrac.raster.x_dim, method="linear", fill_value="extrapolate"
+    )
+
+    # Set the nodata values based on the dem of the model (da_like)
+    gwfrac = gwfrac.where(da_like != da_like.raster.nodata, -9999)
+
+    # Return surface water frac
+    return gwfrac
 
 
 def classify_pixels(
