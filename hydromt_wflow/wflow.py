@@ -2967,7 +2967,7 @@ Run setup_soilmaps first"
         The areas are based on the wflow model basins (at model resolution), the
         wflow model rivers and optional provided administrative boundaries.
 
-        The allocations area will be an intersection the the wflow model basins and the
+        The allocation area will be an intersection the the wflow model basins and the
         administrative boundaries (if provided). Small area that do not contain any
         river cells will be merged with their larger bordering neighbors. The same
         is done for those areas (even if they contain river cells) that fall under the
@@ -3044,9 +3044,9 @@ Run setup_soilmaps first"
             `gwfrac_fn`.
         waterareas_fn : Union[str, xr.DataArray]
             The areas over which the water has to be distributed. This may either be
-            a global (or more local map) or it may be defined as `source_areas`.
-            When `source_areas` is provided, the source areas created by the
-            `setup_water_source_areas` will be used for this setup method.
+            a global (or more local map) or it may be defined as `allocation_areas`.
+            When `allocation_areas` is provided, the source areas created by the
+            `setup_allocation_areas` will be used for this setup method.
         """
         # Load the data
         gwfrac_raw = self.data_catalog.get_rasterdataset(
