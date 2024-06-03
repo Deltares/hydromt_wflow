@@ -1952,6 +1952,50 @@ a map for each of the wflow_sbm soil layers (n in total)
         # Update the toml file
         self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
+    def setup_groundwater(
+        self,
+        layers_fn: Union[str, xr.Dataset],
+        linktable_fn: Union[str, pd.DataFrame],
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        layers_fn : Union[str, xr.Dataset]
+            _description_
+        conductitivty_fn : Union[str, pd.DataFrame]
+            _description_
+        """
+        # Get the data
+        layers = self.data_catalog.get_rasterdataset(
+            layers_fn,
+            geom=self.region,
+            buffer=2,
+        )
+        linktable = self.data_catalog.get_dataframe(
+            linktable_fn,
+        )
+
+        # Go through the groundwater workflows and set the data
+        workflows.acquifer_thickness(
+            self.grid,
+            layers,
+        )
+        workflows.conductivity(
+            self.grid,
+            layers,
+            linktable,
+        )
+        workflows.constant_boundary(
+            self.grid,
+        )
+
+        # Set the config file
+
+        pass
+
     def setup_ksathorfrac(
         self,
         ksat_fn: Union[str, xr.DataArray],
