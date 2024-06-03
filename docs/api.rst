@@ -37,6 +37,7 @@ Setup components
    WflowModel.setup_lulcmaps
    WflowModel.setup_laimaps
    WflowModel.setup_allocation_areas
+   WflowModel.setup_surfacewaterfrac
    WflowModel.setup_non_irrigation
    WflowModel.setup_irrigation
    WflowModel.setup_ksathorfrac
@@ -245,6 +246,7 @@ Wflow workflows
    :toctree: _generated
 
    workflows.allocation_areas
+   wokrflows.surfacewaterfrac
    workflows.non_irrigation
    workflows.hydrography
    workflows.topography

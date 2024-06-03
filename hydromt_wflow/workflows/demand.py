@@ -306,29 +306,33 @@ def surfacewaterfrac(
     gwbodies: xr.DataArray,
     ncfrac: xr.DataArray,
     waterareas: xr.DataArray,
+    interpolate: bool = True,
 ) -> xr.DataArray:
-    """_summary_.
-
-    _extended_summary_
+    """Create surface water fraction map.
 
     Parameters
     ----------
     da_like : xr.DataArray
-        _description_
+        Wflow model like grid.
     gwfrac_raw : xr.DataArray
-        _description_
+        Raw groundwater fraction data map.
     gwbodies : xr.DataArray
-        _description_
+        Groundwater bodies map. Either 0 or 1.
     ncfrac : xr.DataArray
-        _description_
+        Non-conventional water fraction.
     waterareas : xr.DataArray
-        _description_
+        Water source areas.
+    interpolate : bool
+        Interpolate missing data values within wflow model domain.
 
     Returns
     -------
     xr.DataArray
-        _description_
+        Surface water fraction.
     """
+    # Mask to int value for later use
+    da_like = da_like.raster.mask_nodata(-9999)
+
     # Resample the data to model resolution
     gwfrac_raw_mr = gwfrac_raw.raster.reproject_like(
         da_like,
@@ -343,10 +347,17 @@ def surfacewaterfrac(
         da_like,
         method="nearest",
     )
+    # Prepare the nodata a little as lisflood data has none set by default
+    waterareas = waterareas.raster.mask_nodata(-9999)
+    if "_FillValue" not in waterareas.attrs:
+        waterareas = waterareas.assign_attrs({"_FillValue": -9999})
+    # Reproject
     waterareas_mr = waterareas.raster.reproject_like(
         da_like,
         method="nearest",
     )
+    # waterareas_mr = waterareas_mr.raster.mask_nodata(-9999)
+    # Set nodata values to zeros
     waterareas_mr = waterareas_mr.where(
         waterareas_mr != waterareas_mr.raster.nodata,
         0,
@@ -378,27 +389,28 @@ def surfacewaterfrac(
     gwfrac_val = 1 - gwfrac_val
 
     # create the dataarray for the fraction
-    gwfrac = xr.full_like(
+    swfrac = xr.full_like(
         gwfrac_raw_mr,
         fill_value=np.nan,
         dtype=np.float32,
     ).load()
-    gwfrac.name = "SurfaceWaterFrac"
-    gwfrac.attrs = {"_FillValue": -9999}
-    gwfrac = gwfrac.copy()
+    swfrac.name = "SurfaceWaterFrac"
+    swfrac.attrs = {"_FillValue": -9999}
+    swfrac = swfrac.copy()
 
     # Set and interpolate the values
-    gwfrac.values[x, y] = gwfrac_val
-    gwfrac = gwfrac.interpolate_na(dim=gwfrac.raster.x_dim, method="linear")
-    gwfrac = gwfrac.interpolate_na(
-        dim=gwfrac.raster.x_dim, method="linear", fill_value="extrapolate"
-    )
+    swfrac.values[x, y] = gwfrac_val
+    if interpolate:
+        swfrac = swfrac.interpolate_na(dim=swfrac.raster.x_dim, method="linear")
+        swfrac = swfrac.interpolate_na(
+            dim=swfrac.raster.x_dim, method="linear", fill_value="extrapolate"
+        )
 
     # Set the nodata values based on the dem of the model (da_like)
-    gwfrac = gwfrac.where(da_like != da_like.raster.nodata, -9999)
+    swfrac = swfrac.where(da_like != da_like.raster.nodata, -9999)
 
     # Return surface water frac
-    return gwfrac
+    return swfrac
 
 
 def classify_pixels(

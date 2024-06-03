@@ -20,7 +20,7 @@ Added
 - **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
 - New function **setup_cold_states** to prepare cold states for WflowModel. PR #252
 - New utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
-- New functions (properly) for setting up water demand: **setup_allocation_areas**, **setup_non_irrigation** and **setup_irrigation**. `PR #226 <https://github.com/Deltares/hydromt_wflow/pull/226>`
+- New functions (properly) for setting up water demand: **setup_allocation_areas**, **setup_surfacewaterfrac**, **setup_non_irrigation** and **setup_irrigation**. `PR #226 <https://github.com/Deltares/hydromt_wflow/pull/226>`
 - Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
 - Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
 
