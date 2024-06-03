@@ -246,7 +246,7 @@ Wflow workflows
    :toctree: _generated
 
    workflows.allocation_areas
-   wokrflows.surfacewaterfrac
+   workflows.surfacewaterfrac
    workflows.non_irrigation
    workflows.hydrography
    workflows.topography
