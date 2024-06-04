@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 __all__ = ["landuse", "lai", "lulc_lai_mapping", "lai_from_lulc_mapping"]
 
 
-RESAMPLING = {"landuse": "nearest", "lai": "average"}
-DTYPES = {"landuse": np.int16}
+RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
+DTYPES = {"landuse": np.int16, "alpha_h1": np.int16}
 
 
 def landuse(

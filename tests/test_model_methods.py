@@ -828,7 +828,7 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     example_sediment_model.setup_lulcmaps(
         lulc_fn="globcover",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars=["USLE_C"],
+        lulc_vars={"USLE_C": "input.vertical.usleC"},
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,
