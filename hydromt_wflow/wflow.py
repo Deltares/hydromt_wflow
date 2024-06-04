@@ -1956,6 +1956,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         self,
         layers_fn: Union[str, xr.Dataset],
         linktable_fn: Union[str, pd.DataFrame],
+        layer_ids: list | tuple,
     ):
         """_summary_.
 
@@ -1973,25 +1974,48 @@ a map for each of the wflow_sbm soil layers (n in total)
             layers_fn,
             geom=self.region,
             buffer=2,
-        )
+        ).raster.mask_nodata()
+        layers = layers.where(layers > 0, np.nan)
+        if not all([item in layers.data_vars for item in layer_ids]):
+            raise ValueError("")
         linktable = self.data_catalog.get_dataframe(
             linktable_fn,
         )
 
-        # Go through the groundwater workflows and set the data
-        workflows.acquifer_thickness(
-            self.grid,
-            layers,
+        # Setup the boundary conditions
+        bounds = workflows.constant_boundary(
+            self.grid["wflow_dem"],
+            waterfrac=self.grid["WaterFrac"],
         )
-        workflows.conductivity(
-            self.grid,
-            layers,
-            linktable,
-        )
-        workflows.constant_boundary(
-            self.grid,
-        )
+        self.set_grid(bounds, name="Bounds_gw")
 
+        # Setup the layer(s) of the model
+        soil_layers, mask = workflows.soil_layers(
+            self.grid["wflow_dem"],
+            bounds=bounds.raster.mask_nodata(),
+            soil_thickness=self.grid["SoilThickness"] / 1000,
+            layers=layers,
+            layer_ids=layer_ids,
+        )
+        self.set_grid(soil_layers)
+
+        # Setup the layer parameters
+        soil_params = workflows.soil_parameters(
+            self.grid["wflow_dem"],
+            layers=layers,
+            linktable=linktable,
+            layer_ids=layer_ids,
+        )
+        self.set_grid(soil_params)
+
+        # Adjust f parameter
+        # TODO maybe more in the future
+        params = workflows.soil_adjust(
+            self.grid["wflow_dem"],
+            fparam=self.grid["f"],
+            mask=mask,
+        )
+        self.set_grid(params)
         # Set the config file
 
         pass
