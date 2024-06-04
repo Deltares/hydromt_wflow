@@ -44,7 +44,7 @@ a specific method see its documentation.
       - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
     * - :py:func:`~WflowSedimentModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
-    * - :py:func:`~WflowModel.setup_laimaps_from_lulc_mapping`
+    * - :py:func:`~WflowSedimentModel.setup_laimaps_from_lulc_mapping`
       - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
     * - :py:func:`~WflowSedimentModel.setup_canopymaps`
       - Setup sediments based canopy height maps.
@@ -54,17 +54,17 @@ a specific method see its documentation.
       - This component sets the river width parameter based on a power-lay relationship with a predictor.
     * - :py:func:`~WflowSedimentModel.setup_riverbedsed`
       - Setup sediments based river bed characteristics maps.
-    * - :py:func:`~WflowModel.setup_outlets`
+    * - :py:func:`~WflowSedimentModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
-    * - :py:func:`~WflowModel.setup_gauges`
+    * - :py:func:`~WflowSedimentModel.setup_gauges`
       - This method sets the default gauge map based on a gauges_fn data.
-    * - :py:func:`~WflowModel.setup_areamap`
+    * - :py:func:`~WflowSedimentModel.setup_areamap`
       - Setup area map from vector data to save wflow outputs for specific area.
-    * - :py:func:`~WflowModel.setup_config_output_timeseries`
+    * - :py:func:`~WflowSedimentModel.setup_config_output_timeseries`
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
     * - :py:func:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
-    * - :py:func:`~WflowModel.setup_grid_from_raster`
+    * - :py:func:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
 
 
