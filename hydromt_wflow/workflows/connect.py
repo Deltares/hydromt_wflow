@@ -19,10 +19,11 @@ def wflow_1dmodel_connection(
     gdf_riv: gpd.GeoDataFrame,
     ds_model: xr.Dataset,
     connection_method: str = "subbasin_area",
-    area_max: float = 10.0,
+    area_max: float = 30.0,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
     logger=logger,
+    **kwargs,
 ) -> xr.Dataset:
     """
     Connect wflow to a 1D model by deriving linked subcatchs (and tributaries).
@@ -43,6 +44,9 @@ def wflow_1dmodel_connection(
     If `add_tributary` option is on, you can decide to include or exclude the upstream
     boundary of the 1d river as an additionnal tributary using the
     `include_river_boundaries` option.
+
+    River edges or river nodes are snapped to the closest downstream wflow river
+    cell using the :py:meth:`hydromt.flw.gauge_map` method.
 
     Parameters
     ----------
@@ -65,6 +69,9 @@ def wflow_1dmodel_connection(
         tributary(ies).
     logger : logging.Logger, optional
         Logger object, by default logger
+    **kwargs
+        Additional keyword arguments passed to the snapping method
+        hydromt.flw.gauge_map. See its documentation for more information.
 
     Returns
     -------
@@ -73,6 +80,10 @@ def wflow_1dmodel_connection(
         subbasin map masked with river cells to be able to save river output with wflow
         and 'gauges' for the tributaries outflow locations (add_tributaries True or
         subbasin_area method).
+
+    See Also
+    --------
+    hydromt.flw.gauge_map
     """
     # Checks
     dvars_model = ["flwdir", "rivmsk", "rivlen", "uparea"]
@@ -84,14 +95,39 @@ def wflow_1dmodel_connection(
         gdf_riv = gdf_riv.to_crs(ds_model.raster.crs)
     # Derive flwdir
     flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
+    # Basin mask
+    basin_mask = ds_model["basins"].raster.vectorize()
+    basin_mask = basin_mask.buffer(-2 * max(ds_model.raster.res, key=abs))
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
     if connection_method == "subbasin_area" or add_tributaries:
+        # 0. Check that the max_area is not too small
+        # Should be bigger than the wflow river threshold
+        # Get from attrs if available for newer wflow models built with hydromt
+        riv_upa = ds_model["rivmsk"].attrs.get("river_upa", None)
+        if riv_upa is None:
+            # Derive from the uparea and rivmsk
+            riv_upa = xr.where(ds_model["rivmsk"] > 0, ds_model["uparea"], np.nan)
+            riv_upa = float(riv_upa.min())
+        if area_max < riv_upa:
+            new_area_max = np.ceil(riv_upa / 0.5) * 0.5
+            logger.warning(
+                f"The area_max {area_max} is smaller than the minimum upstream area of "
+                f"the wflow river {riv_upa} which means tributaries will "
+                "not be connected to the wflow river. Changing and setting area_max to "
+                f"{new_area_max} km2. "
+                f"To keep {area_max} km2 threshold, please update the wflow model to "
+                "include more detailed rivers."
+            )
+            area_max = new_area_max
+
         logger.info("Linking 1D river to wflow river")
         # 1. Derive the river edges / boundaries
         # merge multilinestrings in gdf_riv to linestrings
-        riv1d = gdf_riv.explode().reset_index(drop=True)
+        riv1d = gdf_riv.explode(index_parts=True).reset_index(drop=True)
+        # clip to basins
+        riv1d = riv1d.clip(basin_mask)
         # get the edges of the riv1d
         riv1d_edges = riv1d.geometry.apply(lambda x: Point(x.coords[0]))
         riv1d_edges = pd.concat(
@@ -105,14 +141,13 @@ def wflow_1dmodel_connection(
         )
 
         # 2. snap edges to wflow river
-        # TODO if uparea column in riv1d, use it to snap to the closest river
-        # based on upstream area
         da_edges, idxs, ids = hydromt.flw.gauge_map(
             ds_model,
             xy=(riv1d_edges.geometry.x, riv1d_edges.geometry.y),
             stream=ds_model["rivmsk"].values,
             flwdir=flwdir,
             logger=logger,
+            **kwargs,
         )
         points = gpd.points_from_xy(*ds_model.raster.idx_to_xy(idxs))
         # if csv contains additional columns, these are also written in the staticgeoms
@@ -132,7 +167,11 @@ def wflow_1dmodel_connection(
         # and which ones are the downstream ones (main river)
         # and should be split into subbasins
         # First intersect riv1d with gdf_edges_subbas
-        rivmerge = gpd.overlay(riv1d, gdf_edges_subbas).explode().reset_index(drop=True)
+        rivmerge = (
+            gpd.overlay(riv1d, gdf_edges_subbas)
+            .explode(index_parts=True)
+            .reset_index(drop=True)
+        )
         # Compute len of river
         if rivmerge.crs.is_geographic:
             rivmerge["len"] = rivmerge.geometry.to_crs(3857).length
@@ -146,7 +185,9 @@ def wflow_1dmodel_connection(
         subids = rivmerge.index[rivmerge > rivlen_avg * 5].values
         subcatch_to_split = gdf_edges_subbas[gdf_edges_subbas["value"].isin(subids)]
         subcatch_to_split = subcatch_to_split.to_crs(ds_model.raster.crs)
-        da_subcatch_to_split = ds_model.raster.rasterize(subcatch_to_split)
+        da_subcatch_to_split = ds_model.raster.rasterize(
+            subcatch_to_split, col_name="value"
+        ).astype(np.float32)
 
         # First tributaries are the edges that are not included in the subcatch_to_split
         gdf_tributaries = riv1d_edges[~riv1d_edges.index.isin(subids)]
@@ -184,6 +225,16 @@ def wflow_1dmodel_connection(
             & (flwdir.downstream(da_flwpaths) != da_flwpaths.raster.nodata),
             trib_msk.raster.nodata,
         )
+        # Make sure we vectorize to single cells and not to polygons for adjacent cells
+        trib_msk = trib_msk.stack(z=(trib_msk.raster.y_dim, trib_msk.raster.x_dim))
+        nodata = trib_msk.raster.nodata
+        trib_msk = trib_msk.where(trib_msk != nodata, drop=True)
+        trib_msk.values = np.arange(1, len(trib_msk) + 1)
+        trib_msk = trib_msk.unstack(fill_value=nodata)
+        trib_msk = trib_msk.reindex_like(
+            da_subcatch_to_split, fill_value=nodata
+        ).astype(np.int32)
+
         gdf_trib = trib_msk.raster.vectorize()
         # Test if there gdf_trib is empty
         if gdf_trib.empty:
@@ -251,6 +302,8 @@ def wflow_1dmodel_connection(
         logger.info("Deriving subbasins based on 1D river nodes snapped to wflow river")
         # from multiline to line
         gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
+        # Clip to basin
+        gdf_riv = gdf_riv.clip(basin_mask)
         nodes = []
         for bi, branch in gdf_riv.iterrows():
             nodes.append([Point(branch.geometry.coords[0]), bi])  # start
@@ -261,11 +314,21 @@ def wflow_1dmodel_connection(
         # Drop duplicates geometry
         gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep="first")]
         gdf_nodes.index = np.arange(1, len(gdf_nodes) + 1)
+        # Snap the nodes to the wflow river
+        da_nodes, idxs, ids = hydromt.flw.gauge_map(
+            ds_model,
+            xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
+            stream=ds_model["rivmsk"].values,
+            flwdir=flwdir,
+            logger=logger,
+            **kwargs,
+        )
         # Derive subbasins
         da_subbasins, _ = hydromt.flw.basin_map(
             ds_model,
             flwdir=flwdir_mask,
-            xy=(gdf_nodes.geometry.x, gdf_nodes.geometry.y),
+            idxs=idxs,
+            ids=ids,
             stream=ds_model["rivmsk"].values,
         )
         da_subbasins.raster.set_crs(ds_model.raster.crs)

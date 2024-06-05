@@ -2810,12 +2810,13 @@ Run setup_soilmaps first"
         self,
         river1d_fn: Union[str, Path, gpd.GeoDataFrame],
         connection_method: str = "subbasin_area",
-        area_max: float = 10.0,
+        area_max: float = 30.0,
         add_tributaries: bool = True,
         include_river_boundaries: bool = True,
         mapname: str = "1dmodel",
         update_toml: bool = True,
         toml_output: str = "netcdf",
+        **kwargs,
     ):
         """
         Connect wflow to a 1D model by deriving linked subcatch (and tributaries).
@@ -2836,6 +2837,9 @@ Run setup_soilmaps first"
         If `add_tributary` option is on, you can decide to include or exclude the
         upstream boundary of the 1d river as an additional tributary using the
         `include_river_boundaries` option.
+
+        River edges or river nodes are snapped to the closest downstream wflow river
+        cell using the :py:meth:`hydromt.flw.gauge_map` method.
 
         Optionally, the toml file can also be updated to save lateral.river.inwater to
         save all river inflows for the subcatchments and lateral.river.q_av for the
@@ -2877,6 +2881,13 @@ Run setup_soilmaps first"
         toml_output : str, optional
             One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
             toml file or do nothing. By default, 'netcdf'.
+        **kwargs
+            Additional keyword arguments passed to the snapping method
+            hydromt.flw.gauge_map. See its documentation for more information.
+
+        See Also
+        --------
+        hydromt.flw.gauge_map
         """
         # Check connection method values
         if connection_method not in ["subbasin_area", "nodes"]:
@@ -2901,6 +2912,7 @@ Run setup_soilmaps first"
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
             logger=self.logger,
+            **kwargs,
         )
 
         # Derive tributary gauge map
@@ -2914,8 +2926,24 @@ Run setup_soilmaps first"
             )
             self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
 
+            # Add a check that all gauges are on the river
+            if (
+                self.grid[self._MAPS["rivmsk"]].raster.sample(gdf_tributary)
+                == self.grid[self._MAPS["rivmsk"]].raster.nodata
+            ).any():
+                river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get("river_upa", "")
+                self.logger.warning(
+                    "Not all tributary gauges are on the river network and river "
+                    "discharge canot be saved. You should use a higher threshold "
+                    f"for the subbasin area than {area_max} to match better the "
+                    f"wflow river in your model {river_upa}."
+                )
+                all_gauges_on_river = False
+            else:
+                all_gauges_on_river = True
+
             # Update toml
-            if update_toml:
+            if update_toml and all_gauges_on_river:
                 self.setup_config_output_timeseries(
                     mapname=f"wflow_gauges_{mapname}",
                     toml_output=toml_output,
