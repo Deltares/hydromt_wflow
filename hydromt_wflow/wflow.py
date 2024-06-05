@@ -1957,6 +1957,10 @@ a map for each of the wflow_sbm soil layers (n in total)
         layers_fn: Union[str, xr.Dataset],
         linktable_fn: Union[str, pd.DataFrame],
         layer_ids: list | tuple,
+        boundary_head: float | int = 0,
+        boundary_buffer: int = 3,
+        river_bot_offset: float | int = 0,
+        river_conductance: float = 200.0,
     ):
         """_summary_.
 
@@ -1966,9 +1970,23 @@ a map for each of the wflow_sbm soil layers (n in total)
         ----------
         layers_fn : Union[str, xr.Dataset]
             _description_
-        conductitivty_fn : Union[str, pd.DataFrame]
+        linktable_fn : Union[str, pd.DataFrame]
+            _description_
+        layer_ids : list | tuple
+            _description_
+        boundary_value : float | int, optional
+            _description_, by default 0
+        river_bot_offset : float | int, optional
+            _description_, by default 0
+        river_conductance : float, optional
+            _description_, by default 200.0
+
+        Raises
+        ------
+        ValueError
             _description_
         """
+        self.logger.info("Preparing the groundwater maps.")
         # Get the data
         layers = self.data_catalog.get_rasterdataset(
             layers_fn,
@@ -1983,13 +2001,16 @@ a map for each of the wflow_sbm soil layers (n in total)
         )
 
         # Setup the boundary conditions
+        self.logger.info("Setting up constant head boundary cells.")
         bounds = workflows.constant_boundary(
             self.grid["wflow_dem"],
             waterfrac=self.grid["WaterFrac"],
+            buffer=boundary_buffer,
         )
         self.set_grid(bounds, name="Bounds_gw")
 
         # Setup the layer(s) of the model
+        self.logger.info("Setting up unconfined acquifer thickness.")
         soil_layers, mask = workflows.soil_layers(
             self.grid["wflow_dem"],
             bounds=bounds.raster.mask_nodata(),
@@ -1997,9 +2018,10 @@ a map for each of the wflow_sbm soil layers (n in total)
             layers=layers,
             layer_ids=layer_ids,
         )
-        self.set_grid(soil_layers)
+        self.set_grid(soil_layers * 1000)
 
         # Setup the layer parameters
+        self.logger.info(f"Setting up soil pamaters based on: {linktable_fn}")
         soil_params = workflows.soil_parameters(
             self.grid["wflow_dem"],
             layers=layers,
@@ -2010,15 +2032,28 @@ a map for each of the wflow_sbm soil layers (n in total)
 
         # Adjust f parameter
         # TODO maybe more in the future
+        self.logger.info("Adjust the 'f' soil parameter.")
         params = workflows.soil_adjust(
             self.grid["wflow_dem"],
             fparam=self.grid["f"],
             mask=mask,
         )
         self.set_grid(params)
-        # Set the config file
 
-        pass
+        # Set the river bottom (dem - value)
+        self.set_grid(
+            self.grid["wflow_dem"] - river_bot_offset,
+            name="river_bottom",
+        )
+
+        # Set the config file
+        self.logger.warning("Changing model type from 'sbm' to 'sbm_gwf'")
+        self.logger.info("Setting groundwater config settings.")
+        workflows.update_soil_config(
+            self,
+            boundary_head=boundary_head,
+            river_conductance=river_conductance,
+        )
 
     def setup_ksathorfrac(
         self,
@@ -3150,7 +3185,10 @@ Run setup_soilmaps first"
         )
         self.read_grid(**kwargs)
 
-    def write_grid(self):
+    def write_grid(
+        self,
+        grid_fn: Path | str = None,
+    ):
         """
         Write grid to wflow static data file.
 
@@ -3184,16 +3222,20 @@ Run setup_soilmaps first"
             encoding[v] = {"_FillValue": None}
 
         # filename
-        fn_default = "staticmaps.nc"
-        fn = self.get_config(
-            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
-        )
+        if grid_fn is not None:
+            fn = join(self.root, grid_fn)
+            self.set_config("input.path_static", grid_fn)
+        else:
+            grid_fn = "staticmaps.nc"
+            fn = self.get_config(
+                "input.path_static", abs_path=True, fallback=join(self.root, grid_fn)
+            )
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config("input.path_static", fallback=fn_default),
+                self.get_config("input.path_static", fallback=grid_fn),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):

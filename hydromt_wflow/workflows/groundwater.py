@@ -17,7 +17,13 @@ METHODS = {
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["constant_boundary", "soil_adjust", "soil_layers", "soil_parameters"]
+__all__ = [
+    "constant_boundary",
+    "soil_adjust",
+    "soil_layers",
+    "soil_parameters",
+    "update_soil_config",
+]
 
 
 def full_like(
@@ -46,6 +52,7 @@ def constant_boundary(
     da_like: xr.DataArray,
     waterfrac: xr.DataArray,
     value: float | int = 0,
+    buffer: int = 3,
 ) -> xr.DataArray:
     """_summary_."""
     # First create the mask
@@ -64,7 +71,11 @@ def constant_boundary(
     # TODO update this, its bad
     mask2 = waterfrac > 0
     mask2 = mask2.astype(int)
-    water_buffer = convolve(mask2, kernel, mode="constant", cval=0.0)
+    if buffer == 3:
+        k = kernel
+    else:
+        k = np.ones((buffer, buffer), dtype=np.int32)
+    water_buffer = convolve(mask2, k, mode="constant", cval=0.0)
 
     bounds_mask = all_bounds.where(water_buffer > 0, 0)
     bounds = full_like(da_like, fill_value=-9999, name="Bounds_gw")
@@ -213,3 +224,55 @@ def soil_parameters(
         ds[var].raster.set_nodata(-9999)
 
     return ds
+
+
+def update_soil_config(
+    self,
+    boundary_head,
+    river_conductance,
+):
+    """_summary_."""
+    # Model settings
+    self.set_config("input.altitude", "wflow_dem")
+    self.set_config("model.type", "sbm_gwf")
+    self.set_config("model.constanthead", True)
+    self.set_config("model.riverlength_bc", 0.0)
+    self.set_config("model.riverdepth_bc", 0.0)
+
+    # States
+    self.set_config("state.lateral.subsurface.flow.aquifer.head", "head")
+
+    # Vertical input
+    self.set_config("input.vertical.soilthickness", "SoilThickness_gw")
+
+    # Lateral input
+    self.set_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac_gw")
+    self.set_config("input.lateral.subsurface.specific_yield", "SpecificStorage_mean")
+    self.set_config(
+        "input.lateral.subsurface.exfiltration_conductance.value",
+        river_conductance,
+    )
+    self.set_config(
+        "input.lateral.subsurface.infiltration_conductance.value",
+        river_conductance,
+    )
+    self.set_config("input.lateral.subsurface.river_bottom", "river_bottom")
+    self.set_config(
+        "input.lateral.subsurface.conductivity_profile",
+        "exponential",
+    )
+    # Individual parameters with scaling and offsets
+    self.set_config(
+        "input.lateral.subsurface.conductivity.netcdf.variable.name",
+        "KsatVer",
+    )
+    self.set_config("input.lateral.subsurface.conductivity.scale", 0.001)
+    self.set_config("input.lateral.subsurface.gwf_f.netcdf.variable.name", "f_gw")
+    self.set_config("input.lateral.subsurface.gwf_f.scale", 1000)
+    self.set_config(
+        "input.lateral.subsurface.constant_head.netcdf.variable.name", "Bounds_gw"
+    )
+    self.set_config("input.lateral.subsurface.constant_head.offset", boundary_head)
+
+    # Set some extra output
+    self.set_config("output.lateral.subsurface.flow.aquifer.head", "gw_head")
