@@ -323,26 +323,26 @@ def test_setup_lai(tmpdir, example_wflow_model):
     )
 
     # Derive mapping for using the method any
-    df_lai_any = workflows.lulc_lai_mapping(
+    df_lai_any = workflows.create_lulc_lai_mapping_table(
         da_lulc=da_landuse,
         da_lai=da_lai.copy(),
-        resampling_method="any",
+        sampling_method="any",
         lulc_zero_classes=[80, 200, 0],
     )
     # Check that all landuse classes are present in the mapping
     assert np.all(df_lai_any.index.values == np.unique(da_landuse))
 
     # Try with the other two methods
-    df_lai_mode = workflows.lulc_lai_mapping(
+    df_lai_mode = workflows.create_lulc_lai_mapping_table(
         da_lulc=da_landuse,
         da_lai=da_lai.copy(),
-        resampling_method="mode",
+        sampling_method="mode",
         lulc_zero_classes=[80, 200, 0],
     )
-    df_lai_q3 = workflows.lulc_lai_mapping(
+    df_lai_q3 = workflows.create_lulc_lai_mapping_table(
         da_lulc=da_landuse,
         da_lai=da_lai.copy(),
-        resampling_method="q3",
+        sampling_method="q3",
         lulc_zero_classes=[80, 200, 0],
     )
     # Check the number of landuse classes in the mapping tables

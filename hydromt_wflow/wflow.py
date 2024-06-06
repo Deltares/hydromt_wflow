@@ -957,7 +957,7 @@ to run setup_river method first.'
         self,
         lai_fn: Union[str, xr.DataArray],
         lulc_fn: Optional[Union[str, xr.DataArray]] = None,
-        lulc_resampling_method: str = "mode",
+        lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
         buffer: int = 2,
     ):
@@ -969,9 +969,10 @@ to run setup_river method first.'
 
         If `lulc_fn` is provided, mapping tables from landuse classes to LAI values
         will be derived from the LULC data. These tables can then be re-used later if
-        you would like to prepare landuse scenarios for your model. We advise to use
-        a larger `buffer` to ensure that LAI values can be assigned for all landuse
-        classes and based on a lage enough sample of the LULC data.
+        you would like to add new LAI maps derived from this mapping table and new
+        landuse scenarios. We advise to use a larger `buffer` to ensure that LAI values
+        can be assigned for all landuse classes and based on a lage enough sample of the
+        LULC data.
 
         Adds model layers:
 
@@ -991,15 +992,15 @@ to run setup_river method first.'
             Name of RasterDataset source for landuse-landcover data.
             If provided, the LAI values are mapped to landuse classes and will be saved
             to a csv file.
-        lulc_resampling_method : str, optional
+        lulc_sampling_method : str, optional
             Resampling method for the LULC data to the LAI resolution. Two methods are
             supported:
 
-            * 'any': if any cell of the desired landuse class is present in the
-              resampling window (even just one), it will be used to derive LAI values.
-              This method is less exact but will provide LAI values for all landuse
-              classes for the high resolution landuse map.
-            * 'mode' (default): the most frequent value in the resampling window is
+            * 'any' (default): if any cell of the desired landuse class is present in
+              the resampling window (even just one), it will be used to derive LAI
+              values. This method is less exact but will provide LAI values for all
+              landuse classes for the high resolution landuse map.
+            * 'mode': the most frequent value in the resampling window is
               used. This method is less precise as for cells with a lot of different
               landuse classes, the most frequent value might still be only a small
               fraction of the cell. More landuse classes should however be covered and
@@ -1028,10 +1029,10 @@ to run setup_river method first.'
                 lulc_fn, geom=self.region, buffer=buffer
             )
             # derive mapping
-            df_lai_mapping = workflows.lulc_lai_mapping(
+            df_lai_mapping = workflows.create_lulc_lai_mapping_table(
                 da_lulc=da_lulc,
                 da_lai=da.copy(),
-                resampling_method=lulc_resampling_method,
+                sampling_method=lulc_sampling_method,
                 lulc_zero_classes=lulc_zero_classes,
                 logger=self.logger,
             )
@@ -1054,11 +1055,11 @@ to run setup_river method first.'
 
     def setup_laimaps_from_lulc_mapping(
         self,
-        lulc_fn: Union[str, xr.DataArray],
+        lulc_fn: Optional[Union[str, xr.DataArray]],
         lai_mapping_fn: Union[str, pd.DataFrame],
     ):
         """
-        Derive cyclic LAI maps based on a LULC-LAI mapping table.
+        Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
 
         Adds model layers:
 
@@ -1072,25 +1073,28 @@ to run setup_river method first.'
             Name of RasterDataset source for landuse-landcover data.
         lai_mapping_fn : str, pd.DataFrame
             Path to a mapping csv file from landuse in source name to
-            LAI values. The csv file should contain lines with landuse classes
+            LAI values. The csv file should contain rows with landuse classes
             and LAI values for each month. The columns should be named as the
             months (1,2,3,...,12).
+            This table can be created using the :py:meth:`setup_laimaps` method.
         """
-        self.logger.info("Preparing LAI maps from LULC-LAI mapping.")
+        self.logger.info(
+            "Preparing LAI maps from LULC data using LULC-LAI mapping table."
+        )
 
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
             lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
         )
-        df_lai = self.data_catalog.get_dataframe(
+        df_lai_mapping = self.data_catalog.get_dataframe(
             lai_mapping_fn,
             driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
         )
-        # process landuse
+        # process landuse with LULC-LAI mapping table
         da_lai = workflows.lai_from_lulc_mapping(
             da=da,
             ds_like=self.grid,
-            df=df_lai,
+            df=df_lai_mapping,
             logger=self.logger,
         )
         # Add to grid

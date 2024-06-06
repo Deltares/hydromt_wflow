@@ -10,7 +10,7 @@ import xarray as xr
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["landuse", "lai", "lulc_lai_mapping", "lai_from_lulc_mapping"]
+__all__ = ["landuse", "lai", "create_lulc_lai_mapping_table", "lai_from_lulc_mapping"]
 
 
 RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
@@ -111,10 +111,10 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     return da_out
 
 
-def lulc_lai_mapping(
+def create_lulc_lai_mapping_table(
     da_lulc: xr.DataArray,
     da_lai: xr.DataArray,
-    resampling_method: str = "mode",
+    sampling_method: str = "any",
     lulc_zero_classes: List[int] = [],
     logger=logger,
 ) -> pd.DataFrame:
@@ -127,15 +127,15 @@ def lulc_lai_mapping(
         Landuse map.
     da_lai : xr.DataArray
         Cyclic LAI map.
-    resampling_method : str, optional
+    sampling_method : str, optional
         Resampling method for the LULC data to the LAI resolution. Two methods are
         supported:
 
-        * 'any': if any cell of the desired landuse class is present in the
+        * 'any' (default): if any cell of the desired landuse class is present in the
             resampling window (even just one), it will be used to derive LAI values.
             This method is less exact but will provide LAI values for all landuse
             classes for the high resolution landuse map.
-        * 'mode' (default): the most frequent value in the resampling window is
+        * 'mode': the most frequent value in the resampling window is
             used. This method is less precise as for cells with a lot of different
             landuse classes, the most frequent value might still be only a small
             fraction of the cell. More landuse classes should however be covered and
@@ -159,8 +159,8 @@ def lulc_lai_mapping(
         values is also added to a `samples` column in the dataframe.
     """
     # check the method values
-    if resampling_method not in ["any", "mode", "q3"]:
-        raise ValueError(f"Unsupported resampling method: {resampling_method}")
+    if sampling_method not in ["any", "mode", "q3"]:
+        raise ValueError(f"Unsupported resampling method: {sampling_method}")
 
     # process the lai da
     if "dim0" in da_lai.dims:
@@ -168,7 +168,7 @@ def lulc_lai_mapping(
     da_lai = da_lai.raster.mask_nodata()
     da_lai = da_lai.fillna(
         0
-    )  # use zeros to represent better city and open water surfaces
+    )  # use zeros to better represent city and open water surfaces
 
     # landuse
     da_lulc.name = "landuse"
@@ -177,10 +177,10 @@ def lulc_lai_mapping(
     # Initialise the outputs
     df_lai_mapping = None
 
-    if resampling_method != "any":
+    if sampling_method != "any":
         # The data can already be resampled to the LAI resolution
         da_lulc_mode = da_lulc.raster.reproject_like(da_lai, method="mode")
-        if resampling_method == "q3":
+        if sampling_method == "q3":
             # Filter mode cells that cover less than 75% of the resampling window
             da_lulc_q3 = da_lulc.raster.reproject_like(da_lai, method="q3")
             da_lulc = da_lulc_mode.where(
@@ -208,7 +208,7 @@ def lulc_lai_mapping(
             lu = da_lulc.where(da_lulc == lulc_id, da_lulc.raster.nodata)
             lu = lu.raster.mask_nodata()
 
-            if resampling_method == "any":
+            if sampling_method == "any":
                 # Resample only now the landuse data to the LAI resolution
                 lu = lu.raster.reproject_like(da_lai, method="mode")
 

@@ -250,7 +250,7 @@ Wflow workflows
    workflows.pet
    workflows.landuse
    workflows.lai
-   workflows.lulc_lai_mapping
+   workflows.create_lulc_lai_mapping_table
    workflows.lai_from_lulc_mapping
    workflows.ksathorfrac
    workflows.soilgrids
