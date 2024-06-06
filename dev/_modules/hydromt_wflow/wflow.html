@@ -17,24 +17,24 @@
   </script>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../../_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
 
   
-  <link href="../../_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=87e54e7c" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
-  <script src="../../_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
@@ -54,27 +54,23 @@
 
   
   
-  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
-    <i class="fa-solid fa-arrow-up"></i>
-    Back to top
-  </button>
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
 
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
   
   <input type="checkbox"
           class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
   
   <div class="search-button__wrapper">
     <div class="search-button__overlay"></div>
@@ -96,12 +92,17 @@
   <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form></div>
   </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
+  <button class="sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
-  </label>
+  </button>
   
   
   <div class="col-lg-3 navbar-header-items__start">
@@ -137,40 +138,40 @@
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started/intro.html">
-                        Getting started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../user_guide/intro.html">
-                        User guide
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../api.html">
-                        API reference
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+    User guide
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
-                        Developments
-                      </a>
-                    </li>
-                
 
-                <li class="nav-item">
-                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
-                    HydroMT core
-                  </a>
-                </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
   </ul>
 </nav></div>
       
@@ -273,46 +274,49 @@
     
       <div class="sidebar-header-items__center">
         
-          <div class="navbar-item">
+          
+          
+            <div class="navbar-item">
 <nav class="navbar-nav">
   <ul class="bd-navbar-elements navbar-nav">
     
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../getting_started/intro.html">
-                        Getting started
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../user_guide/intro.html">
-                        User guide
-                      </a>
-                    </li>
-                
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../api.html">
-                        API reference
-                      </a>
-                    </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../user_guide/intro.html">
+    User guide
+  </a>
+</li>
 
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
-                        Developments
-                      </a>
-                    </li>
-                
 
-                <li class="nav-item">
-                  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
-                    HydroMT core
-                  </a>
-                </li>
-                
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-internal" href="../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item pst-header-nav-item">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
   </ul>
 </nav></div>
+          
         
       </div>
     
@@ -371,13 +375,13 @@
 
       </div>
       
-      <main id="main-content" class="bd-main">
+      <main id="main-content" class="bd-main" role="main">
         
         
           <div class="bd-content">
             <div class="bd-article-container">
               
-              <div class="bd-header-article">
+              <div class="bd-header-article d-print-none">
 <div class="header-article-items header-article__inner">
   
     <div class="header-article-items__start">
@@ -386,7 +390,7 @@
 
 
 
-<nav aria-label="Breadcrumb">
+<nav aria-label="Breadcrumb" class="d-print-none">
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
@@ -1389,12 +1393,26 @@
 
 <div class="viewcode-block" id="WflowModel.setup_laimaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lai_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]):</span>
+    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lai_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
+        <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_sampling_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;any&quot;</span><span class="p">,</span>
+        <span class="n">lulc_zero_classes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[],</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].</span>
 
 <span class="sd">        The values are resampled to the model resolution using the average value.</span>
 <span class="sd">        Currently only directly cyclic LAI data is supported.</span>
+
+<span class="sd">        If `lulc_fn` is provided, mapping tables from landuse classes to LAI values</span>
+<span class="sd">        will be derived from the LULC data. These tables can then be re-used later if</span>
+<span class="sd">        you would like to add new LAI maps derived from this mapping table and new</span>
+<span class="sd">        landuse scenarios. We advise to use a larger `buffer` to ensure that LAI values</span>
+<span class="sd">        can be assigned for all landuse classes and based on a lage enough sample of the</span>
+<span class="sd">        LULC data.</span>
 
 <span class="sd">        Adds model layers:</span>
 
@@ -1410,10 +1428,62 @@
 <span class="sd">            * Required variables: &#39;LAI&#39; [-]</span>
 
 <span class="sd">            * Required dimensions: &#39;time&#39; = [1,2,3,...,12] (months)</span>
+<span class="sd">        lulc_fn : str, xarray.DataArray, optional</span>
+<span class="sd">            Name of RasterDataset source for landuse-landcover data.</span>
+<span class="sd">            If provided, the LAI values are mapped to landuse classes and will be saved</span>
+<span class="sd">            to a csv file.</span>
+<span class="sd">        lulc_sampling_method : str, optional</span>
+<span class="sd">            Resampling method for the LULC data to the LAI resolution. Two methods are</span>
+<span class="sd">            supported:</span>
+
+<span class="sd">            * &#39;any&#39; (default): if any cell of the desired landuse class is present in</span>
+<span class="sd">              the resampling window (even just one), it will be used to derive LAI</span>
+<span class="sd">              values. This method is less exact but will provide LAI values for all</span>
+<span class="sd">              landuse classes for the high resolution landuse map.</span>
+<span class="sd">            * &#39;mode&#39;: the most frequent value in the resampling window is</span>
+<span class="sd">              used. This method is less precise as for cells with a lot of different</span>
+<span class="sd">              landuse classes, the most frequent value might still be only a small</span>
+<span class="sd">              fraction of the cell. More landuse classes should however be covered and</span>
+<span class="sd">              it can always be used with the landuse map of the wflow model instead of</span>
+<span class="sd">              the original high resolution one.</span>
+<span class="sd">            * &#39;q3&#39;: only cells with the most frequent value (mode) and that cover 75%</span>
+<span class="sd">              (q3) of the resampling window will be used. This method is more exact but</span>
+<span class="sd">              for small basins, you may have less or no samples to derive LAI values</span>
+<span class="sd">              for some classes.</span>
+<span class="sd">        lulc_zero_classes : list, optional</span>
+<span class="sd">            List of landuse classes that should have zero for leaf area index values</span>
+<span class="sd">            for example waterbodies, open ocean etc. For very high resolution landuse</span>
+<span class="sd">            maps, urban surfaces and bare areas can be included here as well.</span>
+<span class="sd">            By default empty.</span>
+<span class="sd">        buffer : int, optional</span>
+<span class="sd">            Buffer around the region to read the data, by default 2.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># retrieve data for region</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LAI maps.&quot;</span><span class="p">)</span>
-        <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span><span class="n">lai_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+            <span class="n">lai_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">lulc_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LULC-LAI mapping table.&quot;</span><span class="p">)</span>
+            <span class="n">da_lulc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+                <span class="n">lulc_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span>
+            <span class="p">)</span>
+            <span class="c1"># derive mapping</span>
+            <span class="n">df_lai_mapping</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">create_lulc_lai_mapping_table</span><span class="p">(</span>
+                <span class="n">da_lulc</span><span class="o">=</span><span class="n">da_lulc</span><span class="p">,</span>
+                <span class="n">da_lai</span><span class="o">=</span><span class="n">da</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+                <span class="n">sampling_method</span><span class="o">=</span><span class="n">lulc_sampling_method</span><span class="p">,</span>
+                <span class="n">lulc_zero_classes</span><span class="o">=</span><span class="n">lulc_zero_classes</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Save to csv</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lulc_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">df_fn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lai_per_lulc_</span><span class="si">{</span><span class="n">lulc_fn</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">df_fn</span> <span class="o">=</span> <span class="s2">&quot;lai_per_lulc.csv&quot;</span>
+            <span class="n">df_lai_mapping</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">df_fn</span><span class="p">))</span>
+
+        <span class="c1"># Resample LAI data to wflow model resolution</span>
         <span class="n">da_lai</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">lai</span><span class="p">(</span>
             <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
             <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
@@ -1422,6 +1492,56 @@
         <span class="c1"># Rename the first dimension to time</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">da_lai</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="s2">&quot;time&quot;</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_lai</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAI&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WflowModel.setup_laimaps_from_lulc_mapping">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup_laimaps_from_lulc_mapping</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]],</span>
+        <span class="n">lai_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.</span>
+
+<span class="sd">        Adds model layers:</span>
+
+<span class="sd">        * **LAI** map: Leaf Area Index climatology [-]</span>
+<span class="sd">            Resampled from source data using average. Assuming that missing values</span>
+<span class="sd">            correspond to bare soil, these are set to zero before resampling.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lulc_fn : str, xarray.DataArray</span>
+<span class="sd">            Name of RasterDataset source for landuse-landcover data.</span>
+<span class="sd">        lai_mapping_fn : str, pd.DataFrame</span>
+<span class="sd">            Path to a mapping csv file from landuse in source name to</span>
+<span class="sd">            LAI values. The csv file should contain rows with landuse classes</span>
+<span class="sd">            and LAI values for each month. The columns should be named as the</span>
+<span class="sd">            months (1,2,3,...,12).</span>
+<span class="sd">            This table can be created using the :py:meth:`setup_laimaps` method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Preparing LAI maps from LULC data using LULC-LAI mapping table.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># read landuse map to DataArray</span>
+        <span class="n">da</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+            <span class="n">lulc_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">df_lai_mapping</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+            <span class="n">lai_mapping_fn</span><span class="p">,</span>
+            <span class="n">driver_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>  <span class="c1"># only used if fn_map is a file path</span>
+        <span class="p">)</span>
+        <span class="c1"># process landuse with LULC-LAI mapping table</span>
+        <span class="n">da_lai</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">lai_from_lulc_mapping</span><span class="p">(</span>
+            <span class="n">da</span><span class="o">=</span><span class="n">da</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_lai_mapping</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Add to grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">da_lai</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAI&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.setup_config_output_timeseries">
@@ -3294,12 +3414,13 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">river1d_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">connection_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subbasin_area&quot;</span><span class="p">,</span>
-        <span class="n">area_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">area_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
         <span class="n">add_tributaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">include_river_boundaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">mapname</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1dmodel&quot;</span><span class="p">,</span>
         <span class="n">update_toml</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">toml_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Connect wflow to a 1D model by deriving linked subcatch (and tributaries).</span>
@@ -3320,6 +3441,9 @@
 <span class="sd">        If `add_tributary` option is on, you can decide to include or exclude the</span>
 <span class="sd">        upstream boundary of the 1d river as an additional tributary using the</span>
 <span class="sd">        `include_river_boundaries` option.</span>
+
+<span class="sd">        River edges or river nodes are snapped to the closest downstream wflow river</span>
+<span class="sd">        cell using the :py:meth:`hydromt.flw.gauge_map` method.</span>
 
 <span class="sd">        Optionally, the toml file can also be updated to save lateral.river.inwater to</span>
 <span class="sd">        save all river inflows for the subcatchments and lateral.river.q_av for the</span>
@@ -3361,6 +3485,13 @@
 <span class="sd">        toml_output : str, optional</span>
 <span class="sd">            One of [&#39;csv&#39;, &#39;netcdf&#39;, None] to update [csv] or [netcdf] section of wflow</span>
 <span class="sd">            toml file or do nothing. By default, &#39;netcdf&#39;.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to the snapping method</span>
+<span class="sd">            hydromt.flw.gauge_map. See its documentation for more information.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        hydromt.flw.gauge_map</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check connection method values</span>
         <span class="k">if</span> <span class="n">connection_method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;subbasin_area&quot;</span><span class="p">,</span> <span class="s2">&quot;nodes&quot;</span><span class="p">]:</span>
@@ -3385,6 +3516,7 @@
             <span class="n">add_tributaries</span><span class="o">=</span><span class="n">add_tributaries</span><span class="p">,</span>
             <span class="n">include_river_boundaries</span><span class="o">=</span><span class="n">include_river_boundaries</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Derive tributary gauge map</span>
@@ -3398,8 +3530,24 @@
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_tributary</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+            <span class="c1"># Add a check that all gauges are on the river</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">gdf_tributary</span><span class="p">)</span>
+                <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">river_upa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;river_upa&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Not all tributary gauges are on the river network and river &quot;</span>
+                    <span class="s2">&quot;discharge canot be saved. You should use a higher threshold &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;for the subbasin area than </span><span class="si">{</span><span class="n">area_max</span><span class="si">}</span><span class="s2"> to match better the &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;wflow river in your model </span><span class="si">{</span><span class="n">river_upa</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">all_gauges_on_river</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">all_gauges_on_river</span> <span class="o">=</span> <span class="kc">True</span>
+
             <span class="c1"># Update toml</span>
-            <span class="k">if</span> <span class="n">update_toml</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">update_toml</span> <span class="ow">and</span> <span class="n">all_gauges_on_river</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">setup_config_output_timeseries</span><span class="p">(</span>
                     <span class="n">mapname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;wflow_gauges_</span><span class="si">{</span><span class="n">mapname</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="n">toml_output</span><span class="o">=</span><span class="n">toml_output</span><span class="p">,</span>
@@ -4558,7 +4706,7 @@
               
               
               
-                <footer class="prev-next-footer">
+                <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
 </div>
@@ -4567,8 +4715,6 @@
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"></div>
               
             
           </div>
@@ -4581,8 +4727,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
-<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+  <script src="../../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -4615,7 +4761,7 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.2.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.3.
 </p></div>
       
     </div>
