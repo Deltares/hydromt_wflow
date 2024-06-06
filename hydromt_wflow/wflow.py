@@ -3123,13 +3123,21 @@ Run setup_soilmaps first"
         )
         self.read_grid(**kwargs)
 
-    def write_grid(self):
+    def write_grid(
+        self,
+        fn_out: Path | str = None,
+    ):
         """
         Write grid to wflow static data file.
 
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
+
+        Parameters
+        ----------
+        fn_out : Path | str, optional
+            Name or path to the outgoing grid file (including extension).
         """
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3157,16 +3165,20 @@ Run setup_soilmaps first"
             encoding[v] = {"_FillValue": None}
 
         # filename
-        fn_default = "staticmaps.nc"
-        fn = self.get_config(
-            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
-        )
+        if fn_out is not None:
+            fn = join(self.root, fn_out)
+            self.set_config("input.path_static", fn_out)
+        else:
+            fn_out = "staticmaps.nc"
+            fn = self.get_config(
+                "input.path_static", abs_path=True, fallback=join(self.root, fn_out)
+            )
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config("input.path_static", fallback=fn_default),
+                self.get_config("input.path_static", fallback=fn_out),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
