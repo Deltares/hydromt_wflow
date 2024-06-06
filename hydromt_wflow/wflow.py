@@ -3187,7 +3187,7 @@ Run setup_soilmaps first"
 
     def write_grid(
         self,
-        grid_fn: Path | str = None,
+        fn_out: Path | str = None,
     ):
         """
         Write grid to wflow static data file.
@@ -3222,20 +3222,20 @@ Run setup_soilmaps first"
             encoding[v] = {"_FillValue": None}
 
         # filename
-        if grid_fn is not None:
-            fn = join(self.root, grid_fn)
-            self.set_config("input.path_static", grid_fn)
+        if fn_out is not None:
+            fn = join(self.root, fn_out)
+            self.set_config("input.path_static", fn_out)
         else:
-            grid_fn = "staticmaps.nc"
+            fn_out = "staticmaps.nc"
             fn = self.get_config(
-                "input.path_static", abs_path=True, fallback=join(self.root, grid_fn)
+                "input.path_static", abs_path=True, fallback=join(self.root, fn_out)
             )
         # Append inputdir if required
         if self.get_config("dir_input") is not None:
             input_dir = self.get_config("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config("input.path_static", fallback=grid_fn),
+                self.get_config("input.path_static", fallback=fn_out),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
