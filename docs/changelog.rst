@@ -8,21 +8,15 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+All the unreleased new features and bug fixes.
 
 Added
 -----
-
-Changed
--------
-
-Fixed
------
-
-Deprecated
-----------
+- To be Added
 
 v0.6.0 (7 June 2024)
 ====================
+Copious amounts of new features and fixes!
 
 Added
 -----
