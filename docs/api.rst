@@ -69,8 +69,6 @@ Attributes
    WflowModel.config
    WflowModel.grid
    WflowModel.geoms
-   WflowModel.staticmaps
-   WflowModel.staticgeoms
    WflowModel.forcing
    WflowModel.states
    WflowModel.results

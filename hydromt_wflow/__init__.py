@@ -1,17 +1,6 @@
 """hydroMT plugin for wflow models."""
 
-from os.path import abspath, dirname, join
-
-__version__ = "0.5.1.dev0"
-
-try:
-    import pcraster as pcr
-
-    HAS_PCRASTER = True
-except ImportError:
-    HAS_PCRASTER = False
-
-DATADIR = join(dirname(abspath(__file__)), "data")
+__version__ = "0.6.1.dev0"
 
 from .utils import *
 from .wflow import *
