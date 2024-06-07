@@ -461,6 +461,7 @@
 <li><p>new utils method <strong>get_grid_from_config</strong> to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252</p></li>
 <li><p>Added support for the “GLCNMO” land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272</p></li>
 <li><p>Added the <cite>alpha_h1</cite> parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all “non-natural” vegetation (crops) and to 1.0 for all “natural vegetation” PR #272</p></li>
+<li><p>Parameter for output filename in <strong>write_grid</strong> (<cite>output_fn</cite>). PR #278</p></li>
 <li><p>New function <strong>setup_laimaps_from_lulc_mapping</strong> to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273</p></li>
 </ul>
 </section>

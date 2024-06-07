@@ -3742,13 +3742,21 @@
 
 <div class="viewcode-block" id="WflowModel.write_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_grid.html#hydromt_wflow.WflowModel.write_grid">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">write_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">fn_out</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write grid to wflow static data file.</span>
 
 <span class="sd">        Checks the path of the file in the config toml using both ``input.path_static``</span>
 <span class="sd">        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the</span>
 <span class="sd">        root folder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fn_out : Path | str, optional</span>
+<span class="sd">            Name or path to the outgoing grid file (including extension).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -3776,16 +3784,20 @@
             <span class="n">encoding</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}</span>
 
         <span class="c1"># filename</span>
-        <span class="n">fn_default</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span>
-        <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
-            <span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fn_out</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
+                <span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="c1"># Append inputdir if required</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">input_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
                 <span class="n">input_dir</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_default</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">fn_out</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="c1"># Check if all sub-folders in fn exists and if not create them</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn</span><span class="p">)):</span>
