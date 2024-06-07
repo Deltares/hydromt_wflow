@@ -1,7 +1,7 @@
 corine_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -12,6 +12,7 @@ corine_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      alpha_h1: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -23,7 +24,7 @@ corine_mapping_default:
 esa_worldcover_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -34,6 +35,7 @@ esa_worldcover_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      alpha_h1: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -45,7 +47,7 @@ esa_worldcover_mapping_default:
 globcover_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -56,6 +58,7 @@ globcover_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      alpha_h1: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -67,7 +70,7 @@ globcover_mapping_default:
 vito_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       landuse: int16
@@ -78,6 +81,7 @@ vito_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      alpha_h1: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -86,10 +90,33 @@ vito_mapping_default:
     source_version: 1.0
   path: lulc/vito_mapping.csv
 
+glcnmo_mapping_default:
+  data_type: DataFrame
+  driver: csv
+  driver_kwargs:
+    index_col: 0
+    dtype:
+      landuse: int16
+      Kext: float32
+      N: float32
+      PathFrac: float32
+      RootingDepth: float32
+      Sl: float32
+      Swood: float32
+      WaterFrac: float32
+      alpha_h1: int16
+      USLE_C: float32
+      Cov_River: float32
+  meta:
+    category: landuse
+    source_info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
+    source_version: 1.0
+  path: lulc/glcnmo_mapping.csv
+
 koppen_geiger_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: class
   meta:
     category: landuse
@@ -100,7 +127,7 @@ koppen_geiger_mapping_default:
 regr_chelsa_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: source
   meta:
     category: hydrography
@@ -111,7 +138,7 @@ regr_chelsa_mapping_default:
 roughness_river_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       N_River: float32
@@ -124,7 +151,7 @@ roughness_river_mapping_default:
 riverbedsed_mapping_default:
   data_type: DataFrame
   driver: csv
-  kwargs:
+  driver_kwargs:
     index_col: 0
     dtype:
       D50_River: float32

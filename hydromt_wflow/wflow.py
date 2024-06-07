@@ -28,7 +28,8 @@ from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
-from . import DATADIR, utils, workflows
+from . import utils, workflows
+from .utils import DATADIR
 
 __all__ = ["WflowModel"]
 
@@ -110,9 +111,6 @@ class WflowModel(GridModel):
         self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
-        # To be deprecated from v0.6.0 onwards
-        self._staticmaps = None
-        self._staticgeoms = None
 
     # COMPONENTS
     def setup_basemaps(
@@ -867,27 +865,28 @@ to run setup_river method first.'
         self,
         lulc_fn: Union[str, xr.DataArray],
         lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        lulc_vars: List = [
-            "landuse",
-            "Kext",
-            "N",
-            "PathFrac",
-            "RootingDepth",
-            "Sl",
-            "Swood",
-            "WaterFrac",
-        ],
+        lulc_vars: Dict = {
+            "landuse": None,
+            "Kext": "input.vertical.kext",
+            "N": "input.lateral.land.n",
+            "PathFrac": "input.vertical.pathfrac",
+            "RootingDepth": "input.vertical.rootingdepth",
+            "Sl": "input.vertical.specific_leaf",
+            "Swood": "input.vertical.storage_wood",
+            "WaterFrac": "input.vertical.waterfrac",
+            "alpha_h1": "input.vertical.alpha_h1",
+        },
     ):
         """
         Derive several wflow maps based on landuse-landcover (LULC) data.
 
-        Lookup table `lulc_mapping_fn` columns are converted to lulc classes
-        model parameters based on literature. The data is remapped at its original
-        resolution and then resampled to the model resolution using the average
-        value, unless noted differently.
+        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
+        parameters based on literature. The data is remapped at its original resolution
+        and then resampled to the model resolution using the average value, unless noted
+        differently.
 
         Currently, if `lulc_fn` is set to the "vito", "globcover", "esa_worldcover"
-        or "corine", default lookup tables are available and will be used if
+        "corine" or "glmnco", default lookup tables are available and will be used if
         `lulc_mapping_fn` is not provided.
 
         Adds model layers:
@@ -900,20 +899,27 @@ to run setup_river method first.'
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
         * **N** map: Manning Roughness [-]
+        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
+          (0 or 1) [-]
 
         Parameters
         ----------
         lulc_fn : str, xarray.DataArray
             Name of RasterDataset source in data_sources.yml file.
         lulc_mapping_fn : str, Path, pd.DataFrame
-            Path to a mapping csv file from landuse in source name to
-            parameter values in lulc_vars. If lulc_fn is one of {"globcover", "vito",
-            "corine", "esa_worldcover"}, a default mapping is used and this argument
+            Path to a mapping csv file from landuse in source name to parameter values
+            in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
+            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
             becomes optional.
-        lulc_vars : list
-            List of landuse parameters to keep.
-            By default \
-["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood","WaterFrac"]
+        lulc_vars : dict
+            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
+            and their internal wflow name (or None to skip adding to the toml). By
+            default \
+{"landuse": None, "Kext": "input.vertical.kext", "N": "input.lateral.land.n",
+        "PathFrac": "input.vertical.pathfrac", "RootingDepth":
+        "input.vertical.rootingdepth", "Sl": "input.vertical.specific_leaf", "Swood":
+        "input.vertical.storage_wood", "WaterFrac": "input.vertical.waterfrac",
+        "alpha_h1": "input.vertical.alpha_h1"}
         """
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -934,18 +940,37 @@ to run setup_river method first.'
             da=da,
             ds_like=self.grid,
             df=df_map,
-            params=lulc_vars,
+            params=list(lulc_vars.keys()),
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
-    def setup_laimaps(self, lai_fn: Union[str, xr.DataArray]):
+        # Add entries to the config
+        for name, wflow_param in lulc_vars.items():
+            if wflow_param is not None:
+                self.set_config(wflow_param, name)
+
+    def setup_laimaps(
+        self,
+        lai_fn: Union[str, xr.DataArray],
+        lulc_fn: Optional[Union[str, xr.DataArray]] = None,
+        lulc_sampling_method: str = "any",
+        lulc_zero_classes: List[int] = [],
+        buffer: int = 2,
+    ):
         """
         Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].
 
         The values are resampled to the model resolution using the average value.
         Currently only directly cyclic LAI data is supported.
+
+        If `lulc_fn` is provided, mapping tables from landuse classes to LAI values
+        will be derived from the LULC data. These tables can then be re-used later if
+        you would like to add new LAI maps derived from this mapping table and new
+        landuse scenarios. We advise to use a larger `buffer` to ensure that LAI values
+        can be assigned for all landuse classes and based on a lage enough sample of the
+        LULC data.
 
         Adds model layers:
 
@@ -961,10 +986,62 @@ to run setup_river method first.'
             * Required variables: 'LAI' [-]
 
             * Required dimensions: 'time' = [1,2,3,...,12] (months)
+        lulc_fn : str, xarray.DataArray, optional
+            Name of RasterDataset source for landuse-landcover data.
+            If provided, the LAI values are mapped to landuse classes and will be saved
+            to a csv file.
+        lulc_sampling_method : str, optional
+            Resampling method for the LULC data to the LAI resolution. Two methods are
+            supported:
+
+            * 'any' (default): if any cell of the desired landuse class is present in
+              the resampling window (even just one), it will be used to derive LAI
+              values. This method is less exact but will provide LAI values for all
+              landuse classes for the high resolution landuse map.
+            * 'mode': the most frequent value in the resampling window is
+              used. This method is less precise as for cells with a lot of different
+              landuse classes, the most frequent value might still be only a small
+              fraction of the cell. More landuse classes should however be covered and
+              it can always be used with the landuse map of the wflow model instead of
+              the original high resolution one.
+            * 'q3': only cells with the most frequent value (mode) and that cover 75%
+              (q3) of the resampling window will be used. This method is more exact but
+              for small basins, you may have less or no samples to derive LAI values
+              for some classes.
+        lulc_zero_classes : list, optional
+            List of landuse classes that should have zero for leaf area index values
+            for example waterbodies, open ocean etc. For very high resolution landuse
+            maps, urban surfaces and bare areas can be included here as well.
+            By default empty.
+        buffer : int, optional
+            Buffer around the region to read the data, by default 2.
         """
         # retrieve data for region
         self.logger.info("Preparing LAI maps.")
-        da = self.data_catalog.get_rasterdataset(lai_fn, geom=self.region, buffer=2)
+        da = self.data_catalog.get_rasterdataset(
+            lai_fn, geom=self.region, buffer=buffer
+        )
+        if lulc_fn is not None:
+            self.logger.info("Preparing LULC-LAI mapping table.")
+            da_lulc = self.data_catalog.get_rasterdataset(
+                lulc_fn, geom=self.region, buffer=buffer
+            )
+            # derive mapping
+            df_lai_mapping = workflows.create_lulc_lai_mapping_table(
+                da_lulc=da_lulc,
+                da_lai=da.copy(),
+                sampling_method=lulc_sampling_method,
+                lulc_zero_classes=lulc_zero_classes,
+                logger=self.logger,
+            )
+            # Save to csv
+            if isinstance(lulc_fn, str):
+                df_fn = f"lai_per_lulc_{lulc_fn}.csv"
+            else:
+                df_fn = "lai_per_lulc.csv"
+            df_lai_mapping.to_csv(join(self.root, df_fn))
+
+        # Resample LAI data to wflow model resolution
         da_lai = workflows.lai(
             da=da,
             ds_like=self.grid,
@@ -973,6 +1050,53 @@ to run setup_river method first.'
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
         self.set_grid(da_lai.rename(rmdict), name="LAI")
+
+    def setup_laimaps_from_lulc_mapping(
+        self,
+        lulc_fn: Optional[Union[str, xr.DataArray]],
+        lai_mapping_fn: Union[str, pd.DataFrame],
+    ):
+        """
+        Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
+
+        Adds model layers:
+
+        * **LAI** map: Leaf Area Index climatology [-]
+            Resampled from source data using average. Assuming that missing values
+            correspond to bare soil, these are set to zero before resampling.
+
+        Parameters
+        ----------
+        lulc_fn : str, xarray.DataArray
+            Name of RasterDataset source for landuse-landcover data.
+        lai_mapping_fn : str, pd.DataFrame
+            Path to a mapping csv file from landuse in source name to
+            LAI values. The csv file should contain rows with landuse classes
+            and LAI values for each month. The columns should be named as the
+            months (1,2,3,...,12).
+            This table can be created using the :py:meth:`setup_laimaps` method.
+        """
+        self.logger.info(
+            "Preparing LAI maps from LULC data using LULC-LAI mapping table."
+        )
+
+        # read landuse map to DataArray
+        da = self.data_catalog.get_rasterdataset(
+            lulc_fn, geom=self.region, buffer=2, variables=["landuse"]
+        )
+        df_lai_mapping = self.data_catalog.get_dataframe(
+            lai_mapping_fn,
+            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+        )
+        # process landuse with LULC-LAI mapping table
+        da_lai = workflows.lai_from_lulc_mapping(
+            da=da,
+            ds_like=self.grid,
+            df=df_lai_mapping,
+            logger=self.logger,
+        )
+        # Add to grid
+        self.set_grid(da_lai, name="LAI")
 
     def setup_config_output_timeseries(
         self,
@@ -2900,12 +3024,13 @@ Run setup_soilmaps first"
         self,
         river1d_fn: Union[str, Path, gpd.GeoDataFrame],
         connection_method: str = "subbasin_area",
-        area_max: float = 10.0,
+        area_max: float = 30.0,
         add_tributaries: bool = True,
         include_river_boundaries: bool = True,
         mapname: str = "1dmodel",
         update_toml: bool = True,
         toml_output: str = "netcdf",
+        **kwargs,
     ):
         """
         Connect wflow to a 1D model by deriving linked subcatch (and tributaries).
@@ -2926,6 +3051,9 @@ Run setup_soilmaps first"
         If `add_tributary` option is on, you can decide to include or exclude the
         upstream boundary of the 1d river as an additional tributary using the
         `include_river_boundaries` option.
+
+        River edges or river nodes are snapped to the closest downstream wflow river
+        cell using the :py:meth:`hydromt.flw.gauge_map` method.
 
         Optionally, the toml file can also be updated to save lateral.river.inwater to
         save all river inflows for the subcatchments and lateral.river.q_av for the
@@ -2967,6 +3095,13 @@ Run setup_soilmaps first"
         toml_output : str, optional
             One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
             toml file or do nothing. By default, 'netcdf'.
+        **kwargs
+            Additional keyword arguments passed to the snapping method
+            hydromt.flw.gauge_map. See its documentation for more information.
+
+        See Also
+        --------
+        hydromt.flw.gauge_map
         """
         # Check connection method values
         if connection_method not in ["subbasin_area", "nodes"]:
@@ -2991,6 +3126,7 @@ Run setup_soilmaps first"
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
             logger=self.logger,
+            **kwargs,
         )
 
         # Derive tributary gauge map
@@ -3004,8 +3140,24 @@ Run setup_soilmaps first"
             )
             self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
 
+            # Add a check that all gauges are on the river
+            if (
+                self.grid[self._MAPS["rivmsk"]].raster.sample(gdf_tributary)
+                == self.grid[self._MAPS["rivmsk"]].raster.nodata
+            ).any():
+                river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get("river_upa", "")
+                self.logger.warning(
+                    "Not all tributary gauges are on the river network and river "
+                    "discharge canot be saved. You should use a higher threshold "
+                    f"for the subbasin area than {area_max} to match better the "
+                    f"wflow river in your model {river_upa}."
+                )
+                all_gauges_on_river = False
+            else:
+                all_gauges_on_river = True
+
             # Update toml
-            if update_toml:
+            if update_toml and all_gauges_on_river:
                 self.setup_config_output_timeseries(
                     mapname=f"wflow_gauges_{mapname}",
                     toml_output=toml_output,
@@ -3138,13 +3290,11 @@ Run setup_soilmaps first"
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
 
-        If the file is not found, will try to read from the old PCRaster format if map
-        files are found in the ``staticmaps`` folder in the root folder using
-        read_staticmaps_pcr.
+        For reading old PCRaster maps, see the pcrm submodule.
 
         See Also
         --------
-        read_staticmaps_pcr
+        pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
         fn = self.get_config(
@@ -3174,16 +3324,6 @@ Run setup_soilmaps first"
             if ds.raster.res[1] > 0:
                 ds = ds.raster.flipud()
             self.set_grid(ds)
-        elif len(glob.glob(join(self.root, "staticmaps", "*.map"))) > 0:
-            self.read_staticmaps_pcr()
-
-    def read_staticmaps(self, **kwargs):
-        """Read staticmaps. DEPRECATED for read_grid."""
-        self.logger.warning(
-            "read_staticmaps is deprecated. Use 'read_grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.read_grid(**kwargs)
 
     def write_grid(
         self,
@@ -3195,6 +3335,11 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
+
+        Parameters
+        ----------
+        fn_out : Path | str, optional
+            Name or path to the outgoing grid file (including extension).
         """
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3248,14 +3393,6 @@ Run setup_soilmaps first"
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn, encoding=encoding)
 
-    def write_staticmaps(self):
-        """Write staticmaps: DEPRECATED for write_grid."""
-        self.logger.warning(
-            "write_staticmaps is deprecated. Use 'write_grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.write_grid()
-
     def read_geoms(
         self,
         geom_fn: str = "staticgeoms",
@@ -3280,17 +3417,6 @@ Run setup_soilmaps first"
             name = basename(fn).split(".")[0]
             if name != "region":
                 self.set_geoms(gpd.read_file(fn), name=name)
-
-    def read_staticgeoms(
-        self,
-        geom_fn: str = "staticgeoms",
-    ):
-        """Read static geometries: DEPRECATED for read_geoms."""
-        self.logger.warning(
-            "read_staticgeoms is deprecated. Use 'read_geoms' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.read_geoms(geom_fn)
 
     def write_geoms(
         self,
@@ -3320,17 +3446,6 @@ Run setup_soilmaps first"
                 )
                 fn_out = join(self.root, geom_fn, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
-
-    def write_staticgeoms(
-        self,
-        geom_fn: str = "staticgeoms",
-    ):
-        """Write static geometries: DEPRECATED for write_geoms."""
-        self.logger.warning(
-            "write_staticgeoms is deprecated. Use 'write_geoms' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.write_geoms(geom_fn)
 
     def read_forcing(self):
         """
@@ -3870,32 +3985,6 @@ change name input.path_forcing "
             gdf = None
         return gdf
 
-    @property
-    def staticgeoms(self):
-        """Return static geometries.
-
-        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
-        :py:attr:`geoms` instead.
-        """
-        self.logger.warning(
-            "staticgeoms is deprecated. Call 'geoms' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        return self.geoms
-
-    @property
-    def staticmaps(self):
-        """Return staticmaps.
-
-        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
-        :py:attr:`grid` instead.
-        """
-        self.logger.warning(
-            "staticmaps is deprecated. Call 'grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        return self.grid
-
     ## WFLOW specific modification (clip for now) methods
 
     def clip_grid(
@@ -4050,20 +4139,6 @@ change name input.path_forcing "
             # remove states
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
-
-    def clip_staticmaps(
-        self,
-        region,
-        buffer=0,
-        align=None,
-        crs=4326,
-    ):
-        """Clip staticmaps to subbasin."""
-        self.logger.warning(
-            "clip_staticmaps is deprecated. Use 'clip_grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.clip_grid(region, buffer, align, crs)
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.

@@ -8,10 +8,19 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 
 Unreleased
 ==========
+All the unreleased new features and bug fixes.
 
 Added
 -----
-- If applicable, basins geometry based on the higher resolution DEM is stored seperately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`
+- To be Added
+
+v0.6.0 (7 June 2024)
+====================
+Copious amounts of new features and fixes!
+
+Added
+-----
+- If applicable, basins geometry based on the higher resolution DEM is stored seperately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`_
 - New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
 - new function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
@@ -20,6 +29,10 @@ Added
 - better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
 - new function **setup_cold_states** to prepare cold states for WflowModel. PR #252
 - new utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
+- Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
+- Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
+- Parameter for output filename in **write_grid** (`fn_out`). PR #278
+- New function **setup_laimaps_from_lulc_mapping** to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273
 
 Changed
 -------
@@ -27,6 +40,7 @@ Changed
 - **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
 - **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
 - wflow forcing data type should always be float32. PR #268
+- **setup_laimaps**: if a landuse map if provided, setup_laimaps can also prepare landuse mapping tables for LAI. PR #273
 
 Fixed
 -----
@@ -35,8 +49,14 @@ Fixed
 - Removed building a wflow model without a config file in the build notebook.
 - Deprecated np.bool and earlier error message for subbasin delination. PR #263
 
-v0.5.0 (February 2024)
-======================
+Deprecated
+----------
+- **clip_staticmaps** in favour of **clip_grid**
+- **read_staticmaps** and **write_staticmaps**, superseded by **read_grid** and **write_grid**
+- **read_staticgeoms** and **write_staticgeoms**, superseded by **read_geoms** and **write_geoms**
+
+v0.5.0 (13 February 2024)
+=========================
 Better handling of nodata and a switch from ini to yaml for configuration.
 
 Added
@@ -65,16 +85,16 @@ Documentation
 -------------
 - Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
 
-v0.4.1 (November 2023)
-======================
+v0.4.1 (22 November 2023)
+=========================
 Small update
 
 Fixed
 -----
 - Make HydroMT-Wflow **v0.4.0** conda installable
 
-v0.4.0 (November 2023)
-======================
+v0.4.0 (21 November 2023)
+=========================
 Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
 
 Changed
@@ -90,8 +110,8 @@ Fixed
 -----
 - Mainly stability fixes
 
-v0.3.0 (July 2023)
-==================
+v0.3.0 (27 July 2023)
+=====================
 Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.
 
 Added
