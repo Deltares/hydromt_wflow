@@ -22,6 +22,7 @@ Added
 - new utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
 - Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
 - Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
+- Parameter for output filename in **write_grid** (`output_fn`). PR #278
 
 Changed
 -------
