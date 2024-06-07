@@ -2018,7 +2018,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             layers=layers,
             layer_ids=layer_ids,
         )
-        self.set_grid(soil_layers * 1000)
+        self.set_grid(soil_layers)
 
         # Setup the layer parameters
         self.logger.info(f"Setting up soil pamaters based on: {linktable_fn}")

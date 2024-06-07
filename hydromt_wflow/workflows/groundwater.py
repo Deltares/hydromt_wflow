@@ -110,7 +110,7 @@ def soil_layers(
     soil_thickness: xr.DataArray,
     layers: xr.Dataset,
     layer_ids: list | tuple,
-    max_depth: float | int = 30,
+    max_depth: float | int = 100,
     resampling_method: str = "linear",
 ) -> xr.DataArray:
     """_summary_."""
@@ -151,7 +151,7 @@ def soil_layers(
 
     # Interpolate the missing values
     new_acq = new_acq.raster.interpolate_na(method=resampling_method, extrapolate=True)
-    acq.values = new_acq
+    acq.values = new_acq * 1000
 
     # Fill out the correct nodata
     acq = acq.where(da_like != da_like.raster.nodata, -9999)
@@ -177,13 +177,11 @@ def soil_parameters(
     )
 
     # resulting dataset
-    kv = f"KsatVer_gw_{params_method}"
+    kv = f"KsatHor_{params_method}"
     ss = f"SpecificStorage_{params_method}"
-    khf = "KsatHorFrac_gw"
     ds = xr.Dataset()
     ds[kv] = full_like(da_like)
     ds[ss] = full_like(da_like)
-    ds[khf] = full_like(da_like)
 
     # Fill out the new layer first with values from data
     _count = 0
@@ -191,29 +189,21 @@ def soil_parameters(
         if _count == 0:
             ds[kv] = ds[kv].where(
                 np.isnan(layers_mr[layer]),
-                METHODS[params_method](linktable.loc[layer, "kv"]),
+                METHODS[params_method](linktable.loc[layer, "kh"]),
             )
             ds[ss] = ds[ss].where(
                 np.isnan(layers_mr[layer]),
                 METHODS[params_method](linktable.loc[layer, "ss"]),
             )
-            ds[khf] = ds[khf].where(
-                np.isnan(layers_mr[layer]),
-                METHODS[params_method](linktable.loc[layer, "aniv"]),
-            )
             _count += 1
             continue
         ds[kv] = ds[kv].where(
             ~np.isnan(ds[kv]) | np.isnan(layers_mr[layer]),
-            METHODS[params_method](linktable.loc[layer, "kv"]),
+            METHODS[params_method](linktable.loc[layer, "kh"]),
         )
         ds[ss] = ds[ss].where(
             ~np.isnan(ds[ss]) | np.isnan(layers_mr[layer]),
             METHODS[params_method](linktable.loc[layer, "ss"]),
-        )
-        ds[khf] = ds[khf].where(
-            ~np.isnan(ds[khf]) | np.isnan(layers_mr[layer]),
-            METHODS[params_method](linktable.loc[layer, "aniv"]),
         )
         _count += 1
 
@@ -236,8 +226,6 @@ def update_soil_config(
     self.set_config("input.altitude", "wflow_dem")
     self.set_config("model.type", "sbm_gwf")
     self.set_config("model.constanthead", True)
-    self.set_config("model.riverlength_bc", 0.0)
-    self.set_config("model.riverdepth_bc", 0.0)
 
     # States
     self.set_config("state.lateral.subsurface.flow.aquifer.head", "head")
@@ -246,6 +234,8 @@ def update_soil_config(
     self.set_config("input.vertical.soilthickness", "SoilThickness_gw")
 
     # Lateral input
+    self.set_config("input.lateral.river.riverlength_bc.value", 0.0)
+    self.set_config("input.lateral.river.riverdepth_bc.value", 0.0)
     self.set_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac_gw")
     self.set_config("input.lateral.subsurface.specific_yield", "SpecificStorage_mean")
     self.set_config(
@@ -261,6 +251,7 @@ def update_soil_config(
         "input.lateral.subsurface.conductivity_profile",
         "exponential",
     )
+
     # Individual parameters with scaling and offsets
     self.set_config(
         "input.lateral.subsurface.conductivity.netcdf.variable.name",
