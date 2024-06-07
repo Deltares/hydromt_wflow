@@ -23,6 +23,8 @@ Added
 - New functions (properly) for setting up water demand: **setup_allocation_areas**, **setup_surfacewaterfrac**, **setup_non_irrigation** and **setup_irrigation**. `PR #226 <https://github.com/Deltares/hydromt_wflow/pull/226>`
 - Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
 - Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
+- Parameter for output filename in **write_grid** (`output_fn`). PR #278
+- New function **setup_laimaps_from_lulc_mapping** to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273
 
 
 Changed
@@ -31,6 +33,7 @@ Changed
 - **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
 - **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
 - wflow forcing data type should always be float32. PR #268
+- **setup_laimaps**: if a landuse map if provided, setup_laimaps can also prepare landuse mapping tables for LAI. PR #273
 
 Fixed
 -----
