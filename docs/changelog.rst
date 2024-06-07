@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+V0.6.0 (June 2024)
+==================
 
 Added
 -----
@@ -22,7 +22,7 @@ Added
 - new utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
 - Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
 - Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
-- Parameter for output filename in **write_grid** (`output_fn`). PR #278
+- Parameter for output filename in **write_grid** (`fn_out`). PR #278
 - New function **setup_laimaps_from_lulc_mapping** to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273
 
 Changed
@@ -39,6 +39,12 @@ Fixed
 - **setup_gauges**: Allow snapping to river/mask for snap_uparea method. PR #248
 - Removed building a wflow model without a config file in the build notebook.
 - Deprecated np.bool and earlier error message for subbasin delination. PR #263
+
+Deprecated
+----------
+- **clip_staticmaps** in favour of **clip_grid**
+- **read_staticmaps** and **write_staticmaps**, superseded by **read_grid** and **write_grid**
+- **read_staticgeoms** and **write_staticgeoms**, superseded by **read_geoms** and **write_geoms**
 
 v0.5.0 (February 2024)
 ======================

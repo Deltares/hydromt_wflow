@@ -28,7 +28,8 @@ from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
-from . import DATADIR, utils, workflows
+from . import utils, workflows
+from .utils import DATADIR
 
 __all__ = ["WflowModel"]
 
@@ -110,9 +111,6 @@ class WflowModel(GridModel):
         self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
-        # To be deprecated from v0.6.0 onwards
-        self._staticmaps = None
-        self._staticgeoms = None
 
     # COMPONENTS
     def setup_basemaps(
@@ -3189,13 +3187,11 @@ Run setup_soilmaps first"
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
 
-        If the file is not found, will try to read from the old PCRaster format if map
-        files are found in the ``staticmaps`` folder in the root folder using
-        read_staticmaps_pcr.
+        For reading old PCRaster maps, see the pcrm submodule.
 
         See Also
         --------
-        read_staticmaps_pcr
+        pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
         fn = self.get_config(
@@ -3225,16 +3221,6 @@ Run setup_soilmaps first"
             if ds.raster.res[1] > 0:
                 ds = ds.raster.flipud()
             self.set_grid(ds)
-        elif len(glob.glob(join(self.root, "staticmaps", "*.map"))) > 0:
-            self.read_staticmaps_pcr()
-
-    def read_staticmaps(self, **kwargs):
-        """Read staticmaps. DEPRECATED for read_grid."""
-        self.logger.warning(
-            "read_staticmaps is deprecated. Use 'read_grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.read_grid(**kwargs)
 
     def write_grid(
         self,
@@ -3304,14 +3290,6 @@ Run setup_soilmaps first"
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn, encoding=encoding)
 
-    def write_staticmaps(self):
-        """Write staticmaps: DEPRECATED for write_grid."""
-        self.logger.warning(
-            "write_staticmaps is deprecated. Use 'write_grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.write_grid()
-
     def read_geoms(
         self,
         geom_fn: str = "staticgeoms",
@@ -3336,17 +3314,6 @@ Run setup_soilmaps first"
             name = basename(fn).split(".")[0]
             if name != "region":
                 self.set_geoms(gpd.read_file(fn), name=name)
-
-    def read_staticgeoms(
-        self,
-        geom_fn: str = "staticgeoms",
-    ):
-        """Read static geometries: DEPRECATED for read_geoms."""
-        self.logger.warning(
-            "read_staticgeoms is deprecated. Use 'read_geoms' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.read_geoms(geom_fn)
 
     def write_geoms(
         self,
@@ -3376,17 +3343,6 @@ Run setup_soilmaps first"
                 )
                 fn_out = join(self.root, geom_fn, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
-
-    def write_staticgeoms(
-        self,
-        geom_fn: str = "staticgeoms",
-    ):
-        """Write static geometries: DEPRECATED for write_geoms."""
-        self.logger.warning(
-            "write_staticgeoms is deprecated. Use 'write_geoms' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.write_geoms(geom_fn)
 
     def read_forcing(self):
         """
@@ -3926,32 +3882,6 @@ change name input.path_forcing "
             gdf = None
         return gdf
 
-    @property
-    def staticgeoms(self):
-        """Return static geometries.
-
-        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
-        :py:attr:`geoms` instead.
-        """
-        self.logger.warning(
-            "staticgeoms is deprecated. Call 'geoms' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        return self.geoms
-
-    @property
-    def staticmaps(self):
-        """Return staticmaps.
-
-        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use
-        :py:attr:`grid` instead.
-        """
-        self.logger.warning(
-            "staticmaps is deprecated. Call 'grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        return self.grid
-
     ## WFLOW specific modification (clip for now) methods
 
     def clip_grid(
@@ -4106,20 +4036,6 @@ change name input.path_forcing "
             # remove states
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
-
-    def clip_staticmaps(
-        self,
-        region,
-        buffer=0,
-        align=None,
-        crs=4326,
-    ):
-        """Clip staticmaps to subbasin."""
-        self.logger.warning(
-            "clip_staticmaps is deprecated. Use 'clip_grid' instead. "
-            "Will be removed in hydromt_wflow v0.6.0"
-        )
-        self.clip_grid(region, buffer, align, crs)
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
