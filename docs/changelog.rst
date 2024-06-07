@@ -7,7 +7,7 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
 v0.6.0 (7 June 2024)
-==================
+====================
 
 Added
 -----
@@ -47,7 +47,7 @@ Deprecated
 - **read_staticgeoms** and **write_staticgeoms**, superseded by **read_geoms** and **write_geoms**
 
 v0.5.0 (13 February 2024)
-======================
+=========================
 Better handling of nodata and a switch from ini to yaml for configuration.
 
 Added
@@ -77,7 +77,7 @@ Documentation
 - Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
 
 v0.4.1 (22 November 2023)
-======================
+=========================
 Small update
 
 Fixed
@@ -85,7 +85,7 @@ Fixed
 - Make HydroMT-Wflow **v0.4.0** conda installable
 
 v0.4.0 (21 November 2023)
-======================
+=========================
 Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
 
 Changed
@@ -102,7 +102,7 @@ Fixed
 - Mainly stability fixes
 
 v0.3.0 (27 July 2023)
-==================
+=====================
 Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.
 
 Added
