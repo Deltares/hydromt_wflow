@@ -449,7 +449,8 @@
 <span class="kn">from</span> <span class="nn">pyflwdir</span> <span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
 <span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">box</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">DATADIR</span><span class="p">,</span> <span class="n">utils</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">DATADIR</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>
 
@@ -534,10 +535,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">from_yml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_CATALOGS</span><span class="p">)</span>
-        <span class="c1"># To be deprecated from v0.6.0 onwards</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_staticmaps</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_staticgeoms</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">from_yml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_CATALOGS</span><span class="p">)</span></div>
 
 
     <span class="c1"># COMPONENTS</span>
@@ -3692,13 +3690,11 @@
 <span class="sd">        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the</span>
 <span class="sd">        root folder.</span>
 
-<span class="sd">        If the file is not found, will try to read from the old PCRaster format if map</span>
-<span class="sd">        files are found in the ``staticmaps`` folder in the root folder using</span>
-<span class="sd">        read_staticmaps_pcr.</span>
+<span class="sd">        For reading old PCRaster maps, see the pcrm submodule.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        read_staticmaps_pcr</span>
+<span class="sd">        pcrm.read_staticmaps_pcr</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">fn_default</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
@@ -3727,18 +3723,8 @@
             <span class="c1"># make sure internally maps are always North -&gt; South oriented</span>
             <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">flipud</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps&quot;</span><span class="p">,</span> <span class="s2">&quot;*.map&quot;</span><span class="p">)))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">read_staticmaps_pcr</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span></div>
 
-
-    <span class="k">def</span> <span class="nf">read_staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read staticmaps. DEPRECATED for read_grid.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;read_staticmaps is deprecated. Use &#39;read_grid&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_grid</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.write_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_grid.html#hydromt_wflow.WflowModel.write_grid">[docs]</a>
@@ -3811,14 +3797,6 @@
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">write_staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write staticmaps: DEPRECATED for write_grid.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;write_staticmaps is deprecated. Use &#39;write_grid&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_grid</span><span class="p">()</span>
-
 <div class="viewcode-block" id="WflowModel.read_geoms">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms">[docs]</a>
     <span class="k">def</span> <span class="nf">read_geoms</span><span class="p">(</span>
@@ -3846,17 +3824,6 @@
             <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">fn</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span></div>
 
-
-    <span class="k">def</span> <span class="nf">read_staticgeoms</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read static geometries: DEPRECATED for read_geoms.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;read_staticgeoms is deprecated. Use &#39;read_geoms&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_geoms</span><span class="p">(</span><span class="n">geom_fn</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.write_geoms">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms">[docs]</a>
@@ -3889,17 +3856,6 @@
                 <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">geom_fn</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.geojson&quot;</span><span class="p">)</span>
                 <span class="n">gdf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GeoJSON&quot;</span><span class="p">)</span></div>
 
-
-    <span class="k">def</span> <span class="nf">write_staticgeoms</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write static geometries: DEPRECATED for write_geoms.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;write_staticgeoms is deprecated. Use &#39;write_geoms&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">write_geoms</span><span class="p">(</span><span class="n">geom_fn</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.read_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_forcing.html#hydromt_wflow.WflowModel.read_forcing">[docs]</a>
@@ -4466,32 +4422,6 @@
             <span class="n">gdf</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">gdf</span>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">staticgeoms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return static geometries.</span>
-
-<span class="sd">        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use</span>
-<span class="sd">        :py:attr:`geoms` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;staticgeoms is deprecated. Call &#39;geoms&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">staticmaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return staticmaps.</span>
-
-<span class="sd">        Note: deprecated and will be removed in hydromt_wflow v0.6.0. Use</span>
-<span class="sd">        :py:attr:`grid` instead.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;staticmaps is deprecated. Call &#39;grid&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
-
     <span class="c1">## WFLOW specific modification (clip for now) methods</span>
 
 <div class="viewcode-block" id="WflowModel.clip_grid">
@@ -4649,20 +4579,6 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;state.lateral.river.lake&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;river&quot;</span><span class="p">][</span><span class="s2">&quot;lake&quot;</span><span class="p">]</span></div>
 
-
-    <span class="k">def</span> <span class="nf">clip_staticmaps</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">region</span><span class="p">,</span>
-        <span class="n">buffer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">align</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Clip staticmaps to subbasin.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;clip_staticmaps is deprecated. Use &#39;clip_grid&#39; instead. &quot;</span>
-            <span class="s2">&quot;Will be removed in hydromt_wflow v0.6.0&quot;</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">clip_grid</span><span class="p">(</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">align</span><span class="p">,</span> <span class="n">crs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WflowModel.clip_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.clip_forcing.html#hydromt_wflow.WflowModel.clip_forcing">[docs]</a>

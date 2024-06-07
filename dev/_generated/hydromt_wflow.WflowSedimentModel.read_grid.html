@@ -413,8 +413,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.config.html">hydromt_wflow.WflowModel.config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.grid.html">hydromt_wflow.WflowModel.grid</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.geoms.html">hydromt_wflow.WflowModel.geoms</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.staticmaps.html">hydromt_wflow.WflowModel.staticmaps</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.staticgeoms.html">hydromt_wflow.WflowModel.staticgeoms</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.forcing.html">hydromt_wflow.WflowModel.forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.states.html">hydromt_wflow.WflowModel.states</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.results.html">hydromt_wflow.WflowModel.results</a></li>
@@ -623,12 +621,10 @@
 <p>Checks the path of the file in the config toml using both <code class="docutils literal notranslate"><span class="pre">input.path_static</span></code>
 and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code>. If not found uses the default path <code class="docutils literal notranslate"><span class="pre">staticmaps.nc</span></code> in the
 root folder.</p>
-<p>If the file is not found, will try to read from the old PCRaster format if map
-files are found in the <code class="docutils literal notranslate"><span class="pre">staticmaps</span></code> folder in the root folder using
-read_staticmaps_pcr.</p>
+<p>For reading old PCRaster maps, see the pcrm submodule.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_staticmaps_pcr</span></code></p>
+<p><a class="reference internal" href="hydromt_wflow.pcrm.read_staticmaps_pcr.html#hydromt_wflow.pcrm.read_staticmaps_pcr" title="hydromt_wflow.pcrm.read_staticmaps_pcr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pcrm.read_staticmaps_pcr</span></code></a></p>
 </div>
 </dd></dl>
 
