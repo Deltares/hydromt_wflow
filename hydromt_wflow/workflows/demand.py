@@ -19,6 +19,23 @@ map_vars = {
 }
 
 
+def transform_from_factor(
+    da: xr.DataArray,
+    factor: int = 0,
+):
+    """_summary_."""
+    if factor == 0:
+        return da
+
+    gtf = list(da.raster.transform)
+    gtf[0] *= factor
+    gtf[4] *= factor
+
+    shape = [math.floor(item / 10) for item in da.raster.shape]
+
+    return gtf, shape
+
+
 def transform_half_degree(
     bbox: tuple | list,
 ) -> tuple:
