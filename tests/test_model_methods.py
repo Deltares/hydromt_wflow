@@ -880,6 +880,8 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     example_wflow_model.setup_non_irrigation(
         non_irrigation_fn="pcr_globwb",
         population_fn="worldpop_2020_constrained",
+        res_factor=6,
+        snap_to_wgs84=True,
     )
 
     # Assert entries
