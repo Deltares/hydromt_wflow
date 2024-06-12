@@ -22,16 +22,44 @@ map_vars = {
 def transform_from_factor(
     da: xr.DataArray,
     factor: int = 0,
+    snap_to_wgs84: bool = False,
 ):
     """_summary_."""
     if factor == 0:
-        return da
+        return da.raster.transform, da.raster.shape
 
+    # Set the resolution by multiplying by factor
     gtf = list(da.raster.transform)
     gtf[0] *= factor
     gtf[4] *= factor
 
-    shape = [math.floor(item / 10) for item in da.raster.shape]
+    # If snap to WGS84 is True, create a larger 'bbox'
+    if snap_to_wgs84:
+        yc = 180 / gtf[0]
+        if abs(round(yc) - yc) > 0.05:
+            raise ValueError(
+                "Cant use 'snap_to_world' on a resolution that does not \
+fit within the WGS84 projection."
+            )
+
+        # Define the 4 boundaries
+        bbox = da.raster.bounds
+        left = math.floor(bbox[0] / gtf[0]) * gtf[0]
+        bottom = math.floor(bbox[1] / gtf[0]) * gtf[0]
+        top = math.ceil(bbox[3] / gtf[0]) * gtf[0]
+        right = math.ceil(bbox[2] / gtf[0]) * gtf[0]
+
+        # Set the new top-left
+        gtf[2] = left
+        gtf[5] = top
+
+        # Set the new width and height
+        h = round((top - bottom) / gtf[0])
+        w = round((right - left) / gtf[0])
+        shape = (h, w)
+    else:
+        # if not snap then just divide by the factor
+        shape = [round(item / 10) for item in da.raster.shape]
 
     return gtf, shape
 
@@ -97,6 +125,8 @@ def non_irrigation(
     ds_method: str,
     popu: xr.Dataset,
     popu_method: str,
+    res_factor: int,
+    snap_to_wgs84: bool,
 ) -> tuple:
     """Create non-irrigation water demand maps.
 
@@ -112,6 +142,10 @@ def non_irrigation(
         Population dataset (number of people per gridcell).
     popu_method : str
         Population data resampling method.
+    res_factor : int
+        Factor between current and original resolution.
+    snap_to_wgs84 : bool
+        Whether to snap to the WGS84 domain.
 
     Returns
     -------
@@ -124,69 +158,79 @@ def non_irrigation(
         method=ds_method,
     )
 
-    # Focus on population data
-    popu_shape = popu.raster.shape
-    if any([_ex < _ey for _ex, _ey in zip(popu_shape, ds_like.raster.shape)]):
-        popu_scaled = popu.raster.reproject_like(
-            ds_like,
+    # Only resample when there is population data
+    popu_scaled = None
+    if popu is not None:
+        # Resample the population data to model resolution
+        popu_shape = popu.raster.shape
+        if any([_ex < _ey for _ex, _ey in zip(popu_shape, ds_like.raster.shape)]):
+            popu_scaled = popu.raster.reproject_like(
+                ds_like,
+                method="nearest",
+            )
+            scaling = [_ey / _ex for _ex, _ey in zip(popu_shape, ds_like.raster.shape)]
+            scaling = scaling[0] * scaling[1]
+            popu_scaled = popu_scaled * scaling
+        else:
+            popu_scaled = popu.raster.reproject_like(
+                ds_like,
+                method=popu_method,
+            )
+
+        popu_scaled.name = "population"
+
+        # Get transform at half degree resolution
+        transform, shape = transform_from_factor(
+            ds,
+            factor=res_factor,
+            snap_to_wgs84=snap_to_wgs84,
+        )
+
+        # Create dummy dataset from this info
+        dda = full_from_transform(
+            transform=transform,
+            shape=shape,
+            crs=4326,
+            lazy=True,
+        )
+
+        # Scale the polulation data based on global glob cells
+        popu_down = popu_scaled.raster.reproject_like(
+            dda,
+            method="sum",
+        )
+        popu_redist = popu_down.raster.reproject_like(
+            popu_scaled,
             method="nearest",
         )
-        scaling = [_ey / _ex for _ex, _ey in zip(popu_shape, ds_like.raster.shape)]
-        scaling = scaling[0] * scaling[1]
-        popu_scaled = popu_scaled * scaling
-    else:
-        popu_scaled = popu.raster.reproject_like(
-            ds_like,
-            method=popu_method,
+        popu_redist = popu_scaled / popu_redist
+
+        # Setup downscaled non irigation domestic data
+        non_irri_down = non_irri_scaled.raster.reproject_like(
+            dda,
+            method="sum",
         )
 
-    popu_scaled.name = "population"
+        # Loop through the domestic variables
+        for var in ["dom_gross", "dom_net"]:
+            if var not in non_irri_scaled.data_vars:
+                continue
+            attrs = non_irri_scaled[var].attrs
+            new = non_irri_down[var].raster.reproject_like(
+                non_irri_scaled,
+                method="nearest",
+            )
+            new = new * popu_redist
+            new = new.fillna(0.0)
+            non_irri_scaled[var] = new
+            non_irri_scaled[var] = non_irri_scaled[var].assign_attrs(attrs)
 
-    # Get transform at half degree resolution
-    transform, width, height = transform_half_degree(
-        ds_like.raster.bounds,
-    )
-
-    # Create dummy dataset from this info
-    dda = full_from_transform(
-        transform=transform,
-        shape=(height, width),
-        crs=4326,
-    )
-
-    # Some info regarding the original ds
-    ds.raster.clip_bbox(ds_like.raster.bounds)
-
-    # Some extra info from ds_like
-
-    # Scale the polulation data based on global glob cells
-    popu_down = popu_scaled.raster.reproject_like(
-        dda,
-        method="sum",
-    )
-    popu_redist = popu_down.raster.reproject_like(
-        popu_scaled,
-        method="nearest",
-    )
-    popu_redist = popu_scaled / popu_redist
-
-    # Setup downscaled non irigation domestic data
-    non_irri_down = non_irri_scaled.raster.reproject_like(
-        dda,
-        method="sum",
-    )
-
-    # Loop through the domestic variables
-    for var in ["dom_gross", "dom_net"]:
-        attrs = non_irri_scaled[var].attrs
-        new = non_irri_down[var].raster.reproject_like(
-            non_irri_scaled,
-            method="nearest",
+    # Mask data to fill nodata gaps with 0
+    non_irri_scaled = non_irri_scaled.raster.mask_nodata()
+    for var in non_irri_scaled.data_vars:
+        non_irri_scaled[var] = non_irri_scaled[var].where(
+            ~np.isnan(non_irri_scaled[var]), 0
         )
-        new = new * popu_redist
-        new = new.fillna(0.0)
-        non_irri_scaled[var] = new
-        non_irri_scaled[var] = non_irri_scaled[var].assign_attrs(attrs)
 
     return non_irri_scaled, popu_scaled
 

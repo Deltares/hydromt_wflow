@@ -3237,10 +3237,12 @@ Run setup_soilmaps first"
     def setup_non_irrigation(
         self,
         non_irrigation_fn: Union[str, dict, xr.Dataset],
-        population_fn: Union[str, xr.Dataset],
+        population_fn: Union[str, xr.Dataset] = None,
         variables: list = ["dom", "ind", "lsk"],
         non_irrigation_method: str = "nearest",
         population_method: str = "sum",
+        res_factor: int = 0,
+        snap_to_wgs84: bool = False,
     ):
         """Create non-irrigation water demand maps.
 
@@ -3266,7 +3268,7 @@ Run setup_soilmaps first"
             any optional keyword arguments (e.g. `version`).
         population_fn : Union[str, xr.Dataset]
             The population dataset. Either provided as a dataset directly or as
-            a string referring to an entry in the data catalog.
+            a string referring to an entry in the data catalog, by default None
         variables : list, optional
             The variables to be processed. These variables should be either or all of
             'dom', 'ind' or 'lsk' (abbriviations for domestic, industry and livestock).
@@ -3282,6 +3284,16 @@ Run setup_soilmaps first"
             by default "nearest"
         population_method : str, optional
             Resampling method for the population data, by default "sum"
+        res_factor : int, optional
+            Factor between the `non_irrigation_fn` dataset and the resolution this
+            dataset was downscaled from. E.g. the pcr_globwb dataset is at a resolution
+            of 0.0083333333 degrees, while the original data has a resolution of 0.5
+            degrees. This factor should then be 60. By default 0
+        snap_to_wgs84 : bool, optional
+            Whether the `non_irrigation_fn` dataset has a transform that corresponds
+            with some divisions of the wgs84 projection. E.g. 0.0083333333 (1/120) does,
+            as both 360 (longitude) and 180 (latitude) are divisible by this number,
+            by default False
         """
         self.logger.info("Preparing non irigation demand maps.")
         if not all([item in ["dom", "ind", "lsk"] for item in variables]):
@@ -3307,11 +3319,13 @@ Run setup_soilmaps first"
             self.set_config("input.cyclic", [])
 
         # Get population data
-        pop_raw = self.data_catalog.get_rasterdataset(
-            population_fn,
-            geom=self.region,
-            buffer=2,
-        ).raster.mask_nodata()
+        pop_raw = None
+        if population_fn is not None:
+            pop_raw = self.data_catalog.get_rasterdataset(
+                population_fn,
+                geom=self.region,
+                buffer=2,
+            ).raster.mask_nodata()
 
         # Create static water demand rasters
         non_irigation, popu = workflows.demand.non_irrigation(
@@ -3320,9 +3334,12 @@ Run setup_soilmaps first"
             ds_method=non_irrigation_method,
             popu=pop_raw,
             popu_method=population_method,
+            res_factor=res_factor,
+            snap_to_wgs84=snap_to_wgs84,
         )
         self.set_grid(non_irigation)
-        self.set_grid(popu, name="population")
+        if population_fn is not None:
+            self.set_grid(popu, name="population")
 
         # Update the settings toml with non irigation stuff
         for var in non_irigation.data_vars:
