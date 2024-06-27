@@ -284,7 +284,7 @@ def river_bathymetry(
     )
 
     ## river depth
-    if "rivdph" not in ds_model:
+    if "rivdph" not in gdf_riv.columns:
         # distance to outlet; required for manning and gvf rivdph methods
         if method != "powlaw" and "rivdst" not in ds_model:
             rivlen = ds_model["rivlen"].values
