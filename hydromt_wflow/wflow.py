@@ -348,7 +348,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         Data gaps are filled by the nearest valid upstream value and averaged along
         the flow directions over a length ``smooth_len`` [m]
 
-        The river depth is calculated using the ``rivdph_method``, by default powlaw:
+        The river depth is either derived from the nearest river segment in
+        ``river_geom_fn` or `calculated using the ``rivdph_method``, by default powlaw:
         h = hc*Qbf**hp, which is based on qbankfull discharge from the nearest river
         segment in ``river_geom_fn`` and takes optional arguments for the hc
         (default = 0.27) and hp (default = 0.30) parameters. For other methods see
@@ -383,7 +384,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
             * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
                 'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
+            * Optional variables: 'rivwth' [m], 'rivdph' [m], 'qbankfull' [m3/s]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
             Name of GeoDataFrame source for river data.
 
