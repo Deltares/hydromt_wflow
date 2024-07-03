@@ -13,6 +13,7 @@ import pytest
 import xarray as xr
 from hydromt.raster import full_like
 
+from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
@@ -308,6 +309,58 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     mean_val = values.mean().values
     assert int(max_val * 100) == 43175
     assert int(mean_val * 100) == 22020
+
+
+def test_setup_lai(tmpdir, example_wflow_model):
+    # Use vito and MODIS lai data for testing
+    # Read LAI data
+    da_lai = example_wflow_model.data_catalog.get_rasterdataset(
+        "modis_lai", geom=example_wflow_model.region, buffer=2
+    )
+    # Read landuse data
+    da_landuse = example_wflow_model.data_catalog.get_rasterdataset(
+        "vito", geom=example_wflow_model.region, buffer=2
+    )
+
+    # Derive mapping for using the method any
+    df_lai_any = workflows.create_lulc_lai_mapping_table(
+        da_lulc=da_landuse,
+        da_lai=da_lai.copy(),
+        sampling_method="any",
+        lulc_zero_classes=[80, 200, 0],
+    )
+    # Check that all landuse classes are present in the mapping
+    assert np.all(df_lai_any.index.values == np.unique(da_landuse))
+
+    # Try with the other two methods
+    df_lai_mode = workflows.create_lulc_lai_mapping_table(
+        da_lulc=da_landuse,
+        da_lai=da_lai.copy(),
+        sampling_method="mode",
+        lulc_zero_classes=[80, 200, 0],
+    )
+    df_lai_q3 = workflows.create_lulc_lai_mapping_table(
+        da_lulc=da_landuse,
+        da_lai=da_lai.copy(),
+        sampling_method="q3",
+        lulc_zero_classes=[80, 200, 0],
+    )
+    # Check the number of landuse classes in the mapping tables
+    assert len(df_lai_any[df_lai_any.samples == 0]) == 1
+    assert len(df_lai_mode[df_lai_mode.samples == 0]) == 3
+    assert len(df_lai_q3[df_lai_q3.samples == 0]) == 3
+    # Check number of samples for landuse class 20 with the different methods
+    assert int(df_lai_any.loc[20].samples) == 2481
+    assert int(df_lai_mode.loc[20].samples) == 59
+    assert int(df_lai_q3.loc[20].samples) == 4
+
+    # Try to use the mapping tables to setup the LAI
+    example_wflow_model.setup_laimaps_from_lulc_mapping(
+        lulc_fn="vito",
+        lai_mapping_fn=df_lai_any,
+    )
+
+    assert "LAI" in example_wflow_model.grid
 
 
 def test_setup_rootzoneclim(example_wflow_model):
@@ -706,8 +759,8 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     assert "subcatch_1dmodel" in example_wflow_model.geoms
     assert "subcatch_riv_1dmodel" in example_wflow_model.geoms
 
-    assert len(example_wflow_model.geoms["gauges_1dmodel"]) == 6
-    assert len(example_wflow_model.geoms["subcatch_1dmodel"]) == 3
+    assert len(example_wflow_model.geoms["gauges_1dmodel"]) == 3
+    assert len(example_wflow_model.geoms["subcatch_1dmodel"]) == 2
     conf_dict = {
         "name": "Q",
         "map": "gauges_1dmodel",
@@ -719,7 +772,7 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     example_wflow_model.setup_1dmodel_connection(
         river1d_fn=rivers1d,
         connection_method="subbasin_area",
-        area_max=10.0,
+        area_max=30.0,
         add_tributaries=True,
         include_river_boundaries=False,
         mapname="1dmodel-nobounds",
@@ -727,14 +780,8 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
         toml_output="csv",
     )
 
-    assert len(example_wflow_model.geoms["gauges_1dmodel-nobounds"]) == 3
-    assert len(example_wflow_model.geoms["subcatch_1dmodel-nobounds"]) == 3
-    conf_dict = {
-        "header": "Q",
-        "map": "gauges_1dmodel-nobounds",
-        "parameter": "lateral.river.q_av",
-    }
-    assert conf_dict in example_wflow_model.config["csv"]["column"]
+    assert len(example_wflow_model.geoms["gauges_1dmodel-nobounds"]) == 1
+    assert len(example_wflow_model.geoms["subcatch_1dmodel-nobounds"]) == 2
     assert np.all(
         example_wflow_model.geoms["subcatch_1dmodel"].geometry.geom_equals(
             example_wflow_model.geoms["subcatch_1dmodel-nobounds"].geometry
@@ -745,15 +792,15 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     example_wflow_model.setup_1dmodel_connection(
         river1d_fn=rivers1d,
         connection_method="nodes",
-        area_max=10.0,
         add_tributaries=False,
         include_river_boundaries=False,
         mapname="1dmodel-nodes",
         update_toml=False,
+        max_dist=5000,
     )
 
     assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms
-    assert len(example_wflow_model.geoms["subcatch_1dmodel-nodes"]) == 7
+    assert len(example_wflow_model.geoms["subcatch_1dmodel-nodes"]) == 6
 
 
 def test_skip_nodata_reservoir(clipped_wflow_model):
@@ -775,7 +822,7 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     example_sediment_model.setup_lulcmaps(
         lulc_fn="globcover",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars=["USLE_C"],
+        lulc_vars={"USLE_C": "input.vertical.usleC"},
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,

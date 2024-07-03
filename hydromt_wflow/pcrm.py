@@ -14,6 +14,13 @@ from hydromt.io import open_mfraster
 from pyflwdir import core_conversion, core_d8, core_ldd
 from pyproj import CRS
 
+try:
+    import pcraster as pcr
+
+    HAS_PCRASTER = True
+except ImportError:
+    HAS_PCRASTER = False
+
 logger = logging.getLogger(__name__)
 
 # specify pcraster map types
@@ -140,8 +147,6 @@ def write_map(
         if invalid ldd
     """
     import tempfile
-
-    import pcraster as pcr
 
     with tempfile.TemporaryDirectory() as tmpdir:
         # deal with pcr clone map

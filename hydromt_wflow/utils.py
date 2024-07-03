@@ -1,5 +1,5 @@
 """Some utilities from the Wflow plugin."""
-from os.path import abspath, join
+from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Optional, Union
 
@@ -8,6 +8,8 @@ import xarray as xr
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
+
+DATADIR = join(dirname(abspath(__file__)), "data")
 
 __all__ = ["read_csv_results", "get_config", "get_grid_from_config"]
 
