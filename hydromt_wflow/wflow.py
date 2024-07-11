@@ -2080,6 +2080,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         self,
         layers_fn: Union[str, xr.Dataset],
         linktable_fn: Union[str, pd.DataFrame],
+        waterfront_fn: Union[str, xr.DataArray],
         layer_ids: list | tuple,
         boundary_head: float | int = 0,
         boundary_buffer: int = 3,
@@ -2123,12 +2124,17 @@ a map for each of the wflow_sbm soil layers (n in total)
         linktable = self.data_catalog.get_dataframe(
             linktable_fn,
         )
+        waterfront = self.data_catalog.get_rasterdataset(
+            waterfront_fn,
+            geom=self.region,
+            buffer=2,
+        )
 
         # Setup the boundary conditions
         self.logger.info("Setting up constant head boundary cells.")
         bounds = workflows.constant_boundary(
             self.grid["wflow_dem"],
-            waterfrac=self.grid["WaterFrac"],
+            waterfront=waterfront,
             buffer=boundary_buffer,
         )
         self.set_grid(bounds, name="Bounds_gw")

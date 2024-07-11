@@ -50,7 +50,7 @@ def full_like(
 
 def constant_boundary(
     da_like: xr.DataArray,
-    waterfrac: xr.DataArray,
+    waterfront: xr.DataArray,
     value: float | int = 0,
     buffer: int = 3,
 ) -> xr.DataArray:
@@ -58,6 +58,13 @@ def constant_boundary(
     # First create the mask
     mask = da_like != da_like.raster.nodata
     mask = mask.astype(int)
+
+    # Reproject the waterfront
+    waterfront = waterfront.raster.mask_nodata(-9999)
+    waterfront_mr = waterfront.raster.reproject_like(
+        da_like,
+        method="nearest",
+    )
 
     # Define the kernel
     kernel = np.array([[1, 1, 1], [1, 1, 1], [1, 1, 1]], dtype=np.int32)
@@ -69,7 +76,7 @@ def constant_boundary(
     all_bounds = all_bounds.astype(int)
 
     # TODO update this, its bad
-    mask2 = waterfrac > 0
+    mask2 = waterfront_mr == waterfront_mr.raster.nodata
     mask2 = mask2.astype(int)
     if buffer == 3:
         k = kernel
