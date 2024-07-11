@@ -3253,7 +3253,7 @@ Run setup_soilmaps first"
         - `Livestock` water demand
 
         For each of these datasets/ variables a gross and a netto water demand
-        should be provided.
+        should be provided. They can either be provided cyclic or non-cyclic.
 
         Concerning the `domestic` water demand, this non-irrigation map is not simply
         resampled based on the `non_irrigation_method` but rather based on a provided
