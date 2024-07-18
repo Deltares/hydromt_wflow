@@ -3658,19 +3658,8 @@ Run setup_soilmaps first"
                 ds_out[var] = ds_out[var].fillna(-9999).astype(dtype)
                 ds_out[var].raster.set_nodata(np.dtype(dtype).type(-9999))
 
-            # Remove current `c` variable, and remove `layer` dimension, to prevent
-            # issues with different dimension sizes
-            # Use `_grid` as `grid` cannot be set
-            vars_to_drop = [
-                var for var in self.grid.variables if "layer" in self.grid[var].dims
-            ]
-            # Temporarily drop variables
-            self.logger.info(
-                "Temporarily dropping these variables, as they depend on the layer "
-                f"dimension: {vars_to_drop}"
-            )
-            self._grid = self.grid.drop(vars_to_drop)
-            self.grid["c"] = ds_out["c"]
+            # Update grid
+            self.set_grid(ds_out["c"], name="c")
             # Update config
             self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
@@ -4761,19 +4750,37 @@ change name input.path_forcing "
     ):
         """Add data to grid.
 
-        All layers of grid must have identical spatial coordinates.
-        This is an inherited method from HydroMT-core's GridModel.set_grid to
-        deal with multiple time axes.
+        All layers of grid must have identical spatial coordinates. This is an inherited
+        method from HydroMT-core's GridModel.set_grid with some fixes.
+
+        The first fix is when data with a time axis is being added. Since Wflow.jl
+        v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
+        the dimension name starts with "time". In this function, a check is done if a
+        time axis with that exact shape is already present in the grid object, and will
+        use that dimension (and its name) to set the data. If a time dimension does not
+        yet exist with that shape, it is created following the format
+        "time_{length_data}".
+
+        The other fix is that when the model is updated with a different number of
+        layers, this is not automatically updated correctly. With this fix, the old
+        layer dimension is removed (including all associated data), and the new data is
+        added with the correct "layer" dimension.
 
         Parameters
         ----------
         data: xarray.DataArray or xarray.Dataset
             new map layer to add to grid
         name: str, optional
-            Name of new map layer, this is used to overwrite the name of a DataArray
-            and ignored if data is a Dataset
+            Name of new map layer, this is used to overwrite the name of a DataArray and
+            ignored if data is a Dataset
         """
         if "time" in data.dims:
+            # Raise error if the dimension does not have a supported length
+            if len(data.time) not in [12, 365, 366]:
+                raise ValueError(
+                    f"Length of cyclic dataset ({len(data)}) is not supported by "
+                    "Wflow.jl. Ensure the data has length 12, 365, or 366"
+                )
             tname = "time"
             time_axes = {
                 k: v for k, v in dict(self.grid.dims).items() if k.startswith("time")
@@ -4788,6 +4795,18 @@ change name input.path_forcing "
 
             if tname != "time":
                 data = data.rename_dims({"time": tname})
+        if "layer" in data.dims and "layer" in self.grid:
+            if len(data["layer"]) != len(self.grid["layer"]):
+                vars_to_drop = [
+                    var for var in self.grid.variables if "layer" in self.grid[var].dims
+                ]
+                # Drop variables
+                self.logger.info(
+                    "Dropping these variables, as they depend on the layer "
+                    f"dimension: {vars_to_drop}"
+                )
+                # Use `_grid` as `grid` cannot be set
+                self._grid = self.grid.drop(vars_to_drop)
 
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
