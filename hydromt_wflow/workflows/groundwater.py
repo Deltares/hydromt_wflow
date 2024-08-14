@@ -19,9 +19,11 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "constant_boundary",
+    "riverbed_height",
     "soil_adjust",
     "soil_layers",
     "soil_parameters",
+    "unconfined_acquifer",
     "update_soil_config",
 ]
 
@@ -89,6 +91,26 @@ def constant_boundary(
     bounds = bounds.where(bounds_mask == 0, value)
 
     return bounds
+
+
+def riverbed_height(
+    da_like: xr.DataArray,
+    river: xr.DataArray,
+    river_bottom: float | int,
+):
+    """_summary_."""
+    # Create the riverbed DataArray
+    riverbed = da_like.where(river != 0, np.nan)
+    riverbed.attrs = {}
+    riverbed.raster.set_nodata(np.nan)
+
+    # Substract the bottom height
+    riverbed -= river_bottom
+
+    # Make it ready for output
+    riverbed = riverbed.raster.mask_nodata(-9999)
+
+    return riverbed
 
 
 def soil_adjust(
@@ -223,6 +245,41 @@ def soil_parameters(
     return ds
 
 
+def unconfined_acquifer(
+    da_like: xr.DataArray,
+    min_thickness: float | int,
+    max_ts: float | int,
+    max_kh: float | int,
+    specific_yield: float,
+):
+    """_summary_."""
+    # First determine the layer thickness
+    dsoil = da_like.copy()
+    dsoil = dsoil.raster.mask_nodata()
+    dsoil += min_thickness - np.nanmin(dsoil)
+
+    # Then use that for the horizontal conductivity
+    kh = max_ts / dsoil
+    kh.raster.set_nodata(np.nan)
+    kh = kh.raster.mask_nodata(-9999)
+    kh = kh.where(kh <= max_kh, max_kh)
+
+    # Adjust dsoil for output
+    dsoil *= 1000
+    dsoil.attrs = {"_FillValue": np.nan, "unit": "mm"}
+    dsoil = dsoil.raster.mask_nodata(-9999)
+
+    # Create the specific yield
+    sy = da_like.copy()
+    sy = sy.raster.mask_nodata()
+    sy = sy.where(np.isnan(sy), specific_yield)
+    sy.attrs = {"_Fillvalue": np.nan}
+    sy.raster.set_nodata(np.nan)
+    sy = sy.raster.mask_nodata(-9999)
+
+    return dsoil, kh, sy
+
+
 def update_soil_config(
     self,
     boundary_head,
@@ -230,21 +287,11 @@ def update_soil_config(
 ):
     """_summary_."""
     # Model settings
-    self.set_config("input.altitude", "wflow_dem")
     self.set_config("model.type", "sbm_gwf")
-    self.set_config("model.constanthead", True)
-
-    # States
-    self.set_config("state.lateral.subsurface.flow.aquifer.head", "head")
-
-    # Vertical input
-    self.set_config("input.vertical.soilthickness", "SoilThickness_gw")
 
     # Lateral input
     self.set_config("input.lateral.river.riverlength_bc.value", 0.0)
     self.set_config("input.lateral.river.riverdepth_bc.value", 0.0)
-    self.set_config("input.lateral.subsurface.ksathorfrac", "KsatHorFrac_gw")
-    self.set_config("input.lateral.subsurface.specific_yield", "SpecificStorage_mean")
     self.set_config(
         "input.lateral.subsurface.exfiltration_conductance.value",
         river_conductance,
@@ -254,23 +301,3 @@ def update_soil_config(
         river_conductance,
     )
     self.set_config("input.lateral.subsurface.river_bottom", "river_bottom")
-    self.set_config(
-        "input.lateral.subsurface.conductivity_profile",
-        "exponential",
-    )
-
-    # Individual parameters with scaling and offsets
-    self.set_config(
-        "input.lateral.subsurface.conductivity.netcdf.variable.name",
-        "KsatVer",
-    )
-    self.set_config("input.lateral.subsurface.conductivity.scale", 0.001)
-    self.set_config("input.lateral.subsurface.gwf_f.netcdf.variable.name", "f_gw")
-    self.set_config("input.lateral.subsurface.gwf_f.scale", 1000)
-    self.set_config(
-        "input.lateral.subsurface.constant_head.netcdf.variable.name", "Bounds_gw"
-    )
-    self.set_config("input.lateral.subsurface.constant_head.offset", boundary_head)
-
-    # Set some extra output
-    self.set_config("output.lateral.subsurface.flow.aquifer.head", "gw_head")

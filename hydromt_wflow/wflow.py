@@ -2076,7 +2076,155 @@ a map for each of the wflow_sbm soil layers (n in total)
         # Update the toml file
         self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
-    def setup_groundwater(
+    def setup_groundwater_boundary(
+        self,
+        waterfront_fn: Union[str, xr.DataArray],
+        boundary_head: float | int = 0,
+        boundary_buffer: int = 3,
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        waterfront_fn : Union[str, xr.DataArray]
+            _description_
+        boundary_head : float | int, optional
+            _description_, by default 0
+        boundary_buffer : int, optional
+            _description_, by default 3
+        """
+        self.logger.info("Preparing the groundwater boundary map.")
+        # Get the data
+        waterfront = self.data_catalog.get_rasterdataset(
+            waterfront_fn,
+            geom=self.region,
+            buffer=2,
+        )
+
+        # Setup the boundary conditions
+        self.logger.info("Setting up constant head boundary cells.")
+        bounds = workflows.constant_boundary(
+            self.grid["wflow_dem"],
+            waterfront=waterfront,
+            buffer=boundary_buffer,
+        )
+        self.set_grid(bounds, name="gw_boundary")
+
+        # Set the config file
+        self.set_config("model.constanthead", True)
+        self.set_config(
+            "input.lateral.subsurface.constant_head.netcdf.variable.name",
+            "gw_boundary",
+        )
+        self.set_config("input.lateral.subsurface.constant_head.offset", boundary_head)
+
+    def setup_unconfined_acquifer(
+        self,
+        min_thickness: float | int,
+        max_transmissivity: float | int,
+        max_kh: float | int,
+        specific_yield: float,
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        min_thickness : float | int
+            _description_
+        max_transmissivity : float | int
+            _description_
+        max_kh : float | int
+            _description_
+        """
+        self.logger.info("Preparing a single unconfined groundwater layer.")
+
+        # Setup the different layers
+        self.logger.info(
+            "Setting up the layer thickness \
+and the horizontal conductivity"
+        )
+        soil_thickness, kh, sy = workflows.unconfined_acquifer(
+            self.grid["wflow_dem"],
+            min_thickness=min_thickness,
+            max_ts=max_transmissivity,
+            max_kh=max_kh,
+            specific_yield=specific_yield,
+        )
+
+        # Set the layers to the grid
+        self.set_grid(soil_thickness, name="SoilThickness_gw")
+        self.set_grid(kh, name="kh")
+        self.set_grid(sy, name="SpecificYield")
+
+        # Set the config file
+        self.set_config("input.altitude", "wflow_dem")
+        self.set_config("input.vertical.soilthickness", "SoilThickness_gw")
+        self.set_config("input.lateral.subsurface.conductivity", "kh")
+        self.set_config("input.lateral.subsurface.conductivity_profile", "exponential")
+        self.set_config("input.lateral.subsurface.gwf_f.value", 0.01)
+        self.set_config("input.lateral.subsurface.specific_yield", "SpecificYield")
+        self.set_config("state.lateral.subsurface.flow.aquifer.head", "head")
+        self.set_config("output.lateral.subsurface.flow.aquifer.head", "gw_head")
+
+    def setup_rivers_groundwater(
+        self,
+        conductance: float,
+        river_bottom: float | int,
+    ):
+        """_summary_.
+
+        _extended_summary_
+
+        Parameters
+        ----------
+        conductance : float
+            _description_
+        river_bottom : float | int
+            _description_
+        """
+        self.logger.info("Preparing river maps for sbm_gwf")
+
+        # Create the maps
+        self.logger.info("Setting up riverbed conductance.")
+        self.setup_grid_from_constant(
+            conductance,
+            name="conductance",
+            dtype=np.float32,
+            nodata=-9999,
+            mask_name="wflow_river",
+        )
+        self.logger.info("Setting up river boundary distance.")
+        self.setup_grid_from_constant(
+            0.0,
+            name="river_bc",
+            dtype=np.float32,
+            nodata=-9999,
+            mask_name="wflow_river",
+        )
+        self.logger.info("Setting up the bottom of riverbed.")
+        riverbed = workflows.riverbed_height(
+            self.grid["wflow_dem"],
+            river=self.grid["wflow_river"],
+            river_bottom=river_bottom,
+        )
+        self.set_grid(riverbed, name="river_bottom")
+
+        # Set the config file
+        self.set_config(
+            "input.lateral.subsurface.exfiltration_conductance", "conductance"
+        )
+        self.set_config(
+            "input.lateral.subsurface.infiltration_conductance", "conductance"
+        )
+        self.set_config("input.lateral.river.riverdepth_bc", "river_bc")
+        self.set_config("input.lateral.river.riverlength_bc", "river_bc")
+        self.set_config("input.lateral.subsurface.river_bottom", "river_bottom")
+
+    def setup_acquifers(
         self,
         layers_fn: Union[str, xr.Dataset],
         linktable_fn: Union[str, pd.DataFrame],
