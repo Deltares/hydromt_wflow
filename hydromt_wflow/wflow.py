@@ -3147,18 +3147,28 @@ Run setup_soilmaps first"
             self.set_config(option, states_config[option])
 
     # I/O
-    def read(self):
+    def read(
+        self,
+        config_fn: Union[Path, str] = None,
+        geom_fn: Union[Path, str] = "staticgeoms",
+    ):
         """Read the complete model schematization and configuration from file."""
-        self.read_config()
+        self.read_config(config_fn=config_fn)
         self.read_grid()
+        self.read_geoms(geom_fn=geom_fn)
+        self.read_forcing()
         self.read_intbl()
         self.read_tables()
-        self.read_geoms()
         self.read_states()
-        self.read_forcing()
         self.logger.info("Model read")
 
-    def write(self):
+    def write(
+        self,
+        config_fn: str = None,
+        grid_fn: Union[Path, str] = "staticmaps.nc",
+        geom_fn: Union[Path, str] = "staticgeoms",
+        forcing_fn: Union[Path, str] = None,
+    ):
         """Write the complete model schematization and configuration to file."""
         self.logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
@@ -3166,18 +3176,19 @@ Run setup_soilmaps first"
             self.logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
-        if self.config:  # try to read default if not yet set
-            self.write_config()
         if self._grid:
-            self.write_grid()
+            self.write_grid(fn_out=grid_fn)
+        if self._geoms:
+            self.write_geoms(geom_fn=geom_fn)
+        if self._forcing:
+            self.write_forcing(fn_out=forcing_fn)
         if self._tables:
             self.write_tables()
-        if self._geoms:
-            self.write_geoms()
         if self._states:
             self.write_states()
-        if self._forcing:
-            self.write_forcing()
+        # Write the config last as variables can get set in other write methods
+        if self.config:  # try to read default if not yet set
+            self.write_config(config_name=config_fn)
 
     def read_grid(self, **kwargs):
         """
@@ -3297,17 +3308,12 @@ Run setup_soilmaps first"
         """
         Read static geometries and adds to ``geoms``.
 
-        Assumes that the `geom_fn` folder is located in the same folder as the static
-        input data (``input.path_static``). If not found uses assumes they are in
-        <root/geom_fm>.
+        Assumes that the `geom_fn` folder is located in the same folder as the root or
+        the folder where the config file is located (which is the root).
         """
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
-        dir_default = join(self.root, "staticmaps.nc")
-        dir_mod = dirname(
-            self.get_config("input.path_static", abs_path=True, fallback=dir_default)
-        )
-        fns = glob.glob(join(dir_mod, geom_fn, "*.geojson"))
+        fns = glob.glob(join(self.root, geom_fn, "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -3440,7 +3446,6 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             # get output filename
             if fn_out is not None:
                 self.set_config("input.path_forcing", fn_out)
-                self.write_config()  # re-write config
             else:
                 fn_name = self.get_config("input.path_forcing", abs_path=False)
                 if fn_name is not None:
@@ -3505,7 +3510,6 @@ change name input.path_forcing "
                         return
                     else:
                         self.set_config("input.path_forcing", fn_default)
-                        self.write_config()  # re-write config
                         fn_out = fn_default_path
 
             # Check if all dates between (starttime, endtime) are in all da forcing
@@ -3533,9 +3537,9 @@ change name input.path_forcing "
                     f"Not all dates found in precip_fn changing starttime to \
 {start} and endtime to {end} in the toml."
                 )
-                self.set_config("starttime", start.to_pydatetime())
-                self.set_config("endtime", end.to_pydatetime())
-                self.write_config()
+                # Set the strings first
+                self.set_config("starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
+                self.set_config("endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
 
             if decimals is not None:
                 ds = ds.round(decimals)
@@ -3577,7 +3581,6 @@ change name input.path_forcing "
                 fns_out = os.path.relpath(fn_out, self.root)
                 fns_out = f"{str(fns_out)[0:-3]}_*.nc"
                 self.set_config("input.path_forcing", fns_out)
-                self.write_config()  # re-write config
                 for label, ds_gr in ds.resample(time=freq_out):
                     # ds_gr = group[1]
                     start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
