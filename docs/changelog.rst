@@ -16,7 +16,7 @@ Added
 
 Fixed
 -----
-- Wrong dtype for columns when reading a mapping table in **setup_laimaps_from_lulc_mapping** . PR #287
+- Wrong dtype for columns when reading a mapping table in **setup_laimaps_from_lulc_mapping** . PR #290
 
 v0.6.0 (7 June 2024)
 ====================
