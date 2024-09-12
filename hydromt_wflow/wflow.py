@@ -3150,12 +3150,12 @@ Run setup_soilmaps first"
     def read(
         self,
         config_fn: Union[Path, str] = None,
-        geom_fn: Union[Path, str] = "staticgeoms",
+        geoms_fn: Union[Path, str] = "staticgeoms",
     ):
         """Read the complete model schematization and configuration from file."""
         self.read_config(config_fn=config_fn)
         self.read_grid()
-        self.read_geoms(geom_fn=geom_fn)
+        self.read_geoms(geoms_fn=geoms_fn)
         self.read_forcing()
         self.read_intbl()
         self.read_tables()
@@ -3176,6 +3176,8 @@ Run setup_soilmaps first"
             self.logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
+        # TODO Look into why this needs to be set.
+        _ = self.config  # try to read default if not yet set
         if self._grid:
             self.write_grid(fn_out=grid_fn)
         if self._geoms:
@@ -3187,8 +3189,7 @@ Run setup_soilmaps first"
         if self._states:
             self.write_states()
         # Write the config last as variables can get set in other write methods
-        if self.config:  # try to read default if not yet set
-            self.write_config(config_name=config_fn)
+        self.write_config(config_name=config_fn)
 
     def read_grid(self, **kwargs):
         """
@@ -3303,17 +3304,17 @@ Run setup_soilmaps first"
 
     def read_geoms(
         self,
-        geom_fn: str = "staticgeoms",
+        geoms_fn: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
 
-        Assumes that the `geom_fn` folder is located in the same folder as the root or
+        Assumes that the `geoms_fn` folder is located in the same folder as the root or
         the folder where the config file is located (which is the root).
         """
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
-        fns = glob.glob(join(self.root, geom_fn, "*.geojson"))
+        fns = glob.glob(join(self.root, geoms_fn, "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
