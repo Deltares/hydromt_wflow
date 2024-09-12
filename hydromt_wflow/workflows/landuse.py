@@ -283,6 +283,7 @@ def lai_from_lulc_mapping(
         Dataset with LAI values for each month.
     """
     months = np.arange(1, 13)
+    df.columns = [int(col) if str(col).isdigit() else col for col in df.columns]
     # Map the monthly LAI values to the landuse map
     ds_lai = landuse(
         da=da,
