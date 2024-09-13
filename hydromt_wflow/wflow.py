@@ -3212,6 +3212,36 @@ Run setup_soilmaps first"
         # Write the config last as variables can get set in other write methods
         self.write_config(config_name=config_fn)
 
+    def write_config(
+        self,
+        config_name: Optional[str] = None,
+        config_root: Optional[str] = None,
+    ):
+        """
+        Write config to <root/config_fn>.
+
+        Parameters
+        ----------
+        config_name : str, optional
+            Name of the config file. By default None to use the default name
+            wflow_sbm.toml.
+        config_root : str, optional
+            Root folder to write the config file if different from model root (default).
+        """
+        self._assert_write_mode()
+        if config_name is not None:
+            self._config_fn = config_name
+        elif self._config_fn is None:
+            self._config_fn = self._CONF
+        if config_root is None:
+            config_root = self.root
+        fn = join(config_root, self._config_fn)
+        # Create the folder if it does not exist
+        if not isdir(dirname(fn)):
+            os.makedirs(dirname(fn))
+        self.logger.info(f"Writing model config to {fn}")
+        self._configwrite(fn)
+
     def read_grid(self, **kwargs):
         """
         Read wflow static input and add to ``grid``.
