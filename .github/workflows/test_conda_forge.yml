@@ -43,7 +43,7 @@ jobs:
 
       - name: Install test dependencies
         run: |
-          mamba install -c conda-forge pytest pytest-cov pytest-mock
+          mamba install -c conda-forge pytest pytest-cov pytest-mock pytest-timeout
           pip install gwwapi
 
       - name: Conda info
@@ -52,4 +52,4 @@ jobs:
          conda list
 
       - name: Run model build Tests
-        run: python -m pytest --verbose tests/test_model_class.py::test_build_model
+        run: python -m pytest --verbose tests/test_model_class.py::test_model_build
