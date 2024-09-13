@@ -13,7 +13,11 @@ from hydromt_wflow.wflow_sediment import WflowSedimentModel
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
-_supported_models = {"wflow": WflowModel, "wflow_sediment": WflowSedimentModel}
+_supported_models = {
+    "wflow": WflowModel,
+    "wflow_sediment": WflowSedimentModel,
+    "wflow_simple": WflowModel,
+}
 
 
 def _compare_wflow_models(mod0, mod1):
@@ -126,9 +130,10 @@ def test_model_build(tmpdir, model, example_models, example_inis):
     mod1.read()
     # get reference model
     mod0 = example_models[model]
-    mod0.read()
-    # compare models
-    _compare_wflow_models(mod0, mod1)
+    if mod0 is not None:
+        mod0.read()
+        # compare models
+        _compare_wflow_models(mod0, mod1)
 
 
 def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
