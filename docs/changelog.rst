@@ -12,6 +12,7 @@ All the unreleased new features and bug fixes.
 
 Added
 -----
+- Added "fillna_method" option for **setup_temp_pet_forcing** by @tnlim
 - Output filenames can now be specified in the model.write function. More detailed arguments should still be specified in each individual write* methods. PR #286
 
 Changed
