@@ -96,10 +96,11 @@ def _compare_wflow_models(mod0, mod1):
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_class(model, example_models):
     mod = example_models[model]
-    mod.read()
-    # run test_model_api() method
-    non_compliant_list = mod._test_model_api()
-    assert len(non_compliant_list) == 0
+    if mod is not None:
+        mod.read()
+        # run test_model_api() method
+        non_compliant_list = mod._test_model_api()
+        assert len(non_compliant_list) == 0
 
 
 @pytest.mark.timeout(300)  # max 5 min

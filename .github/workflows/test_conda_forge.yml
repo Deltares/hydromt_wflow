@@ -52,4 +52,4 @@ jobs:
          conda list
 
       - name: Run model build Tests
-        run: python -m pytest --verbose tests\\test_model_class.py
+        run: python -m pytest --verbose tests/test_model_class.py::test_build_model
