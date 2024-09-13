@@ -12,7 +12,7 @@ All the unreleased new features and bug fixes.
 
 Added
 -----
-- To be Added
+- Added "fillna_method" option for **setup_temp_pet_forcing** by @tnlim
 
 Fixed
 -----

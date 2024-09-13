@@ -2422,6 +2422,7 @@ one variable and variables list is not provided."
         wind_correction: bool = True,
         wind_altitude: int = 10,
         reproj_method: str = "nearest_index",
+        fillna_method: Optional[str] = None,
         dem_forcing_fn: Union[str, xr.DataArray] = None,
         skip_pet: str = False,
         chunksize: Optional[int] = None,
@@ -2497,6 +2498,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         reproj_method : str, optional
             Reprojection method from rasterio.enums.Resampling. to reproject the climate
             data to the model resolution. By default 'nearest_index'.
+        fillna_method: str, optional
+            Method to fill NaN cells within the active model domain in the 
+            temperature data e.g. 'nearest'
+            By default None for no interpolation.
         chunksize: int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
@@ -2640,6 +2645,12 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             "temp_correction": str(temp_correction),
         }
         temp_out.attrs.update(opt_attr)
+        if fillna_method is not None:
+            temp_out = temp_out.raster.interpolate_na(
+                dim=temp_out.raster.x_dim,
+                method=fillna_method,
+                fill_value="extrapolate",
+            )
         self.set_forcing(temp_out.where(mask), name="temp")
 
     def setup_pet_forcing(
