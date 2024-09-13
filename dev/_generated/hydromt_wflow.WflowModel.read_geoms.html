@@ -618,11 +618,16 @@
 <h1>hydromt_wflow.WflowModel.read_geoms<a class="headerlink" href="#hydromt-wflow-wflowmodel-read-geoms" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.read_geoms">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">read_geoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geom_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'staticgeoms'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.read_geoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.read_geoms" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">read_geoms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geoms_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'staticgeoms'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.read_geoms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.read_geoms" title="Link to this definition">#</a></dt>
 <dd><p>Read static geometries and adds to <code class="docutils literal notranslate"><span class="pre">geoms</span></code>.</p>
-<p>Assumes that the <cite>geom_fn</cite> folder is located in the same folder as the static
-input data (<code class="docutils literal notranslate"><span class="pre">input.path_static</span></code>). If not found uses assumes they are in
-&lt;root/geom_fm&gt;.</p>
+<p>Assumes that the <cite>geoms_fn</cite> folder is located relative to root and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code>
+if defined in the toml. If not found, uses assumes they are in &lt;root/geoms_fn&gt;.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geoms_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a><em>, </em><em>optional</em>) – Folder name/path where the static geometries are stored relative to the
+model root and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code> if any. By default “staticgeoms”.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

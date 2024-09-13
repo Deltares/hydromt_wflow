@@ -763,7 +763,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read" title="hydromt_wflow.WflowModel.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read</span></code></a>()</p></td>
 <td><p>Read the complete model schematization and configuration from file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write" title="hydromt_wflow.WflowModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write" title="hydromt_wflow.WflowModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write</span></code></a>([config_fn, grid_fn, ...])</p></td>
 <td><p>Write the complete model schematization and configuration to file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.build.html#hydromt_wflow.WflowModel.build" title="hydromt_wflow.WflowModel.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.build</span></code></a>([region, write, opt])</p></td>
@@ -813,11 +813,11 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_geoms.html#hydromt_wflow.WflowModel.set_geoms" title="hydromt_wflow.WflowModel.set_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_geoms</span></code></a>(geom, name)</p></td>
 <td><p>Add data to the geoms attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms" title="hydromt_wflow.WflowModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_geoms</span></code></a>([geom_fn])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms" title="hydromt_wflow.WflowModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.read_geoms</span></code></a>([geoms_fn])</p></td>
 <td><p>Read static geometries and adds to <code class="docutils literal notranslate"><span class="pre">geoms</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms" title="hydromt_wflow.WflowModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write_geoms</span></code></a>([geom_fn, precision])</p></td>
-<td><p>Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms" title="hydromt_wflow.WflowModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.write_geoms</span></code></a>([geoms_fn, precision])</p></td>
+<td><p>Write geoms in GeoJSON format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.set_forcing.html#hydromt_wflow.WflowModel.set_forcing" title="hydromt_wflow.WflowModel.set_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.set_forcing</span></code></a>(data[, name, ...])</p></td>
 <td><p>Add data to forcing attribute.</p></td>
@@ -995,7 +995,7 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read.html#hydromt_wflow.WflowSedimentModel.read" title="hydromt_wflow.WflowSedimentModel.read"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read</span></code></a>()</p></td>
 <td><p>Read the complete model schematization and configuration from file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write.html#hydromt_wflow.WflowSedimentModel.write" title="hydromt_wflow.WflowSedimentModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write.html#hydromt_wflow.WflowSedimentModel.write" title="hydromt_wflow.WflowSedimentModel.write"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write</span></code></a>([config_fn, ...])</p></td>
 <td><p>Write the complete model schematization and configuration to file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.build.html#hydromt_wflow.WflowSedimentModel.build" title="hydromt_wflow.WflowSedimentModel.build"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.build</span></code></a>([region, write, opt])</p></td>
@@ -1045,11 +1045,11 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_geoms.html#hydromt_wflow.WflowSedimentModel.set_geoms" title="hydromt_wflow.WflowSedimentModel.set_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.set_geoms</span></code></a>(geom, name)</p></td>
 <td><p>Add data to the geoms attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read_geoms.html#hydromt_wflow.WflowSedimentModel.read_geoms" title="hydromt_wflow.WflowSedimentModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read_geoms</span></code></a>([geom_fn])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.read_geoms.html#hydromt_wflow.WflowSedimentModel.read_geoms" title="hydromt_wflow.WflowSedimentModel.read_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.read_geoms</span></code></a>([geoms_fn])</p></td>
 <td><p>Read static geometries and adds to <code class="docutils literal notranslate"><span class="pre">geoms</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write_geoms.html#hydromt_wflow.WflowSedimentModel.write_geoms" title="hydromt_wflow.WflowSedimentModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write_geoms</span></code></a>([geom_fn, ...])</p></td>
-<td><p>Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.write_geoms.html#hydromt_wflow.WflowSedimentModel.write_geoms" title="hydromt_wflow.WflowSedimentModel.write_geoms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.write_geoms</span></code></a>([geoms_fn, ...])</p></td>
+<td><p>Write geoms in GeoJSON format.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowSedimentModel.set_forcing.html#hydromt_wflow.WflowSedimentModel.set_forcing" title="hydromt_wflow.WflowSedimentModel.set_forcing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowSedimentModel.set_forcing</span></code></a>(data[, name, ...])</p></td>
 <td><p>Add data to forcing attribute.</p></td>

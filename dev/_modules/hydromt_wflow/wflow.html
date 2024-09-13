@@ -2983,7 +2983,7 @@
 <span class="sd">            Reprojection method from rasterio.enums.Resampling. to reproject the climate</span>
 <span class="sd">            data to the model resolution. By default &#39;nearest_index&#39;.</span>
 <span class="sd">        fillna_method: str, optional</span>
-<span class="sd">            Method to fill NaN cells within the active model domain in the </span>
+<span class="sd">            Method to fill NaN cells within the active model domain in the</span>
 <span class="sd">            temperature data e.g. &#39;nearest&#39;</span>
 <span class="sd">            By default None for no interpolation.</span>
 <span class="sd">        chunksize: int, optional</span>
@@ -3657,40 +3657,106 @@
     <span class="c1"># I/O</span>
 <div class="viewcode-block" id="WflowModel.read">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read">[docs]</a>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the complete model schematization and configuration from file.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_config</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_grid</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_geoms</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_forcing</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_intbl</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_tables</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_geoms</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read_states</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_forcing</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Model read&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.write">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write">[docs]</a>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write the complete model schematization and configuration to file.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">grid_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">,</span>
+        <span class="n">geoms_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
+        <span class="n">forcing_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">states_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the complete model schematization and configuration to file.</span>
+
+<span class="sd">        From this function, the output filenames/folder of the different components can</span>
+<span class="sd">        be set. If not set, the default filenames/folder are used.</span>
+<span class="sd">        To change more advanced settings, use the specific write methods directly.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_fn : str, optional</span>
+<span class="sd">            Name of the config file, realtive to model root. By default None.</span>
+<span class="sd">        grid_fn : str, optional</span>
+<span class="sd">            Name of the grid file, relative to model root/dir_input. By default</span>
+<span class="sd">            &#39;staticmaps.nc&#39;.</span>
+<span class="sd">        geoms_fn : str, optional</span>
+<span class="sd">            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By</span>
+<span class="sd">            default &#39;staticgeoms&#39;.</span>
+<span class="sd">        forcing_fn : str, optional</span>
+<span class="sd">            Name of the forcing file relative to model root/dir_input. By default None</span>
+<span class="sd">            to use the name as defined in the model config file.</span>
+<span class="sd">        states_fn : str, optional</span>
+<span class="sd">            Name of the states file realtive to model root/dir_input. By default None</span>
+<span class="sd">            to use the name as defined in the model config file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Write model data to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># if in r, r+ mode, only write updated components</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot write in read-only mode&quot;</span><span class="p">)</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_data_catalog</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">:</span>  <span class="c1"># try to read default if not yet set</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>  <span class="c1"># try to read default if not yet set</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_grid</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_grid</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="n">grid_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geoms</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_geoms</span><span class="p">(</span><span class="n">geoms_fn</span><span class="o">=</span><span class="n">geoms_fn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_forcing</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="n">forcing_fn</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_tables</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_geoms</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_geoms</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_states</span><span class="p">()</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forcing</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_forcing</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_states</span><span class="p">(</span><span class="n">states_fn</span><span class="o">=</span><span class="n">states_fn</span><span class="p">)</span>
+        <span class="c1"># Write the config last as variables can get set in other write methods</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="n">config_fn</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WflowModel.write_config">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_config.html#hydromt_wflow.WflowModel.write_config">[docs]</a>
+    <span class="k">def</span> <span class="nf">write_config</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">config_root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write config to &lt;root/config_fn&gt;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config_name : str, optional</span>
+<span class="sd">            Name of the config file. By default None to use the default name</span>
+<span class="sd">            wflow_sbm.toml.</span>
+<span class="sd">        config_root : str, optional</span>
+<span class="sd">            Root folder to write the config file if different from model root (default).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_write_mode</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">config_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_fn</span> <span class="o">=</span> <span class="n">config_name</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_config_fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_CONF</span>
+        <span class="k">if</span> <span class="n">config_root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">config_root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span>
+        <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">config_root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_fn</span><span class="p">)</span>
+        <span class="c1"># Create the folder if it does not exist</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn</span><span class="p">)):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Writing model config to </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_configwrite</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowModel.read_grid">
@@ -3755,7 +3821,9 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        fn_out : Path | str, optional</span>
-<span class="sd">            Name or path to the outgoing grid file (including extension).</span>
+<span class="sd">            Name or path to the outgoing grid file (including extension). This is the</span>
+<span class="sd">            path/name relative to the root folder and if present the ``dir_input``</span>
+<span class="sd">            folder.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -3814,22 +3882,29 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms">[docs]</a>
     <span class="k">def</span> <span class="nf">read_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
+        <span class="n">geoms_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read static geometries and adds to ``geoms``.</span>
 
-<span class="sd">        Assumes that the `geom_fn` folder is located in the same folder as the static</span>
-<span class="sd">        input data (``input.path_static``). If not found uses assumes they are in</span>
-<span class="sd">        &lt;root/geom_fm&gt;.</span>
+<span class="sd">        Assumes that the `geoms_fn` folder is located relative to root and ``dir_input``</span>
+<span class="sd">        if defined in the toml. If not found, uses assumes they are in &lt;root/geoms_fn&gt;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geoms_fn : str, optional</span>
+<span class="sd">            Folder name/path where the static geometries are stored relative to the</span>
+<span class="sd">            model root and ``dir_input`` if any. By default &quot;staticgeoms&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_geoms</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># fresh start in read-only mode</span>
-        <span class="n">dir_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">)</span>
-        <span class="n">dir_mod</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_static&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fallback</span><span class="o">=</span><span class="n">dir_default</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dir_mod</span><span class="p">,</span> <span class="n">geom_fn</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">))</span>
+        <span class="c1"># Check if dir_input is set and add</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dir_mod</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">geoms_fn</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dir_mod</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">geoms_fn</span><span class="p">)</span>
+
+        <span class="n">fns</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dir_mod</span><span class="p">,</span> <span class="s2">&quot;*.geojson&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reading model staticgeom files.&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">fn</span> <span class="ow">in</span> <span class="n">fns</span><span class="p">:</span>
@@ -3842,10 +3917,22 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms">[docs]</a>
     <span class="k">def</span> <span class="nf">write_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">geom_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
+        <span class="n">geoms_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
         <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write geoms in &lt;root/geom_fn&gt; in GeoJSON format.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write geoms in GeoJSON format.</span>
+
+<span class="sd">        Checks the path of ``geoms_fn`` using both model root and</span>
+<span class="sd">        ``dir_input``. If not found uses the default path ``staticgeoms`` in the root</span>
+<span class="sd">        folder.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        geoms_fn : str, optional</span>
+<span class="sd">            Folder name/path where the static geometries are stored relative to the</span>
+<span class="sd">            model root and ``dir_input`` if any. By default &quot;staticgeoms&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># to write use self.geoms[var].to_file()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -3859,6 +3946,15 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">_precision</span> <span class="o">=</span> <span class="mi">6</span>
             <span class="n">grid_size</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">_precision</span><span class="p">)</span>
+            <span class="c1"># Prepare the output folder</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">geoms_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;dir_input&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+                    <span class="n">geoms_fn</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">geoms_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">geoms_fn</span><span class="p">)</span>
+
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="c1"># TODO change to geopandas functionality once geopandas 1.0.0 comes</span>
                 <span class="c1"># See https://github.com/geopandas/geopandas/releases/tag/v1.0.0-alpha1</span>
@@ -3866,7 +3962,7 @@
                     <span class="n">gdf</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
                     <span class="n">grid_size</span><span class="o">=</span><span class="n">grid_size</span><span class="p">,</span>
                 <span class="p">)</span>
-                <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">geom_fn</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.geojson&quot;</span><span class="p">)</span>
+                <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">geoms_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.geojson&quot;</span><span class="p">)</span>
                 <span class="n">gdf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;GeoJSON&quot;</span><span class="p">)</span></div>
 
 
@@ -3971,7 +4067,6 @@
             <span class="c1"># get output filename</span>
             <span class="k">if</span> <span class="n">fn_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">fn_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">abs_path</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">fn_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -4036,7 +4131,6 @@
                         <span class="k">return</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fn_default</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
                         <span class="n">fn_out</span> <span class="o">=</span> <span class="n">fn_default_path</span>
 
             <span class="c1"># Check if all dates between (starttime, endtime) are in all da forcing</span>
@@ -4064,9 +4158,9 @@
                     <span class="sa">f</span><span class="s2">&quot;Not all dates found in precip_fn changing starttime to </span><span class="se">\</span>
 <span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2"> and endtime to </span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2"> in the toml.&quot;</span>
                 <span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">())</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">())</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>
+                <span class="c1"># Set the strings first</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">decimals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="p">)</span>
@@ -4108,7 +4202,6 @@
                 <span class="n">fns_out</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">relpath</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
                 <span class="n">fns_out</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">fns_out</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span><span class="si">}</span><span class="s2">_*.nc&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.path_forcing&quot;</span><span class="p">,</span> <span class="n">fns_out</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">()</span>  <span class="c1"># re-write config</span>
                 <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ds_gr</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">freq_out</span><span class="p">):</span>
                     <span class="c1"># ds_gr = group[1]</span>
                     <span class="n">start</span> <span class="o">=</span> <span class="n">ds_gr</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
