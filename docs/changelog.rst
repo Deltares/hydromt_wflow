@@ -22,7 +22,7 @@ Changed
 Fixed
 -----
 - Wrong dtype for columns when reading a mapping table in **setup_laimaps_from_lulc_mapping** . PR #290
-- Read/write staticgeoms if input folder is present. PR #286
+- Read/write staticgeoms if dir_input folder is present in the wflow toml file. PR #286
 
 v0.6.0 (7 June 2024)
 ====================

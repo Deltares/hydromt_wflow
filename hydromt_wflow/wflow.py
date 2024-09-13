@@ -3332,9 +3332,8 @@ Run setup_soilmaps first"
         """
         Read static geometries and adds to ``geoms``.
 
-        Assumes that the `geoms_fn` folder is located in the same folder as the static
-        input data (``input.path_static`` and ``dir_input``). If not found, uses assumes
-        they are in <root/geoms_fn>.
+        Assumes that the `geoms_fn` folder is located relative to root and ``dir_input``
+        if defined in the toml. If not found, uses assumes they are in <root/geoms_fn>.
 
         Parameters
         ----------
@@ -3344,22 +3343,13 @@ Run setup_soilmaps first"
         """
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
-        # Assumes geoms_fn is located in the same folder as the static input data
-        dir_mod = dirname(
-            self.get_config(
-                "input.path_static", abs_path=True, fallback="staticmaps.nc"
-            )
-        )
         # Check if dir_input is set and add
         if self.get_config("dir_input") is not None:
-            dir_mod = dirname(
-                join(
-                    self.get_config("dir_input", abs_path=True),
-                    self.get_config("input.path_static", fallback="staticmaps.nc"),
-                )
-            )
+            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
+        else:
+            dir_mod = join(self.root, geoms_fn)
 
-        fns = glob.glob(join(dir_mod, geoms_fn, "*.geojson"))
+        fns = glob.glob(join(dir_mod, "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -3375,8 +3365,7 @@ Run setup_soilmaps first"
         """
         Write geoms in GeoJSON format.
 
-        Assumes the geoms_fn folder is located relative to the staticmaps.nc file.
-        Checks the path of ``geoms_fn`` using both ``input.path_static`` and
+        Checks the path of ``geoms_fn`` using both model root and
         ``dir_input``. If not found uses the default path ``staticgeoms`` in the root
         folder.
 
@@ -3384,8 +3373,7 @@ Run setup_soilmaps first"
         ----------
         geoms_fn : str, optional
             Folder name/path where the static geometries are stored relative to the
-            staticmaps file ie relative to the model root and ``dir_input`` if any. By
-            default "staticgeoms".
+            model root and ``dir_input`` if any. By default "staticgeoms".
         """
         # to write use self.geoms[var].to_file()
         if not self._write:
@@ -3401,19 +3389,13 @@ Run setup_soilmaps first"
                     _precision = 6
             grid_size = 10 ** (-_precision)
             # Prepare the output folder
-            geoms_dir = dirname(
-                self.get_config(
-                    "input.path_static", abs_path=True, fallback="staticmaps.nc"
-                )
-            )
             if self.get_config("dir_input") is not None:
-                geoms_dir = dirname(
-                    join(
-                        self.get_config("dir_input", abs_path=True),
-                        self.get_config("input.path_static", fallback="staticmaps.nc"),
-                    )
+                geoms_dir = join(
+                    self.get_config("dir_input", abs_path=True),
+                    geoms_fn,
                 )
-            geoms_dir = join(geoms_dir, geoms_fn)
+            else:
+                geoms_dir = join(self.root, geoms_fn)
 
             for name, gdf in self.geoms.items():
                 # TODO change to geopandas functionality once geopandas 1.0.0 comes
