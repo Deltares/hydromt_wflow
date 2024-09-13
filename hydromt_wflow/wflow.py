@@ -3149,13 +3149,11 @@ Run setup_soilmaps first"
     # I/O
     def read(
         self,
-        config_fn: Union[Path, str] = None,
-        geoms_fn: Union[Path, str] = "staticgeoms",
     ):
         """Read the complete model schematization and configuration from file."""
-        self.read_config(config_fn=config_fn)
+        self.read_config()
         self.read_grid()
-        self.read_geoms(geoms_fn=geoms_fn)
+        self.read_geoms()
         self.read_forcing()
         self.read_intbl()
         self.read_tables()
@@ -3166,28 +3164,51 @@ Run setup_soilmaps first"
         self,
         config_fn: str = None,
         grid_fn: Union[Path, str] = "staticmaps.nc",
-        geom_fn: Union[Path, str] = "staticgeoms",
+        geoms_fn: Union[Path, str] = "staticgeoms",
         forcing_fn: Union[Path, str] = None,
+        states_fn: Union[Path, str] = None,
     ):
-        """Write the complete model schematization and configuration to file."""
+        """
+        Write the complete model schematization and configuration to file.
+
+        From this function, the output filenames/folder of the different components can
+        be set. If not set, the default filenames/folder are used.
+        To change more advanced settings, use the specific write methods directly.
+
+        Parameters
+        ----------
+        config_fn : str, optional
+            Name of the config file, realtive to model root. By default None.
+        grid_fn : str, optional
+            Name of the grid file, relative to model root/dir_input. By default
+            'staticmaps.nc'.
+        geoms_fn : str, optional
+            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By
+            default 'staticgeoms'.
+        forcing_fn : str, optional
+            Name of the forcing file relative to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        states_fn : str, optional
+            Name of the states file realtive to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        """
         self.logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
         if not self._write:
             self.logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
-        # TODO Look into why this needs to be set.
         _ = self.config  # try to read default if not yet set
         if self._grid:
             self.write_grid(fn_out=grid_fn)
         if self._geoms:
-            self.write_geoms(geom_fn=geom_fn)
+            self.write_geoms(geoms_fn=geoms_fn)
         if self._forcing:
             self.write_forcing(fn_out=forcing_fn)
         if self._tables:
             self.write_tables()
         if self._states:
-            self.write_states()
+            self.write_states(states_fn=states_fn)
         # Write the config last as variables can get set in other write methods
         self.write_config(config_name=config_fn)
 
@@ -3248,7 +3269,9 @@ Run setup_soilmaps first"
         Parameters
         ----------
         fn_out : Path | str, optional
-            Name or path to the outgoing grid file (including extension).
+            Name or path to the outgoing grid file (including extension). This is the
+            path/name relative to the root folder and if present the ``dir_input``
+            folder.
         """
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3309,12 +3332,34 @@ Run setup_soilmaps first"
         """
         Read static geometries and adds to ``geoms``.
 
-        Assumes that the `geoms_fn` folder is located in the same folder as the root or
-        the folder where the config file is located (which is the root).
+        Assumes that the `geoms_fn` folder is located in the same folder as the static
+        input data (``input.path_static`` and ``dir_input``). If not found, uses assumes
+        they are in <root/geoms_fn>.
+
+        Parameters
+        ----------
+        geoms_fn : str, optional
+            Folder name/path where the static geometries are stored relative to the
+            model root and ``dir_input`` if any. By default "staticgeoms".
         """
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
-        fns = glob.glob(join(self.root, geoms_fn, "*.geojson"))
+        # Assumes geoms_fn is located in the same folder as the static input data
+        dir_mod = dirname(
+            self.get_config(
+                "input.path_static", abs_path=True, fallback="staticmaps.nc"
+            )
+        )
+        # Check if dir_input is set and add
+        if self.get_config("dir_input") is not None:
+            dir_mod = dirname(
+                join(
+                    self.get_config("dir_input", abs_path=True),
+                    self.get_config("input.path_static", fallback="staticmaps.nc"),
+                )
+            )
+
+        fns = glob.glob(join(dir_mod, geoms_fn, "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -3324,10 +3369,24 @@ Run setup_soilmaps first"
 
     def write_geoms(
         self,
-        geom_fn: str = "staticgeoms",
+        geoms_fn: str = "staticgeoms",
         precision: int | None = None,
     ):
-        """Write geoms in <root/geom_fn> in GeoJSON format."""
+        """
+        Write geoms in GeoJSON format.
+
+        Assumes the geoms_fn folder is located relative to the staticmaps.nc file.
+        Checks the path of ``geoms_fn`` using both ``input.path_static`` and
+        ``dir_input``. If not found uses the default path ``staticgeoms`` in the root
+        folder.
+
+        Parameters
+        ----------
+        geoms_fn : str, optional
+            Folder name/path where the static geometries are stored relative to the
+            staticmaps file ie relative to the model root and ``dir_input`` if any. By
+            default "staticgeoms".
+        """
         # to write use self.geoms[var].to_file()
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3341,6 +3400,21 @@ Run setup_soilmaps first"
                 else:
                     _precision = 6
             grid_size = 10 ** (-_precision)
+            # Prepare the output folder
+            geoms_dir = dirname(
+                self.get_config(
+                    "input.path_static", abs_path=True, fallback="staticmaps.nc"
+                )
+            )
+            if self.get_config("dir_input") is not None:
+                geoms_dir = dirname(
+                    join(
+                        self.get_config("dir_input", abs_path=True),
+                        self.get_config("input.path_static", fallback="staticmaps.nc"),
+                    )
+                )
+            geoms_dir = join(geoms_dir, geoms_fn)
+
             for name, gdf in self.geoms.items():
                 # TODO change to geopandas functionality once geopandas 1.0.0 comes
                 # See https://github.com/geopandas/geopandas/releases/tag/v1.0.0-alpha1
@@ -3348,7 +3422,7 @@ Run setup_soilmaps first"
                     gdf.geometry,
                     grid_size=grid_size,
                 )
-                fn_out = join(self.root, geom_fn, f"{name}.geojson")
+                fn_out = join(geoms_dir, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
 
     def read_forcing(self):

@@ -12,11 +12,17 @@ All the unreleased new features and bug fixes.
 
 Added
 -----
-- To be Added
+- Output filenames can now be specified in the model.write function. More detailed arguments should still be specified in each individual write* methods. PR #286
+
+Changed
+-------
+- Individual methods like write_forcing will not longer write the config file if config settings get updated. Always call write_config as the last write method. PR #286
+- More uniform handling of the date typing when reading/writing dates from the wflow toml files. PR #286
 
 Fixed
 -----
 - Wrong dtype for columns when reading a mapping table in **setup_laimaps_from_lulc_mapping** . PR #290
+- Read/write staticgeoms if input folder is present. PR #286
 
 v0.6.0 (7 June 2024)
 ====================
