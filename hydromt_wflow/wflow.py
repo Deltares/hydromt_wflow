@@ -2499,7 +2499,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             Reprojection method from rasterio.enums.Resampling. to reproject the climate
             data to the model resolution. By default 'nearest_index'.
         fillna_method: str, optional
-            Method to fill NaN cells e.g. 'nearest'
+            Method to fill NaN cells within the active model domain in the 
+            temperature data e.g. 'nearest'
             By default None for no interpolation.
         chunksize: int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
