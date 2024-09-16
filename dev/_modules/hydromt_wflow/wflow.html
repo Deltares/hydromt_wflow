@@ -558,19 +558,25 @@
 <span class="sd">        (resolution in degrees) of the model.</span>
 <span class="sd">        All DEM and flow direction related maps are then build.</span>
 
+<span class="sd">        We strongly recommend using the region types ``basin`` or ``subbasin`` to build</span>
+<span class="sd">        a wflow model. If you know what you are doing, you can also use the ``bbox``</span>
+<span class="sd">        region type (e.g for an island) with the bbox coordinates in EPSG 4326 or the</span>
+<span class="sd">        ``geom`` region type (e.g. basin polygons have been pre-processed and match</span>
+<span class="sd">        EXACTLY with ``hydrography_fn``).</span>
+
 <span class="sd">        E.g. of `region` argument for a subbasin based on a point and snapped using</span>
 <span class="sd">        upstream area threshold in `hydrography_fn`, where the maximum boundary box of</span>
 <span class="sd">        the output subbasin is known:</span>
 <span class="sd">        region = {&#39;subbasin&#39;: [x,y], &#39;uparea&#39;: 10, &#39;bounds&#39;: [xmin, ymin, xmax, ymax]}</span>
 
-<span class="sd">        (Sub)Basin delination is done using hydromt.workflows.get_basin_geometry method.</span>
-<span class="sd">        Because the delineation is computed from the flow direction data in memory, to</span>
-<span class="sd">        avoid memory error when using large datasets in `hydrography_fn`, the user can</span>
-<span class="sd">        either supply &#39;bounds&#39; in `region` or a basin index dataset in `basin_index_fn`</span>
-<span class="sd">        to limit the flow direction data to the region of interest. The basin index</span>
-<span class="sd">        dataset is a GeoDataframe containing either basins polygons or bounding boxes of</span>
-<span class="sd">        basin boundaries. To select the correct basins, basin ID &#39;basins&#39; in</span>
-<span class="sd">        `hydrography_fn` and `basin_index_fn` should match.</span>
+<span class="sd">        (Sub)Basin delineation is done using hydromt.workflows.get_basin_geometry</span>
+<span class="sd">        method. Because the delineation is computed from the flow direction data in</span>
+<span class="sd">        memory, to avoid memory error when using large datasets in `hydrography_fn`, the</span>
+<span class="sd">        user can either supply &#39;bounds&#39; in `region` or a basin index dataset in</span>
+<span class="sd">        `basin_index_fn` to limit the flow direction data to the region of interest.</span>
+<span class="sd">        The basin index dataset is a GeoDataframe containing either basins polygons or</span>
+<span class="sd">        bounding boxes of basin boundaries. To select the correct basins, basin ID</span>
+<span class="sd">        &#39;basins&#39; in `hydrography_fn` and `basin_index_fn` should match.</span>
 
 <span class="sd">        If the model resolution is larger than the source data resolution,</span>
 <span class="sd">        the flow direction is upscaled using the `upscale_method`, by default the</span>
@@ -589,10 +595,10 @@
 <span class="sd">        The wflow model will then also be in the same CRS than the</span>
 <span class="sd">        hydrography data in order to avoid assumptions and reprojection errors.</span>
 <span class="sd">        If the user wishes to use a different CRS,</span>
-<span class="sd">        we recommend first to reproject the hydrography data seperately,</span>
+<span class="sd">        we recommend first to reproject the hydrography data separately,</span>
 <span class="sd">        before calling hydromt build.</span>
 <span class="sd">        You can find examples on how to reproject or prepare hydrography data in the</span>
-<span class="sd">        `prepare flow directions example notebok</span>
+<span class="sd">        `prepare flow directions example notebook</span>
 <span class="sd">        &lt;https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html&gt;`_.</span>
 
 <span class="sd">        Adds model layers:</span>

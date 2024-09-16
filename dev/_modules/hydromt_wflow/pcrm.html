@@ -431,20 +431,20 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pcraster</span> <span class="k">as</span> <span class="nn">pcr</span>
 <span class="kn">import</span> <span class="nn">rasterio</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">hydromt.io</span> <span class="kn">import</span> <span class="n">open_mfraster</span>
 <span class="kn">from</span> <span class="nn">pyflwdir</span> <span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
 <span class="kn">from</span> <span class="nn">pyproj</span> <span class="kn">import</span> <span class="n">CRS</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">pcraster</span> <span class="k">as</span> <span class="nn">pcr</span>
-
-    <span class="n">HAS_PCRASTER</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">HAS_PCRASTER</span> <span class="o">=</span> <span class="kc">False</span>
-
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;write_map&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;read_staticmaps_pcr&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;write_staticmaps_pcr&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="c1"># specify pcraster map types</span>
 <span class="c1"># NOTE non scalar (float) data types only</span>
@@ -535,7 +535,6 @@
     <span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">clone_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">pcr_vs</span><span class="o">=</span><span class="s2">&quot;scalar&quot;</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write pcraster map files using pcr.report functionality.</span>
 
@@ -552,15 +551,12 @@
 <span class="sd">        no data value</span>
 <span class="sd">    transform : affine transform</span>
 <span class="sd">        Two dimensional affine transform for 2D linear mapping</span>
+<span class="sd">    crs:</span>
+<span class="sd">        The coordinate reference system of the data.</span>
 <span class="sd">    clone_path : str, optional</span>
 <span class="sd">        Path to PCRaster clone map, by default None</span>
 <span class="sd">    pcr_vs : str, optional</span>
 <span class="sd">        pcraster type, by default &quot;scalar&quot;</span>
-<span class="sd">    **kwargs:</span>
-<span class="sd">        not used in this function, mainly here for compatability reasons.</span>
-<span class="sd">    crs:</span>
-<span class="sd">        The coordinate reference system of the data.</span>
-
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -618,7 +614,29 @@
 <span class="k">def</span> <span class="nf">read_staticmaps_pcr</span><span class="p">(</span>
     <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4326</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read and staticmaps at &lt;root/staticmaps&gt; and parse to xarray.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read pcraster staticmaps at &lt;root/staticmaps&gt; and parse to xarray.</span>
+
+<span class="sd">    This function can be used to read the staticmaps from previous wflow python models.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root : Path | str</span>
+<span class="sd">        Path to the root directory of the model. Assumes this folder contains a</span>
+<span class="sd">        staticmaps folder with the pcraster maps.</span>
+<span class="sd">    crs : int, optional</span>
+<span class="sd">        Coordinate reference system of the maps, by default 4326.</span>
+<span class="sd">    obj : object, optional</span>
+<span class="sd">        Wflow model object to set the grid and crs based on the read staticmaps, by</span>
+<span class="sd">        default None.</span>
+<span class="sd">    kwargs</span>
+<span class="sd">        Additional keyword arguments are passed to open_mfraster.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.Dataset</span>
+<span class="sd">        Dataset with the staticmaps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">da</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="n">fn</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps&quot;</span><span class="p">,</span> <span class="s2">&quot;*.map&quot;</span><span class="p">)</span>
@@ -668,7 +686,17 @@
     <span class="n">staticmaps</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    staticmaps : xr.Dataset</span>
+<span class="sd">        Dataset with the staticmaps.</span>
+<span class="sd">    root : Path | str</span>
+<span class="sd">        Path to the root directory of the model. A staticmaps folder will be created</span>
+<span class="sd">        in this folder with the pcraster maps.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;staticmaps&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
@@ -689,13 +717,7 @@
         <span class="n">base_name</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">var_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># clip _&lt;postfix&gt;</span>
         <span class="k">if</span> <span class="n">base_name</span> <span class="ow">in</span> <span class="n">PCR_VS_MAP</span><span class="p">:</span>
             <span class="n">pcr_vs_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">var_name</span><span class="p">:</span> <span class="n">PCR_VS_MAP</span><span class="p">[</span><span class="n">base_name</span><span class="p">]})</span>
-    <span class="c1"># ds_out.raster.to_mapstack(</span>
-    <span class="c1">#     root=join(root, &quot;staticmaps&quot;),</span>
-    <span class="c1">#     mask=True,</span>
-    <span class="c1">#     driver=&quot;PCRaster&quot;,</span>
-    <span class="c1">#     pcr_vs_map=pcr_vs_map,</span>
-    <span class="c1">#     logger=logger,</span>
-    <span class="c1"># )</span>
+
     <span class="n">ext</span> <span class="o">=</span> <span class="n">GDAL_EXT_CODE_MAP</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PCRaster&quot;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
         <span class="n">clone_path</span> <span class="o">=</span> <span class="n">write_clone</span><span class="p">(</span>
