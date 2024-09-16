@@ -8,20 +8,20 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import pcraster as pcr
 import rasterio
 import xarray as xr
 from hydromt.io import open_mfraster
 from pyflwdir import core_conversion, core_d8, core_ldd
 from pyproj import CRS
 
-try:
-    import pcraster as pcr
-
-    HAS_PCRASTER = True
-except ImportError:
-    HAS_PCRASTER = False
-
 logger = logging.getLogger(__name__)
+
+__all__ = [
+    "write_map",
+    "read_staticmaps_pcr",
+    "write_staticmaps_pcr",
+]
 
 # specify pcraster map types
 # NOTE non scalar (float) data types only
@@ -112,7 +112,6 @@ def write_map(
     crs=None,
     clone_path=None,
     pcr_vs="scalar",
-    **kwargs,
 ):
     """Write pcraster map files using pcr.report functionality.
 
@@ -129,15 +128,12 @@ def write_map(
         no data value
     transform : affine transform
         Two dimensional affine transform for 2D linear mapping
+    crs:
+        The coordinate reference system of the data.
     clone_path : str, optional
         Path to PCRaster clone map, by default None
     pcr_vs : str, optional
         pcraster type, by default "scalar"
-    **kwargs:
-        not used in this function, mainly here for compatability reasons.
-    crs:
-        The coordinate reference system of the data.
-
 
     Raises
     ------
@@ -193,7 +189,29 @@ def write_map(
 def read_staticmaps_pcr(
     root: Path | str, crs: int = 4326, obj: object = None, **kwargs
 ):
-    """Read and staticmaps at <root/staticmaps> and parse to xarray."""
+    """
+    Read pcraster staticmaps at <root/staticmaps> and parse to xarray.
+
+    This function can be used to read the staticmaps from previous wflow python models.
+
+    Parameters
+    ----------
+    root : Path | str
+        Path to the root directory of the model. Assumes this folder contains a
+        staticmaps folder with the pcraster maps.
+    crs : int, optional
+        Coordinate reference system of the maps, by default 4326.
+    obj : object, optional
+        Wflow model object to set the grid and crs based on the read staticmaps, by
+        default None.
+    kwargs
+        Additional keyword arguments are passed to open_mfraster.
+
+    Returns
+    -------
+    xr.Dataset
+        Dataset with the staticmaps.
+    """
     da = None
 
     fn = join(root, "staticmaps", "*.map")
@@ -240,7 +258,17 @@ def write_staticmaps_pcr(
     staticmaps: xr.Dataset,
     root: Path | str,
 ):
-    """Write staticmaps at <root/staticmaps> in PCRaster maps format."""
+    """
+    Write staticmaps at <root/staticmaps> in PCRaster maps format.
+
+    Parameters
+    ----------
+    staticmaps : xr.Dataset
+        Dataset with the staticmaps.
+    root : Path | str
+        Path to the root directory of the model. A staticmaps folder will be created
+        in this folder with the pcraster maps.
+    """
     root = os.path.join(root, "staticmaps")
     if not isdir(root):
         os.makedirs(root)
@@ -261,13 +289,7 @@ def write_staticmaps_pcr(
         base_name = "_".join(var_name.split("_")[:-1])  # clip _<postfix>
         if base_name in PCR_VS_MAP:
             pcr_vs_map.update({var_name: PCR_VS_MAP[base_name]})
-    # ds_out.raster.to_mapstack(
-    #     root=join(root, "staticmaps"),
-    #     mask=True,
-    #     driver="PCRaster",
-    #     pcr_vs_map=pcr_vs_map,
-    #     logger=logger,
-    # )
+
     ext = GDAL_EXT_CODE_MAP.get("PCRaster")
     with tempfile.TemporaryDirectory() as tmpdir:
         clone_path = write_clone(
