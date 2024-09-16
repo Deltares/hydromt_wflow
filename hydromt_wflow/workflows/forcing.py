@@ -59,13 +59,14 @@ def pet(
     resample_kwargs = dict(label="right", closed="right")
     if freq is not None:
         resample_kwargs.update(upsampling="bfill", downsampling="sum", logger=logger)
-
         pet_out = resample_time(pet_out, freq, conserve_mass=True, **resample_kwargs)
+        # nodata is lost in resampling, set it back
+        pet_out.raster.set_nodata(np.nan)
 
     # Mask
     if mask_name is not None:
         mask = ds_like[mask_name].values > 0
-        pet_out = pet_out.where(mask, pet_out.raster.nodata)
+        pet_out = pet_out.where(mask)
 
     # Attributes
     pet_out.name = "pet"
