@@ -6,9 +6,9 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
-All the unreleased new features and bug fixes.
+v0.6.1 (16 September 2024)
+==========================
+This release mainly contains small bugfixes and limits xarray version to 2024.03.0
 
 Added
 -----
