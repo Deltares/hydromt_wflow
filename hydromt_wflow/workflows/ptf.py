@@ -437,3 +437,34 @@ def UsleK_EPIC(clay, silt, oc):
     usleK = (1 / 7.594) * usleK
 
     return usleK
+
+
+def mean_diameter_soil(clay, silt):
+    """
+    Determine mean diameter of the soil using Fooladmand et al. (2006).
+
+    Parameters
+    ----------
+    clay: float
+        clay percentage [%].
+    silt: float
+        silt percentage [%].
+
+    Returns
+    -------
+    d50 : float
+        mean diameter of the soil [mm].
+    """
+    sand = 100 - (clay + silt)
+    sand999 = sand * ((999 - 25) / (1000 - 25))
+
+    vd50 = np.log((1 / (0.01 * (clay + silt)) - 1) / (1 / (0.01 * clay) - 1))
+    wd50 = np.log((1 / (0.01 * (clay + silt + sand999)) - 1) / (1 / (0.01 * clay) - 1))
+    ad50 = 1 / np.log((25 - 1) / (999 - 1))
+    bd50 = ad50 / np.log((25 - 1) / 1)
+    cd50 = ad50 * np.log(vd50 / wd50)
+    ud50 = (-vd50) ** (1 - bd50) / ((-wd50) ** (-bd50))
+    d50 = 1 + (-1 / ud50 * np.log(1 / (1 / (0.01 * clay) - 1))) ** (1 / cd50)  # [um]
+    d50 = d50 / 1000  # [mm]
+
+    return d50
