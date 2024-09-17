@@ -1,6 +1,6 @@
 """hydroMT plugin for wflow models."""
 
-__version__ = "0.6.1"
+__version__ = "0.6.2.dev0"
 
 from .utils import *
 from .wflow import *
