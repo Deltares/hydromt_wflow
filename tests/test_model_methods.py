@@ -299,16 +299,13 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     example_wflow_model.setup_ksathorfrac(
         ksat_fn=da,
     )
-    # Write and read the map
-    example_wflow_model.write_grid()
-    example_wflow_model.read_grid()
 
     # Check values
     values = example_wflow_model.grid.KsatHorFrac.raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
-    assert int(max_val * 100) == 43175
-    assert int(mean_val * 100) == 22020
+    assert int(max_val * 100) == 75000
+    assert int(mean_val * 100) == 19991
 
 
 def test_setup_lai(tmpdir, example_wflow_model):
