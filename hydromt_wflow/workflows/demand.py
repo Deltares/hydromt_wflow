@@ -50,6 +50,7 @@ def full(
         da.name = name
         return da
 
+    # If extra dimensions are given, construct from there
     coords.update(extra)
     extra_size = [len(item) for item in extra.values()]
 
@@ -75,9 +76,29 @@ def full(
 def transform_from_factor(
     da: xr.DataArray,
     factor: int = 0,
-    snap_to_wgs84: bool = False,
-):
-    """_summary_."""
+    snap_to_wgs84: bool = False,  # Snap to grid that aligns with zoom level of wgs84
+) -> tuple:
+    """Transform based on a zoom factor.
+
+    Can also be snapped to a zoom level of wgs84.
+
+    Parameters
+    ----------
+    da : xr.DataArray
+
+    factor : int, optional
+        Zoom factor, by default 0
+    snap_to_wgs84 : bool, optional
+        Whether to snap to a zoom level of wgs84, \
+see https://wiki.openstreetmap.org/wiki/Zoom_levels for more information regarding the \
+the zoom levels. By default False
+
+    Returns
+    -------
+    tuple
+        Geotransform and the shape
+    """
+    # Return itself, as the resolution is the same
     if factor == 0:
         return da.raster.transform, da.raster.shape
 
@@ -91,7 +112,7 @@ def transform_from_factor(
         yc = 180 / gtf[0]
         if abs(round(yc) - yc) > 0.05:
             raise ValueError(
-                "Cant use 'snap_to_world' on a resolution that does not \
+                "Cant use 'snap_to_wgs84' on a resolution that does not \
 fit within the WGS84 projection."
             )
 
@@ -232,7 +253,7 @@ def non_irrigation(
 
         popu_scaled.name = "population"
 
-        # Get transform at half degree resolution
+        # Get transform at a specific resolution
         transform, shape = transform_from_factor(
             ds,
             factor=res_factor,
@@ -317,10 +338,11 @@ def allocation_areas(
     """
     # Set variables
     nodata = -9999
-    # Split based on admin bounds
+    # Add a unique identifier as a means for dissolving later on, bit pro forma here
     sub_basins = basins.copy()
     sub_basins["uid"] = range(len(sub_basins))
 
+    # Split based on administrative boundaries
     if admin_bounds is not None:
         sub_basins = basins.overlay(
             admin_bounds,
@@ -328,7 +350,7 @@ def allocation_areas(
         )
         sub_basins = sub_basins[~sub_basins["value"].isna()]
 
-        # Remove unneccessary stuff
+        # Remove unneccessary columns
         cols = sub_basins.columns.drop(["value", "geometry", "admin_id"]).tolist()
         sub_basins.drop(cols, axis=1, inplace=True)
         # Use this uid to dissolve on later
@@ -359,6 +381,7 @@ def allocation_areas(
     alloc_area["area"] = da_like.raster.area_grid()
     area = alloc_area.groupby("uid").sum().area
     del alloc_area
+    # To km2
     area = area.drop_sel(uid=nodata) / 1e6
 
     _count = 0
@@ -373,6 +396,7 @@ def allocation_areas(
         # Define the surround matrix for convolution
         kernel = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
 
+        # Get ID's of basins containing a river and those that do not
         riv = np.setdiff1d(
             np.unique(alloc.where(da_like == 1, nodata)),
             [-9999],
@@ -384,23 +408,29 @@ def allocation_areas(
         area_mask = area_riv < min_area
         no_riv = np.append(no_riv, area_riv.uid[area_mask].values)
 
-        # Solved, so break
+        # Solved, as there are not more areas with no river, so break
         if no_riv.size == 0:
             break
 
+        # Solve with corners included, as the areas remaining touch diagonally
         if np.array_equal(np.sort(no_riv), old_no_riv):
             kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
 
-        # Loop through all 'loose' area and merge those
+        # Loop through all the area that have no river and merge those
+        # with the areas that lie besides it
         for val in no_riv:
+            # Mask based on the value of the subbasin without a river
             mask = alloc == val
+            # Find the ids of surrouding basins based on the kernel
             rnd = convolve(mask.astype(int).values, kernel, mode="constant")
             nbs = np.setdiff1d(
                 np.unique(alloc.values[np.where(rnd > 0)]), [nodata, val]
             )
             del rnd
+            # If none are found, continue to the next
             if nbs.size == 0:
                 continue
+            # Set the new id of this subbasin based on the largest next to it
             area_nbs = area.sel(uid=nbs)
             new_uid = area_nbs.uid[area_nbs.argmax(dim="uid")].values
             alloc = alloc.where(alloc != val, new_uid)
@@ -500,6 +530,7 @@ def surfacewaterfrac(
     )
     gwfrac_val[np.where(gwbodies_mr.values[x, y] == 0)] = 0
     # invert to get surface water frac
+    # TODO fix with line from listflood
     gwfrac_val = 1 - gwfrac_val
 
     # create the dataarray for the fraction
