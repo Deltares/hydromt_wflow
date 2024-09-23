@@ -128,19 +128,25 @@ class WflowModel(GridModel):
         (resolution in degrees) of the model.
         All DEM and flow direction related maps are then build.
 
+        We strongly recommend using the region types ``basin`` or ``subbasin`` to build
+        a wflow model. If you know what you are doing, you can also use the ``bbox``
+        region type (e.g for an island) with the bbox coordinates in EPSG 4326 or the
+        ``geom`` region type (e.g. basin polygons have been pre-processed and match
+        EXACTLY with ``hydrography_fn``).
+
         E.g. of `region` argument for a subbasin based on a point and snapped using
         upstream area threshold in `hydrography_fn`, where the maximum boundary box of
         the output subbasin is known:
         region = {'subbasin': [x,y], 'uparea': 10, 'bounds': [xmin, ymin, xmax, ymax]}
 
-        (Sub)Basin delination is done using hydromt.workflows.get_basin_geometry method.
-        Because the delineation is computed from the flow direction data in memory, to
-        avoid memory error when using large datasets in `hydrography_fn`, the user can
-        either supply 'bounds' in `region` or a basin index dataset in `basin_index_fn`
-        to limit the flow direction data to the region of interest. The basin index
-        dataset is a GeoDataframe containing either basins polygons or bounding boxes of
-        basin boundaries. To select the correct basins, basin ID 'basins' in
-        `hydrography_fn` and `basin_index_fn` should match.
+        (Sub)Basin delineation is done using hydromt.workflows.get_basin_geometry
+        method. Because the delineation is computed from the flow direction data in
+        memory, to avoid memory error when using large datasets in `hydrography_fn`, the
+        user can either supply 'bounds' in `region` or a basin index dataset in
+        `basin_index_fn` to limit the flow direction data to the region of interest.
+        The basin index dataset is a GeoDataframe containing either basins polygons or
+        bounding boxes of basin boundaries. To select the correct basins, basin ID
+        'basins' in `hydrography_fn` and `basin_index_fn` should match.
 
         If the model resolution is larger than the source data resolution,
         the flow direction is upscaled using the `upscale_method`, by default the
@@ -159,10 +165,10 @@ class WflowModel(GridModel):
         The wflow model will then also be in the same CRS than the
         hydrography data in order to avoid assumptions and reprojection errors.
         If the user wishes to use a different CRS,
-        we recommend first to reproject the hydrography data seperately,
+        we recommend first to reproject the hydrography data separately,
         before calling hydromt build.
         You can find examples on how to reproject or prepare hydrography data in the
-        `prepare flow directions example notebok
+        `prepare flow directions example notebook
         <https://deltares.github.io/hydromt_wflow/latest/_examples/prepare_ldd.html>`_.
 
         Adds model layers:
@@ -2679,6 +2685,7 @@ one variable and variables list is not provided."
         wind_correction: bool = True,
         wind_altitude: int = 10,
         reproj_method: str = "nearest_index",
+        fillna_method: Optional[str] = None,
         dem_forcing_fn: Union[str, xr.DataArray] = None,
         skip_pet: str = False,
         chunksize: Optional[int] = None,
@@ -2754,6 +2761,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         reproj_method : str, optional
             Reprojection method from rasterio.enums.Resampling. to reproject the climate
             data to the model resolution. By default 'nearest_index'.
+        fillna_method: str, optional
+            Method to fill NaN cells within the active model domain in the
+            temperature data e.g. 'nearest'
+            By default None for no interpolation.
         chunksize: int, optional
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
@@ -2897,6 +2908,12 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             "temp_correction": str(temp_correction),
         }
         temp_out.attrs.update(opt_attr)
+        if fillna_method is not None:
+            temp_out = temp_out.raster.interpolate_na(
+                dim=temp_out.raster.x_dim,
+                method=fillna_method,
+                fill_value="extrapolate",
+            )
         self.set_forcing(temp_out.where(mask), name="temp")
 
     def setup_pet_forcing(
@@ -3404,37 +3421,100 @@ Run setup_soilmaps first"
             self.set_config(option, states_config[option])
 
     # I/O
-    def read(self):
+    def read(
+        self,
+    ):
         """Read the complete model schematization and configuration from file."""
         self.read_config()
         self.read_grid()
+        self.read_geoms()
+        self.read_forcing()
         self.read_intbl()
         self.read_tables()
-        self.read_geoms()
         self.read_states()
-        self.read_forcing()
         self.logger.info("Model read")
 
-    def write(self):
-        """Write the complete model schematization and configuration to file."""
+    def write(
+        self,
+        config_fn: str = None,
+        grid_fn: Union[Path, str] = "staticmaps.nc",
+        geoms_fn: Union[Path, str] = "staticgeoms",
+        forcing_fn: Union[Path, str] = None,
+        states_fn: Union[Path, str] = None,
+    ):
+        """
+        Write the complete model schematization and configuration to file.
+
+        From this function, the output filenames/folder of the different components can
+        be set. If not set, the default filenames/folder are used.
+        To change more advanced settings, use the specific write methods directly.
+
+        Parameters
+        ----------
+        config_fn : str, optional
+            Name of the config file, realtive to model root. By default None.
+        grid_fn : str, optional
+            Name of the grid file, relative to model root/dir_input. By default
+            'staticmaps.nc'.
+        geoms_fn : str, optional
+            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By
+            default 'staticgeoms'.
+        forcing_fn : str, optional
+            Name of the forcing file relative to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        states_fn : str, optional
+            Name of the states file realtive to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        """
         self.logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
         if not self._write:
             self.logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
-        if self.config:  # try to read default if not yet set
-            self.write_config()
+        _ = self.config  # try to read default if not yet set
         if self._grid:
-            self.write_grid()
+            self.write_grid(fn_out=grid_fn)
+        if self._geoms:
+            self.write_geoms(geoms_fn=geoms_fn)
+        if self._forcing:
+            self.write_forcing(fn_out=forcing_fn)
         if self._tables:
             self.write_tables()
-        if self._geoms:
-            self.write_geoms()
         if self._states:
-            self.write_states()
-        if self._forcing:
-            self.write_forcing()
+            self.write_states(states_fn=states_fn)
+        # Write the config last as variables can get set in other write methods
+        self.write_config(config_name=config_fn)
+
+    def write_config(
+        self,
+        config_name: Optional[str] = None,
+        config_root: Optional[str] = None,
+    ):
+        """
+        Write config to <root/config_fn>.
+
+        Parameters
+        ----------
+        config_name : str, optional
+            Name of the config file. By default None to use the default name
+            wflow_sbm.toml.
+        config_root : str, optional
+            Root folder to write the config file if different from model root (default).
+        """
+        self._assert_write_mode()
+        if config_name is not None:
+            self._config_fn = config_name
+        elif self._config_fn is None:
+            self._config_fn = self._CONF
+        if config_root is None:
+            config_root = self.root
+        fn = join(config_root, self._config_fn)
+        # Create the folder if it does not exist
+        if not isdir(dirname(fn)):
+            os.makedirs(dirname(fn))
+        self.logger.info(f"Writing model config to {fn}")
+        self._configwrite(fn)
 
     def read_grid(self, **kwargs):
         """
@@ -3493,7 +3573,9 @@ Run setup_soilmaps first"
         Parameters
         ----------
         fn_out : Path | str, optional
-            Name or path to the outgoing grid file (including extension).
+            Name or path to the outgoing grid file (including extension). This is the
+            path/name relative to the root folder and if present the ``dir_input``
+            folder.
         """
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3549,22 +3631,29 @@ Run setup_soilmaps first"
 
     def read_geoms(
         self,
-        geom_fn: str = "staticgeoms",
+        geoms_fn: str = "staticgeoms",
     ):
         """
         Read static geometries and adds to ``geoms``.
 
-        Assumes that the `geom_fn` folder is located in the same folder as the static
-        input data (``input.path_static``). If not found uses assumes they are in
-        <root/geom_fm>.
+        Assumes that the `geoms_fn` folder is located relative to root and ``dir_input``
+        if defined in the toml. If not found, uses assumes they are in <root/geoms_fn>.
+
+        Parameters
+        ----------
+        geoms_fn : str, optional
+            Folder name/path where the static geometries are stored relative to the
+            model root and ``dir_input`` if any. By default "staticgeoms".
         """
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
-        dir_default = join(self.root, "staticmaps.nc")
-        dir_mod = dirname(
-            self.get_config("input.path_static", abs_path=True, fallback=dir_default)
-        )
-        fns = glob.glob(join(dir_mod, geom_fn, "*.geojson"))
+        # Check if dir_input is set and add
+        if self.get_config("dir_input") is not None:
+            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
+        else:
+            dir_mod = join(self.root, geoms_fn)
+
+        fns = glob.glob(join(dir_mod, "*.geojson"))
         if len(fns) > 1:
             self.logger.info("Reading model staticgeom files.")
         for fn in fns:
@@ -3574,10 +3663,22 @@ Run setup_soilmaps first"
 
     def write_geoms(
         self,
-        geom_fn: str = "staticgeoms",
+        geoms_fn: str = "staticgeoms",
         precision: int | None = None,
     ):
-        """Write geoms in <root/geom_fn> in GeoJSON format."""
+        """
+        Write geoms in GeoJSON format.
+
+        Checks the path of ``geoms_fn`` using both model root and
+        ``dir_input``. If not found uses the default path ``staticgeoms`` in the root
+        folder.
+
+        Parameters
+        ----------
+        geoms_fn : str, optional
+            Folder name/path where the static geometries are stored relative to the
+            model root and ``dir_input`` if any. By default "staticgeoms".
+        """
         # to write use self.geoms[var].to_file()
         if not self._write:
             raise IOError("Model opened in read-only mode")
@@ -3591,6 +3692,15 @@ Run setup_soilmaps first"
                 else:
                     _precision = 6
             grid_size = 10 ** (-_precision)
+            # Prepare the output folder
+            if self.get_config("dir_input") is not None:
+                geoms_dir = join(
+                    self.get_config("dir_input", abs_path=True),
+                    geoms_fn,
+                )
+            else:
+                geoms_dir = join(self.root, geoms_fn)
+
             for name, gdf in self.geoms.items():
                 # TODO change to geopandas functionality once geopandas 1.0.0 comes
                 # See https://github.com/geopandas/geopandas/releases/tag/v1.0.0-alpha1
@@ -3598,7 +3708,7 @@ Run setup_soilmaps first"
                     gdf.geometry,
                     grid_size=grid_size,
                 )
-                fn_out = join(self.root, geom_fn, f"{name}.geojson")
+                fn_out = join(geoms_dir, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
 
     def read_forcing(self):
@@ -3697,7 +3807,6 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             # get output filename
             if fn_out is not None:
                 self.set_config("input.path_forcing", fn_out)
-                self.write_config()  # re-write config
             else:
                 fn_name = self.get_config("input.path_forcing", abs_path=False)
                 if fn_name is not None:
@@ -3762,7 +3871,6 @@ change name input.path_forcing "
                         return
                     else:
                         self.set_config("input.path_forcing", fn_default)
-                        self.write_config()  # re-write config
                         fn_out = fn_default_path
 
             # Check if all dates between (starttime, endtime) are in all da forcing
@@ -3790,9 +3898,9 @@ change name input.path_forcing "
                     f"Not all dates found in precip_fn changing starttime to \
 {start} and endtime to {end} in the toml."
                 )
-                self.set_config("starttime", start.to_pydatetime())
-                self.set_config("endtime", end.to_pydatetime())
-                self.write_config()
+                # Set the strings first
+                self.set_config("starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
+                self.set_config("endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
 
             if decimals is not None:
                 ds = ds.round(decimals)
@@ -3834,7 +3942,6 @@ change name input.path_forcing "
                 fns_out = os.path.relpath(fn_out, self.root)
                 fns_out = f"{str(fns_out)[0:-3]}_*.nc"
                 self.set_config("input.path_forcing", fns_out)
-                self.write_config()  # re-write config
                 for label, ds_gr in ds.resample(time=freq_out):
                     # ds_gr = group[1]
                     start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
