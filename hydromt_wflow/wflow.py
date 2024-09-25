@@ -69,7 +69,6 @@ class WflowModel(GridModel):
         "glacstore": "wflow_glacierstore",
     }
     _FOLDERS = [
-        "staticgeoms",
         "instate",
         "run_default",
     ]
@@ -3225,7 +3224,7 @@ Run setup_soilmaps first"
         if self._tables:
             self.write_tables()
         if self._states:
-            self.write_states(states_fn=states_fn)
+            self.write_states(fn_out=states_fn)
         # Write the config last as variables can get set in other write methods
         self.write_config(config_name=config_fn)
 
@@ -3443,6 +3442,9 @@ Run setup_soilmaps first"
                 )
             else:
                 geoms_dir = join(self.root, geoms_fn)
+            # Create the geoms dir if it does not already exist
+            if not isdir(geoms_dir):
+                os.makedirs(geoms_dir)
 
             for name, gdf in self.geoms.items():
                 # TODO change to geopandas functionality once geopandas 1.0.0 comes
