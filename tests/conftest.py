@@ -28,7 +28,10 @@ def example_wflow_model():
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=["artifact_data"],
+        data_libs=[
+            "artifact_data",
+            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+        ],
         logger=logger,
     )
     return mod
@@ -41,7 +44,10 @@ def example_sediment_model():
     mod = WflowSedimentModel(
         root=root,
         mode="r",
-        data_libs=["artifact_data"],
+        data_libs=[
+            "artifact_data",
+            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+        ],
         logger=logger,
     )
     return mod
@@ -102,7 +108,10 @@ def clipped_wflow_model():
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=["artifact_data"],
+        data_libs=[
+            "artifact_data",
+            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+        ],
     )
     return mod
 

@@ -46,6 +46,9 @@ def prepare_cold_states(
     If glaciers, also adds:
     * **glacierstore**: water within the glacier [mm]
 
+    If paddy, also adds:
+        * **h_paddy**: water on the paddy fields [mm]
+
     Parameters
     ----------
     ds_like : xr.Dataset
@@ -267,6 +270,20 @@ def prepare_cold_states(
             ds_out["glacierstore"] = glacstore
 
         states_config["state.vertical.glacierstore"] = "glacierstore"
+
+    # paddy
+    if config["model"].get("water_demand.paddy", False):
+        h_paddy = grid_from_constant(
+            ds_like,
+            value=0.0,
+            name="h_paddy",
+            nodata=nodata,
+            dtype=dtype,
+            mask="wflow_subcatch",
+        )
+        ds_out["h_paddy"] = h_paddy
+
+        states_config["state.vertical.paddy.h"] = "h_paddy"
 
     # Add time dimension
     ds_out = ds_out.expand_dims(dim=dict(time=[timestamp]))
