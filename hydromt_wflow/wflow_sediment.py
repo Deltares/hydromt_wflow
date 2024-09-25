@@ -422,6 +422,9 @@ in lulc_vars.
     ):
         """Generate sediments based river bed characteristics maps.
 
+        Optionnally also derives Kodatie transport capacity coefficients based on
+        the mean sediment diameter of the river bed.
+
         Adds model layers:
 
         * **D50_River** map: median sediment diameter of the river bed [mm]
@@ -429,15 +432,20 @@ in lulc_vars.
         * **SiltF_River** map: fraction of silt material in the river bed [-]
         * **SandF_River** map: fraction of sand material in the river bed [-]
         * **GravelF_River** map: fraction of gravel material in the river bed [-]
+        * **a_kodatie** map: Kodatie transport capacity coefficient a [-]
+        * **b_kodatie** map: Kodatie transport capacity coefficient b [-]
+        * **c_kodatie** map: Kodatie transport capacity coefficient c [-]
+        * **d_kodatie** map: Kodatie transport capacity coefficient d [-]
 
         Parameters
         ----------
         bedsed_mapping_fn : str
-            Path to a mapping csv file from streamorder to river bed \
-particles characteristics. If None reverts to default values.
+            Path to a mapping csv file from streamorder to river bed particles
+            characteristics. If None reverts to default values.
 
-            * Required variable: \
-['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
+            * Required variable: ['strord','D50_River', 'ClayF_River', 'SiltF_River',
+              'SandF_River', 'GravelF_River']
+            * Optional variable: ['a_kodatie', 'b_kodatie', 'c_kodatie', 'd_kodatie']
 
         """
         self.logger.info("Preparing riverbedsed parameter maps.")
@@ -451,7 +459,7 @@ particles characteristics. If None reverts to default values.
         df = self.data_catalog.get_dataframe(fn_map)
 
         strord = self.grid[self._MAPS["strord"]].copy()
-        # max streamorder value above which values get the same N_River value
+        # max streamorder value above which values get the same D50 value
         max_str = df.index[-2]
         nodata = df.index[-1]
         # if streamroder value larger than max_str, assign last value
