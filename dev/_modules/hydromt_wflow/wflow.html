@@ -494,7 +494,6 @@
         <span class="s2">&quot;glacstore&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_glacierstore&quot;</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">_FOLDERS</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
         <span class="s2">&quot;instate&quot;</span><span class="p">,</span>
         <span class="s2">&quot;run_default&quot;</span><span class="p">,</span>
     <span class="p">]</span>
@@ -3727,7 +3726,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_tables</span><span class="p">()</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_states</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_states</span><span class="p">(</span><span class="n">states_fn</span><span class="o">=</span><span class="n">states_fn</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_states</span><span class="p">(</span><span class="n">fn_out</span><span class="o">=</span><span class="n">states_fn</span><span class="p">)</span>
         <span class="c1"># Write the config last as variables can get set in other write methods</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_config</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="n">config_fn</span><span class="p">)</span></div>
 
@@ -3960,6 +3959,9 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">geoms_dir</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">geoms_fn</span><span class="p">)</span>
+            <span class="c1"># Create the geoms dir if it does not already exist</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">geoms_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">geoms_dir</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="c1"># TODO change to geopandas functionality once geopandas 1.0.0 comes</span>
