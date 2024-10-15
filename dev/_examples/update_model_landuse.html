@@ -39,7 +39,7 @@
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -532,8 +532,8 @@
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check which landuse/lancover sources are available in the DataCatalog</span>
@@ -542,26 +542,11 @@
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-name
-corine       https://land.copernicus.eu/pan-european/corine...
-globcover          http://due.esrin.esa.int/page_globcover.php
-modis_lai       https://lpdaac.usgs.gov/products/mcd15a3hv006/
-simard       https://webmap.ornl.gov/ogc/dataset.jsp?ds_id=...
-vito             https://land.copernicus.eu/global/products/lc
-Name: source_url, dtype: object
-</pre></div></div>
-</div>
 <p>Here we can see that we have five data sources in HydroMT related to landuse &amp; landcover properties. Out of these, three are landuse classifications:</p>
 <ul class="simple">
-<li><p><strong>globcover</strong> (already used in our current model)</p></li>
+<li><p><strong>globcover_2009</strong> (already used in our current model)</p></li>
 <li><p><strong>corine</strong></p></li>
-<li><p><strong>vito</strong></p></li>
+<li><p><strong>vito_2015</strong></p></li>
 </ul>
 <p>The other datasets include a Leaf Area Index dataset (modis_lai) and a canopy height dataset (simard).</p>
 <p>Let’s now see how to update our current model in one command line to use the <strong>corine</strong> classification.</p>
@@ -569,8 +554,8 @@ Name: source_url, dtype: object
 <section id="HydroMT-CLI-update-interface">
 <h2>HydroMT CLI update interface<a class="headerlink" href="#HydroMT-CLI-update-interface" title="Link to this heading">#</a></h2>
 <p>Using the <strong>HydroMT build</strong> API, we can update one or several components of an already existing Wflow model. Let’s get an overview of the available options:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print the options available from the update command</span>
@@ -578,104 +563,17 @@ Name: source_url, dtype: object
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Usage: hydromt update [OPTIONS] MODEL MODEL_ROOT
-
-  Update a specific component of a model.
-
-  Set an output directory to copy the edited model to a new folder, otherwise
-  maps are overwritten.
-
-  Example usage: --------------
-
-  Update (overwrite!) landuse-landcover based maps in a Wflow model: hydromt
-  update wflow /path/to/model_root -c setup_lulcmaps --opt lulc_fn=vito -d
-  /path/to/data_catalog.yml -v
-
-  Update Wflow model components outlined in an .yml configuration file and
-  write the model to a directory: hydromt update wflow /path/to/model_root  -o
-  /path/to/model_out  -i /path/to/wflow_config.yml  -d
-  /path/to/data_catalog.yml -v
-
-Options:
-  -o, --model-out DIRECTORY  Output model folder. Maps in MODEL_ROOT are
-                             overwritten if left empty.
-  -i, --config PATH          Path to hydroMT configuration file, for the model
-                             specific implementation.
-  -c, --components TEXT      Model methods from configuration file to run
-  --opt TEXT                 Method specific keyword arguments, see the method
-                             documentation of the specific model for more
-                             information about the arguments.
-  -d, --data TEXT            Path to local yaml data catalog file OR name of
-                             predefined data catalog.
-  --dd, --deltares-data      Flag: Shortcut to add the &#34;deltares_data&#34; catalog
-  --fo, --force-overwrite    Flag: If provided overwrite existing model files
-  --cache                    Flag: If provided cache tiled rasterdatasets
-  -q, --quiet                Decrease verbosity.
-  -v, --verbose              Increase verbosity.
-  --help                     Show this message and exit.
-
-</pre></div></div>
-</div>
 </section>
 <section id="Update-Wflow-landuse-layers">
 <h2>Update Wflow landuse layers<a class="headerlink" href="#Update-Wflow-landuse-layers" title="Link to this heading">#</a></h2>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
 <span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_subbasin<span class="w"> </span>-o<span class="w"> </span>./wflow_piave_corine<span class="w"> </span>-c<span class="w"> </span>setup_lulcmaps<span class="w"> </span>--opt<span class="w"> </span><span class="nv">lulc_fn</span><span class="o">=</span>corine<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-v
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-2024-09-26 00:17:43,766 - update - log - INFO - HydroMT version: 0.10.0.dev0
-2024-09-26 00:17:43,766 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2024-09-26 00:17:43,766 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2024-09-26 00:17:43,766 - update - main - INFO - User settings:
-2024-09-26 00:17:44,125 - update - data_catalog - INFO - Reading data catalog artifact_data latest
-2024-09-26 00:17:44,125 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
-2024-09-26 00:17:44,717 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.6.2.dev0).
-2024-09-26 00:17:44,717 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-09-26 00:17:44,727 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2024-09-26 00:17:44,778 - update - wflow - INFO - Reading model staticgeom files.
-2024-09-26 00:17:44,841 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2024-09-26 00:17:44,855 - update - wflow - INFO - Reading model intbl files.
-2024-09-26 00:17:44,855 - update - wflow - INFO - Reading model table files.
-2024-09-26 00:17:44,856 - update - wflow - INFO - Model read
-2024-09-26 00:17:44,860 - update - model_api - INFO - setup_lulcmaps.lulc_fn: corine
-2024-09-26 00:17:44,861 - update - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: None
-2024-09-26 00:17:44,861 - update - model_api - INFO - setup_lulcmaps.lulc_vars: {&#39;landuse&#39;: None, &#39;Kext&#39;: &#39;input.vertical.kext&#39;, &#39;N&#39;: &#39;input.lateral.land.n&#39;, &#39;PathFrac&#39;: &#39;input.vertical.pathfrac&#39;, &#39;RootingDepth&#39;: &#39;input.vertical.rootingdepth&#39;, &#39;Sl&#39;: &#39;input.vertical.specific_leaf&#39;, &#39;Swood&#39;: &#39;input.vertical.storage_wood&#39;, &#39;WaterFrac&#39;: &#39;input.vertical.waterfrac&#39;, &#39;alpha_h1&#39;: &#39;input.vertical.alpha_h1&#39;}
-2024-09-26 00:17:44,861 - update - wflow - INFO - Preparing LULC parameter maps.
-2024-09-26 00:17:44,865 - update - rasterdataset - INFO - Reading corine raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/corine.tif
-2024-09-26 00:17:44,935 - update - dataframe - INFO - Reading corine_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/corine_mapping.csv
-2024-09-26 00:17:45,030 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=999).
-2024-09-26 00:17:45,157 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,244 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,332 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,419 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,507 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,593 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,681 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2024-09-26 00:17:45,767 - update - landuse - INFO - Deriving alpha_h1 using mode resampling (nodata=-999).
-2024-09-26 00:17:45,878 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine
-2024-09-26 00:17:45,912 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/staticmaps.nc
-2024-09-26 00:17:46,095 - update - wflow - INFO - Writing model staticgeom to file.
-2024-09-26 00:17:46,176 - update - wflow - INFO - Write forcing file
-2024-09-26 00:17:46,189 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/inmaps.nc
-[########################################] | 100% Completed | 101.03 ms
-2024-09-26 00:17:46,297 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_corine/wflow_sbm.toml
-
-</pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
 <ul class="simple">
@@ -693,7 +591,7 @@ Options:
 <p>From the information above, you can see that not only was the landuse map updated but also all wflow landuse-related parameters with it: Kext, N, PathFrac, RootingDepth, Sl, Swood and WaterFrac.</p>
 <p>Let’s now have a look at the different landuse maps of our two models and check that they were indeed updated.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load both models with hydromt</span>
@@ -702,8 +600,8 @@ Options:
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;./legends/GLOBCOVER_2009_QGIS.txt&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -730,15 +628,8 @@ Options:
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/_examples_update_model_landuse_19_0.png" src="../_images/_examples_update_model_landuse_19_0.png" />
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot  corine map</span>
@@ -765,13 +656,6 @@ Options:
 <span class="n">p</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Corine LULC&quot;</span><span class="p">)</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ticklabs</span><span class="p">)</span>
 </pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<img alt="../_images/_examples_update_model_landuse_20_0.png" src="../_images/_examples_update_model_landuse_20_0.png" />
 </div>
 </div>
 </section>
@@ -890,7 +774,7 @@ Options:
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

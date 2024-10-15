@@ -38,7 +38,7 @@
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -650,29 +650,29 @@ The default is None.</p></li>
 <li><p><strong>ds_cc_fut</strong> (<em>xr.Dataset</em>) – Dataset with the simulated future climate forcing data (precip and pet) [mm/timestep],
 based on a climate model.
 The default is None.</p></li>
-<li><p><strong>return_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)"><em>list</em></a>) – List with one or more values indiciating the return period(s) (in
+<li><p><strong>return_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List with one or more values indiciating the return period(s) (in
 years) for wich the rootzone storage depth should be calculated.
 The default is [2,3,5,10,15,20,25,50,60,100]</p></li>
-<li><p><strong>Imax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><em>float</em></a>) – The maximum interception storage capacity [mm].
+<li><p><strong>Imax</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The maximum interception storage capacity [mm].
 The default is 2 mm.</p></li>
-<li><p><strong>start_hydro_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The start month (abreviated to the first three letters of the month,
+<li><p><strong>start_hydro_year</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The start month (abreviated to the first three letters of the month,
 starting with a capital letter) of the hydrological year.
 The default is “Sep”.</p></li>
-<li><p><strong>start_field_capacity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><em>str</em></a>) – The end of the wet season / commencement of dry season. This is the
+<li><p><strong>start_field_capacity</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The end of the wet season / commencement of dry season. This is the
 moment when the soil is at field capacity, i.e. there is no storage
 deficit yet.
 The default is “Apr”.</p></li>
-<li><p><strong>rootzone_storage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Boolean to indicate whether the rootzone storage maps
+<li><p><strong>rootzone_storage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Boolean to indicate whether the rootzone storage maps
 should be stored in the staticmaps or not. The default is False.</p></li>
-<li><p><strong>LAI</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Determine whether the LAI will be used to determine Imax.
+<li><p><strong>LAI</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Determine whether the LAI will be used to determine Imax.
 Requires to have run setup_laimaps.
 The default is False.</p></li>
-<li><p><strong>chunksize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a>) – Chunksize on time dimension for processing data (not for saving to
+<li><p><strong>chunksize</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Chunksize on time dimension for processing data (not for saving to
 disk!). A default value of 100 is used on the time dimension.</p></li>
-<li><p><strong>correct_cc_deficit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a>) – Determines whether a bias-correction of the future deficit should be
+<li><p><strong>correct_cc_deficit</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Determines whether a bias-correction of the future deficit should be
 applied. If the climate change scenario and hist period are bias-corrected,
 this should probably be set to False.</p></li>
-<li><p><strong>missing_days_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum number of days within a year for that year to be counted in the
+<li><p><strong>missing_days_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Minimum number of days within a year for that year to be counted in the
 long-term Budyko analysis.</p></li>
 </ul>
 </dd>
@@ -806,7 +806,7 @@ Hydrology and Earth System Sciences, 26(5), 1295-1318. DOI:
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>

@@ -38,7 +38,7 @@
   <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -520,7 +520,7 @@ to a model component with the same name.</p>
 
 <span class="nt">setup_rivers</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
-<span class="w">  </span><span class="nt">river_geom_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rivers_lin2019_v1</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
+<span class="w">  </span><span class="nt">river_geom_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_rivers_lin</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
 <span class="w">  </span><span class="nt">river_upa</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum upstream area threshold for the river map [km2]</span>
 <span class="w">  </span><span class="nt">rivdph_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span>
 <span class="w">  </span><span class="nt">min_rivdph</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">                </span><span class="c1"># minimum river depth [m]</span>
@@ -540,7 +540,8 @@ to a model component with the same name.</p>
 <span class="nt">setup_riverbedsed</span><span class="p">:</span>
 
 <span class="nt">setup_lulcmaps</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
+<span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_2009</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
+<span class="w">  </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_mapping_default</span><span class="w">  </span><span class="c1"># default mapping for lulc classes</span>
 
 <span class="nt">setup_laimaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">lai_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modis_lai</span><span class="w">        </span><span class="c1"># source for LAI: {modis_lai}</span>
@@ -611,7 +612,8 @@ command line would be:</p>
 <span class="w">  </span><span class="nt">bedsed_mapping_fn</span><span class="p">:</span><span class="w">       </span><span class="c1"># path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used</span>
 
 <span class="nt">setup_lulcmaps</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
+<span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_2009</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
+<span class="w">  </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_mapping_default</span><span class="w">  </span><span class="c1"># default mapping for lulc classes</span>
 
 <span class="nt">setup_canopymaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">canopy_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">simard</span><span class="w">           </span><span class="c1"># source for vegetation canopy height: {simard}</span>
@@ -750,7 +752,7 @@ command line would be:</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.0.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
