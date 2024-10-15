@@ -2,28 +2,11 @@ setup_allocation_areas:
   min_area: 30
   admin_bounds_fn: gadm_level2
 
-# Update model with GLCNMO landuse data, in order to be consistent with the irrigation data
-setup_lulcmaps:
+# Update model with GLCNMO landuse data in order to add the paddies
+setup_lulcmaps_with_paddy:
   lulc_fn: glcnmo
-
-setup_non_irrigation:
-  non_irrigation_fn: pcr_globwb
-  population_fn: worldpop_2020_constrained
-  variables:
-    - dom
-    - ind
-    - lsk
-  non_irrigation_method: nearest
-  population_method: sum
-
-setup_irrigation:
-  irrigated_area_fn: irrigated_area
-  landuse_fn: glcnmo
   paddy_class: 12
-  area_threshold: 0.6
-  crop_irrigated_fn: mirca_irrigated_data
-  crop_rainfed_fn: mirca_rainfed_data
-  crop_info_fn: mirca_crop_info
+  soil_fn: soilgrids
   wflow_thicknesslayers:
     - 50
     - 100
@@ -36,22 +19,35 @@ setup_irrigation:
     - 5
     - null
     - null
+  paddy_waterlevels:
+    "h_min": 20
+    "h_opt": 50
+    "h_max": 80
+
+setup_domestic_demand:
+  domestic_fn: pcr_globwb
+  population_fn: worldpop_2020_constrained
+  domestic_fn_original_res: 0.5
+
+setup_other_demand:
+  demand_fn: pcr_globwb
+  variables:
+    - ind_gross
+    - ind_net
+    - lsk_gross
+    - lsk_net
+  resampling_method: nearest
+
+setup_irrigation:
+  irrigated_area_fn: irrigated_area
+  irrigation_value:
+    - 1
+  cropland_class:
+    - 11
+    - 14
+    - 20
+    - 30
+  paddy_class:
+    - 12
+  area_threshold: 0.6
   lai_threshold: 0.2
-  additional_parameters:
-    vertical.paddy:
-      h_min: 20
-      h_opt: 50
-      h_max: 80
-    h_values: # values in a list from h1, h2, h3_high, h3_low, h4
-      paddy:
-        - 100
-        - 55
-        - -160
-        - -250
-        - -16000
-      nonpaddy:
-        - 0
-        - -100
-        - -400
-        - -1000
-        - -15849

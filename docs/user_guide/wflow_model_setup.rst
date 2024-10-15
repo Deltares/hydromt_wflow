@@ -47,7 +47,9 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_glaciers`
       - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.
     * - :py:func:`~WflowModel.setup_lulcmaps`
-      - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
+      - This component derives several wflow maps based on landuse- landcover (LULC) data.
+    * - :py:func:`~WflowModel.setup_lulcmaps_with_paddy`
+      - This component derives several wflow maps based on landuse- landcover (LULC) data with paddy rice.
     * - :py:func:`~WflowModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
     * - :py:func:`~WflowModel.setup_laimaps_from_lulc_mapping`
@@ -74,6 +76,16 @@ a specific method see its documentation.
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
+    * - :py:func:`~WflowModel.setup_allocation_areas`
+      -  Create water demand allocation areas.
+    * - :py:func:`~WflowModel.setup_surfacewaterfrac`
+      -  Create water demand surface water consumption fraction.
+    * - :py:func:`~WflowModel.setup_domestic_demand`
+      -  Create domestic water demand.
+    * - :py:func:`~WflowModel.setup_other_demand`
+      -  Create other water demand (eg industry, livestock).
+    * - :py:func:`~WflowModel.setup_irrigation`
+      -  Create irrigation areas and trigger for paddy and nonpaddy crops.
     * - :py:func:`~WflowModel.setup_1dmodel_connection`
       -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
     * - :py:func:`~WflowModel.setup_grid_from_raster`

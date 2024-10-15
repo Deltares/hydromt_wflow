@@ -1,17 +1,24 @@
 """Workflow for water demand."""
 
-import math
+import logging
+from typing import List, Optional
 
 import dask
 import geopandas as gpd
 import numpy as np
-import pandas as pd
 import xarray as xr
-from affine import Affine
-from hydromt.raster import full_from_transform, full_like
+from hydromt import raster
 from scipy.ndimage import convolve
 
-__all__ = ["allocation_areas", "non_irrigation", "surfacewaterfrac"]
+logger = logging.getLogger(__name__)
+
+__all__ = [
+    "allocation_areas",
+    "domestic",
+    "other_demand",
+    "surfacewaterfrac",
+    "irrigation",
+]
 
 map_vars = {
     "dom": "domestic",
@@ -73,231 +80,167 @@ def full(
     return da
 
 
-def transform_from_factor(
-    da: xr.DataArray,
-    factor: int = 0,
-    snap_to_wgs84: bool = False,  # Snap to grid that aligns with zoom level of wgs84
-) -> tuple:
-    """Transform based on a zoom factor.
+def create_grid_from_bbox(
+    bbox: List[float],
+    res: float,
+    crs: int,
+    align: True,
+    y_name: str = "y",
+    x_name: str = "x",
+):
+    """Create grid from bounding box and target resolution."""
+    xmin, ymin, xmax, ymax = bbox
+    res = abs(res)
+    if align:
+        xmin = round(xmin / res) * res
+        ymin = round(ymin / res) * res
+        xmax = round(xmax / res) * res
+        ymax = round(ymax / res) * res
+    xcoords = np.linspace(
+        xmin + res / 2,
+        xmax - res / 2,
+        num=round((xmax - xmin) / res),
+        endpoint=True,
+    )
+    ycoords = np.flip(
+        np.linspace(
+            ymin + res / 2,
+            ymax - res / 2,
+            num=round((ymax - ymin) / res),
+            endpoint=True,
+        )
+    )
+    coords = {y_name: ycoords, x_name: xcoords}
+    grid = raster.full(
+        coords=coords,
+        nodata=np.nan,
+        dtype=np.float32,
+        name="data",
+        attrs={},
+        crs=crs,
+        lazy=True,
+    )
 
-    Can also be snapped to a zoom level of wgs84.
-
-    Parameters
-    ----------
-    da : xr.DataArray
-
-    factor : int, optional
-        Zoom factor, by default 0
-    snap_to_wgs84 : bool, optional
-        Whether to snap to a zoom level of wgs84, \
-see https://wiki.openstreetmap.org/wiki/Zoom_levels for more information regarding the \
-the zoom levels. By default False
-
-    Returns
-    -------
-    tuple
-        Geotransform and the shape
-    """
-    # Return itself, as the resolution is the same
-    if factor == 0:
-        return da.raster.transform, da.raster.shape
-
-    # Set the resolution by multiplying by factor
-    gtf = list(da.raster.transform)
-    gtf[0] *= factor
-    gtf[4] *= factor
-
-    # If snap to WGS84 is True, create a larger 'bbox'
-    if snap_to_wgs84:
-        yc = 180 / gtf[0]
-        if abs(round(yc) - yc) > 0.05:
-            raise ValueError(
-                "Cant use 'snap_to_wgs84' on a resolution that does not \
-fit within the WGS84 projection."
-            )
-
-        # Define the 4 boundaries
-        bbox = da.raster.bounds
-        left = math.floor(bbox[0] / gtf[0]) * gtf[0]
-        bottom = math.floor(bbox[1] / gtf[0]) * gtf[0]
-        top = math.ceil(bbox[3] / gtf[0]) * gtf[0]
-        right = math.ceil(bbox[2] / gtf[0]) * gtf[0]
-
-        # Set the new top-left
-        gtf[2] = left
-        gtf[5] = top
-
-        # Set the new width and height
-        h = round((top - bottom) / gtf[0])
-        w = round((right - left) / gtf[0])
-        shape = (h, w)
-    else:
-        # if not snap then just divide by the factor
-        shape = [round(item / 10) for item in da.raster.shape]
-
-    return gtf, shape
+    return grid
 
 
-def transform_half_degree(
-    bbox: tuple | list,
-) -> tuple:
-    """Transform a bbox into a covering box with a 0.5 degree resolution.
-
-    Parameters
-    ----------
-    bbox : tuple | list
-        A bounding box in the format of (minx, miny, maxx, maxy).
-
-    Returns
-    -------
-    tuple
-        Affine matrix (geospatial transform), width and height
-    """
-    left = round(math.floor(bbox[0] * 2) / 2, 1)
-    bottom = round(math.floor(bbox[1] * 2) / 2, 1)
-    top = round(math.ceil(bbox[3] * 2) / 2, 1)
-    right = round(math.ceil(bbox[2] * 2) / 2, 1)
-
-    affine = Affine(0.5, 0.0, left, 0.0, -0.5, top)
-    h = round((top - bottom) / 0.5)
-    w = round((right - left) / 0.5)
-
-    return affine, w, h
-
-
-def touch_intersect(
-    row: pd.Series,
-    vector: gpd.GeoDataFrame,
-) -> pd.Series:
-    """Find if a geometry (row) has unequal intersects and touches.
-
-    Parameters
-    ----------
-    row : pd.Series
-        Row from a GeoDataFrame.
-    vector : gpd.GeoDataFrame
-        GeoDataFrame to test touches and intersects with.
-
-    Returns
-    -------
-    pd.Series
-        A row containing the boolean of equal touches and intersects.
-    """
-    contain = True
-    _t = sum(vector.touches(row.geometry))
-    _i = sum(vector.intersects(row.geometry))
-    diff = abs(_i - _t)
-    if diff == 0:
-        contain = False
-    row["contain"] = contain
-    return row
-
-
-def non_irrigation(
+def domestic(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
-    ds_method: str,
-    popu: xr.Dataset,
-    popu_method: str,
-    res_factor: int,
-    snap_to_wgs84: bool,
+    popu: Optional[xr.Dataset] = None,
+    original_res: Optional[float] = None,
 ) -> tuple:
+    """Create domestic water demand maps.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Raw domestic data dataset.
+    ds_like : xr.Dataset
+        Dataset at wflow model domain and resolution.
+    popu : xr.Dataset
+        Population dataset (number of people per gridcell).
+    original_res : float
+        Original resolution of ds. If provided, ds will be upscaled before
+        downsampling with population.
+
+    Returns
+    -------
+    tuple
+        Domestic data at model resolution, Population data at model resolution.
+    """
+    # Mask no data values
+    ds = ds.raster.mask_nodata()
+    # Convert population to density and reproject to model
+    if popu is not None:
+        popu = popu.raster.mask_nodata().fillna(0)
+        popu_density = popu / popu.raster.area_grid()
+        popu_density.name = "population_density"
+        popu_scaled = popu_density.raster.reproject_like(
+            ds_like,
+            method="average",
+        )
+        # Back to cap per cell
+        popu_scaled = popu_scaled * popu_scaled.raster.area_grid()
+        popu_scaled.name = "population"
+    else:
+        popu_scaled = None
+
+    # Reproject to model resolution
+    # Simple reprojection
+    ds_scaled = ds.raster.reproject_like(
+        ds_like,
+        method="average",
+    )
+    # Downscale with population if available
+    if popu is not None:
+        # Reproject ds to original resolution if needed before downscaling
+        if original_res is not None:
+            # Create empty grid at the original resolution
+            dda = create_grid_from_bbox(
+                bbox=ds.raster.bounds,
+                res=original_res,
+                crs=ds_like.raster.crs,
+                align=True,
+                y_name=ds.raster.y_dim,
+                x_name=ds.raster.x_dim,
+            )
+            # Use (weighted) average to scale demands in mm!
+            ds = ds.raster.reproject_like(
+                dda,
+                method="average",
+            )
+        # Check if population is of higher res than ds (else no need to downscale)
+        if abs(popu.raster.res[0]) < abs(ds.raster.res[0]):
+            # Convert ds from mm to m3
+            ds_m3 = ds * ds.raster.area_grid() * 1000
+            # Get the number of capita per cell
+            popu_ds = popu.raster.reproject_like(
+                ds_m3,
+                method="sum",
+            )
+            # Get m3 per capita
+            ds_m3_per_cap = ds_m3 / popu_ds
+            ds_m3_per_cap = ds_m3_per_cap.where(popu_ds > 0, 0)
+            # Downscale to model resolution
+            ds_m3_per_cap_model = ds_m3_per_cap.raster.reproject_like(
+                ds_like,
+                method="average",
+            )
+            # Get m3 per cell
+            ds_m3_model = ds_m3_per_cap_model * popu_scaled
+            # Get back to mm
+            ds_scaled = ds_m3_model / ds_m3_model.raster.area_grid() / 1000
+
+    return ds_scaled, popu_scaled
+
+
+def other_demand(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    ds_method: str = "average",
+) -> xr.Dataset:
     """Create non-irrigation water demand maps.
 
     Parameters
     ----------
     ds : xr.Dataset
-        Raw non-irrigation data dataset.
+        Raw demand data dataset.
     ds_like : xr.Dataset
         Dataset at wflow model domain and resolution.
     ds_method : str
-        Non-irrigation data resampling method.
-    popu : xr.Dataset
-        Population dataset (number of people per gridcell).
-    popu_method : str
-        Population data resampling method.
-    res_factor : int
-        Factor between current and original resolution.
-    snap_to_wgs84 : bool
-        Whether to snap to the WGS84 domain.
+        Demand data resampling method. Default is 'average'.
 
     Returns
     -------
-    tuple
-        Non-irrigation data at model resolution, Population data at model resolution.
+    xr.Dataset
+        Demand data at model resolution.
     """
     # Reproject to up or downscale
     non_irri_scaled = ds.raster.reproject_like(
         ds_like,
         method=ds_method,
     )
-
-    # Only resample when there is population data
-    popu_scaled = None
-    if popu is not None:
-        # Resample the population data to model resolution
-        popu_shape = popu.raster.shape
-        if any([_ex < _ey for _ex, _ey in zip(popu_shape, ds_like.raster.shape)]):
-            popu_scaled = popu.raster.reproject_like(
-                ds_like,
-                method="nearest",
-            )
-            scaling = [_ey / _ex for _ex, _ey in zip(popu_shape, ds_like.raster.shape)]
-            scaling = scaling[0] * scaling[1]
-            popu_scaled = popu_scaled * scaling
-        else:
-            popu_scaled = popu.raster.reproject_like(
-                ds_like,
-                method=popu_method,
-            )
-
-        popu_scaled.name = "population"
-
-        # Get transform at a specific resolution
-        transform, shape = transform_from_factor(
-            ds,
-            factor=res_factor,
-            snap_to_wgs84=snap_to_wgs84,
-        )
-
-        # Create dummy dataset from this info
-        dda = full_from_transform(
-            transform=transform,
-            shape=shape,
-            crs=4326,
-            lazy=True,
-        )
-
-        # Scale the polulation data based on global glob cells
-        popu_down = popu_scaled.raster.reproject_like(
-            dda,
-            method="sum",
-        )
-        popu_redist = popu_down.raster.reproject_like(
-            popu_scaled,
-            method="nearest",
-        )
-        popu_redist = popu_scaled / popu_redist
-
-        # Setup downscaled non irigation domestic data
-        non_irri_down = non_irri_scaled.raster.reproject_like(
-            dda,
-            method="sum",
-        )
-
-        # Loop through the domestic variables
-        for var in ["dom_gross", "dom_net"]:
-            if var not in non_irri_scaled.data_vars:
-                continue
-            attrs = non_irri_scaled[var].attrs
-            new = non_irri_down[var].raster.reproject_like(
-                non_irri_scaled,
-                method="nearest",
-            )
-            new = new * popu_redist
-            new = new.fillna(0.0)
-            non_irri_scaled[var] = new
-            non_irri_scaled[var] = non_irri_scaled[var].assign_attrs(attrs)
 
     # Mask data to fill nodata gaps with 0
     non_irri_scaled = non_irri_scaled.raster.mask_nodata()
@@ -306,7 +249,7 @@ def non_irrigation(
             ~np.isnan(non_irri_scaled[var]), 0
         )
 
-    return non_irri_scaled, popu_scaled
+    return non_irri_scaled
 
 
 def allocation_areas(
@@ -559,8 +502,8 @@ def surfacewaterfrac(
 
 
 def classify_pixels(
-    da_crop: xr.DataArray,
-    da_model: xr.DataArray,
+    da_irr: xr.DataArray,
+    da_crop_model: xr.DataArray,
     threshold: float,
     nodata_value: float | int = -9999,
 ):
@@ -571,10 +514,10 @@ def classify_pixels(
 
     Parameters
     ----------
-    da_crop: xr.DataArray
-        Data with crop mask
-    da_model: xr.DataArray
-        Layer of the wflow model (used for reprojecting)
+    da_irr: xr.DataArray
+        Data with irrigation mask
+    da_crop_model: xr.DataArray
+        Layer of the masked cropland in wflow model
     threshold: float
         Threshold above which pixels are classified as irrigated
     nodata_value: float | int = -9999
@@ -582,254 +525,37 @@ def classify_pixels(
 
     Returns
     -------
-    crop_map: xr.DataArray
+    irr_map: xr.DataArray
         Mask with classified pixels
     """
-    # Convert crop map to an area map
-    da_area = da_crop * da_crop.raster.area_grid()
-    # Resample to model grid and sum areas
-    da_area2model = da_area.raster.reproject_like(da_model, method="sum")
+    # Check if the resolution of the irrigation map is higher than the model
+    if abs(da_irr.raster.res[0]) < abs(da_crop_model.raster.res[0]):
+        # Use area to resample
+        # Convert irr map to an area map
+        da_area = da_irr * da_irr.raster.area_grid()
+        # Resample to model grid and sum areas
+        da_area2model = da_area.raster.reproject_like(da_crop_model, method="sum")
 
-    # Calculate relative area
-    relative_area = da_area2model / da_area2model.raster.area_grid()
+        # Calculate relative area
+        relative_area = da_area2model / da_area2model.raster.area_grid()
 
-    # Classify pixels with a 1 where it exceeds the threshold, and 0 where it doesnt.
-    crop_map = xr.where(relative_area >= threshold, 1, 0)
-    crop_map = xr.where(da_model.isnull(), nodata_value, crop_map)
+        # Classify pixels with a 1 where it exceeds the threshold, and 0 where it doesnt
+        da_irr_model = xr.where(relative_area >= threshold, 1, 0)
 
-    # Fix nodata values
-    crop_map.raster.set_nodata(nodata_value)
+    # Else resample using nearest
+    else:
+        da_irr_model = da_irr.raster.reproject_like(da_crop_model, method="nearest")
 
-    return crop_map
-
-
-def find_paddy(
-    landuse_da: xr.DataArray,
-    irrigated_area: xr.DataArray,
-    paddy_class: int,
-    nodata_value: float | int = -9999,
-):
-    """Find the location of paddy crops.
-
-    Done by finding the overlap between the irrigated area
-    grid, and a landcover map that has a separate class for rice/paddy fields.
-
-    Parameters
-    ----------
-    landuse_da: xr.DataArray
-        Map with landuse classes (must contain a class for paddy)
-    irrigated_area: xr.DataArray
-        Mask with irrigated areas
-    paddy_class: int
-        Class that matches the rice or paddy land cover type
-    nodata_value: float | int = -9999
-        Value to be used as nodata value
-
-    Returns
-    -------
-    paddy: xr.DataArray
-        Mask with pixels classified as paddy or rice fields
-    nonpaddy: xr.DataArray
-        Maks with pixels classified as non paddy irrigation
-    """
-    # Resample irrigated area to landuse datasets
-    irr2lu = irrigated_area.raster.reproject_like(landuse_da)
-    # Mask pixels with paddies
-    paddy = xr.where((irr2lu != 0) & (landuse_da == paddy_class), 1, 0)
-    # Mask pixels that are irrigated, but not paddy
-    nonpaddy = xr.where((irr2lu != 0) & (landuse_da != paddy_class), 1, 0)
-    # Fix nodata values
-    paddy.raster.set_nodata(nodata_value)
-    nonpaddy.raster.set_nodata(nodata_value)
-    # Return two rasters
-    return paddy, nonpaddy
-
-
-def add_crop_maps(
-    ds_rain: xr.Dataset,
-    ds_irri: xr.Dataset,
-    mod,
-    do_paddy: bool,
-    do_nonpaddy: bool,
-    paddy_value: int,
-    default_value: float,
-    map_type: str = "crop_factor",
-):
-    """Add crop_factor maps to the model.
-
-    Based on (MIRCA) datasets with rainfed and irrigated crop information. First adds
-    the value for the paddy fields, followed by the non paddy irrigated crops. All other
-    cells are treated as rainfed.
-
-    Parameters
-    ----------
-    ds_rain: xr.Dataset
-        Dataset with crop information for rainfed crops
-    ds_irri: xr.Dataset
-        Dataset with crop information for irrigated crops
-    mod: WflowModel
-        WflowModel object with grid information, used to find the model domain, and
-        locations of paddy and nonpaddy irrigation
-    paddy_value: int
-        Value to be used for locations with paddy irrigation
-    default_value: float
-        Fallback value for rainfed data
-    map_type: str = "crop_factor"
-        Type of data requested, currently supports {"crop_factor" and "rootingdepth"}
-
-    Returns
-    -------
-    crop_map: xr.DataArray
-        Map with the values for the requested map_type
-    """
-    if map_type == "crop_factor":
-        ds_layer_name = "crop_factor"
-    elif map_type == "rootingdepth":
-        ds_layer_name = "rootingdepth"
-
-    # Start with rainfed (all pixels, and fill missing values with default value)
-    rainfed_highres = ds_rain[ds_layer_name].raster.reproject_like(
-        mod.grid.wflow_subcatch
+    # Find cropland pixels that are irrigated
+    irr_map = xr.where(
+        np.logical_and(da_irr_model == 1, da_crop_model != da_crop_model.raster.nodata),
+        1,
+        0,
     )
-    # Fill missing values with default values
-    rainfed_highres = rainfed_highres.where(~rainfed_highres.isnull(), default_value)
-    # Mask to model domain
-    crop_map = xr.where(
-        mod.grid["wflow_dem"].raster.mask_nodata().isnull(), np.nan, rainfed_highres
-    )
+    # Fix nodata values (will be used as catchment mask)
+    irr_map.raster.set_nodata(nodata_value)
 
-    # Add paddy values
-    if do_paddy:
-        crop_map = xr.where(
-            mod.grid["paddy_irrigation_areas"] == 1, paddy_value, crop_map
-        )
-
-    if do_nonpaddy:
-        # Resample to model resolution
-        irrigated_highres = ds_irri[ds_layer_name].raster.reproject_like(
-            mod.grid.wflow_subcatch
-        )
-        # Map values to the correct mask
-        tmp = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, irrigated_highres, 0)
-        # Fill missing values with the default crop factor (as it can happen that not
-        # all cells are covered in this data)
-        tmp = tmp.where(~tmp.isnull(), default_value)
-        # Add data to crop_factop map
-        crop_map = xr.where(mod.grid["nonpaddy_irrigation_areas"] == 1, tmp, crop_map)
-
-    return crop_map
-
-
-def calc_kv_at_depth(depth, kv_0, f):
-    """
-    Calculate the kv value at a certain depth.
-
-    Value is based on the kv at the surface, the f parameter that describes the
-    exponential decline and the depth.
-
-    Parameters
-    ----------
-    depth
-        Depth at which kv needs to be calculated
-    kv_0
-        The vertical conductitivity at the surface
-    f
-        The value describing the exponential decline
-
-    Returns
-    -------
-    kv_z
-        The kv value at the requested depth
-    """
-    kv_z = kv_0 * np.exp(-f * depth)
-    return kv_z
-
-
-def calc_kvfrac(kv_depth, target):
-    """Calculate the kvfrac.
-
-    Based on the kv value at a certain depth and the target value.
-
-    Parameters
-    ----------
-    kv_depth:
-        Value of kv at a certain depth
-    target:
-        Target kv value
-
-    Returns
-    -------
-    kvfrac:
-        The value which kv_depths needs to be multiplied with to reach the target value
-    """
-    kvfrac = target / kv_depth
-    return kvfrac
-
-
-def update_kvfrac(
-    ds_model, kv0_mask, f_mask, wflow_thicknesslayers, target_conductivity
-):
-    """
-    Calculate kvfrac values for each layer.
-
-    Done such that the bottom of the layer equals to the target_conductivity.
-    Calculation assumes exponentially declining vertical conductivities, based on the f
-    parameter. If no target_conducitivity is specified, kvfrac is set to be equal to 1.
-
-    Parameters
-    ----------
-    ds_model
-        Dataset of the wflow model
-    kv0_mask
-        Values of vertical conductivity at the surface, masked to paddy locations
-    f_mask
-        Values of the f parameter, masked to paddy locations
-    wflow_thicknesslayers
-        List of requested layers in the wflow model
-    target_conductivity
-        List of target conductivities for each layer (None if no target value is
-        requested)
-
-    Returns
-    -------
-    da_kvfrac
-        Maps for each layer with the required kvfrac value
-    """
-    # Convert to np.array
-    wflow_thicknesslayers = np.array(wflow_thicknesslayers)
-    target_conductivity = np.array(target_conductivity)
-
-    # Prepare emtpy dataarray
-    da_kvfrac = full_like(ds_model["c"])
-    # Set all values to 1
-    da_kvfrac = da_kvfrac.where(ds_model.wflow_dem.raster.mask_nodata().isnull(), 1.0)
-
-    # Get the actual depths
-    wflow_depths = np.cumsum(wflow_thicknesslayers)
-    # Find the index of the layers where a kvfrac should be set
-    idx = np.where(target_conductivity is not None)[0]
-    # Find the corresponding depths
-    [wflow_depths[i] for i in idx]
-
-    # Loop through the target_conductivity values
-    for idx, target in enumerate(target_conductivity):
-        if target is not None:
-            depth = wflow_depths[idx]
-            # Calculate the kv at that depth (only for the pixels that have paddy
-            # fields)
-            kv_depth = calc_kv_at_depth(depth=depth, kv_0=kv0_mask, f=f_mask)
-            paddy_values = calc_kvfrac(kv_depth=kv_depth, target=target)
-            # Set the values in the correct places
-            kvfrac = xr.where(
-                paddy_values.raster.mask_nodata().isnull(),
-                da_kvfrac.loc[dict(layer=idx)],
-                paddy_values,
-            )
-            kvfrac = kvfrac.fillna(-9999)
-            # Update layer in dataarray
-            da_kvfrac.loc[dict(layer=idx)] = kvfrac
-
-    return da_kvfrac
+    return irr_map
 
 
 def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
@@ -868,3 +594,78 @@ def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
     trigger.raster.set_nodata(np.dtype(dtype).type(na_value))
 
     return trigger
+
+
+def irrigation(
+    da_irrigation: xr.DataArray,
+    ds_like: xr.Dataset,
+    irrigation_value: List[int],
+    cropland_class: List[int],
+    paddy_class: List[int] = [],
+    area_threshold: float = 0.6,
+    lai_threshold: float = 0.2,
+    logger=logger,
+):
+    """
+    Prepare irrigation maps for paddy and non paddy.
+
+    Parameters
+    ----------
+    da_irrigation: xr.DataArray
+        Irrigation map
+    ds_like: xr.Dataset
+        Dataset at wflow model domain and resolution.
+
+        * Required variables: ['wflow_landuse', 'LAI']
+    irrigation_value: List[int]
+        Values that indicate irrigation in da_irrigation.
+    cropland_class: List[int]
+        Values that indicate cropland in landuse map.
+    paddy_class: List[int]
+        Values that indicate paddy fields in landuse map.
+    area_threshold: float
+        Threshold for the area of a pixel to be classified as irrigated.
+    lai_threshold: float
+        Threshold for the LAI value to be classified as growing season.
+
+    Returns
+    -------
+    ds_irrigation: xr.Dataset
+        Dataset with paddy and non-paddy irrigation maps: ['paddy_irrigation_areas',
+        'nonpaddy_irrigation_areas', 'paddy_irrigation_trigger',
+        'nonpaddy_irrigation_trigger']
+    """
+    # Check that the landuse map is available
+    if "wflow_landuse" not in ds_like:
+        raise ValueError("Landuse map is required in ds_like.")
+    landuse = ds_like["wflow_landuse"].copy()
+
+    # Create the irrigated areas mask
+    irrigation_mask = da_irrigation.isin(irrigation_value).astype(float)
+
+    # Get cropland mask from landuse
+    logger.info("Preparing irrigated areas map for non paddy.")
+    nonpaddy = landuse.where(landuse.isin(cropland_class), landuse.raster.nodata)
+    nonpaddy_areas = classify_pixels(irrigation_mask, nonpaddy, area_threshold)
+    ds_irrigation = nonpaddy_areas.to_dataset(name="nonpaddy_irrigation_areas")
+
+    # Get paddy mask from landuse
+    if len(paddy_class) > 0:
+        logger.info("Preparing irrigated areas map for paddy.")
+        paddy = landuse.where(landuse.isin(paddy_class), landuse.raster.nodata)
+        paddy_areas = classify_pixels(irrigation_mask, paddy, area_threshold)
+        ds_irrigation["paddy_irrigation_areas"] = paddy_areas
+
+    # Calculate irrigation trigger based on LAI
+    logger.info("Calculating irrigation trigger.")
+    if "LAI" not in ds_like:
+        raise ValueError("LAI map is required in ds_like.")
+    lai = ds_like["LAI"].copy()
+    trigger = calc_lai_threshold(lai, lai_threshold)
+
+    # Mask trigger with paddy and nonpaddy
+    ds_irrigation["nonpaddy_irrigation_trigger"] = trigger.where(nonpaddy_areas == 1, 0)
+    if len(paddy_class) > 0:
+        ds_irrigation["paddy_irrigation_trigger"] = trigger.where(paddy_areas == 1, 0)
+
+    return ds_irrigation

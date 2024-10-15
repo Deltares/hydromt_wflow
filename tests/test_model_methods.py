@@ -821,9 +821,10 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
 
 def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     example_sediment_model.setup_lulcmaps(
-        lulc_fn="globcover",
+        lulc_fn="globcover_2009",
+        lulc_mapping_fn="globcover_mapping_default",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars={"USLE_C": "input.vertical.usleC"},
+        lulc_vars=["USLE_C"],
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,
@@ -832,6 +833,68 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         planted_forest_testdata.geometry.centroid
     )
     assert np.all(da.values == np.array([0.0881, 0.2188]))
+
+
+def test_setup_lulc_paddy(example_wflow_model, tmpdir):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(Path(tmpdir), mode="w")
+
+    layers = [50, 100, 50, 200, 800]
+
+    # Use the method
+    # Note: 11 this not NOT a rice class, but chosen just for testing purposes
+    example_wflow_model.setup_lulcmaps_with_paddy(
+        lulc_fn="glcnmo",
+        paddy_class=11,
+        wflow_thicknesslayers=layers,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid.copy()
+
+    assert "kvfrac" in ds
+    assert "kc" in ds
+    assert "c" in ds
+    # Assert layers are updated
+    assert example_wflow_model.config["model"]["thicknesslayers"] == layers
+    # Adding +1 to the layers to also represent the last layer
+    assert len(ds.layer) == len(layers) + 1
+    assert ds.c.shape[0] == len(layers) + 1
+    assert ds.kvfrac.shape[0] == len(layers) + 1
+
+    # Test kvfrac is not 1 at the right layer for a paddy cell
+    kvfrac_values = ds.kvfrac.sel(
+        latitude=45.89, longitude=12.10, method="nearest"
+    ).values
+    assert kvfrac_values[0] == 1.0
+    assert kvfrac_values[2] != 1.0
+    assert kvfrac_values[5] == 1.0
+
+    # Test values for updated C
+    c_values = ds.c.sel(latitude=45.89, longitude=12.10, method="nearest").values
+    assert np.isclose(c_values[0], 9.220022)
+    assert np.isclose(c_values[2], 9.553196)
+    assert np.isclose(c_values[5], 9.849495)
+
+    # Test values for crop coefficient
+    assert np.isclose(ds["kc"].raster.mask_nodata().mean().values, 0.91258438)
+
+    # Test with a separate paddy_map
+    example_wflow_model.setup_lulcmaps_with_paddy(
+        lulc_fn="globcover_2009",
+        paddy_class=11,
+        output_paddy_class=12,
+        paddy_fn=ds["wflow_landuse"].where(
+            ds["wflow_landuse"] == 11, ds["wflow_landuse"].raster.nodata
+        ),
+        lulc_mapping_fn="globcover_mapping_default",
+        wflow_thicknesslayers=layers,
+    )
+
+    ds2 = example_wflow_model.grid.copy()
+
+    assert np.any(ds2["wflow_landuse"] == 12)
 
 
 def test_setup_allocation_areas(example_wflow_model, tmpdir):
@@ -877,55 +940,48 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
 
     # Use the method
-    example_wflow_model.setup_non_irrigation(
-        non_irrigation_fn="pcr_globwb",
+    example_wflow_model.setup_domestic_demand(
+        domestic_fn="pcr_globwb",
         population_fn="worldpop_2020_constrained",
-        res_factor=6,
-        snap_to_wgs84=True,
+        domestic_fn_original_res=0.5,
+    )
+    example_wflow_model.setup_other_demand(
+        demand_fn="pcr_globwb",
+        variables=["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
     )
 
     # Assert entries
-    assert "dom_gross" in example_wflow_model.grid
+    assert "domestic_gross" in example_wflow_model.grid
     assert "population" in example_wflow_model.grid
 
     # Assert some values
-    dom_gross_vals = example_wflow_model.grid.dom_gross.isel(
-        latitude=32, longitude=26
-    ).values
-    assert int(np.mean(dom_gross_vals) * 100) == 134
-    popu_val = example_wflow_model.grid.population.isel(
-        latitude=32, longitude=26
-    ).values
-    assert int(popu_val) == 7843
+    dom_gross_vals = (
+        example_wflow_model.grid["domestic_gross"]
+        .isel(latitude=32, longitude=26)
+        .values
+    )
+    assert int(np.mean(dom_gross_vals) * 100) == 89
+    popu_val = (
+        example_wflow_model.grid["population"].isel(latitude=32, longitude=26).values
+    )
+    assert int(popu_val) == 7842
 
-    ind_mean = example_wflow_model.grid.ind_gross.mean().values
-    assert int(ind_mean * 10000) == 829
+    ind_mean = example_wflow_model.grid["industry_gross"].mean().values
+    assert int(ind_mean * 10000) == 849
 
 
 def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
-    example_wflow_model.set_root(
-        Path(
-            tmpdir,
-        ),
-        mode="w",
-    )
-
-    # Settings to be used for updating and checking later
-    layers = [50, 100, 50, 200, 800]
+    example_wflow_model.set_root(Path(tmpdir), mode="w")
 
     # Use the method
     example_wflow_model.setup_irrigation(
         irrigated_area_fn="irrigated_area",
-        landuse_fn="glcnmo",
-        paddy_class=12,
+        irrigation_value=[1],
+        cropland_class=[11, 14, 20, 30],
+        paddy_class=[],
         area_threshold=0.6,
-        crop_irrigated_fn="mirca_irrigated_data",
-        crop_rainfed_fn="mirca_rainfed_data",
-        crop_info_fn="mirca_crop_info",
-        wflow_thicknesslayers=layers,
-        target_conductivity=[None, None, 5, None, None],
         lai_threshold=0.2,
     )
 
@@ -935,21 +991,21 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
     # Assert entries
     assert "paddy_irrigation_areas" not in ds
     assert "nonpaddy_irrigation_areas" in ds
-    assert "crop_factor" in ds
-    assert "c" in ds
-    assert "kvfrac" not in ds
-    assert "irrigation_trigger" in ds
+    assert "nonpaddy_irrigation_trigger" in ds
 
     # Assert the irrigation_trigger map has the same shape as LAI
-    assert ds.irrigation_trigger.shape[0] == ds.LAI.shape[0]
+    assert ds["nonpaddy_irrigation_trigger"].shape[0] == ds["LAI"].shape[0]
 
     # There is no paddy in this region
-    assert ds.nonpaddy_irrigation_areas.raster.mask_nodata().sum().values == 9
-    assert np.isclose(ds.crop_factor.raster.mask_nodata().mean().values, 1.01844)
+    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 5
     # Check if more irrigation is allowed during summer than winter
     assert (
-        ds.irrigation_trigger.raster.mask_nodata().sel(time=2).sum().values
-        < ds.irrigation_trigger.raster.mask_nodata().sel(time=8).sum().values
+        ds["nonpaddy_irrigation_trigger"].raster.mask_nodata().sel(time=2).sum().values
+        < ds["nonpaddy_irrigation_trigger"]
+        .raster.mask_nodata()
+        .sel(time=8)
+        .sum()
+        .values
     )
 
 
@@ -963,20 +1019,21 @@ def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
         mode="w",
     )
 
-    # Settings to be used for updating and checking later
+    # First update landuse to add rice
     layers = [50, 100, 50, 200, 800]
-
     # Note: 11 this not NOT a rice class, but chosen just for testing purposes
+    example_wflow_model.setup_lulcmaps_with_paddy(
+        lulc_fn="glcnmo",
+        paddy_class=11,
+        wflow_thicknesslayers=layers,
+    )
+
     example_wflow_model.setup_irrigation(
         irrigated_area_fn="irrigated_area",
-        landuse_fn="glcnmo",
-        paddy_class=11,
+        irrigation_value=[1],
+        cropland_class=[11, 13],
+        paddy_class=[11],
         area_threshold=0.6,
-        crop_irrigated_fn="mirca_irrigated_data",
-        crop_rainfed_fn="mirca_rainfed_data",
-        crop_info_fn="mirca_crop_info",
-        wflow_thicknesslayers=layers,
-        target_conductivity=[None, None, 5, None, None],
         lai_threshold=0.2,
     )
 
@@ -985,28 +1042,7 @@ def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
 
     # Assert entries
     assert "paddy_irrigation_areas" in ds
-    assert "kvfrac" in ds
-
-    # Assert layers are updated
-    assert example_wflow_model.config["model"]["thicknesslayers"] == layers
-    # Adding +1 to the layers to also represent the last layer
-    assert len(ds.layer) == len(layers) + 1
-    assert ds.c.shape[0] == len(layers) + 1
-    assert ds.kvfrac.shape[0] == len(layers) + 1
-
-    # Test kvfrac is not 1 at the right layer for a paddy cell
-    kvfrac_values = ds.kvfrac.sel(
-        latitude=45.89, longitude=12.10, method="nearest"
-    ).values
-    assert kvfrac_values[0] == 1.0
-    assert kvfrac_values[2] != 1.0
-    assert kvfrac_values[5] == 1.0
-
-    # Test values for updated C
-    c_values = ds.c.sel(latitude=45.89, longitude=12.10, method="nearest").values
-    assert np.isclose(c_values[0], 9.220022)
-    assert np.isclose(c_values[2], 9.553196)
-    assert np.isclose(c_values[5], 9.849495)
+    assert "paddy_irrigation_trigger" in ds
 
 
 def test_setup_cold_states(example_wflow_model, tmpdir):
