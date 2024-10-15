@@ -11,7 +11,7 @@ setup_basemaps:
 
 setup_rivers:
   hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
-  river_geom_fn: rivers_lin2019_v1 # river source data with river width and bankfull discharge
+  river_geom_fn: hydro_rivers_lin # river source data with river width and bankfull discharge
   river_upa: 30               # minimum upstream area threshold for the river map [km2]
   rivdph_method: powlaw           # method to estimate depth {'powlaw', 'manning', 'gvf'}
   min_rivdph: 1                # minimum river depth [m]
@@ -31,7 +31,8 @@ setup_lakes:
 setup_riverbedsed:
 
 setup_lulcmaps:
-  lulc_fn: globcover        # source for lulc maps: {globcover, vito, corine}
+  lulc_fn: globcover_2009        # source for lulc maps: {globcover, vito, corine}
+  lulc_mapping_fn: globcover_mapping_default  # default mapping for lulc classes
 
 setup_laimaps:
   lai_fn: modis_lai        # source for LAI: {modis_lai}
