@@ -55,7 +55,11 @@ def example_sediment_model():
 
 @pytest.fixture()
 def example_models(example_wflow_model, example_sediment_model):
-    models = {"wflow": example_wflow_model, "wflow_sediment": example_sediment_model}
+    models = {
+        "wflow": example_wflow_model,
+        "wflow_sediment": example_sediment_model,
+        "wflow_simple": None,
+    }
     return models
 
 
@@ -74,8 +78,19 @@ def sediment_ini():
 
 
 @pytest.fixture()
-def example_inis(wflow_ini, sediment_ini):
-    inis = {"wflow": wflow_ini, "wflow_sediment": sediment_ini}
+def wflow_simple_ini():
+    config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
+    opt = parse_config(config)
+    return opt
+
+
+@pytest.fixture()
+def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
+    inis = {
+        "wflow": wflow_ini,
+        "wflow_sediment": sediment_ini,
+        "wflow_simple": wflow_simple_ini,
+    }
     return inis
 
 

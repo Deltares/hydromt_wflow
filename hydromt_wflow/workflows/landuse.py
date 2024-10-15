@@ -240,7 +240,7 @@ def create_lulc_lai_mapping_table(
                 df_lai.index.name = "landuse"
             else:
                 # Compute the mean
-                lai_mean_per_lu = np.round(lu["lai"].load().mean(dim="z") / 10, 3)
+                lai_mean_per_lu = np.round(lu["lai"].load().mean(dim="z"), 3)
                 # Add the landuse id as an extra dimension
                 lai_mean_per_lu = lai_mean_per_lu.expand_dims("landuse")
                 lai_mean_per_lu["landuse"] = [lulc_id]
@@ -289,6 +289,7 @@ def lai_from_lulc_mapping(
         Dataset with LAI values for each month.
     """
     months = np.arange(1, 13)
+    df.columns = [int(col) if str(col).isdigit() else col for col in df.columns]
     # Map the monthly LAI values to the landuse map
     ds_lai = landuse(
         da=da,

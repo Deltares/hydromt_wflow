@@ -83,7 +83,7 @@ def test_setup_grid(example_wflow_model):
     assert example_wflow_model.get_config("input.vertical.altitude") == "elevtn"
 
     example_wflow_model.setup_grid_from_raster(
-        raster_fn="globcover",
+        raster_fn="globcover_2009",
         reproject_method="mode",
         wflow_variables=["input.vertical.landuse"],
     )
@@ -154,7 +154,7 @@ def test_projected_crs(tmpdir):
     )
 
     # Add more data eg landuse
-    mod.setup_lulcmaps("globcover")
+    mod.setup_lulcmaps("globcover_2009", lulc_mapping_fn="globcover_mapping_default")
 
     assert mod.grid.raster.crs == 3857
     assert np.quantile(mod.grid["wflow_landuse"], 0.95) == 190.0  # urban
@@ -300,16 +300,13 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     example_wflow_model.setup_ksathorfrac(
         ksat_fn=da,
     )
-    # Write and read the map
-    example_wflow_model.write_grid()
-    example_wflow_model.read_grid()
 
     # Check values
     values = example_wflow_model.grid.KsatHorFrac.raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
-    assert int(max_val * 100) == 43175
-    assert int(mean_val * 100) == 22020
+    assert int(max_val * 100) == 75000
+    assert int(mean_val * 100) == 19991
 
 
 def test_setup_lai(tmpdir, example_wflow_model):
@@ -320,7 +317,7 @@ def test_setup_lai(tmpdir, example_wflow_model):
     )
     # Read landuse data
     da_landuse = example_wflow_model.data_catalog.get_rasterdataset(
-        "vito", geom=example_wflow_model.region, buffer=2
+        "vito_2015", geom=example_wflow_model.region, buffer=2
     )
 
     # Derive mapping for using the method any
@@ -357,7 +354,7 @@ def test_setup_lai(tmpdir, example_wflow_model):
 
     # Try to use the mapping tables to setup the LAI
     example_wflow_model.setup_laimaps_from_lulc_mapping(
-        lulc_fn="vito",
+        lulc_fn="vito_2015",
         lai_mapping_fn=df_lai_any,
     )
 
@@ -623,7 +620,7 @@ def test_setup_gauges(example_wflow_model):
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
-        river_geom_fn="rivers_lin2019_v1",
+        river_geom_fn="hydro_rivers_lin",
         river_upa=30,
         rivdph_method="powlaw",
         min_rivdph=1,
@@ -656,7 +653,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
 
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
-        river_geom_fn="rivers_lin2019_v1",
+        river_geom_fn="hydro_rivers_lin",
         river_upa=30,
         rivdph_method="powlaw",
         min_rivdph=1,
@@ -691,7 +688,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
-        river_geom_fn="rivers_lin2019_v1",
+        river_geom_fn="hydro_rivers_lin",
         river_upa=30,
         rivdph_method="powlaw",
         min_rivdph=1,

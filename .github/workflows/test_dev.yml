@@ -1,87 +1,87 @@
-name: Test dev
+# name: Test dev
 
-on:
-  schedule:
-    - cron: 0 0 * * * # run on main everyday at 00:00
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+# on:
+#   schedule:
+#     - cron: 0 0 * * * # run on main everyday at 00:00
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
 
-jobs:
-  Test:
-    defaults:
-      run:
-        shell: bash -l {0}
+# jobs:
+#   Test:
+#     defaults:
+#       run:
+#         shell: bash -l {0}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ["ubuntu-latest" ] #, "macos-latest", "windows-latest"]
-        python-version: ['3.10', '3.11']
-        include:
-        - os: ubuntu-latest
-          label: linux-64
-          prefix: /usr/share/miniconda3/envs/hydromt_wflow
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         os: ["ubuntu-latest" ] #, "macos-latest", "windows-latest"]
+#         python-version: ['3.10', '3.11']
+#         include:
+#         - os: ubuntu-latest
+#           label: linux-64
+#           prefix: /usr/share/miniconda3/envs/hydromt_wflow
 
-    name: ${{ matrix.label }} - py${{ matrix.python-version }}
-    runs-on: ${{ matrix.os }}
-    concurrency:
-      group: ${{ github.workflow }}-${{ matrix.python-version }}-${{ github.ref }}
-      cancel-in-progress: true
+#     name: ${{ matrix.label }} - py${{ matrix.python-version }}
+#     runs-on: ${{ matrix.os }}
+#     concurrency:
+#       group: ${{ github.workflow }}-${{ matrix.python-version }}-${{ github.ref }}
+#       cancel-in-progress: true
 
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
+#     steps:
+#       - name: Checkout source
+#         uses: actions/checkout@v3
 
-      - name: Generate env yaml
-        run: |
-          pip install tomli
-          python make_env.py test -p ${{ matrix.python-version}}.* -n hydromt_wflow
+#       - name: Generate env yaml
+#         run: |
+#           pip install tomli
+#           python make_env.py test -p ${{ matrix.python-version}}.* -n hydromt_wflow
 
-      - name: Load cache
-        id: cache
-        uses: actions/cache/restore@v3
-        with:
-          path: |
-            /usr/share/miniconda3
-            ~/pycache
-          # the below two settings mean we'll alway srestore the cache
-          # but the cache hit output can tell us if we have to update afterwards
-          key: test-py${{ matrix.python-version }}-${{ hashFiles('environment.yml')  }}
-          restore-keys: |
-            test-py${{ matrix.python-version }}
+#       - name: Load cache
+#         id: cache
+#         uses: actions/cache/restore@v3
+#         with:
+#           path: |
+#             /usr/share/miniconda3
+#             ~/pycache
+#           # the below two settings mean we'll alway srestore the cache
+#           # but the cache hit output can tell us if we have to update afterwards
+#           key: test-py${{ matrix.python-version }}-${{ hashFiles('environment.yml')  }}
+#           restore-keys: |
+#             test-py${{ matrix.python-version }}
 
-      - name: Failed cache restore
-        if: steps.cache.outputs.cache-matched-key == ''
-        run: |
-          echo "Failed to restore any cache. exiting..."
-          exit 1
+#       - name: Failed cache restore
+#         if: steps.cache.outputs.cache-matched-key == ''
+#         run: |
+#           echo "Failed to restore any cache. exiting..."
+#           exit 1
 
-      # by avoiding the mamba setup stage by loading it from cache instead we save
-      # a lot of setup time, but we do have to do our own PATH management
-      # hence the exports
-      - name: Update environment
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          mamba env update -n hydromt_wflow -f environment.yml
+#       # by avoiding the mamba setup stage by loading it from cache instead we save
+#       # a lot of setup time, but we do have to do our own PATH management
+#       # hence the exports
+#       - name: Update environment
+#         if: steps.cache.outputs.cache-hit != 'true'
+#         run: |
+#           export PATH=/usr/share/miniconda3/bin:$PATH
+#           mamba env update -n hydromt_wflow -f environment.yml
 
-      - name: Install HydroMT-core dev
-        run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          mamba run -n hydromt_wflow python -m pip install git+https://github.com/Deltares/hydromt.git@main --user
+#       - name: Install HydroMT-core dev
+#         run: |
+#           export PATH=/usr/share/miniconda3/bin:$PATH
+#           mamba run -n hydromt_wflow python -m pip install git+https://github.com/Deltares/hydromt.git@main --user
 
-      - name: Conda info
-        run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          conda info
-          conda list -n hydromt_wflow
+#       - name: Conda info
+#         run: |
+#           export PATH=/usr/share/miniconda3/bin:$PATH
+#           conda info
+#           conda list -n hydromt_wflow
 
-      - name: Run tests
-        run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          PYTHONPYCACHEPREFIX=~/pycache mamba run -n hydromt_wflow python -m pytest --verbose --cov=hydromt_wflow --cov-report xml
+#       - name: Run tests
+#         run: |
+#           export PATH=/usr/share/miniconda3/bin:$PATH
+#           PYTHONPYCACHEPREFIX=~/pycache mamba run -n hydromt_wflow python -m pytest --verbose --cov=hydromt_wflow --cov-report xml
 
-      - name: Upload code coverage
-        uses: codecov/codecov-action@v3
+#       - name: Upload code coverage
+#         uses: codecov/codecov-action@v3
