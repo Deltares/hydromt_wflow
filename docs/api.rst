@@ -39,7 +39,7 @@ Setup components
    WflowModel.setup_laimaps
    WflowModel.setup_laimaps_from_lulc_mapping
    WflowModel.setup_allocation_areas
-   WflowModel.setup_surfacewaterfrac
+   WflowModel.setup_allocation_surfacewaterfrac
    WflowModel.setup_domestic_demand
    WflowModel.setup_other_demand
    WflowModel.setup_irrigation

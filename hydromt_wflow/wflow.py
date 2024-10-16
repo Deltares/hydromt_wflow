@@ -2165,6 +2165,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             "h4",
         ],
         paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
+        save_high_resolution_lulc: bool = False,
     ):
         """Set up landuse maps and parameters including for paddy fields.
 
@@ -2270,6 +2271,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         paddy_waterlevels : dict
             Dictionary with the minimum, optimal and maximum water levels for paddy
             fields [mm]. By default {"h_min": 20, "h_opt": 50, "h_max": 80}
+        save_high_resolution_lulc : bool
+            Save the high resolution landuse map merged with the paddies to the static
+            folder. By default False.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         # Check if soil data is available
@@ -2314,6 +2318,13 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 df_mapping=df_mapping,
                 df_paddy_mapping=df_paddy_mapping,
             )
+
+            if save_high_resolution_lulc:
+                output_dir = join(self.root, "maps")
+                if not os.path.exists(output_dir):
+                    os.path.makedirs(output_dir)
+                landuse.raster.to_raster(join(output_dir, "landuse_with_paddy.tif"))
+                df_mapping.to_csv(join(output_dir, "landuse_with_paddy_mapping.csv"))
 
         # Prepare landuse parameters
         landuse_maps = workflows.landuse(

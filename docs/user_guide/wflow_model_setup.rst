@@ -78,8 +78,8 @@ a specific method see its documentation.
       -  Setup constant parameter maps for all active model cells.
     * - :py:func:`~WflowModel.setup_allocation_areas`
       -  Create water demand allocation areas.
-    * - :py:func:`~WflowModel.setup_surfacewaterfrac`
-      -  Create water demand surface water consumption fraction.
+    * - :py:func:`~WflowModel.setup_allocation_surfacewaterfrac`
+      -  Create fraction of surface water used for allocation of the water demands.
     * - :py:func:`~WflowModel.setup_domestic_demand`
       -  Create domestic water demand.
     * - :py:func:`~WflowModel.setup_other_demand`
