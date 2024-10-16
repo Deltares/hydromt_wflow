@@ -2,6 +2,11 @@ setup_allocation_areas:
   min_area: 30
   admin_bounds_fn: gadm_level2
 
+setup_allocation_surfacewaterfrac:
+  gwfrac_fn: lisflood_gwfrac
+  gwbodies_fn: lisflood_gwbodies
+  ncfrac_fn: lisflood_ncfrac
+
 # Update model with GLCNMO landuse data in order to add the paddies
 setup_lulcmaps_with_paddy:
   lulc_fn: glcnmo

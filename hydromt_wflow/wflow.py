@@ -3381,47 +3381,57 @@ Run setup_soilmaps first"
         self.set_grid(alloc, name="allocation_areas")
 
         # Update the settings toml
-        self.set_config("input.vertical.waterallocation.areas", "allocation_areas")
+        self.set_config("input.vertical.allocation.areas", "allocation_areas")
 
         # Add alloc to geoms
         self.set_geoms(alloc.raster.vectorize(), name="allocation_areas")
 
-    def setup_surfacewaterfrac(
+    def setup_allocation_surfacewaterfrac(
         self,
         gwfrac_fn: Union[str, xr.DataArray],
-        gwbodies_fn: Union[str, xr.DataArray],
-        ncfrac_fn: Union[str, xr.DataArray],
-        waterareas_fn: Union[str, xr.DataArray],
+        waterareas_fn: Optional[Union[str, xr.DataArray]] = None,
+        gwbodies_fn: Optional[Union[str, xr.DataArray]] = None,
+        ncfrac_fn: Optional[Union[str, xr.DataArray]] = None,
+        interpolate_nodata: bool = False,
     ):
-        """Create water demand surface water consumption fraction.
+        """Create the fraction of water allocated from surface water.
 
-        This fraction entails the division of the water demand between surface water
-        and ground water.
+        This fraction entails the division of the water demand between surface water,
+        ground water (aquifers) and non conventional sources (e.g. desalination plants).
 
         The surface water fraction is based on the raw groundwater fraction, if
-        groudwater bodies are present (these are absent in e.g. mountainous regions),
+        groundwater bodies are present (these are absent in e.g. mountainous regions),
         a fraction of water consumed that is obtained by non-conventional means and the
         water source areas.
 
         Non-conventional water could e.g. be water acquired by desalination of ocean or
         other brackish water.
 
+        Adds model layer:
+
+        * **frac_sw_used**: fraction of water allocated from surface water [0-1]
+
         Parameters
         ----------
         gwfrac_fn : Union[str, xr.DataArray]
             The raw groundwater fraction per grid cell. The values of these cells need
             to be between 0 and 1.
-        gwbodies_fn : Union[str, xr.DataArray]
-            The presence of groundwater bodies per grid cell. The values are ought to
-            be binary (either 0 or 1).
-        ncfrac_fn : Union[str, xr.DataArray]
-            The non-conventional fraction. Same types of values apply as for
-            `gwfrac_fn`.
         waterareas_fn : Union[str, xr.DataArray]
             The areas over which the water has to be distributed. This may either be
-            a global (or more local map) or it may be defined as `allocation_areas`.
-            When `allocation_areas` is provided, the source areas created by the
-            `setup_allocation_areas` will be used for this setup method.
+            a global (or more local map). If not provided, the source areas created by
+            the `setup_allocation_areas` will be used.
+        gwbodies_fn : Union[str, xr.DataArray], optional
+            The presence of groundwater bodies per grid cell. The values are ought to
+            be binary (either 0 or 1). If they are not provided, we assume groundwater
+            bodies are present where gwfrac is more than 0.
+        ncfrac_fn : Union[str, xr.DataArray], optional
+            The non-conventional fraction. Same types of values apply as for
+            `gwfrac_fn`. If not provided, we assume no non-conventional sources are
+            used.
+        interpolate_nodata : bool, optional
+            If True, nodata values in the resulting frac_sw_used map will be linearly
+            interpolated. Else a default value of 1 will be used for nodata values
+            (default).
         """
         self.logger.info("Preparing surface water fraction map.")
         # Load the data
@@ -3430,21 +3440,33 @@ Run setup_soilmaps first"
             geom=self.region,
             buffer=2,
         )
-        gwbodies = self.data_catalog.get_rasterdataset(
-            gwbodies_fn,
-            geom=self.region,
-            buffer=2,
-        )
-        ncfrac = self.data_catalog.get_rasterdataset(
-            ncfrac_fn,
-            geom=self.region,
-            buffer=2,
-        )
+        if gwbodies_fn is not None:
+            gwbodies = self.data_catalog.get_rasterdataset(
+                gwbodies_fn,
+                geom=self.region,
+                buffer=2,
+            )
+        else:
+            gwbodies = None
+        if ncfrac_fn is not None:
+            ncfrac = self.data_catalog.get_rasterdataset(
+                ncfrac_fn,
+                geom=self.region,
+                buffer=2,
+            )
+        else:
+            ncfrac = None
 
         # check wether to use the models own allocation areas
-        if waterareas_fn == "allocation_areas":
+        if waterareas_fn is None:
             self.logger.info("Using wflow model allocation areas.")
-            waterareas = self.grid[waterareas_fn]
+            if "allocation_areas" not in self.grid:
+                self.logger.error(
+                    "No allocation areas found. Run setup_allocation_areas first "
+                    "or provide a waterareas_fn."
+                )
+                return
+            waterareas = self.grid["allocation_areas"]
         else:
             waterareas = self.data_catalog.get_rasterdataset(
                 waterareas_fn,
@@ -3453,22 +3475,23 @@ Run setup_soilmaps first"
             )
 
         # Call the workflow
-        w_frac = workflows.demand.surfacewaterfrac(
-            self.grid["wflow_dem"],
+        w_frac = workflows.demand.surfacewaterfrac_used(
             gwfrac_raw=gwfrac_raw,
+            da_like=self.grid["wflow_dem"],
+            waterareas=waterareas,
             gwbodies=gwbodies,
             ncfrac=ncfrac,
-            waterareas=waterareas,
+            interpolate=interpolate_nodata,
         )
 
         # Update the settings toml
         self.set_config(
-            "input.vertical.waterallocation.frac_sw_used",
-            "SurfaceWaterFrac",
+            "input.vertical.allocation.frac_sw_used",
+            "frac_sw_used",
         )
 
         # Set the dataarray to the wflow grid
-        self.set_grid(w_frac, name="SurfaceWaterFrac")
+        self.set_grid(w_frac, name="frac_sw_used")
 
     def setup_domestic_demand(
         self,

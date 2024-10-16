@@ -926,6 +926,58 @@ def test_setup_allocation_areas(example_wflow_model, tmpdir):
     assert np.all(np.sort(uni) == [36, 37, 57])
 
 
+def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
+    # Read the data and set new root
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+    # Add lisflood data from test
+    lisflood_yml = join(TESTDATADIR, "demand", "data_catalog.yml")
+    example_wflow_model.data_catalog = example_wflow_model.data_catalog.from_yml(
+        lisflood_yml
+    )
+
+    # Use the method fully with lisflood
+    example_wflow_model.setup_allocation_surfacewaterfrac(
+        gwfrac_fn="lisflood_gwfrac",
+        waterareas_fn="lisflood_waterregions",
+        gwbodies_fn="lisflood_gwbodies",
+        ncfrac_fn="lisflood_ncfrac",
+        interpolate_nodata=False,
+    )
+
+    # Assert entries
+    assert "frac_sw_used" in example_wflow_model.grid
+    assert np.isclose(
+        example_wflow_model.grid["frac_sw_used"].raster.mask_nodata().mean().values,
+        0.9411998,
+    )
+
+    # Use the method without gwbodies and ncfrac and waterareas from wflow
+    example_wflow_model.setup_allocation_areas(
+        admin_bounds_fn="gadm_level2",
+        min_area=30,
+    )
+    example_wflow_model.setup_allocation_surfacewaterfrac(
+        gwfrac_fn="lisflood_gwfrac",
+        waterareas_fn=None,
+        gwbodies_fn=None,
+        ncfrac_fn=None,
+        interpolate_nodata=False,
+    )
+
+    # Assert entries
+    assert "frac_sw_used" in example_wflow_model.grid
+    assert np.isclose(
+        example_wflow_model.grid["frac_sw_used"].raster.mask_nodata().mean().values,
+        0.9865037,
+    )
+
+
 def test_setup_non_irrigation(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
