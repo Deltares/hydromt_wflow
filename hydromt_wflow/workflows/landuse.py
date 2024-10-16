@@ -1,7 +1,7 @@
 """Landuse workflows for Wflow plugin."""
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,13 @@ import xarray as xr
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["landuse", "lai", "create_lulc_lai_mapping_table", "lai_from_lulc_mapping"]
+__all__ = [
+    "landuse",
+    "lai",
+    "create_lulc_lai_mapping_table",
+    "lai_from_lulc_mapping",
+    "add_paddy_to_landuse",
+]
 
 
 RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
@@ -296,3 +302,65 @@ def lai_from_lulc_mapping(
     da_lai = ds_lai.to_array(dim="time", name="LAI")
 
     return da_lai
+
+
+def add_paddy_to_landuse(
+    landuse: xr.DataArray,
+    paddy: xr.DataArray,
+    paddy_class: int,
+    df_mapping: pd.DataFrame,
+    df_paddy_mapping: pd.DataFrame,
+    output_paddy_class: Optional[int] = None,
+) -> Tuple[xr.DataArray, pd.DataFrame]:
+    """
+    Burn paddy fields into landuse map and update mapping table.
+
+    The resulting paddy class in the landuse map will have ID output_paddy_class
+    if provided and paddy_class otherwise. The mapping table will be updated with
+    the values from the df_paddy_mapping table.
+
+    Parameters
+    ----------
+    landuse : xr.DataArray
+        Landuse map.
+    paddy : xr.DataArray
+        Paddy fields map.
+    paddy_class : int
+        ID of the paddy class in the paddy map.
+    df_mapping : pd.DataFrame
+        Mapping table with landuse values.
+    df_paddy_mapping : pd.DataFrame
+        Mapping table with paddy values.
+    output_paddy_class : int, optional
+        ID of the paddy class in the output landuse map. If not provided, the
+        paddy_class will be used.
+
+    Returns
+    -------
+    landuse : xr.DataArray
+        Updated landuse map.
+    df_mapping : pd.DataFrame
+        Updated mapping table.
+    """
+    # Get output paddy class
+    if output_paddy_class is None:
+        output_paddy_class = paddy_class
+
+    # Reproject paddy map to landuse resolution
+    # if paddy has lower res than landuse, use nearest resampling
+    if abs(paddy.raster.res[0]) >= abs(landuse.raster.res[0]):
+        paddy = paddy.raster.reproject_like(landuse, method="nearest")
+    # else use mode resampling
+    else:
+        paddy = paddy.raster.reproject_like(landuse, method="mode")
+
+    # Burn in the rice fields in the landuse map
+    landuse = landuse.where(paddy != paddy_class, output_paddy_class)
+
+    # Update the mapping table
+    df_paddy_mapping.index = [output_paddy_class]
+    df_paddy_mapping["landuse"] = output_paddy_class
+    # Add the paddy class to the first line of the mapping table
+    df_mapping = pd.concat([df_paddy_mapping, df_mapping])
+
+    return landuse, df_mapping
