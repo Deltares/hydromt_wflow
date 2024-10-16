@@ -2322,7 +2322,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             if save_high_resolution_lulc:
                 output_dir = join(self.root, "maps")
                 if not os.path.exists(output_dir):
-                    os.path.makedirs(output_dir)
+                    os.makedirs(output_dir)
                 landuse.raster.to_raster(join(output_dir, "landuse_with_paddy.tif"))
                 df_mapping.to_csv(join(output_dir, "landuse_with_paddy_mapping.csv"))
 
