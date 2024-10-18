@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import geopandas as gpd
 import numpy as np
@@ -11,6 +11,7 @@ import xarray as xr
 
 from hydromt_wflow.wflow import WflowModel
 
+from .naming import HYDROMT_NAMES
 from .utils import DATADIR
 from .workflows import landuse, soilgrids_sediment
 
@@ -26,12 +27,7 @@ class WflowSedimentModel(WflowModel):
     _CONF = "wflow_sediment.toml"
     _DATADIR = DATADIR
     _GEOMS = {}
-    _MAPS = WflowModel._MAPS.copy()
-    _MAPS.update(
-        {
-            "soil": "wflow_soil",
-        }
-    )
+    _MAPS = HYDROMT_NAMES
     _FOLDERS = WflowModel._FOLDERS
 
     def __init__(
@@ -309,14 +305,14 @@ class WflowSedimentModel(WflowModel):
         lulc_fn: Union[str, Path, xr.DataArray],
         lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
         planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
-        lulc_vars: Dict = {
-            "landuse": None,
-            "Kext": "input.vertical.kext",
-            "PathFrac": "input.vertical.pathfrac",
-            "Sl": "input.vertical.specific_leaf",
-            "Swood": "input.vertical.storage_wood",
-            "USLE_C": "input.vertical.usleC",
-        },
+        lulc_vars: List = [
+            "landuse",
+            "Kext",
+            "PathFrac",
+            "Sl",
+            "Swood",
+            "USLE_C",
+        ],
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
         orchard_c: float = 0.2188,
@@ -361,9 +357,9 @@ in lulc_vars.
             Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
             and their internal wflow name (or None to skip adding to the toml). By
             default: \
-{"landuse": None, "Kext": "input.vertical.kext", "PathFrac": "input.vertical.pathfrac",
-        "Sl": "input.vertical.specific_leaf", "Swood": "input.vertical.storage_wood",
-        "USLE_C": "input.vertical.usleC"}
+{"landuse": None, "Kext": "input.vertical.kext", "PathFrac": \
+"input.vertical.pathfrac", "Sl": "input.vertical.specific_leaf", "Swood": \
+"input.vertical.storage_wood", "USLE_C": "input.vertical.usleC"}
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
@@ -378,7 +374,7 @@ in lulc_vars.
         )
 
         # If available, improve USLE C map with planted forest data
-        if "USLE_C" in list(lulc_vars.keys()) and planted_forest_fn is not None:
+        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
             # Add a USLE_C column with default value
             self.logger.info(
                 "Correcting USLE_C with planted forest and orchards"
