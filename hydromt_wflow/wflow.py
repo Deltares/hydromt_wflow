@@ -3361,7 +3361,7 @@ Run setup_soilmaps first"
         align the water regions with the actual areas managed by water management
         authorities, such as regional water boards.
 
-        The allocation area will be an intersection the the wflow model basins and the
+        The allocation area will be an intersection of the wflow model basins and the
         water areas. For areas that do not contain river cells after intersection with
         the water areas, the priority_basins flag can be used to decide if these basins
         should be merged with the closest downstream basin or with any large enough
@@ -3370,7 +3370,7 @@ Run setup_soilmaps first"
         Parameters
         ----------
         waterareas_fn : Union[str, gpd.GeoDataFrame]
-            Administrative boundaries in geopandas GeoDataFrame format, this could be
+            Administrative boundaries GeoDataFrame data, this could be
             e.g. water management areas by water boards or the administrative
             boundaries of countries.
         priority_basins : bool, optional

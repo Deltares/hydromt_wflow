@@ -3,7 +3,6 @@
 import logging
 from typing import List, Optional, Tuple
 
-import dask
 import geopandas as gpd
 import numpy as np
 import xarray as xr
@@ -25,59 +24,6 @@ map_vars = {
     "ind": "industry",
     "lsk": "livestock",
 }
-
-
-def full(
-    da_like: xr.DataArray,
-    dtype: type = np.float32,
-    fill_value: float | int = np.nan,
-    crs: int = 4326,
-    name: str = "data",
-    extra: dict = None,
-):
-    """_summary_."""
-    # Setup some basic information from da_like
-    dims = da_like.dims
-    coords = {dim: da_like[dim].values for dim in dims}
-    size = [da_like.coords.sizes[dim] for dim in dims]
-
-    # if not extra dimension is given, default to da_like
-    if extra is None:
-        dsk = dask.array.full(
-            shape=size,
-            dtype=dtype,
-            fill_value=fill_value,
-        )
-        da = xr.DataArray(
-            data=dsk,
-            coords=da_like.coords,
-            dims=da_like.dims,
-        )
-        da.attrs = {"_FillValue": fill_value}
-        da.name = name
-        return da
-
-    # If extra dimensions are given, construct from there
-    coords.update(extra)
-    extra_size = [len(item) for item in extra.values()]
-
-    dsk = dask.array.full(
-        shape=extra_size + size,
-        dtype=dtype,
-        fill_value=fill_value,
-    )
-    da = xr.DataArray(
-        data=dsk,
-        coords=coords,
-        dims=tuple(extra.keys()) + dims,
-    )
-    da.attrs = {"_FillValue": fill_value}
-    da.name = name
-
-    if crs is not None:
-        da.raster.set_crs(crs)
-
-    return da
 
 
 def create_grid_from_bbox(
