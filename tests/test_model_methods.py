@@ -954,8 +954,7 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
 
     # Use the method without gwbodies and ncfrac and waterareas from wflow
     example_wflow_model.setup_allocation_areas(
-        admin_bounds_fn="gadm_level2",
-        min_area=30,
+        waterareas_fn="gadm_level2",
     )
     example_wflow_model.setup_allocation_surfacewaterfrac(
         gwfrac_fn="lisflood_gwfrac",
@@ -1004,7 +1003,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
         .isel(latitude=32, longitude=26)
         .values
     )
-    assert int(np.mean(dom_gross_vals) * 100) == 89
+    assert int(np.mean(dom_gross_vals) * 100) == 136
     popu_val = (
         example_wflow_model.grid["population"].isel(latitude=32, longitude=26).values
     )
