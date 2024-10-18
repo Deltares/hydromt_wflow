@@ -1,7 +1,7 @@
 """Workflow for water demand."""
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import dask
 import geopandas as gpd
@@ -9,7 +9,6 @@ import numpy as np
 import xarray as xr
 from hydromt import raster
 from hydromt.workflows.grid import grid_from_constant
-from scipy.ndimage import convolve
 
 logger = logging.getLogger(__name__)
 
@@ -254,138 +253,100 @@ def other_demand(
 
 
 def allocation_areas(
-    da_like: xr.DataArray,
-    min_area: float | int,
-    admin_bounds: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    waterareas: gpd.GeoDataFrame,
     basins: gpd.GeoDataFrame,
-) -> xr.DataArray:
+    priority_basins: bool = True,
+) -> Tuple[xr.DataArray, gpd.GeoDataFrame]:
     """Create water allocation area.
 
     Based on current wflow model domain and resolution and making use of
-    the model basins and optional administrative boundaries.
+    the model basins and administrative boundaries.
 
     Parameters
     ----------
-    da_like : xr.DataArray
-        A grid covering the wflow model domain.
-    min_area : float | int
-        The minimum area an allocation area should have.
-    admin_bounds : gpd.GeoDataFrame
+    ds_like : xr.DataArray
+        A grid covering the wflow model domain and the rivers.
+
+        * Required variables: ['wflow_river', 'wflow_subcatch']
+    waterareas : gpd.GeoDataFrame
         Administrative boundaries, e.g. sovereign nations.
     basins : gpd.GeoDataFrame
         The wflow model basins.
+    priority_basins : bool
+        For basins that do not contain river cells after intersection with the admin
+        boundaries, the priority_basins flag can be used to decide if these basins
+        should be merged with the closest downstream basin (True, default) or with any
+        large enough basin in the same administrative area (False).
 
     Returns
     -------
     xr.DataArray
         The water demand allocation areas.
+    gpd.GeoDataFrame
+        The water demand allocation areas as geodataframe.
     """
-    # Set variables
-    nodata = -9999
-    # Add a unique identifier as a means for dissolving later on, bit pro forma here
-    sub_basins = basins.copy()
-    sub_basins["uid"] = range(len(sub_basins))
+    # Intersect the basins with the admin boundaries
+    subbasins = basins.overlay(waterareas, how="intersection")
+    # Create a unique index
+    subbasins.index = np.arange(1, len(subbasins) + 1)
+    subbasins.index.name = "uid"
 
-    # Split based on administrative boundaries
-    if admin_bounds is not None:
-        sub_basins = basins.overlay(
-            admin_bounds,
-            how="union",
-        )
-        sub_basins = sub_basins[~sub_basins["value"].isna()]
+    # After intersection, some cells at the coast are not included in the subbasins
+    # convert to raster to fill na with nearest value
+    subbasins_raster = ds_like.raster.rasterize(subbasins, col_name="uid", nodata=0)
+    subbasins_raster = subbasins_raster.raster.interpolate_na(
+        method="nearest", extrapolate=True
+    )
+    # Mask the wflow subcatch after extrapolation
+    subbasins_raster = subbasins_raster.where(
+        ds_like["wflow_subcatch"] != ds_like["wflow_subcatch"].raster.nodata,
+        subbasins_raster.raster.nodata,
+    )
 
-        # Remove unneccessary columns
-        cols = sub_basins.columns.drop(["value", "geometry", "admin_id"]).tolist()
-        sub_basins.drop(cols, axis=1, inplace=True)
-        # Use this uid to dissolve on later
-        sub_basins["uid"] = range(len(sub_basins))
+    # Convert back to geodataframe and prepare the new unique index for the subbasins
+    subbasins = subbasins_raster.raster.vectorize()
+    if priority_basins:
+        # Redefine the uid, equivalent to exploding the geometries
+        subbasins.index = np.arange(1, len(subbasins) + 1)
+    else:
+        # Keep the uid of the intersection with the admin bounds
+        subbasins.index = subbasins["value"].astype(int)
+    subbasins.index.name = "uid"
 
-        # Dissolve cut pieces back
-        for _, row in sub_basins.iterrows():
-            if not str(row.admin_id).lower() == "nan":
-                continue
-            touched = sub_basins[sub_basins.touches(row.geometry)]
-            uid = touched[touched["value"] == row.value].uid.values[0]
-            sub_basins.loc[sub_basins["uid"] == row.uid, "uid"] = uid
-        sub_basins = sub_basins.dissolve("uid", sort=False, as_index=False)
+    # Rasterize the subbasins
+    da_subbasins = ds_like.raster.rasterize(subbasins, col_name="uid", nodata=0)
+    # Mask with river cells
+    da_subbasins_to_keep = np.unique(
+        da_subbasins.raster.mask_nodata()
+        .where(ds_like["wflow_river"] > 0, np.nan)
+        .values
+    )
+    # Remove the nodata value from the list
+    da_subbasins_to_keep = np.int32(
+        da_subbasins_to_keep[~np.isnan(da_subbasins_to_keep)]
+    )
 
-    # Set the contain flag per geom
-    # TODO figure out the code below for more precise allocation areas
-    sub_basins = sub_basins.explode(index_parts=False, ignore_index=True)
-    sub_basins["uid"] = range(len(sub_basins))
-    admin_bounds = None
+    # Create the water allocation map starting with the subbasins that contain a river
+    allocation_areas = da_subbasins.where(
+        da_subbasins.isin(da_subbasins_to_keep), da_subbasins.raster.nodata
+    )
+    # Use nearest to fill the nodata values for subbasins without rivers
+    allocation_areas = allocation_areas.raster.interpolate_na(
+        method="nearest", extrapolate=True
+    )
+    allocation_areas = allocation_areas.where(
+        ds_like["wflow_subcatch"] != ds_like["wflow_subcatch"].raster.nodata,
+        allocation_areas.raster.nodata,
+    )
+    allocation_areas.name = "allocation_areas"
 
-    # Setup the allocation grid based on exploded geometries
-    # TODO get exploded geometries from something raster based
-    alloc = full(da_like, fill_value=nodata, dtype=np.int32, name="allocation_areas")
-    alloc = alloc.raster.rasterize(sub_basins, col_name="uid", nodata=nodata)
+    # Create the equivalent geodataframe
+    allocation_areas_gdf = allocation_areas.raster.vectorize()
+    allocation_areas_gdf.index = allocation_areas_gdf["value"].astype(int)
+    allocation_areas_gdf.index.name = "uid"
 
-    # Get the areas per exploded area
-    alloc_area = alloc.to_dataset()
-    alloc_area["area"] = da_like.raster.area_grid()
-    area = alloc_area.groupby("uid").sum().area
-    del alloc_area
-    # To km2
-    area = area.drop_sel(uid=nodata) / 1e6
-
-    _count = 0
-    old_no_riv = None
-
-    # Solve the area iteratively
-    while True:
-        # Break if cannot be solved
-        if _count == 100:
-            break
-
-        # Define the surround matrix for convolution
-        kernel = np.array([[0, 1, 0], [1, 0, 1], [0, 1, 0]])
-
-        # Get ID's of basins containing a river and those that do not
-        riv = np.setdiff1d(
-            np.unique(alloc.where(da_like == 1, nodata)),
-            [-9999],
-        )
-        no_riv = np.setdiff1d(area.uid.values, riv)
-
-        # Also look at minimum areas
-        area_riv = area.sel(uid=riv)
-        area_mask = area_riv < min_area
-        no_riv = np.append(no_riv, area_riv.uid[area_mask].values)
-
-        # Solved, as there are not more areas with no river, so break
-        if no_riv.size == 0:
-            break
-
-        # Solve with corners included, as the areas remaining touch diagonally
-        if np.array_equal(np.sort(no_riv), old_no_riv):
-            kernel = np.array([[1, 1, 1], [1, 0, 1], [1, 1, 1]])
-
-        # Loop through all the area that have no river and merge those
-        # with the areas that lie besides it
-        for val in no_riv:
-            # Mask based on the value of the subbasin without a river
-            mask = alloc == val
-            # Find the ids of surrouding basins based on the kernel
-            rnd = convolve(mask.astype(int).values, kernel, mode="constant")
-            nbs = np.setdiff1d(
-                np.unique(alloc.values[np.where(rnd > 0)]), [nodata, val]
-            )
-            del rnd
-            # If none are found, continue to the next
-            if nbs.size == 0:
-                continue
-            # Set the new id of this subbasin based on the largest next to it
-            area_nbs = area.sel(uid=nbs)
-            new_uid = area_nbs.uid[area_nbs.argmax(dim="uid")].values
-            alloc = alloc.where(alloc != val, new_uid)
-
-        # Take out the merged areas and append counter
-        area = area.sel(uid=np.setdiff1d(np.unique(alloc.values), [nodata]))
-        _count += 1
-        old_no_riv = np.sort(no_riv)
-
-    alloc.name = "allocation_areas"
-    return alloc
+    return allocation_areas, allocation_areas_gdf
 
 
 def surfacewaterfrac_used(
@@ -395,6 +356,7 @@ def surfacewaterfrac_used(
     gwbodies: Optional[xr.DataArray] = None,
     ncfrac: Optional[xr.DataArray] = None,
     interpolate: bool = False,
+    mask_and_scale_gwfrac: bool = True,
 ) -> xr.DataArray:
     """Create surface water fraction map.
 
@@ -412,6 +374,11 @@ def surfacewaterfrac_used(
         Non-conventional water fraction. If None, assumes 0.
     interpolate : bool
         Interpolate missing data values within wflow model domain.
+    mask_and_scale_gwfrac : bool, optional
+        If True, gwfrac will be masked for areas with no groundwater bodies. To keep
+        the average gwfrac used over waterareas similar after the masking, gwfrac
+        for areas with groundwater bodies can increase. If False, gwfrac will be
+        used as is. By default True.
 
     Returns
     -------
@@ -466,27 +433,32 @@ def surfacewaterfrac_used(
 
     # Get the fractions based on area count
     x, y = np.where(~np.isnan(gwfrac_raw_mr))
-    gw_pixels = np.take(
-        np.bincount(
+    if mask_and_scale_gwfrac:
+        gw_pixels = np.take(
+            np.bincount(
+                waterareas_mr.values[x, y],
+                weights=gwbodies_mr.values[x, y],
+            ),
             waterareas_mr.values[x, y],
-            weights=gwbodies_mr.values[x, y],
-        ),
-        waterareas_mr.values[x, y],
-    )
-    a_pixels = np.take(
-        np.bincount(
+        )
+        a_pixels = np.take(
+            np.bincount(
+                waterareas_mr.values[x, y],
+                weights=gwbodies_mr.values[x, y] * 0.0 + 1.0,
+            ),
             waterareas_mr.values[x, y],
-            weights=gwbodies_mr.values[x, y] * 0.0 + 1.0,
-        ),
-        waterareas_mr.values[x, y],
-    )
+        )
+        scale_factor = a_pixels / (gw_pixels + 0.01)
+    else:
+        scale_factor = 1.0
 
     # Determine the groundwater fraction
     gwfrac_val = np.minimum(
-        gwfrac_raw_mr.values[x, y] * (a_pixels / (gw_pixels + 0.01)),
+        gwfrac_raw_mr.values[x, y] * scale_factor,
         1 - ncfrac_mr.values[x, y],
     )
-    gwfrac_val[np.where(gwbodies_mr.values[x, y] == 0)] = 0
+    if mask_and_scale_gwfrac:
+        gwfrac_val[np.where(gwbodies_mr.values[x, y] == 0)] = 0
     # invert to get surface water frac
     swfrac_val = np.maximum(np.minimum(1 - gwfrac_val - ncfrac_mr.values[x, y], 1), 0)
 

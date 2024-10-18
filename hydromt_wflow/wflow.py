@@ -1029,7 +1029,7 @@ to run setup_river method first.'
                 logger=self.logger,
             )
             # Save to csv
-            if isinstance(lulc_fn, str):
+            if isinstance(lulc_fn, str) and not isfile(lulc_fn):
                 df_fn = f"lai_per_lulc_{lulc_fn}.csv"
             else:
                 df_fn = "lai_per_lulc.csv"
@@ -3347,55 +3347,58 @@ Run setup_soilmaps first"
 
     def setup_allocation_areas(
         self,
-        admin_bounds_fn: Union[str, gpd.GeoDataFrame] | None = None,
-        min_area: float | int = 0,
+        waterareas_fn: Union[str, gpd.GeoDataFrame],
+        priority_basins: bool = True,
     ):
         """Create water demand allocation areas.
 
         The areas are based on the wflow model basins (at model resolution), the
-        wflow model rivers and optional provided administrative boundaries.
+        wflow model rivers and water areas or regions for allocation.
+
+        Water regions are generally defined by sub-river-basins within a Country. In
+        order to mimick reality, it is advisable to avoid cross-Country-border
+        abstractions. Whenever information is available, it is strongly recommended to
+        align the water regions with the actual areas managed by water management
+        authorities, such as regional water boards.
 
         The allocation area will be an intersection the the wflow model basins and the
-        administrative boundaries (if provided). Small area that do not contain any
-        river cells will be merged with their larger bordering neighbors. The same
-        is done for those areas (even if they contain river cells) that fall under the
-        `min_area` threshold.
+        water areas. For areas that do not contain river cells after intersection with
+        the water areas, the priority_basins flag can be used to decide if these basins
+        should be merged with the closest downstream basin or with any large enough
+        basin in the same water area.
 
         Parameters
         ----------
-        admin_bounds_fn : Union[str, gpd.GeoDataFrame] | None, optional
+        waterareas_fn : Union[str, gpd.GeoDataFrame]
             Administrative boundaries in geopandas GeoDataFrame format, this could be
-            e.g. the boundaries of sovereign nations, by default None
-        min_area : float | int, optional
-            The minimum area in square kilometers the allocation area is ought to be.
-            A value of 30 sqkm for most cases is adequate, by default 0
+            e.g. water management areas by water boards or the administrative
+            boundaries of countries.
+        priority_basins : bool, optional
+            If True, merge the basins with the closest downstream basin, else merge
+            with any large enough basin in the same water area, by default True.
         """
         self.logger.info("Preparing water demand allocation map.")
-        # Will be fixes but for know this is done like this
-        # TODO fix in the future
-        admin_bounds = None
-        if admin_bounds_fn is not None:
-            admin_bounds = self.data_catalog.get_geodataframe(
-                admin_bounds_fn,
-                geom=self.region,
-            )
-            # Add this identifier for usage in the workflow
-            admin_bounds["admin_id"] = range(len(admin_bounds))
+
+        # Read the data
+        waterareas = self.data_catalog.get_geodataframe(
+            waterareas_fn,
+            geom=self.region,
+        )
 
         # Create the allocation grid
-        alloc = workflows.demand.allocation_areas(
-            da_like=self.grid[self._MAPS["rivmsk"]],
-            min_area=min_area,
-            admin_bounds=admin_bounds,
-            basins=self.geoms["basins"],
+        da_alloc, gdf_alloc = workflows.demand.allocation_areas(
+            ds_like=self.grid,
+            waterareas=waterareas,
+            basins=self.basins,
+            priority_basins=priority_basins,
         )
-        self.set_grid(alloc, name="allocation_areas")
+        self.set_grid(da_alloc, name="allocation_areas")
 
         # Update the settings toml
         self.set_config("input.vertical.allocation.areas", "allocation_areas")
 
         # Add alloc to geoms
-        self.set_geoms(alloc.raster.vectorize(), name="allocation_areas")
+        self.set_geoms(gdf_alloc, name="allocation_areas")
 
     def setup_allocation_surfacewaterfrac(
         self,
@@ -3404,6 +3407,7 @@ Run setup_soilmaps first"
         gwbodies_fn: Optional[Union[str, xr.DataArray]] = None,
         ncfrac_fn: Optional[Union[str, xr.DataArray]] = None,
         interpolate_nodata: bool = False,
+        mask_and_scale_gwfrac: bool = True,
     ):
         """Create the fraction of water allocated from surface water.
 
@@ -3443,6 +3447,11 @@ Run setup_soilmaps first"
             If True, nodata values in the resulting frac_sw_used map will be linearly
             interpolated. Else a default value of 1 will be used for nodata values
             (default).
+        mask_and_scale_gwfrac : bool, optional
+            If True, gwfrac will be masked for areas with no groundwater bodies. To keep
+            the average gwfrac used over waterareas similar after the masking, gwfrac
+            for areas with groundwater bodies can increase. If False, gwfrac will be
+            used as is. By default True.
         """
         self.logger.info("Preparing surface water fraction map.")
         # Load the data
@@ -3493,6 +3502,7 @@ Run setup_soilmaps first"
             gwbodies=gwbodies,
             ncfrac=ncfrac,
             interpolate=interpolate_nodata,
+            mask_and_scale_gwfrac=mask_and_scale_gwfrac,
         )
 
         # Update the settings toml
@@ -3558,6 +3568,15 @@ Run setup_soilmaps first"
             buffer=2,
             variables=["dom_gross", "dom_net"],
         )
+        # Increase the buffer if original resolution is provided
+        if domestic_fn_original_res is not None:
+            buffer = np.ceil(domestic_fn_original_res / abs(domestic_raw.raster.res[0]))
+            domestic_raw = self.data_catalog.get_rasterdataset(
+                domestic_fn,
+                geom=self.region,
+                buffer=buffer,
+                variables=["dom_gross", "dom_net"],
+            )
         # Check if data is time dependent
         if "time" in domestic_raw.coords:
             # Check that this is indeed cyclic data

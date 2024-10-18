@@ -906,24 +906,19 @@ def test_setup_allocation_areas(example_wflow_model, tmpdir):
 
     # Use the method
     example_wflow_model.setup_allocation_areas(
-        admin_bounds_fn="gadm_level2",
-        min_area=30,
+        waterareas_fn="gadm_level2",
+        priority_basins=True,
     )
 
     # Assert entries
     assert "allocation_areas" in example_wflow_model.geoms
     assert "allocation_areas" in example_wflow_model.grid
 
-    # Write to the drive
-    example_wflow_model.write_geoms()
-
     # Assert output values
-    assert Path(tmpdir, "staticgeoms", "allocation_areas.geojson").exists()
     assert len(example_wflow_model.geoms["allocation_areas"]) == 3
     # on unique values
-
     uni = example_wflow_model.geoms["allocation_areas"].value.unique()
-    assert np.all(np.sort(uni) == [36, 37, 57])
+    assert np.all(np.sort(uni) == [11, 16, 17])
 
 
 def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
