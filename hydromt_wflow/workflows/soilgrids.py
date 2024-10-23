@@ -552,10 +552,10 @@ index for the wflow_sbm soil layers.
 
     logger.info("calculate and resample thetaR")
     thetar_sl = xr.apply_ufunc(
-        ptf.thetar_toth,
-        ds["oc"],
+        ptf.thetar_rawls_brakensiek,
+        ds["sndppt"],
         ds["clyppt"],
-        ds["sltppt"],
+        thetas_sl,
         dask="parallelized",
         output_dtypes=[float],
         keep_attrs=True,
