@@ -1,7 +1,7 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List
+from typing import List, Union
 
 import hydromt
 import numpy as np
@@ -9,11 +9,16 @@ import pandas as pd
 import xarray as xr
 from scipy.optimize import curve_fit
 
-from . import ptf
+from . import ptf, soilparams
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["soilgrids", "soilgrids_sediment", "soilgrids_brooks_corey"]
+__all__ = [
+    "soilgrids",
+    "soilgrids_sediment",
+    "soilgrids_brooks_corey",
+    "update_soil_with_paddy",
+]
 
 # soilgrids_2017
 soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
@@ -839,5 +844,96 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         logger.info(f"Interpolate NAN values for {var}")
         ds_out[var] = ds_out[var].fillna(nodata)
         ds_out[var].raster.set_nodata(nodata)
+
+    return ds_out
+
+
+def update_soil_with_paddy(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    paddy_mask: xr.DataArray,
+    soil_fn: str = "soilgrids",
+    update_c: bool = True,
+    wflow_layers: List[int] = [50, 100, 50, 200, 800],
+    target_conductivity: List[Union[None, int, float]] = [None, None, 5, None, None],
+    logger=logger,
+):
+    """
+    Update c and kvfrac soil properties for paddy fields.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing soil properties.
+    ds_like : xarray.DataArray
+        Dataset at model resolution.
+        Required variables: wflow_subcatch, KsatVer, f
+    paddy_mask : xarray.DataArray
+        Dataset containing paddy fields mask.
+    soil_fn : str
+        soilgrids version {'soilgrids', 'soilgrids_2020'}
+    update_c : bool
+        Update c based on change in wflow_layers.
+    wflow_layers : list
+        List of soil layer depths [cm] for which c is calculated.
+    target_conductivity : list
+        Target conductivity for each wflow layer.
+
+    Returns
+    -------
+    soil_out : xarray.Dataset
+        Dataset containing updated soil properties.
+    """
+    if len(wflow_layers) != len(target_conductivity):
+        raise ValueError(
+            "Lengths of wflow_thicknesslayers and target_conductivity does not " "match"
+        )
+
+    # Set kvfrac maps, determine the fraction required to reach target_conductivity
+    # Using to wflow exponential decline to determine the conductivity at the
+    # required depth Find value at the bottom of the required layer and infer
+    # required correction factor for that layer Values are only set for locations
+    # with paddy irrigation, all other cells are set to be equal to 1
+    logger.info("Adding kvfrac map")
+    kv0 = ds_like["KsatVer"]
+    f = ds_like["f"]
+    kv0_mask = kv0.where(paddy_mask == 1)
+    f_mask = f.where(paddy_mask == 1)
+
+    # update c
+    if update_c:
+        ds_out = soilgrids_brooks_corey(
+            ds=ds,
+            ds_like=ds_like,
+            soil_fn=soil_fn,
+            wflow_layers=wflow_layers,
+        )
+        for var in ds_out:
+            dtype = np.float32
+            logger.debug(f"Interpolate nodata (NaN) values for {var}")
+            ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+            ds_out[var] = ds_out[var].where(
+                ~ds_like["wflow_subcatch"].raster.mask_nodata().isnull()
+            )
+            ds_out[var] = ds_out[var].fillna(-9999).astype(dtype)
+            ds_out[var].raster.set_nodata(np.dtype(dtype).type(-9999))
+
+        # temporarily add the dem to the dataset
+        ds_out["wflow_dem"] = ds_like["wflow_dem"]
+
+    # Compute the kv_frac (should be done after updating c!)
+    da_kvfrac = soilparams.update_kvfrac(
+        ds_model=ds_like if not update_c else ds_out,
+        kv0_mask=kv0_mask,
+        f_mask=f_mask,
+        wflow_thicknesslayers=wflow_layers,
+        target_conductivity=target_conductivity,
+    )
+    if update_c:
+        ds_out["kvfrac"] = da_kvfrac
+        # Remove wflow_dem
+        ds_out = ds_out.drop_vars("wflow_dem")
+    else:
+        ds_out = da_kvfrac.to_dataset(name="kvfrac")
 
     return ds_out
