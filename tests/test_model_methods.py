@@ -840,7 +840,7 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
     assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
     assert np.isclose(
         example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,
-        559.73975,
+        648.43677,
     )
     assert np.isclose(
         example_wflow_model.states["ssf"].raster.mask_nodata().mean().values, 67.45569

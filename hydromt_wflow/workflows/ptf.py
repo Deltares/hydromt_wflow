@@ -170,23 +170,24 @@ def thetas_toth(ph, bd, clay, silt):
     return thetas
 
 
-def thetar_toth(oc, clay, silt):
+def thetar_rawls_brakensiek(sand, clay, thetas):
     """
     Determine residual water content [m3/m3].
 
     Based on:
-      Tóth, B., Weynants, M., Nemes, A., Makó, A., Bilas, G., and Tóth, G.:
-      New generation of hydraulic pedotransfer functions for Europe, Eur. J. Soil Sci.,
-      66, 226–238. doi: 10.1111/ejss.121921211, 2015.
+      Rawls,W. J., and Brakensiek, D. L.: Estimation of SoilWater Retention and
+      Hydraulic Properties, In H. J. Morel-Seytoux (Ed.),
+      Unsaturated flow in hydrologic modelling - Theory and practice, NATO ASI Series 9,
+      275–300, Dordrecht, The Netherlands: Kluwer Academic Publishing, 1989.
 
     Parameters
     ----------
-    oc : float
-        organic carbon [%].
-    clay: float
+    sand : float
         sand percentage [%].
-    silt: float
-        silt percentage [%].
+    clay: float
+        clay percentage [%].
+    thetas: float
+        saturated water content [m3/m3].
 
     Returns
     -------
@@ -195,13 +196,15 @@ def thetar_toth(oc, clay, silt):
 
     """
     thetar = (
-        0.09878
-        + 0.002127 * clay
-        - 0.0008366 * silt
-        - 0.07670 / (oc + 1)
-        + 0.00003853 * silt * clay
-        + (0.002330 * clay) / (oc + 1)
-        + (0.0009498 * silt) / (oc + 1)
+        -0.0182482
+        + 8.7269 * 10**-4 * sand
+        + 0.00513488 * clay
+        + 0.02939286 * thetas
+        - 1.5395 * 10**-4 * clay**2
+        - 1.0827 * 10**-3 * sand * thetas
+        - 1.8233 * 10**-4 * clay**2 * thetas**2
+        + 3.0703 * 10**-4 * clay**2 * thetas
+        - 2.3584 * 10**-3 * thetas**2 * clay
     )
 
     return thetar
