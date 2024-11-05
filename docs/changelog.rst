@@ -20,7 +20,7 @@ Added
 Changed
 -------
 - **setup_lulcmaps** prepares new vegetation parameters (crop coefficient kc and h values). PR #226
-- **set_grid** supports several cyclic time diemsions. PR #226
+- **set_grid** supports several cyclic time dimensions. PR #226
 
 Fixed
 -----

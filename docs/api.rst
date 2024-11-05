@@ -248,8 +248,10 @@ Wflow workflows
    :toctree: _generated
 
    workflows.allocation_areas
-   workflows.surfacewaterfrac
-   workflows.non_irrigation
+   workflows.surfacewaterfrac_used
+   workflows.domestic
+   workflows.other_demand
+   workflows.irrigation
    workflows.hydrography
    workflows.topography
    workflows.river
@@ -259,10 +261,12 @@ Wflow workflows
    workflows.lai
    workflows.create_lulc_lai_mapping_table
    workflows.lai_from_lulc_mapping
+   workflows.add_paddy_to_landuse
    workflows.ksathorfrac
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey
+   workflows.update_soil_with_paddy
    workflows.waterbodymaps
    workflows.reservoirattrs
    workflows.lakeattrs
