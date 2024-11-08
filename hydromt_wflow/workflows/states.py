@@ -22,6 +22,7 @@ def prepare_cold_states(
     Prepare cold states for Wflow.
 
     Compute cold states variables:
+
     * **satwaterdepth**: saturated store [mm]
     * **snow**: snow storage [mm]
     * **tsoil**: top soil temperature [°C]
@@ -35,19 +36,23 @@ def prepare_cold_states(
     * **h_land**: land water level [m]
     * **h_av_land**: land average water level[m]
     * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
-        overland flow in x/y directions for local-inertial [m3/s]
+      overland flow in x/y directions for local-inertial [m3/s]
 
     If lakes, also adds:
+
     * **waterlevel_lake**: lake water level [m]
 
     If reservoirs, also adds:
+
     * **volume_reservoir**: reservoir volume [m3]
 
     If glaciers, also adds:
+
     * **glacierstore**: water within the glacier [mm]
 
     If paddy, also adds:
-        * **h_paddy**: water on the paddy fields [mm]
+
+    * **h_paddy**: water on the paddy fields [mm]
 
     Parameters
     ----------
