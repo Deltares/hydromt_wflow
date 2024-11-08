@@ -408,6 +408,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">raster</span>
 
 
 <div class="viewcode-block" id="ksathorfrac">
@@ -458,6 +459,119 @@
     <span class="c1"># Return as a dataset to be used for &#39;set_grid&#39;</span>
     <span class="k">return</span> <span class="n">da</span></div>
 
+
+
+<span class="k">def</span> <span class="nf">calc_kv_at_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">kv_0</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the kv value at a certain depth.</span>
+
+<span class="sd">    Value is based on the kv at the surface, the f parameter that describes the</span>
+<span class="sd">    exponential decline and the depth.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    depth</span>
+<span class="sd">        Depth at which kv needs to be calculated</span>
+<span class="sd">    kv_0</span>
+<span class="sd">        The vertical conductivity at the surface</span>
+<span class="sd">    f</span>
+<span class="sd">        The value describing the exponential decline</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kv_z</span>
+<span class="sd">        The kv value at the requested depth</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kv_z</span> <span class="o">=</span> <span class="n">kv_0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">f</span> <span class="o">*</span> <span class="n">depth</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kv_z</span>
+
+
+<span class="k">def</span> <span class="nf">calc_kvfrac</span><span class="p">(</span><span class="n">kv_depth</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the kvfrac.</span>
+
+<span class="sd">    Based on the kv value at a certain depth and the target value.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    kv_depth:</span>
+<span class="sd">        Value of kv at a certain depth</span>
+<span class="sd">    target:</span>
+<span class="sd">        Target kv value</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    kvfrac:</span>
+<span class="sd">        The value which kv_depths needs to be multiplied with to reach the target value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kvfrac</span> <span class="o">=</span> <span class="n">target</span> <span class="o">/</span> <span class="n">kv_depth</span>
+    <span class="k">return</span> <span class="n">kvfrac</span>
+
+
+<span class="k">def</span> <span class="nf">update_kvfrac</span><span class="p">(</span>
+    <span class="n">ds_model</span><span class="p">,</span> <span class="n">kv0_mask</span><span class="p">,</span> <span class="n">f_mask</span><span class="p">,</span> <span class="n">wflow_thicknesslayers</span><span class="p">,</span> <span class="n">target_conductivity</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate kvfrac values for each layer.</span>
+
+<span class="sd">    Done such that the bottom of the layer equals to the target_conductivity.</span>
+<span class="sd">    Calculation assumes exponentially declining vertical conductivities, based on the f</span>
+<span class="sd">    parameter. If no target_conductivity is specified, kvfrac is set to be equal to 1.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_model</span>
+<span class="sd">        Dataset of the wflow model</span>
+<span class="sd">    kv0_mask</span>
+<span class="sd">        Values of vertical conductivity at the surface, masked to paddy locations</span>
+<span class="sd">    f_mask</span>
+<span class="sd">        Values of the f parameter, masked to paddy locations</span>
+<span class="sd">    wflow_thicknesslayers</span>
+<span class="sd">        List of requested layers in the wflow model</span>
+<span class="sd">    target_conductivity</span>
+<span class="sd">        List of target conductivities for each layer (None if no target value is</span>
+<span class="sd">        requested)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    da_kvfrac</span>
+<span class="sd">        Maps for each layer with the required kvfrac value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Convert to np.array</span>
+    <span class="n">wflow_thicknesslayers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">wflow_thicknesslayers</span><span class="p">)</span>
+    <span class="n">target_conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">target_conductivity</span><span class="p">)</span>
+
+    <span class="c1"># Prepare emtpy dataarray</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">raster</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
+    <span class="c1"># Set all values to 1</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mf">1.0</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get the actual depths</span>
+    <span class="n">wflow_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">wflow_thicknesslayers</span><span class="p">)</span>
+    <span class="c1"># Find the index of the layers where a kvfrac should be set</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">target_conductivity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Loop through the target_conductivity values</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">target_conductivity</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="c1"># Calculate the kv at that depth (only for the pixels that have paddy</span>
+            <span class="c1"># fields)</span>
+            <span class="n">kv_depth</span> <span class="o">=</span> <span class="n">calc_kv_at_depth</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="n">depth</span><span class="p">,</span> <span class="n">kv_0</span><span class="o">=</span><span class="n">kv0_mask</span><span class="p">,</span> <span class="n">f</span><span class="o">=</span><span class="n">f_mask</span><span class="p">)</span>
+            <span class="n">paddy_values</span> <span class="o">=</span> <span class="n">calc_kvfrac</span><span class="p">(</span><span class="n">kv_depth</span><span class="o">=</span><span class="n">kv_depth</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+            <span class="c1"># Set the values in the correct places</span>
+            <span class="n">kvfrac</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">paddy_values</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span>
+                <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">idx</span><span class="p">)],</span>
+                <span class="n">paddy_values</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">kvfrac</span> <span class="o">=</span> <span class="n">kvfrac</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+            <span class="n">kvfrac</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">)</span>
+            <span class="c1"># Update layer in dataarray</span>
+            <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">kvfrac</span>
+
+    <span class="k">return</span> <span class="n">da_kvfrac</span>
 </pre></div>
 
                 </article>

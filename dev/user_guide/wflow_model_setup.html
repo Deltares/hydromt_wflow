@@ -375,6 +375,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../_examples/update_model_water_demand.html">Example: Update Wflow model with water demand</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../_examples/connect_to_1d_model.html">Example: Connect Wflow to a 1D river model</a></li>
 </ul>
 </details></li>
@@ -509,46 +510,64 @@ a specific method see its documentation.</p>
 <td><p>This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps" title="hydromt_wflow.WflowModel.setup_lulcmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lulcmaps()</span></code></a></p></th>
-<td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
+<td><p>This component derives several wflow maps based on landuse- landcover (LULC) data.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps" title="hydromt_wflow.WflowModel.setup_laimaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy" title="hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lulcmaps_with_paddy()</span></code></a></p></th>
+<td><p>This component derives several wflow maps based on landuse- landcover (LULC) data with paddy rice.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps" title="hydromt_wflow.WflowModel.setup_laimaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps()</span></code></a></p></th>
 <td><p>This component sets leaf area index (LAI) climatology maps per month.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping" title="hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps_from_lulc_mapping()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping" title="hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps_from_lulc_mapping()</span></code></a></p></th>
 <td><p>This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p></th>
 <td><p>This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_ksathorfrac.html#hydromt_wflow.WflowModel.setup_ksathorfrac" title="hydromt_wflow.WflowModel.setup_ksathorfrac"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_ksathorfrac()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_ksathorfrac.html#hydromt_wflow.WflowModel.setup_ksathorfrac" title="hydromt_wflow.WflowModel.setup_ksathorfrac"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_ksathorfrac()</span></code></a></p></th>
 <td><p>This component prepares ksathorfrac from existing ksathorfrac data.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim" title="hydromt_wflow.WflowModel.setup_rootzoneclim"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_rootzoneclim()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim" title="hydromt_wflow.WflowModel.setup_rootzoneclim"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_rootzoneclim()</span></code></a></p></th>
 <td><p>This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_outlets.html#hydromt_wflow.WflowModel.setup_outlets" title="hydromt_wflow.WflowModel.setup_outlets"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_outlets()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_outlets.html#hydromt_wflow.WflowModel.setup_outlets" title="hydromt_wflow.WflowModel.setup_outlets"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_outlets()</span></code></a></p></th>
 <td><p>This method sets the default gauge map based on basin outlets.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges" title="hydromt_wflow.WflowModel.setup_gauges"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_gauges()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges" title="hydromt_wflow.WflowModel.setup_gauges"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_gauges()</span></code></a></p></th>
 <td><p>This method sets the default gauge map based on a gauges_fn data.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap" title="hydromt_wflow.WflowModel.setup_areamap"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap" title="hydromt_wflow.WflowModel.setup_areamap"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
 <td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_config_output_timeseries.html#hydromt_wflow.WflowModel.setup_config_output_timeseries" title="hydromt_wflow.WflowModel.setup_config_output_timeseries"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_config_output_timeseries()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_config_output_timeseries.html#hydromt_wflow.WflowModel.setup_config_output_timeseries" title="hydromt_wflow.WflowModel.setup_config_output_timeseries"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_config_output_timeseries()</span></code></a></p></th>
 <td><p>This method add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_precip_forcing()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_precip_forcing()</span></code></a></p></th>
 <td><p>Setup gridded precipitation forcing at model resolution.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing" title="hydromt_wflow.WflowModel.setup_temp_pet_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_temp_pet_forcing()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing" title="hydromt_wflow.WflowModel.setup_temp_pet_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_temp_pet_forcing()</span></code></a></p></th>
 <td><p>Setup gridded temperature and optionally compute reference evapotranspiration forcing at model resolution.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_pet_forcing.html#hydromt_wflow.WflowModel.setup_pet_forcing" title="hydromt_wflow.WflowModel.setup_pet_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_pet_forcing()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_pet_forcing.html#hydromt_wflow.WflowModel.setup_pet_forcing" title="hydromt_wflow.WflowModel.setup_pet_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_pet_forcing()</span></code></a></p></th>
 <td><p>Setup gridded reference evapotranspiration forcing at model resolution.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a></p></th>
 <td><p>Setup constant parameter maps for all active model cells.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_allocation_areas.html#hydromt_wflow.WflowModel.setup_allocation_areas" title="hydromt_wflow.WflowModel.setup_allocation_areas"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_allocation_areas()</span></code></a></p></th>
+<td><p>Create water demand allocation areas.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac.html#hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac" title="hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_allocation_surfacewaterfrac()</span></code></a></p></th>
+<td><p>Create fraction of surface water used for allocation of the water demands.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_domestic_demand.html#hydromt_wflow.WflowModel.setup_domestic_demand" title="hydromt_wflow.WflowModel.setup_domestic_demand"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_domestic_demand()</span></code></a></p></th>
+<td><p>Create domestic water demand.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_other_demand.html#hydromt_wflow.WflowModel.setup_other_demand" title="hydromt_wflow.WflowModel.setup_other_demand"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_other_demand()</span></code></a></p></th>
+<td><p>Create other water demand (eg industry, livestock).</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_irrigation.html#hydromt_wflow.WflowModel.setup_irrigation" title="hydromt_wflow.WflowModel.setup_irrigation"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_irrigation()</span></code></a></p></th>
+<td><p>Create irrigation areas and trigger for paddy and nonpaddy crops.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_1dmodel_connection.html#hydromt_wflow.WflowModel.setup_1dmodel_connection" title="hydromt_wflow.WflowModel.setup_1dmodel_connection"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_1dmodel_connection()</span></code></a></p></th>
 <td><p>Setup subbasins and gauges to save results from wflow to be used in 1D river models.</p></td>

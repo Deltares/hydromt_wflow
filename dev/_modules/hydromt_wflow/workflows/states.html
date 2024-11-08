@@ -454,6 +454,9 @@
 <span class="sd">    If glaciers, also adds:</span>
 <span class="sd">    * **glacierstore**: water within the glacier [mm]</span>
 
+<span class="sd">    If paddy, also adds:</span>
+<span class="sd">        * **h_paddy**: water on the paddy fields [mm]</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds_like : xr.Dataset</span>
@@ -675,6 +678,20 @@
             <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;glacierstore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">glacstore</span>
 
         <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.vertical.glacierstore&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;glacierstore&quot;</span>
+
+    <span class="c1"># paddy</span>
+    <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;model&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;water_demand.paddy&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="n">h_paddy</span> <span class="o">=</span> <span class="n">grid_from_constant</span><span class="p">(</span>
+            <span class="n">ds_like</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;h_paddy&quot;</span><span class="p">,</span>
+            <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">mask</span><span class="o">=</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;h_paddy&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">h_paddy</span>
+
+        <span class="n">states_config</span><span class="p">[</span><span class="s2">&quot;state.vertical.paddy.h&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;h_paddy&quot;</span>
 
     <span class="c1"># Add time dimension</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="p">[</span><span class="n">timestamp</span><span class="p">]))</span>

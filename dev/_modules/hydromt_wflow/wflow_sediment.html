@@ -408,7 +408,7 @@
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -417,6 +417,7 @@
 
 <span class="kn">from</span> <span class="nn">hydromt_wflow.wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
 
+<span class="kn">from</span> <span class="nn">.naming</span> <span class="kn">import</span> <span class="n">HYDROMT_NAMES</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">DATADIR</span>
 <span class="kn">from</span> <span class="nn">.workflows</span> <span class="kn">import</span> <span class="n">landuse</span><span class="p">,</span> <span class="n">soilgrids_sediment</span>
 
@@ -434,12 +435,7 @@
     <span class="n">_CONF</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment.toml&quot;</span>
     <span class="n">_DATADIR</span> <span class="o">=</span> <span class="n">DATADIR</span>
     <span class="n">_GEOMS</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">_MAPS</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">_MAPS</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s2">&quot;soil&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_soil&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
+    <span class="n">_MAPS</span> <span class="o">=</span> <span class="n">HYDROMT_NAMES</span>
     <span class="n">_FOLDERS</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="o">.</span><span class="n">_FOLDERS</span>
 
 <div class="viewcode-block" id="WflowSedimentModel.__init__">
@@ -737,14 +733,14 @@
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;Kext&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.kext&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;PathFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.pathfrac&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Sl&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.specific_leaf&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Swood&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.storage_wood&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;USLE_C&quot;</span><span class="p">:</span> <span class="s2">&quot;input.vertical.usleC&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Kext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PathFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Sl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Swood&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;USLE_C&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
         <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
         <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
         <span class="n">orchard_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2188</span><span class="p">,</span>
@@ -789,9 +785,9 @@
 <span class="sd">            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare</span>
 <span class="sd">            and their internal wflow name (or None to skip adding to the toml). By</span>
 <span class="sd">            default: \</span>
-<span class="sd">{&quot;landuse&quot;: None, &quot;Kext&quot;: &quot;input.vertical.kext&quot;, &quot;PathFrac&quot;: &quot;input.vertical.pathfrac&quot;,</span>
-<span class="sd">        &quot;Sl&quot;: &quot;input.vertical.specific_leaf&quot;, &quot;Swood&quot;: &quot;input.vertical.storage_wood&quot;,</span>
-<span class="sd">        &quot;USLE_C&quot;: &quot;input.vertical.usleC&quot;}</span>
+<span class="sd">{&quot;landuse&quot;: None, &quot;Kext&quot;: &quot;input.vertical.kext&quot;, &quot;PathFrac&quot;: \</span>
+<span class="sd">&quot;input.vertical.pathfrac&quot;, &quot;Sl&quot;: &quot;input.vertical.specific_leaf&quot;, &quot;Swood&quot;: \</span>
+<span class="sd">&quot;input.vertical.storage_wood&quot;, &quot;USLE_C&quot;: &quot;input.vertical.usleC&quot;}</span>
 <span class="sd">        planted_forest_c : float, optional</span>
 <span class="sd">            Value of USLE C factor for planted forest, by default 0.0881.</span>
 <span class="sd">        orchard_name : str, optional</span>
@@ -806,7 +802,7 @@
         <span class="p">)</span>
 
         <span class="c1"># If available, improve USLE C map with planted forest data</span>
-        <span class="k">if</span> <span class="s2">&quot;USLE_C&quot;</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">lulc_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;USLE_C&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Add a USLE_C column with default value</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Correcting USLE_C with planted forest and orchards&quot;</span>

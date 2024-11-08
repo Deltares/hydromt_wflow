@@ -407,7 +407,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;Soilgrid workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">hydromt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -415,11 +415,16 @@
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ptf</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ptf</span><span class="p">,</span> <span class="n">soilparams</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span> <span class="s2">&quot;soilgrids_sediment&quot;</span><span class="p">,</span> <span class="s2">&quot;soilgrids_brooks_corey&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;soilgrids_sediment&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;soilgrids_brooks_corey&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;update_soil_with_paddy&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 
 <span class="c1"># soilgrids_2017</span>
 <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
@@ -1253,6 +1258,100 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolate NAN values for </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">nodata</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
+<div class="viewcode-block" id="update_soil_with_paddy">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.update_soil_with_paddy.html#hydromt_wflow.workflows.update_soil_with_paddy">[docs]</a>
+<span class="k">def</span> <span class="nf">update_soil_with_paddy</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">paddy_mask</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+    <span class="n">update_c</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">wflow_layers</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">800</span><span class="p">],</span>
+    <span class="n">target_conductivity</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update c and kvfrac soil properties for paddy fields.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        Dataset containing soil properties.</span>
+<span class="sd">    ds_like : xarray.DataArray</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">        Required variables: wflow_subcatch, KsatVer, f</span>
+<span class="sd">    paddy_mask : xarray.DataArray</span>
+<span class="sd">        Dataset containing paddy fields mask.</span>
+<span class="sd">    soil_fn : str</span>
+<span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
+<span class="sd">    update_c : bool</span>
+<span class="sd">        Update c based on change in wflow_layers.</span>
+<span class="sd">    wflow_layers : list</span>
+<span class="sd">        List of soil layer depths [cm] for which c is calculated.</span>
+<span class="sd">    target_conductivity : list</span>
+<span class="sd">        Target conductivity for each wflow layer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    soil_out : xarray.Dataset</span>
+<span class="sd">        Dataset containing updated soil properties.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wflow_layers</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_conductivity</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Lengths of wflow_thicknesslayers and target_conductivity does not match&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Set kvfrac maps, determine the fraction required to reach target_conductivity</span>
+    <span class="c1"># Using to wflow exponential decline to determine the conductivity at the</span>
+    <span class="c1"># required depth Find value at the bottom of the required layer and infer</span>
+    <span class="c1"># required correction factor for that layer Values are only set for locations</span>
+    <span class="c1"># with paddy irrigation, all other cells are set to be equal to 1</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding kvfrac map&quot;</span><span class="p">)</span>
+    <span class="n">kv0</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;KsatVer&quot;</span><span class="p">]</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span>
+    <span class="n">kv0_mask</span> <span class="o">=</span> <span class="n">kv0</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">paddy_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">f_mask</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">paddy_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># update c</span>
+    <span class="k">if</span> <span class="n">update_c</span><span class="p">:</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">soilgrids_brooks_corey</span><span class="p">(</span>
+            <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="n">ds_like</span><span class="p">,</span>
+            <span class="n">soil_fn</span><span class="o">=</span><span class="n">soil_fn</span><span class="p">,</span>
+            <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_layers</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="p">:</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolate nodata (NaN) values for </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="o">~</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">))</span>
+
+        <span class="c1"># temporarily add the dem to the dataset</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Compute the kv_frac (should be done after updating c!)</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">soilparams</span><span class="o">.</span><span class="n">update_kvfrac</span><span class="p">(</span>
+        <span class="n">ds_model</span><span class="o">=</span><span class="n">ds_like</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">update_c</span> <span class="k">else</span> <span class="n">ds_out</span><span class="p">,</span>
+        <span class="n">kv0_mask</span><span class="o">=</span><span class="n">kv0_mask</span><span class="p">,</span>
+        <span class="n">f_mask</span><span class="o">=</span><span class="n">f_mask</span><span class="p">,</span>
+        <span class="n">wflow_thicknesslayers</span><span class="o">=</span><span class="n">wflow_layers</span><span class="p">,</span>
+        <span class="n">target_conductivity</span><span class="o">=</span><span class="n">target_conductivity</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">update_c</span><span class="p">:</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;kvfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_kvfrac</span>
+        <span class="c1"># Remove wflow_dem</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kvfrac&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_out</span></div>
 

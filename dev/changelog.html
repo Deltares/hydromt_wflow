@@ -435,13 +435,18 @@
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li></li>
+<li><p><strong>setup_lulcmaps_with_paddy</strong>: method to add paddy to the model. Adding paddies leads to changes in landuse and soil parameters. PR #226</p></li>
+<li><p><strong>setup_domestic_demand</strong> and <strong>setup_other_demand</strong>: methods to prepare water demands for different sectors using gridded datasets. PR #226</p></li>
+<li><p><strong>setup_irrigation</strong>: method to prepare irrigation areas and parameters. PR #226</p></li>
+<li><p><strong>setup_allocation_areas</strong>: method to prepare allocation areas for water allocation. PR #226</p></li>
+<li><p><strong>setup_allocation_surfacewaterfrac</strong>: method to prepare surface water fraction for water allocation. PR #226</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li></li>
+<li><p><strong>setup_lulcmaps</strong> prepares new vegetation parameters (crop coefficient kc and h values). PR #226</p></li>
+<li><p><strong>set_grid</strong> supports several cyclic time dimensions. PR #226</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -450,7 +455,7 @@
 <li><p>Error in computation of LAI values from mapping to landuse in <strong>setup_laimaps</strong>. PR #297</p></li>
 <li><p>IO error for write_states in write. PR #297</p></li>
 <li><p>Creating the staticgeoms folder if it does not already exist (eg when dir_input is provided). PR #297</p></li>
-<li><p>Pedotransfer function for estimation of residual water content. PR #300</p></li>
+<li><p>Pedo-transfer function for estimation of residual water content. PR #300</p></li>
 </ul>
 </section>
 </section>
@@ -491,12 +496,12 @@
 <li><p>If applicable, basins geometry based on the higher resolution DEM is stored seperately under <strong>basins_highres</strong> <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/266">PR #266</a></p></li>
 <li><p>New function <strong>setup_1dmodel_connection</strong> to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/210">PR #210</a></p></li>
 <li><p>New setup method for the <strong>KsatHorFrac</strong> parameter <strong>setup_ksathorfarc</strong> to up-downscale existing ksathorfrac maps. <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/pull/255">PR #255</a></p></li>
-<li><p>new function <strong>setup_pet_forcing</strong> to reproject existing pet data rather than computing from other meteo data. PR #257</p></li>
+<li><p>New function <strong>setup_pet_forcing</strong> to reproject existing pet data rather than computing from other meteo data. PR #257</p></li>
 <li><p>Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242</p></li>
+<li><p>Better support for WflowModel states with new methods: <strong>read_states</strong>, <strong>write_states</strong> and <strong>clip_states</strong>. PR #252</p></li>
 <li><p><strong>setup_lulcmaps</strong> for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234</p></li>
-<li><p>better support for WflowModel states with new methods: <strong>read_states</strong>, <strong>write_states</strong> and <strong>clip_states</strong>. PR #252</p></li>
-<li><p>new function <strong>setup_cold_states</strong> to prepare cold states for WflowModel. PR #252</p></li>
-<li><p>new utils method <strong>get_grid_from_config</strong> to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252</p></li>
+<li><p>New function <strong>setup_cold_states</strong> to prepare cold states for WflowModel. PR #252</p></li>
+<li><p>New utils method <strong>get_grid_from_config</strong> to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252</p></li>
 <li><p>Added support for the “GLCNMO” land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272</p></li>
 <li><p>Added the <cite>alpha_h1</cite> parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all “non-natural” vegetation (crops) and to 1.0 for all “natural vegetation” PR #272</p></li>
 <li><p>Parameter for output filename in <strong>write_grid</strong> (<cite>fn_out</cite>). PR #278</p></li>
