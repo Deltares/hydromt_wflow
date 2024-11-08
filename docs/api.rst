@@ -35,8 +35,14 @@ Setup components
    WflowModel.setup_reservoirs
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
+   WflowModel.setup_lulcmaps_with_paddy
    WflowModel.setup_laimaps
    WflowModel.setup_laimaps_from_lulc_mapping
+   WflowModel.setup_allocation_areas
+   WflowModel.setup_allocation_surfacewaterfrac
+   WflowModel.setup_domestic_demand
+   WflowModel.setup_other_demand
+   WflowModel.setup_irrigation
    WflowModel.setup_ksathorfrac
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
@@ -241,6 +247,11 @@ Wflow workflows
 .. autosummary::
    :toctree: _generated
 
+   workflows.allocation_areas
+   workflows.surfacewaterfrac_used
+   workflows.domestic
+   workflows.other_demand
+   workflows.irrigation
    workflows.hydrography
    workflows.topography
    workflows.river
@@ -250,10 +261,12 @@ Wflow workflows
    workflows.lai
    workflows.create_lulc_lai_mapping_table
    workflows.lai_from_lulc_mapping
+   workflows.add_paddy_to_landuse
    workflows.ksathorfrac
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey
+   workflows.update_soil_with_paddy
    workflows.waterbodymaps
    workflows.reservoirattrs
    workflows.lakeattrs
