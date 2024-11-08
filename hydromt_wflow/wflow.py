@@ -3638,9 +3638,9 @@ Run setup_soilmaps first"
 
         These maps are created from a supplied dataset that either contains one
         or all of the following variables:
-        - `Domestic` water demand
         - `Industrial` water demand
         - `Livestock` water demand
+        - `Domestic` water demand (without population downsampling)
 
         For each of these datasets/ variables a gross and a netto water demand
         should be provided. They can either be provided cyclic or non-cyclic. The

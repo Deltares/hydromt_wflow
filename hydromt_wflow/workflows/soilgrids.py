@@ -886,7 +886,7 @@ def update_soil_with_paddy(
     """
     if len(wflow_layers) != len(target_conductivity):
         raise ValueError(
-            "Lengths of wflow_thicknesslayers and target_conductivity does not " "match"
+            "Lengths of wflow_thicknesslayers and target_conductivity does not match"
         )
 
     # Set kvfrac maps, determine the fraction required to reach target_conductivity

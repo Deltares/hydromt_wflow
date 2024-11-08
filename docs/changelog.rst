@@ -27,7 +27,7 @@ Fixed
 - Error in computation of LAI values from mapping to landuse in **setup_laimaps**. PR #297
 - IO error for write_states in write. PR #297
 - Creating the staticgeoms folder if it does not already exist (eg when dir_input is provided). PR #297
-- Pedotransfer function for estimation of residual water content. PR #300
+- Pedo-transfer function for estimation of residual water content. PR #300
 
 v0.6.1 (16 September 2024)
 ==========================
