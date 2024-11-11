@@ -6,6 +6,21 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
+Unreleased
+==========
+
+Added
+-----
+-
+
+Changed
+-------
+-
+
+Fixed
+-----
+-
+
 v0.7.0 (8 November 2024)
 ========================
 This release adds support to create water demand and allocation related data (available since Wflow.jl version 0.8.0).
