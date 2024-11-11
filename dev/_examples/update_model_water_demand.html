@@ -56,7 +56,7 @@
     <link rel="prev" title="Update a Wflow model: gauging stations" href="update_model_gauges.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.6.2.dev0" />
+  <meta name="docsearch:version" content="0.7.1dev0" />
   </head>
   
   
@@ -481,8 +481,8 @@
 <p>You can update a wflow_sbm model to include the simulation of water demand and allocation. This can be important in basins where there is substantial human influence, and/or you might want to simulate what will happen if (more) water is consumed. We identify four different sources of water demand: - domestic - industry - livestock - irrigation</p>
 <p>These four different items are taken into account when adding the required water demand data to your wflow model. Besides computing the water demand, we also need information on the regions where water is allocated.</p>
 <p>Let’s open the example configuration file (<strong>wflow_update_water_demand.yml</strong>) from the model repository [examples folder] and have a look at the main setup.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_update_water_demand.yml&quot;</span>
@@ -492,6 +492,72 @@
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+setup_allocation_areas:
+  waterareas_fn: gadm_level2
+  priority_basins: True
+
+setup_allocation_surfacewaterfrac:
+  gwfrac_fn: lisflood_gwfrac
+  gwbodies_fn: lisflood_gwbodies
+  ncfrac_fn: lisflood_ncfrac
+
+# Update model with GLCNMO landuse data in order to add the paddies
+setup_lulcmaps_with_paddy:
+  lulc_fn: glcnmo
+  paddy_class: 12
+  soil_fn: soilgrids
+  wflow_thicknesslayers:
+    - 50
+    - 100
+    - 50
+    - 200
+    - 800
+  target_conductivity:
+    - null
+    - null
+    - 5
+    - null
+    - null
+  paddy_waterlevels:
+    &#34;h_min&#34;: 20
+    &#34;h_opt&#34;: 50
+    &#34;h_max&#34;: 80
+
+setup_domestic_demand:
+  domestic_fn: pcr_globwb
+  population_fn: worldpop_2020_constrained
+  domestic_fn_original_res: 0.5
+
+setup_other_demand:
+  demand_fn: pcr_globwb
+  variables:
+    - ind_gross
+    - ind_net
+    - lsk_gross
+    - lsk_net
+  resampling_method: nearest
+
+setup_irrigation:
+  irrigated_area_fn: irrigated_area
+  irrigation_value:
+    - 1
+  cropland_class:
+    - 11
+    - 14
+    - 20
+    - 30
+  paddy_class:
+    - 12
+  area_threshold: 0.6
+  lai_threshold: 0.2
+
+</pre></div></div>
+</div>
 <p>Here, you see we will be adding the required information to simulate water demand and allocation in wflow, by running three different setup functions: - <strong>setup_allocation_areas</strong>: Adds a map that defines the different regions that will be used to allocate water. By default this is a mix between administrative boundaries and catchment boundaries - <strong>setup_allocation_surfacewaterfrac</strong>: prepare the fraction of surface water used for allocation (can be reduced if groundwater or non conventional
 water sources are also present in the basin). - <strong>setup_lulcmaps_with_paddy</strong> (or <strong>setup_lulcmaps</strong>): update the landuse to include new parameters (crop coefficient kc and soil water pressure heads h) and add the paddies (rice fields). To allow for water to pool on the surface of the rice fields, soil parameters will also be updated to include an additional thin layer with limited vertical conductivity. - <strong>setup_domestic_demand</strong>: Add domestic water demands (gross and net) from gridded data
 and downscaled using high resolution population map. - <strong>setup_other_demand</strong>: Adds maps to the wflow schematization that describe how much water is demanded (gross and net amounts) by different sources: domestic (dom), industry (ind), and livestock (lsk). In our case, as we downscale domestic with population, we will here add industry and livestock. - <strong>setup_irrigation</strong>: Adds information about where and when irrigation takes place for paddy and nonpaddy crops.</p>
@@ -499,8 +565,8 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 <section id="Update-the-wflow-model">
 <h2>Update the wflow model<a class="headerlink" href="#Update-the-wflow-model" title="Link to this heading">#</a></h2>
 <p>First, we build a wflow_sbm model for the full Piave basin, as most water demand activities occur in the most downstream locations of the catchment. Please note that this is a basin model (until the full outlet at the ocean), as opposed to the sub-basin models (until a certain location) that are being created in the other examples.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
@@ -508,14 +574,371 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2024-11-11 08:43:36,587 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/hydromt.log.
+2024-11-11 08:43:36,587 - build - log - INFO - HydroMT version: 0.10.0
+2024-11-11 08:43:36,587 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand.
+2024-11-11 08:43:36,587 - build - main - INFO - User settings:
+2024-11-11 08:43:36,948 - build - data_catalog - INFO - Reading data catalog artifact_data latest
+2024-11-11 08:43:36,948 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2024-11-11 08:43:37,539 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.0).
+2024-11-11 08:43:37,540 - build - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-11-11 08:43:37,551 - build - model_api - DEBUG - Setting model config options.
+2024-11-11 08:43:37,553 - build - model_api - DEBUG - Default config read from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/wflow_sbm.toml
+2024-11-11 08:43:37,553 - build - model_api - INFO - setup_basemaps.region: {&#39;basin&#39;: [12.2051, 45.8331], &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2024-11-11 08:43:37,553 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2024-11-11 08:43:37,553 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2024-11-11 08:43:37,553 - build - model_api - INFO - setup_basemaps.res: 0.00833
+2024-11-11 08:43:37,553 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2024-11-11 08:43:37,553 - build - wflow - INFO - Preparing base hydrography basemaps.
+2024-11-11 08:43:37,554 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
+2024-11-11 08:43:37,638 - build - basin_mask - DEBUG - Parsed region (kind=basin): {&#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
+2024-11-11 08:43:37,653 - build - basin_mask - DEBUG - Getting basin IDs at point locations.
+2024-11-11 08:43:37,847 - build - basin_mask - INFO - basin bbox: [11.7750, 45.5042, 12.8375, 46.6900]
+2024-11-11 08:43:37,913 - build - wflow - DEBUG - Adding basins vector to geoms.
+2024-11-11 08:43:37,914 - build - basemaps - DEBUG - (Sub)basin at original resolution has 751509 cells.
+2024-11-11 08:43:38,832 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2024-11-11 08:43:54,086 - build - basemaps - DEBUG - Derive stream order.
+2024-11-11 08:43:54,241 - build - basemaps - DEBUG - Map shape: (142, 127); active cells: 7503.
+2024-11-11 08:43:54,241 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.73250,45.52750).
+2024-11-11 08:43:54,417 - build - wflow - DEBUG - Adding region vector to geoms.
+2024-11-11 08:43:54,419 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
+2024-11-11 08:43:54,419 - build - model_api - INFO - setup_rivers.river_geom_fn: hydro_rivers_lin
+2024-11-11 08:43:54,419 - build - model_api - INFO - setup_rivers.river_upa: 30
+2024-11-11 08:43:54,419 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.slope_len: 2000
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.min_rivlen_ratio: 0.0
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.min_rivdph: 1
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.min_rivwth: 30
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.smooth_len: 5000
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.rivman_mapping_fn: roughness_river_mapping_default
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.elevtn_map: wflow_dem
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.river_routing: kinematic-wave
+2024-11-11 08:43:54,420 - build - model_api - INFO - setup_rivers.connectivity: 8
+2024-11-11 08:43:54,420 - build - wflow - INFO - Preparing river maps.
+2024-11-11 08:43:54,421 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
+2024-11-11 08:43:54,490 - build - rasterdataset - DEBUG - Clip to [11.778, 45.507, 12.837, 46.690] (epsg:4326))
+2024-11-11 08:43:54,500 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2024-11-11 08:43:54,630 - build - river - DEBUG - Derive river length.
+2024-11-11 08:44:01,695 - build - river - DEBUG - Derive river slope.
+2024-11-11 08:44:02,277 - build - river - DEBUG - Derive rivwth from hydrography dataset.
+2024-11-11 08:44:02,286 - build - dataframe - INFO - Reading roughness_river_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/N_river_mapping.csv
+2024-11-11 08:44:02,291 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
+2024-11-11 08:44:02,297 - build - geodataframe - INFO - Reading hydro_rivers_lin vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rivers_lin2019_v1.gpkg
+2024-11-11 08:44:02,306 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.507, 12.837, 46.690] (EPSG:4326)
+2024-11-11 08:44:02,691 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
+2024-11-11 08:44:02,761 - build - river - DEBUG - Valid for 466/830 river cells (max dist: 393 m).
+2024-11-11 08:44:06,711 - build - wflow - DEBUG - Adding rivers vector to geoms.
+2024-11-11 08:44:07,489 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
+2024-11-11 08:44:07,489 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
+2024-11-11 08:44:07,489 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
+2024-11-11 08:44:07,489 - build - wflow - INFO - Preparing reservoir maps.
+2024-11-11 08:44:07,489 - build - geodataframe - INFO - Reading hydro_reservoirs vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_reservoirs.gpkg
+2024-11-11 08:44:07,507 - build - geodataframe - DEBUG - Clip contains [11.775, 45.504, 12.838, 46.690] (EPSG:4326)
+2024-11-11 08:44:07,509 - build - geodataframe - DEBUG - Convert units for 5 columns.
+2024-11-11 08:44:07,511 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
+2024-11-11 08:44:07,511 - build - wflow - INFO - Skipping method, as no data has been found
+2024-11-11 08:44:07,511 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
+2024-11-11 08:44:07,511 - build - model_api - INFO - setup_lakes.rating_curve_fns: None
+2024-11-11 08:44:07,511 - build - model_api - INFO - setup_lakes.min_area: 10.0
+2024-11-11 08:44:07,511 - build - model_api - INFO - setup_lakes.add_maxstorage: False
+2024-11-11 08:44:07,511 - build - wflow - INFO - Preparing lake maps.
+2024-11-11 08:44:07,511 - build - geodataframe - INFO - Reading hydro_lakes vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_lakes.gpkg
+2024-11-11 08:44:07,522 - build - geodataframe - DEBUG - Clip contains [11.775, 45.504, 12.838, 46.690] (EPSG:4326)
+2024-11-11 08:44:07,524 - build - geodataframe - DEBUG - Convert units for 1 columns.
+2024-11-11 08:44:07,525 - build - wflow - WARNING - No lakes of sufficient size found within region! Skipping lake procedures!
+2024-11-11 08:44:07,525 - build - wflow - INFO - Skipping method, as no data has been found
+2024-11-11 08:44:07,525 - build - model_api - INFO - setup_glaciers.glaciers_fn: rgi
+2024-11-11 08:44:07,525 - build - model_api - INFO - setup_glaciers.min_area: 1.0
+2024-11-11 08:44:07,525 - build - wflow - INFO - Preparing glacier maps.
+2024-11-11 08:44:07,525 - build - geodataframe - INFO - Reading rgi vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rgi.gpkg
+2024-11-11 08:44:07,538 - build - geodataframe - DEBUG - Clip intersects [11.775, 45.504, 12.838, 46.690] (EPSG:4326)
+2024-11-11 08:44:07,540 - build - wflow - INFO - 1 glaciers of sufficient size found within region.
+2024-11-11 08:44:07,550 - build - glaciers - DEBUG - Creating vector grid for calculating glacier fraction and storage per grid cell
+2024-11-11 08:44:07,619 - build - glaciers - DEBUG - Setting glacierfrac and store values per glacier.
+2024-11-11 08:44:10,220 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover_2009
+2024-11-11 08:44:10,220 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: globcover_mapping_default
+2024-11-11 08:44:10,220 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;, &#39;kc&#39;, &#39;alpha_h1&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3_high&#39;, &#39;h3_low&#39;, &#39;h4&#39;]
+2024-11-11 08:44:10,220 - build - wflow - INFO - Preparing LULC parameter maps.
+2024-11-11 08:44:10,221 - build - rasterdataset - INFO - Reading globcover_2009 raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/globcover.tif
+2024-11-11 08:44:10,231 - build - rasterdataset - DEBUG - Clip to [11.778, 45.507, 12.837, 46.690] (epsg:4326))
+2024-11-11 08:44:10,232 - build - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
+2024-11-11 08:44:10,239 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2024-11-11 08:44:10,262 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,287 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,312 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,337 - build - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,362 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,387 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,412 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,437 - build - landuse - INFO - Deriving kc using average resampling (nodata=-999.0).
+2024-11-11 08:44:10,462 - build - landuse - INFO - Deriving alpha_h1 using mode resampling (nodata=-999).
+2024-11-11 08:44:10,541 - build - landuse - INFO - Deriving h1 using average resampling (nodata=-999).
+2024-11-11 08:44:10,567 - build - landuse - INFO - Deriving h2 using average resampling (nodata=-999).
+2024-11-11 08:44:10,592 - build - landuse - INFO - Deriving h3_high using average resampling (nodata=-999).
+2024-11-11 08:44:10,617 - build - landuse - INFO - Deriving h3_low using average resampling (nodata=-999).
+2024-11-11 08:44:10,642 - build - landuse - INFO - Deriving h4 using average resampling (nodata=-999).
+2024-11-11 08:44:10,677 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
+2024-11-11 08:44:10,677 - build - model_api - INFO - setup_laimaps.lulc_fn: None
+2024-11-11 08:44:10,677 - build - model_api - INFO - setup_laimaps.lulc_sampling_method: any
+2024-11-11 08:44:10,677 - build - model_api - INFO - setup_laimaps.lulc_zero_classes: []
+2024-11-11 08:44:10,677 - build - model_api - INFO - setup_laimaps.buffer: 2
+2024-11-11 08:44:10,677 - build - wflow - INFO - Preparing LAI maps.
+2024-11-11 08:44:10,677 - build - rasterdataset - INFO - Reading modis_lai netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/modis_lai.nc
+2024-11-11 08:44:10,702 - build - rasterdataset - DEBUG - Clip to [11.778, 45.507, 12.837, 46.690] (epsg:4326))
+2024-11-11 08:44:10,703 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2024-11-11 08:44:10,708 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
+2024-11-11 08:44:10,785 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2024-11-11 08:44:10,785 - build - model_api - INFO - setup_soilmaps.ptf_ksatver: brakensiek
+2024-11-11 08:44:10,785 - build - model_api - INFO - setup_soilmaps.wflow_thicknesslayers: [100, 300, 800]
+2024-11-11 08:44:10,785 - build - wflow - INFO - Preparing soil parameter maps.
+2024-11-11 08:44:10,786 - build - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
+2024-11-11 08:44:11,096 - build - rasterdataset - DEBUG - Clip to [11.778, 45.507, 12.837, 46.690] (epsg:4326))
+2024-11-11 08:44:11,105 - build - rasterdataset - DEBUG - Convert units for 21 variables.
+2024-11-11 08:44:11,328 - build - soilgrids - INFO - calculate and resample thetaS
+2024-11-11 08:44:11,597 - build - soilgrids - INFO - calculate and resample thetaR
+2024-11-11 08:44:12,047 - build - soilgrids - INFO - calculate and resample KsatVer
+2024-11-11 08:44:12,118 - build - soilgrids - INFO - calculate and resample pore size distribution index
+2024-11-11 08:44:12,660 - build - soilgrids - INFO - fit z - log(KsatVer) with numpy linalg regression (y = b*x) -&gt; M_
+2024-11-11 08:44:13,209 - build - soilgrids - INFO - fit zi - Ksat with curve_fit (scipy.optimize) -&gt; M
+2024-11-11 08:44:16,980 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaS
+2024-11-11 08:44:17,146 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaR
+2024-11-11 08:44:17,333 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilThickness
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:17,353 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilMinThickness
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:17,373 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for c
+2024-11-11 08:44:17,381 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer
+2024-11-11 08:44:17,431 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_0.0cm
+2024-11-11 08:44:17,479 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_5.0cm
+2024-11-11 08:44:17,528 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_15.0cm
+2024-11-11 08:44:17,577 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_30.0cm
+2024-11-11 08:44:17,624 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_60.0cm
+2024-11-11 08:44:17,672 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_100.0cm
+2024-11-11 08:44:17,721 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_200.0cm
+2024-11-11 08:44:17,769 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original_
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:17,960 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:18,152 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f_
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:18,340 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:18,533 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:18,725 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f
+No numerical nodata value found, skipping set_nodata
+2024-11-11 08:44:18,911 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for wflow_soil
+2024-11-11 08:44:19,050 - build - model_api - INFO - setup_outlets.river_only: True
+2024-11-11 08:44:19,050 - build - model_api - INFO - setup_outlets.toml_output: csv
+2024-11-11 08:44:19,050 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;Q&#39;]
+2024-11-11 08:44:19,050 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.q_av&#39;]
+2024-11-11 08:44:19,050 - build - wflow - INFO - Gauges locations set based on river outlets.
+2024-11-11 08:44:19,054 - build - wflow - INFO - Gauges map based on catchment river outlets added.
+2024-11-11 08:44:19,054 - build - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;] to csv section of toml.
+2024-11-11 08:44:19,054 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
+2024-11-11 08:44:19,054 - build - model_api - INFO - setup_gauges.index_col: None
+2024-11-11 08:44:19,054 - build - model_api - INFO - setup_gauges.snap_to_river: True
+2024-11-11 08:44:19,054 - build - model_api - INFO - setup_gauges.mask: None
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.snap_uparea: False
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.max_dist: 10000.0
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.wdw: 3
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.rel_error: 0.05
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.abs_error: 50.0
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.fillna: False
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.derive_subcatch: False
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.basename: None
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.toml_output: csv
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
+2024-11-11 08:44:19,055 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
+2024-11-11 08:44:19,055 - build - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/grdc.csv
+2024-11-11 08:44:19,059 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.507, 12.837, 46.690] (EPSG:4326)
+2024-11-11 08:44:19,059 - build - wflow - INFO - 3 grdc gauge locations found within domain
+2024-11-11 08:44:19,872 - build - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
+2024-11-11 08:44:19,873 - build - model_api - INFO - setup_precip_forcing.precip_fn: era5
+2024-11-11 08:44:19,873 - build - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2024-11-11 08:44:19,873 - build - model_api - INFO - setup_precip_forcing.chunksize: None
+2024-11-11 08:44:19,873 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2024-11-11 08:44:19,885 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
+2024-11-11 08:44:19,886 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
+2024-11-11 08:44:19,893 - build - rasterdataset - DEBUG - Clip to [11.778, 45.507, 12.837, 46.690] (epsg:4326))
+2024-11-11 08:44:19,894 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2024-11-11 08:44:19,941 - build - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2024-11-11 08:44:19,941 - build - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.fillna_method: None
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2024-11-11 08:44:19,942 - build - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2024-11-11 08:44:19,942 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2024-11-11 08:44:19,953 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
+2024-11-11 08:44:19,954 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
+2024-11-11 08:44:19,960 - build - rasterdataset - DEBUG - Clip to [11.778, 45.507, 12.837, 46.690] (epsg:4326))
+2024-11-11 08:44:19,961 - build - rasterdataset - DEBUG - Convert units for 4 variables.
+2024-11-11 08:44:19,987 - build - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5_orography.nc
+2024-11-11 08:44:20,000 - build - rasterdataset - DEBUG - Clip to [11.625, 45.375, 13.125, 46.875] (epsg:4326))
+2024-11-11 08:44:20,001 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.dtype: float32
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.nodata: -999
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.KsatHorFrac: 100
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.Cfmax: 3.75653
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.cf_soil: 0.038
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.EoverR: 0.11
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.InfiltCapPath: 5
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.InfiltCapSoil: 600
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.MaxLeakage: 0
+2024-11-11 08:44:20,192 - build - model_api - INFO - setup_constant_pars.rootdistpar: -500
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.TT: 0
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.TTI: 2
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.TTM: 0
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.WHC: 0.1
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.G_Cfmax: 5.3
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.G_SIfrac: 0.002
+2024-11-11 08:44:20,193 - build - model_api - INFO - setup_constant_pars.G_TT: 1.3
+2024-11-11 08:44:20,216 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand
+2024-11-11 08:44:20,249 - build - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/staticmaps.nc
+2024-11-11 08:44:20,469 - build - wflow - INFO - Writing model staticgeom to file.
+2024-11-11 08:44:20,536 - build - wflow - INFO - Write forcing file
+2024-11-11 08:44:20,540 - build - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-15 00:00:00 in the toml.
+2024-11-11 08:44:20,543 - build - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/inmaps-era5-2010.nc
+[########################################] | 100% Completed | 101.86 ms
+2024-11-11 08:44:20,672 - build - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/wflow_sbm.toml
+
+</pre></div></div>
+</div>
 <p>Next, we will update the model using the same configuration file that was shown earlier:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_water_demand<span class="w"> </span>-i<span class="w"> </span>wflow_update_water_demand.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml&quot;</span><span class="w"> </span>-d<span class="w"> </span>../tests/data/demand/data_catalog.yml<span class="w"> </span>-v
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span><span class="w"> </span>hydromt<span class="w"> </span>update<span class="w"> </span>wflow<span class="w"> </span>wflow_piave_water_demand<span class="w"> </span>-i<span class="w"> </span>wflow_update_water_demand.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml&quot;</span><span class="w"> </span>-d<span class="w"> </span>./data/demand/data_catalog.yml<span class="w"> </span>-v
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2024-11-11 08:44:22,979 - update - log - INFO - HydroMT version: 0.10.0
+2024-11-11 08:44:22,979 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand (r+).
+2024-11-11 08:44:22,979 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand
+2024-11-11 08:44:22,979 - update - main - INFO - User settings:
+2024-11-11 08:44:23,359 - update - data_catalog - INFO - Reading data catalog artifact_data latest
+2024-11-11 08:44:23,359 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2024-11-11 08:44:23,950 - update - data_catalog - INFO - Parsing data catalog from https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml
+Downloading data from &#39;https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/data.tar.gz&#39; to file &#39;/home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar.gz&#39;.
+SHA256 hash of downloaded file: ac07cbfe5b5b2f647af0fd1886ead892d85872ba11d3f955858fb45e7419871a
+Use this value as the &#39;known_hash&#39; argument of &#39;pooch.retrieve&#39; to ensure that the file hasn&#39;t changed if it is downloaded again in the future.
+Untarring contents of &#39;/home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar.gz&#39; to &#39;/home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar&#39;
+2024-11-11 08:44:24,344 - update - data_catalog - INFO - Parsing data catalog from ./data/demand/data_catalog.yml
+2024-11-11 08:44:24,347 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.0).
+2024-11-11 08:44:24,347 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2024-11-11 08:44:24,361 - update - wflow - INFO - Reading model staticgeom files.
+2024-11-11 08:44:24,370 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/staticmaps.nc
+2024-11-11 08:44:24,439 - update - model_api - INFO - setup_allocation_areas.waterareas_fn: gadm_level2
+2024-11-11 08:44:24,439 - update - model_api - INFO - setup_allocation_areas.priority_basins: True
+2024-11-11 08:44:24,439 - update - wflow - INFO - Preparing water demand allocation map.
+2024-11-11 08:44:24,441 - update - geodataframe - INFO - Reading gadm_level2 vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/gadm_level2.gpkg
+2024-11-11 08:44:24,564 - update - model_api - INFO - setup_allocation_surfacewaterfrac.gwfrac_fn: lisflood_gwfrac
+2024-11-11 08:44:24,564 - update - model_api - INFO - setup_allocation_surfacewaterfrac.waterareas_fn: None
+2024-11-11 08:44:24,564 - update - model_api - INFO - setup_allocation_surfacewaterfrac.gwbodies_fn: lisflood_gwbodies
+2024-11-11 08:44:24,564 - update - model_api - INFO - setup_allocation_surfacewaterfrac.ncfrac_fn: lisflood_ncfrac
+2024-11-11 08:44:24,564 - update - model_api - INFO - setup_allocation_surfacewaterfrac.interpolate_nodata: False
+2024-11-11 08:44:24,564 - update - model_api - INFO - setup_allocation_surfacewaterfrac.mask_and_scale_gwfrac: True
+2024-11-11 08:44:24,564 - update - wflow - INFO - Preparing surface water fraction map.
+2024-11-11 08:44:24,566 - update - rasterdataset - INFO - Reading lisflood_gwfrac raster data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/demand/lisflood_gwfrac.tif
+2024-11-11 08:44:24,587 - update - rasterdataset - INFO - Reading lisflood_gwbodies raster data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/demand/lisflood_gwbodies.tif
+2024-11-11 08:44:24,599 - update - rasterdataset - INFO - Reading lisflood_ncfrac raster data from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/data/demand/lisflood_ncfrac.tif
+2024-11-11 08:44:24,609 - update - wflow - INFO - Using wflow model allocation areas.
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.lulc_fn: glcnmo
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.paddy_class: 12
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.output_paddy_class: None
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.lulc_mapping_fn: None
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.paddy_fn: None
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.paddy_mapping_fn: None
+2024-11-11 08:44:24,898 - update - model_api - INFO - setup_lulcmaps_with_paddy.soil_fn: soilgrids
+2024-11-11 08:44:24,899 - update - model_api - INFO - setup_lulcmaps_with_paddy.wflow_thicknesslayers: [50, 100, 50, 200, 800]
+2024-11-11 08:44:24,899 - update - model_api - INFO - setup_lulcmaps_with_paddy.target_conductivity: [None, None, 5, None, None]
+2024-11-11 08:44:24,899 - update - model_api - INFO - setup_lulcmaps_with_paddy.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;, &#39;kc&#39;, &#39;alpha_h1&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3_high&#39;, &#39;h3_low&#39;, &#39;h4&#39;]
+2024-11-11 08:44:24,899 - update - model_api - INFO - setup_lulcmaps_with_paddy.paddy_waterlevels: {&#39;h_min&#39;: 20, &#39;h_opt&#39;: 50, &#39;h_max&#39;: 80}
+2024-11-11 08:44:24,899 - update - model_api - INFO - setup_lulcmaps_with_paddy.save_high_resolution_lulc: False
+2024-11-11 08:44:24,899 - update - wflow - INFO - Preparing LULC parameter maps including paddies.
+2024-11-11 08:44:24,901 - update - rasterdataset - INFO - Reading glcnmo raster data from /home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar/glcnmo.tif
+2024-11-11 08:44:24,911 - update - dataframe - INFO - Reading glcnmo_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/glcnmo_mapping.csv
+2024-11-11 08:44:24,918 - update - landuse - INFO - Deriving landuse using nearest resampling (nodata=0).
+2024-11-11 08:44:24,941 - update - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2024-11-11 08:44:24,957 - update - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2024-11-11 08:44:24,974 - update - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2024-11-11 08:44:24,991 - update - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2024-11-11 08:44:25,008 - update - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2024-11-11 08:44:25,024 - update - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2024-11-11 08:44:25,041 - update - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2024-11-11 08:44:25,058 - update - landuse - INFO - Deriving kc using average resampling (nodata=-999.0).
+2024-11-11 08:44:25,074 - update - landuse - INFO - Deriving alpha_h1 using mode resampling (nodata=-999).
+2024-11-11 08:44:25,145 - update - landuse - INFO - Deriving h1 using average resampling (nodata=-999).
+2024-11-11 08:44:25,162 - update - landuse - INFO - Deriving h2 using average resampling (nodata=-999).
+2024-11-11 08:44:25,179 - update - landuse - INFO - Deriving h3_high using average resampling (nodata=-999).
+2024-11-11 08:44:25,196 - update - landuse - INFO - Deriving h3_low using average resampling (nodata=-999).
+2024-11-11 08:44:25,213 - update - landuse - INFO - Deriving h4 using average resampling (nodata=-999).
+2024-11-11 08:44:25,230 - update - model_grid - WARNING - Replacing grid map: wflow_landuse
+2024-11-11 08:44:25,231 - update - model_grid - WARNING - Replacing grid map: Kext
+2024-11-11 08:44:25,232 - update - model_grid - WARNING - Replacing grid map: N
+2024-11-11 08:44:25,233 - update - model_grid - WARNING - Replacing grid map: PathFrac
+2024-11-11 08:44:25,234 - update - model_grid - WARNING - Replacing grid map: RootingDepth
+2024-11-11 08:44:25,236 - update - model_grid - WARNING - Replacing grid map: Sl
+2024-11-11 08:44:25,237 - update - model_grid - WARNING - Replacing grid map: Swood
+2024-11-11 08:44:25,238 - update - model_grid - WARNING - Replacing grid map: WaterFrac
+2024-11-11 08:44:25,239 - update - model_grid - WARNING - Replacing grid map: kc
+2024-11-11 08:44:25,240 - update - model_grid - WARNING - Replacing grid map: alpha_h1
+2024-11-11 08:44:25,242 - update - model_grid - WARNING - Replacing grid map: h1
+2024-11-11 08:44:25,243 - update - model_grid - WARNING - Replacing grid map: h2
+2024-11-11 08:44:25,244 - update - model_grid - WARNING - Replacing grid map: h3_high
+2024-11-11 08:44:25,245 - update - model_grid - WARNING - Replacing grid map: h3_low
+2024-11-11 08:44:25,246 - update - model_grid - WARNING - Replacing grid map: h4
+2024-11-11 08:44:25,247 - update - wflow - INFO - Different thicknesslayers requested, updating `c` parameter
+2024-11-11 08:44:25,250 - update - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
+2024-11-11 08:44:25,651 - update - soilgrids - INFO - Adding kvfrac map
+2024-11-11 08:44:26,660 - update - wflow - INFO - Dropping these variables, as they depend on the layer dimension: [&#39;layer&#39;, &#39;c&#39;]
+2024-11-11 08:44:26,663 - update - model_api - INFO - setup_domestic_demand.domestic_fn: pcr_globwb
+2024-11-11 08:44:26,663 - update - model_api - INFO - setup_domestic_demand.population_fn: worldpop_2020_constrained
+2024-11-11 08:44:26,663 - update - model_api - INFO - setup_domestic_demand.domestic_fn_original_res: 0.5
+2024-11-11 08:44:26,663 - update - wflow - INFO - Preparing domestic demand maps.
+2024-11-11 08:44:26,666 - update - rasterdataset - INFO - Reading pcr_globwb netcdf data from /home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar/pcr_globwb.nc
+2024-11-11 08:44:26,685 - update - rasterdataset - INFO - Reading pcr_globwb netcdf data from /home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar/pcr_globwb.nc
+2024-11-11 08:44:26,703 - update - rasterdataset - INFO - Reading worldpop_2020_constrained raster data from /home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar/worldpop_2020_constrained.tif
+2024-11-11 08:44:26,713 - update - rasterdataset - WARNING - Dataset [11.599583338930609, 45.19958334863173, 12.999583333598485, 46.79958334242942] does not fully cover bbox [11.583, 45.167, 13.000, 46.833]
+2024-11-11 08:44:31,550 - update - model_api - INFO - setup_other_demand.demand_fn: pcr_globwb
+2024-11-11 08:44:31,550 - update - model_api - INFO - setup_other_demand.variables: [&#39;ind_gross&#39;, &#39;ind_net&#39;, &#39;lsk_gross&#39;, &#39;lsk_net&#39;]
+2024-11-11 08:44:31,550 - update - model_api - INFO - setup_other_demand.resampling_method: nearest
+2024-11-11 08:44:31,550 - update - wflow - INFO - Preparing water demand maps for [&#39;ind_gross&#39;, &#39;ind_net&#39;, &#39;lsk_gross&#39;, &#39;lsk_net&#39;].
+2024-11-11 08:44:31,552 - update - rasterdataset - INFO - Reading pcr_globwb netcdf data from /home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar/pcr_globwb.nc
+2024-11-11 08:44:31,738 - update - model_api - INFO - setup_irrigation.irrigated_area_fn: irrigated_area
+2024-11-11 08:44:31,738 - update - model_api - INFO - setup_irrigation.irrigation_value: [1]
+2024-11-11 08:44:31,738 - update - model_api - INFO - setup_irrigation.cropland_class: [11, 14, 20, 30]
+2024-11-11 08:44:31,738 - update - model_api - INFO - setup_irrigation.paddy_class: [12]
+2024-11-11 08:44:31,738 - update - model_api - INFO - setup_irrigation.area_threshold: 0.6
+2024-11-11 08:44:31,738 - update - model_api - INFO - setup_irrigation.lai_threshold: 0.2
+2024-11-11 08:44:31,738 - update - wflow - INFO - Preparing irrigation maps.
+2024-11-11 08:44:31,738 - update - rasterdataset - INFO - Reading irrigated_area raster data from /home/runner/.hydromt_data/wflow_artifacts/v0.5.0/data.tar/irrigated_area.tif
+2024-11-11 08:44:31,750 - update - demand - INFO - Preparing irrigated areas map for non paddy.
+2024-11-11 08:44:31,779 - update - demand - INFO - Preparing irrigated areas map for paddy.
+2024-11-11 08:44:31,805 - update - demand - INFO - Calculating irrigation trigger.
+2024-11-11 08:44:31,867 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand
+2024-11-11 08:44:31,867 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/hydromt_data.yml
+2024-11-11 08:44:31,924 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/staticmaps.nc
+2024-11-11 08:44:41,309 - update - wflow - INFO - Writing model staticgeom to file.
+2024-11-11 08:44:41,379 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_water_demand/wflow_sbm.toml
+
+</pre></div></div>
 </div>
 <p>NOTE: The second catalog wflow_artifacts.yml points to additional data that are not available in the hydromt artifact_data catalog such as extracts of the glcnmo landuse or the pcrglobwb gridded demands.</p>
 </section>
@@ -523,7 +946,7 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 <h2>Looking at the added layers<a class="headerlink" href="#Looking-at-the-added-layers" title="Link to this heading">#</a></h2>
 <p>To understand what layers have been added, we’ll plot the new layers below. To do the plotting, we first have to import the required python libraries:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -545,8 +968,8 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 <h3>Landuse and rice fields<a class="headerlink" href="#Landuse-and-rice-fields" title="Link to this heading">#</a></h3>
 <p>Additional new parameters have been added to the model for landuse such as: - <strong>crop_factor</strong>: crop factor map that is used to convert the reference PET to the crop specific evaporation - <strong>h</strong> values: soil water pressure heads at which root water uptake is reduced (Feddes) [cm]. They are different for paddy and non paddy landuse types.</p>
 <p>For paddies, new maps have been added and soil parameters updated to allow water to pool at the surface. These are the <strong>c</strong> maps and a new <strong>kvfrac</strong> map which is a factor used to multiply the vertical conductivity (<code class="docutils literal notranslate"><span class="pre">ksatver</span></code>) in order to allow for a layer with very low conductivity (for the paddy fields).</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
@@ -564,9 +987,16 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_13_0.png" src="../_images/_examples_update_model_water_demand_13_0.png" />
+</div>
+</div>
 <p>A <code class="docutils literal notranslate"><span class="pre">kvfrac</span></code> map is added that adds a layer with very low vertical hydraulic conductivity in the cells with paddy irrigation. The target conductivity value can be set for each layer using the <code class="docutils literal notranslate"><span class="pre">target_conductivity</span></code> parameter, and sets a value for each layer in the wflow model (linked to the <code class="docutils literal notranslate"><span class="pre">wflow_thicknesslayer</span></code> parameter). See the figures below for an indication of these maps and their effect on the vertical conductivity.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
@@ -622,12 +1052,19 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_15_0.png" src="../_images/_examples_update_model_water_demand_15_0.png" />
+</div>
+</div>
 </section>
 <section id="Industry,-livestock-and-domestic-demand">
 <h3>Industry, livestock and domestic demand<a class="headerlink" href="#Industry,-livestock-and-domestic-demand" title="Link to this heading">#</a></h3>
 <p>For the non_irrigation related demand, we assume those to be already prepared datasets with gross and net (consumption) demands. In this example, we rely on data from the PCR-GLOBWB model. See the images below for an explanation of the data and added layers to the wflow model configuration.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">month</span> <span class="o">=</span> <span class="mi">6</span>
@@ -665,11 +1102,18 @@ and downscaled using high resolution population map. - <strong>setup_other_deman
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_17_0.png" src="../_images/_examples_update_model_water_demand_17_0.png" />
+</div>
+</div>
 <p>In the figure above, we see a slight difference between the gross and net demand for the industry sector. This means that this sector consumes part of the demanded water, but returns a portion of the water back. On the other hand, the gross and net demands for both livestock and domestic are roughly the same, meaning that the majority of the water will be consumed.</p>
 <p>For the industry and livestock sectors, we see the relatively low-resolution of the original data. This data is retrieved from the PCR-GLOBWB model, which was provided at a resolution of 0.5x0.5 degrees (roughly 40x40km). The same holds for the domestic demands data, but it was downscaled using population density in the <code class="docutils literal notranslate"><span class="pre">setup_non_irrigation</span></code> workflow (using the dataset provided in <code class="docutils literal notranslate"><span class="pre">population_fn</span></code>, which is an optional step). The population data is used to identify densely populated regions,
 and downscales this to the cities/villages where the people actually live. To give an impression, see the figure below for an insight into the population data. Please note that this is the data at the original resolution of ~100x100m. The data at the wflow model resolution is provided in the staticmaps (see <code class="docutils literal notranslate"><span class="pre">mod.grid[&quot;Population_scaled&quot;]</span></code>).</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read original data and slice to model domain</span>
@@ -687,13 +1131,29 @@ and downscales this to the cities/villages where the people actually live. To gi
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_19_1.png" src="../_images/_examples_update_model_water_demand_19_1.png" />
+</div>
+</div>
 </section>
 <section id="Irrigation-maps">
 <h3>Irrigation maps<a class="headerlink" href="#Irrigation-maps" title="Link to this heading">#</a></h3>
 <p>For the <code class="docutils literal notranslate"><span class="pre">setup_irrigation</span></code> workflow, a number of maps have been added to the model: - <strong>paddy_irrigation_areas</strong>: mask (0/1) of the cells that are considered to be paddy/rice fields - <strong>nonpaddy_irrigation_areas</strong>: mask (0/1) of the cells that are irrigated, but not paddy/rice fields - <strong>nonpaddy_irrigation_trigger</strong>: trigger (0/1) that indicates whether we expect irrigation to occur (based on the LAI, to identify the growing season) - <strong>paddy_irrigation_trigger</strong>: trigger (0/1) that indicates
 whether we expect irrigation to occur on paddies (based on the LAI, to identify the growing season)</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
@@ -708,10 +1168,17 @@ whether we expect irrigation to occur on paddies (based on the LAI, to identify 
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_21_0.png" src="../_images/_examples_update_model_water_demand_21_0.png" />
+</div>
+</div>
 <p>In this figure, we see the cells with paddy (rice fields) and non-paddy irrigated areas. Cells are identified as such when they exceed a fractional threshold of the cell (set by <code class="docutils literal notranslate"><span class="pre">area_threshold</span></code>). A cell can only be either paddy-irrigated, non-paddy-irrigated, or rain-fed. In the third panel, we see the crop factor associated for all of the model pixels.</p>
 <p>In the figures below, we show the irrigation trigger maps for three months: before the growing season, during the growing season, and in the closing stages of the growing season. A map with a mask (0/1) contains information whether irrigation is allowed to occur during this month.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
@@ -730,13 +1197,20 @@ whether we expect irrigation to occur on paddies (based on the LAI, to identify 
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_23_0.png" src="../_images/_examples_update_model_water_demand_23_0.png" />
+</div>
+</div>
 </section>
 <section id="Water-allocation-regions">
 <h3>Water allocation regions<a class="headerlink" href="#Water-allocation-regions" title="Link to this heading">#</a></h3>
 <p>To define regions where water can be shared and allocated, a merge between catchment and water areas or administrative boundaries is computed. These result in regions where wflow can allocate available water. No water allocation is supported between these regions. To give an impression on how these regions look like, see the following figures for an example.</p>
 <p>Note: Water areas or regions are generally defined by sub-river-basins within a Country. In order to mimick reality, it is advisable to avoid cross-Country-border abstractions. Whenever information is available, it is strongly recommended to align the water regions with the actual areas managed by water management authorities, such as regional water boards.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read original data and slice to model domain</span>
@@ -752,9 +1226,25 @@ whether we expect irrigation to occur on paddies (based on the LAI, to identify 
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: title={&#39;center&#39;: &#39;Allocation areas&#39;}&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_25_1.png" src="../_images/_examples_update_model_water_demand_25_1.png" />
+</div>
+</div>
 <p>When merging the wflow basins with the water regions, some small subbasins can be created that do not contain river cells. These small basins will be merged to larger basins. When merging, you can decide if you prefer to merge with the nearest downstream basin, or with any basin in the same water region that does contain river using the <code class="docutils literal notranslate"><span class="pre">priotity_basins</span></code> argument. In the previous map, we gave priority to the basins, here is the results if priority is given to water regions instead:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create allocations areas</span>
@@ -773,6 +1263,22 @@ whether we expect irrigation to occur on paddies (based on the LAI, to identify 
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: title={&#39;center&#39;: &#39;Allocation areas&#39;}&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_27_1.png" src="../_images/_examples_update_model_water_demand_27_1.png" />
+</div>
+</div>
 <p>Here we see a couple of distinct administrative boundaries (black lines), some of which already follow the catchment boundaries. When the catchment crosses an administrative boundary, that region receives a different but unique identifier. Note that we are using level 2 boundaries here, which might not be the most realistic for a region of this size.</p>
 </section>
 <section id="Surface-water-frac-used-for-water-allocation">
@@ -780,8 +1286,8 @@ whether we expect irrigation to occur on paddies (based on the LAI, to identify 
 <p>By default, Wflow will allocate all water demands with water from the surface water (frac_sw_used=1). However, if in a certain areas, groundwater or other non conventional sources can be used, the frac_sw_used of each allocation area can be reduced and prepared using the <strong>setup_allocation_surfacewaterfrac</strong> method.</p>
 <p>Here we used global data from GLOFAS (Lisflood) for the fraction of grounwater used, presence of groundwater bodies and non conventional sources (0 is Piave). The water allocations are the ones we prepared in the previous step in order to match better the wflow model basin delineation.</p>
 <p>Let’s have a look at the resulting map:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
@@ -792,6 +1298,22 @@ whether we expect irrigation to occur on paddies (based on the LAI, to identify 
 <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
 <span class="n">mod</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;rivers&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: title={&#39;center&#39;: &#39;Allocation surface water frac used&#39;}&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/_examples_update_model_water_demand_30_1.png" src="../_images/_examples_update_model_water_demand_30_1.png" />
 </div>
 </div>
 </section>

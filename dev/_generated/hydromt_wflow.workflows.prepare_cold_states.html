@@ -53,7 +53,7 @@
     <link rel="prev" title="hydromt_wflow.workflows.wflow_1dmodel_connection" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.6.2.dev0" />
+  <meta name="docsearch:version" content="0.7.1dev0" />
   </head>
   
   
@@ -616,35 +616,39 @@
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.prepare_cold_states">
 <span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">prepare_cold_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.10.1.dev0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.10.1.dev0)"><span class="pre">Dataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/states.html#prepare_cold_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.prepare_cold_states" title="Link to this definition">#</a></dt>
 <dd><p>Prepare cold states for Wflow.</p>
-<p>Compute cold states variables:
-* <strong>satwaterdepth</strong>: saturated store [mm]
-* <strong>snow</strong>: snow storage [mm]
-* <strong>tsoil</strong>: top soil temperature [°C]
-* <strong>ustorelayerdepth</strong>: amount of water in the unsaturated store, per layer [mm]
-* <strong>snowwater</strong>: liquid water content in the snow pack [mm]
-* <strong>canopystorage</strong>: canopy storage [mm]
-* <strong>q_river</strong>: river discharge [m3/s]
-* <strong>h_river</strong>: river water level [m]
-* <strong>h_av_river</strong>: river average water level [m]
-* <strong>ssf</strong>: subsurface flow [m3/d]
-* <strong>h_land</strong>: land water level [m]
-* <strong>h_av_land</strong>: land average water level[m]
-* <strong>q_land</strong> or <strong>qx_land**+**qy_land</strong>: overland flow for kinwave [m3/s] or</p>
-<blockquote>
-<div><p>overland flow in x/y directions for local-inertial [m3/s]</p>
-</div></blockquote>
-<p>If lakes, also adds:
-* <strong>waterlevel_lake</strong>: lake water level [m]</p>
-<p>If reservoirs, also adds:
-* <strong>volume_reservoir</strong>: reservoir volume [m3]</p>
-<p>If glaciers, also adds:
-* <strong>glacierstore</strong>: water within the glacier [mm]</p>
-<dl class="simple">
-<dt>If paddy, also adds:</dt><dd><ul class="simple">
+<p>Compute cold states variables:</p>
+<ul class="simple">
+<li><p><strong>satwaterdepth</strong>: saturated store [mm]</p></li>
+<li><p><strong>snow</strong>: snow storage [mm]</p></li>
+<li><p><strong>tsoil</strong>: top soil temperature [°C]</p></li>
+<li><p><strong>ustorelayerdepth</strong>: amount of water in the unsaturated store, per layer [mm]</p></li>
+<li><p><strong>snowwater</strong>: liquid water content in the snow pack [mm]</p></li>
+<li><p><strong>canopystorage</strong>: canopy storage [mm]</p></li>
+<li><p><strong>q_river</strong>: river discharge [m3/s]</p></li>
+<li><p><strong>h_river</strong>: river water level [m]</p></li>
+<li><p><strong>h_av_river</strong>: river average water level [m]</p></li>
+<li><p><strong>ssf</strong>: subsurface flow [m3/d]</p></li>
+<li><p><strong>h_land</strong>: land water level [m]</p></li>
+<li><p><strong>h_av_land</strong>: land average water level[m]</p></li>
+<li><p><strong>q_land</strong> or <strong>qx_land**+**qy_land</strong>: overland flow for kinwave [m3/s] or
+overland flow in x/y directions for local-inertial [m3/s]</p></li>
+</ul>
+<p>If lakes, also adds:</p>
+<ul class="simple">
+<li><p><strong>waterlevel_lake</strong>: lake water level [m]</p></li>
+</ul>
+<p>If reservoirs, also adds:</p>
+<ul class="simple">
+<li><p><strong>volume_reservoir</strong>: reservoir volume [m3]</p></li>
+</ul>
+<p>If glaciers, also adds:</p>
+<ul class="simple">
+<li><p><strong>glacierstore</strong>: water within the glacier [mm]</p></li>
+</ul>
+<p>If paddy, also adds:</p>
+<ul class="simple">
 <li><p><strong>h_paddy</strong>: water on the paddy fields [mm]</p></li>
 </ul>
-</dd>
-</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
