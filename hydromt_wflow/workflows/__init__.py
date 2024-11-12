@@ -6,6 +6,7 @@ from .demand import *
 from .forcing import *
 from .gauges import *
 from .glaciers import *
+from .groundwater import *
 from .landuse import *
 from .river import *
 from .rootzoneclim import *
