@@ -11,7 +11,7 @@ Unreleased
 
 Added
 -----
--
+- **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer.
 
 Changed
 -------

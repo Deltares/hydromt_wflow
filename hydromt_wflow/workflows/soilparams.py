@@ -163,3 +163,78 @@ def update_kvfrac(
             da_kvfrac.loc[dict(layer=idx)] = kvfrac
 
     return da_kvfrac
+
+
+def get_ksmax(KsatVer, sndppt):
+    """
+    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0 
+
+    Parameters
+    ----------
+    KsatVer : [xr.DataSet, float]
+        saturated hydraulic conductivity derived from PTF based on soil properties [cm/d].
+    sndppt : [xr.DataSet, float]
+        percentage sand [%].
+
+    Returns
+    -------
+    Ksmax : [xr.DataSet, float]
+        KsatVer with fully developped vegetation - depends on soil texture.
+
+    """
+    ksmax = 10**(3.5 - 1.5*sndppt**0.13 + np.log10(KsatVer))
+    return ksmax
+
+def get_ks_veg(ksmax, KsatVer, LAI, alfa=4.5, beta=5):
+    """
+    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0 
+
+    Parameters
+    ----------
+    ksmax : [xr.DataSet, float]
+        Saturated hydraulic conductivity with fully developed vegetation.
+    KsatVer : [xr.DataSet, float]
+        Saturated hydraulic conductivity [cm/d].
+    LAI : [xr.DataSet, float]
+        Leaf area index [-].
+    alfa : float, optional
+        Shape parameter. The default is 4.5 when using LAI.
+    beta : float, optional
+        Shape parameter. The default is 5 when using LAI.
+
+    Returns
+    -------
+    ks : [xr.DataSet, float]
+        saturated hydraulic conductivity based on soil and vegetation [cm/d].
+
+    """
+    ks = ksmax - (ksmax - KsatVer) / (1 + (LAI/alfa)**beta)
+    return ks
+
+def get_ksatver_vegetation(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
+    """
+    saturated hydraulic conductivity based on soil texture and vegetation [cm/d]
+    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0 
+
+        Parameters
+    ----------
+    KsatVer : [xr.DataSet, float]
+        Saturated hydraulic conductivity [cm/d].
+    sndppt : [xr.DataSet, float]
+        percentage sand [%].
+    LAI : [xr.DataSet, float]
+        Mean leaf area index [-].
+    alfa : float, optional
+        Shape parameter. The default is 4.5 when using LAI.
+    beta : float, optional
+        Shape parameter. The default is 5 when using LAI.
+
+    Returns
+    -------
+    ks : [xr.DataSet, float]
+        saturated hydraulic conductivity based on soil and vegetation [cm/d].
+
+    """
+    ksmax = get_ksmax(KsatVer, sndppt)
+    ks = get_ks_veg(ksmax, KsatVer, LAI, alfa, beta)
+    return ks

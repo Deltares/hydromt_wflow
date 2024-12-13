@@ -2132,6 +2132,70 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.set_grid(daout, name=lname)
         self.set_config("input.lateral.subsurface.ksathorfrac", lname)
 
+    def setup_ksatver_vegetation(
+        self,
+        soil_fn: str = "soilgrids",
+        alfa: float = 4.5,
+        beta: float = 5,
+    ):
+        """Calculates KsatVer parameter values from vegetation in addition to soil characteristics \
+        to account for biologically-promoted soil structure and heterogeneities in natural landscapes \
+        based on the work of Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0 
+
+        This method requires to have run setup_soilgrids and setup_lai first.
+
+        The following map is added to grid:
+
+        * **KsatVer_vegetation** map: saturated hydraulic conductivity considering vegetation characteristics [mm/d]
+
+        Parameters
+        ----------
+        soil_fn : {'soilgrids', 'soilgrids_2020'}
+            Name of RasterDataset source for soil parameter maps, see
+            data/data_sources.yml.
+            Should contain info for the sand percentage of the upper layer
+            * Required variable: 'sndppt_sl1' [%]
+        alfa : float, optional
+            Shape parameter. The default is 4.5 when using LAI.
+        beta : float, optional
+            Shape parameter. The default is 5 when using LAI.
+        """
+        self.logger.info("Modifying ksatver based on vegetation characteristics")
+
+        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
+        snd_ppt = dsin["sndppt_sl1"]
+        snd_ppt = snd_ppt.where(snd_ppt != snd_ppt._FillValue, np.nan)
+        # reproject to model resolution
+        snd_ppt = snd_ppt.raster.reproject_like(self.grid, method="average")
+        snd_ppt.raster.set_nodata(np.nan)
+        # interpolate to fill missing values
+        snd_ppt = snd_ppt.raster.interpolate_na("rio_idw")
+        # mask outside basin
+        snd_ppt = snd_ppt.where(self.grid["wflow_subcatch"] > 0)
+
+        # mean annual lai is required (see fig 1 in Bonetti et al. 2021)
+        LAI_mean = self.grid["LAI"].mean("time")
+        LAI_mean.raster.set_nodata(255.0)
+
+        # in function get_ksatver_vegetation KsatVer should be provided in cm/d
+        KSatVer_vegetation = workflows.get_ksatver_vegetation(
+            KsatVer=self.grid["KsatVer"] / 10,
+            sndppt=snd_ppt,
+            LAI=LAI_mean,
+            alfa=alfa,
+            beta=beta,
+        )
+
+        # convert back from cm/d to mm/d
+        KSatVer_vegetation = KSatVer_vegetation * 10
+        map_name = "KsatVer_vegetation"
+        KSatVer_vegetation.name = map_name
+
+        # add to grid
+        self.set_grid(KSatVer_vegetation, map_name)
+        # update config file
+        self.set_config("input.vertical.kv_0", map_name)
+
     def setup_lulcmaps_with_paddy(
         self,
         lulc_fn: Union[str, Path, xr.DataArray],
