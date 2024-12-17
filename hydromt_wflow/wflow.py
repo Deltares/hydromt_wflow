@@ -2170,7 +2170,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         sndppt = dsin["sndppt_sl1"]
 
         # in function get_ksatver_vegetation KsatVer should be provided in mm/d
-        KSatVer_vegetation = workflows.get_ksatver_vegetation(
+        KSatVer_vegetation = workflows.ksatver_vegetation(
             self,
             KsatVer=self.grid["KsatVer"],
             sndppt=sndppt,

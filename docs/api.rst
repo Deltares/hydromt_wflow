@@ -263,6 +263,7 @@ Wflow workflows
    workflows.lai_from_lulc_mapping
    workflows.add_paddy_to_landuse
    workflows.ksathorfrac
+   workflows.ksatver_vegetation
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey

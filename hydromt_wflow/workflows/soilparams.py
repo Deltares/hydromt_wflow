@@ -195,7 +195,7 @@ def get_ks_veg(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
     return ks
 
 
-def get_ksatver_vegetation(self, KsatVer, sndppt, LAI, alfa=4.5, beta=5):
+def ksatver_vegetation(self, KsatVer, sndppt, LAI, alfa=4.5, beta=5):
     """
     Calculate saturated hydraulic conductivity based on soil and vegetation [mm/d].
 
