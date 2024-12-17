@@ -310,18 +310,10 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
 
 
 def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
-    # Read the modeldata
-    model = "wflow"
-    example_wflow_model.read()
-
-    # Build the map
+    # Build the KsatVer vegetation map
     example_wflow_model.setup_ksatver_vegetation(
         soil_fn="soilgrids",
     )
-
-    # Set the output directory
-    destination = str(tmpdir.join(model))
-    example_wflow_model.set_root(destination, mode="w")
 
     # Check values
     values = example_wflow_model.grid.KsatVer_vegetation.raster.mask_nodata()
