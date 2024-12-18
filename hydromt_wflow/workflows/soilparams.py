@@ -4,6 +4,11 @@ import numpy as np
 import xarray as xr
 from hydromt import raster
 
+__all__ = [
+    "ksathorfrac",
+    "ksatver_vegetation",
+]
+
 
 def ksathorfrac(
     da: xr.DataArray,
@@ -195,7 +200,12 @@ def get_ks_veg(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
     return ks
 
 
-def ksatver_vegetation(self, KsatVer, sndppt, LAI, alfa=4.5, beta=5):
+def ksatver_vegetation(
+    ds_like: xr.Dataset,
+    sndppt: xr.Dataset,
+    alfa: float = 4.5,
+    beta: float = 5,
+) -> xr.DataArray:
     """
     Calculate saturated hydraulic conductivity based on soil and vegetation [mm/d].
 
@@ -203,12 +213,11 @@ def ksatver_vegetation(self, KsatVer, sndppt, LAI, alfa=4.5, beta=5):
 
     Parameters
     ----------
-    KsatVer : [xr.DataSet, float]
-        Saturated hydraulic conductivity based on soil only [mm/d].
+    ds_like : xr.Dataset
+        Dataset at model resolution.
+        The required variables in ds_like are LAI [-], KSatVer [mm/d] and wflow_subcatch
     sndppt : [xr.DataSet, float]
         percentage sand [%].
-    LAI : [xr.DataSet, float]
-        Mean leaf area index [-].
     alfa : float, optional
         Shape parameter. The default is 4.5 when using LAI.
     beta : float, optional
@@ -222,19 +231,21 @@ def ksatver_vegetation(self, KsatVer, sndppt, LAI, alfa=4.5, beta=5):
     """
     sndppt = sndppt.where(sndppt != sndppt._FillValue, np.nan)
     # reproject to model resolution
-    sndppt = sndppt.raster.reproject_like(self.grid, method="average")
+    sndppt = sndppt.raster.reproject_like(ds_like, method="average")
     sndppt.raster.set_nodata(np.nan)
     # interpolate to fill missing values
     sndppt = sndppt.raster.interpolate_na("rio_idw")
     # mask outside basin
-    sndppt = sndppt.where(self.grid["wflow_subcatch"] > 0)
+    sndppt = sndppt.where(ds_like["wflow_subcatch"] > 0)
 
     # mean annual lai is required (see fig 1 in Bonetti et al. 2021)
-    LAI_mean = self.grid["LAI"].mean("time")
+    LAI_mean = ds_like["LAI"].mean("time")
     LAI_mean.raster.set_nodata(255.0)
 
     # in this function, Ksatver should be provided in cm/d
-    KSatVer_vegetation = get_ks_veg(KsatVer / 10, sndppt, LAI_mean, alfa, beta)
+    KSatVer_vegetation = get_ks_veg(
+        ds_like["KsatVer"] / 10, sndppt, LAI_mean, alfa, beta
+    )
 
     # convert back from cm/d to mm/d
     KSatVer_vegetation = KSatVer_vegetation * 10

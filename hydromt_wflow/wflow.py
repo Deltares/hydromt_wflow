@@ -2166,21 +2166,19 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.logger.info("Modifying ksatver based on vegetation characteristics")
 
         # open soil dataset to get sand percentage
-        dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
-        sndppt = dsin["sndppt_sl1"]
+        sndppt = self.data_catalog.get_rasterdataset(
+            soil_fn, geom=self.region, buffer=2, variables=["sndppt_sl1"]
+        )
 
         # in function get_ksatver_vegetation KsatVer should be provided in mm/d
         KSatVer_vegetation = workflows.ksatver_vegetation(
-            self,
-            KsatVer=self.grid["KsatVer"],
+            ds_like=self.grid,
             sndppt=sndppt,
-            LAI=self.grid["LAI"],
             alfa=alfa,
             beta=beta,
         )
 
         map_name = "KsatVer_vegetation"
-        KSatVer_vegetation.name = map_name
 
         # add to grid
         self.set_grid(KSatVer_vegetation, map_name)
