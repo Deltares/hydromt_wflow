@@ -44,6 +44,7 @@ Setup components
    WflowModel.setup_other_demand
    WflowModel.setup_irrigation
    WflowModel.setup_ksathorfrac
+   WflowModel.setup_ksatver_vegetation
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
@@ -263,6 +264,7 @@ Wflow workflows
    workflows.lai_from_lulc_mapping
    workflows.add_paddy_to_landuse
    workflows.ksathorfrac
+   workflows.ksatver_vegetation
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey

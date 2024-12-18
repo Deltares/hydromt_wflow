@@ -309,6 +309,20 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     assert int(mean_val * 100) == 19991
 
 
+def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
+    # Build the KsatVer vegetation map
+    example_wflow_model.setup_ksatver_vegetation(
+        soil_fn="soilgrids",
+    )
+
+    # Check values
+    values = example_wflow_model.grid.KsatVer_vegetation.raster.mask_nodata()
+    max_val = values.max().values
+    mean_val = values.mean().values
+    assert int(max_val) == 4247
+    assert int(mean_val) == 1672
+
+
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read LAI data

@@ -4,6 +4,11 @@ import numpy as np
 import xarray as xr
 from hydromt import raster
 
+__all__ = [
+    "ksathorfrac",
+    "ksatver_vegetation",
+]
+
 
 def ksathorfrac(
     da: xr.DataArray,
@@ -163,3 +168,85 @@ def update_kvfrac(
             da_kvfrac.loc[dict(layer=idx)] = kvfrac
 
     return da_kvfrac
+
+
+def get_ks_veg(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
+    """
+    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
+
+    Parameters
+    ----------
+    KsatVer : [xr.DataSet, float]
+        saturated hydraulic conductivity from PTF based on soil properties [cm/d].
+    sndppt : [xr.DataSet, float]
+        percentage sand [%].
+    LAI : [xr.DataSet, float]
+        Mean annual leaf area index [-].
+    alfa : float, optional
+        Shape parameter. The default is 4.5 when using LAI.
+    beta : float, optional
+        Shape parameter. The default is 5 when using LAI.
+
+    Returns
+    -------
+    ks : [xr.DataSet, float]
+        saturated hydraulic conductivity based on soil and vegetation [cm/d].
+
+    """
+    # get the saturated hydraulic conductivity with fully developed vegetation.
+    ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(KsatVer))
+    # get the saturated hydraulic conductivity based on soil and vegetation mean LAI
+    ks = ksmax - (ksmax - KsatVer) / (1 + (LAI / alfa) ** beta)
+    return ks
+
+
+def ksatver_vegetation(
+    ds_like: xr.Dataset,
+    sndppt: xr.Dataset,
+    alfa: float = 4.5,
+    beta: float = 5,
+) -> xr.DataArray:
+    """
+    Calculate saturated hydraulic conductivity based on soil and vegetation [mm/d].
+
+    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
+
+    Parameters
+    ----------
+    ds_like : xr.Dataset
+        Dataset at model resolution.
+        The required variables in ds_like are LAI [-], KSatVer [mm/d] and wflow_subcatch
+    sndppt : [xr.DataSet, float]
+        percentage sand [%].
+    alfa : float, optional
+        Shape parameter. The default is 4.5 when using LAI.
+    beta : float, optional
+        Shape parameter. The default is 5 when using LAI.
+
+    Returns
+    -------
+    ks : [xr.DataSet, float]
+        saturated hydraulic conductivity based on soil and vegetation [mm/d].
+
+    """
+    sndppt = sndppt.where(sndppt != sndppt._FillValue, np.nan)
+    # reproject to model resolution
+    sndppt = sndppt.raster.reproject_like(ds_like, method="average")
+    sndppt.raster.set_nodata(np.nan)
+    # interpolate to fill missing values
+    sndppt = sndppt.raster.interpolate_na("rio_idw")
+    # mask outside basin
+    sndppt = sndppt.where(ds_like["wflow_subcatch"] > 0)
+
+    # mean annual lai is required (see fig 1 in Bonetti et al. 2021)
+    LAI_mean = ds_like["LAI"].mean("time")
+    LAI_mean.raster.set_nodata(255.0)
+
+    # in this function, Ksatver should be provided in cm/d
+    KSatVer_vegetation = get_ks_veg(
+        ds_like["KsatVer"] / 10, sndppt, LAI_mean, alfa, beta
+    )
+
+    # convert back from cm/d to mm/d
+    KSatVer_vegetation = KSatVer_vegetation * 10
+    return KSatVer_vegetation

@@ -58,6 +58,8 @@ a specific method see its documentation.
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
     * - :py:func:`~WflowModel.setup_ksathorfrac`
       - This component prepares ksathorfrac from existing ksathorfrac data.
+    * - :py:func:`~WflowModel.setup_ksatver_vegetation`
+      - This component prepares ksatver from soil and vegetation parameters.
     * - :py:func:`~WflowModel.setup_rootzoneclim`
       - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
     * - :py:func:`~WflowModel.setup_outlets`
