@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>hydromt_wflow.utils.get_grid_from_config &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.WflowModel.setup_ksatver_vegetation &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -45,12 +45,12 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.utils.get_grid_from_config';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Developments" href="../dev_guide/intro.html" />
-    <link rel="prev" title="hydromt_wflow.pcrm.write_staticmaps_pcr" href="hydromt_wflow.pcrm.write_staticmaps_pcr.html" />
+    <link rel="next" title="hydromt_wflow.WflowModel.setup_rootzoneclim" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html" />
+    <link rel="prev" title="hydromt_wflow.WflowModel.setup_ksathorfrac" href="hydromt_wflow.WflowModel.setup_ksathorfrac.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.7.1dev0" />
@@ -366,7 +366,7 @@
   <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.html">hydromt_wflow.WflowModel</a></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config.html">hydromt_wflow.WflowModel.setup_config</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_basemaps.html">hydromt_wflow.WflowModel.setup_basemaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rivers.html">hydromt_wflow.WflowModel.setup_rivers</a></li>
@@ -384,7 +384,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_other_demand.html">hydromt_wflow.WflowModel.setup_other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_irrigation.html">hydromt_wflow.WflowModel.setup_irrigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksathorfrac.html">hydromt_wflow.WflowModel.setup_ksathorfrac</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksatver_vegetation.html">hydromt_wflow.WflowModel.setup_ksatver_vegetation</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html">hydromt_wflow.WflowModel.setup_rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_outlets.html">hydromt_wflow.WflowModel.setup_outlets</a></li>
@@ -555,8 +555,8 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.pcrm.read_staticmaps_pcr.html">hydromt_wflow.pcrm.read_staticmaps_pcr</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.pcrm.write_staticmaps_pcr.html">hydromt_wflow.pcrm.write_staticmaps_pcr</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.utils.get_grid_from_config</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
 </ul>
 </div>
 </nav></div>
@@ -595,7 +595,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.utils.get_grid_from_config</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.WflowModel.setup_ksatver_vegetation</span></li>
   </ul>
 </nav>
 </div>
@@ -612,40 +612,30 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="hydromt-wflow-utils-get-grid-from-config">
-<h1>hydromt_wflow.utils.get_grid_from_config<a class="headerlink" href="#hydromt-wflow-utils-get-grid-from-config" title="Link to this heading">#</a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="hydromt_wflow.utils.get_grid_from_config">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.utils.</span></span><span class="sig-name descname"><span class="pre">get_grid_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.11.1.dev0)"><span class="pre">Dataset</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fallback</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-9999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><span class="pre">DataArray</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/utils.html#get_grid_from_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.utils.get_grid_from_config" title="Link to this definition">#</a></dt>
-<dd><p>Get actual grid values from config including scale and offset.</p>
-<p>Calls get_config and applies value, scale and offset if available.</p>
+  <section id="hydromt-wflow-wflowmodel-setup-ksatver-vegetation">
+<h1>hydromt_wflow.WflowModel.setup_ksatver_vegetation<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-ksatver-vegetation" title="Link to this heading">#</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_ksatver_vegetation">
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_ksatver_vegetation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alfa</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_ksatver_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_ksatver_vegetation" title="Link to this definition">#</a></dt>
+<dd><p>Calculate KsatVer values from vegetation in addition to soil characteristics.</p>
+<p>This allows to account for biologically-promoted soil structure and         heterogeneities in natural landscapes based on the work of         Bonetti et al. (2021) <a class="reference external" href="https://www.nature.com/articles/s43247-021-00180-0">https://www.nature.com/articles/s43247-021-00180-0</a>.</p>
+<p>This method requires to have run setup_soilgrids and setup_lai first.</p>
+<p>The following map is added to grid:</p>
+<ul class="simple">
+<li><p><strong>KsatVer_vegetation</strong> map: saturated hydraulic conductivity considering         vegetation characteristics [mm/d]</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em> or </em><em>string</em>) – keys can given by multiple args: (‘key1’, ‘key2’)
-or a string with ‘.’ indicating a new level: (‘key1.key2’)</p></li>
-<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – config dict to get the values from.</p></li>
-<li><p><strong>grid</strong> (<em>xr.Dataset</em>) – grid dataset to get the values from.</p></li>
-<li><p><strong>fallback</strong> (<em>any</em><em>, </em><em>optional</em>) – fallback value if key(s) not found in config, by default None.</p></li>
-<li><p><strong>abs_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True return the absolute path relative to the model root,
-by default False.</p></li>
-<li><p><strong>nodata</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – nodata value to use for the DataArray, by default -9999. Used only if the
-variable in config is described using value only.</p></li>
-<li><p><strong>mask_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the mask variable in grid. Used only if the variable in config is
-described using value only.</p></li>
+<li><p><strong>soil_fn</strong> (<em>{'soilgrids'</em><em>, </em><em>'soilgrids_2020'}</em>) – Name of RasterDataset source for soil parameter maps, see
+data/data_sources.yml.
+Should contain info for the sand percentage of the upper layer
+* Required variable: ‘sndppt_sl1’ [%]</p></li>
+<li><p><strong>alfa</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Shape parameter. The default is 4.5 when using LAI.</p></li>
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Shape parameter. The default is 5 when using LAI.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>da</strong> – DataArray with actual grid values</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>xr.DataArray</p>
-</dd>
 </dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_config</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">hydromt.workflows.grid.grid_from_constant</span></code></p>
-</div>
 </dd></dl>
 
 </section>
@@ -661,20 +651,20 @@ described using value only.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.pcrm.write_staticmaps_pcr.html"
+       href="hydromt_wflow.WflowModel.setup_ksathorfrac.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.pcrm.write_staticmaps_pcr</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_ksathorfrac</p>
       </div>
     </a>
     <a class="right-next"
-       href="../dev_guide/intro.html"
+       href="hydromt_wflow.WflowModel.setup_rootzoneclim.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Developments</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_rootzoneclim</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -697,7 +687,7 @@ described using value only.</p></li>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.utils.get_grid_from_config"><code class="docutils literal notranslate"><span class="pre">get_grid_from_config()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.WflowModel.setup_ksatver_vegetation"><code class="docutils literal notranslate"><span class="pre">WflowModel.setup_ksatver_vegetation()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -705,7 +695,7 @@ described using value only.</p></li>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.utils.get_grid_from_config.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -720,7 +710,7 @@ described using value only.</p></li>
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/_generated/hydromt_wflow.utils.get_grid_from_config.rst.txt">
+    <a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

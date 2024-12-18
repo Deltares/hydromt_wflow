@@ -49,7 +49,7 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.soilgrids" href="hydromt_wflow.workflows.soilgrids.html" />
+    <link rel="next" title="hydromt_wflow.workflows.ksatver_vegetation" href="hydromt_wflow.workflows.ksatver_vegetation.html" />
     <link rel="prev" title="hydromt_wflow.workflows.add_paddy_to_landuse" href="hydromt_wflow.workflows.add_paddy_to_landuse.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -384,6 +384,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_other_demand.html">hydromt_wflow.WflowModel.setup_other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_irrigation.html">hydromt_wflow.WflowModel.setup_irrigation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksathorfrac.html">hydromt_wflow.WflowModel.setup_ksathorfrac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksatver_vegetation.html">hydromt_wflow.WflowModel.setup_ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html">hydromt_wflow.WflowModel.setup_rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html">hydromt_wflow.WflowModel.setup_soilmaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_outlets.html">hydromt_wflow.WflowModel.setup_outlets</a></li>
@@ -535,6 +536,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.ksathorfrac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_brooks_corey.html">hydromt_wflow.workflows.soilgrids_brooks_corey</a></li>
@@ -614,7 +616,7 @@
 <h1>hydromt_wflow.workflows.ksathorfrac<a class="headerlink" href="#hydromt-wflow-workflows-ksathorfrac" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.ksathorfrac">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">ksathorfrac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">da</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.10.1.dev0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.10.1.dev0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.10.1.dev0)"><span class="pre">DataArray</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilparams.html#ksathorfrac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.ksathorfrac" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">ksathorfrac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">da</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2024.11.1.dev0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><span class="pre">DataArray</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilparams.html#ksathorfrac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.ksathorfrac" title="Link to this definition">#</a></dt>
 <dd><p>Create KsatHorfrac map.</p>
 <p>Based on the data properties of the WflowModel.</p>
 <dl class="field-list simple">
@@ -656,11 +658,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.workflows.soilgrids.html"
+       href="hydromt_wflow.workflows.ksatver_vegetation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.soilgrids</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.ksatver_vegetation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

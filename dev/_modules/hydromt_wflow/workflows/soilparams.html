@@ -410,6 +410,11 @@
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 <span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">raster</span>
 
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ksathorfrac&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ksatver_vegetation&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
 
 <div class="viewcode-block" id="ksathorfrac">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.ksathorfrac.html#hydromt_wflow.workflows.ksathorfrac">[docs]</a>
@@ -572,6 +577,91 @@
             <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">idx</span><span class="p">)]</span> <span class="o">=</span> <span class="n">kvfrac</span>
 
     <span class="k">return</span> <span class="n">da_kvfrac</span>
+
+
+<span class="k">def</span> <span class="nf">get_ks_veg</span><span class="p">(</span><span class="n">KsatVer</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI</span><span class="p">,</span> <span class="n">alfa</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    KsatVer : [xr.DataSet, float]</span>
+<span class="sd">        saturated hydraulic conductivity from PTF based on soil properties [cm/d].</span>
+<span class="sd">    sndppt : [xr.DataSet, float]</span>
+<span class="sd">        percentage sand [%].</span>
+<span class="sd">    LAI : [xr.DataSet, float]</span>
+<span class="sd">        Mean annual leaf area index [-].</span>
+<span class="sd">    alfa : float, optional</span>
+<span class="sd">        Shape parameter. The default is 4.5 when using LAI.</span>
+<span class="sd">    beta : float, optional</span>
+<span class="sd">        Shape parameter. The default is 5 when using LAI.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ks : [xr.DataSet, float]</span>
+<span class="sd">        saturated hydraulic conductivity based on soil and vegetation [cm/d].</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get the saturated hydraulic conductivity with fully developed vegetation.</span>
+    <span class="n">ksmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.5</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">sndppt</span><span class="o">**</span><span class="mf">0.13</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KsatVer</span><span class="p">))</span>
+    <span class="c1"># get the saturated hydraulic conductivity based on soil and vegetation mean LAI</span>
+    <span class="n">ks</span> <span class="o">=</span> <span class="n">ksmax</span> <span class="o">-</span> <span class="p">(</span><span class="n">ksmax</span> <span class="o">-</span> <span class="n">KsatVer</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">LAI</span> <span class="o">/</span> <span class="n">alfa</span><span class="p">)</span> <span class="o">**</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ks</span>
+
+
+<div class="viewcode-block" id="ksatver_vegetation">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.ksatver_vegetation.html#hydromt_wflow.workflows.ksatver_vegetation">[docs]</a>
+<span class="k">def</span> <span class="nf">ksatver_vegetation</span><span class="p">(</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">sndppt</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">alfa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">,</span>
+    <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate saturated hydraulic conductivity based on soil and vegetation [mm/d].</span>
+
+<span class="sd">    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">        The required variables in ds_like are LAI [-], KSatVer [mm/d] and wflow_subcatch</span>
+<span class="sd">    sndppt : [xr.DataSet, float]</span>
+<span class="sd">        percentage sand [%].</span>
+<span class="sd">    alfa : float, optional</span>
+<span class="sd">        Shape parameter. The default is 4.5 when using LAI.</span>
+<span class="sd">    beta : float, optional</span>
+<span class="sd">        Shape parameter. The default is 5 when using LAI.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ks : [xr.DataSet, float]</span>
+<span class="sd">        saturated hydraulic conductivity based on soil and vegetation [mm/d].</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sndppt</span> <span class="o">!=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">_FillValue</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="c1"># reproject to model resolution</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="c1"># interpolate to fill missing values</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">&quot;rio_idw&quot;</span><span class="p">)</span>
+    <span class="c1"># mask outside basin</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># mean annual lai is required (see fig 1 in Bonetti et al. 2021)</span>
+    <span class="n">LAI_mean</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">LAI_mean</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mf">255.0</span><span class="p">)</span>
+
+    <span class="c1"># in this function, Ksatver should be provided in cm/d</span>
+    <span class="n">KSatVer_vegetation</span> <span class="o">=</span> <span class="n">get_ks_veg</span><span class="p">(</span>
+        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;KsatVer&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI_mean</span><span class="p">,</span> <span class="n">alfa</span><span class="p">,</span> <span class="n">beta</span>
+    <span class="p">)</span>
+
+    <span class="c1"># convert back from cm/d to mm/d</span>
+    <span class="n">KSatVer_vegetation</span> <span class="o">=</span> <span class="n">KSatVer_vegetation</span> <span class="o">*</span> <span class="mi">10</span>
+    <span class="k">return</span> <span class="n">KSatVer_vegetation</span></div>
+
 </pre></div>
 
                 </article>

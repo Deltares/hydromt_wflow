@@ -2585,6 +2585,62 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.lateral.subsurface.ksathorfrac&quot;</span><span class="p">,</span> <span class="n">lname</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_ksatver_vegetation">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation.html#hydromt_wflow.WflowModel.setup_ksatver_vegetation">[docs]</a>
+    <span class="k">def</span> <span class="nf">setup_ksatver_vegetation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
+        <span class="n">alfa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">,</span>
+        <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate KsatVer values from vegetation in addition to soil characteristics.</span>
+
+<span class="sd">        This allows to account for biologically-promoted soil structure and \</span>
+<span class="sd">        heterogeneities in natural landscapes based on the work of \</span>
+<span class="sd">        Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.</span>
+
+<span class="sd">        This method requires to have run setup_soilgrids and setup_lai first.</span>
+
+<span class="sd">        The following map is added to grid:</span>
+
+<span class="sd">        * **KsatVer_vegetation** map: saturated hydraulic conductivity considering \</span>
+<span class="sd">        vegetation characteristics [mm/d]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        soil_fn : {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
+<span class="sd">            Name of RasterDataset source for soil parameter maps, see</span>
+<span class="sd">            data/data_sources.yml.</span>
+<span class="sd">            Should contain info for the sand percentage of the upper layer</span>
+<span class="sd">            * Required variable: &#39;sndppt_sl1&#39; [%]</span>
+<span class="sd">        alfa : float, optional</span>
+<span class="sd">            Shape parameter. The default is 4.5 when using LAI.</span>
+<span class="sd">        beta : float, optional</span>
+<span class="sd">            Shape parameter. The default is 5 when using LAI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Modifying ksatver based on vegetation characteristics&quot;</span><span class="p">)</span>
+
+        <span class="c1"># open soil dataset to get sand percentage</span>
+        <span class="n">sndppt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_rasterdataset</span><span class="p">(</span>
+            <span class="n">soil_fn</span><span class="p">,</span> <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">buffer</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sndppt_sl1&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># in function get_ksatver_vegetation KsatVer should be provided in mm/d</span>
+        <span class="n">KSatVer_vegetation</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">ksatver_vegetation</span><span class="p">(</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">sndppt</span><span class="o">=</span><span class="n">sndppt</span><span class="p">,</span>
+            <span class="n">alfa</span><span class="o">=</span><span class="n">alfa</span><span class="p">,</span>
+            <span class="n">beta</span><span class="o">=</span><span class="n">beta</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">map_name</span> <span class="o">=</span> <span class="s2">&quot;KsatVer_vegetation&quot;</span>
+
+        <span class="c1"># add to grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">KSatVer_vegetation</span><span class="p">,</span> <span class="n">map_name</span><span class="p">)</span>
+        <span class="c1"># update config file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;input.vertical.kv_0&quot;</span><span class="p">,</span> <span class="n">map_name</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="WflowModel.setup_lulcmaps_with_paddy">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy">[docs]</a>
     <span class="k">def</span> <span class="nf">setup_lulcmaps_with_paddy</span><span class="p">(</span>
