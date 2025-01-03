@@ -738,7 +738,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
     )
 
-def test_setup_precip_from_point_timeseries(example_wflow_model, df_precip, gdf_stations):
+def test_setup_precip_from_point_timeseries(example_wflow_model, df_precip, gdf_precip_stations):
     # with corresponding mean values per interpolation type
     # TODO: expand test
     interp_types = {

@@ -5,11 +5,12 @@ import platform
 from os.path import abspath, dirname, join
 
 import geopandas as gpd
+import pandas as pd
 import numpy as np
 import pytest
 import xarray as xr
 from hydromt.cli.cli_utils import parse_config
-from shapely.geometry import box
+from shapely.geometry import box, Point
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 
@@ -143,6 +144,18 @@ def rivers1d():
     )
     return data
 
+@pytest.fixture()
+def df_precip():
+    np.random.seed(42)
+    data = np.random.rand(3, 10)
+    df = pd.Dataframe(data=data, index=[1, 2, 3], columns='precip')
+    return df
+
+@pytest.fixture()
+def gdf_precip_stations():
+    geometry = [Point(0, 0), Point(0, 0), Point(0, 0)]
+    gdf = gpd.GeoDataFrame(data=None, index=[1, 2, 3], geometry=geometry, crs="EPSG:4326")
+    return gdf
 
 @pytest.fixture()
 def da_pet(example_wflow_model):
