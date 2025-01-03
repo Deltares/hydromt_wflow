@@ -80,7 +80,7 @@ def pet(
 
 def spatial_interpolation(
     forcing: pd.DataFrame,
-    stations: gpd.GeoDataframe,
+    stations: gpd.GeoDataFrame,
     interp_type: str,
     hres: float,
     *kwargs: Optional[dict],

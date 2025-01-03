@@ -152,9 +152,8 @@ def df_precip():
         start="2010-02-01T00:00:00", end="2010-03-01T00:00:00", freq="D"
     )
     data = np.random.rand(3, len(time))
-    df = pd.Dataframe(data=data, columns=[1, 2, 3], index=time)
+    df = pd.DataFrame(data=data, columns=[1, 2, 3], index=time)
     return df
-
 
 @pytest.fixture()
 def gdf_precip_stations():
