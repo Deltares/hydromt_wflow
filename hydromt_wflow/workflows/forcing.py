@@ -14,6 +14,17 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["pet"]
 
+interpolation_supported = {
+        # SciPy
+        "nearest": None,
+        "linear": None,
+        "cubic": None,
+        "rbf": ["rbf_func", "rbf_smooth"],
+        # MetPy
+        "natural_neighbor": None,
+        "cresmann": ["minimum_neighbors", "search_radius"],
+        "barnes": ["minimum_neighbours", "search_radius", "gamma", "kappa_star"],    
+        }
 
 def pet(
     pet: xr.DataArray,
@@ -96,17 +107,12 @@ def spatial_interpolation(
             These will be skipped during interpolation.
             Consider replacing NaN with 0 to include missing observations."""
         )
-    interp_supported = {"nearest": None,
-                   "linear": None,
-                   "cubic": None,
-                   "rbf": ["rbf_func", "rbf_smooth"],
-                   }
     
-    if interp_type not in interp_supported.keys():
+    if interp_type not in interpolation_supported.keys():
         raise ValueError(f"Interpolation type {interp_type} not recognized.")
-    elif interp_supported[interp_type]:
+    elif interpolation_supported[interp_type]:
         interp_args = ", ".join(
-            [f"{key}={kwargs[key]}" for key in interp_supported[interp_type]]
+            [f"{key}={kwargs[key]}" for key in interpolation_supported[interp_type]]
         )
         logger.info(
             f"Using interpolation type: {interp_type} with arguments: {interp_args}."
