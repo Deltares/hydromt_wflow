@@ -2747,6 +2747,8 @@ one variable and variables list is not provided."
         **kwargs
             Additional keyword arguments passed to the MetPy interpolation function.
             https://unidata.github.io/MetPy/latest/api/generated/metpy.interpolate.interpolate_to_grid.html#metpy.interpolate.interpolate_to_grid
+
+            TODO improve links in docstrings and add examples
         """
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
@@ -2787,7 +2789,7 @@ one variable and variables list is not provided."
             raise ValueError(f"Data source {precip_fn} not recognized.")
         df_precip = df_precip.astype("float32")
 
-        # code below is copied from setup_gauges, maybe consider using shared function?
+        # TODO code below is copied from setup_gauges, maybe consider shared function?
         if isinstance(precip_stations_fn, gpd.GeoDataFrame):
             gdf_stations = precip_stations_fn
             if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
@@ -2837,13 +2839,30 @@ one variable and variables list is not provided."
                     instead of GeoDataFrame or GeoDataset)."""
                 )
         elif precip_stations_fn is None:
-            # TODO: use df_precip = self.data_catalog.get_geodataframe when no stations
+            # TODO: support GeoDatasets
             raise NotImplementedError(
                 """Reading station timeseries without providing precip_stations_fn \
                 is not supported."""
             )
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
+
+        mismatched_stations = set(df_precip.columns) ^ set(gdf_stations.index)
+        if mismatched_stations:
+            logger.warning(
+                f"""{len(mismatched_stations)} mismatched stations in
+                           {precip_fn} and {precip_stations_fn} are being dropped:
+                           {mismatched_stations}"""
+            )
+            df_precip = df_precip.drop(columns=mismatched_stations, errors="ignore")
+            gdf_stations = gdf_stations.drop(index=mismatched_stations, errors="ignore")
+
+        if len(df_precip) == 0:
+            logger.error(
+                """No precipitation data remaining. \
+                         Continuing model building without precipitation forcing."""
+            )
+            return
 
         precip = workflows.forcing.spatial_interpolation(
             forcing=df_precip, stations=gdf_stations, interp_type=interp_type, hres=hres

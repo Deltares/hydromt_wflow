@@ -97,6 +97,8 @@ def spatial_interpolation(
             Consider replacing NaN with 0 to include missing observations."""
         )
 
+    # TODO adding checks and logging depending on the different interpolation types?
+
     for timestep, observations in forcing.iterrows():
         z = observations.values
         x, y, z = remove_nan_observations(x=x, y=y, z=z)
