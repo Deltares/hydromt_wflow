@@ -151,7 +151,7 @@ def df_precip():
     time = pd.date_range(
         start="2010-02-01T00:00:00", end="2010-03-01T00:00:00", freq="D"
     )
-    data = np.random.rand(3, len(time))
+    data = np.random.rand(len(time), 3)
     df = pd.DataFrame(data=data, columns=[1, 2, 3], index=time)
     return df
 

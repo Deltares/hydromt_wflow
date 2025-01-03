@@ -2771,12 +2771,12 @@ one variable and variables list is not provided."
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
-        if self.res[0] != self.res[1]:
+        if np.abs(self.res[0]) != np.abs(self.res[1]):
             logger.warning(
                 f"""Mismatch in horizontal and vertical resolution ({self.res}), \
                     using lowest resolution during interpolation by MetPy."""
             )
-        hres = min(self.res)
+        hres = min(np.abs(self.res))
 
         # load precipitation data
         if isinstance(precip_fn, pd.DataFrame):
@@ -2864,6 +2864,9 @@ one variable and variables list is not provided."
             )
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
+        
+        # transform station coordinates to model crs
+        gdf_stations = gdf_stations.set_crs(self.crs)
 
         # check matches between precip and stations and pass to interpolation workflow
         mismatched_stations = set(df_precip.columns) ^ set(gdf_stations.index)
@@ -2884,8 +2887,17 @@ one variable and variables list is not provided."
             return
 
         precip = workflows.forcing.spatial_interpolation(
-            forcing=df_precip, stations=gdf_stations, interp_type=interp_type, hres=hres
+            forcing=df_precip,
+            stations=gdf_stations,
+            interp_type=interp_type,
+            hres=hres,
+            **kwargs
         )
+        # Include model CRS and rename coordinates to match model
+        precip.raster.set_crs(self.crs)
+        precip = precip.rename({
+            "x": self.grid.raster.x_dim,
+            "y": self.grid.raster.y_dim})
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
@@ -2899,6 +2911,7 @@ one variable and variables list is not provided."
 
         # Update meta attributes (used for default output filename later)
         precip_out.attrs.update({"precip_fn": precip_fn})
+        precip_out = precip_out.astype("float32")
         self.set_forcing(precip_out.where(mask), name="precip")
 
     def setup_temp_pet_forcing(

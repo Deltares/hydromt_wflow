@@ -94,8 +94,52 @@ def spatial_interpolation(
     stations: gpd.GeoDataFrame,
     interp_type: str,
     hres: float,
-    *kwargs: Optional[dict],
+    rbf_func: Optional[str] = 'linear',
+    rbf_smooth: Optional[float] = 0,
+    minimum_neighbours: Optional[int] = 3,
+    search_radius: Optional[float] = None,
+    gamma: Optional[float] = 0.25,
+    kappa_star: Optional[float] = 5.052,
 ) -> xr.DataArray:
+    """
+    Interpolate spatial forcing data from station observations to a regular grid.
+
+    Parameters
+    ----------
+    forcing : pd.DataFrame
+        DataFrame containing the forcing data with time as index and stations as columns.
+    stations : gpd.GeoDataFrame
+        GeoDataFrame containing the station locations with geometry column.
+    interp_type : str
+        Type of interpolation to use. Supported types are "nearest", "linear", "cubic",
+        "rbf", "natural_neighbor", "cresmann", and "barnes".
+    hres : float
+        Horizontal resolution of the output grid.
+    rbf_func : str, optional
+        Specifies which function to use for Rbf interpolation. Options include:
+        'multiquadric', 'inverse', 'gaussian', 'linear', 'cubic', 'quintic', and
+        'thin_plate'. Default is 'linear'.
+    rbf_smooth : float, optional
+        Smoothing value applied to rbf interpolation. Higher values result in more
+        smoothing. Default is 0.
+    minimum_neighbours : int, optional
+        Minimum number of neighbors needed to perform Barnes or Cressman interpolation
+        for a point. Default is 3.
+    search_radius : float, optional
+        A search radius to use for the Barnes and Cressman interpolation schemes.
+        If search_radius is not specified, it will default to 5 times the average
+        spacing of observations.
+    gamma : float, optional
+        Adjustable smoothing parameter for the barnes interpolation. Default is 0.25.
+    kappa_star : float, optional
+        Response parameter for barnes interpolation, specified nondimensionally
+        in terms of the Nyquist. Default is 5.052.
+
+    Returns
+    -------
+    xr.DataArray
+        Interpolated forcing data on a regular grid with dimensions (time, y, x).
+    """
     x = stations.geometry.x
     y = stations.geometry.y
     time = forcing.index
@@ -110,13 +154,27 @@ def spatial_interpolation(
     
     if interp_type not in interpolation_supported.keys():
         raise ValueError(f"Interpolation type {interp_type} not recognized.")
+    
     elif interpolation_supported[interp_type]:
+        # Create a dictionary of the arguments to show in logging
+        interp_args_dict = {
+            "rbf_func": rbf_func,
+            "rbf_smooth": rbf_smooth,
+            "minimum_neighbors": minimum_neighbours,
+            "search_radius": search_radius,
+            "gamma": gamma,
+            "kappa_star": kappa_star
+        }
+        
+        # Filter the arguments based on the interpolation type
         interp_args = ", ".join(
-            [f"{key}={kwargs[key]}" for key in interpolation_supported[interp_type]]
+            [f"{key}={interp_args_dict[key]}" for
+            key in interpolation_supported[interp_type]]
         )
         logger.info(
             f"Using interpolation type: {interp_type} with arguments: {interp_args}."
         )
+
     else:
         logger.info(f"Using interpolation type: {interp_type}.")
 
@@ -124,7 +182,17 @@ def spatial_interpolation(
         z = observations.values
         x, y, z = remove_nan_observations(x=x, y=y, z=z)
         grid_x, grid_y, img = interpolate_to_grid(
-            x=x, y=y, z=z, interp_type=interp_type, hres=hres, **kwargs
+            x=x,
+            y=y,
+            z=z,
+            interp_type=interp_type,
+            hres=hres,
+            rbf_func=rbf_func,
+            rbf_smooth=rbf_smooth,
+            minimum_neighbors=minimum_neighbours,
+            search_radius=search_radius,
+            kappa_star=kappa_star,
+            gamma=gamma
         )
         data.append(img)
 
