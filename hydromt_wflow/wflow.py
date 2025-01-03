@@ -2723,7 +2723,7 @@ one variable and variables list is not provided."
         interp_type: str = "nearest",
         **kwargs,
     ) -> None:
-        """Generate gridded precipitation forcing from point timeseries.
+        """Generate gridded precipitation from point timeseries (requires MetPy).
 
         Adds model layer:
 
@@ -2758,10 +2758,11 @@ one variable and variables list is not provided."
         if self.res[0] != self.res[1]:
             logger.warning(
                 f"""Mismatch in horizontal and vertical resolution ({self.res}), \
-                    using lowest resolution during interpolation."""
+                    using lowest resolution during interpolation by MetPy."""
             )
         hres = min(self.res)
 
+        # load precipitation data
         if isinstance(precip_fn, pd.DataFrame):
             df_precip = precip_fn
         elif isfile(precip_fn):
@@ -2789,6 +2790,7 @@ one variable and variables list is not provided."
             raise ValueError(f"Data source {precip_fn} not recognized.")
         df_precip = df_precip.astype("float32")
 
+        # load the stations and their coordinates
         # TODO code below is copied from setup_gauges, maybe consider shared function?
         if isinstance(precip_stations_fn, gpd.GeoDataFrame):
             gdf_stations = precip_stations_fn
@@ -2847,6 +2849,7 @@ one variable and variables list is not provided."
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
 
+        # check matches between precip and stations and pass to interpolation workflow
         mismatched_stations = set(df_precip.columns) ^ set(gdf_stations.index)
         if mismatched_stations:
             logger.warning(
@@ -2867,8 +2870,6 @@ one variable and variables list is not provided."
         precip = workflows.forcing.spatial_interpolation(
             forcing=df_precip, stations=gdf_stations, interp_type=interp_type, hres=hres
         )
-        precip.name = "precip"
-        precip.attrs.update(unit="mm")
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
