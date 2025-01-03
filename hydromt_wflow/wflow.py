@@ -2729,6 +2729,22 @@ one variable and variables list is not provided."
 
         * **precip**: precipitation [mm]
 
+        Supported interpolation methods:
+        * linear: Performs linear interpolation between data points.
+        *nearest: Assigns the value of the nearest data point (nearest neighbour).
+        *cubic: Uses cubic interpolation for smoother curves.
+        *rbf: Applies Radial Basis Function interpolation for smooth, multidimensional \
+            interpolation. Keyword arguments: [rbf_func, rbf_smooth]
+        * natural_neighbor: Uses a weighted average of surrounding points based \
+            on their proximity and area influence following Liang and Hale (2010).
+        *cresmann: Inverse Distance Weighing approach following Cerman (1959). \
+            It uses the ratio of observation distance to maximum allowable distance \
+            for interpolation. Keyword arguments: [minimum_neighbors, search_radius]
+        *barnes: Inverse Distance Weighing approach following Barnes (1964). \
+            It applies an inverse exponential ratio of observation distance to \
+                average spacing for interpolation. Keyword arguments: \
+                    [minimum_neighbours, search_radius. gamma, kappa_star]
+
         Parameters
         ----------
         precip_fn : str, pd.DataFrame
