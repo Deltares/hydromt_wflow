@@ -1417,7 +1417,7 @@ gauge locations [-] (if derive_subcatch)
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or \
-incorrect data_type (GeoDataFrame or GeoDataset)."
+incorrect data_type ({self.data_catalog[gauges_fn].data_type} instead of GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -2714,6 +2714,106 @@ one variable and variables list is not provided."
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
         self.set_forcing(precip_out.where(mask), name="precip")
+
+    def setup_precip_from_point_timeseries(
+        self, precip_fn: str, precip_stations_fn: str, interp_type: str, **kwargs: dict
+    ) -> None:
+        starttime = self.get_config("starttime")
+        endtime = self.get_config("endtime")
+        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        mask = self.grid[self._MAPS["basins"]].values > 0
+
+        if isinstance(precip_fn, pd.DataFrame):
+            df_precip = precip_fn
+        elif isfile(precip_fn):
+            df_precip = self.data_catalog.get_dataframe(
+                precip_fn,
+                time_tuple=(starttime, endtime),
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
+            )
+        elif precip_fn in self.data_catalog:
+            if self.data_catalog[precip_fn].data_type == "DataFrame":
+                df_precip = self.data_catalog.get_dataframe(
+                    precip_stations_fn,
+                    time_tuple=(starttime, endtime),
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
+                )
+            else:
+                raise ValueError(
+                    f"Incorrect data_type for precipitation timeseries: ({self.data_catalog[precip_stations_fn].data_type} instead of DataFrame)."
+                )
+        else:
+            raise ValueError(f"Data source {precip_fn} not recognized.")
+        
+        # code below is copied from setup_gauges, maybe consider using shared function?
+        if isinstance(precip_stations_fn, gpd.GeoDataFrame):
+            gdf_stations = precip_stations_fn
+            if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
+                raise ValueError(
+                    f"{precip_stations_fn} contains other geometries than Point"
+                )
+        elif isfile(precip_stations_fn):
+            # try to get epsg number directly, important when writting back data_catalog
+            if hasattr(self.crs, "to_epsg"):
+                code = self.crs.to_epsg()
+            else:
+                code = self.crs
+            kwargs.update(crs=code)
+            gdf_stations = self.data_catalog.get_geodataframe(
+                precip_stations_fn,
+                geom=self.basins,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
+            )
+        elif precip_stations_fn in self.data_catalog:
+            if self.data_catalog[precip_stations_fn].data_type == "GeoDataFrame":
+                gdf_stations = self.data_catalog.get_geodataframe(
+                    precip_stations_fn,
+                    geom=self.basins,
+                    assert_gtype="Point",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
+                )
+            elif self.data_catalog[precip_stations_fn].data_type == "GeoDataset":
+                da = self.data_catalog.get_geodataset(
+                    precip_stations_fn,
+                    geom=self.basins,
+                    handle_nodata=NoDataStrategy.IGNORE,
+                    **kwargs,
+                )
+                gdf_stations = da.vector.to_gdf()
+                # Check for point geometry
+                if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
+                    raise ValueError(
+                        f"{precip_stations_fn} contains other geometries than Point"
+                    )
+            else:
+                raise ValueError(
+                    f"Incorrect data_type for stations: ({self.data_catalog[precip_stations_fn].data_type} instead of GeoDataFrame or GeoDataset)."
+            )
+        elif precip_stations_fn is None:
+            # TODO: use precip = self.data_catalog.get_geodataframe when no stations are supplied
+            raise NotImplementedError(
+                "Reading station timeseries without providing precip_stations_fn is not supported."
+            )
+        else:
+            raise ValueError(f"Data source {precip_stations_fn} not recognized.")
+
+
+            precip = self.data_catalog.get_dataframe(
+                precip_fn,
+                time_tuple=(starttime, endtime),
+                variables=["precip"],
+            )
+
+            stations = self.data_catalog.get_dataframe(
+                precip_stations_fn,
+                variables=["stations"],
+            )
+        precip = precip.astype("float32")
 
     def setup_temp_pet_forcing(
         self,
