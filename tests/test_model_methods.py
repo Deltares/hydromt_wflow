@@ -742,8 +742,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
 def test_setup_precip_from_point_timeseries(
     example_wflow_model, df_precip, gdf_precip_stations
 ):
-    # with corresponding mean values per interpolation type
-    # TODO: expand test
+    # interpolation types and the mean value to check the test
     interp_types = {
         "linear": 0,
     }
