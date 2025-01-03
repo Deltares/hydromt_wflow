@@ -96,8 +96,23 @@ def spatial_interpolation(
             These will be skipped during interpolation.
             Consider replacing NaN with 0 to include missing observations."""
         )
-
-    # TODO adding checks and logging depending on the different interpolation types?
+    interp_supported = {"nearest": None,
+                   "linear": None,
+                   "cubic": None,
+                   "rbf": ["rbf_func", "rbf_smooth"],
+                   }
+    
+    if interp_type not in interp_supported.keys():
+        raise ValueError(f"Interpolation type {interp_type} not recognized.")
+    elif interp_supported[interp_type]:
+        interp_args = ", ".join(
+            [f"{key}={kwargs[key]}" for key in interp_supported[interp_type]]
+        )
+        logger.info(
+            f"Using interpolation type: {interp_type} with arguments: {interp_args}."
+        )
+    else:
+        logger.info(f"Using interpolation type: {interp_type}.")
 
     for timestep, observations in forcing.iterrows():
         z = observations.values
