@@ -738,17 +738,24 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         .equals(floodplain1d_testdata[f"{mapname}_D4"])
     )
 
-def test_setup_precip_from_point_timeseries(example_wflow_model, df_precip, gdf_precip_stations):
+
+def test_setup_precip_from_point_timeseries(
+    example_wflow_model, df_precip, gdf_precip_stations
+):
     # with corresponding mean values per interpolation type
     # TODO: expand test
     interp_types = {
-        "": 0,
-        "": 0,
+        "linear": 0,
     }
     for interp_type, test_val in interp_types.items():
-        example_wflow_model.setup_precip_from_point_timeseries(precip_fn=df_precip, precip_stations_fn=gdf_stations, interp_type=interp_type)
+        example_wflow_model.setup_precip_from_point_timeseries(
+            precip_fn=df_precip,
+            precip_stations_fn=gdf_precip_stations,
+            interp_type=interp_type,
+        )
         mean_val = example_wflow_model.forcing["precip"].mean().values
         assert int(mean_val * 1000) == test_val
+
 
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
