@@ -3,9 +3,12 @@
 import logging
 from typing import Optional
 
+import geopandas as gpd
 import numpy as np
+import pandas as pd
 import xarray as xr
 from hydromt.workflows.forcing import resample_time
+from metpy.interpolate import interpolate_to_grid, remove_nan_observations
 
 logger = logging.getLogger(__name__)
 
@@ -73,3 +76,35 @@ def pet(
     pet_out.attrs.update(unit="mm")
 
     return pet_out
+
+
+def spatial_interpolation(
+    forcing: pd.DataFrame,
+    stations: gpd.GeoDataframe,
+    interp_type: str,
+    hres: float,
+    *kwargs: Optional[dict],
+) -> xr.DataArray:
+    x = stations.geometry.x
+    y = stations.geometry.y
+    time = forcing.index
+    data = []
+
+    if np.isnan(forcing.values).any():
+        logger.warning(
+            """Forcing data contains NaN values.
+            These will be skipped during interpolation.
+            Consider replacing NaN with 0 to include missing observations."""
+        )
+
+    for timestep, observations in forcing.iterrows():
+        z = observations.values
+        x, y, z = remove_nan_observations(x=x, y=y, z=z)
+        grid_x, grid_y, img = interpolate_to_grid(
+            x=x, y=y, z=z, interp_type=interp_type, hres=hres, **kwargs
+        )
+        data.append(img)
+
+    coords = {"time": time, "x": grid_x[0, :], "y": grid_y[:, 0]}
+    da_forcing = xr.DataArray(data=data, coords=coords, dims=["time", "y", "x"])
+    return da_forcing
