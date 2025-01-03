@@ -1417,7 +1417,8 @@ gauge locations [-] (if derive_subcatch)
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or \
-incorrect data_type ({self.data_catalog[gauges_fn].data_type} instead of GeoDataFrame or GeoDataset)."
+                incorrect data_type ({self.data_catalog[gauges_fn].data_type} \
+                instead of GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -2716,12 +2717,48 @@ one variable and variables list is not provided."
         self.set_forcing(precip_out.where(mask), name="precip")
 
     def setup_precip_from_point_timeseries(
-        self, precip_fn: str, precip_stations_fn: str, interp_type: str, **kwargs: dict
+        self,
+        precip_fn: Union[str, pd.DataFrame],
+        precip_stations_fn: Union[str, gpd.GeoDataFrame],
+        interp_type: str = "nearest",
+        **kwargs,
     ) -> None:
+        """Generate gridded precipitation forcing from point timeseries.
+
+        Adds model layer:
+
+        * **precip**: precipitation [mm]
+
+        Parameters
+        ----------
+        precip_fn : str, pd.DataFrame
+            Precipitation DataFrame source, see data/forcing_sources.yml.
+            The columns should correspond to the names or indices of the stations in
+            precip_stations_fn.
+
+        precip_stations_fn : str, gpd.GeoDataFrame
+            Source for the locations of the stations as points: (x, y) or (lat, lon).
+
+        interp_type : str
+            Type of interpolation to use as supported by MetPy.
+            Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from
+            scipy.interpolate. 2) “natural_neighbor”, “barnes”, or “cressman”
+            from metpy.interpolate. Default “nearest”.
+        **kwargs
+            Additional keyword arguments passed to the MetPy interpolation function.
+            https://unidata.github.io/MetPy/latest/api/generated/metpy.interpolate.interpolate_to_grid.html#metpy.interpolate.interpolate_to_grid
+        """
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
+
+        if self.res[0] != self.res[1]:
+            logger.warning(
+                f"""Mismatch in horizontal and vertical resolution ({self.res}), \
+                    using lowest resolution during interpolation."""
+            )
+        hres = min(self.res)
 
         if isinstance(precip_fn, pd.DataFrame):
             df_precip = precip_fn
@@ -2742,11 +2779,14 @@ one variable and variables list is not provided."
                 )
             else:
                 raise ValueError(
-                    f"Incorrect data_type for precipitation timeseries: ({self.data_catalog[precip_stations_fn].data_type} instead of DataFrame)."
+                    f"""Incorrect data_type for precipitation timeseries: \
+                    ({self.data_catalog[precip_stations_fn].data_type} \
+                    instead of DataFrame)."""
                 )
         else:
             raise ValueError(f"Data source {precip_fn} not recognized.")
-        
+        df_precip = df_precip.astype("float32")
+
         # code below is copied from setup_gauges, maybe consider using shared function?
         if isinstance(precip_stations_fn, gpd.GeoDataFrame):
             gdf_stations = precip_stations_fn
@@ -2792,28 +2832,38 @@ one variable and variables list is not provided."
                     )
             else:
                 raise ValueError(
-                    f"Incorrect data_type for stations: ({self.data_catalog[precip_stations_fn].data_type} instead of GeoDataFrame or GeoDataset)."
-            )
+                    f"""Incorrect data_type for stations: \
+                    ({self.data_catalog[precip_stations_fn].data_type} \
+                    instead of GeoDataFrame or GeoDataset)."""
+                )
         elif precip_stations_fn is None:
-            # TODO: use precip = self.data_catalog.get_geodataframe when no stations are supplied
+            # TODO: use df_precip = self.data_catalog.get_geodataframe when no stations
             raise NotImplementedError(
-                "Reading station timeseries without providing precip_stations_fn is not supported."
+                """Reading station timeseries without providing precip_stations_fn \
+                is not supported."""
             )
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
 
+        precip = workflows.forcing.spatial_interpolation(
+            forcing=df_precip, stations=gdf_stations, interp_type=interp_type, hres=hres
+        )
+        precip.name = "precip"
+        precip.attrs.update(unit="mm")
 
-            precip = self.data_catalog.get_dataframe(
-                precip_fn,
-                time_tuple=(starttime, endtime),
-                variables=["precip"],
-            )
+        precip_out = hydromt.workflows.forcing.precip(
+            precip=precip,
+            da_like=self.grid[self._MAPS["elevtn"]],
+            clim=None,
+            freq=freq,
+            resample_kwargs=dict(label="right", closed="right"),
+            logger=self.logger,
+            **kwargs,
+        )
 
-            stations = self.data_catalog.get_dataframe(
-                precip_stations_fn,
-                variables=["stations"],
-            )
-        precip = precip.astype("float32")
+        # Update meta attributes (used for default output filename later)
+        precip_out.attrs.update({"precip_fn": precip_fn})
+        self.set_forcing(precip_out.where(mask), name="precip")
 
     def setup_temp_pet_forcing(
         self,
