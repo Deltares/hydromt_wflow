@@ -2731,16 +2731,16 @@ one variable and variables list is not provided."
 
         Supported interpolation methods:
         * linear: Performs linear interpolation between data points.
-        *nearest: Assigns the value of the nearest data point (nearest neighbour).
-        *cubic: Uses cubic interpolation for smoother curves.
-        *rbf: Applies Radial Basis Function interpolation for smooth, multidimensional \
-            interpolation. Keyword arguments: [rbf_func, rbf_smooth]
+        * nearest: Assigns the value of the nearest data point (nearest neighbour).
+        * cubic: Uses cubic interpolation for smoother curves.
+        * rbf: Applies Radial Basis Function interpolation for smooth, \
+            multidimensional interpolation. Keyword arguments: [rbf_func, rbf_smooth]
         * natural_neighbor: Uses a weighted average of surrounding points based \
             on their proximity and area influence following Liang and Hale (2010).
-        *cresmann: Inverse Distance Weighing approach following Cerman (1959). \
+        * cressman: Inverse Distance Weighing approach following Cresmann (1959). \
             It uses the ratio of observation distance to maximum allowable distance \
             for interpolation. Keyword arguments: [minimum_neighbors, search_radius]
-        *barnes: Inverse Distance Weighing approach following Barnes (1964). \
+        * barnes: Inverse Distance Weighing approach following Barnes (1964). \
             It applies an inverse exponential ratio of observation distance to \
                 average spacing for interpolation. Keyword arguments: \
                     [minimum_neighbours, search_radius. gamma, kappa_star]
@@ -2748,23 +2748,28 @@ one variable and variables list is not provided."
         Parameters
         ----------
         precip_fn : str, pd.DataFrame
-            Precipitation DataFrame source, see data/forcing_sources.yml.
-            The columns should correspond to the names or indices of the stations in
+            Precipitation DataFrame source, see data/forcing_sources.yml. \
+            The columns should correspond to the names or indices of the stations in \
             precip_stations_fn.
 
         precip_stations_fn : str, gpd.GeoDataFrame
             Source for the locations of the stations as points: (x, y) or (lat, lon).
 
         interp_type : str
-            Type of interpolation to use as supported by MetPy.
-            Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from
-            scipy.interpolate. 2) “natural_neighbor”, “barnes”, or “cressman”
+            Type of interpolation to use as supported by MetPy. \
+            Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from \
+            scipy.interpolate. 2) “natural_neighbor”, “barnes”, or “cressman” \
             from metpy.interpolate. Default “nearest”.
         **kwargs
             Additional keyword arguments passed to the MetPy interpolation function.
             https://unidata.github.io/MetPy/latest/api/generated/metpy.interpolate.interpolate_to_grid.html#metpy.interpolate.interpolate_to_grid
 
-            TODO improve links in docstrings and add examples
+            TODO Improve links in docstrings and add examples
+            TODO Put all arguments in kwargs?
+            TODO And: hydromt.workflows.forcing.precip also uses **kwargs, what to do?
+            TODO Currently good results for the scipy methods and Barnes
+            TODO natural neighbours does not work (gives errors/warnings)
+            TODO cressman somehow returns uniform array, needs investigation
         """
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
@@ -2778,7 +2783,7 @@ one variable and variables list is not provided."
             )
         hres = min(np.abs(self.res))
 
-        # load precipitation data
+        # Load precipitation data
         if isinstance(precip_fn, pd.DataFrame):
             df_precip = precip_fn
         elif isfile(precip_fn):
@@ -2806,8 +2811,9 @@ one variable and variables list is not provided."
             raise ValueError(f"Data source {precip_fn} not recognized.")
         df_precip = df_precip.astype("float32")
 
-        # load the stations and their coordinates
         # TODO code below is copied from setup_gauges, maybe consider shared function?
+
+        # Load the stations and their coordinates
         if isinstance(precip_stations_fn, gpd.GeoDataFrame):
             gdf_stations = precip_stations_fn
             if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
@@ -2815,7 +2821,7 @@ one variable and variables list is not provided."
                     f"{precip_stations_fn} contains other geometries than Point"
                 )
         elif isfile(precip_stations_fn):
-            # try to get epsg number directly, important when writting back data_catalog
+            # Try to get epsg number directly, important when writting back data_catalog
             if hasattr(self.crs, "to_epsg"):
                 code = self.crs.to_epsg()
             else:
@@ -2845,11 +2851,6 @@ one variable and variables list is not provided."
                     **kwargs,
                 )
                 gdf_stations = da.vector.to_gdf()
-                # Check for point geometry
-                if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
-                    raise ValueError(
-                        f"{precip_stations_fn} contains other geometries than Point"
-                    )
             else:
                 raise ValueError(
                     f"""Incorrect data_type for stations: \
@@ -2860,15 +2861,18 @@ one variable and variables list is not provided."
             # TODO: support GeoDatasets
             raise NotImplementedError(
                 """Reading station timeseries without providing precip_stations_fn \
-                is not supported."""
+                is currently not supported."""
             )
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
         
-        # transform station coordinates to model crs
-        gdf_stations = gdf_stations.set_crs(self.crs)
+        # Check for point geometry
+        if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
+            raise ValueError(
+                f"{precip_stations_fn} contains other geometries than Point"
+                    )
 
-        # check matches between precip and stations and pass to interpolation workflow
+        # Align precip and stations and pass to interpolation workflow
         mismatched_stations = set(df_precip.columns) ^ set(gdf_stations.index)
         if mismatched_stations:
             logger.warning(
@@ -2878,20 +2882,29 @@ one variable and variables list is not provided."
             )
             df_precip = df_precip.drop(columns=mismatched_stations, errors="ignore")
             gdf_stations = gdf_stations.drop(index=mismatched_stations, errors="ignore")
-
+        
         if len(df_precip) == 0:
-            logger.error(
+            raise ValueError(
                 """No precipitation data remaining. \
-                         Continuing model building without precipitation forcing."""
+                Continuing model building without precipitation forcing."""
             )
-            return
+
+        # Check coverage of stations over model domain
+        stations_polygon = gdf_stations.geometry.unary_union.convex_hull
+        if not stations_polygon.covers(self.basins.unary_union):
+            logger.warning(
+                """The station data does not cover the entire model domain, \
+                this may lead to empty cells in the precipitation data.""")
+
+        # Transform station coordinates to model crs before passing to workflow
+        gdf_stations = gdf_stations.set_crs(self.crs)
 
         precip = workflows.forcing.spatial_interpolation(
             forcing=df_precip,
             stations=gdf_stations,
             interp_type=interp_type,
             hres=hres,
-            **kwargs
+            **kwargs,
         )
         # Include model CRS and rename coordinates to match model
         precip.raster.set_crs(self.crs)
@@ -2906,7 +2919,7 @@ one variable and variables list is not provided."
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
-            **kwargs,
+            #**kwargs, #TODO how to deal with kwargs for boths workflows?
         )
 
         # Update meta attributes (used for default output filename later)
