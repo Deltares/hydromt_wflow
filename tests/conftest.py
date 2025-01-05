@@ -146,24 +146,31 @@ def rivers1d():
 
 
 @pytest.fixture()
-def df_precip():
+def df_precip_stations():
     np.random.seed(42)
     time = pd.date_range(
-        start="2010-02-01T00:00:00", end="2010-03-01T00:00:00", freq="D"
+        start="2010-02-01T00:00:00", end="2010-09-01T00:00:00", freq="D"
     )
-    data = np.random.rand(len(time), 3)
-    df = pd.DataFrame(data=data, columns=[1, 2, 3], index=time)
+    data = np.random.rand(len(time), 8)
+    df = pd.DataFrame(data=data, columns=[1, 2, 3, 4, 5, 6, 7, 8], index=time)
     return df
 
 @pytest.fixture()
 def gdf_precip_stations():
     geometry = [
-        Point(12.6580, 46.6031),
-        Point(11.8843, 46.3601),
-        Point(12.1513, 45.8773),
+        # inside Piave basin
+        Point(12.6, 46.6),
+        Point(11.8, 46.3),
+        Point(12.1, 45.8),
+        # outside Piave basin
+        Point(11.4, 46.9),
+        Point(13.1, 46.7),
+        Point(11.5, 45.7),
+        Point(12.6, 46.0),
+        Point(12.5, 45.6)
     ]
     gdf = gpd.GeoDataFrame(
-        data=None, index=[1, 2, 3], geometry=geometry, crs="EPSG:4326"
+        data=None, index=[1, 2, 3, 4, 5, 6, 7, 8], geometry=geometry, crs="EPSG:4326"
     )
     return gdf
 
