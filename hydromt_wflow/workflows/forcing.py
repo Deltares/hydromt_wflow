@@ -15,15 +15,13 @@ logger = logging.getLogger(__name__)
 __all__ = ["pet"]
 
 interpolation_supported = {
-        # SciPy
         "nearest": None,
         "linear": None,
         "cubic": None,
         "rbf": ["rbf_func", "rbf_smooth"],
-        # MetPy
         "natural_neighbor": None,
-        "cresmann": ["minimum_neighbors", "search_radius"],
-        "barnes": ["minimum_neighbours", "search_radius", "gamma", "kappa_star"],    
+        "cressman": ["minimum_neighbors", "search_radius"],
+        "barnes": ["minimum_neighbors", "search_radius", "gamma", "kappa_star"],    
         }
 
 def pet(
@@ -112,7 +110,7 @@ def spatial_interpolation(
         GeoDataFrame containing the station locations with geometry column.
     interp_type : str
         Type of interpolation to use. Supported types are "nearest", "linear", "cubic",
-        "rbf", "natural_neighbor", "cresmann", and "barnes".
+        "rbf", "natural_neighbor", "cressman", and "barnes".
     hres : float
         Horizontal resolution of the output grid.
     rbf_func : str, optional
