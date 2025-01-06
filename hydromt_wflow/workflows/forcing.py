@@ -19,8 +19,8 @@ interpolation_supported = {
     "linear": None,
     "cubic": None,
     "rbf": ["rbf_func", "rbf_smooth"],
-    "natural_neighbor": None,
-    "cressman": ["minimum_neighbors", "search_radius"],
+    # "natural_neighbor": None,
+    # "cressman": ["minimum_neighbors", "search_radius"],
     "barnes": ["minimum_neighbors", "search_radius", "gamma", "kappa_star"],
 }
 
