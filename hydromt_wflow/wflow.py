@@ -2781,7 +2781,7 @@ one variable and variables list is not provided."
                 f"""Mismatch in horizontal and vertical resolution ({self.res}), \
                     using lowest resolution during interpolation by MetPy."""
             )
-        hres = min(np.abs(self.res))
+        min(np.abs(self.res))
 
         # Load precipitation data
         if isinstance(precip_fn, pd.DataFrame):
@@ -2897,21 +2897,41 @@ one variable and variables list is not provided."
                 this may lead to empty cells in the precipitation data."""
             )
 
-        # Transform station coordinates to model crs before passing to workflow
-        gdf_stations = gdf_stations.set_crs(self.crs)
+        x_coords = [
+            gdf_stations.loc[station].geometry.x for station in df_precip.columns
+        ]
+        y_coords = [
+            gdf_stations.loc[station].geometry.y for station in df_precip.columns
+        ]
 
-        precip = workflows.forcing.spatial_interpolation(
-            forcing=df_precip,
-            stations=gdf_stations,
-            interp_type=interp_type,
-            hres=hres,
-            **kwargs,
+        precip = xr.DataArray(
+            df_precip.values,
+            dims=["time", "station"],
+            coords={
+                "time": df_precip.index,
+                "x": ("station", x_coords),
+                "y": ("station", y_coords),
+            },
         )
-        # Include model CRS and rename coordinates to match model
-        precip.raster.set_crs(self.crs)
-        precip = precip.rename(
-            {"x": self.grid.raster.x_dim, "y": self.grid.raster.y_dim}
-        )
+
+        precip = precip.expand_dims([self.grid.raster.x_dim, self.grid.raster.y_dim])
+        precip.raster.set_crs(gdf_stations.crs)
+
+        # # Transform station coordinates to model crs before passing to workflow
+        # gdf_stations = gdf_stations.set_crs(self.crs)
+
+        # precip = workflows.forcing.spatial_interpolation(
+        #     forcing=df_precip,
+        #     stations=gdf_stations,
+        #     interp_type=interp_type,
+        #     hres=hres,
+        #     **kwargs,
+        # )
+        # # Include model CRS and rename coordinates to match model
+        # precip.raster.set_crs(self.crs)
+        # precip = precip.rename(
+        #     {"x": self.grid.raster.x_dim, "y": self.grid.raster.y_dim}
+        # )
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
@@ -2921,6 +2941,10 @@ one variable and variables list is not provided."
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
             # **kwargs, # TODO how to deal with kwargs for boths workflows?
+        )
+
+        precip_out = precip_out.raster.interpolate_na(
+            method=interp_type, extrapolate=True
         )
 
         # Update meta attributes (used for default output filename later)
