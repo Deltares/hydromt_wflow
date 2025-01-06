@@ -2721,6 +2721,7 @@ one variable and variables list is not provided."
         precip_fn: Union[str, pd.DataFrame],
         precip_stations_fn: Union[str, gpd.GeoDataFrame],
         interp_type: str = "nearest",
+        metpy_kwargs: dict = None,
         **kwargs,
     ) -> None:
         """Generate gridded precipitation from point timeseries (requires MetPy).
@@ -2745,6 +2746,9 @@ one variable and variables list is not provided."
                 average spacing for interpolation. Keyword arguments: \
                     [minimum_neighbours, search_radius. gamma, kappa_star]
 
+        NOTE! Station interpolation is still in development.
+        Cressman and natural neighbor are not working as expected. Barnes works but it slow.
+
         Parameters
         ----------
         precip_fn : str, pd.DataFrame
@@ -2758,19 +2762,19 @@ one variable and variables list is not provided."
         interp_type : str
             Type of interpolation to use as supported by MetPy. \
             Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from \
-            scipy.interpolate. 2) “natural_neighbor”, “barnes”, or “cressman” \
-            from metpy.interpolate. Default “nearest”.
+            scipy.interpolate. 2) “barnes”, from metpy.interpolate. \
+        
+        metpy_kwargs: dict
+            Keyword arguments to pass to metpy.interpolate.interpolate_to_grid.
+            
         **kwargs
             Additional keyword arguments passed to the MetPy interpolation function.
             https://unidata.github.io/MetPy/latest/api/generated/metpy.interpolate.interpolate_to_grid.html#metpy.interpolate.interpolate_to_grid
-
-            TODO Improve links in docstrings and add examples
-            TODO Put all arguments in kwargs?
-            TODO And: hydromt.workflows.forcing.precip also uses **kwargs, what to do?
-            TODO Currently good results for the scipy methods and Barnes
-            TODO natural neighbours does not work (gives errors/warnings)
-            TODO cressman somehow returns uniform array, needs investigation
         """
+        logger.warning("Use of setup_precip_from_timeseries is still in development.") 
+        #TODO remove logging message above when publishing
+        metpy_kwargs = metpy_kwargs or {}
+
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
@@ -2781,7 +2785,7 @@ one variable and variables list is not provided."
                 f"""Mismatch in horizontal and vertical resolution ({self.res}), \
                     using lowest resolution during interpolation by MetPy."""
             )
-        min(np.abs(self.res))
+        hres = min(np.abs(self.res))
 
         # Load precipitation data
         if isinstance(precip_fn, pd.DataFrame):
@@ -2889,14 +2893,6 @@ one variable and variables list is not provided."
                 Continuing model building without precipitation forcing."""
             )
 
-        # Check coverage of stations over model domain
-        stations_polygon = gdf_stations.geometry.unary_union.convex_hull
-        if not stations_polygon.covers(self.basins.unary_union):
-            logger.warning(
-                """The station data does not cover the entire model domain, \
-                this may lead to empty cells in the precipitation data."""
-            )
-
         x_coords = [
             gdf_stations.loc[station].geometry.x for station in df_precip.columns
         ]
@@ -2917,21 +2913,35 @@ one variable and variables list is not provided."
         precip = precip.expand_dims([self.grid.raster.x_dim, self.grid.raster.y_dim])
         precip.raster.set_crs(gdf_stations.crs)
 
-        # # Transform station coordinates to model crs before passing to workflow
-        # gdf_stations = gdf_stations.set_crs(self.crs)
+        # Transform station coordinates to model crs before passing to workflow
+        gdf_stations = gdf_stations.set_crs(self.crs)
 
-        # precip = workflows.forcing.spatial_interpolation(
-        #     forcing=df_precip,
-        #     stations=gdf_stations,
-        #     interp_type=interp_type,
-        #     hres=hres,
-        #     **kwargs,
-        # )
-        # # Include model CRS and rename coordinates to match model
-        # precip.raster.set_crs(self.crs)
-        # precip = precip.rename(
-        #     {"x": self.grid.raster.x_dim, "y": self.grid.raster.y_dim}
-        # )
+        precip = workflows.forcing.spatial_interpolation(
+            forcing=df_precip,
+            stations=gdf_stations,
+            interp_type=interp_type,
+            hres=hres,
+            **metpy_kwargs,
+        )
+        # Include model CRS and rename coordinates to match model
+        precip.raster.set_crs(self.crs)
+        precip = precip.rename(
+            {"x": self.grid.raster.x_dim, "y": self.grid.raster.y_dim}
+        )
+
+        # Check coverage of stations over model domain and fill NaN values
+        stations_polygon = gdf_stations.geometry.unary_union.convex_hull
+        if not stations_polygon.covers(self.basins.unary_union):
+            fill_method = interp_type if (
+                interp_type in ['linear', 'nearest', 'cubic']) else 'rio_idw'
+            logger.warning(
+                f"""The station data did not cover the entire model domain, \
+                using {fill_method} to fill NaN values."""
+            )
+            precip = precip.raster.reproject_like(
+                self.grid[self._MAPS["elevtn"]],
+                method="nearest_index")
+            precip = precip.raster.interpolate_na(method=fill_method, extrapolate=True)
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
@@ -2940,7 +2950,7 @@ one variable and variables list is not provided."
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
-            # **kwargs, # TODO how to deal with kwargs for boths workflows?
+            **kwargs,
         )
 
         precip_out = precip_out.raster.interpolate_na(
