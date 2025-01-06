@@ -743,27 +743,40 @@ def test_setup_precip_from_point_timeseries(
     example_wflow_model, df_precip_stations, gdf_precip_stations
 ):
     # Interpolation types and the mean value to check the test
+    # first value is for all 8 stations, second for 3 stations inside Piave
     interp_types = {
-        "nearest": 455,
-        "linear": 469,
-        # "rbf": 443,
-        # "barnes": 445,
+        "nearest": [455, 442],
+        "linear": [469, 431],
+        "cubic": [453, 431],
+        "rbf": [443, 422],
+        "barnes": [445, 444],
         # TODO natural neighbor is not working yet in test and code
         # TODO cressman gives weird results (uniform)
     }
+    gdf_precip_stations_inside = gdf_precip_stations[
+        gdf_precip_stations.geometry.within(example_wflow_model.basins.unary_union)]
+    
     for interp_type, test_val in interp_types.items():
         example_wflow_model.setup_precip_from_point_timeseries(
             precip_fn=df_precip_stations,
             precip_stations_fn=gdf_precip_stations,
             interp_type=interp_type,
         )
+        # Check forcing and dtype
         assert "precip" in example_wflow_model.forcing
-        # Check dtype
         assert example_wflow_model.forcing["precip"].dtype == "float32"
         # Compare computed value with expected value
         mean_val = example_wflow_model.forcing["precip"].mean().values
-        assert int(mean_val * 1000) == test_val
+        assert int(mean_val * 1000) == test_val[0]
 
+        example_wflow_model.setup_precip_from_point_timeseries(
+            precip_fn=df_precip_stations,
+            precip_stations_fn=gdf_precip_stations_inside,
+            interp_type=interp_type,
+        )
+        # Compare computed value with expected value
+        mean_val = example_wflow_model.forcing["precip"].mean().values
+        assert int(mean_val * 1000) == test_val[1]
 
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
