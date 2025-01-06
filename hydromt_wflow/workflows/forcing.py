@@ -15,14 +15,15 @@ logger = logging.getLogger(__name__)
 __all__ = ["pet"]
 
 interpolation_supported = {
-        "nearest": None,
-        "linear": None,
-        "cubic": None,
-        "rbf": ["rbf_func", "rbf_smooth"],
-        "natural_neighbor": None,
-        "cressman": ["minimum_neighbors", "search_radius"],
-        "barnes": ["minimum_neighbors", "search_radius", "gamma", "kappa_star"],    
-        }
+    "nearest": None,
+    "linear": None,
+    "cubic": None,
+    "rbf": ["rbf_func", "rbf_smooth"],
+    "natural_neighbor": None,
+    "cressman": ["minimum_neighbors", "search_radius"],
+    "barnes": ["minimum_neighbors", "search_radius", "gamma", "kappa_star"],
+}
+
 
 def pet(
     pet: xr.DataArray,
@@ -92,7 +93,7 @@ def spatial_interpolation(
     stations: gpd.GeoDataFrame,
     interp_type: str,
     hres: float,
-    rbf_func: Optional[str] = 'linear',
+    rbf_func: Optional[str] = "linear",
     rbf_smooth: Optional[float] = 0,
     minimum_neighbours: Optional[int] = 3,
     search_radius: Optional[float] = None,
@@ -105,9 +106,9 @@ def spatial_interpolation(
     Parameters
     ----------
     forcing : pd.DataFrame
-        DataFrame containing the forcing data with time as index and stations as columns.
+        DataFrame with the forcing data with time as index and stations as columns.
     stations : gpd.GeoDataFrame
-        GeoDataFrame containing the station locations with geometry column.
+        GeoDataFrame with the station locations with geometry column.
     interp_type : str
         Type of interpolation to use. Supported types are "nearest", "linear", "cubic",
         "rbf", "natural_neighbor", "cressman", and "barnes".
@@ -149,10 +150,10 @@ def spatial_interpolation(
             These will be skipped during interpolation.
             Consider replacing NaN with 0 to include missing observations."""
         )
-    
+
     if interp_type not in interpolation_supported.keys():
         raise ValueError(f"Interpolation type {interp_type} not recognized.")
-    
+
     elif interpolation_supported[interp_type]:
         # Create a dictionary of the arguments to show in logging
         interp_args_dict = {
@@ -161,13 +162,15 @@ def spatial_interpolation(
             "minimum_neighbors": minimum_neighbours,
             "search_radius": search_radius,
             "gamma": gamma,
-            "kappa_star": kappa_star
+            "kappa_star": kappa_star,
         }
-        
+
         # Filter the arguments based on the interpolation type
         interp_args = ", ".join(
-            [f"{key}={interp_args_dict[key]}" for
-            key in interpolation_supported[interp_type]]
+            [
+                f"{key}={interp_args_dict[key]}"
+                for key in interpolation_supported[interp_type]
+            ]
         )
         logger.info(
             f"Using interpolation type: {interp_type} with arguments: {interp_args}."
@@ -190,7 +193,7 @@ def spatial_interpolation(
             minimum_neighbors=minimum_neighbours,
             search_radius=search_radius,
             kappa_star=kappa_star,
-            gamma=gamma
+            gamma=gamma,
         )
         data.append(img)
 

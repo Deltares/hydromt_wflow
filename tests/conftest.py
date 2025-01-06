@@ -155,6 +155,7 @@ def df_precip_stations():
     df = pd.DataFrame(data=data, columns=[1, 2, 3, 4, 5, 6, 7, 8], index=time)
     return df
 
+
 @pytest.fixture()
 def gdf_precip_stations():
     geometry = [
@@ -167,7 +168,7 @@ def gdf_precip_stations():
         Point(13.1, 46.7),
         Point(11.5, 45.7),
         Point(12.6, 46.0),
-        Point(12.5, 45.6)
+        Point(12.5, 45.6),
     ]
     gdf = gpd.GeoDataFrame(
         data=None, index=[1, 2, 3, 4, 5, 6, 7, 8], geometry=geometry, crs="EPSG:4326"

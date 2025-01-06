@@ -2865,12 +2865,12 @@ one variable and variables list is not provided."
             )
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
-        
+
         # Check for point geometry
         if not np.all(np.isin(gdf_stations.geometry.type, "Point")):
             raise ValueError(
                 f"{precip_stations_fn} contains other geometries than Point"
-                    )
+            )
 
         # Align precip and stations and pass to interpolation workflow
         mismatched_stations = set(df_precip.columns) ^ set(gdf_stations.index)
@@ -2882,7 +2882,7 @@ one variable and variables list is not provided."
             )
             df_precip = df_precip.drop(columns=mismatched_stations, errors="ignore")
             gdf_stations = gdf_stations.drop(index=mismatched_stations, errors="ignore")
-        
+
         if len(df_precip) == 0:
             raise ValueError(
                 """No precipitation data remaining. \
@@ -2894,7 +2894,8 @@ one variable and variables list is not provided."
         if not stations_polygon.covers(self.basins.unary_union):
             logger.warning(
                 """The station data does not cover the entire model domain, \
-                this may lead to empty cells in the precipitation data.""")
+                this may lead to empty cells in the precipitation data."""
+            )
 
         # Transform station coordinates to model crs before passing to workflow
         gdf_stations = gdf_stations.set_crs(self.crs)
@@ -2908,9 +2909,9 @@ one variable and variables list is not provided."
         )
         # Include model CRS and rename coordinates to match model
         precip.raster.set_crs(self.crs)
-        precip = precip.rename({
-            "x": self.grid.raster.x_dim,
-            "y": self.grid.raster.y_dim})
+        precip = precip.rename(
+            {"x": self.grid.raster.x_dim, "y": self.grid.raster.y_dim}
+        )
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
@@ -2919,7 +2920,7 @@ one variable and variables list is not provided."
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
-            #**kwargs, #TODO how to deal with kwargs for boths workflows?
+            # **kwargs, # TODO how to deal with kwargs for boths workflows?
         )
 
         # Update meta attributes (used for default output filename later)

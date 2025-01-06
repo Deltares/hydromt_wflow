@@ -748,8 +748,8 @@ def test_setup_precip_from_point_timeseries(
         "linear": 469,
         "rbf": 443,
         "barnes": 445,
-        #TODO natural neighbor is not working yet in test and code
-        #TODO cressman gives weird results (uniform)
+        # TODO natural neighbor is not working yet in test and code
+        # TODO cressman gives weird results (uniform)
     }
     for interp_type, test_val in interp_types.items():
         example_wflow_model.setup_precip_from_point_timeseries(
@@ -763,6 +763,7 @@ def test_setup_precip_from_point_timeseries(
         # Compare computed value with expected value
         mean_val = example_wflow_model.forcing["precip"].mean().values
         assert int(mean_val * 1000) == test_val
+
 
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
