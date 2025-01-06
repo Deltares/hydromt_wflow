@@ -12,7 +12,7 @@ from metpy.interpolate import interpolate_to_grid, remove_nan_observations
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["pet"]
+__all__ = ["pet", "spatial_interpolation"]
 
 interpolation_supported = {
     "nearest": None,
