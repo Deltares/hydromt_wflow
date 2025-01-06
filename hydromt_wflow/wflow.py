@@ -2747,7 +2747,8 @@ one variable and variables list is not provided."
                     [minimum_neighbours, search_radius. gamma, kappa_star]
 
         NOTE! Station interpolation is still in development.
-        Cressman and natural neighbor are not working as expected. Barnes works but it slow.
+        Cressman and natural neighbor are not working as expected.
+        Barnes works but it slow.
 
         Parameters
         ----------
@@ -2763,16 +2764,16 @@ one variable and variables list is not provided."
             Type of interpolation to use as supported by MetPy. \
             Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from \
             scipy.interpolate. 2) “barnes”, from metpy.interpolate. \
-        
+
         metpy_kwargs: dict
             Keyword arguments to pass to metpy.interpolate.interpolate_to_grid.
-            
+
         **kwargs
             Additional keyword arguments passed to the MetPy interpolation function.
             https://unidata.github.io/MetPy/latest/api/generated/metpy.interpolate.interpolate_to_grid.html#metpy.interpolate.interpolate_to_grid
         """
-        logger.warning("Use of setup_precip_from_timeseries is still in development.") 
-        #TODO remove logging message above when publishing
+        logger.warning("Use of setup_precip_from_timeseries is still in development.")
+        # TODO remove logging message above when publishing
         metpy_kwargs = metpy_kwargs or {}
 
         starttime = self.get_config("starttime")
@@ -2932,15 +2933,18 @@ one variable and variables list is not provided."
         # Check coverage of stations over model domain and fill NaN values
         stations_polygon = gdf_stations.geometry.unary_union.convex_hull
         if not stations_polygon.covers(self.basins.unary_union):
-            fill_method = interp_type if (
-                interp_type in ['linear', 'nearest', 'cubic']) else 'rio_idw'
+            fill_method = (
+                interp_type
+                if (interp_type in ["linear", "nearest", "cubic"])
+                else "rio_idw"
+            )
             logger.warning(
                 f"""The station data did not cover the entire model domain, \
                 using {fill_method} to fill NaN values."""
             )
             precip = precip.raster.reproject_like(
-                self.grid[self._MAPS["elevtn"]],
-                method="nearest_index")
+                self.grid[self._MAPS["elevtn"]], method="nearest_index"
+            )
             precip = precip.raster.interpolate_na(method=fill_method, extrapolate=True)
 
         precip_out = hydromt.workflows.forcing.precip(

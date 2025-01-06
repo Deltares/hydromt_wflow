@@ -754,8 +754,9 @@ def test_setup_precip_from_point_timeseries(
         # TODO cressman gives weird results (uniform)
     }
     gdf_precip_stations_inside = gdf_precip_stations[
-        gdf_precip_stations.geometry.within(example_wflow_model.basins.unary_union)]
-    
+        gdf_precip_stations.geometry.within(example_wflow_model.basins.unary_union)
+    ]
+
     for interp_type, test_val in interp_types.items():
         example_wflow_model.setup_precip_from_point_timeseries(
             precip_fn=df_precip_stations,
@@ -777,6 +778,7 @@ def test_setup_precip_from_point_timeseries(
         # Compare computed value with expected value
         mean_val = example_wflow_model.forcing["precip"].mean().values
         assert int(mean_val * 1000) == test_val[1]
+
 
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
