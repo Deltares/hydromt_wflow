@@ -144,6 +144,10 @@ def spatial_interpolation(
     -------
     xr.DataArray
         Interpolated forcing data on a regular grid with dimensions (time, y, x).
+
+    See Also
+    --------
+    hydromt_wflow.workflows.forcing.spatial_interpolation
     """
     x = stations.geometry.x
     y = stations.geometry.y

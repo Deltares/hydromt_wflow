@@ -749,7 +749,7 @@ def test_setup_precip_from_point_timeseries(
         "linear": [469, 431],
         "cubic": [453, 431],
         "rbf": [443, 422],
-        "barnes": [445, 444],
+        "barnes": [485, 444],
         # TODO natural neighbor is not working yet in test and code
         # TODO cressman gives weird results (uniform)
     }

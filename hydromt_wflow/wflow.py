@@ -2769,8 +2769,13 @@ one variable and variables list is not provided."
             Keyword arguments to pass to metpy.interpolate.interpolate_to_grid.
 
         **kwargs
-            Additional keyword arguments passed to the MetPy interpolation function.
-            https://unidata.github.io/MetPy/latest/api/generated/metpy.interpolate.interpolate_to_grid.html#metpy.interpolate.interpolate_to_grid
+            Additional keyword arguments passed to the MetPy interpolation function. \
+            See also ::py:meth:`workflows.forcing.spatial_interpolation`.
+
+        See Also
+        --------
+        hydromt_wflow.workflows.forcing.spatial_interpolation
+        metpy.interpolate.interpolate_to_grid
         """
         logger.warning("Use of setup_precip_from_timeseries is still in development.")
         # TODO remove logging message above when publishing
