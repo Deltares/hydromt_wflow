@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer.
+- **setup_precip_from_point_timeseries**: method to interpolate rainfall station data as model forcing.
 
 Changed
 -------
