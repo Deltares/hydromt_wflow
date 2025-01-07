@@ -8,7 +8,13 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 from hydromt.workflows.forcing import resample_time
-from metpy.interpolate import interpolate_to_grid, remove_nan_observations
+
+try:
+    from metpy.interpolate import interpolate_to_grid, remove_nan_observations
+
+    HAS_MEPTY = True
+except ImportError:
+    HAS_MEPTY = False
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +149,9 @@ def spatial_interpolation(
     y = stations.geometry.y
     time = forcing.index
     data = []
+
+    if not HAS_MEPTY:
+        raise ModuleNotFoundError("MetPy package is required for spatial interpolation")
 
     if np.isnan(forcing.values).any():
         logger.warning(
