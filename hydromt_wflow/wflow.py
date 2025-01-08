@@ -2758,7 +2758,7 @@ one variable and variables list is not provided."
             Precipitation source as DataFrame or GeoDataset, see
             data/forcing_sources.yml. The columns should correspond to the \
             names or indices of the stations in `precip_stations_fn`.
-        
+
         interp_type : str
             Type of interpolation to use as supported by MetPy. \
             Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from \
@@ -2799,72 +2799,75 @@ one variable and variables list is not provided."
             precip_fn = precip_fn.to_frame()
             precip_fn.columns = ["_station"]
         if (
-            isinstance(precip_fn, pd.DataFrame) or
-            isfile(precip_fn) or
-            _data_type == "DataFrame"
+            isinstance(precip_fn, pd.DataFrame)
+            or isfile(precip_fn)
+            or _data_type == "DataFrame"
         ):
             df_precip = self.data_catalog.get_dataframe(
-                    precip_fn,
-                    time_tuple=(starttime, endtime),
-                    handle_nodata=NoDataStrategy.IGNORE,
-                    **kwargs,
-                )
+                precip_fn,
+                time_tuple=(starttime, endtime),
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
+            )
             if precip_stations_fn is None and interp_type != "uniform":
-                raise ValueError("""
+                raise ValueError(
+                    """
                     Using a DataFrame as precipitation source requires that
                     station locations are provided separately through precip_station_fn.
-                """)
-        
+                """
+                )
+
             # Use model centroid as station for uniform precipitation
             # and nearest-neighbour with the centroid as single station
             if interp_type == "uniform":
                 if df_precip.shape[1] != 1:
-                    raise ValueError(f"""
+                    raise ValueError(
+                        f"""
                         Data source ({precip_fn}) should contain
-                        a single timeseries, not {df_precip.shape[1]}.""")
+                        a single timeseries, not {df_precip.shape[1]}."""
+                    )
                 precip_stations_fn = gpd.GeoDataFrame(
                     data=None,
                     geometry=[self.basins.unary_union.centroid],
-                    index=["_station"]
+                    index=["_station"],
                 )
                 interp_type = "nearest"
 
         # Load precip as GeoDataset, which does not require precip_stations_fn
-        elif (
-            isinstance(precip_fn, xr.Dataset) or
-            _data_type == "GeoDataset"
-        ):
-            # TODO: 
+        elif isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
+            # TODO:
             # da_precip = self.data_catalog.get_geodataset(...)
             # df_precip = pd.DataFrame(...)
             # precip_stations_fn = gpd.GeoDataFrame(...)
             raise NotImplementedError("GeoDataset source not yet implented.")
         else:
             raise ValueError(f"Data source {precip_fn} not recognized.")
-    
+
         df_precip = df_precip.astype("float32")
-        
+
         # Load the stations and their coordinates
         # or pass the GeoDataframe obtained from precip_fn
         if (
-            isinstance(precip_stations_fn, gpd.GeoDataFrame) or
-            isfile(precip_stations_fn) or
-            precip_stations_fn in self.data_catalog
+            isinstance(precip_stations_fn, gpd.GeoDataFrame)
+            or isfile(precip_stations_fn)
+            or precip_stations_fn in self.data_catalog
         ):
             gdf_stations = self.data_catalog.get_geodataframe(
-                    precip_stations_fn,
-                    assert_gtype="Point",
-                    handle_nodata=NoDataStrategy.IGNORE,
-                    **kwargs,
+                precip_stations_fn,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
             )
         else:
             raise ValueError(f"Data source {precip_stations_fn} not recognized.")
-        
+
         # Align precip timeseries and available stations
-        logger.info(f"""
+        logger.info(
+            f"""
                     Aligning stations from {precip_stations_fn}
-                    with precipitation data in {precip_fn}""")
-        
+                    with precipitation data in {precip_fn}"""
+        )
+
         mismatched_stations = set(df_precip.columns) ^ set(gdf_stations.index)
         if mismatched_stations:
             logger.warning(
@@ -2889,7 +2892,7 @@ one variable and variables list is not provided."
 
         # Transform station coordinates to model crs
         gdf_stations = gdf_stations.set_crs(self.crs)
-        
+
         # Use model resolution for the interpolated grid
         if np.abs(self.res[0]) != np.abs(self.res[1]):
             logger.info(
@@ -2913,16 +2916,22 @@ one variable and variables list is not provided."
 
         # Expand grid dimensions when a (1 X 1 X time) result is returned
         if precip.size == len(df_precip):
-            precip = precip.squeeze().expand_dims({
-                self.grid.raster.y_dim: self.grid.raster.ycoords,
-                self.grid.raster.x_dim: self.grid.raster.xcoords,
-            }).transpose("time", self.grid.raster.y_dim, self.grid.raster.x_dim)
+            precip = (
+                precip.squeeze()
+                .expand_dims(
+                    {
+                        self.grid.raster.y_dim: self.grid.raster.ycoords,
+                        self.grid.raster.x_dim: self.grid.raster.xcoords,
+                    }
+                )
+                .transpose("time", self.grid.raster.y_dim, self.grid.raster.x_dim)
+            )
 
         # Check coverage of stations over model domain
         stations_polygon = gdf_stations.geometry.unary_union.convex_hull
         if (
-            not stations_polygon.covers(self.basins.unary_union) and
-            len(gdf_stations) > 1
+            not stations_polygon.covers(self.basins.unary_union)
+            and len(gdf_stations) > 1
         ):
             # fill NaN values when the stations do not fully cover the basin
             fill_method = (

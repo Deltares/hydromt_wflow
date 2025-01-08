@@ -784,18 +784,19 @@ def test_setup_precip_from_point_timeseries(
 
     # Also include a test for uniform precipitation
     example_wflow_model.setup_precip_from_point_timeseries(
-            precip_fn=df_precip_stations.iloc[:, 0],
-            precip_stations_fn=None,
-            interp_type="uniform",
-        )
+        precip_fn=df_precip_stations.iloc[:, 0],
+        precip_stations_fn=None,
+        interp_type="uniform",
+    )
     # Check if the values per timestep are unique
-    for i, _ in enumerate(example_wflow_model.forcing['precip'].time):
+    for i, _ in enumerate(example_wflow_model.forcing["precip"].time):
         unique_values = np.unique(example_wflow_model.forcing["precip"].isel(time=i))
         assert len(unique_values[~np.isnan(unique_values)]) == 1
     # Check mean value
     mean_uniform = example_wflow_model.forcing["precip"].mean().values
     assert int(mean_uniform * 1000) == 274
-    
+
+
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
         pet_fn=da_pet,

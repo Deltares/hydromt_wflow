@@ -109,6 +109,19 @@ def spatial_interpolation(
     """
     Interpolate spatial forcing data from station observations to a regular grid.
 
+    This workflow uses the hydromt_wflow.workflows.forcing.spatial_interpolation \
+    function in MetPy. It supports methods from SciPy (nearest, linear, cubic, rbf), \
+    and methods implemented directy in Metpy: \
+    - 'barnes', based on Barnes (1964). A technique for maximizing details in \
+    numerical weather map analysis. J. Appl. Meteor. Climatol., 3, \
+    396-409, doi:10.1175/1520-0450(1964)003%3C0396:ATFMDI%3E2.0.CO;2.
+    - 'cressman', based on Cressman (1959). An operational objective analysis \
+    system. Mon. Wea. Rev., 87, 367-374,
+    doi:10.1175/1520-0493(1959)087%3C0367:AOOAS%3E2.0.CO;2.
+    - 'nearest_neighbor', based on Liang and Hale (2010): A Stable and Fast \
+    Implementation of Natural Neighbor Interpolation. Center for Wave \
+    Phenomena CWP-657, 14 pp.
+
     Parameters
     ----------
     forcing : pd.DataFrame
