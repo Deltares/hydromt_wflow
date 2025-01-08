@@ -161,8 +161,8 @@ def gdf_precip_stations():
     geometry = [
         # inside Piave basin
         Point(12.6, 46.6),
-        Point(11.8, 46.3),
-        Point(12.1, 45.8),
+        Point(11.9, 46.3),
+        Point(12.1, 45.9),
         # outside Piave basin
         Point(11.4, 46.9),
         Point(13.1, 46.7),
