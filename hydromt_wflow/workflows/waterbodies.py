@@ -5,11 +5,13 @@ import pandas as pd
 import xarray as xr
 import geopandas as gp
 import logging
+import shapely
+import json
 
 logger = logging.getLogger(__name__)
 
 
-__all__ = ["waterbodymaps", "reservoirattrs"]
+__all__ = ["waterbodymaps", "reservoirattrs", "lakeattrs"]
 
 
 def waterbodymaps(
@@ -76,8 +78,7 @@ def waterbodymaps(
         ydim = ds_like.raster.y_dim
         xdim = ds_like.raster.x_dim
         for i in res_id:
-            res_acc = ds_like[uparea_name].where(ds_out["resareas"] == i)
-            # max_res_acc = np.amax(res_acc.values())
+            res_acc = ds_like[uparea_name].where(ds_out["resareas"] == i).load()
             max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
             yacc = max_res_acc[ydim].values
             xacc = max_res_acc[xdim].values
@@ -118,16 +119,10 @@ def waterbodymaps(
     return ds_out, outgdf
 
 
-def reservoirattrs(
-    gdf,
-    priorityJRC=False,
-    perc_norm=50,
-    perc_min=20,
-    usehe=True,
-    logger=logger,
-):
+def reservoirattrs(gdf, timeseries_fn=None, perc_norm=50, perc_min=20, logger=logger):
     """Returns reservoir attributes (see list below) needed for modelling. 
-    For some attributes, download data from the JRC database (Peker, 2016) using hydroengine.
+    When specified, some of the reservoir attributes can be derived from earth observation data. 
+    Two options are currently available: 1. Global Water Watch data (Deltares, 2022) using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
     The following reservoir attributes are calculated:\
     - resmaxvolume : reservoir maximum volume [m3]\
@@ -141,14 +136,14 @@ def reservoirattrs(
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing reservoirs geometries and attributes.
-    priorityJRC : boolean, optional
-        Specify if attributes are more reliable from the gdf attributes or from the JRC database.
+    timeseries_fn : str, optional 
+        Name of database from which time series of reservoir surface water area will be retrieved.
+        Currently available: ['jrc', 'gww']
+        Defaults to Deltares' Global Water Watch database. 
     perc_norm : int, optional
         Percentile for normal (operational) surface area
     perc_min: int, optional 
         Percentile for minimal (operational) surface area
-    usehe : bool, optional
-        If True use hydroengine to get reservoir timeseries
 
     Returns
     -------
@@ -156,15 +151,38 @@ def reservoirattrs(
         DataFrame containing reservoir attributes.
     df_plot : pandas.DataFrame
         DataFrame containing debugging values for reservoir building.
+    df_ts : pandas.DataFrame
+        DataFrame containing all downloaded reservoir time series. 
     """
-    if usehe:
+
+    if timeseries_fn == "jrc":
         try:
             import hydroengine as he
-        except ImportError:
-            usehe = False
-            logger.debug(
-                "HydroEngine package not found, using default reservoir attribute values."
+
+            logger.info("Using reservoir timeseries from JRC via hydroengine.")
+        except:
+            raise ImportError(
+                "hydroengine package not found, cannot download jrc reservoir timeseries."
             )
+
+    elif timeseries_fn == "gww":
+        try:
+            from gwwapi import client as cli
+            from gwwapi import utils
+
+            logger.info("Using reservoir timeseries from GWW via gwwapi.")
+        except:
+            raise ImportError(
+                "gwwapi package not found, cannot download gww reservoir timeseries."
+            )
+    elif timeseries_fn is not None:
+        raise ValueError(
+            f"timeseries_fn argument {timeseries_fn} not understood, please use one of [gww, jrc] or None."
+        )
+    else:
+        logger.debug(
+            "Using reservoir attributes from reservoir database to compute parameters."
+        )
 
     # Initialize output DataFrame with empty values and reservoir ID
     df_out = pd.DataFrame(
@@ -183,12 +201,12 @@ def reservoirattrs(
     )
     df_out["resid"] = gdf["waterbody_id"].values
 
-    # Create similar dataframe for JRC timeseries
-    df_JRC = pd.DataFrame(
+    # Create similar dataframe for EO time series
+    df_EO = pd.DataFrame(
         index=range(len(gdf["waterbody_id"])),
         columns=(["resid", "maxarea", "normarea", "minarea", "capmin", "capmax"]),
     )
-    df_JRC["resid"] = gdf["waterbody_id"].values
+    df_EO["resid"] = gdf["waterbody_id"].values
 
     # Create dtaframe for accuracy plots
     df_plot = pd.DataFrame(
@@ -197,26 +215,37 @@ def reservoirattrs(
     )
     df_plot["resid"] = gdf["waterbody_id"].values
 
-    # Get JRC data for each reservoir from hydroengine
-    df_JRC.loc[:, "maxarea"] = np.nan
-    df_JRC.loc[:, "normarea"] = np.nan
-    df_JRC.loc[:, "minarea"] = np.nan
+    # Create empty dataframe for timeseries exports
+    df_ts = pd.DataFrame()
 
-    if usehe:
+    # Get EO data for each reservoir
+    if timeseries_fn == "jrc":
         for i in range(len(gdf["waterbody_id"])):
             ids = str(gdf["waterbody_id"].iloc[i])
             try:
-                logger.debug(f"Downloading HydroEngine timeseries for reservoir {ids}")
+                logger.debug(f"Downloading HydroEngine time series for reservoir {ids}")
                 time_series = he.get_lake_time_series(
                     int(gdf["Hylak_id"].iloc[i]), "water_area"
                 )
+
+                # Append series to df_ts which will contain all time series
+                # of all dowloaded reservoirs, with an outer join on the datetime index
+                ts_index = pd.to_datetime([k * 1000000 for k in time_series["time"]])
+                ts_values = time_series["water_area"]
+                ts_series = pd.Series(
+                    data=ts_values, index=ts_index, name=int(gdf["Hylak_id"].iloc[i])
+                )
+                ts_series = ts_series[ts_series > 0].dropna()
+                df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
+
+                # Save area stats
                 area_series = np.array(time_series["water_area"])  # [m2]
                 area_series_nozeros = area_series[area_series > 0]
-                df_JRC.loc[i, "maxarea"] = area_series_nozeros.max()
-                df_JRC.loc[i, "normarea"] = np.percentile(
+                df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
+                df_EO.loc[i, "normarea"] = np.percentile(
                     area_series_nozeros, perc_norm, axis=0
                 )
-                df_JRC.loc[i, "minarea"] = np.percentile(
+                df_EO.loc[i, "minarea"] = np.percentile(
                     area_series_nozeros, perc_min, axis=0
                 )
             except:
@@ -224,24 +253,69 @@ def reservoirattrs(
                     f"No HydroEngine time series available for reservoir {ids}!"
                 )
 
+    if timeseries_fn == "gww":
+        # get bounds from gdf input as JSON object that can be used in post request with the gww api
+        gdf_bounds = json.dumps(
+            shapely.geometry.box(*gdf.total_bounds, ccw=True).__geo_interface__
+        )
+        # get reservoirs wihtin these bounds
+        gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds)
+        # from the response, create a dictonary, linking the gww_id to the hylak_id (used in the default reservoir database)
+        idlink = {
+            k["properties"]["source_id"]: k["id"] for k in gww_reservoirs["features"]
+        }
+
+        for i in range(len(gdf["waterbody_id"])):
+            ids = str(gdf["waterbody_id"].iloc[i])
+            try:
+                logger.debug(
+                    f"Downloading Global Water Watch time series for reservoir {ids}"
+                )
+                time_series = cli.get_reservoir_ts_monthly(
+                    idlink[int(gdf["Hylak_id"].iloc[i])]
+                )
+
+                # Append series to df_ts which will contain all time series
+                # of all dowloaded reservoirs, with an outer join on the datetime index
+                ts_series = utils.to_timeseries(
+                    time_series, name=f'{int(gdf["Hylak_id"].iloc[i])}'
+                ).drop_duplicates()
+                df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
+
+                # Compute stats
+                area_series = utils.to_timeseries(time_series)["area"].to_numpy()
+                area_series_nozeros = area_series[area_series > 0]
+                df_EO.loc[i, "maxarea"] = area_series_nozeros.max()
+                df_EO.loc[i, "normarea"] = np.percentile(
+                    area_series_nozeros, perc_norm, axis=0
+                )
+                df_EO.loc[i, "minarea"] = np.percentile(
+                    area_series_nozeros, perc_min, axis=0
+                )
+            except:
+                logger.warning(f"No GWW time series available for reservoir {ids}!")
+
+    # Sort timeseries dataframe (will be saved to root as .csv later)
+    df_ts = df_ts.sort_index()
+
     # Compute resdemand and resmaxrelease either from average discharge
     if "Dis_avg" in gdf.columns:
         df_out["resdemand"] = gdf["Dis_avg"].values * 0.5
         df_out["resmaxrelease"] = gdf["Dis_avg"].values * 4.0
 
-    # Get resarea either from JRC or database depending on priorityJRC
+    # Get resarea either from EO or database depending
     if "Area_avg" in gdf.columns:
         df_out["resarea"] = gdf["Area_avg"].values
-        if priorityJRC:
-            df_out.loc[pd.notna(df_JRC["maxarea"]), "resarea"] = df_JRC["maxarea"][
-                pd.notna(df_JRC["maxarea"])
+        if timeseries_fn is not None:
+            df_out.loc[pd.notna(df_EO["maxarea"]), "resarea"] = df_EO["maxarea"][
+                pd.notna(df_EO["maxarea"])
             ].values
         else:
-            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_JRC["maxarea"][
+            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
                 pd.isna(df_out["resarea"])
             ].values
     else:
-        df_out["resarea"] = df_JRC["maxarea"].values
+        df_out["resarea"] = df_EO["maxarea"].values
 
     # Get resmaxvolume from database
     if "Vol_avg" in gdf.columns:
@@ -256,8 +330,9 @@ def reservoirattrs(
         df_out["resfullfrac"] = gdf["Capacity_norm"].values / df_out["resmaxvolume"]
         df_plot["accuracy_norm"] = np.repeat(1.0, len(df_plot["accuracy_norm"]))
 
-    # Then compute from JRC data and fill or replace the previous values depending on priorityJRC
+    # Then compute from EO data and fill or replace the previous values (if a valid source is provided)
     # TODO for now assumes that the reservoir-db is used (combination of GRanD and HydroLAKES)
+    gdf = gdf.fillna(value=np.nan)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
         # import pdb; pdb.set_trace()
@@ -265,9 +340,9 @@ def reservoirattrs(
         max_level = np.nanmax([gdf["Depth_avg"].iloc[i], 0.0])
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])
         max_cap = np.nanmax([df_out["resmaxvolume"].iloc[i], 0.0])
-        norm_area = np.nanmax([df_JRC["normarea"].iloc[i], 0.0])
+        norm_area = np.nanmax([df_EO["normarea"].iloc[i], 0.0])
         norm_cap = np.nanmax([gdf["Capacity_norm"].iloc[i], 0.0])
-        min_area = np.nanmax([df_JRC["minarea"].iloc[i], 0.0])
+        min_area = np.nanmax([df_EO["minarea"].iloc[i], 0.0])
         min_cap = np.nanmax([gdf["Capacity_min"].iloc[i], 0.0])
         mv = 0.0
 
@@ -385,24 +460,180 @@ def reservoirattrs(
             accuracy_min = 5
 
         # Resume results
-        df_JRC.loc[i, "capmin"] = min_cap_f
-        df_JRC.loc[i, "capmax"] = norm_cap_f
+        df_EO.loc[i, "capmin"] = min_cap_f
+        df_EO.loc[i, "capmax"] = norm_cap_f
         df_plot.loc[i, "factor"] = factor_shape
         df_plot.loc[i, "accuracy_min"] = accuracy_min
         df_plot.loc[i, "accuracy_norm"] = accuracy_norm
 
-    # Depending on priority JRC update fullfrac and min frac
-    if priorityJRC:
-        df_out.resminfrac = df_JRC["capmin"].values / df_out["resmaxvolume"].values
-        df_out.resfullfrac = df_JRC["capmax"].values / df_out["resmaxvolume"].values
+    # Depending on priority EO update fullfrac and min frac
+    if timeseries_fn is not None:
+        df_out.resminfrac = df_EO["capmin"].values / df_out["resmaxvolume"].values
+        df_out.resfullfrac = df_EO["capmax"].values / df_out["resmaxvolume"].values
     else:
         df_out.loc[pd.isna(df_out["resminfrac"]), "resminfrac"] = (
-            df_JRC.loc[pd.isna(df_out["resminfrac"]), "capmin"].values
+            df_EO.loc[pd.isna(df_out["resminfrac"]), "capmin"].values
             / df_out.loc[pd.isna(df_out["resminfrac"]), "resmaxvolume"].values
         )
         df_out.loc[pd.isna(df_out["resfullfrac"]), "resfullfrac"] = (
-            df_JRC.loc[pd.isna(df_out["resfullfrac"]), "capmax"].values
+            df_EO.loc[pd.isna(df_out["resfullfrac"]), "capmax"].values
             / df_out.loc[pd.isna(df_out["resfullfrac"]), "resmaxvolume"].values
         )
 
-    return df_out, df_plot
+    return df_out, df_plot, df_ts
+
+
+def lakeattrs(
+    ds: xr.Dataset,
+    gdf: gp.GeoDataFrame,
+    rating_dict: dict = dict(),
+    add_maxstorage: bool = False,
+    logger=logger,
+):
+    """
+    Returns lake attributes (see list below) needed for modelling. 
+    If rating_dict is not empty, prepares also rating tables for wflow
+
+    The following reservoir attributes are calculated:\
+    - waterbody_id : waterbody id\
+    - LakeArea : lake area [m2]\
+    - LakeAvgLevel: lake average level [m]\
+    - LakeAvgOut: lake average outflow [m3/s]\
+    - Lake_b: lake rating curve coefficient [-]\
+    - Lake_e: lake rating curve exponent [-]\
+    - LakeStorFunc: option to compute storage curve [-]\
+    - LakeOutflowFunc: option to compute rating curve [-]\
+    - LakeThreshold: minimium threshold for lake outflow [m]\
+    - LinkedLakeLocs: id of linked lake location if any\
+    - LakeMaxStorage: maximum storage [m3] (optional)
+    
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Dataset containing the lake locations and area
+    gdf : gp.GeoDataFrame
+        GeoDataFrame containing the lake locations and area
+    rating_dict : dict, optional
+        Dictionary containing the rating curve parameters, by default dict()
+    add_maxstorage : bool, optional
+        If True, adds the maximum storage to the output, by default False
+    
+    Returns
+    -------
+    ds : xr.Dataset
+        Dataset containing the lake locations with the attributes
+    gdf : gp.GeoDataFrame
+        GeoDataFrame containing the lake locations with the attributes
+    rating_curves : dict
+        Dictionary containing the rating curves in wflow format
+    """
+    # rename to param values
+    gdf = gdf.rename(
+        columns={
+            "Area_avg": "LakeArea",
+            "Depth_avg": "LakeAvgLevel",
+            "Dis_avg": "LakeAvgOut",
+        }
+    )
+    # Add maximum volume / no filling of NaNs as assumes then natural lake and not controlled
+    if add_maxstorage:
+        if "Vol_max" in gdf.columns:
+            gdf = gdf.rename(columns={"Vol_max": "LakeMaxStorage"})
+        else:
+            logger.warning(
+                "No maximum storage 'Vol_max' column found, skip adding LakeMaxStorage map."
+            )
+    # Minimum value for LakeAvgOut
+    LakeAvgOut = gdf["LakeAvgOut"].copy()
+    gdf["LakeAvgOut"] = np.maximum(gdf["LakeAvgOut"], 0.01)
+    if "Lake_b" not in gdf.columns:
+        gdf["Lake_b"] = gdf["LakeAvgOut"].values / (gdf["LakeAvgLevel"].values) ** (2)
+    if "Lake_e" not in gdf.columns:
+        gdf["Lake_e"] = 2
+    if "LakeThreshold" not in gdf.columns:
+        gdf["LakeThreshold"] = 0.0
+    if "LinkedLakeLocs" not in gdf.columns:
+        gdf["LinkedLakeLocs"] = 0
+    if "LakeStorFunc" not in gdf.columns:
+        gdf["LakeStorFunc"] = 1
+    if "LakeOutflowFunc" not in gdf.columns:
+        gdf["LakeOutflowFunc"] = 3
+
+    # Check if some LakeAvgOut values have been replaced
+    if not np.all(LakeAvgOut == gdf["LakeAvgOut"]):
+        logger.warning(
+            "Some values of LakeAvgOut have been replaced by a minimum value of 0.01m3/s"
+        )
+
+    # Check if rating curve is provided
+    rating_curves = dict()
+    if len(rating_dict) != 0:
+        # Assume one rating curve per lake index
+        for id in gdf["waterbody_id"].values:
+            id = int(id)
+            if id in rating_dict.keys():
+                df_rate = rating_dict[id]
+                # Prepare the right tables for wflow
+                # Update LakeStor and LakeOutflowFunc
+                # Storage
+                if "volume" in df_rate.columns:
+                    gdf.loc[gdf["waterbody_id"] == id, "LakeStorFunc"] = 2
+                    df_stor = df_rate[["elevtn", "volume"]].dropna(
+                        subset=["elevtn", "volume"]
+                    )
+                    df_stor.rename(columns={"elevtn": "H", "volume": "S"}, inplace=True)
+                    # add to rating_curves
+                    rating_curves[f"lake_sh_{id}"] = df_stor
+                else:
+                    logger.warning(
+                        f"Storage data not available for lake {id}. Using default S=AH"
+                    )
+                # Rating
+                if "discharge" in df_rate.columns:
+                    gdf.loc[gdf["waterbody_id"] == id, "LakeOutflowFunc"] = 1
+                    df_rate = df_rate[["elevtn", "discharge"]].dropna(
+                        subset=["elevtn", "discharge"]
+                    )
+                    df_rate.rename(
+                        columns={"elevtn": "H", "discharge": "Q"},
+                        inplace=True,
+                    )
+                    # Repeat Q for the 365 JDOY
+                    df_q = pd.concat([df_rate.Q] * (366), axis=1, ignore_index=True)
+                    df_q[0] = df_rate["H"]
+                    df_q.rename(columns={0: "H"}, inplace=True)
+                    # add to rating_curves
+                    rating_curves[f"lake_hq_{id}"] = df_q
+                else:
+                    logger.warning(
+                        f"Rating data not available for lake {id}. Using default Modified Puls Approach"
+                    )
+
+    # Create raster of lake params
+    lake_params = [
+        "waterbody_id",
+        "LakeArea",
+        "LakeAvgLevel",
+        "LakeAvgOut",
+        "Lake_b",
+        "Lake_e",
+        "LakeStorFunc",
+        "LakeOutflowFunc",
+        "LakeThreshold",
+        "LinkedLakeLocs",
+    ]
+    if "LakeMaxStorage" in gdf.columns:
+        lake_params.append("LakeMaxStorage")
+
+    gdf_org_points = gp.GeoDataFrame(
+        gdf[lake_params],
+        geometry=gp.points_from_xy(gdf.xout, gdf.yout),
+    )
+
+    for name in lake_params[1:]:
+        da_lake = ds.raster.rasterize(
+            gdf_org_points, col_name=name, dtype="float32", nodata=-999
+        )
+        ds[name] = da_lake
+
+    return ds, gdf, rating_curves
