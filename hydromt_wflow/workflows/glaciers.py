@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
+"""Glaciers workflows for Wflow plugin."""
+
+import logging
 
 import numpy as np
 import pandas as pd
-import logging
-
 
 logger = logging.getLogger(__name__)
 
@@ -18,13 +18,14 @@ def glaciermaps(
     elevtn_name="elevtn",
     logger=logger,
 ):
-    """Returns glacier maps (see list below) at model resolution.
+    """Return glacier maps (see list below) at model resolution.
 
-    The following glacier maps are calculated:\
-    - wflow_glacierareas: glacier IDs [ID]\
-    - wflow_glacierfrac: area fraction of glacier per cell [-]\
-    - wflow_glacierstore: storage (volume) of glacier per cell [mm]\
-    
+    The following glacier maps are calculated:
+
+    - wflow_glacierareas: glacier IDs [ID]
+    - wflow_glacierfrac: area fraction of glacier per cell [-]
+    - wflow_glacierstore: storage (volume) of glacier per cell [mm]
+
     Parameters
     ----------
     gdf : geopandas.GeoDataFrame
@@ -53,18 +54,23 @@ def glaciermaps(
 
     # Calculate glacier storage for each glacier
     # 'old' version to calculate storage, by calculating area from the glacier geometry
-    # proj = partial(pyproj.transform, pyproj.Proj('epsg:4326'), pyproj.Proj('epsg:3857'))
+    # proj = partial(pyproj.transform, pyproj.Proj('epsg:4326'),
+    # pyproj.Proj('epsg:3857'))
     # def calcStore(polygon, k=0.2055, gamma=1.375, proj=proj):
     #    return np.int(k * transform(proj, polygon).area ** gamma)
     # gdf['glaciervolume'] = gdf.apply(lambda row: calcStore(row['geometry']), axis=1)
     # def convStoremm(polygon, volm3, rhoice=0.9, proj=proj):
     #    return np.int(rhoice * volm3 / transform(proj, polygon).area * 1000)
-    # gdf['glacierstore'] = gdf.apply(lambda row: convStoremm(row['geometry'], row['glaciervolume']), axis=1)
-    # 'new' version to calculate storage, because the 'old' version is now returning inf/nan values, using the area listed in the dataset
+    # gdf['glacierstore'] = gdf.apply(lambda row: convStoremm(row['geometry'],
+    # row['glaciervolume']), axis=1)
+    # 'new' version to calculate storage, because the 'old' version is now returning
+    # inf/nan values, using the area listed in the dataset
 
     gdf["geometry"] = gdf.geometry.buffer(0)  # fix potential geometry errors
-    # TODO: use alternative to calucate area? There seems to be a factor 2 difference with the AREA column
-    # gdf["AREA2"] = gdf.to_crs(3857).area / 1e6  # km2, area calculation needs projected crs
+    # TODO: use alternative to calucate area? There seems to be a factor 2 difference
+    # with the AREA column
+    # gdf["AREA2"] = gdf.to_crs(3857).area / 1e6  # km2, area calculation
+    # needs projected crs
 
     def calcStore(areakm2, k=0.2055, gamma=1.375):
         return int(k * (areakm2 * 1e6) ** gamma)
@@ -79,7 +85,8 @@ def glaciermaps(
 
     # Create vector grid (for calculating fraction and storage per grid cell)
     logger.debug(
-        "Creating vector grid for calculating glacier fraction and storage per grid cell"
+        "Creating vector grid for calculating glacier fraction and \
+storage per grid cell"
     )
     elevtn = ds_like[elevtn_name]
     idx_valid = np.where(elevtn.values.flatten() != elevtn.raster.nodata)[0]
@@ -90,7 +97,7 @@ def glaciermaps(
 
     # Calculate fraction and storage (i.e. volume) per (vector) grid cell
     # Looping over each vector GLACIER
-    logger.debug(f"Setting glacierfrac and store values per glacier.")
+    logger.debug("Setting glacierfrac and store values per glacier.")
     for i in range(len(gdf)):
         glacier = gdf.iloc[i]
         gridded_glacier = gdf_grid.intersection(glacier.geometry)
@@ -140,12 +147,14 @@ def glacierattrs(
     id_column="simple_id",
     logger=logger,
 ):
-    """Returns glacier intbls (see list below).
+    """Return glacier intbls (see list below).
 
-    The following glacier intbls are calculated:\
-    - glacTempThresh: glacier temperature threshold [°C]\
-    - glacCfmax: glacier melting factor [mm/(°C*day)]\
-    - glacSIfrac: fraction of snowpack converted into ice and added to glacier storage [-]\
+    The following glacier intbls are calculated:
+
+    - glacTempThresh: glacier temperature threshold [°C]
+    - glacCfmax: glacier melting factor [mm/(°C*day)]
+    - glacSIfrac: fraction of snowpack converted into ice and added to \
+glacier storage [-]
 
     Parameters
     ----------
@@ -156,7 +165,8 @@ def glacierattrs(
     Cfmax : float, optional
         Default value for glacier melting factor.
     SIfrac : float, optional
-        Default value for fraction of snowpack converted into ice and added to glacier storage.
+        Default value for fraction of snowpack converted into ice and added to \
+glacier storage.
     id_column : str, optional, one of "simple_id", "C3S_id", "RGI_id", or "GLIMS_id"
         Column used for the glacier IDs, see data/data_sources.yml.
 

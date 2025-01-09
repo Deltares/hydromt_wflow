@@ -1,18 +1,17 @@
 """hydroMT plugin for wflow models."""
 
-from os.path import join, dirname, abspath
+__version__ = "0.7.1dev0"
 
-__version__ = "0.2.2.dev"
+from .naming import *
+from .utils import *
+from .wflow import *
+from .wflow_sediment import *
 
+# PCRaster functions
 try:
     import pcraster as pcr
 
     HAS_PCRASTER = True
+    from .pcrm import *
 except ImportError:
     HAS_PCRASTER = False
-
-DATADIR = join(dirname(abspath(__file__)), "data")
-
-from .wflow import *
-from .wflow_sediment import *
-from .utils import *

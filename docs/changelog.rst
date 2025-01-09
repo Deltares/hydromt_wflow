@@ -11,11 +11,174 @@ Unreleased
 
 Added
 -----
+- **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer.
+
+Changed
+-------
+-
+
+Fixed
+-----
+-
+
+v0.7.0 (8 November 2024)
+========================
+This release adds support to create water demand and allocation related data (available since Wflow.jl version 0.8.0).
+For now, the new methods for demands support is limited to already gridded input datasets.
+The release also includes support for the paddy land use type and additional landuse parameters (crop coefficient and root uptake).
+
+Added
+-----
+- **setup_lulcmaps_with_paddy**: method to add paddy to the model. Adding paddies leads to changes in landuse and soil parameters. PR #226
+- **setup_domestic_demand** and **setup_other_demand**: methods to prepare water demands for different sectors using gridded datasets. PR #226
+- **setup_irrigation**: method to prepare irrigation areas and parameters. PR #226
+- **setup_allocation_areas**: method to prepare allocation areas for water allocation. PR #226
+- **setup_allocation_surfacewaterfrac**: method to prepare surface water fraction for water allocation. PR #226
+
+Changed
+-------
+- **setup_lulcmaps** prepares new vegetation parameters (crop coefficient kc and h values). PR #226
+- **set_grid** supports several cyclic time dimensions. PR #226
+
+Fixed
+-----
+- Error in computation of LAI values from mapping to landuse in **setup_laimaps**. PR #297
+- IO error for write_states in write. PR #297
+- Creating the staticgeoms folder if it does not already exist (eg when dir_input is provided). PR #297
+- Pedo-transfer function for estimation of residual water content. PR #300
+
+v0.6.1 (16 September 2024)
+==========================
+This release mainly contains small bugfixes and limits xarray version to 2024.03.0
+
+Added
+-----
+- Added "fillna_method" option for **setup_temp_pet_forcing** by @tnlim
+- Output filenames can now be specified in the model.write function. More detailed arguments should still be specified in each individual write* methods. PR #286
+
+Changed
+-------
+- Individual methods like write_forcing will not longer write the config file if config settings get updated. Always call write_config as the last write method. PR #286
+- More uniform handling of the date typing when reading/writing dates from the wflow toml files. PR #286
+
+Fixed
+-----
+- Wrong dtype for columns when reading a mapping table in **setup_laimaps_from_lulc_mapping** . PR #290
+- Read/write staticgeoms if dir_input folder is present in the wflow toml file. PR #286
+- Creating subfolders for the config file of wflow in **write_config**. PR #286
+- Fixed access to functions in the **pcrm** module (read_staticmaps_pcr, write_staticmaps_pcr). PR #293
+- Bug in **setup_pet_forcing** when doing time resampling. PR #294
+
+v0.6.0 (7 June 2024)
+====================
+Copious amounts of new features and fixes!
+
+Added
+-----
+- If applicable, basins geometry based on the higher resolution DEM is stored seperately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`_
+- New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
+- New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
+- New function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
+- Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
+- Better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
+- **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
+- New function **setup_cold_states** to prepare cold states for WflowModel. PR #252
+- New utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
+- Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
+- Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
+- Parameter for output filename in **write_grid** (`fn_out`). PR #278
+- New function **setup_laimaps_from_lulc_mapping** to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273
+
+
+Changed
+-------
+- Basins geometry (**basins**) is now based on the actual wflow model resolution basins, instead of based on the supplied DEM `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`
+- **setup_soilmaps**: the user can now supply variable sbm soil layer thicknesses. The Brooks Corey coefficient is then computed as weighted average over the sbm layers. PR #242
+- **setup_outlets**: the IDs of wflow_subcatch are used to define the outlets IDs rather than [1:n]. PR #247
+- wflow forcing data type should always be float32. PR #268
+- **setup_laimaps**: if a landuse map if provided, setup_laimaps can also prepare landuse mapping tables for LAI. PR #273
+
+Fixed
+-----
+- Wrong dtype for wflow_subcatch map. PR #247
+- **setup_gauges**: Allow snapping to river/mask for snap_uparea method. PR #248
+- Removed building a wflow model without a config file in the build notebook.
+- Deprecated np.bool and earlier error message for subbasin delination. PR #263
+
+Deprecated
+----------
+- **clip_staticmaps** in favour of **clip_grid**
+- **read_staticmaps** and **write_staticmaps**, superseded by **read_grid** and **write_grid**
+- **read_staticgeoms** and **write_staticgeoms**, superseded by **read_geoms** and **write_geoms**
+
+v0.5.0 (13 February 2024)
+=========================
+Better handling of nodata and a switch from ini to yaml for configuration.
+
+Added
+-----
+- **setup_rivers**: Add river depth based on rivdph columns in river_geom_fn rather than only computed from qbankfull column.
+
+Changed
+-------
+- Remove default values for data sources in the different setup methods. (PR #227)
+
+Fixed
+-----
+- **setup_reservoirs**: Fix error if optional columns 'Capacity_norm', 'Capacity_min', 'xout', 'yout' are not in reservoir_fn. Allow to pass kwargs to the get_data method.
+- **setup_lulcmaps**: Fix error when looking for mapping_fn in self.data_catalog
+- **setup_config_output_timeseries**: bugfix for reducer.
+- update hydromt configuration files from ini to yml format. PR #230
+- remove or update calls to check if source in self.data_catalog `Issue #501 <https://github.com/Deltares/hydromt/issues/501>`_
+- Included NoDataStrategy from hydromt-core: setup functions for lakes, reservoirs, glaciers, and gauges are skipped when no data is found withing the model region (same behavior as before) PR #229
+
+Deprecated
+----------
+- **read_staticmaps_pcr** in favour of same method in **pcrm** submodule
+- **write_staticmaps_pcr** in favour of same method in **pcrm** submodule
+
+Documentation
+-------------
+- Extra information for most of the setup methods of **WflowModel** and **WflowSedimentModel**
+
+v0.4.1 (22 November 2023)
+=========================
+Small update
+
+Fixed
+-----
+- Make HydroMT-Wflow **v0.4.0** conda installable
+
+v0.4.0 (21 November 2023)
+=========================
+Small overhaul of internal methods and stability fixes. This version works with HydroMT **v0.9.1** onwards.
+
+Changed
+-------
+- **WflowModel** and **WflowSedimentModel** now rely on `GridModel` from HydroMT
+- PCRaster methods are moved to `pcrm` submodule and are deprecated as methods for the **WflowModel** class
+- **read_staticgeoms**, **write_staticgeoms** and **staticgeoms** are now deprecated
+- Staticgeoms methods are superseded by **read_geoms**, **write_geoms** and **geoms**
+- **read_staticmaps**, **write_staticmaps** and **staticmaps** are now deprecated
+- Staticmaps methods are superseded by **read_grid**, **write_grid** and **grid**
+
+Fixed
+-----
+- Mainly stability fixes
+
+v0.3.0 (27 July 2023)
+=====================
+Various new features and bugfixes in support of Wflow.jl v0.7.1. This version works with HydroMT v0.8.0.
+
+Added
+-----
+- Support for models in CRS other than 4326. `PR #161 <https://github.com/Deltares/hydromt_wflow/pull/161>`_
+- Support for elevation data other than MERIT Hydro in **setup_basemaps**.
 - Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - Support in toml for dir_input and dir_output options. `PR #140 <https://github.com/Deltares/hydromt_wflow/pull/140>`_
 - Add options to calculate daily Penman-Monteith potential evaporation using the pyet package. Depending on the available variables, two options are defined ``penman-monteith_tdew`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind_u', 'wind_v', 'temp_dew', 'kin', 'press_msl']) and ``penman-monteith_rh_simple`` (inputs: ['temp', 'temp_min', 'temp_max', 'wind', 'rh', 'kin']).
 - In **setup_reservoirs**: Global Water Watch compatibility for determining reservoir parameters.
-- In **setup_reservoirs**: All dowloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
+- In **setup_reservoirs**: All downloaded reservoir timeseries are saved to root in 1 csv file. Column headers indicate reservoir id.
 - **setup_oulets**: Add map/geom of basin outlets (on river or all) and optionally updates outputs in toml file.
 - **setup_config_output_timeseries**: add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
 - **setup_gauges**: support for snapping based on a user defined max distance and snapping based on upstream area attribute.
@@ -42,10 +205,17 @@ Fixed
 - write_forcing with time cftime.DatetimeNoLeap #138 by removing slicing forcing if missings (not needed)
 - write_forcing automatic adjustment of starttime and endtime based on forcing content
 - When clipping a model from a model with multiple forcing files, a single netcdf is made in write_forcing and the * is removed from the filename.
+- Remove deprecated basin_shape method `PR #183 <https://github.com/Deltares/hydromt_wflow/pull/183>`_
+- Remove FillValue Nan for lat/lon in staticmaps and forcing `PR #183 <https://github.com/Deltares/hydromt_wflow/pull/183>`_
+- Fix compatibility with HydroMT v0.8.0, with updated `clip_geom/mask` functionality `PR #189 <https://github.com/Deltares/hydromt_wflow/pull/189>`_
 
 Deprecated
 ----------
 - The **setup_hydrodem** function has been removed, and the functionality are moved to **setup_rivers** and **setup_floodplains**
+
+Documentation
+-------------
+- New **prepare_ldd** example notebook to demonstrate how to prepare flow directions and other elevation related data.
 
 
 v0.2.1 (22 November 2022)

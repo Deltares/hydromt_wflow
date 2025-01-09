@@ -1,17 +1,21 @@
+"""Some utilities from the Wflow plugin."""
+from os.path import abspath, dirname, join
+from pathlib import Path
+from typing import Dict, Optional, Union
+
 import numpy as np
 import xarray as xr
-from typing import Dict, Union
-from pathlib import Path
-
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
+from hydromt.workflows.grid import grid_from_constant
 
+DATADIR = join(dirname(abspath(__file__)), "data")
 
-__all__ = ["read_csv_results"]
+__all__ = ["read_csv_results", "get_config", "get_grid_from_config"]
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
-    """Read wflow results csv timeseries and parse to dictionnary
+    """Read wflow results csv timeseries and parse to dictionnary.
 
     Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
@@ -31,7 +35,8 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
     Returns
     -------
     csv_dict: dict
-        Dictionnary of hydromt.GeoDataArrays for the different csv.column section of the config.
+        Dictionnary of hydromt.GeoDataArrays for the different csv.column section \
+of the config.
     """
     # Count items by csv.column
     count = 1
@@ -65,7 +70,7 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
             count += 1
             try:
                 da_ts = open_timeseries_from_table(fn, name=header, usecols=usecols)
-            except:
+            except Exception:
                 colnames = ["time", "0"]
                 da_ts = open_timeseries_from_table(
                     fn,
@@ -97,7 +102,8 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
                 else:
                     # Create grid with full 2D Julia indices
                     # Dimensions are ascending and ordered as (x,y,layer,time)
-                    # Indices are created before ordering for compatibility with raster.idx_to_xy
+                    # Indices are created before ordering for compatibility with
+                    # raster.idx_to_xy
                     full_index = maps[f'{config["input"].get("subcatchment")}'].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
@@ -155,7 +161,8 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
                         "x": xr.IndexVariable("index", xi),
                         "y": xr.IndexVariable("index", yi),
                     }
-            # Based on model bbox center for column based on reducer for the full model domain
+            # Based on model bbox center for column based on reducer for
+            # the full model domain
             else:
                 xmin, ymin, xmax, ymax = maps.raster.bounds
                 scoords = {
@@ -167,3 +174,144 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
         csv_dict[f"{da.name}"] = da
 
     return csv_dict
+
+
+def get_config(
+    *args,
+    config: Dict = {},
+    fallback=None,
+    root: Path = None,
+    abs_path: Optional[bool] = False,
+):
+    """
+    Get a config value at key(s).
+
+    Copy of hydromt.Model.get_config method to parse config outside of Model functions.
+
+    See Also
+    --------
+    hydromt.Model.get_config
+
+    Parameters
+    ----------
+    args : tuple or string
+        keys can given by multiple args: ('key1', 'key2')
+        or a string with '.' indicating a new level: ('key1.key2')
+    config : dict, optional
+        config dict to get the values from.
+    fallback: any, optional
+        fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by deafult False.
+
+    Returns
+    -------
+    value : any type
+        dictionary value
+    """
+    args = list(args)
+    if len(args) == 1 and "." in args[0]:
+        args = args[0].split(".") + args[1:]
+    branch = config.copy()  # reads config at first call
+    for key in args[:-1]:
+        branch = branch.get(key, {})
+        if not isinstance(branch, dict):
+            branch = dict()
+            break
+    value = branch.get(args[-1], fallback)
+    if abs_path and isinstance(value, str):
+        value = Path(value)
+        if not value.is_absolute():
+            if root is None:
+                raise ValueError(
+                    "root path is required to get absolute path from relative path"
+                )
+            value = Path(abspath(join(root, value)))
+    return value
+
+
+def get_grid_from_config(
+    *args,
+    config: Dict = {},
+    grid: xr.Dataset = None,
+    fallback=None,
+    root: Path = None,
+    abs_path: Optional[bool] = False,
+    nodata: Union[int, float] = -9999,
+    mask_name: Optional[str] = None,
+) -> xr.DataArray:
+    """
+    Get actual grid values from config including scale and offset.
+
+    Calls get_config and applies value, scale and offset if available.
+
+    Parameters
+    ----------
+    args : tuple or string
+        keys can given by multiple args: ('key1', 'key2')
+        or a string with '.' indicating a new level: ('key1.key2')
+    config : dict
+        config dict to get the values from.
+    grid : xr.Dataset
+        grid dataset to get the values from.
+    fallback: any, optional
+        fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by default False.
+    nodata: int or float, optional
+        nodata value to use for the DataArray, by default -9999. Used only if the
+        variable in config is described using value only.
+    mask_name: str, optional
+        Name of the mask variable in grid. Used only if the variable in config is
+        described using value only.
+
+    Returns
+    -------
+    da : xr.DataArray
+        DataArray with actual grid values
+
+    See Also
+    --------
+    get_config
+    hydromt.workflows.grid.grid_from_constant
+    """
+    # get config value
+    var = get_config(
+        *args,
+        config=config,
+        fallback=fallback,
+        root=root,
+        abs_path=abs_path,
+    )
+
+    # direct map in grid
+    if isinstance(var, str):
+        if var in grid:
+            da = grid[var]
+        else:
+            raise ValueError(f"grid variable {var} not found in staticmaps.")
+
+    else:  # dict type
+        # constant value in config
+        if "value" in var:
+            da = grid_from_constant(
+                grid,
+                constant=var["value"],
+                name=args[-1],
+                nodata=nodata,
+                mask_name=mask_name,
+            )
+
+        # else scale and offset
+        else:
+            var_name = get_config("netcdf.variable.name", config=var)
+            scale = var.get("scale", 1.0)
+            offset = var.get("offset", 0.0)
+            # apply scale and offset
+            if var_name not in grid:
+                raise ValueError(f"grid variable {var_name} not found in staticmaps.")
+            da = grid[var_name] * scale + offset
+
+    return da

@@ -1,16 +1,14 @@
-# -*- coding: utf-8 -*-
+"""Rootzoneclim workflows for Wflow plugin."""
 
 import logging
-import numpy as np
-import pandas as pd
-from scipy import optimize
-import xarray as xr
-import hydromt
 from typing import Optional
 
-from hydromt import flw
+import numpy as np
+import pandas as pd
 import pyflwdir
-
+import xarray as xr
+from hydromt import flw
+from scipy import optimize
 
 logger = logging.getLogger(__name__)
 
@@ -21,9 +19,11 @@ def determine_budyko_curve_terms(
     ds_sub_annual,
 ):
     """
-    # Determine the Budyko terms (note that the discharge coefficient and evaporative
-    # index for the future climate, if present, are not correct yet and will
-    # be adjusted at a later stage)
+    Determine the Budyko terms.
+
+    (Note that the discharge coefficient and evaporative
+    index for the future climate, if present, are not correct yet and will
+    be adjusted at a later stage).
 
     Parameters
     ----------
@@ -38,7 +38,6 @@ def determine_budyko_curve_terms(
         index and the evaporative index as long term averages.
 
     """
-
     ds_sub_annual["discharge_coeff"] = (
         ds_sub_annual["specific_Q"] / ds_sub_annual["precip_mean"]
     ).mean("time", skipna=True)
@@ -81,6 +80,8 @@ def determine_budyko_curve_terms(
 
 def determine_omega(ds_sub_annual):
     """
+    Determine the omega parameter.
+
     This function uses the Zhang function (as defined in Teuling et al., 2019)
     to determine the omega parameter for ds_sub_annual.
 
@@ -137,7 +138,8 @@ def determine_omega(ds_sub_annual):
                         ),
                     )
                     omega[subcatch_index_nr] = omega_temp
-                # possible error that occurs: "ValueError: f(a) and f(b) must have different signs") -- increase a and b range solves the issue.
+                # possible error that occurs: "ValueError: f(a) and f(b) must
+                # have different signs") -- increase a and b range solves the issue.
                 except ValueError:
                     logger.warning("No value for omega could be derived.")
                     omega[subcatch_index_nr] = np.nan
@@ -152,9 +154,9 @@ def determine_omega(ds_sub_annual):
 
 def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=None):
     """
-    Function to determine the effective precipitation, interception evaporation
-    and canopy storage based on (daily) values of precipitation and potential
-    evaporation.
+    Determine the effective precipitation, interception evaporation and canopy storage.
+
+    Based on (daily) values of precipitation and potential evaporation.
 
     Parameters
     ----------
@@ -175,9 +177,20 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
         and canopy storage added.
     """
     # Make the output dataset ready for the output
-    ds_sub["evap_interception"] = hydromt.raster.full_like(ds_sub["precip_mean"])
-    ds_sub["precip_effective"] = hydromt.raster.full_like(ds_sub["precip_mean"])
-    ds_sub["canopy_storage"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    ds_sub["evap_interception"] = xr.full_like(
+        ds_sub["precip_mean"], fill_value=ds_sub["precip_mean"].vector.nodata
+    )
+    ds_sub["evap_interception"].load()
+    ds_sub["precip_effective"] = xr.full_like(
+        ds_sub["precip_mean"],
+        fill_value=ds_sub["precip_mean"].vector.nodata,
+    )
+    ds_sub["precip_effective"].load()
+    ds_sub["canopy_storage"] = xr.full_like(
+        ds_sub["precip_mean"],
+        fill_value=ds_sub["precip_mean"].vector.nodata,
+    )
+    ds_sub["canopy_storage"].load()
 
     # Calculate it per forcing type
     for forcing_type in ds_sub["forcing_type"].values:
@@ -216,8 +229,9 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
         )
         # Loop through the time steps and determine the variables per time step.
         for i in range(0, nr_time_steps):
-            if intercep_vars_sub != None:
-                # TODO: for now assumed that LAI contains monthly data, change this for future
+            if intercep_vars_sub is not None:
+                # TODO: for now assumed that LAI contains monthly data,
+                # change this for future
                 month = pd.to_datetime(ds_sub.time[i].values).month
                 Imax = intercep_vars_sub["Imax"].sel(time=month)
             # Determine the variables with a simple interception reservoir approach
@@ -231,7 +245,8 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
             if i < nr_time_steps - 1:
                 canopy_storage[:, i + 1] = canopy_storage[:, i]
 
-        # insert in ds for the time that is available in each forcing type for precip and pet
+        # insert in ds for the time that is available in each forcing type for
+        # precip and pet
         time_forcing_type = (
             ds_sub[["precip_mean", "pet_mean"]]
             .sel(forcing_type=forcing_type)
@@ -253,8 +268,9 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
 
 def determine_storage_deficit(ds_sub, correct_cc_deficit):
     """
-    Function to determine the storage deficit for every time step, subcatchment
-    location and dataset in ds_sub.
+    Determine the storage deficit for every time step.
+
+    Also for the subcatchment location and dataset in ds_sub.
 
     Parameters
     ----------
@@ -270,7 +286,11 @@ def determine_storage_deficit(ds_sub, correct_cc_deficit):
     # make sure the order of the coordinates is always the same.
     # Calculate it per forcing type
 
-    ds_sub["storage_deficit"] = hydromt.raster.full_like(ds_sub["precip_mean"])
+    ds_sub["storage_deficit"] = xr.full_like(
+        ds_sub["precip_mean"],
+        fill_value=ds_sub["precip_mean"].vector.nodata,
+    )
+    ds_sub["storage_deficit"].load()
 
     for forcing_type in ds_sub["forcing_type"].values:
         time_forcing_type = (
@@ -329,7 +349,8 @@ def determine_storage_deficit(ds_sub, correct_cc_deficit):
             )
         else:
             logger.warning(
-                "Time period of cc_hist and cc_fut does not overlap. Correct_cc_deficit not applied."
+                "Time period of cc_hist and cc_fut does not overlap. \
+Correct_cc_deficit not applied."
             )
 
     return ds_sub
@@ -337,10 +358,12 @@ def determine_storage_deficit(ds_sub, correct_cc_deficit):
 
 def fut_discharge_coeff(ds_sub_annual, correct_cc_deficit):
     """
-    Function to determine the future discharge coefficient, based on a given
-    omega value (generally same as in the current-climate observations), the
-    aridity index of the future climate and the difference in Q and PET between
-    the simulated historical and simulated future climate.
+    Determine the future discharge coefficient.
+
+    Based on a given omega value (generally same as in the
+    current-climate observations), the aridity index of the future climate and the
+    difference in Q and PET between the simulated historical and
+    simulated future climate.
 
     Parameters
     ----------
@@ -394,8 +417,9 @@ def gumbel_su_calc_xr(
     storage_deficit_annual, storage_deficit_count, return_period, threshold
 ):
     """
-    Function to determine the Gumbel distribution of the annual maximum storage deficits
-    for a set of return periods.
+    Determine the Gumbel distribution of the annual maximum storage deficits.
+
+    For a set of return periods.
 
     Parameters
     ----------
@@ -456,6 +480,8 @@ def gumbel_su_calc_xr(
 
 def Zhang(omega, aridity_index, evap_index):
     """
+    Calculate omega according to Zhang.
+
     This is the Zhang equation with omega as in Teuling et al., 2019.
     This function is used to get omega for historical situations when
     aridity_index and evap_index are known (assuming evap_index = 1 - discharge_coeff).
@@ -495,6 +521,8 @@ def Zhang(omega, aridity_index, evap_index):
 
 def Zhang_future(omega, aridity_index):
     """
+    Calculate discharge coefficients according to Zhang.
+
     Once omega has been derived for historical situations, it can be used to
     derive the new discharge coefficient when the future aridity index (Ep/P)
     is known. This will allow the discharge coeffcient to shift over the same
@@ -550,13 +578,13 @@ def check_inputs(
 
     if "pet" not in list(ds_obs.keys()):
         raise ValueError("Variable pet not in forcing_obs_fn")
-    if ds_cc_hist != None:
+    if ds_cc_hist is not None:
         if "precip" not in list(ds_cc_hist.keys()):
             raise ValueError("Variable precip not in forcing_cc_hist_fn")
 
         if "pet" not in list(ds_cc_hist.keys()):
             raise ValueError("Variable pet not in forcing_cc_hist_fn")
-    if ds_cc_fut != None:
+    if ds_cc_fut is not None:
         if "precip" not in list(ds_cc_fut.keys()):
             raise ValueError("Variable precip not in forcing_cc_fut_fn")
 
@@ -585,19 +613,26 @@ def rootzoneclim(
     logger=logger,
 ):
     """
-    Estimates the root zone storage parameter for current observed and (optionally
-    for) future climate-based streamflow data.
+    Estimates the root zone storage parameter.
+
+    for current observed and (optionally) for future climate-based streamflow data.
 
     The root zone storage capacity parameter is calculated per subcatchment and is
     converted to a gridded map at model resolution. Optionally, this function
     can return the wflow_sbm parameter RootingDepth by dividing the root zone
     storage parameter by (theta_s - theta_r).
 
-    The method is based on the estimation of maximum annual storage deficits based on precipitation and estimated actual evaporation time series,
-    which in turn are estimated from observed streamflow data and long-term precipitation and potential evap. data, as explained in Bouaziz et al. (2022).
-    The main assumption is that vegetation adapts its rootzone storage capacity to overcome dry spells with a certain return period (typically 20 years for forest ecosystems).
-    In response to a changing climtate, it is likely that vegetation also adapts its rootzone storage capacity, thereby changing model parameters for future conditions.
-    This method also allows to estimate the change in rootzone storage capacity in response to a changing climate.
+    The method is based on the estimation of maximum annual storage deficits based on
+    precipitation and estimated actual evaporation time series, which in turn are
+    estimated from observed streamflow data and long-term precipitation and
+    potential evap. data, as explained in Bouaziz et al. (2022).
+    The main assumption is that vegetation adapts its rootzone storage capacity to
+    overcome dry spells with a certain return period
+    (typically 20 years for forest ecosystems).
+    In response to a changing climtate, it is likely that vegetation also adapts its
+    rootzone storage capacity, thereby changing model parameters for future conditions.
+    This method also allows to estimate the change in rootzone storage capacity in
+    response to a changing climate.
 
     Parameters
     ----------
@@ -611,11 +646,13 @@ def rootzoneclim(
     flwdir : FlwDirRaster
         flwdir object
     ds_cc_hist : xr.Dataset
-        Dataset with the simulated historical forcing data (precip and pet) [mm/timestep],
+        Dataset with the simulated historical forcing data (precip and pet) \
+[mm/timestep],
         based on a climate model.
         The default is None.
     ds_cc_fut : xr.Dataset
-        Dataset with the simulated future climate forcing data (precip and pet) [mm/timestep],
+        Dataset with the simulated future climate forcing data (precip and pet) \
+[mm/timestep],
         based on a climate model.
         The default is None.
     return_period : list
@@ -649,14 +686,17 @@ def rootzoneclim(
         applied. If the climate change scenario and hist period are bias-corrected,
         this should probably be set to False.
     missing_days_threshold: int, optional
-            Minimum number of days within a year for that year to be counted in the long-term Budyko analysis.
+            Minimum number of days within a year for that year to be counted in the
+            long-term Budyko analysis.
 
     Returns
     -------
     ds_out : xr.Dataset
-        Dataset containing root zone storage capacity (optional) and RootingDepth for several forcing and return periods.
+        Dataset containing root zone storage capacity (optional) and RootingDepth for
+        several forcing and return periods.
     gdf_basins_all : GeoDataFrame
-        Geodataframe containing the root zone storage capacity values for each basin before filling NaN.
+        Geodataframe containing the root zone storage capacity values for
+        each basin before filling NaN.
 
 
     References
@@ -719,23 +759,25 @@ def rootzoneclim(
     gdf_basins = gdf_basins[(gdf_basins["area"] >= 0)]
 
     # calculate mean areal precip and pot evap for the full upstream area of each gauge.
-    # loop over ds_obs, ds_cc_hist and ds_cc_fut as they might have different coordinate systems and then merge.
+    # loop over ds_obs, ds_cc_hist and ds_cc_fut as they might have
+    # different coordinate systems and then merge.
     ds_sub_obs = ds_obs.raster.zonal_stats(gdf_basins, stats=["mean"])
     logger.info("Computing zonal statistics for obs, this can take a while")
     ds_sub_obs = ds_sub_obs.compute()
 
-    if ds_cc_hist != None:
+    if ds_cc_hist is not None:
         ds_sub_cc_hist = ds_cc_hist.raster.zonal_stats(gdf_basins, stats=["mean"])
         logger.info("Computing zonal statistics for cc_hist, this can take a while")
         ds_sub_cc_hist = ds_sub_cc_hist.compute()
 
-    if ds_cc_fut != None:
+    if ds_cc_fut is not None:
         ds_sub_cc_fut = ds_cc_fut.raster.zonal_stats(gdf_basins, stats=["mean"])
         logger.info("Computing zonal statistics for cc_fut, this can take a while")
         ds_sub_cc_fut = ds_sub_cc_fut.compute()
 
-    # Concatenate all forcing types (obs, cc_hist, cc_fut) into an xr dataset after zonal stats
-    if ds_cc_hist != None and ds_cc_fut != None:
+    # Concatenate all forcing types (obs, cc_hist, cc_fut) into a
+    # xr dataset after zonal stats
+    if ds_cc_hist is not None and ds_cc_fut is not None:
         ds_sub = xr.concat(
             [ds_sub_obs, ds_sub_cc_hist, ds_sub_cc_fut],
             pd.Index(["obs", "cc_hist", "cc_fut"], name="forcing_type"),
@@ -818,7 +860,7 @@ def rootzoneclim(
     ds_sub_annual = determine_omega(ds_sub_annual)
 
     # Determine future discharge ratio for cc_fut if ds_cc_fut exists
-    if ds_cc_fut != None:
+    if ds_cc_fut is not None:
         ds_sub_annual = fut_discharge_coeff(ds_sub_annual, correct_cc_deficit)
 
     # Determine long-term interception, potential evaporation and tranpsiration;
@@ -934,10 +976,11 @@ def rootzoneclim(
                 f"rootzone_storage_{forcing_type}_{str(return_period)}"
             ]:
                 if value > 0.0:
-                    if fill_value == None:
+                    if fill_value is None:
                         fill_value = value
             out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
-            # Store the rootzone_storage in ds_out is rootzone_storage flag is set to True.
+            # Store the rootzone_storage in ds_out is rootzone_storage flag is
+            # set to True.
             if rootzone_storage == True:
                 ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
                     (y_dim, x_dim),

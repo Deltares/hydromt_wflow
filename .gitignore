@@ -1,9 +1,15 @@
 # file based on github/gitignore
 
+# ignore all files in this directory
+sandbox
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Temporary files
+tmp/
 
 # C extensions
 *.so
@@ -85,8 +91,10 @@ examples/wflow_test_clip
 examples/wflow_piave_corine
 examples/wflow_piave_forcing
 examples/wflow_piave_gauges
+examples/wflow_piave_water_demand
 examples/wflow_test_sediment
 examples/wflow_test_extend_sediment
+examples/hydro_data
 
 # pyenv
 .python-version
@@ -105,6 +113,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+environment.yml
 
 # Spyder project settings
 .spyderproject

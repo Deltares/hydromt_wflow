@@ -12,7 +12,7 @@ HydroMT in order to build or update or clip Wflow models.
 
 When building or updating a model from command line a
 `model region <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_; a model setup
-:ref:`configuration <model_config>` (.ini file) with model methods and options and, optionally,
+:ref:`configuration <model_config>` (.yml file) with model methods and options and, optionally,
 a `data sources <https://deltares.github.io/hydromt/latest/user_guide/data_main>`_ (.yml) file should be prepared.
 
 .. _model_methods:
@@ -39,23 +39,29 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_rivers`
       - This component sets the all river parameter maps.
     * - :py:func:`~WflowModel.setup_floodplains`
-        This component This components adds floodplain information to the model schematization (can be either 1D or 2D).
+      - This component This components adds floodplain information to the model schematization (can be either 1D or 2D).
     * - :py:func:`~WflowModel.setup_lakes`
       - This component generates maps of lake areas and outlets as well as parameters with average lake area, depth a discharge values.
     * - :py:func:`~WflowModel.setup_reservoirs`
       - This component generates maps of reservoir areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
     * - :py:func:`~WflowModel.setup_glaciers`
-      - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice convertion fraction.
+      - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.
     * - :py:func:`~WflowModel.setup_lulcmaps`
-      - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
+      - This component derives several wflow maps based on landuse- landcover (LULC) data.
+    * - :py:func:`~WflowModel.setup_lulcmaps_with_paddy`
+      - This component derives several wflow maps based on landuse- landcover (LULC) data with paddy rice.
     * - :py:func:`~WflowModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
+    * - :py:func:`~WflowModel.setup_laimaps_from_lulc_mapping`
+      - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
     * - :py:func:`~WflowModel.setup_soilmaps`
-      - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rulesto ensure flux matching across scales.
+      - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
+    * - :py:func:`~WflowModel.setup_ksathorfrac`
+      - This component prepares ksathorfrac from existing ksathorfrac data.
+    * - :py:func:`~WflowModel.setup_ksatver_vegetation`
+      - This component prepares ksatver from soil and vegetation parameters.
     * - :py:func:`~WflowModel.setup_rootzoneclim`
-      - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions. 
-    * - :py:func:`~WflowModel.setup_hydrodem`
-      - This component adds a hydrologically conditioned elevation (hydrodem) map for river and/or land local-inertial routing.
+      - This component derives an estimate of the rooting depth from hydroclimatic data (as an alternative from the look-up table). The method can be applied for current conditions and future climate change conditions.
     * - :py:func:`~WflowModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
     * - :py:func:`~WflowModel.setup_gauges`
@@ -67,11 +73,27 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
     * - :py:func:`~WflowModel.setup_temp_pet_forcing`
+      -  Setup gridded temperature and optionally compute reference evapotranspiration forcing at model resolution.
+    * - :py:func:`~WflowModel.setup_pet_forcing`
       -  Setup gridded reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_constant_pars`
       -  Setup constant parameter maps for all active model cells.
-    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+    * - :py:func:`~WflowModel.setup_allocation_areas`
+      -  Create water demand allocation areas.
+    * - :py:func:`~WflowModel.setup_allocation_surfacewaterfrac`
+      -  Create fraction of surface water used for allocation of the water demands.
+    * - :py:func:`~WflowModel.setup_domestic_demand`
+      -  Create domestic water demand.
+    * - :py:func:`~WflowModel.setup_other_demand`
+      -  Create other water demand (eg industry, livestock).
+    * - :py:func:`~WflowModel.setup_irrigation`
+      -  Create irrigation areas and trigger for paddy and nonpaddy crops.
+    * - :py:func:`~WflowModel.setup_1dmodel_connection`
+      -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
+    * - :py:func:`~WflowModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
+    * - :py:func:`~WflowModel.setup_cold_states`
+      -  Setup wflow cold states based on data in staticmaps.
 
 
 .. _model_components:
@@ -94,9 +116,9 @@ and :py:func:`~WflowModel.write_config` for the
      - Wflow files
    * - :py:attr:`~hydromt_wflow.WflowModel.config`
      - wflow_sbm.toml
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps`
+   * - :py:attr:`~hydromt_wflow.WflowModel.grid`
      - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowModel.staticgeoms`
+   * - :py:attr:`~hydromt_wflow.WflowModel.geoms`
      - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
    * - :py:attr:`~hydromt_wflow.WflowModel.forcing`
      - inmaps.nc
@@ -106,7 +128,7 @@ and :py:func:`~WflowModel.write_config` for the
      - tabular data (csv format, e.g. lake_hq.csv, lake_sh.csv)
    * - :py:attr:`~hydromt_wflow.WflowModel.results`
      - output.nc, output_scalar.nc, output.csv
-
-
-
-
+   * - :py:attr:`~hydromt_wflow.WflowModel.staticmaps` (deprecated, removed in hydromt_wflow v0.6.0)
+     - staticmaps.nc
+   * - :py:attr:`~hydromt_wflow.WflowModel.staticgeoms` (deprecated, removed in hydromt_wflow v0.6.0)
+     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)

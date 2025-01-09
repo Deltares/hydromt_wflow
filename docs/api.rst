@@ -35,18 +35,29 @@ Setup components
    WflowModel.setup_reservoirs
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
+   WflowModel.setup_lulcmaps_with_paddy
    WflowModel.setup_laimaps
+   WflowModel.setup_laimaps_from_lulc_mapping
+   WflowModel.setup_allocation_areas
+   WflowModel.setup_allocation_surfacewaterfrac
+   WflowModel.setup_domestic_demand
+   WflowModel.setup_other_demand
+   WflowModel.setup_irrigation
+   WflowModel.setup_ksathorfrac
+   WflowModel.setup_ksatver_vegetation
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
-   WflowModel.setup_hydrodem
    WflowModel.setup_outlets
    WflowModel.setup_gauges
    WflowModel.setup_areamap
    WflowModel.setup_config_output_timeseries
    WflowModel.setup_precip_forcing
    WflowModel.setup_temp_pet_forcing
+   WflowModel.setup_pet_forcing
    WflowModel.setup_constant_pars
-   WflowModel.setup_staticmaps_from_raster
+   WflowModel.setup_1dmodel_connection
+   WflowModel.setup_grid_from_raster
+   WflowModel.setup_cold_states
 
 Attributes
 ----------
@@ -59,8 +70,8 @@ Attributes
    WflowModel.res
    WflowModel.root
    WflowModel.config
-   WflowModel.staticmaps
-   WflowModel.staticgeoms
+   WflowModel.grid
+   WflowModel.geoms
    WflowModel.forcing
    WflowModel.states
    WflowModel.results
@@ -94,16 +105,14 @@ General methods
    WflowModel.read_config
    WflowModel.write_config
 
-   WflowModel.set_staticmaps
-   WflowModel.read_staticmaps
-   WflowModel.write_staticmaps
-   WflowModel.clip_staticmaps
-   WflowModel.read_staticmaps_pcr
-   WflowModel.write_staticmaps_pcr
+   WflowModel.set_grid
+   WflowModel.read_grid
+   WflowModel.write_grid
+   WflowModel.clip_grid
 
-   WflowModel.set_staticgeoms
-   WflowModel.read_staticgeoms
-   WflowModel.write_staticgeoms
+   WflowModel.set_geoms
+   WflowModel.read_geoms
+   WflowModel.write_geoms
 
    WflowModel.set_forcing
    WflowModel.read_forcing
@@ -113,6 +122,7 @@ General methods
    WflowModel.set_states
    WflowModel.read_states
    WflowModel.write_states
+   WflowModel.clip_states
 
    WflowModel.set_results
    WflowModel.read_results
@@ -151,6 +161,7 @@ Setup components
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
    WflowSedimentModel.setup_laimaps
+   WflowSedimentModel.setup_laimaps_from_lulc_mapping
    WflowSedimentModel.setup_canopymaps
    WflowSedimentModel.setup_soilmaps
    WflowSedimentModel.setup_riverwidth
@@ -160,7 +171,7 @@ Setup components
    WflowSedimentModel.setup_areamap
    WflowSedimentModel.setup_config_output_timeseries
    WflowSedimentModel.setup_constant_pars
-   WflowSedimentModel.setup_staticmaps_from_raster
+   WflowSedimentModel.setup_grid_from_raster
 
 Attributes
 ----------
@@ -173,8 +184,8 @@ Attributes
    WflowSedimentModel.res
    WflowSedimentModel.root
    WflowSedimentModel.config
-   WflowSedimentModel.staticmaps
-   WflowSedimentModel.staticgeoms
+   WflowSedimentModel.grid
+   WflowSedimentModel.geoms
    WflowSedimentModel.forcing
    WflowSedimentModel.states
    WflowSedimentModel.results
@@ -206,14 +217,14 @@ General methods
    WflowSedimentModel.read_config
    WflowSedimentModel.write_config
 
-   WflowSedimentModel.set_staticmaps
-   WflowSedimentModel.read_staticmaps
-   WflowSedimentModel.write_staticmaps
-   WflowSedimentModel.clip_staticmaps
+   WflowSedimentModel.set_grid
+   WflowSedimentModel.read_grid
+   WflowSedimentModel.write_grid
+   WflowSedimentModel.clip_grid
 
-   WflowSedimentModel.set_staticgeoms
-   WflowSedimentModel.read_staticgeoms
-   WflowSedimentModel.write_staticgeoms
+   WflowSedimentModel.set_geoms
+   WflowSedimentModel.read_geoms
+   WflowSedimentModel.write_geoms
 
    WflowSedimentModel.set_forcing
    WflowSedimentModel.read_forcing
@@ -237,19 +248,35 @@ Wflow workflows
 .. autosummary::
    :toctree: _generated
 
+   workflows.allocation_areas
+   workflows.surfacewaterfrac_used
+   workflows.domestic
+   workflows.other_demand
+   workflows.irrigation
    workflows.hydrography
    workflows.topography
    workflows.river
    workflows.river_bathymetry
+   workflows.pet
    workflows.landuse
+   workflows.lai
+   workflows.create_lulc_lai_mapping_table
+   workflows.lai_from_lulc_mapping
+   workflows.add_paddy_to_landuse
+   workflows.ksathorfrac
+   workflows.ksatver_vegetation
    workflows.soilgrids
    workflows.soilgrids_sediment
+   workflows.soilgrids_brooks_corey
+   workflows.update_soil_with_paddy
    workflows.waterbodymaps
    workflows.reservoirattrs
    workflows.lakeattrs
    workflows.glaciermaps
    workflows.glacierattrs
    workflows.rootzoneclim
+   workflows.wflow_1dmodel_connection
+   workflows.prepare_cold_states
 
 
 .. _methods:
@@ -264,3 +291,13 @@ Input/Output methods
    :toctree: _generated
 
    read_csv_results
+   pcrm.read_staticmaps_pcr
+   pcrm.write_staticmaps_pcr
+
+Utility methods
+---------------
+
+.. autosummary::
+   :toctree: _generated
+
+   utils.get_grid_from_config

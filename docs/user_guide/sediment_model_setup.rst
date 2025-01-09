@@ -8,7 +8,7 @@ HydroMT in order to build or update or clip Wflow Sediment models.
 
 When building or updating a model from command line a
 `model region <https://deltares.github.io/hydromt/latest/user_guide/model_region>`_; a model setup
-:ref:`configuration <model_config_sed>` (.ini file) with model components and options and, optionally,
+:ref:`configuration <model_config_sed>` (.yml file) with model components and options and, optionally,
 a `data sources <https://deltares.github.io/hydromt/latest/user_guide/data_main>`_ (.yml) file should be prepared.
 
 .. currentmodule:: hydromt_wflow
@@ -44,6 +44,8 @@ a specific method see its documentation.
       - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
     * - :py:func:`~WflowSedimentModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
+    * - :py:func:`~WflowSedimentModel.setup_laimaps_from_lulc_mapping`
+      - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
     * - :py:func:`~WflowSedimentModel.setup_canopymaps`
       - Setup sediments based canopy height maps.
     * - :py:func:`~WflowSedimentModel.setup_soilmaps`
@@ -52,17 +54,17 @@ a specific method see its documentation.
       - This component sets the river width parameter based on a power-lay relationship with a predictor.
     * - :py:func:`~WflowSedimentModel.setup_riverbedsed`
       - Setup sediments based river bed characteristics maps.
-    * - :py:func:`~WflowModel.setup_outlets`
+    * - :py:func:`~WflowSedimentModel.setup_outlets`
       - This method sets the default gauge map based on basin outlets.
-    * - :py:func:`~WflowModel.setup_gauges`
+    * - :py:func:`~WflowSedimentModel.setup_gauges`
       - This method sets the default gauge map based on a gauges_fn data.
-    * - :py:func:`~WflowModel.setup_areamap`
+    * - :py:func:`~WflowSedimentModel.setup_areamap`
       - Setup area map from vector data to save wflow outputs for specific area.
-    * - :py:func:`~WflowModel.setup_config_output_timeseries`
+    * - :py:func:`~WflowSedimentModel.setup_config_output_timeseries`
       - This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
     * - :py:func:`~WflowSedimentModel.setup_constant_pars`
       - Setup constant parameter maps.
-    * - :py:func:`~WflowModel.setup_staticmaps_from_raster`
+    * - :py:func:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
 
 
@@ -86,9 +88,9 @@ and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
      - Wflow sediment files
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.config`
      - wflow_sediment.toml
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps`
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.grid`
      - staticmaps.nc
-   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms`
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.geoms`
      - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.forcing`
      - inmaps.nc
@@ -96,3 +98,7 @@ and :py:func:`~hydromt_wflow.WflowSedimentModel.write_config` for the
      - instates.nc
    * - :py:attr:`~hydromt_wflow.WflowSedimentModel.results`
      - output.nc, output_scalar.nc, output.csv
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticmaps` (deprecated, removed in hydromt_wflow v0.6.0)
+     - staticmaps.nc
+   * - :py:attr:`~hydromt_wflow.WflowSedimentModel.staticgeoms` (deprecated, removed in hydromt_wflow v0.6.0)
+     - geometries from the staticgeoms folder (basins.geojson, rivers.geojson etc.)
