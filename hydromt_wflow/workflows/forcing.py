@@ -12,9 +12,9 @@ from hydromt.workflows.forcing import resample_time
 try:
     from metpy.interpolate import interpolate_to_grid, remove_nan_observations
 
-    HAS_MEPTY = True
+    HAS_METPY = True
 except ImportError:
-    HAS_MEPTY = False
+    HAS_METPY = False
 
 logger = logging.getLogger(__name__)
 
@@ -167,7 +167,7 @@ def spatial_interpolation(
     time = forcing.index
     data = []
 
-    if not HAS_MEPTY:
+    if not HAS_METPY:
         raise ModuleNotFoundError("MetPy package is required for spatial interpolation")
 
     if np.isnan(forcing.values).any():
