@@ -2794,17 +2794,19 @@ one variable and variables list is not provided."
         mask = self.grid[self._MAPS["basins"]].values > 0
 
         # Use buffer around basins if provided, else limit to stations covered by basin
-        geom_buffered = self.basins.buffer(
-            buffer * max(np.abs(self.res))
-            ) if buffer else self.basins 
+        geom_buffered = (
+            self.basins.buffer(buffer * max(np.abs(self.res)))
+            if buffer
+            else self.basins
+        )
 
         # Use basin centroid as 'station' for uniform case
         if interp_type == "uniform":
             precip_stations_fn = gpd.GeoDataFrame(
-                    data=None,
-                    geometry=[self.basins.unary_union.centroid],
-                    index=["_station"],
-                )
+                data=None,
+                geometry=[self.basins.unary_union.centroid],
+                index=["_station"],
+            )
 
         # Load the stations and their coordinates
         if (
@@ -2821,10 +2823,12 @@ one variable and variables list is not provided."
             )
             # Use station ids from gdf_stations when reading the DataFrame
             _station_columns = gdf_stations.index
-            logger.info(f"""
+            logger.info(
+                f"""
                 Found {len(_station_columns)} stations in {precip_stations_fn} \
                 using a buffer of {buffer} cells.
-                """)
+                """
+            )
         elif precip_stations_fn is None:
             _station_columns = None
         else:
@@ -2840,7 +2844,7 @@ one variable and variables list is not provided."
         if isinstance(precip_fn, pd.Series):
             precip_fn = precip_fn.to_frame()
             precip_fn.columns = ["_station"]
-        
+
         # Load precipitation data as DataFrame
         # This requires that station data is provided (precip_stations_fn)
         if (
@@ -2879,7 +2883,7 @@ one variable and variables list is not provided."
                     station locations are provided separately through precip_station_fn.
                 """
                 )
-    
+
         # Load precip as GeoDataset, which does not require precip_stations_fn
         elif isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
             # TODO:
