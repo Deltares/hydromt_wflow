@@ -2721,6 +2721,7 @@ one variable and variables list is not provided."
         precip_fn: Union[str, pd.Series, pd.DataFrame, xr.Dataset],
         interp_type: str = "nearest",
         precip_stations_fn: Union[str, gpd.GeoDataFrame] = None,
+        buffer: int = 100,
         metpy_kwargs: dict = None,
         **kwargs,
     ) -> None:
@@ -2767,7 +2768,11 @@ one variable and variables list is not provided."
         precip_stations_fn : str, gpd.GeoDataFrame
             Source for the locations of the stations as points: (x, y) or (lat, lon).
 
-        metpy_kwargs: dict
+        buffer: int, optional
+            Number of cells to use around the basins as a buffer to determine \
+            which stations to include. Set to 100 cells by default.
+
+        metpy_kwargs: dict, optional
             Keyword arguments to pass to `metpy.interpolate.interpolate_to_grid`.
 
         **kwargs
@@ -2788,16 +2793,56 @@ one variable and variables list is not provided."
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
+        # Use buffer around basins if provided, else limit to stations covered by basin
+        geom_buffered = self.basins.buffer(
+            buffer * max(np.abs(self.res))
+            ) if buffer else self.basins 
+
+        # Use basin centroid as 'station' for uniform case
+        if interp_type == "uniform":
+            precip_stations_fn = gpd.GeoDataFrame(
+                    data=None,
+                    geometry=[self.basins.unary_union.centroid],
+                    index=["_station"],
+                )
+
+        # Load the stations and their coordinates
+        if (
+            isinstance(precip_stations_fn, gpd.GeoDataFrame)
+            or isfile(precip_stations_fn)
+            or precip_stations_fn in self.data_catalog
+        ):
+            gdf_stations = self.data_catalog.get_geodataframe(
+                precip_stations_fn,
+                geom=geom_buffered,
+                assert_gtype="Point",
+                handle_nodata=NoDataStrategy.IGNORE,
+                **kwargs,
+            )
+            # Use station ids from gdf_stations when reading the DataFrame
+            _station_columns = gdf_stations.index
+            logger.info(f"""
+                Found {len(_station_columns)} stations in {precip_stations_fn} \
+                using a buffer of {buffer} cells.
+                """)
+        elif precip_stations_fn is None:
+            _station_columns = None
+        else:
+            raise ValueError(f"Data source {precip_stations_fn} not recognized.")
+
+        # Check data type of precip_fn if it is provided through the data catalog
         if isinstance(precip_fn, str) and precip_fn in self.data_catalog:
             _data_type = self.data_catalog[precip_fn].data_type
         else:
             _data_type = None
 
-        # Load precipitation data as DataFrame
-        # This requires that station data is provided (precip_stations_fn)
+        # Convert Series to DataFrame with dummy station name "_station"
         if isinstance(precip_fn, pd.Series):
             precip_fn = precip_fn.to_frame()
             precip_fn.columns = ["_station"]
+        
+        # Load precipitation data as DataFrame
+        # This requires that station data is provided (precip_stations_fn)
         if (
             isinstance(precip_fn, pd.DataFrame)
             or isfile(precip_fn)
@@ -2806,6 +2851,7 @@ one variable and variables list is not provided."
             df_precip = self.data_catalog.get_dataframe(
                 precip_fn,
                 time_tuple=(starttime, endtime),
+                variables=_station_columns,
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
@@ -2816,9 +2862,7 @@ one variable and variables list is not provided."
                     station locations are provided separately through precip_station_fn.
                 """
                 )
-
-            # Use model centroid as station for uniform precipitation
-            # and nearest-neighbour with the centroid as single station
+            # For uniform: switch to nearest-neighbour which works with single station
             if interp_type == "uniform":
                 if df_precip.shape[1] != 1:
                     raise ValueError(
@@ -2826,17 +2870,20 @@ one variable and variables list is not provided."
                         Data source ({precip_fn}) should contain
                         a single timeseries, not {df_precip.shape[1]}."""
                     )
-                precip_stations_fn = gpd.GeoDataFrame(
-                    data=None,
-                    geometry=[self.basins.unary_union.centroid],
-                    index=["_station"],
-                )
                 interp_type = "nearest"
-
+            # For other methods: raise error when a DataFrame is loaded without stations
+            elif precip_stations_fn is None:
+                raise ValueError(
+                    """
+                    Using a DataFrame as precipitation source requires that
+                    station locations are provided separately through precip_station_fn.
+                """
+                )
+    
         # Load precip as GeoDataset, which does not require precip_stations_fn
         elif isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
             # TODO:
-            # da_precip = self.data_catalog.get_geodataset(...)
+            # da_precip = self.data_catalog.get_geodataset(...) using geom_buffered
             # df_precip = pd.DataFrame(...)
             # precip_stations_fn = gpd.GeoDataFrame(...)
             raise NotImplementedError("GeoDataset source not yet implented.")
@@ -2844,22 +2891,6 @@ one variable and variables list is not provided."
             raise ValueError(f"Data source {precip_fn} not recognized.")
 
         df_precip = df_precip.astype("float32")
-
-        # Load the stations and their coordinates
-        # or pass the GeoDataframe obtained from precip_fn
-        if (
-            isinstance(precip_stations_fn, gpd.GeoDataFrame)
-            or isfile(precip_stations_fn)
-            or precip_stations_fn in self.data_catalog
-        ):
-            gdf_stations = self.data_catalog.get_geodataframe(
-                precip_stations_fn,
-                assert_gtype="Point",
-                handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
-            )
-        else:
-            raise ValueError(f"Data source {precip_stations_fn} not recognized.")
 
         # Align precip timeseries and available stations
         logger.info(
