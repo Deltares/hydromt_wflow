@@ -10,7 +10,14 @@ import xarray as xr
 from hydromt.workflows.forcing import resample_time
 
 try:
-    from metpy.interpolate import interpolate_to_grid, remove_nan_observations
+    from metpy.interpolate import (
+        interpolate_to_grid,
+        remove_nan_observations,
+    )
+    from metpy.interpolate.grid import (
+        generate_grid,
+        get_boundary_coords,
+    )
 
     HAS_METPY = True
 except ImportError:
@@ -105,6 +112,7 @@ def spatial_interpolation(
     search_radius: Optional[float] = None,
     gamma: Optional[float] = 0.25,
     kappa_star: Optional[float] = 5.052,
+    logger: Optional[logging.Logger] = logger,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.
@@ -162,20 +170,13 @@ def spatial_interpolation(
     --------
     hydromt_wflow.workflows.forcing.spatial_interpolation
     """
-    x = stations.geometry.x
-    y = stations.geometry.y
-    time = forcing.index
-    data = []
-
     if not HAS_METPY:
         raise ModuleNotFoundError("MetPy package is required for spatial interpolation")
 
     if np.isnan(forcing.values).any():
         logger.warning(
-            """Forcing data contains NaN values.
-            These will be skipped during interpolation.
-            Consider replacing NaN with 0 to include missing observations."""
-        )
+            """Forcing data contains NaN values. \
+These will be skipped during interpolation.""")
 
     if interp_type not in interpolation_supported.keys():
         raise ValueError(f"Interpolation type {interp_type} not recognized.")
@@ -199,19 +200,44 @@ def spatial_interpolation(
             ]
         )
         logger.info(
-            f"Using interpolation type: {interp_type} with arguments: {interp_args}."
+            f"Starting interpolation with interp_type '{interp_type}' ({interp_args})."
         )
 
     else:
-        logger.info(f"Using interpolation type: {interp_type}.")
+        logger.info(f"Starting interpolation with interp_type '{interp_type}'.")
 
-    for timestep, observations in forcing.iterrows():
+    # Determine the dimensions of the resulting interpolated grid
+    x = stations.geometry.x
+    y = stations.geometry.y
+    boundary_coords = get_boundary_coords(x, y)
+    grid_x, grid_y = generate_grid(hres, boundary_coords)
+    
+    # Create empty DataArray to store the interpolated values
+    coords = {"time": forcing.index, "x": grid_x[0, :], "y": grid_y[:, 0]}
+    da_forcing = xr.DataArray(coords=coords, dims=["time", "y", "x"])
+    da_forcing.raster.set_crs(stations.crs)
+    
+    empty_timesteps = []
+    last_logged_progress = 0
+    for i, (timestep, observations) in enumerate(forcing.iterrows()):
+        
+        # TODO is there a nicer way using the logger?
+        progress = ((i + 1)/len(forcing))*100
+        if progress // 10 > last_logged_progress // 10:
+            last_logged_progress = progress
+            logger.info(f"Interpolation progress: {int(progress)}%")
+    
         z = observations.values
-        x, y, z = remove_nan_observations(x=x, y=y, z=z)
-        grid_x, grid_y, img = interpolate_to_grid(
-            x=x,
-            y=y,
-            z=z,
+        _x, _y, _z = remove_nan_observations(x=x, y=y, z=z)
+        
+        if len(z) == 0:
+            empty_timesteps.append(timestep)
+            continue
+
+        interp_x, interp_y, img = interpolate_to_grid(
+            x=_x,
+            y=_y,
+            z=_z,
             interp_type=interp_type,
             hres=hres,
             rbf_func=rbf_func,
@@ -221,8 +247,22 @@ def spatial_interpolation(
             kappa_star=kappa_star,
             gamma=gamma,
         )
-        data.append(img)
+        
+        # Sometimes stations have missing data which changes the shape for that timestep
+        if img.shape != grid_x.shape:
+            interp_coords = { "x": interp_x[0, :], "y": interp_y[:, 0]}
+            da_interp = xr.DataArray(data=img, coords=interp_coords, dims=["y", "x"])
+            da_interp.raster.set_crs(stations.crs)
+            # Reproject the interpolation result to fit da_forcing
+            img = da_interp.raster.reproject_like(da_forcing, method='nearest').values
+        
+        # Assign the interpolated data to the DataArray
+        da_forcing.loc[timestep, :, :] = img            
 
-    coords = {"time": time, "x": grid_x[0, :], "y": grid_y[:, 0]}
-    da_forcing = xr.DataArray(data=data, coords=coords, dims=["time", "y", "x"])
+    if empty_timesteps:
+        logger.info(f"{len(empty_timesteps)} timesteps contained only NaN values.")
+    
+    # Ensure correct metadata
+    da_forcing = da_forcing.astype("float32")
+    da_forcing.raster.set_nodata(np.nan)
     return da_forcing
