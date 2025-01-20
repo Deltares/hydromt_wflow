@@ -35,6 +35,7 @@ Setup components
    WflowModel.setup_reservoirs
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
+   WflowModel.setup_lulcmaps_from_vector
    WflowModel.setup_lulcmaps_with_paddy
    WflowModel.setup_laimaps
    WflowModel.setup_laimaps_from_lulc_mapping
@@ -160,6 +161,7 @@ Setup components
    WflowSedimentModel.setup_lakes
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
+   WflowSedimentModel.setup_lulcmaps_from_vector
    WflowSedimentModel.setup_laimaps
    WflowSedimentModel.setup_laimaps_from_lulc_mapping
    WflowSedimentModel.setup_canopymaps
@@ -259,10 +261,12 @@ Wflow workflows
    workflows.river_bathymetry
    workflows.pet
    workflows.landuse
+   workflows.landuse_from_vector
    workflows.lai
    workflows.create_lulc_lai_mapping_table
    workflows.lai_from_lulc_mapping
    workflows.add_paddy_to_landuse
+   workflows.add_planted_forest_to_landuse
    workflows.ksathorfrac
    workflows.ksatver_vegetation
    workflows.soilgrids

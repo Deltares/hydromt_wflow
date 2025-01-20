@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer.
+- **setup_lulcmaps_from_vector**: method to prepare LULC map and params from a vector input rather than raster. PR #320
 
 Changed
 -------
