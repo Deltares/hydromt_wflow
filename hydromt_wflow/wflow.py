@@ -947,6 +947,131 @@ to run setup_river method first.'
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
                 self.set_config(WFLOW_NAMES[name], name)
 
+    def setup_lulcmaps_from_vector(
+        self,
+        lulc_fn: Union[str, gpd.GeoDataFrame],
+        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        lulc_vars: List = [
+            "landuse",
+            "Kext",
+            "N",
+            "PathFrac",
+            "RootingDepth",
+            "Sl",
+            "Swood",
+            "WaterFrac",
+            "kc",
+            "alpha_h1",
+            "h1",
+            "h2",
+            "h3_high",
+            "h3_low",
+            "h4",
+        ],
+        lulc_res: Optional[Union[float, int]] = None,
+        all_touched: bool = False,
+        save_raster_lulc: bool = False,
+    ):
+        """
+        Derive several wflow maps based on vector landuse-landcover (LULC) data.
+
+        The vector lulc data is first rasterized to a raster map at the model resolution
+        or at a higher resolution specified in ``lulc_res`` (recommended).
+
+        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
+        parameters based on literature. The data is remapped at its original resolution
+        and then resampled to the model resolution using the average value, unless noted
+        differently.
+
+        Adds model layers:
+
+        * **landuse** map: Landuse class [-]
+        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
+        * **Sl** map: Specific leaf storage [mm]
+        * **Swood** map: Fraction of wood in the vegetation/plant [-]
+        * **RootingDepth** map: Length of vegetation roots [mm]
+        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
+        * **WaterFrac** map: The fraction of open water per grid cell [-]
+        * **N** map: Manning Roughness [-]
+        * **kc** map: Crop coefficient [-]
+        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
+          (0 or 1) [-]
+        * **h1** map: Soil water pressure head h1 at which root water uptake is reduced
+          (Feddes) [cm]
+        * **h2** map: Soil water pressure head h2 at which root water uptake is reduced
+          (Feddes) [cm]
+        * **h3_high** map: Soil water pressure head h3 at which root water uptake is
+          reduced (Feddes) [cm]
+        * **h3_low** map: Soil water pressure head h3 at which root water uptake is
+          reduced (Feddes) [cm]
+        * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
+          (Feddes) [cm]
+
+        Parameters
+        ----------
+        lulc_fn : str, gpd.GeoDataFrame
+            GeoDataFrame or name in data catalog / path to (vector) landuse map.
+
+            * Required columns: 'landuse' [-]
+        lulc_mapping_fn : str, Path, pd.DataFrame
+            Path to a mapping csv file from landuse in source name to parameter values
+            in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
+            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            becomes optional.
+        lulc_vars : dict
+            List of landuse parameters to prepare.
+            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood",
+            "WaterFrac"]
+        lulc_res : float, int, optional
+            Resolution of the intermediate rasterized landuse map. The unit (meter or
+            degree) depends on the CRS of lulc_fn (projected or not). By default None,
+            which uses the model resolution.
+        all_touched : bool, optional
+            If True, all pixels touched by the vector will be burned in the raster,
+            by default False.
+        save_raster_lulc : bool, optional
+            If True, the high resolution rasterized landuse map will be saved to
+            maps/landuse_raster.tif, by default False.
+        """
+        self.logger.info("Preparing LULC parameter maps.")
+        # Read mapping table
+        if lulc_mapping_fn is None:
+            lulc_mapping_fn = f"{lulc_fn}_mapping_default"
+        df_map = self.data_catalog.get_dataframe(
+            lulc_mapping_fn,
+            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+        )
+        # read landuse map
+        gdf = self.data_catalog.get_geodataframe(
+            lulc_fn,
+            geom=self.region,
+            buffer=2,
+            variables=["landuse"],
+        )
+        if save_raster_lulc:
+            lulc_out = join(self.root, "maps", "landuse_raster.tif")
+        else:
+            lulc_out = None
+
+        # process landuse
+        ds_lulc_maps = workflows.landuse_from_vector(
+            gdf=gdf,
+            ds_like=self.grid,
+            df=df_map,
+            params=lulc_vars,
+            lulc_res=lulc_res,
+            all_touched=all_touched,
+            lulc_out=lulc_out,
+            logger=self.logger,
+        )
+        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
+        self.set_grid(ds_lulc_maps.rename(rmdict))
+
+        # Add entries to the config
+        for name in ds_lulc_maps.data_vars:
+            if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
+                self.set_config(WFLOW_NAMES[name], name)
+
     def setup_laimaps(
         self,
         lai_fn: Union[str, xr.DataArray],
