@@ -2825,7 +2825,6 @@ is still in development.""")
                 geom=geom_buffered,
                 assert_gtype="Point",
                 handle_nodata=NoDataStrategy.IGNORE,
-                **kwargs,
             )
             # Use station ids from gdf_stations when reading the DataFrame
             station_ids = (
