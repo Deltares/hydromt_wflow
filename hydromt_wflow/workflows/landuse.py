@@ -102,7 +102,7 @@ def landuse_from_vector(
     or at a higher resolution specified in ``lulc_res``.
 
     Lookup table `df` columns are converted to lulc classes model
-    parameters based on literature. The data is remapped at its original resolution
+    parameters based on literature. The data is remapped at its rasterized resolution
     and then resampled to the model resolution using the average value, unless noted
     differently.
 
@@ -133,7 +133,13 @@ def landuse_from_vector(
     # rasterize the vector data
     logger.info("Rasterizing landuse map")
     if lulc_res is None:
-        grid_like = ds_like
+        gdf_reproj = gdf.to_crs(ds_like.raster.crs)
+        grid_like = create_grid_from_bbox(
+            gdf_reproj.total_bounds,
+            res=max(np.abs(ds_like.raster.res)),
+            crs=ds_like.raster.crs,
+            align=True,
+        )
     else:
         grid_like = create_grid_from_bbox(
             gdf.total_bounds,
@@ -451,9 +457,14 @@ def add_planted_forest_to_landuse(
     orchard_name: str = "Orchard",
     orchard_c: float = 0.2188,
     logger=logger,
-):
+) -> xr.DataArray:
     """
     Update USLE C map with planted forest and orchard data.
+
+    Default USLE C values for planted forest and orchards are derived from Panagos et
+    al., 2015 (10.1016/j.landusepol.2015.05.021).
+    For harvested forest at different regrowth stages see also Borrelli and Schutt, 2014
+    (10.1016/j.geomorph.2013.08.022).
 
     Parameters
     ----------
@@ -479,9 +490,6 @@ def add_planted_forest_to_landuse(
         "Correcting USLE_C with planted forest and orchards"
         "using {planted_forest_fn}."
     )
-    if planted_forest is None:
-        logger.warning("No Planted forest data found within domain.")
-        return None
     planted_forest["USLE_C"] = planted_forest_c
     # If forest_type column is available, update USLE_C value for orchards
     if "forest_type" in planted_forest.columns:

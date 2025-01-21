@@ -363,6 +363,11 @@ class WflowSedimentModel(WflowModel):
             ``planted_forest_fn``, by default "Orchard".
         orchard_c : float, optional
             Value of USLE C factor for orchards, by default 0.2188.
+
+        See Also
+        --------
+        workflows.setup_lulcmaps_from_vector
+        workflows.add_planted_forest_to_landuse
         """
         # Prepare all default parameters
         super().setup_lulcmaps(
@@ -379,6 +384,9 @@ class WflowSedimentModel(WflowModel):
                 predicate="intersects",
                 handle_nodata="IGNORE",
             )
+            if planted_forest is None:
+                self.logger.warning("No Planted forest data found within domain.")
+                return
             usle_c = add_planted_forest_to_landuse(
                 planted_forest,
                 self.grid,
@@ -389,8 +397,7 @@ class WflowSedimentModel(WflowModel):
             )
 
             # Add to grid
-            if usle_c is not None:
-                self.set_grid(usle_c)
+            self.set_grid(usle_c)
 
     def setup_lulcmaps_from_vector(
         self,
@@ -474,6 +481,11 @@ class WflowSedimentModel(WflowModel):
             ``planted_forest_fn``, by default "Orchard".
         orchard_c : float, optional
             Value of USLE C factor for orchards, by default 0.2188.
+
+        See Also
+        --------
+        workflows.setup_lulcmaps_from_vector
+        workflows.add_planted_forest_to_landuse
         """
         # Prepare all default parameters
         super().setup_lulcmaps_from_vector(
@@ -495,6 +507,9 @@ class WflowSedimentModel(WflowModel):
                 predicate="intersects",
                 handle_nodata="IGNORE",
             )
+            if planted_forest is None:
+                self.logger.warning("No Planted forest data found within domain.")
+                return
             usle_c = add_planted_forest_to_landuse(
                 planted_forest,
                 self.grid,
@@ -505,8 +520,7 @@ class WflowSedimentModel(WflowModel):
             )
 
             # Add to grid
-            if usle_c is not None:
-                self.set_grid(usle_c)
+            self.set_grid(usle_c)
 
     def setup_riverbedsed(
         self,

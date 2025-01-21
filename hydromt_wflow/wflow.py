@@ -1032,6 +1032,10 @@ to run setup_river method first.'
         save_raster_lulc : bool, optional
             If True, the high resolution rasterized landuse map will be saved to
             maps/landuse_raster.tif, by default False.
+
+        See Also
+        --------
+        workflows.landuse_from_vector
         """
         self.logger.info("Preparing LULC parameter maps.")
         # Read mapping table
