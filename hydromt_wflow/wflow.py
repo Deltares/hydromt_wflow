@@ -2718,12 +2718,11 @@ one variable and variables list is not provided."
 
     def setup_precip_from_point_timeseries(
         self,
-        precip_fn: Union[str, pd.Series, pd.DataFrame, xr.Dataset],
+        precip_fn: Union[str, pd.DataFrame, xr.Dataset],
         interp_type: str = "nearest",
-        precip_stations_fn: Union[str, gpd.GeoDataFrame] = None,
-        index_col: str = None,
+        precip_stations_fn: Optional[Union[str, gpd.GeoDataFrame]] = None,
+        index_col: Optional[str] = None,
         buffer: int = 100,
-        metpy_kwargs: dict = None,
         **kwargs,
     ) -> None:
         """Generate gridded precipitation from point timeseries (requires MetPy).
@@ -2756,91 +2755,42 @@ average spacing for interpolation. Keyword arguments: \
 
         Parameters
         ----------
-        precip_fn : str, pd.Series, pd.DataFrame, xr.Dataset
-            Precipitation source as DataFrame or GeoDataset, see \
-data/forcing_sources.yml. The columns should correspond to the \
-name or ID values of the stations in `precip_stations_fn`.
+        precip_fn : str, pd.DataFrame, xr.Dataset
+            Precipitation source as DataFrame or GeoDataset, see
+            data/forcing_sources.yml. The first column should contain time and the other
+            columns should correspond to the name or ID values of the stations in
+            `precip_stations_fn`.
 
+            * Required variable: 'time', 'precip' [mm]
         interp_type : str
-            Type of interpolation to use as supported by MetPy. \
-Available options include: 1) “linear”, “nearest”, “cubic”, or “rbf” from \
-scipy.interpolate. 2) “barnes”, from metpy.interpolate.
-
+            Type of interpolation to use as supported by MetPy. Available options
+            include: 1) “linear”, “nearest”, “cubic”, or “rbf” from scipy.interpolate.
+            2) “barnes”, from metpy.interpolate.
         precip_stations_fn : str, gpd.GeoDataFrame
             Source for the locations of the stations as points: (x, y) or (lat, lon).
-
         index_col : str, optional
             Column in precip_stations_fn to use for station ID values, by default None.
-
         buffer: int, optional
-            Number of cells to use around the basins as a buffer to determine \
-which stations to include. Set to 100 cells by default.
-
-        metpy_kwargs: dict, optional
-            Keyword arguments to pass to `metpy.interpolate.interpolate_to_grid`.
-
+            Number of cells to use around the basins as a buffer to determine which
+            stations to include. Set to 100 cells by default.
         **kwargs
-            Additional keyword arguments passed to the MetPy interpolation function. \
-See also ::py:meth:`workflows.forcing.spatial_interpolation`.
+            Additional keyword arguments passed to the interpolation function.
+            See also ::py:meth:`workflows.forcing.spatial_interpolation`.
 
         See Also
         --------
         hydromt_wflow.workflows.forcing.spatial_interpolation
         metpy.interpolate.interpolate_to_grid
         """
-        self.logger.warning("""Use of setup_precip_from_timeseries \
-is still in development.""")
+        self.logger.warning(
+            "Use of setup_precip_from_point_timeseries is still in development."
+        )
         # TODO remove logging message above when publishing
-        metpy_kwargs = metpy_kwargs or {}
 
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
-
-        # Use buffer around basins if provided, else limit to stations covered by basin
-        geom_buffered = (
-            self.basins.buffer(buffer * max(np.abs(self.res)))
-            if buffer
-            else self.basins
-        )
-
-        # Use basin centroid as 'station' for uniform case
-        if interp_type == "uniform":
-            precip_stations_fn = gpd.GeoDataFrame(
-                data=None,
-                geometry=[self.basins.unary_union.centroid],
-                index=["_station"],
-                crs=self.crs,
-            )
-
-        # Load the stations and their coordinates
-        if (
-            isinstance(precip_stations_fn, gpd.GeoDataFrame)
-            or isfile(precip_stations_fn)
-            or precip_stations_fn in self.data_catalog
-        ):
-            gdf_stations = self.data_catalog.get_geodataframe(
-                precip_stations_fn,
-                geom=geom_buffered,
-                assert_gtype="Point",
-                handle_nodata=NoDataStrategy.IGNORE,
-            )
-            # Use station ids from gdf_stations when reading the DataFrame
-            station_ids = (
-                gdf_stations[index_col] if index_col else gdf_stations.index
-            )
-
-            gdf_inside = gdf_stations.to_crs(self.crs).within(self.basins.unary_union)
-            self.logger.info(
-                f"""Found {len(station_ids)} stations in {precip_stations_fn} \
-(of which {gdf_inside.sum()} are located inside the basin), using a buffer \
-of {buffer} cells."""
-            )
-        elif precip_stations_fn is None:
-            station_ids = None
-        else:
-            raise ValueError(f"Data source {precip_stations_fn} not recognized.")
 
         # Check data type of precip_fn if it is provided through the data catalog
         if isinstance(precip_fn, str) and precip_fn in self.data_catalog:
@@ -2848,118 +2798,79 @@ of {buffer} cells."""
         else:
             _data_type = None
 
-        # Convert Series to DataFrame with dummy station name "_station"
-        if isinstance(precip_fn, pd.Series):
-            precip_fn = precip_fn.to_frame()
-            precip_fn.columns = ["_station"]
-
-        # Load precipitation data as DataFrame
-        # This requires that station data is provided (precip_stations_fn)
-        if (
-            isinstance(precip_fn, pd.DataFrame)
-            or isfile(precip_fn)
-            or _data_type == "DataFrame"
-        ):
+        # Read the precipitation timeseries
+        if isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
+            da_precip = self.data_catalog.get_geodataset(
+                precip_fn,
+                geom=self.region,
+                buffer=buffer,
+                variables=["precip"],
+                time_tuple=(starttime, endtime),
+                single_var_as_array=True,
+            )
+        else:
+            # Read timeseries
             df_precip = self.data_catalog.get_dataframe(
                 precip_fn,
                 time_tuple=(starttime, endtime),
-                variables=station_ids,
-                handle_nodata=NoDataStrategy.IGNORE,
             )
-            if precip_stations_fn is None and interp_type != "uniform":
-                raise ValueError(
-                    """Using a DataFrame as precipitation source requires that \
-station locations are provided separately through precip_station_fn."""
-                )
-            # For uniform: switch to nearest-neighbour which works with single station
+            # Get locs
             if interp_type == "uniform":
+                # Use basin centroid as 'station' for uniform case
+                gdf_stations = gpd.GeoDataFrame(
+                    data=None,
+                    geometry=[self.basins.unary_union.centroid],
+                    index=["_station"],
+                    crs=self.crs,
+                )
+                index_col = "_station"
+                interp_type = "nearest"
                 if df_precip.shape[1] != 1:
                     raise ValueError(
                         f"""
                         Data source ({precip_fn}) should contain
                         a single timeseries, not {df_precip.shape[1]}."""
                     )
-                interp_type = "nearest"
                 self.logger.info(
-                    "Uniform interpolation is applied using method 'nearest'.")
-            # For other methods: raise error when a DataFrame is loaded without stations
+                    "Uniform interpolation is applied using method 'nearest'."
+                )
             elif precip_stations_fn is None:
                 raise ValueError(
-                    """Using a DataFrame as precipitation source requires that \
-station locations are provided separately through precip_station_fn."""
+                    "Using a DataFrame as precipitation source requires that station "
+                    "locations are provided separately through precip_station_fn."
                 )
+            else:
+                # Load the stations and their coordinates
+                gdf_stations = self.data_catalog.get_geodataframe(
+                    precip_stations_fn,
+                    geom=self.basins,
+                    buffer=buffer,
+                    assert_gtype="Point",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+                # Use station ids from gdf_stations when reading the DataFrame
+                if index_col is not None:
+                    gdf_stations = gdf_stations.set_index(index_col)
 
-        # Load precip as GeoDataset, which does not require precip_stations_fn
-        elif isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
-            # TODO:
-            # da_precip = self.data_catalog.get_geodataset(...) using geom_buffered
-            # df_precip = pd.DataFrame(...)
-            # precip_stations_fn = gpd.GeoDataFrame(...)
-            raise NotImplementedError("GeoDataset source not yet implented.")
-        else:
-            raise ValueError(f"Data source {precip_fn} not recognized.")
-
-        df_precip = df_precip.astype("float32")
-
-        # Check number of stations, at least 3 needed to interpolate spatially
-        if (len(df_precip.columns) < 3) & (interp_type != "nearest"):
-            raise ValueError(
-                f"""Only {len(df_precip.columns)} found with timeseries, which is \
-not sufficient for interpolation using {interp_type} (3 or more required)."""
+            # Convert to geodataset
+            da_precip = hydromt.vector.GeoDataArray.from_gdf(
+                gdf=gdf_stations,
+                data=df_precip,
+                name="precip",
+                index_dim=None,
+                dims=["time", gdf_stations.index.name],
+                keep_cols=False,
+                merge_index="gdf",
             )
 
-        # Transform station coordinates to model crs
-        gdf_stations = gdf_stations.to_crs(self.crs)
-
-        # Use model resolution for the interpolated grid
-        if not np.allclose((np.abs(self.res)), 1e-6):
-            self.logger.info(
-                f"""Mismatch in horizontal and vertical resolution ({self.res}), \
-using finest resolution during interpolation by MetPy."""
-            )
-        self.logger.info(f"""Starting interpolation of data: {df_precip.shape[1]} \
-stations and {df_precip.shape[0]} timesteps.""")
-        
         # Calling interpolation workflow
         precip = workflows.forcing.spatial_interpolation(
-            forcing=df_precip,
-            stations=gdf_stations,
+            forcing=da_precip,
             interp_type=interp_type,
-            hres=min(np.abs(self.res)),
+            ds_like=self.grid,
             logger=self.logger,
-            **metpy_kwargs,
+            **kwargs,
         )
-
-        # Include model CRS and rename coordinates to match model
-        precip.raster.set_crs(self.crs)
-        precip = precip.rename(
-            {"x": self.grid.raster.x_dim, "y": self.grid.raster.y_dim}
-        )
-
-        # Expand grid dimensions when a (1 X 1 X time) result is returned
-        if precip.size == len(df_precip):
-            precip = (
-                precip.squeeze()
-                .expand_dims(
-                    {
-                        self.grid.raster.y_dim: self.grid.raster.ycoords,
-                        self.grid.raster.x_dim: self.grid.raster.xcoords,
-                    }
-                )
-                .transpose("time", self.grid.raster.y_dim, self.grid.raster.x_dim)
-            )
-
-        # Compare coverage to model extent to see if some values are missing
-        precip = precip.raster.reproject_like(self.grid[self._MAPS["elevtn"]])
-        if box(*self.bounds).contains(box(*precip.raster.bounds)):
-            # Try to stick to original interpolation method
-            fill_method = (
-                    interp_type if (interp_type in ["linear", "nearest", "cubic"])
-                    else "rio_idw"
-                )
-            precip = precip.raster.interpolate_na(
-                method=fill_method, extrapolate=True
-            )
 
         # Use precip workflow to create the forcing file
         precip_out = hydromt.workflows.forcing.precip(
@@ -2969,7 +2880,6 @@ stations and {df_precip.shape[0]} timesteps.""")
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
             logger=self.logger,
-            **kwargs,
         )
 
         # Update meta attributes (used for default output filename later)
