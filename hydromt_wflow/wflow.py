@@ -2075,7 +2075,7 @@ a map for each of the wflow_sbm soil layers (n in total)
     def setup_ksathorfrac(
         self,
         ksat_fn: Union[str, xr.DataArray],
-        variable: str | None = None,
+        variable: Optional[str] = None,
         resampling_method: str = "average",
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
@@ -2086,9 +2086,9 @@ or created by a third party/ individual.
 
         Parameters
         ----------
-        ksat_fn : str, optional
+        ksat_fn : str, xr.DataArray
             The identifier of the KsatHorFrac dataset in the data catalog.
-        variable : str | None, optional
+        variable : str, optional
             The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
 ``ksat_fn`` contains several variables. By default None.
         resampling_method : str, optional
@@ -4121,7 +4121,7 @@ Run setup_soilmaps first"
 
     def write_grid(
         self,
-        fn_out: Path | str = None,
+        fn_out: Optional[Union[Path, str]] = None,
     ):
         """
         Write grid to wflow static data file.
@@ -4132,7 +4132,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        fn_out : Path | str, optional
+        fn_out : Path, str, optional
             Name or path to the outgoing grid file (including extension). This is the
             path/name relative to the root folder and if present the ``dir_input``
             folder.
@@ -4292,7 +4292,7 @@ Run setup_soilmaps first"
     def write_geoms(
         self,
         geoms_fn: str = "staticgeoms",
-        precision: int | None = None,
+        precision: Optional[int] = None,
     ):
         """
         Write geoms in GeoJSON format.
@@ -4306,6 +4306,9 @@ Run setup_soilmaps first"
         geoms_fn : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
+        precision : int, optional
+            Decimal precision to write the geometries. By default None to use 1 decimal
+            for projected crs and 6 for non-projected crs.
         """
         # to write use self.geoms[var].to_file()
         if not self._write:
@@ -4514,10 +4517,10 @@ change name input.path_forcing "
                     # only correct dates in toml for standard calendars:
                     if not hasattr(da.indexes["time"], "to_datetimeindex"):
                         times = da.time.values
-                        if (start < pd.to_datetime(times[0])) | (start not in times):
+                        if (start < pd.to_datetime(times[0])) or (start not in times):
                             start = pd.to_datetime(times[0])
                             correct_times = True
-                        if (end > pd.to_datetime(times[-1])) | (end not in times):
+                        if (end > pd.to_datetime(times[-1])) or (end not in times):
                             end = pd.to_datetime(times[-1])
                             correct_times = True
             # merge, process and write forcing
