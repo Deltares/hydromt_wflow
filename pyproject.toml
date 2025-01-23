@@ -25,7 +25,7 @@ dependencies = [
     "toml",
     "xarray<=2024.3.0",     # pin xarray to avoid issues with time resampling and NaN interpolation
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 readme = "README.rst"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -98,7 +98,7 @@ deps_not_in_conda = [
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py310', 'py311']
 
 [tool.ruff]
 line-length = 88

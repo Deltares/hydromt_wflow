@@ -6,17 +6,17 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-v0.7.1 (22 January 2025)
+v0.7.1 (23 January 2025)
 ========================
-Small release to fix temporary support for python 3.9.
+Officially drop support for python 3.9.
 
 Added
 -----
 - **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer. PR #313
 
-Fixed
------
-- Support for python 3.9
+Deprecated
+----------
+- Support for python 3.9 (already not supported in previous releases).
 
 v0.7.0 (8 November 2024)
 ========================
