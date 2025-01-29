@@ -6,21 +6,18 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v0.7.1 (29 January 2025)
+========================
+Officially drop support for python 3.9.
 
 Added
 -----
-- **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer.
+- **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer. PR #313
 - **setup_lulcmaps_from_vector**: method to prepare LULC map and params from a vector input rather than raster. PR #320
 
-Changed
--------
--
-
-Fixed
------
--
+Deprecated
+----------
+- Support for python 3.9 (already not supported in previous releases).
 
 v0.7.0 (8 November 2024)
 ========================
