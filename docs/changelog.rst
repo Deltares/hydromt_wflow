@@ -11,7 +11,7 @@ Unreleased
 
 Added
 -----
--
+- **setup_precip_from_point_timeseries**: method to interpolate rainfall station data as model forcing. PR #315
 
 Changed
 -------

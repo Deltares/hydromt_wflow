@@ -1551,7 +1551,8 @@ gauge locations [-] (if derive_subcatch)
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or \
-incorrect data_type (GeoDataFrame or GeoDataset)."
+                incorrect data_type ({self.data_catalog[gauges_fn].data_type} \
+                instead of GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -2847,6 +2848,177 @@ one variable and variables list is not provided."
         precip_out.attrs.update({"precip_fn": precip_fn})
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
+        self.set_forcing(precip_out.where(mask), name="precip")
+
+    def setup_precip_from_point_timeseries(
+        self,
+        precip_fn: Union[str, pd.DataFrame, xr.Dataset],
+        interp_type: str = "nearest",
+        precip_stations_fn: Optional[Union[str, gpd.GeoDataFrame]] = None,
+        index_col: Optional[str] = None,
+        buffer: int = 100,
+        **kwargs,
+    ) -> None:
+        """Generate gridded precipitation from point timeseries (requires MetPy).
+
+        Adds model layer:
+
+        * **precip**: precipitation [mm]
+
+        Supported interpolation methods:
+        * uniform: Applies spatially uniform precipitation to the model. \
+Only works when `precip_fn` contains a single timeseries.
+        * linear: Performs linear interpolation between data points.
+        * nearest: Assigns the value of the nearest data point (nearest neighbour).
+        * cubic: Uses cubic interpolation for smoother curves.
+        * rbf: Applies Radial Basis Function interpolation for smooth, \
+multidimensional interpolation. Keyword arguments: `[rbf_func, rbf_smooth]`
+        * natural_neighbor: Uses a weighted average of surrounding points based \
+on their proximity and area influence following Liang and Hale (2010).
+        * cressman: Inverse Distance Weighing approach following Cresmann (1959). \
+It uses the ratio of observation distance to maximum allowable distance \
+for interpolation. Keyword arguments: [minimum_neighbors, search_radius]
+        * barnes: Inverse Distance Weighing approach following Barnes (1964). \
+It applies an inverse exponential ratio of observation distance to \
+average spacing for interpolation. Keyword arguments: \
+`[minimum_neighbours, search_radius. gamma, kappa_star]`
+
+        NOTE! Station interpolation is still in development.
+        Cressman and natural neighbor are not working as expected.
+        Barnes works but it slow.
+
+        Parameters
+        ----------
+        precip_fn : str, pd.DataFrame, xr.Dataset
+            Precipitation source as DataFrame or GeoDataset, see
+            data/forcing_sources.yml. The first column should contain time and the other
+            columns should correspond to the name or ID values of the stations in
+            `precip_stations_fn`.
+
+            * Required variable: 'time', 'precip' [mm]
+        interp_type : str
+            Type of interpolation to use as supported by MetPy. Available options
+            include: 1) “linear”, “nearest”, “cubic”, or “rbf” from scipy.interpolate.
+            2) “barnes”, from metpy.interpolate.
+        precip_stations_fn : str, gpd.GeoDataFrame
+            Source for the locations of the stations as points: (x, y) or (lat, lon).
+        index_col : str, optional
+            Column in precip_stations_fn to use for station ID values, by default None.
+        buffer: int, optional
+            Number of cells to use around the basins as a buffer to determine which
+            stations to include. Set to 100 cells by default.
+        **kwargs
+            Additional keyword arguments passed to the interpolation function.
+            See also ::py:meth:`workflows.forcing.spatial_interpolation`.
+
+        See Also
+        --------
+        hydromt_wflow.workflows.forcing.spatial_interpolation
+        metpy.interpolate.interpolate_to_grid
+        """
+        self.logger.warning(
+            "Use of setup_precip_from_point_timeseries is still in development."
+        )
+        # TODO remove logging message above when publishing
+
+        starttime = self.get_config("starttime")
+        endtime = self.get_config("endtime")
+        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        mask = self.grid[self._MAPS["basins"]].values > 0
+
+        # Check data type of precip_fn if it is provided through the data catalog
+        if isinstance(precip_fn, str) and precip_fn in self.data_catalog:
+            _data_type = self.data_catalog[precip_fn].data_type
+        else:
+            _data_type = None
+
+        # Read the precipitation timeseries
+        if isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
+            da_precip = self.data_catalog.get_geodataset(
+                precip_fn,
+                geom=self.region,
+                buffer=buffer,
+                variables=["precip"],
+                time_tuple=(starttime, endtime),
+                single_var_as_array=True,
+            )
+        else:
+            # Read timeseries
+            df_precip = self.data_catalog.get_dataframe(
+                precip_fn,
+                time_tuple=(starttime, endtime),
+            )
+            # Get locs
+            if interp_type == "uniform":
+                # Use basin centroid as 'station' for uniform case
+                gdf_stations = gpd.GeoDataFrame(
+                    data=None,
+                    geometry=[self.basins.unary_union.centroid],
+                    index=["_station"],
+                    crs=self.crs,
+                )
+                index_col = "_station"
+                interp_type = "nearest"
+                if df_precip.shape[1] != 1:
+                    raise ValueError(
+                        f"""
+                        Data source ({precip_fn}) should contain
+                        a single timeseries, not {df_precip.shape[1]}."""
+                    )
+                self.logger.info(
+                    "Uniform interpolation is applied using method 'nearest'."
+                )
+            elif precip_stations_fn is None:
+                raise ValueError(
+                    "Using a DataFrame as precipitation source requires that station "
+                    "locations are provided separately through precip_station_fn."
+                )
+            else:
+                # Load the stations and their coordinates
+                gdf_stations = self.data_catalog.get_geodataframe(
+                    precip_stations_fn,
+                    geom=self.basins,
+                    buffer=buffer,
+                    assert_gtype="Point",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+                # Use station ids from gdf_stations when reading the DataFrame
+                if index_col is not None:
+                    gdf_stations = gdf_stations.set_index(index_col)
+
+            # Convert to geodataset
+            da_precip = hydromt.vector.GeoDataArray.from_gdf(
+                gdf=gdf_stations,
+                data=df_precip,
+                name="precip",
+                index_dim=None,
+                dims=["time", gdf_stations.index.name],
+                keep_cols=False,
+                merge_index="gdf",
+            )
+
+        # Calling interpolation workflow
+        precip = workflows.forcing.spatial_interpolation(
+            forcing=da_precip,
+            interp_type=interp_type,
+            ds_like=self.grid,
+            logger=self.logger,
+            **kwargs,
+        )
+
+        # Use precip workflow to create the forcing file
+        precip_out = hydromt.workflows.forcing.precip(
+            precip=precip,
+            da_like=self.grid[self._MAPS["elevtn"]],
+            clim=None,
+            freq=freq,
+            resample_kwargs=dict(label="right", closed="right"),
+            logger=self.logger,
+        )
+
+        # Update meta attributes (used for default output filename later)
+        precip_out.attrs.update({"precip_fn": precip_fn})
+        precip_out = precip_out.astype("float32")
         self.set_forcing(precip_out.where(mask), name="precip")
 
     def setup_temp_pet_forcing(
