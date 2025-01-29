@@ -846,6 +846,33 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     assert np.all(da.values == np.array([0.0881, 0.2188]))
 
 
+def test_setup_lulc_vector(
+    example_wflow_model,
+    example_sediment_model,
+    globcover_gdf,
+    planted_forest_testdata,
+):
+    # Test for wflow sbm
+    example_wflow_model.setup_lulcmaps_from_vector(
+        lulc_fn=globcover_gdf,
+        lulc_mapping_fn="globcover_mapping_default",
+        lulc_res=0.0025,
+        save_raster_lulc=False,
+    )
+    assert "wflow_landuse" in example_wflow_model.grid
+
+    # Test for sediment model
+    example_sediment_model.setup_lulcmaps_from_vector(
+        lulc_fn=globcover_gdf,
+        lulc_mapping_fn="globcover_mapping_default",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_res=None,
+        save_raster_lulc=False,
+        planted_forest_c=0.0881,
+    )
+    assert "USLE_C" in example_sediment_model.grid
+
+
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
