@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,19 +27,19 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -414,9 +414,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -542,34 +547,34 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-12-18 18:37:34,590 - clip - log - INFO - HydroMT version: 0.10.0
-2024-12-18 18:37:34,590 - clip - main - INFO - Clipping instance of wflow model.
-2024-12-18 18:37:34,590 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2024-12-18 18:37:34,932 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.1.dev0).
-2024-12-18 18:37:34,932 - clip - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-12-18 18:37:34,945 - clip - main - INFO - Reading model to clip
-2024-12-18 18:37:34,947 - clip - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2024-12-18 18:37:34,998 - clip - wflow - INFO - Reading model staticgeom files.
-2024-12-18 18:37:35,037 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2024-12-18 18:37:35,052 - clip - wflow - INFO - Reading model intbl files.
-2024-12-18 18:37:35,052 - clip - wflow - INFO - Reading model table files.
-2024-12-18 18:37:35,053 - clip - wflow - INFO - Model read
-2024-12-18 18:37:35,053 - clip - main - INFO - Clipping grid
-2024-12-18 18:37:38,186 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2024-12-18 18:37:39,830 - clip - wflow - INFO - Reading model table files.
-2024-12-18 18:37:39,831 - clip - main - INFO - Clipping forcing
-2024-12-18 18:37:39,831 - clip - wflow - INFO - Clipping NetCDF forcing..
-2024-12-18 18:37:39,836 - clip - model_api - WARNING - Replacing forcing: precip
-2024-12-18 18:37:39,836 - clip - model_api - WARNING - Replacing forcing: pet
-2024-12-18 18:37:39,836 - clip - model_api - WARNING - Replacing forcing: temp
-2024-12-18 18:37:39,836 - clip - main - INFO - Writting clipped model
-2024-12-18 18:37:39,836 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2024-12-18 18:37:39,869 - clip - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
-2024-12-18 18:37:40,129 - clip - wflow - INFO - Writing model staticgeom to file.
-2024-12-18 18:37:40,135 - clip - wflow - INFO - Write forcing file
-2024-12-18 18:37:40,144 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
-[########################################] | 100% Completed | 100.97 ms
-2024-12-18 18:37:40,252 - clip - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2025-01-29 07:30:35,044 - clip - log - INFO - HydroMT version: 0.10.0
+2025-01-29 07:30:35,044 - clip - main - INFO - Clipping instance of wflow model.
+2025-01-29 07:30:35,044 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2025-01-29 07:30:35,400 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.1.dev0).
+2025-01-29 07:30:35,400 - clip - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-01-29 07:30:35,413 - clip - main - INFO - Reading model to clip
+2025-01-29 07:30:35,415 - clip - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2025-01-29 07:30:35,465 - clip - wflow - INFO - Reading model staticgeom files.
+2025-01-29 07:30:35,503 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2025-01-29 07:30:35,519 - clip - wflow - INFO - Reading model intbl files.
+2025-01-29 07:30:35,519 - clip - wflow - INFO - Reading model table files.
+2025-01-29 07:30:35,519 - clip - wflow - INFO - Model read
+2025-01-29 07:30:35,519 - clip - main - INFO - Clipping grid
+2025-01-29 07:30:38,617 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2025-01-29 07:30:40,329 - clip - wflow - INFO - Reading model table files.
+2025-01-29 07:30:40,329 - clip - main - INFO - Clipping forcing
+2025-01-29 07:30:40,329 - clip - wflow - INFO - Clipping NetCDF forcing..
+2025-01-29 07:30:40,334 - clip - model_api - WARNING - Replacing forcing: precip
+2025-01-29 07:30:40,334 - clip - model_api - WARNING - Replacing forcing: pet
+2025-01-29 07:30:40,335 - clip - model_api - WARNING - Replacing forcing: temp
+2025-01-29 07:30:40,335 - clip - main - INFO - Writting clipped model
+2025-01-29 07:30:40,335 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2025-01-29 07:30:40,369 - clip - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2025-01-29 07:30:40,635 - clip - wflow - INFO - Writing model staticgeom to file.
+2025-01-29 07:30:40,642 - clip - wflow - INFO - Write forcing file
+2025-01-29 07:30:40,651 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+[########################################] | 100% Completed | 101.01 ms
+2025-01-29 07:30:40,760 - clip - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
 
 </pre></div></div>
 </div>
@@ -593,9 +598,9 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import plot packages</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">cartopy.crs</span> <span class="k">as</span> <span class="nn">ccrs</span>
-<span class="kn">import</span> <span class="nn">cartopy.io.img_tiles</span> <span class="k">as</span> <span class="nn">cimgt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.crs</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ccrs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cartopy.io.img_tiles</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cimgt</span>
 
 <span class="c1"># import descartes  # used under the hood to plot polygons</span>
 </pre></div>
@@ -605,9 +610,9 @@ Options:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">hydromt</span>
-<span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
 </pre></div>
 </div>
 </div>
@@ -761,13 +766,13 @@ Options:
 </div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/_examples/clip_model.ipynb.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_examples/clip_model.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -782,8 +787,8 @@ Options:
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -816,7 +821,8 @@ Options:
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

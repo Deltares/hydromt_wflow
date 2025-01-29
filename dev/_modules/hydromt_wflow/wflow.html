@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
@@ -355,9 +355,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -408,35 +413,35 @@
 
 <span class="c1"># Implement model class following model API</span>
 
-<span class="kn">import</span> <span class="nn">codecs</span>
-<span class="kn">import</span> <span class="nn">glob</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">codecs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 
 <span class="c1"># from dask.distributed import LocalCluster, Client, performance_report</span>
-<span class="kn">import</span> <span class="nn">hydromt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pyflwdir</span>
-<span class="kn">import</span> <span class="nn">pyproj</span>
-<span class="kn">import</span> <span class="nn">shapely</span>
-<span class="kn">import</span> <span class="nn">toml</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">dask.diagnostics</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
-<span class="kn">from</span> <span class="nn">hydromt</span> <span class="kn">import</span> <span class="n">flw</span>
-<span class="kn">from</span> <span class="nn">hydromt.models.model_grid</span> <span class="kn">import</span> <span class="n">GridModel</span>
-<span class="kn">from</span> <span class="nn">hydromt.nodata</span> <span class="kn">import</span> <span class="n">NoDataStrategy</span>
-<span class="kn">from</span> <span class="nn">pyflwdir</span> <span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
-<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">box</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyflwdir</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyproj</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">toml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dask.diagnostics</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">flw</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.models.model_grid</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.nodata</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoDataStrategy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyflwdir</span><span class="w"> </span><span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">workflows</span>
-<span class="kn">from</span> <span class="nn">.naming</span> <span class="kn">import</span> <span class="n">HYDROMT_NAMES</span><span class="p">,</span> <span class="n">WFLOW_NAMES</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">DATADIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">HYDROMT_NAMES</span><span class="p">,</span> <span class="n">WFLOW_NAMES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATADIR</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>
 
@@ -445,7 +450,7 @@
 
 <div class="viewcode-block" id="WflowModel">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel">[docs]</a>
-<span class="k">class</span> <span class="nc">WflowModel</span><span class="p">(</span><span class="n">GridModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WflowModel</span><span class="p">(</span><span class="n">GridModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wflow model class.&quot;&quot;&quot;</span>
 
     <span class="n">_NAME</span> <span class="o">=</span> <span class="s2">&quot;wflow&quot;</span>
@@ -462,7 +467,7 @@
 
 <div class="viewcode-block" id="WflowModel.__init__">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.html#hydromt_wflow.WflowModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span>
@@ -503,7 +508,7 @@
     <span class="c1"># COMPONENTS</span>
 <div class="viewcode-block" id="WflowModel.setup_basemaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_basemaps.html#hydromt_wflow.WflowModel.setup_basemaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_basemaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_basemaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">region</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
         <span class="n">hydrography_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
@@ -708,7 +713,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_rivers">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_rivers.html#hydromt_wflow.WflowModel.setup_rivers">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_rivers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hydrography_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">river_geom_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -950,7 +955,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_floodplains">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_floodplains.html#hydromt_wflow.WflowModel.setup_floodplains">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_floodplains</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_floodplains</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hydrography_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">floodplain_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1164,7 +1169,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;lateral&quot;</span><span class="p">][</span><span class="s2">&quot;land&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;q&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">setup_riverwidth</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_riverwidth</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">predictor</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;discharge&quot;</span><span class="p">,</span>
         <span class="n">fill</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1268,7 +1273,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_lulcmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_lulcmaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1370,9 +1375,146 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">WFLOW_NAMES</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_lulcmaps_from_vector">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowModel.setup_lulcmaps_from_vector">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps_from_vector</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
+        <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Kext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PathFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;RootingDepth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Sl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Swood&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;WaterFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;kc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;alpha_h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;h1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;h2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;h3_high&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;h3_low&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;h4&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">lulc_res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">save_raster_lulc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Derive several wflow maps based on vector landuse-landcover (LULC) data.</span>
+
+<span class="sd">        The vector lulc data is first rasterized to a raster map at the model resolution</span>
+<span class="sd">        or at a higher resolution specified in ``lulc_res`` (recommended).</span>
+
+<span class="sd">        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model</span>
+<span class="sd">        parameters based on literature. The data is remapped at its original resolution</span>
+<span class="sd">        and then resampled to the model resolution using the average value, unless noted</span>
+<span class="sd">        differently.</span>
+
+<span class="sd">        Adds model layers:</span>
+
+<span class="sd">        * **landuse** map: Landuse class [-]</span>
+<span class="sd">        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]</span>
+<span class="sd">        * **Sl** map: Specific leaf storage [mm]</span>
+<span class="sd">        * **Swood** map: Fraction of wood in the vegetation/plant [-]</span>
+<span class="sd">        * **RootingDepth** map: Length of vegetation roots [mm]</span>
+<span class="sd">        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]</span>
+<span class="sd">        * **WaterFrac** map: The fraction of open water per grid cell [-]</span>
+<span class="sd">        * **N** map: Manning Roughness [-]</span>
+<span class="sd">        * **kc** map: Crop coefficient [-]</span>
+<span class="sd">        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1</span>
+<span class="sd">          (0 or 1) [-]</span>
+<span class="sd">        * **h1** map: Soil water pressure head h1 at which root water uptake is reduced</span>
+<span class="sd">          (Feddes) [cm]</span>
+<span class="sd">        * **h2** map: Soil water pressure head h2 at which root water uptake is reduced</span>
+<span class="sd">          (Feddes) [cm]</span>
+<span class="sd">        * **h3_high** map: Soil water pressure head h3 at which root water uptake is</span>
+<span class="sd">          reduced (Feddes) [cm]</span>
+<span class="sd">        * **h3_low** map: Soil water pressure head h3 at which root water uptake is</span>
+<span class="sd">          reduced (Feddes) [cm]</span>
+<span class="sd">        * **h4** map: Soil water pressure head h4 at which root water uptake is reduced</span>
+<span class="sd">          (Feddes) [cm]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lulc_fn : str, gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame or name in data catalog / path to (vector) landuse map.</span>
+
+<span class="sd">            * Required columns: &#39;landuse&#39; [-]</span>
+<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame</span>
+<span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
+<span class="sd">            in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;,</span>
+<span class="sd">            &quot;esa_worldcover&quot;, &quot;glmnco&quot;}, a default mapping is used and this argument</span>
+<span class="sd">            becomes optional.</span>
+<span class="sd">        lulc_vars : dict</span>
+<span class="sd">            List of landuse parameters to prepare.</span>
+<span class="sd">            By default [&quot;landuse&quot;,&quot;Kext&quot;,&quot;N&quot;,&quot;PathFrac&quot;,&quot;RootingDepth&quot;,&quot;Sl&quot;,&quot;Swood&quot;,</span>
+<span class="sd">            &quot;WaterFrac&quot;]</span>
+<span class="sd">        lulc_res : float, int, optional</span>
+<span class="sd">            Resolution of the intermediate rasterized landuse map. The unit (meter or</span>
+<span class="sd">            degree) depends on the CRS of lulc_fn (projected or not). By default None,</span>
+<span class="sd">            which uses the model resolution.</span>
+<span class="sd">        all_touched : bool, optional</span>
+<span class="sd">            If True, all pixels touched by the vector will be burned in the raster,</span>
+<span class="sd">            by default False.</span>
+<span class="sd">        buffer : int, optional</span>
+<span class="sd">            Buffer around the bounding box of the vector data to ensure that all</span>
+<span class="sd">            landuse classes are included in the rasterized map, by default 1000.</span>
+<span class="sd">        save_raster_lulc : bool, optional</span>
+<span class="sd">            If True, the (high) resolution rasterized landuse map will be saved to</span>
+<span class="sd">            maps/landuse_raster.tif, by default False.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        workflows.landuse_from_vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing LULC parameter maps.&quot;</span><span class="p">)</span>
+        <span class="c1"># Read mapping table</span>
+        <span class="k">if</span> <span class="n">lulc_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lulc_mapping_fn</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lulc_fn</span><span class="si">}</span><span class="s2">_mapping_default&quot;</span>
+        <span class="n">df_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+            <span class="n">lulc_mapping_fn</span><span class="p">,</span>
+            <span class="n">driver_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_col&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>  <span class="c1"># only used if fn_map is a file path</span>
+        <span class="p">)</span>
+        <span class="c1"># read landuse map</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+            <span class="n">lulc_fn</span><span class="p">,</span>
+            <span class="n">bbox</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span>
+            <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">save_raster_lulc</span><span class="p">:</span>
+            <span class="n">lulc_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;maps&quot;</span><span class="p">,</span> <span class="s2">&quot;landuse_raster.tif&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lulc_out</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># process landuse</span>
+        <span class="n">ds_lulc_maps</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">landuse_from_vector</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">=</span><span class="n">gdf</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_map</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">lulc_vars</span><span class="p">,</span>
+            <span class="n">lulc_res</span><span class="o">=</span><span class="n">lulc_res</span><span class="p">,</span>
+            <span class="n">all_touched</span><span class="o">=</span><span class="n">all_touched</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span>
+            <span class="n">lulc_out</span><span class="o">=</span><span class="n">lulc_out</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
+
+        <span class="c1"># Add entries to the config</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ds_lulc_maps</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">WFLOW_NAMES</span> <span class="ow">and</span> <span class="n">WFLOW_NAMES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">WFLOW_NAMES</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">name</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="WflowModel.setup_laimaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_laimaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_laimaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lai_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1475,7 +1617,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_laimaps_from_lulc_mapping">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_laimaps_from_lulc_mapping</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_laimaps_from_lulc_mapping</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]],</span>
         <span class="n">lai_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
@@ -1525,7 +1667,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_config_output_timeseries">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_config_output_timeseries.html#hydromt_wflow.WflowModel.setup_config_output_timeseries">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_config_output_timeseries</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_config_output_timeseries</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">mapname</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">toml_output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
@@ -1608,7 +1750,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_outlets">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_outlets.html#hydromt_wflow.WflowModel.setup_outlets">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_outlets</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_outlets</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">river_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;csv&quot;</span><span class="p">,</span>
@@ -1686,7 +1828,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_gauges">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_gauges.html#hydromt_wflow.WflowModel.setup_gauges">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gauges_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">index_col</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1974,7 +2116,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_areamap">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_areamap.html#hydromt_wflow.WflowModel.setup_areamap">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_areamap</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_areamap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">area_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">col2raster</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -2017,7 +2159,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_lakes">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lakes.html#hydromt_wflow.WflowModel.setup_lakes">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lakes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lakes_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">rating_curve_fns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2179,7 +2321,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_reservoirs">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_reservoirs.html#hydromt_wflow.WflowModel.setup_reservoirs">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">timeseries_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2359,7 +2501,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">res_toml</span><span class="p">[</span><span class="n">option</span><span class="p">])</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_setup_waterbodies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">wb_type</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_waterbodies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">waterbodies_fn</span><span class="p">,</span> <span class="n">wb_type</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Help with common workflow of setup_lakes and setup_reservoir.</span>
 
 <span class="sd">        See specific methods for more info about the arguments.</span>
@@ -2426,7 +2568,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_soilmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_soilmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
         <span class="n">ptf_ksatver</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span><span class="p">,</span>
@@ -2524,7 +2666,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_ksathorfrac">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_ksathorfrac.html#hydromt_wflow.WflowModel.setup_ksathorfrac">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_ksathorfrac</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ksathorfrac</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ksat_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2587,7 +2729,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_ksatver_vegetation">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation.html#hydromt_wflow.WflowModel.setup_ksatver_vegetation">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_ksatver_vegetation</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_ksatver_vegetation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
         <span class="n">alfa</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">,</span>
@@ -2643,7 +2785,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_lulcmaps_with_paddy">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_lulcmaps_with_paddy</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps_with_paddy</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">paddy_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -2899,7 +3041,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_glaciers">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_glaciers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glaciers_fn</span><span class="o">=</span><span class="s2">&quot;rgi&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_glaciers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">glaciers_fn</span><span class="o">=</span><span class="s2">&quot;rgi&quot;</span><span class="p">,</span> <span class="n">min_area</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate maps of glacier areas, area fraction and volume fraction.</span>
 
@@ -2989,7 +3131,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_constant_pars">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_constant_pars</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_constant_pars</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">999</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate constant parameter maps for all active model cells.</span>
@@ -3021,7 +3163,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_grid_from_raster">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_grid_from_raster</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_grid_from_raster</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">raster_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">reproject_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -3109,7 +3251,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_precip_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_precip_forcing</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_precip_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">precip_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">precip_clim_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3188,7 +3330,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_temp_pet_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_temp_pet_forcing</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_temp_pet_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">temp_pet_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">pet_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;debruin&quot;</span><span class="p">,</span>
@@ -3431,7 +3573,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_pet_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_pet_forcing.html#hydromt_wflow.WflowModel.setup_pet_forcing">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_pet_forcing</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_pet_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">pet_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">chunksize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -3487,7 +3629,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_rootzoneclim">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_rootzoneclim</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_rootzoneclim</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">run_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">forcing_obs_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
@@ -3712,7 +3854,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_1dmodel_connection">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_1dmodel_connection.html#hydromt_wflow.WflowModel.setup_1dmodel_connection">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_1dmodel_connection</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_1dmodel_connection</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">river1d_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">connection_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subbasin_area&quot;</span><span class="p">,</span>
@@ -3885,7 +4027,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_allocation_areas">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_allocation_areas.html#hydromt_wflow.WflowModel.setup_allocation_areas">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_allocation_areas</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_allocation_areas</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">waterareas_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">priority_basins</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -3943,7 +4085,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_allocation_surfacewaterfrac">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac.html#hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_allocation_surfacewaterfrac</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_allocation_surfacewaterfrac</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gwfrac_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">waterareas_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4060,7 +4202,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_domestic_demand">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_domestic_demand.html#hydromt_wflow.WflowModel.setup_domestic_demand">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_domestic_demand</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_domestic_demand</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">domestic_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">population_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4175,7 +4317,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_other_demand">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_other_demand.html#hydromt_wflow.WflowModel.setup_other_demand">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_other_demand</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_other_demand</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">demand_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
         <span class="n">variables</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ind_gross&quot;</span><span class="p">,</span> <span class="s2">&quot;ind_net&quot;</span><span class="p">,</span> <span class="s2">&quot;lsk_gross&quot;</span><span class="p">,</span> <span class="s2">&quot;lsk_net&quot;</span><span class="p">],</span>
@@ -4271,7 +4413,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_irrigation">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_irrigation.html#hydromt_wflow.WflowModel.setup_irrigation">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_irrigation</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_irrigation</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">irrigated_area_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">irrigation_value</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
@@ -4413,7 +4555,7 @@
 
 <div class="viewcode-block" id="WflowModel.setup_cold_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_cold_states.html#hydromt_wflow.WflowModel.setup_cold_states">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_cold_states</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_cold_states</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -4484,7 +4626,7 @@
     <span class="c1"># I/O</span>
 <div class="viewcode-block" id="WflowModel.read">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read.html#hydromt_wflow.WflowModel.read">[docs]</a>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the complete model schematization and configuration from file.&quot;&quot;&quot;</span>
@@ -4500,7 +4642,7 @@
 
 <div class="viewcode-block" id="WflowModel.write">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write.html#hydromt_wflow.WflowModel.write">[docs]</a>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">grid_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;staticmaps.nc&quot;</span><span class="p">,</span>
@@ -4555,7 +4697,7 @@
 
 <div class="viewcode-block" id="WflowModel.write_config">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_config.html#hydromt_wflow.WflowModel.write_config">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_config</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">config_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config_root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4588,7 +4730,7 @@
 
 <div class="viewcode-block" id="WflowModel.read_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_grid.html#hydromt_wflow.WflowModel.read_grid">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read wflow static input and add to ``grid``.</span>
 
@@ -4634,7 +4776,7 @@
 
 <div class="viewcode-block" id="WflowModel.write_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_grid.html#hydromt_wflow.WflowModel.write_grid">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_grid</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_grid</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fn_out</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -4707,7 +4849,7 @@
 
 <div class="viewcode-block" id="WflowModel.set_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.set_grid.html#hydromt_wflow.WflowModel.set_grid">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_grid</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_grid</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4778,7 +4920,7 @@
 
 <div class="viewcode-block" id="WflowModel.read_geoms">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_geoms.html#hydromt_wflow.WflowModel.read_geoms">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_geoms</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geoms_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
     <span class="p">):</span>
@@ -4813,7 +4955,7 @@
 
 <div class="viewcode-block" id="WflowModel.write_geoms">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_geoms.html#hydromt_wflow.WflowModel.write_geoms">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_geoms</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geoms_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
         <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -4869,7 +5011,7 @@
 
 <div class="viewcode-block" id="WflowModel.read_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_forcing.html#hydromt_wflow.WflowModel.read_forcing">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Read forcing.</span>
 
@@ -4917,7 +5059,7 @@
 
 <div class="viewcode-block" id="WflowModel.write_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_forcing.html#hydromt_wflow.WflowModel.write_forcing">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_forcing</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_forcing</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">fn_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">freq_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -5129,7 +5271,7 @@
 
 <div class="viewcode-block" id="WflowModel.read_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_states.html#hydromt_wflow.WflowModel.read_states">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.&quot;&quot;&quot;</span>
         <span class="n">fn_default</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="s2">&quot;instate&quot;</span><span class="p">,</span> <span class="s2">&quot;instates.nc&quot;</span><span class="p">)</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span>
@@ -5157,7 +5299,7 @@
 
 <div class="viewcode-block" id="WflowModel.write_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_states.html#hydromt_wflow.WflowModel.write_states">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn_out</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write states at &lt;root/instate/&gt; in model ready format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -5199,7 +5341,7 @@
 
 <div class="viewcode-block" id="WflowModel.read_results">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_results.html#hydromt_wflow.WflowModel.read_results">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read results at &lt;root/?/&gt; and parse to dict of xr.DataArray/xr.Dataset.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="c1"># start fresh in read-only mode</span>
@@ -5242,13 +5384,13 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_results</span><span class="p">(</span><span class="n">csv_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span></div>
 
 
-    <span class="k">def</span> <span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_results</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write results at &lt;root/?/&gt; in model ready format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
         <span class="c1"># raise NotImplementedError()</span>
 
-    <span class="k">def</span> <span class="nf">read_intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read and intbl files at &lt;root/intbl&gt; and parse to xarray.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># start fresh in read-only mode</span>
@@ -5268,7 +5410,7 @@
                 <span class="p">]</span>  <span class="c1"># rename columns</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_intbl</span><span class="p">(</span><span class="n">tbl</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">write_intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write intbl at &lt;root/intbl&gt; in PCRaster table format.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -5278,7 +5420,7 @@
                 <span class="n">fn_out</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;intbl&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tbl&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">intbl</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fn_out</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">set_intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add intbl &lt;pandas.DataFrame&gt; to model.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;df type not recognized, should be pandas.DataFrame.&quot;</span><span class="p">)</span>
@@ -5291,7 +5433,7 @@
 
 <div class="viewcode-block" id="WflowModel.read_tables">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.read_tables.html#hydromt_wflow.WflowModel.read_tables">[docs]</a>
-    <span class="k">def</span> <span class="nf">read_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read table files at &lt;root&gt; and parse to dict of dataframes.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>  <span class="c1"># start fresh in read-only mode</span>
@@ -5307,7 +5449,7 @@
 
 <div class="viewcode-block" id="WflowModel.write_tables">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_tables.html#hydromt_wflow.WflowModel.write_tables">[docs]</a>
-    <span class="k">def</span> <span class="nf">write_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write tables at &lt;root&gt;.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;Model opened in read-only mode&quot;</span><span class="p">)</span>
@@ -5320,7 +5462,7 @@
 
 <div class="viewcode-block" id="WflowModel.set_tables">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.set_tables.html#hydromt_wflow.WflowModel.set_tables">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add table &lt;pandas.DataFrame&gt; to model.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;df type not recognized, should be pandas.DataFrame.&quot;</span><span class="p">)</span>
@@ -5332,19 +5474,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_configread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configread</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">fdict</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">fdict</span>
 
-    <span class="k">def</span> <span class="nf">_configwrite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configwrite</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">codecs</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
     <span class="c1">## WFLOW specific data and methods</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">intbl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of pandas.DataFrames representing wflow intbl files.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_intbl</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_intbl</span><span class="p">()</span>
@@ -5352,14 +5494,14 @@
 
     <span class="nd">@property</span>
     <span class="c1"># Move to core Model API ?</span>
-    <span class="k">def</span> <span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a dictionary of pandas.DataFrames representing wflow intbl files.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">read_tables</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">flwdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flwdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the pyflwdir.FlwdirRaster object parsed from wflow ldd.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_flwdir</span><span class="p">()</span>
@@ -5367,7 +5509,7 @@
 
 <div class="viewcode-block" id="WflowModel.set_flwdir">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.set_flwdir.html#hydromt_wflow.WflowModel.set_flwdir">[docs]</a>
-    <span class="k">def</span> <span class="nf">set_flwdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftype</span><span class="o">=</span><span class="s2">&quot;infer&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_flwdir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ftype</span><span class="o">=</span><span class="s2">&quot;infer&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd.&quot;&quot;&quot;</span>
         <span class="n">flwdir_name</span> <span class="o">=</span> <span class="n">flwdir_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_flwdir</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span>
@@ -5379,7 +5521,7 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">basins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">basins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a basin(s) geometry as a geopandas.GeoDataFrame.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;basins&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span>
@@ -5397,7 +5539,7 @@
         <span class="k">return</span> <span class="n">gdf</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">basins_highres</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">basins_highres</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a high resolution basin(s) geometry.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;basins_highres&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">:</span>
             <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">geoms</span><span class="p">[</span><span class="s2">&quot;basins_highres&quot;</span><span class="p">]</span>
@@ -5406,7 +5548,7 @@
         <span class="k">return</span> <span class="n">gdf</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">rivers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rivers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a river geometry as a geopandas.GeoDataFrame.</span>
 
 <span class="sd">        If available, the stream order and upstream area values are added to</span>
@@ -5433,7 +5575,7 @@
 
 <div class="viewcode-block" id="WflowModel.clip_grid">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.clip_grid.html#hydromt_wflow.WflowModel.clip_grid">[docs]</a>
-    <span class="k">def</span> <span class="nf">clip_grid</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clip_grid</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">region</span><span class="p">,</span>
         <span class="n">buffer</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -5589,7 +5731,7 @@
 
 <div class="viewcode-block" id="WflowModel.clip_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.clip_forcing.html#hydromt_wflow.WflowModel.clip_forcing">[docs]</a>
-    <span class="k">def</span> <span class="nf">clip_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clip_forcing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return clippped forcing for subbasin.</span>
 
 <span class="sd">        Returns</span>
@@ -5608,7 +5750,7 @@
 
 <div class="viewcode-block" id="WflowModel.clip_states">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.clip_states.html#hydromt_wflow.WflowModel.clip_states">[docs]</a>
-    <span class="k">def</span> <span class="nf">clip_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clip_states</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="mi">4326</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return clippped states for subbasin.</span>
 
 <span class="sd">        Returns</span>
@@ -5662,8 +5804,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -5696,7 +5838,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

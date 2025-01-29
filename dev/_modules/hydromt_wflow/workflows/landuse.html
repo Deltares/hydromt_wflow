@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
@@ -355,9 +355,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -406,22 +411,29 @@
   <h1>Source code for hydromt_wflow.workflows.landuse</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Landuse workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.demand</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_grid_from_bbox</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;landuse_from_vector&quot;</span><span class="p">,</span>
     <span class="s2">&quot;lai&quot;</span><span class="p">,</span>
     <span class="s2">&quot;create_lulc_lai_mapping_table&quot;</span><span class="p">,</span>
     <span class="s2">&quot;lai_from_lulc_mapping&quot;</span><span class="p">,</span>
     <span class="s2">&quot;add_paddy_to_landuse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;add_planted_forest_to_landuse&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
@@ -431,7 +443,7 @@
 
 <div class="viewcode-block" id="landuse">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse">[docs]</a>
-<span class="k">def</span> <span class="nf">landuse</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">landuse</span><span class="p">(</span>
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -442,10 +454,6 @@
 
 <span class="sd">    The parameter maps are prepared based on landuse map and</span>
 <span class="sd">    mapping table as provided in the generic data folder of hydromt.</span>
-
-<span class="sd">    The following topography maps are calculated:</span>
-
-<span class="sd">    - TODO</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -469,7 +477,7 @@
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
 
     <span class="c1"># setup reclass method</span>
-    <span class="k">def</span> <span class="nf">reclass</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reclass</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">)(</span><span class="n">x</span><span class="p">,</span> <span class="n">nodata</span><span class="p">)</span>
 
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
@@ -492,9 +500,105 @@
 
 
 
+<div class="viewcode-block" id="landuse_from_vector">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.landuse_from_vector.html#hydromt_wflow.workflows.landuse_from_vector">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">landuse_from_vector</span><span class="p">(</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">lulc_res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="n">lulc_out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Derive several wflow maps based on vector landuse-landcover (LULC) data.</span>
+
+<span class="sd">    The vector lulc data is first rasterized to a raster map at the model resolution</span>
+<span class="sd">    or at a higher resolution specified in ``lulc_res``.</span>
+
+<span class="sd">    Lookup table `df` columns are converted to lulc classes model</span>
+<span class="sd">    parameters based on literature. The data is remapped at its rasterized resolution</span>
+<span class="sd">    and then resampled to the model resolution using the average value, unless noted</span>
+<span class="sd">    differently.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing LULC classes.</span>
+<span class="sd">    ds_like : xarray.Dataset</span>
+<span class="sd">        Dataset at model resolution.</span>
+<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">        Mapping table with landuse values.</span>
+<span class="sd">    params : list of str, optional</span>
+<span class="sd">        List of parameters to derive, by default None</span>
+<span class="sd">    lulc_res : float or int, optional</span>
+<span class="sd">        Resolution of the rasterized LULC data, by default None (use model resolution)</span>
+<span class="sd">    all_touched : bool, optional</span>
+<span class="sd">        If True, all pixels touched by the polygon will be burned in, by default False</span>
+<span class="sd">    buffer : int, optional</span>
+<span class="sd">        Buffer in meters to add around the bounding box of the vector data, by default</span>
+<span class="sd">        1000.</span>
+<span class="sd">    lulc_out : str, optional</span>
+<span class="sd">        Path to save the rasterised original landuse map to file, by default None.</span>
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        Logger object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_out : xarray.Dataset</span>
+<span class="sd">        Dataset containing gridded landuse based maps</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># intersect with bbox</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">bounds</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>
+    <span class="p">)</span>
+    <span class="n">bounds</span> <span class="o">=</span> <span class="n">bounds</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="n">bounds</span><span class="p">),</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;intersection&quot;</span><span class="p">)</span>
+
+    <span class="c1"># rasterize the vector data</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Rasterizing landuse map&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lulc_res</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gdf_reproj</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">grid_like</span> <span class="o">=</span> <span class="n">create_grid_from_bbox</span><span class="p">(</span>
+            <span class="n">gdf_reproj</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span>
+            <span class="n">res</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">)),</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">grid_like</span> <span class="o">=</span> <span class="n">create_grid_from_bbox</span><span class="p">(</span>
+            <span class="n">gdf</span><span class="o">.</span><span class="n">total_bounds</span><span class="p">,</span>
+            <span class="n">res</span><span class="o">=</span><span class="n">lulc_res</span><span class="p">,</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">align</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="c1"># get the nodata values of the landuse (last row in the df)</span>
+    <span class="n">nodata</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">da</span> <span class="o">=</span> <span class="n">grid_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="p">,</span>
+        <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="o">=</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="n">all_touched</span><span class="o">=</span><span class="n">all_touched</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">lulc_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving rasterized landuse map to </span><span class="si">{</span><span class="n">lulc_out</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">lulc_out</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">to_raster</span><span class="p">(</span><span class="n">lulc_out</span><span class="p">)</span>
+
+    <span class="c1"># derive the landuse maps</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+
+
 <div class="viewcode-block" id="lai">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lai.html#hydromt_wflow.workflows.lai">[docs]</a>
-<span class="k">def</span> <span class="nf">lai</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lai</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return climatology of Leaf Area Index (LAI).</span>
 
 <span class="sd">    The following topography maps are calculated:</span>
@@ -531,7 +635,7 @@
 
 <div class="viewcode-block" id="create_lulc_lai_mapping_table">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.create_lulc_lai_mapping_table.html#hydromt_wflow.workflows.create_lulc_lai_mapping_table">[docs]</a>
-<span class="k">def</span> <span class="nf">create_lulc_lai_mapping_table</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_lulc_lai_mapping_table</span><span class="p">(</span>
     <span class="n">da_lulc</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">da_lai</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">sampling_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;any&quot;</span><span class="p">,</span>
@@ -679,7 +783,7 @@
 
 <div class="viewcode-block" id="lai_from_lulc_mapping">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.lai_from_lulc_mapping.html#hydromt_wflow.workflows.lai_from_lulc_mapping">[docs]</a>
-<span class="k">def</span> <span class="nf">lai_from_lulc_mapping</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lai_from_lulc_mapping</span><span class="p">(</span>
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -724,7 +828,7 @@
 
 <div class="viewcode-block" id="add_paddy_to_landuse">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.add_paddy_to_landuse.html#hydromt_wflow.workflows.add_paddy_to_landuse">[docs]</a>
-<span class="k">def</span> <span class="nf">add_paddy_to_landuse</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_paddy_to_landuse</span><span class="p">(</span>
     <span class="n">landuse</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">paddy</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">paddy_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -785,6 +889,71 @@
 
     <span class="k">return</span> <span class="n">landuse</span><span class="p">,</span> <span class="n">df_mapping</span></div>
 
+
+
+<div class="viewcode-block" id="add_planted_forest_to_landuse">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.add_planted_forest_to_landuse.html#hydromt_wflow.workflows.add_planted_forest_to_landuse">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_planted_forest_to_landuse</span><span class="p">(</span>
+    <span class="n">planted_forest</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
+    <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
+    <span class="n">orchard_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2188</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update USLE C map with planted forest and orchard data.</span>
+
+<span class="sd">    Default USLE C values for planted forest and orchards are derived from Panagos et</span>
+<span class="sd">    al., 2015 (10.1016/j.landusepol.2015.05.021).</span>
+<span class="sd">    For harvested forest at different regrowth stages see also Borrelli and Schutt, 2014</span>
+<span class="sd">    (10.1016/j.geomorph.2013.08.022).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    planted_forest : geopandas.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing planted forest data. Required columns are: &#39;geometry&#39;,</span>
+<span class="sd">        and optionally &#39;forest_type&#39; to find orchards.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Dataset at model resolution. Required variables are &#39;USLE_C&#39;.</span>
+<span class="sd">    planted_forest_c : float, optional</span>
+<span class="sd">        USLE C value for planted forest, by default 0.0881.</span>
+<span class="sd">    orchard_name : str, optional</span>
+<span class="sd">        Name of the orchard landuse class, by default &quot;Orchard&quot;.</span>
+<span class="sd">    orchard_c : float, optional</span>
+<span class="sd">        USLE C value for orchards, by default 0.2188.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    usle_c : xr.DataArray</span>
+<span class="sd">        Updated USLE C map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Add a USLE_C column with default value</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Correcting USLE_C with planted forest and orchards&quot;</span>
+        <span class="s2">&quot;using </span><span class="si">{planted_forest_fn}</span><span class="s2">.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">planted_forest</span><span class="p">[</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planted_forest_c</span>
+    <span class="c1"># If forest_type column is available, update USLE_C value for orchards</span>
+    <span class="k">if</span> <span class="s2">&quot;forest_type&quot;</span> <span class="ow">in</span> <span class="n">planted_forest</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">planted_forest</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">planted_forest</span><span class="p">[</span><span class="s2">&quot;forest_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">orchard_name</span><span class="p">,</span> <span class="s2">&quot;USLE_C&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">orchard_c</span>
+    <span class="c1"># Rasterize forest data</span>
+    <span class="n">usle_c</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">gdf</span><span class="o">=</span><span class="n">planted_forest</span><span class="p">,</span>
+        <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">,</span>
+        <span class="n">nodata</span><span class="o">=</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="n">all_touched</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Cover nodata with the USLE_C map from all landuse classes</span>
+    <span class="n">usle_c</span> <span class="o">=</span> <span class="n">usle_c</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">usle_c</span> <span class="o">!=</span> <span class="n">usle_c</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">usle_c</span></div>
+
 </pre></div>
 
                 </article>
@@ -814,8 +983,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -848,7 +1017,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

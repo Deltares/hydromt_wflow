@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -49,7 +49,7 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy" href="hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html" />
+    <link rel="next" title="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector" href="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html" />
     <link rel="prev" title="hydromt_wflow.WflowModel.setup_glaciers" href="hydromt_wflow.WflowModel.setup_glaciers.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -375,6 +375,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_reservoirs.html">hydromt_wflow.WflowModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_glaciers.html">hydromt_wflow.WflowModel.setup_glaciers</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.WflowModel.setup_lulcmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowModel.setup_lulcmaps_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html">hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html">hydromt_wflow.WflowModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping.html">hydromt_wflow.WflowModel.setup_laimaps_from_lulc_mapping</a></li>
@@ -460,6 +461,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lakes.html">hydromt_wflow.WflowSedimentModel.setup_lakes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_reservoirs.html">hydromt_wflow.WflowSedimentModel.setup_reservoirs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html">hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_laimaps.html">hydromt_wflow.WflowSedimentModel.setup_laimaps</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping.html">hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_canopymaps.html">hydromt_wflow.WflowSedimentModel.setup_canopymaps</a></li>
@@ -531,10 +533,12 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html">hydromt_wflow.workflows.river_bathymetry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.pet.html">hydromt_wflow.workflows.pet</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse_from_vector.html">hydromt_wflow.workflows.landuse_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai.html">hydromt_wflow.workflows.lai</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.create_lulc_lai_mapping_table.html">hydromt_wflow.workflows.create_lulc_lai_mapping_table</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
@@ -564,9 +568,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -616,7 +625,7 @@
 <h1>hydromt_wflow.WflowModel.setup_lulcmaps<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-lulcmaps" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_lulcmaps">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lulcmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lulc_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['landuse',</span> <span class="pre">'Kext',</span> <span class="pre">'N',</span> <span class="pre">'PathFrac',</span> <span class="pre">'RootingDepth',</span> <span class="pre">'Sl',</span> <span class="pre">'Swood',</span> <span class="pre">'WaterFrac',</span> <span class="pre">'kc',</span> <span class="pre">'alpha_h1',</span> <span class="pre">'h1',</span> <span class="pre">'h2',</span> <span class="pre">'h3_high',</span> <span class="pre">'h3_low',</span> <span class="pre">'h4']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lulcmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lulcmaps" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lulcmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lulc_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.2.dev0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">['landuse',</span> <span class="pre">'Kext',</span> <span class="pre">'N',</span> <span class="pre">'PathFrac',</span> <span class="pre">'RootingDepth',</span> <span class="pre">'Sl',</span> <span class="pre">'Swood',</span> <span class="pre">'WaterFrac',</span> <span class="pre">'kc',</span> <span class="pre">'alpha_h1',</span> <span class="pre">'h1',</span> <span class="pre">'h2',</span> <span class="pre">'h3_high',</span> <span class="pre">'h3_low',</span> <span class="pre">'h4']</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lulcmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lulcmaps" title="Link to this definition">#</a></dt>
 <dd><p>Derive several wflow maps based on landuse-landcover (LULC) data.</p>
 <p>Lookup table <cite>lulc_mapping_fn</cite> columns are converted to lulc classes model
 parameters based on literature. The data is remapped at its original resolution
@@ -652,7 +661,7 @@ reduced (Feddes) [cm]</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lulc_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2024.11.1.dev0)"><em>xarray.DataArray</em></a>) – Name of RasterDataset source in data_sources.yml file.</p></li>
+<li><p><strong>lulc_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.2.dev0)"><em>xarray.DataArray</em></a>) – Name of RasterDataset source in data_sources.yml file.</p></li>
 <li><p><strong>lulc_mapping_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>pd.DataFrame</em>) – Path to a mapping csv file from landuse in source name to parameter values
 in lulc_vars. If lulc_fn is one of {“globcover”, “vito”, “corine”,
 “esa_worldcover”, “glmnco”}, a default mapping is used and this argument
@@ -687,11 +696,11 @@ By default [“landuse”,”Kext”,”N”,”PathFrac”,”RootingDepth”,�
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html"
+       href="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy</p>
+        <p class="prev-next-title">hydromt_wflow.WflowModel.setup_lulcmaps_from_vector</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -735,13 +744,13 @@ By default [“landuse”,”Kext”,”N”,”PathFrac”,”RootingDepth”,�
 </div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_lulcmaps.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_generated/hydromt_wflow.WflowModel.setup_lulcmaps.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -756,8 +765,8 @@ By default [“landuse”,”Kext”,”N”,”PathFrac”,”RootingDepth”,�
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -790,7 +799,8 @@ By default [“landuse”,”Kext”,”N”,”PathFrac”,”RootingDepth”,�
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

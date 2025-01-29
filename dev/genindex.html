@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="_static/documentation_options.js?v=5929fcd5"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
@@ -355,9 +355,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -419,6 +424,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_generated/hydromt_wflow.workflows.add_planted_forest_to_landuse.html#hydromt_wflow.workflows.add_planted_forest_to_landuse">add_planted_forest_to_landuse() (in module hydromt_wflow.workflows)</a>
+</li>
       <li><a href="_generated/hydromt_wflow.workflows.allocation_areas.html#hydromt_wflow.workflows.allocation_areas">allocation_areas() (in module hydromt_wflow.workflows)</a>
 </li>
   </ul></td>
@@ -580,6 +587,8 @@
       <li><a href="_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs">lakeattrs() (in module hydromt_wflow.workflows)</a>
 </li>
       <li><a href="_generated/hydromt_wflow.workflows.landuse.html#hydromt_wflow.workflows.landuse">landuse() (in module hydromt_wflow.workflows)</a>
+</li>
+      <li><a href="_generated/hydromt_wflow.workflows.landuse_from_vector.html#hydromt_wflow.workflows.landuse_from_vector">landuse_from_vector() (in module hydromt_wflow.workflows)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -801,10 +810,10 @@
         <li><a href="_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges">(hydromt_wflow.WflowSedimentModel method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_generated/hydromt_wflow.WflowModel.setup_glaciers.html#hydromt_wflow.WflowModel.setup_glaciers">setup_glaciers() (hydromt_wflow.WflowModel method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="_generated/hydromt_wflow.WflowModel.setup_grid_from_raster.html#hydromt_wflow.WflowModel.setup_grid_from_raster">setup_grid_from_raster() (hydromt_wflow.WflowModel method)</a>
 
       <ul>
@@ -839,6 +848,12 @@
 
       <ul>
         <li><a href="_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps">(hydromt_wflow.WflowSedimentModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="_generated/hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowModel.setup_lulcmaps_from_vector">setup_lulcmaps_from_vector() (hydromt_wflow.WflowModel method)</a>
+
+      <ul>
+        <li><a href="_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector">(hydromt_wflow.WflowSedimentModel method)</a>
 </li>
       </ul></li>
       <li><a href="_generated/hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy.html#hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy">setup_lulcmaps_with_paddy() (hydromt_wflow.WflowModel method)</a>
@@ -1011,8 +1026,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1045,7 +1060,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

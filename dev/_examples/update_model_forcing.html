@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,19 +27,19 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -414,9 +414,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -486,8 +491,8 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 </pre></div>
 </div>
 </div>
@@ -624,58 +629,58 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2024-12-18 18:38:50,525 - update - log - INFO - HydroMT version: 0.10.0
-2024-12-18 18:38:50,525 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2024-12-18 18:38:50,525 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
-2024-12-18 18:38:50,525 - update - main - INFO - User settings:
-2024-12-18 18:38:50,894 - update - data_catalog - INFO - Reading data catalog artifact_data latest
-2024-12-18 18:38:50,894 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
-2024-12-18 18:38:51,486 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.1.dev0).
-2024-12-18 18:38:51,486 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2024-12-18 18:38:51,500 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2024-12-18 18:38:51,553 - update - wflow - INFO - Reading model staticgeom files.
-2024-12-18 18:38:51,592 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2024-12-18 18:38:51,607 - update - wflow - INFO - Reading model intbl files.
-2024-12-18 18:38:51,607 - update - wflow - INFO - Reading model table files.
-2024-12-18 18:38:51,608 - update - wflow - INFO - Model read
-2024-12-18 18:38:51,610 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
-2024-12-18 18:38:51,611 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2024-12-18 18:38:51,611 - update - model_api - INFO - setup_precip_forcing.chunksize: None
-2024-12-18 18:38:51,613 - update - rasterdataset - INFO - Reading chirps_global netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/chirps_global.nc
-2024-12-18 18:38:51,783 - update - model_api - WARNING - Replacing forcing: precip
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.fillna_method: None
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2024-12-18 18:38:51,784 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2024-12-18 18:38:51,786 - update - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
-2024-12-18 18:38:51,833 - update - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5_orography.nc
-2024-12-18 18:38:52,019 - update - model_api - WARNING - Replacing forcing: pet
-2024-12-18 18:38:52,021 - update - model_api - WARNING - Replacing forcing: temp
-2024-12-18 18:38:52,021 - update - model_api - INFO - write_forcing.fn_out: None
-2024-12-18 18:38:52,021 - update - model_api - INFO - write_forcing.freq_out: M
-2024-12-18 18:38:52,021 - update - model_api - INFO - write_forcing.chunksize: 1
-2024-12-18 18:38:52,021 - update - model_api - INFO - write_forcing.decimals: 2
-2024-12-18 18:38:52,021 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
-2024-12-18 18:38:52,021 - update - wflow - INFO - Write forcing file
-2024-12-18 18:38:52,025 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
-2024-12-18 18:38:52,029 - update - wflow - INFO - Writting several forcing with freq M
-2024-12-18 18:38:52,032 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
-[########################################] | 100% Completed | 101.49 ms
-2024-12-18 18:38:52,153 - update - model_api - INFO - write_grid.fn_out: None
-2024-12-18 18:38:52,193 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
-2024-12-18 18:38:52,397 - update - model_api - INFO - write_geoms.geoms_fn: staticgeoms
-2024-12-18 18:38:52,397 - update - model_api - INFO - write_geoms.precision: None
-2024-12-18 18:38:52,397 - update - wflow - INFO - Writing model staticgeom to file.
-2024-12-18 18:38:52,480 - update - model_api - INFO - write_config.config_name: None
-2024-12-18 18:38:52,480 - update - model_api - INFO - write_config.config_root: None
-2024-12-18 18:38:52,480 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
+2025-01-29 07:31:51,298 - update - log - INFO - HydroMT version: 0.10.0
+2025-01-29 07:31:51,298 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2025-01-29 07:31:51,298 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing
+2025-01-29 07:31:51,298 - update - main - INFO - User settings:
+2025-01-29 07:31:51,702 - update - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-01-29 07:31:51,703 - update - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2025-01-29 07:31:52,298 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.1.dev0).
+2025-01-29 07:31:52,298 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-01-29 07:31:52,311 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2025-01-29 07:31:52,361 - update - wflow - INFO - Reading model staticgeom files.
+2025-01-29 07:31:52,399 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2025-01-29 07:31:52,414 - update - wflow - INFO - Reading model intbl files.
+2025-01-29 07:31:52,415 - update - wflow - INFO - Reading model table files.
+2025-01-29 07:31:52,415 - update - wflow - INFO - Model read
+2025-01-29 07:31:52,418 - update - model_api - INFO - setup_precip_forcing.precip_fn: chirps_global
+2025-01-29 07:31:52,418 - update - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2025-01-29 07:31:52,418 - update - model_api - INFO - setup_precip_forcing.chunksize: None
+2025-01-29 07:31:52,421 - update - rasterdataset - INFO - Reading chirps_global netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/chirps_global.nc
+2025-01-29 07:31:52,595 - update - model_api - WARNING - Replacing forcing: precip
+2025-01-29 07:31:52,595 - update - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.fillna_method: None
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2025-01-29 07:31:52,596 - update - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2025-01-29 07:31:52,598 - update - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2025-01-29 07:31:52,646 - update - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5_orography.nc
+2025-01-29 07:31:52,830 - update - model_api - WARNING - Replacing forcing: pet
+2025-01-29 07:31:52,831 - update - model_api - WARNING - Replacing forcing: temp
+2025-01-29 07:31:52,832 - update - model_api - INFO - write_forcing.fn_out: None
+2025-01-29 07:31:52,832 - update - model_api - INFO - write_forcing.freq_out: M
+2025-01-29 07:31:52,832 - update - model_api - INFO - write_forcing.chunksize: 1
+2025-01-29 07:31:52,832 - update - model_api - INFO - write_forcing.decimals: 2
+2025-01-29 07:31:52,832 - update - model_api - INFO - write_forcing.time_units: days since 1900-01-01T00:00:00
+2025-01-29 07:31:52,832 - update - wflow - INFO - Write forcing file
+2025-01-29 07:31:52,836 - update - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-10 00:00:00 in the toml.
+2025-01-29 07:31:52,839 - update - wflow - INFO - Writting several forcing with freq M
+2025-01-29 07:31:52,842 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/inmaps-chirps_20100202.nc
+[########################################] | 100% Completed | 101.30 ms
+2025-01-29 07:31:52,959 - update - model_api - INFO - write_grid.fn_out: None
+2025-01-29 07:31:53,000 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/staticmaps.nc
+2025-01-29 07:31:53,202 - update - model_api - INFO - write_geoms.geoms_fn: staticgeoms
+2025-01-29 07:31:53,202 - update - model_api - INFO - write_geoms.precision: None
+2025-01-29 07:31:53,202 - update - wflow - INFO - Writing model staticgeom to file.
+2025-01-29 07:31:53,282 - update - model_api - INFO - write_config.config_name: None
+2025-01-29 07:31:53,282 - update - model_api - INFO - write_config.config_root: None
+2025-01-29 07:31:53,282 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_forcing/wflow_sbm.toml
 
 </pre></div></div>
 </div>
@@ -698,7 +703,7 @@ Options:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load both models with hydromt</span>
-<span class="kn">from</span> <span class="nn">hydromt_wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
 
 <span class="n">mod0</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_subbasin&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
 <span class="n">mod1</span> <span class="o">=</span> <span class="n">WflowModel</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;wflow_piave_forcing&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
@@ -837,13 +842,13 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
 </div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/_examples/update_model_forcing.ipynb.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_examples/update_model_forcing.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -858,8 +863,8 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -892,7 +897,8 @@ Text(0, 0.5, &#39;precipitation\nmm.day-1&#39;)
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

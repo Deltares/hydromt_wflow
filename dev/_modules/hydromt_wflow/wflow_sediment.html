@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
@@ -355,9 +355,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -406,20 +411,20 @@
   <h1>Source code for hydromt_wflow.wflow_sediment</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Implement the Wflow Sediment model class.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="kn">from</span> <span class="nn">hydromt_wflow.wflow</span> <span class="kn">import</span> <span class="n">WflowModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.wflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">WflowModel</span>
 
-<span class="kn">from</span> <span class="nn">.naming</span> <span class="kn">import</span> <span class="n">HYDROMT_NAMES</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">DATADIR</span>
-<span class="kn">from</span> <span class="nn">.workflows</span> <span class="kn">import</span> <span class="n">landuse</span><span class="p">,</span> <span class="n">soilgrids_sediment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">HYDROMT_NAMES</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATADIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.workflows</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_planted_forest_to_landuse</span><span class="p">,</span> <span class="n">landuse</span><span class="p">,</span> <span class="n">soilgrids_sediment</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowSedimentModel&quot;</span><span class="p">]</span>
 
@@ -428,7 +433,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel">[docs]</a>
-<span class="k">class</span> <span class="nc">WflowSedimentModel</span><span class="p">(</span><span class="n">WflowModel</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WflowSedimentModel</span><span class="p">(</span><span class="n">WflowModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The wflow sediment model class, a subclass of WflowModel.&quot;&quot;&quot;</span>
 
     <span class="n">_NAME</span> <span class="o">=</span> <span class="s2">&quot;wflow_sediment&quot;</span>
@@ -440,7 +445,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.__init__">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.html#hydromt_wflow.WflowSedimentModel.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">root</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span>
@@ -459,7 +464,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_rivers">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_rivers.html#hydromt_wflow.WflowSedimentModel.setup_rivers">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_rivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_rivers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy the functionality of WflowModel.</span>
 
 <span class="sd">        It however removes the river_routing key from the config.</span>
@@ -475,7 +480,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lakes">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lakes.html#hydromt_wflow.WflowSedimentModel.setup_lakes">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_lakes</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lakes</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lakes_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
@@ -527,7 +532,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_reservoirs">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_reservoirs.html#hydromt_wflow.WflowSedimentModel.setup_reservoirs">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_reservoirs</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_reservoirs</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">reservoirs_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">timeseries_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -624,7 +629,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_outlets">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_outlets</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_outlets</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">river_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">toml_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
@@ -668,7 +673,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_gauges">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_gauges</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_gauges</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">gauges_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
         <span class="n">index_col</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -728,7 +733,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_lulcmaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
         <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -774,20 +779,16 @@
 <span class="sd">        lulc_fn : {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;}</span>
 <span class="sd">            Name of data source in data_sources.yml file.</span>
 <span class="sd">        lulc_mapping_fn : str</span>
-<span class="sd">            Path to a mapping csv file from landuse in source name to parameter values \</span>
-<span class="sd">in lulc_vars.</span>
+<span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
+<span class="sd">            in lulc_vars.</span>
 <span class="sd">        planted_forest_fn : str, Path, gpd.GeoDataFrame</span>
 <span class="sd">            GeoDataFrame source with polygons of planted forests.</span>
 
 <span class="sd">            * Optional variable: [&quot;forest_type&quot;]</span>
 
 <span class="sd">        lulc_vars : dict</span>
-<span class="sd">            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare</span>
-<span class="sd">            and their internal wflow name (or None to skip adding to the toml). By</span>
-<span class="sd">            default: \</span>
-<span class="sd">{&quot;landuse&quot;: None, &quot;Kext&quot;: &quot;input.vertical.kext&quot;, &quot;PathFrac&quot;: \</span>
-<span class="sd">&quot;input.vertical.pathfrac&quot;, &quot;Sl&quot;: &quot;input.vertical.specific_leaf&quot;, &quot;Swood&quot;: \</span>
-<span class="sd">&quot;input.vertical.storage_wood&quot;, &quot;USLE_C&quot;: &quot;input.vertical.usleC&quot;}</span>
+<span class="sd">            List of landuse paramters to prepare.</span>
+<span class="sd">            By default [&quot;landuse&quot;,&quot;Kext&quot;,&quot;Sl&quot;,&quot;Swood&quot;,&quot;USLE_C&quot;,&quot;PathFrac&quot;]</span>
 <span class="sd">        planted_forest_c : float, optional</span>
 <span class="sd">            Value of USLE C factor for planted forest, by default 0.0881.</span>
 <span class="sd">        orchard_name : str, optional</span>
@@ -795,6 +796,11 @@
 <span class="sd">            ``planted_forest_fn``, by default &quot;Orchard&quot;.</span>
 <span class="sd">        orchard_c : float, optional</span>
 <span class="sd">            Value of USLE C factor for orchards, by default 0.2188.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        workflows.setup_lulcmaps_from_vector</span>
+<span class="sd">        workflows.add_planted_forest_to_landuse</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Prepare all default parameters</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_lulcmaps</span><span class="p">(</span>
@@ -803,11 +809,6 @@
 
         <span class="c1"># If available, improve USLE C map with planted forest data</span>
         <span class="k">if</span> <span class="s2">&quot;USLE_C&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Add a USLE_C column with default value</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Correcting USLE_C with planted forest and orchards&quot;</span>
-                <span class="s2">&quot;using </span><span class="si">{planted_forest_fn}</span><span class="s2">.&quot;</span>
-            <span class="p">)</span>
             <span class="c1"># Read forest data</span>
             <span class="n">planted_forest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
                 <span class="n">planted_forest_fn</span><span class="p">,</span>
@@ -819,31 +820,148 @@
             <span class="k">if</span> <span class="n">planted_forest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
-            <span class="n">planted_forest</span><span class="p">[</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">planted_forest_c</span>
-            <span class="c1"># If forest_type column is available, update USLE_C value for orchards</span>
-            <span class="k">if</span> <span class="s2">&quot;forest_type&quot;</span> <span class="ow">in</span> <span class="n">planted_forest</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-                <span class="n">planted_forest</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
-                    <span class="n">planted_forest</span><span class="p">[</span><span class="s2">&quot;forest_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">orchard_name</span><span class="p">,</span> <span class="s2">&quot;USLE_C&quot;</span>
-                <span class="p">]</span> <span class="o">=</span> <span class="n">orchard_c</span>
-            <span class="c1"># Rasterize forest data</span>
-            <span class="n">usle_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-                <span class="n">gdf</span><span class="o">=</span><span class="n">planted_forest</span><span class="p">,</span>
-                <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">,</span>
-                <span class="n">nodata</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
-                <span class="n">all_touched</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">usle_c</span> <span class="o">=</span> <span class="n">add_planted_forest_to_landuse</span><span class="p">(</span>
+                <span class="n">planted_forest</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+                <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
+                <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
+                <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="c1"># Cover nodata with the USLE_C map from all landuse classes</span>
-            <span class="n">usle_c</span> <span class="o">=</span> <span class="n">usle_c</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-                <span class="n">usle_c</span> <span class="o">!=</span> <span class="n">usle_c</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;USLE_C&quot;</span><span class="p">],</span>
+
+            <span class="c1"># Add to grid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps_from_vector">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps_from_vector">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_lulcmaps_from_vector</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">lulc_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">],</span>
+        <span class="n">lulc_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">List</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;landuse&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Kext&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;PathFrac&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Sl&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Swood&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;USLE_C&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">lulc_res</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">save_raster_lulc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
+        <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
+        <span class="n">orchard_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2188</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Derive several wflow maps based on vector landuse-landcover (LULC) data.</span>
+
+<span class="sd">        The vector lulc data is first rasterized to a raster map at the model resolution</span>
+<span class="sd">        or at a higher resolution specified in ``lulc_res`` (recommended).</span>
+
+<span class="sd">        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model</span>
+<span class="sd">        parameters based on literature. The data is remapped at its original resolution</span>
+<span class="sd">        and then resampled to the model resolution using the average value, unless noted</span>
+<span class="sd">        differently.</span>
+
+<span class="sd">        The USLE C factor map can be refined for planted forests using the planted</span>
+<span class="sd">        forest data source. The planted forest data source is a polygon layer with</span>
+<span class="sd">        planted forest polygons and optionnally a column with the forest type to</span>
+<span class="sd">        identify orchards. The default value for orchards is 0.2188, the default value</span>
+<span class="sd">        for other planted forests is 0.0881.</span>
+
+<span class="sd">        Adds model layers:</span>
+
+<span class="sd">        * **landuse** map: Landuse class [-]</span>
+<span class="sd">            Original source dependent LULC class, resampled using nearest neighbour.</span>
+<span class="sd">        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]</span>
+<span class="sd">        * **Sl** map: Specific leaf storage [mm]</span>
+<span class="sd">        * **Swood** map: Fraction of wood in the vegetation/plant [-]</span>
+<span class="sd">        * **USLE_C** map: Cover management factor from the USLE equation [-]</span>
+<span class="sd">        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lulc_fn : str, gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame or name in data catalog / path to (vector) landuse map.</span>
+
+<span class="sd">            * Required columns: &#39;landuse&#39; [-]</span>
+<span class="sd">        lulc_mapping_fn : str, Path, pd.DataFrame</span>
+<span class="sd">            Path to a mapping csv file from landuse in source name to parameter values</span>
+<span class="sd">            in lulc_vars. If lulc_fn is one of {&quot;globcover&quot;, &quot;vito&quot;, &quot;corine&quot;,</span>
+<span class="sd">            &quot;esa_worldcover&quot;, &quot;glmnco&quot;}, a default mapping is used and this argument</span>
+<span class="sd">            becomes optional.</span>
+<span class="sd">        planted_forest_fn : str, Path, gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame source with polygons of planted forests.</span>
+
+<span class="sd">            * Optional variable: [&quot;forest_type&quot;]</span>
+<span class="sd">        lulc_vars : dict</span>
+<span class="sd">            List of landuse paramters to prepare.</span>
+<span class="sd">            By default [&quot;landuse&quot;,&quot;Kext&quot;,&quot;Sl&quot;,&quot;Swood&quot;,&quot;USLE_C&quot;,&quot;PathFrac&quot;]</span>
+<span class="sd">        lulc_res : float, int, optional</span>
+<span class="sd">            Resolution of the intermediate rasterized landuse map. The unit (meter or</span>
+<span class="sd">            degree) depends on the CRS of lulc_fn (projected or not). By default None,</span>
+<span class="sd">            which uses the model resolution.</span>
+<span class="sd">        all_touched : bool, optional</span>
+<span class="sd">            If True, all pixels touched by the vector will be burned in the raster,</span>
+<span class="sd">            by default False.</span>
+<span class="sd">        save_raster_lulc : bool, optional</span>
+<span class="sd">            If True, the high resolution rasterized landuse map will be saved to</span>
+<span class="sd">            maps/landuse_raster.tif, by default False.</span>
+<span class="sd">        planted_forest_c : float, optional</span>
+<span class="sd">            Value of USLE C factor for planted forest, by default 0.0881.</span>
+<span class="sd">        orchard_name : str, optional</span>
+<span class="sd">            Name of orchard landuse class in the &quot;forest_type&quot; column of</span>
+<span class="sd">            ``planted_forest_fn``, by default &quot;Orchard&quot;.</span>
+<span class="sd">        orchard_c : float, optional</span>
+<span class="sd">            Value of USLE C factor for orchards, by default 0.2188.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        workflows.setup_lulcmaps_from_vector</span>
+<span class="sd">        workflows.add_planted_forest_to_landuse</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Prepare all default parameters</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_lulcmaps_from_vector</span><span class="p">(</span>
+            <span class="n">lulc_fn</span><span class="o">=</span><span class="n">lulc_fn</span><span class="p">,</span>
+            <span class="n">lulc_mapping_fn</span><span class="o">=</span><span class="n">lulc_mapping_fn</span><span class="p">,</span>
+            <span class="n">lulc_vars</span><span class="o">=</span><span class="n">lulc_vars</span><span class="p">,</span>
+            <span class="n">lulc_res</span><span class="o">=</span><span class="n">lulc_res</span><span class="p">,</span>
+            <span class="n">all_touched</span><span class="o">=</span><span class="n">all_touched</span><span class="p">,</span>
+            <span class="n">save_raster_lulc</span><span class="o">=</span><span class="n">save_raster_lulc</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If available, improve USLE C map with planted forest data</span>
+        <span class="k">if</span> <span class="s2">&quot;USLE_C&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Read forest data</span>
+            <span class="n">planted_forest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                <span class="n">planted_forest_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                <span class="n">buffer</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">,</span>
+                <span class="n">handle_nodata</span><span class="o">=</span><span class="s2">&quot;IGNORE&quot;</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">planted_forest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">usle_c</span> <span class="o">=</span> <span class="n">add_planted_forest_to_landuse</span><span class="p">(</span>
+                <span class="n">planted_forest</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+                <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
+                <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
+                <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="p">)</span>
+
             <span class="c1"># Add to grid</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_riverbedsed</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_riverbedsed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bedsed_mapping_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -899,7 +1017,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_canopymaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_canopymaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_canopymaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">canopy_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
     <span class="p">):</span>
@@ -936,7 +1054,7 @@
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_soilmaps">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps">[docs]</a>
-    <span class="k">def</span> <span class="nf">setup_soilmaps</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_soilmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
         <span class="n">usleK_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
@@ -1009,8 +1127,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1043,7 +1161,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

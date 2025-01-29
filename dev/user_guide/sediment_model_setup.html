@@ -16,8 +16,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -27,18 +27,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
@@ -411,9 +411,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -504,42 +509,45 @@ a specific method see its documentation.</p>
 <td><p>This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_lulcmaps.html#hydromt_wflow.WflowSedimentModel.setup_lulcmaps" title="hydromt_wflow.WflowSedimentModel.setup_lulcmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lulcmaps()</span></code></a></p></th>
-<td><p>This component derives several wflow maps are derived based on landuse- landcover (LULC) data.</p></td>
+<td><p>This component derives several wflow maps based on landuse- landcover (LULC) raster data.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_laimaps.html#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="hydromt_wflow.WflowSedimentModel.setup_laimaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_lulcmaps_from_vector.html#hydromt_wflow.WflowModel.setup_lulcmaps_from_vector" title="hydromt_wflow.WflowModel.setup_lulcmaps_from_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_lulcmaps_from_vector()</span></code></a></p></th>
+<td><p>This component derives several wflow maps based on landuse- landcover (LULC) vector data.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_laimaps.html#hydromt_wflow.WflowSedimentModel.setup_laimaps" title="hydromt_wflow.WflowSedimentModel.setup_laimaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps()</span></code></a></p></th>
 <td><p>This component sets leaf area index (LAI) climatology maps per month.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping" title="hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps_from_lulc_mapping()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping.html#hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping" title="hydromt_wflow.WflowSedimentModel.setup_laimaps_from_lulc_mapping"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_laimaps_from_lulc_mapping()</span></code></a></p></th>
 <td><p>This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps" title="hydromt_wflow.WflowSedimentModel.setup_canopymaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_canopymaps()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_canopymaps.html#hydromt_wflow.WflowSedimentModel.setup_canopymaps" title="hydromt_wflow.WflowSedimentModel.setup_canopymaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_canopymaps()</span></code></a></p></th>
 <td><p>Setup sediments based canopy height maps.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps" title="hydromt_wflow.WflowSedimentModel.setup_soilmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_soilmaps.html#hydromt_wflow.WflowSedimentModel.setup_soilmaps" title="hydromt_wflow.WflowSedimentModel.setup_soilmaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p></th>
 <td><p>Setup sediments based soil parameter maps.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_riverwidth.html#hydromt_wflow.WflowSedimentModel.setup_riverwidth" title="hydromt_wflow.WflowSedimentModel.setup_riverwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_riverwidth()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_riverwidth.html#hydromt_wflow.WflowSedimentModel.setup_riverwidth" title="hydromt_wflow.WflowSedimentModel.setup_riverwidth"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_riverwidth()</span></code></a></p></th>
 <td><p>This component sets the river width parameter based on a power-lay relationship with a predictor.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_riverbedsed()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_riverbedsed.html#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="hydromt_wflow.WflowSedimentModel.setup_riverbedsed"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_riverbedsed()</span></code></a></p></th>
 <td><p>Setup sediments based river bed characteristics maps.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets" title="hydromt_wflow.WflowSedimentModel.setup_outlets"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_outlets()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_outlets.html#hydromt_wflow.WflowSedimentModel.setup_outlets" title="hydromt_wflow.WflowSedimentModel.setup_outlets"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_outlets()</span></code></a></p></th>
 <td><p>This method sets the default gauge map based on basin outlets.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges" title="hydromt_wflow.WflowSedimentModel.setup_gauges"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_gauges()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_gauges.html#hydromt_wflow.WflowSedimentModel.setup_gauges" title="hydromt_wflow.WflowSedimentModel.setup_gauges"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_gauges()</span></code></a></p></th>
 <td><p>This method sets the default gauge map based on a gauges_fn data.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_areamap.html#hydromt_wflow.WflowSedimentModel.setup_areamap" title="hydromt_wflow.WflowSedimentModel.setup_areamap"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_areamap()</span></code></a></p></th>
 <td><p>Setup area map from vector data to save wflow outputs for specific area.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html#hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries" title="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_config_output_timeseries()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html#hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries" title="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_config_output_timeseries()</span></code></a></p></th>
 <td><p>This method add a new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_constant_pars.html#hydromt_wflow.WflowSedimentModel.setup_constant_pars" title="hydromt_wflow.WflowSedimentModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a></p></th>
+<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_constant_pars.html#hydromt_wflow.WflowSedimentModel.setup_constant_pars" title="hydromt_wflow.WflowSedimentModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a></p></th>
 <td><p>Setup constant parameter maps.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html#hydromt_wflow.WflowSedimentModel.setup_grid_from_raster" title="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_grid_from_raster()</span></code></a></p></th>
+<tr class="row-even"><th class="stub"><p><a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html#hydromt_wflow.WflowSedimentModel.setup_grid_from_raster" title="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_grid_from_raster()</span></code></a></p></th>
 <td><p>Setup staticmaps from raster to add parameters from direct data.</p></td>
 </tr>
 </tbody>
@@ -664,13 +672,13 @@ and <a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimen
 </div>
 
   <div class="sidebar-secondary-item">
-
-  <div class="tocsection sourcelink">
-    <a href="../_sources/user_guide/sediment_model_setup.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/sediment_model_setup.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
 
 </div></div>
               
@@ -685,8 +693,8 @@ and <a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimen
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -719,7 +727,8 @@ and <a class="reference internal" href="../_generated/hydromt_wflow.WflowSedimen
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>

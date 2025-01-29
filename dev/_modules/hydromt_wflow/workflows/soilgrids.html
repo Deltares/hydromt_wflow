@@ -15,8 +15,8 @@
     document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
     document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
   </script>
-  <!-- 
-    this give us a css class that will be invisible only if js is disabled 
+  <!--
+    this give us a css class that will be invisible only if js is disabled
   -->
   <noscript>
     <style>
@@ -26,18 +26,18 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
     <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
@@ -355,9 +355,14 @@
   
   
   <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
   </div>
-  
-  <div id="rtd-footer-container"></div>
 
 
       </div>
@@ -406,16 +411,16 @@
   <h1>Source code for hydromt_wflow.workflows.soilgrids</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Soilgrid workflows for Wflow plugin.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">hydromt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
-<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">curve_fit</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">curve_fit</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ptf</span><span class="p">,</span> <span class="n">soilparams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">ptf</span><span class="p">,</span> <span class="n">soilparams</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -443,7 +448,7 @@
 <span class="c1"># averages are taken instead.</span>
 
 
-<span class="k">def</span> <span class="nf">concat_layers</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">concat_layers</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
     <span class="n">variables</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bd&quot;</span><span class="p">,</span> <span class="s2">&quot;oc&quot;</span><span class="p">,</span> <span class="s2">&quot;ph&quot;</span><span class="p">,</span> <span class="s2">&quot;clyppt&quot;</span><span class="p">,</span> <span class="s2">&quot;sltppt&quot;</span><span class="p">,</span> <span class="s2">&quot;sndppt&quot;</span><span class="p">],</span>
@@ -483,7 +488,7 @@
     <span class="k">return</span> <span class="n">ds</span>
 
 
-<span class="k">def</span> <span class="nf">average_soillayers_block</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">average_soillayers_block</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine weighted average of soil property at different depths over soil thickness.</span>
 
@@ -533,7 +538,7 @@
     <span class="k">return</span> <span class="n">da_av</span>
 
 
-<span class="k">def</span> <span class="nf">average_soillayers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">average_soillayers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soilthickness</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine weighted average of soil property at different depths over soil thickness.</span>
 
@@ -585,7 +590,7 @@
     <span class="k">return</span> <span class="n">da_av</span>
 
 
-<span class="k">def</span> <span class="nf">pore_size_distrution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pore_size_distrution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine pore size distribution index per soil layer depth based on PTF.</span>
 
@@ -618,7 +623,7 @@
     <span class="k">return</span> <span class="n">ds_out</span>
 
 
-<span class="k">def</span> <span class="nf">brooks_corey_layers</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">brooks_corey_layers</span><span class="p">(</span>
     <span class="n">thetas_sl</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
@@ -733,7 +738,7 @@
     <span class="k">return</span> <span class="n">ds_c</span>
 
 
-<span class="k">def</span> <span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.</span>
 
@@ -779,11 +784,11 @@
     <span class="k">return</span> <span class="n">ds_out</span>
 
 
-<span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">b</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">do_linalg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">do_linalg</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply np.linalg.lstsq and return fitted parameter.</span>
 
@@ -804,7 +809,7 @@
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">idx</span><span class="p">]),</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
 
-<span class="k">def</span> <span class="nf">do_curve_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">do_curve_fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Apply scipy.optimize.curve_fit and return fitted parameter.</span>
 
@@ -843,7 +848,7 @@
     <span class="k">return</span> <span class="n">popt_0</span>
 
 
-<span class="k">def</span> <span class="nf">constrain_M</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">popt_0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">constrain_M</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">popt_0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Constrain M parameter with the value M_minmax.&quot;&quot;&quot;</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">M</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">popt_0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">M</span> <span class="o">&gt;</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">,</span> <span class="n">M</span><span class="p">)</span>
@@ -853,7 +858,7 @@
 
 <div class="viewcode-block" id="soilgrids">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids">[docs]</a>
-<span class="k">def</span> <span class="nf">soilgrids</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">soilgrids</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ptfKsatVer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;brakensiek&quot;</span><span class="p">,</span>
@@ -1097,7 +1102,7 @@
 
 <div class="viewcode-block" id="soilgrids_brooks_corey">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_brooks_corey.html#hydromt_wflow.workflows.soilgrids_brooks_corey">[docs]</a>
-<span class="k">def</span> <span class="nf">soilgrids_brooks_corey</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">soilgrids_brooks_corey</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
@@ -1169,7 +1174,7 @@
 
 <div class="viewcode-block" id="soilgrids_sediment">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment">[docs]</a>
-<span class="k">def</span> <span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return soil parameter maps for sediment modelling at model resolution.</span>
 
@@ -1265,7 +1270,7 @@
 
 <div class="viewcode-block" id="update_soil_with_paddy">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.update_soil_with_paddy.html#hydromt_wflow.workflows.update_soil_with_paddy">[docs]</a>
-<span class="k">def</span> <span class="nf">update_soil_with_paddy</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_soil_with_paddy</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">paddy_mask</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
@@ -1384,8 +1389,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1418,7 +1423,8 @@
       
         <div class="footer-item">
 <p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
 </p></div>
       
     </div>
