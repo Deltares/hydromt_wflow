@@ -8,6 +8,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
+from shapely.geometry import box
 
 from .demand import create_grid_from_bbox
 
@@ -92,6 +93,7 @@ def landuse_from_vector(
     params: Optional[List] = None,
     lulc_res: Optional[Union[float, int]] = None,
     all_touched: bool = False,
+    buffer: int = 1000,
     lulc_out: Optional[str] = None,
     logger=logger,
 ):
@@ -120,6 +122,9 @@ def landuse_from_vector(
         Resolution of the rasterized LULC data, by default None (use model resolution)
     all_touched : bool, optional
         If True, all pixels touched by the polygon will be burned in, by default False
+    buffer : int, optional
+        Buffer in meters to add around the bounding box of the vector data, by default
+        1000.
     lulc_out : str, optional
         Path to save the rasterised original landuse map to file, by default None.
     logger : logging.Logger, optional
@@ -130,6 +135,13 @@ def landuse_from_vector(
     ds_out : xarray.Dataset
         Dataset containing gridded landuse based maps
     """
+    # intersect with bbox
+    bounds = gpd.GeoDataFrame(
+        geometry=[box(*ds_like.raster.bounds)], crs=ds_like.raster.crs
+    )
+    bounds = bounds.to_crs(3857).buffer(buffer).to_crs(gdf.crs)
+    gdf = gdf.overlay(gpd.GeoDataFrame(geometry=bounds), how="intersection")
+
     # rasterize the vector data
     logger.info("Rasterizing landuse map")
     if lulc_res is None:

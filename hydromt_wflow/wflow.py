@@ -970,6 +970,7 @@ to run setup_river method first.'
         ],
         lulc_res: Optional[Union[float, int]] = None,
         all_touched: bool = False,
+        buffer: int = 1000,
         save_raster_lulc: bool = False,
     ):
         """
@@ -1029,8 +1030,11 @@ to run setup_river method first.'
         all_touched : bool, optional
             If True, all pixels touched by the vector will be burned in the raster,
             by default False.
+        buffer : int, optional
+            Buffer around the bounding box of the vector data to ensure that all
+            landuse classes are included in the rasterized map, by default 1000.
         save_raster_lulc : bool, optional
-            If True, the high resolution rasterized landuse map will be saved to
+            If True, the (high) resolution rasterized landuse map will be saved to
             maps/landuse_raster.tif, by default False.
 
         See Also
@@ -1048,8 +1052,8 @@ to run setup_river method first.'
         # read landuse map
         gdf = self.data_catalog.get_geodataframe(
             lulc_fn,
-            geom=self.region,
-            buffer=2,
+            bbox=self.grid.raster.bounds,
+            buffer=buffer,
             variables=["landuse"],
         )
         if save_raster_lulc:
@@ -1065,6 +1069,7 @@ to run setup_river method first.'
             params=lulc_vars,
             lulc_res=lulc_res,
             all_touched=all_touched,
+            buffer=buffer,
             lulc_out=lulc_out,
             logger=self.logger,
         )
