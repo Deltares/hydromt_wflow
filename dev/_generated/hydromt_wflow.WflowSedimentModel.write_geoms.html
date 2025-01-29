@@ -53,7 +53,7 @@
     <link rel="prev" title="hydromt_wflow.WflowSedimentModel.read_geoms" href="hydromt_wflow.WflowSedimentModel.read_geoms.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.1dev0" />
+  <meta name="docsearch:version" content="0.7.2.dev0" />
   </head>
   
   
@@ -632,8 +632,12 @@
 folder.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>geoms_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Folder name/path where the static geometries are stored relative to the
-model root and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code> if any. By default “staticgeoms”.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geoms_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Folder name/path where the static geometries are stored relative to the
+model root and <code class="docutils literal notranslate"><span class="pre">dir_input</span></code> if any. By default “staticgeoms”.</p></li>
+<li><p><strong>precision</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – Decimal precision to write the geometries. By default None to use 1 decimal
+for projected crs and 6 for non-projected crs.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

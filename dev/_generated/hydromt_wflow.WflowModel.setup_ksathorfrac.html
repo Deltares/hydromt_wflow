@@ -53,7 +53,7 @@
     <link rel="prev" title="hydromt_wflow.WflowModel.setup_irrigation" href="hydromt_wflow.WflowModel.setup_irrigation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.1dev0" />
+  <meta name="docsearch:version" content="0.7.2.dev0" />
   </head>
   
   
@@ -631,8 +631,8 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ksat_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The identifier of the KsatHorFrac dataset in the data catalog.</p></li>
-<li><p><strong>variable</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>None</em><em>, </em><em>optional</em>) – The variable name for the ksathorfrac map to use in <code class="docutils literal notranslate"><span class="pre">ksat_fn</span></code> in case <code class="docutils literal notranslate"><span class="pre">ksat_fn</span></code> contains several variables. By default None.</p></li>
+<li><p><strong>ksat_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.DataArray</em>) – The identifier of the KsatHorFrac dataset in the data catalog.</p></li>
+<li><p><strong>variable</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The variable name for the ksathorfrac map to use in <code class="docutils literal notranslate"><span class="pre">ksat_fn</span></code> in case <code class="docutils literal notranslate"><span class="pre">ksat_fn</span></code> contains several variables. By default None.</p></li>
 <li><p><strong>resampling_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The resampling method when up- or downscaled, by default “average”</p></li>
 </ul>
 </dd>

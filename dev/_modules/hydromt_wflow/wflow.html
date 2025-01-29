@@ -50,7 +50,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.1dev0" />
+  <meta name="docsearch:version" content="0.7.2.dev0" />
   </head>
   
   
@@ -2669,7 +2669,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_ksathorfrac</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ksat_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">],</span>
-        <span class="n">variable</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">variable</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">resampling_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set KsatHorFrac parameter values from a predetermined map.</span>
@@ -2680,9 +2680,9 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ksat_fn : str, optional</span>
+<span class="sd">        ksat_fn : str, xr.DataArray</span>
 <span class="sd">            The identifier of the KsatHorFrac dataset in the data catalog.</span>
-<span class="sd">        variable : str | None, optional</span>
+<span class="sd">        variable : str, optional</span>
 <span class="sd">            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \</span>
 <span class="sd">``ksat_fn`` contains several variables. By default None.</span>
 <span class="sd">        resampling_method : str, optional</span>
@@ -4778,7 +4778,7 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.write_grid.html#hydromt_wflow.WflowModel.write_grid">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_grid</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">fn_out</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">fn_out</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write grid to wflow static data file.</span>
@@ -4789,7 +4789,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        fn_out : Path | str, optional</span>
+<span class="sd">        fn_out : Path, str, optional</span>
 <span class="sd">            Name or path to the outgoing grid file (including extension). This is the</span>
 <span class="sd">            path/name relative to the root folder and if present the ``dir_input``</span>
 <span class="sd">            folder.</span>
@@ -4958,7 +4958,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">write_geoms</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">geoms_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;staticgeoms&quot;</span><span class="p">,</span>
-        <span class="n">precision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">precision</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Write geoms in GeoJSON format.</span>
@@ -4972,6 +4972,9 @@
 <span class="sd">        geoms_fn : str, optional</span>
 <span class="sd">            Folder name/path where the static geometries are stored relative to the</span>
 <span class="sd">            model root and ``dir_input`` if any. By default &quot;staticgeoms&quot;.</span>
+<span class="sd">        precision : int, optional</span>
+<span class="sd">            Decimal precision to write the geometries. By default None to use 1 decimal</span>
+<span class="sd">            for projected crs and 6 for non-projected crs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># to write use self.geoms[var].to_file()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">:</span>
@@ -5186,10 +5189,10 @@
                     <span class="c1"># only correct dates in toml for standard calendars:</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">da</span><span class="o">.</span><span class="n">indexes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="s2">&quot;to_datetimeindex&quot;</span><span class="p">):</span>
                         <span class="n">times</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">|</span> <span class="p">(</span><span class="n">start</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">times</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">start</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">times</span><span class="p">):</span>
                             <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                             <span class="n">correct_times</span> <span class="o">=</span> <span class="kc">True</span>
-                        <span class="k">if</span> <span class="p">(</span><span class="n">end</span> <span class="o">&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">|</span> <span class="p">(</span><span class="n">end</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">times</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span><span class="n">end</span> <span class="o">&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">end</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">times</span><span class="p">):</span>
                             <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
                             <span class="n">correct_times</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="c1"># merge, process and write forcing</span>

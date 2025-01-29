@@ -50,7 +50,7 @@
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.1dev0" />
+  <meta name="docsearch:version" content="0.7.2.dev0" />
   </head>
   
   
@@ -416,6 +416,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span><span class="p">,</span> <span class="n">join</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -600,7 +601,7 @@
 <div class="viewcode-block" id="read_staticmaps_pcr">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.pcrm.read_staticmaps_pcr.html#hydromt_wflow.pcrm.read_staticmaps_pcr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_staticmaps_pcr</span><span class="p">(</span>
-    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">crs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4326</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">crs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4326</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read pcraster staticmaps at &lt;root/staticmaps&gt; and parse to xarray.</span>
@@ -609,7 +610,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    root : Path | str</span>
+<span class="sd">    root : Path, str</span>
 <span class="sd">        Path to the root directory of the model. Assumes this folder contains a</span>
 <span class="sd">        staticmaps folder with the pcraster maps.</span>
 <span class="sd">    crs : int, optional</span>
@@ -672,7 +673,7 @@
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.pcrm.write_staticmaps_pcr.html#hydromt_wflow.pcrm.write_staticmaps_pcr">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write_staticmaps_pcr</span><span class="p">(</span>
     <span class="n">staticmaps</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Write staticmaps at &lt;root/staticmaps&gt; in PCRaster maps format.</span>
@@ -681,7 +682,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    staticmaps : xr.Dataset</span>
 <span class="sd">        Dataset with the staticmaps.</span>
-<span class="sd">    root : Path | str</span>
+<span class="sd">    root : Path, str</span>
 <span class="sd">        Path to the root directory of the model. A staticmaps folder will be created</span>
 <span class="sd">        in this folder with the pcraster maps.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
