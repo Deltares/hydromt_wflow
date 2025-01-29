@@ -8,6 +8,7 @@ import geopandas as gpd
 import numpy as np
 import pytest
 import xarray as xr
+from hydromt import DataCatalog
 from hydromt.cli.cli_utils import parse_config
 from shapely.geometry import box
 
@@ -124,6 +125,15 @@ def floodplain1d_testdata():
         mode="r",
     )
     return data
+
+
+@pytest.fixture()
+def globcover_gdf():
+    cat = DataCatalog("artifact_data")
+    globcover = cat.get_rasterdataset("globcover_2009")
+    globcover_gdf = globcover.raster.vectorize()
+    globcover_gdf.rename(columns={"value": "landuse"}, inplace=True)
+    return globcover_gdf
 
 
 @pytest.fixture()
