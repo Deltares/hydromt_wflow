@@ -47,9 +47,11 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_glaciers`
       - This component generates maps of glacier areas, area fraction and volume fraction, as well as tables with temperature threshold, melting factor and snow-to-ice conversion fraction.
     * - :py:func:`~WflowModel.setup_lulcmaps`
-      - This component derives several wflow maps based on landuse- landcover (LULC) data.
+      - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
+    * - :py:func:`~WflowModel.setup_lulcmaps_from_vector`
+      - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
     * - :py:func:`~WflowModel.setup_lulcmaps_with_paddy`
-      - This component derives several wflow maps based on landuse- landcover (LULC) data with paddy rice.
+      - This component derives several wflow maps based on landuse- landcover (LULC) raster data with paddy rice.
     * - :py:func:`~WflowModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
     * - :py:func:`~WflowModel.setup_laimaps_from_lulc_mapping`

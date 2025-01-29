@@ -13,7 +13,7 @@ from hydromt_wflow.wflow import WflowModel
 
 from .naming import HYDROMT_NAMES
 from .utils import DATADIR
-from .workflows import landuse, soilgrids_sediment
+from .workflows import add_planted_forest_to_landuse, landuse, soilgrids_sediment
 
 __all__ = ["WflowSedimentModel"]
 
@@ -346,20 +346,16 @@ class WflowSedimentModel(WflowModel):
         lulc_fn : {"globcover", "vito", "corine"}
             Name of data source in data_sources.yml file.
         lulc_mapping_fn : str
-            Path to a mapping csv file from landuse in source name to parameter values \
-in lulc_vars.
+            Path to a mapping csv file from landuse in source name to parameter values
+            in lulc_vars.
         planted_forest_fn : str, Path, gpd.GeoDataFrame
             GeoDataFrame source with polygons of planted forests.
 
             * Optional variable: ["forest_type"]
 
         lulc_vars : dict
-            Dictionary of landuse parameters in ``lulc_mapping_fn`` columns to prepare
-            and their internal wflow name (or None to skip adding to the toml). By
-            default: \
-{"landuse": None, "Kext": "input.vertical.kext", "PathFrac": \
-"input.vertical.pathfrac", "Sl": "input.vertical.specific_leaf", "Swood": \
-"input.vertical.storage_wood", "USLE_C": "input.vertical.usleC"}
+            List of landuse paramters to prepare.
+            By default ["landuse","Kext","Sl","Swood","USLE_C","PathFrac"]
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
         orchard_name : str, optional
@@ -367,6 +363,11 @@ in lulc_vars.
             ``planted_forest_fn``, by default "Orchard".
         orchard_c : float, optional
             Value of USLE C factor for orchards, by default 0.2188.
+
+        See Also
+        --------
+        workflows.setup_lulcmaps_from_vector
+        workflows.add_planted_forest_to_landuse
         """
         # Prepare all default parameters
         super().setup_lulcmaps(
@@ -375,11 +376,6 @@ in lulc_vars.
 
         # If available, improve USLE C map with planted forest data
         if "USLE_C" in lulc_vars and planted_forest_fn is not None:
-            # Add a USLE_C column with default value
-            self.logger.info(
-                "Correcting USLE_C with planted forest and orchards"
-                "using {planted_forest_fn}."
-            )
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -391,24 +387,138 @@ in lulc_vars.
             if planted_forest is None:
                 self.logger.warning("No Planted forest data found within domain.")
                 return
-            planted_forest["USLE_C"] = planted_forest_c
-            # If forest_type column is available, update USLE_C value for orchards
-            if "forest_type" in planted_forest.columns:
-                planted_forest.loc[
-                    planted_forest["forest_type"] == orchard_name, "USLE_C"
-                ] = orchard_c
-            # Rasterize forest data
-            usle_c = self.grid.raster.rasterize(
-                gdf=planted_forest,
-                col_name="USLE_C",
-                nodata=self.grid["USLE_C"].raster.nodata,
-                all_touched=False,
+            usle_c = add_planted_forest_to_landuse(
+                planted_forest,
+                self.grid,
+                planted_forest_c=planted_forest_c,
+                orchard_name=orchard_name,
+                orchard_c=orchard_c,
+                logger=self.logger,
             )
-            # Cover nodata with the USLE_C map from all landuse classes
-            usle_c = usle_c.where(
-                usle_c != usle_c.raster.nodata,
-                self.grid["USLE_C"],
+
+            # Add to grid
+            self.set_grid(usle_c)
+
+    def setup_lulcmaps_from_vector(
+        self,
+        lulc_fn: Union[str, gpd.GeoDataFrame],
+        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
+        lulc_vars: List = [
+            "landuse",
+            "Kext",
+            "PathFrac",
+            "Sl",
+            "Swood",
+            "USLE_C",
+        ],
+        lulc_res: Optional[Union[float, int]] = None,
+        all_touched: bool = False,
+        save_raster_lulc: bool = False,
+        planted_forest_c: float = 0.0881,
+        orchard_name: str = "Orchard",
+        orchard_c: float = 0.2188,
+    ):
+        """
+        Derive several wflow maps based on vector landuse-landcover (LULC) data.
+
+        The vector lulc data is first rasterized to a raster map at the model resolution
+        or at a higher resolution specified in ``lulc_res`` (recommended).
+
+        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
+        parameters based on literature. The data is remapped at its original resolution
+        and then resampled to the model resolution using the average value, unless noted
+        differently.
+
+        The USLE C factor map can be refined for planted forests using the planted
+        forest data source. The planted forest data source is a polygon layer with
+        planted forest polygons and optionnally a column with the forest type to
+        identify orchards. The default value for orchards is 0.2188, the default value
+        for other planted forests is 0.0881.
+
+        Adds model layers:
+
+        * **landuse** map: Landuse class [-]
+            Original source dependent LULC class, resampled using nearest neighbour.
+        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
+        * **Sl** map: Specific leaf storage [mm]
+        * **Swood** map: Fraction of wood in the vegetation/plant [-]
+        * **USLE_C** map: Cover management factor from the USLE equation [-]
+        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
+
+        Parameters
+        ----------
+        lulc_fn : str, gpd.GeoDataFrame
+            GeoDataFrame or name in data catalog / path to (vector) landuse map.
+
+            * Required columns: 'landuse' [-]
+        lulc_mapping_fn : str, Path, pd.DataFrame
+            Path to a mapping csv file from landuse in source name to parameter values
+            in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
+            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            becomes optional.
+        planted_forest_fn : str, Path, gpd.GeoDataFrame
+            GeoDataFrame source with polygons of planted forests.
+
+            * Optional variable: ["forest_type"]
+        lulc_vars : dict
+            List of landuse paramters to prepare.
+            By default ["landuse","Kext","Sl","Swood","USLE_C","PathFrac"]
+        lulc_res : float, int, optional
+            Resolution of the intermediate rasterized landuse map. The unit (meter or
+            degree) depends on the CRS of lulc_fn (projected or not). By default None,
+            which uses the model resolution.
+        all_touched : bool, optional
+            If True, all pixels touched by the vector will be burned in the raster,
+            by default False.
+        save_raster_lulc : bool, optional
+            If True, the high resolution rasterized landuse map will be saved to
+            maps/landuse_raster.tif, by default False.
+        planted_forest_c : float, optional
+            Value of USLE C factor for planted forest, by default 0.0881.
+        orchard_name : str, optional
+            Name of orchard landuse class in the "forest_type" column of
+            ``planted_forest_fn``, by default "Orchard".
+        orchard_c : float, optional
+            Value of USLE C factor for orchards, by default 0.2188.
+
+        See Also
+        --------
+        workflows.setup_lulcmaps_from_vector
+        workflows.add_planted_forest_to_landuse
+        """
+        # Prepare all default parameters
+        super().setup_lulcmaps_from_vector(
+            lulc_fn=lulc_fn,
+            lulc_mapping_fn=lulc_mapping_fn,
+            lulc_vars=lulc_vars,
+            lulc_res=lulc_res,
+            all_touched=all_touched,
+            save_raster_lulc=save_raster_lulc,
+        )
+
+        # If available, improve USLE C map with planted forest data
+        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+            # Read forest data
+            planted_forest = self.data_catalog.get_geodataframe(
+                planted_forest_fn,
+                geom=self.basins,
+                buffer=1,
+                predicate="intersects",
+                handle_nodata="IGNORE",
             )
+            if planted_forest is None:
+                self.logger.warning("No Planted forest data found within domain.")
+                return
+            usle_c = add_planted_forest_to_landuse(
+                planted_forest,
+                self.grid,
+                planted_forest_c=planted_forest_c,
+                orchard_name=orchard_name,
+                orchard_c=orchard_c,
+                logger=self.logger,
+            )
+
             # Add to grid
             self.set_grid(usle_c)
 
