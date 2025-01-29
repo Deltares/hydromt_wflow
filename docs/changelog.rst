@@ -15,7 +15,7 @@ Added
 
 Changed
 -------
--
+- Changed name of `g_tt` parameter to `g_ttm`, to align with the changes in https://github.com/Deltares/Wflow.jl/pull/512
 
 Fixed
 -----
