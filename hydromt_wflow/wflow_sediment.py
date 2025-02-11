@@ -133,14 +133,14 @@ class WflowSedimentModel(WflowModel):
 
         In case the wflow parameters are not directly available they can be computed by
         HydroMT based on time series of reservoir surface water area.
-        These time series can be retreived from either the hydroengine or the gwwapi,
+        These time series can be retrieved from either the hydroengine or the gwwapi,
         based on the Hylak_id the reservoir, found in the GrandD database.
 
         The required variables for computation of the parameters with time series data
         are reservoir ID 'waterbody_id', reservoir ID in the HydroLAKES database
         'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m],
         average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
-        To compute parameters without using time series data, the required varibales in
+        To compute parameters without using time series data, the required variables in
         reservoirs_fn are reservoir ID 'waterbody_id', average area 'Area_avg' [m2],
         average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge
         'Dis_avg' [m3/s] and dam height 'Dam_height' [m] and
@@ -320,14 +320,14 @@ class WflowSedimentModel(WflowModel):
         """Derive several wflow maps based on landuse-landcover (LULC) data.
 
         Currently, ``lulc_fn`` can be set to the "vito", "globcover", "corine" or
-        "glmnco", of which lookup tables are constructed to convert lulc classses to
+        "glmnco", of which lookup tables are constructed to convert lulc classes to
         model parameters based on literature. The data is remapped at its original
         resolution and then resampled to the model resolution using the average value,
         unless noted differently.
 
         The USLE C factor map can be refined for planted forests using the planted
         forest data source. The planted forest data source is a polygon layer with
-        planted forest polygons and optionnally a column with the forest type to
+        planted forest polygons and optionally a column with the forest type to
         identify orchards. The default value for orchards is 0.2188, the default value
         for other planted forests is 0.0881.
 
@@ -354,7 +354,7 @@ class WflowSedimentModel(WflowModel):
             * Optional variable: ["forest_type"]
 
         lulc_vars : dict
-            List of landuse paramters to prepare.
+            List of landuse parameters to prepare.
             By default ["landuse","Kext","Sl","Swood","USLE_C","PathFrac"]
         planted_forest_c : float, optional
             Value of USLE C factor for planted forest, by default 0.0881.
@@ -432,7 +432,7 @@ class WflowSedimentModel(WflowModel):
 
         The USLE C factor map can be refined for planted forests using the planted
         forest data source. The planted forest data source is a polygon layer with
-        planted forest polygons and optionnally a column with the forest type to
+        planted forest polygons and optionally a column with the forest type to
         identify orchards. The default value for orchards is 0.2188, the default value
         for other planted forests is 0.0881.
 
@@ -462,7 +462,7 @@ class WflowSedimentModel(WflowModel):
 
             * Optional variable: ["forest_type"]
         lulc_vars : dict
-            List of landuse paramters to prepare.
+            List of landuse parameters to prepare.
             By default ["landuse","Kext","Sl","Swood","USLE_C","PathFrac"]
         lulc_res : float, int, optional
             Resolution of the intermediate rasterized landuse map. The unit (meter or

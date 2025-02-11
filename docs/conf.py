@@ -17,11 +17,11 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
 import shutil
-import hydromt
-import hydromt_wflow
+import sys
 from distutils.dir_util import copy_tree
+
+import hydromt_wflow
 
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))

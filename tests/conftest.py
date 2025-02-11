@@ -22,7 +22,7 @@ TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_wflow_model():
     logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
@@ -38,7 +38,7 @@ def example_wflow_model():
     return mod
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_sediment_model():
     logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
@@ -54,7 +54,7 @@ def example_sediment_model():
     return mod
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_models(example_wflow_model, example_sediment_model):
     models = {
         "wflow": example_wflow_model,
@@ -64,28 +64,28 @@ def example_models(example_wflow_model, example_sediment_model):
     return models
 
 
-@pytest.fixture()
+@pytest.fixture
 def wflow_ini():
     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
     opt = parse_config(config)
     return opt
 
 
-@pytest.fixture()
+@pytest.fixture
 def sediment_ini():
     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
     opt = parse_config(config)
     return opt
 
 
-@pytest.fixture()
+@pytest.fixture
 def wflow_simple_ini():
     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
     opt = parse_config(config)
     return opt
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
     inis = {
         "wflow": wflow_ini,
@@ -95,7 +95,7 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
     return inis
 
 
-@pytest.fixture()
+@pytest.fixture
 def example_wflow_results():
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
@@ -103,7 +103,7 @@ def example_wflow_results():
     return mod
 
 
-@pytest.fixture()
+@pytest.fixture
 def clipped_wflow_model():
     root = join(EXAMPLEDIR, "wflow_piave_clip")
     mod = WflowModel(
@@ -117,7 +117,7 @@ def clipped_wflow_model():
     return mod
 
 
-@pytest.fixture()
+@pytest.fixture
 def floodplain1d_testdata():
     data = xr.load_dataset(
         join(TESTDATADIR, SUBDIR, "floodplain_layers.nc"),
@@ -127,7 +127,7 @@ def floodplain1d_testdata():
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def globcover_gdf():
     cat = DataCatalog("artifact_data")
     globcover = cat.get_rasterdataset("globcover_2009")
@@ -136,7 +136,7 @@ def globcover_gdf():
     return globcover_gdf
 
 
-@pytest.fixture()
+@pytest.fixture
 def planted_forest_testdata():
     bbox1 = [12.38, 46.12, 12.42, 46.16]
     bbox2 = [12.21, 46.07, 12.26, 46.11]
@@ -145,7 +145,7 @@ def planted_forest_testdata():
     return gdf
 
 
-@pytest.fixture()
+@pytest.fixture
 def rivers1d():
     # Also for linux the data is in the normal example folder
     data = gpd.read_file(
@@ -154,7 +154,7 @@ def rivers1d():
     return data
 
 
-@pytest.fixture()
+@pytest.fixture
 def da_pet(example_wflow_model):
     da = example_wflow_model.data_catalog.get_rasterdataset(
         "era5", geom=example_wflow_model.region, buffer=2, variables=["temp"]
@@ -166,7 +166,7 @@ def da_pet(example_wflow_model):
     return da
 
 
-@pytest.fixture()
+@pytest.fixture
 def demda():
     np.random.seed(11)
     da = xr.DataArray(
