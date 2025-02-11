@@ -5,74 +5,61 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "hydromt_wflow"
 authors = [
-    { name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
-    { name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
-    { name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
-    { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
+  { name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
+  { name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
+  { name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
+  { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
 ]
 dependencies = [
-    "dask",
-    "geopandas>=0.10",
-    "hydromt>=0.9.4,<0.11",
-    "netcdf4",
-    "numpy>=1.23, <2",      # max version 2 while we wait for hydromt core to update
-    "pandas",
-    "pyflwdir>=0.5.7",
-    "pyproj",
-    "rioxarray<=0.17.0",    # pin because of xarray pin
-    "scipy",
-    "shapely",
-    "toml",
-    "xarray<=2024.3.0",     # pin xarray to avoid issues with time resampling and NaN interpolation
+  "dask",
+  "geopandas>=0.10",
+  "hydromt>=0.9.4,<0.11",
+  "netcdf4",
+  "numpy>=1.23, <2",      # max version 2 while we wait for hydromt core to update
+  "pandas",
+  "pyflwdir>=0.5.7",
+  "pyproj",
+  "rioxarray<=0.17.0",    # pin because of xarray pin
+  "scipy",
+  "shapely",
+  "toml",
+  "xarray<=2024.3.0",     # pin xarray to avoid issues with time resampling and NaN interpolation
 ]
 requires-python = ">=3.10"
 readme = "README.rst"
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Science/Research",
-    "Topic :: Scientific/Engineering :: Hydrology",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-    "Programming Language :: Python :: 3",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Hydrology",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Programming Language :: Python :: 3",
 ]
 dynamic = ['version', 'description']
 
 [project.optional-dependencies]
-io = [
-    "requests",
-]
-extra = [
-    "hydroengine",
-    "gdal",
-    "gwwapi",
-    "pcraster",
-    "pyet",
-]
-dev = [
-    "black",
-    "ruff",
-    "pre-commit",
-    "pip>=23.1.2",
-]
+io = ["requests"]
+extra = ["hydroengine", "gdal", "gwwapi", "pcraster", "pyet"]
+dev = ["black", "ruff", "pre-commit", "pip>=23.1.2"]
 test = [
-    "pytest>=2.7.3",
-    "pytest-cov",
-    "pytest-mock",
-    "hydromt_wflow[dev, extra]",
+  "pytest>=2.7.3",
+  "pytest-cov",
+  "pytest-mock",
+  "hydromt_wflow[dev, extra]",
 ]
 doc = [
-    "nbsphinx",
-    "sphinx",
-    "sphinx_design",
-    "pydata-sphinx-theme",
-    "sphinx_autosummary_accessors",
-    "hydromt_wflow[examples,extra]",
+  "nbsphinx",
+  "sphinx",
+  "sphinx_design",
+  "pydata-sphinx-theme",
+  "sphinx_autosummary_accessors",
+  "hydromt_wflow[examples,extra]",
 ]
 examples = [
-    "jupyterlab",
-    "cartopy",
-    "nbconvert==7.13.1", # Pin as of (02-2024); 7.14 onwards causes issues with the progressbar in example notebooks. See issue #233 for more info (https://github.com/Deltares/hydromt_wflow/issues/233).
-    "notebook",
+  "jupyterlab",
+  "cartopy",
+  "nbconvert==7.13.1", # Pin as of (02-2024); 7.14 onwards causes issues with the progressbar in example notebooks. See issue #233 for more info (https://github.com/Deltares/hydromt_wflow/issues/233).
+  "notebook",
 ]
 
 full = ["hydromt_wflow[io,extra,dev,test,doc,examples]"]
@@ -89,11 +76,11 @@ wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 [tool.make_env]
 channels = ["conda-forge"]
 deps_not_in_conda = [
-    "gwwapi",
-    "hydroengine",
-    "sphinx_autosummary_accessors",
-    "sphinx_design",
-    "pyet",
+  "gwwapi",
+  "hydroengine",
+  "sphinx_autosummary_accessors",
+  "sphinx_design",
+  "pyet",
 ]
 
 [tool.black]
@@ -102,20 +89,20 @@ target-version = ['py310', 'py311']
 
 [tool.ruff]
 line-length = 88
+exclude = ["docs", "examples"]
 
+[tool.ruff.lint]
 # enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
 select = ["E", "F", "I", "PT", "D"]
-ignore-init-module-imports = true
 ignore = ["D211", "D213", "E741", "D105", "E712"]
-exclude = ["docs"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D103", "D100", "D104"]
 "hydromt_wflow/__init__.py" = ["E402", "F401", "F403"]
 "hydromt_wflow/workflows/__init__.py" = ["F403"]
 "tests/conftest.py" = ["E402"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
 [tool.flit.sdist]
@@ -124,7 +111,7 @@ exclude = ["docs", "examples", "envs", "tests", "binder", ".github"]
 
 [tool.pytest.ini_options]
 filterwarnings = [
-    "ignore:distutils Version classes are deprecated:DeprecationWarning",
-    "ignore:The staticmaps property:DeprecationWarning",
-    "ignore:The staticgeoms property:DeprecationWarning",
+  "ignore:distutils Version classes are deprecated:DeprecationWarning",
+  "ignore:The staticmaps property:DeprecationWarning",
+  "ignore:The staticgeoms property:DeprecationWarning",
 ]

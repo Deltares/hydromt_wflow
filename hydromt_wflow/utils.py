@@ -1,4 +1,5 @@
 """Some utilities from the Wflow plugin."""
+
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Optional, Union
