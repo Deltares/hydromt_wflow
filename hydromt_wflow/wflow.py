@@ -314,7 +314,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         """
         Set all river parameter maps.
 
-        The river mask is defined by all cells with a mimimum upstream area threshold
+        The river mask is defined by all cells with a minimum upstream area threshold
         ``river_upa`` [km2].
 
         The river length is defined as the distance from the subgrid outlet pixel to
@@ -610,7 +610,7 @@ Select from {routing_options}.'
         if self.get_config("model.river_routing") != "local-inertial":
             raise ValueError(
                 "Floodplains (1d or 2d) are currently only supported with \
-local intertial river routing"
+local inertial river routing"
             )
 
         r_list = ["1d", "2d"]
@@ -760,7 +760,7 @@ setting new flood_depth dimensions"
         By default the riverwidth is estimated based on discharge as ``predictor``
         and used to set the riverwidth globally based on pre-defined power-law
         parameters per climate class. With ``fit`` set to True,
-        the power-law relationsship paramters are set on-the-fly.
+        the power-law relationships parameters are set on-the-fly.
         With ``fill`` set to True, the estimated river widths are only used
         to fill gaps in the observed data. Alternative ``predictor`` values
         are precip (accumulated precipitation) and uparea (upstream area).
@@ -1099,7 +1099,7 @@ to run setup_river method first.'
         will be derived from the LULC data. These tables can then be re-used later if
         you would like to add new LAI maps derived from this mapping table and new
         landuse scenarios. We advise to use a larger `buffer` to ensure that LAI values
-        can be assigned for all landuse classes and based on a lage enough sample of the
+        can be assigned for all landuse classes and based on a large enough sample of the
         LULC data.
 
         Adds model layers:
@@ -1286,7 +1286,7 @@ to run setup_river method first.'
                 var_name = "variable"
                 if self.get_config("netcdf") is None:
                     self.set_config("netcdf.path", "output_scalar.nc")
-            # initialise column / varibale section
+            # initialise column / variable section
             if self.get_config(f"{toml_output}.{var_name}") is None:
                 self.set_config(f"{toml_output}.{var_name}", [])
 
@@ -1299,7 +1299,7 @@ to run setup_river method first.'
                 }
                 if reducer is not None:
                     gauge_toml_dict["reducer"] = reducer[o]
-                # If the gauge column/variable already exists skip writting twice
+                # If the gauge column/variable already exists skip writing twice
                 if gauge_toml_dict not in self.config[toml_output][var_name]:
                     self.config[toml_output][var_name].append(gauge_toml_dict)
         else:
@@ -1513,7 +1513,7 @@ gauge locations [-] (if derive_subcatch)
             if not np.all(np.isin(gdf_gauges.geometry.type, "Point")):
                 raise ValueError(f"{gauges_fn} contains other geometries than Point")
         elif isfile(gauges_fn):
-            # try to get epsg number directly, important when writting back data_catalog
+            # try to get epsg number directly, important when writing back data_catalog
             if hasattr(self.crs, "to_epsg"):
                 code = self.crs.to_epsg()
             else:
@@ -1847,7 +1847,7 @@ Using default storage/outflow function parameters."
             self.set_tables(v, name=k)
 
         # if there are lakes, change True in toml
-        # Lake seetings in the toml to update
+        # Lake settings in the toml to update
         lakes_toml = {
             "model.lakes": True,
             "state.lateral.river.lake.waterlevel": "waterlevel_lake",
@@ -1891,14 +1891,14 @@ Using default storage/outflow function parameters."
 
         In case the wflow parameters are not directly available they can be computed by
         HydroMT based on time series of reservoir surface water area.
-        These time series can be retreived from either the hydroengine or the gwwapi,
+        These time series can be retrieved from either the hydroengine or the gwwapi,
         based on the Hylak_id the reservoir, found in the GrandD database.
 
         The required variables for computation of the parameters with time series data
         are reservoir ID 'waterbody_id', reservoir ID in the HydroLAKES database
         'Hylak_id', average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m],
         average discharge 'Dis_avg' [m3/s] and dam height 'Dam_height' [m].
-        To compute parameters without using time series data, the required varibales in
+        To compute parameters without using time series data, the required variables in
         reservoirs_fn are reservoir ID 'waterbody_id', average area 'Area_avg' [m2],
         average volume 'Vol_avg' [m3], average depth 'Depth_avg' [m], average discharge
         'Dis_avg' [m3/s] and dam height 'Dam_height' [m]
@@ -2012,7 +2012,7 @@ Using default storage/outflow function parameters."
             )
             intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
-        # create a geodf with id of reservoir and gemoetry at outflow location
+        # create a geodf with id of reservoir and geometry at outflow location
         gdf_org_points = gpd.GeoDataFrame(
             gdf_org["waterbody_id"],
             geometry=gpd.points_from_xy(gdf_org.xout, gdf_org.yout),
@@ -2021,7 +2021,7 @@ Using default storage/outflow function parameters."
         gdf_org_points = gdf_org_points.merge(
             intbl_reservoirs, on="waterbody_id"
         )  # merge
-        # add parameter attributes to polygone gdf:
+        # add parameter attributes to polygon gdf:
         gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
 
         # write reservoirs with param values to geoms
@@ -2062,7 +2062,7 @@ Using default storage/outflow function parameters."
             **kwargs,
         )
         if gdf_org is None:
-            # Return two times None (similair to main function output), if there is no
+            # Return two times None (similar to main function output), if there is no
             # data found
             return None, None
 
@@ -2577,13 +2577,13 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         Generate maps of glacier areas, area fraction and volume fraction.
 
         Also generates tables with temperature threshold, melting factor and snow-to-ice
-        convertion fraction.
+        conversion fraction.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with glacier geometry, IDs and metadata.
 
         The required variables from glaciers_fn dataset are glacier ID 'simple_id'.
-        Optionnally glacier area 'AREA' [km2] can be present to filter the glaciers
+        Optionally glacier area 'AREA' [km2] can be present to filter the glaciers
         by size. If not present it will be computed on the fly.
 
         Adds model layers:
@@ -3211,7 +3211,7 @@ return periods RP. The translation to RootingDepth is done by dividing \
 the rootzone_storage by (thetaS - thetaR).
         * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
 storage capacity [mm of water] for each catchment estimated before filling \
-the missings with data from downstream catchments.
+the missing with data from downstream catchments.
         * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity \
 [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for \
 different return periods RP. Only if rootzone_storage is set to True!
@@ -3238,13 +3238,13 @@ different return periods RP. Only if rootzone_storage is set to True!
             Chunksize on time dimension for processing data (not for saving to
             disk!). The default is 100.
         return_period : list, optional
-            List with one or more values indiciating the return period(s) (in
-            years) for wich the rootzone storage depth should be calculated. The
+            List with one or more values indicating the return period(s) (in
+            years) for which the rootzone storage depth should be calculated. The
             default is [2,3,5,10,15,20,25,50,60,100] years.
         Imax : float, optional
             The maximum interception storage capacity [mm]. The default is 2.0 mm.
         start_hydro_year : str, optional
-            The start month (abreviated to the first three letters of the month,
+            The start month (abbreviated to the first three letters of the month,
             starting with a capital letter) of the hydrological year. The
             default is 'Sep'.
         start_field_capacity : str, optional
@@ -3492,7 +3492,7 @@ Run setup_soilmaps first"
                 river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get("river_upa", "")
                 self.logger.warning(
                     "Not all tributary gauges are on the river network and river "
-                    "discharge canot be saved. You should use a higher threshold "
+                    "discharge cannot be saved. You should use a higher threshold "
                     f"for the subbasin area than {area_max} to match better the "
                     f"wflow river in your model {river_upa}."
                 )
@@ -3545,7 +3545,7 @@ Run setup_soilmaps first"
         wflow model rivers and water areas or regions for allocation.
 
         Water regions are generally defined by sub-river-basins within a Country. In
-        order to mimick reality, it is advisable to avoid cross-Country-border
+        order to mimic reality, it is advisable to avoid cross-Country-border
         abstractions. Whenever information is available, it is strongly recommended to
         align the water regions with the actual areas managed by water management
         authorities, such as regional water boards.
@@ -3666,7 +3666,7 @@ Run setup_soilmaps first"
         else:
             ncfrac = None
 
-        # check wether to use the models own allocation areas
+        # check whether to use the models own allocation areas
         if waterareas_fn is None:
             self.logger.info("Using wflow model allocation areas.")
             if "allocation_areas" not in self.grid:
@@ -3721,7 +3721,7 @@ Run setup_soilmaps first"
         original resolution of `domestic_fn` before downsampling with `population_fn`.
         For example, the pcr_globwb dataset is at a resolution of 0.0083333333 degrees,
         while the original data has a resolution of 0.5 degrees. Use the
-        `domestic_fn_original_res` parameter to specify the orignal resolution.
+        `domestic_fn_original_res` parameter to specify the original resolution.
 
         Adds model layer:
 
@@ -3924,7 +3924,7 @@ Run setup_soilmaps first"
 
         The function requires data that contains information about the location of the
         irrigated areas (``irrigated_area_fn``). This, combined with the wflow landuse
-        map that contains classes for cropland (``cropland_class) and optionnally for
+        map that contains classes for cropland (``cropland_class) and optionally for
         paddy (rice) (``paddy_class``), determines which locations are considered to be
         paddy irrigation, and which locations are considered to be non-paddy irrigation.
 
@@ -4146,7 +4146,7 @@ Run setup_soilmaps first"
         Parameters
         ----------
         config_fn : str, optional
-            Name of the config file, realtive to model root. By default None.
+            Name of the config file, relative to model root. By default None.
         grid_fn : str, optional
             Name of the grid file, relative to model root/dir_input. By default
             'staticmaps.nc'.
@@ -4157,7 +4157,7 @@ Run setup_soilmaps first"
             Name of the forcing file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
         states_fn : str, optional
-            Name of the states file realtive to model root/dir_input. By default None
+            Name of the states file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
         """
         self.logger.info(f"Write model data to {self.root}")
@@ -4488,8 +4488,8 @@ Run setup_soilmaps first"
         root folder.
 
         If several files are used using '*' in ``input.path_forcing``, all corresponding
-        files are read and merged into one xarray dataset before being splitted to one
-        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionnary.
+        files are read and merged into one xarray dataset before being split to one
+        xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
         """
         fn_default = "inmaps.nc"
         fn = self.get_config(
@@ -4557,9 +4557,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         chunksize: int, optional
             Chunksize on time dimension when saving to disk. By default 1.
         decimals: int, optional
-            Round the ouput data to the given number of decimals.
+            Round the output data to the given number of decimals.
         time_units: str, optional
-            Common time units when writting several netcdf forcing files.
+            Common time units when writing several netcdf forcing files.
             By default "days since 1900-01-01T00:00:00".
 
         """
@@ -4595,7 +4595,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                 else:
                     fn_out = None
 
-                # get deafult filename if file exists
+                # get default filename if file exists
                 if fn_out is None or isfile(fn_out):
                     self.logger.warning(
                         "Netcdf forcing file from input.path_forcing in the TOML  "
@@ -4703,7 +4703,7 @@ change name input.path_forcing "
                 # the dask.compute method
                 forcing_list.append([fn_out, ds])
             else:
-                self.logger.info(f"Writting several forcing with freq {freq_out}")
+                self.logger.info(f"Writing several forcing with freq {freq_out}")
                 # For several forcing files add common units attributes to time
                 encoding["time"] = {"_FillValue": None, "units": time_units}
                 # Updating path forcing in config
@@ -4764,7 +4764,7 @@ change name input.path_forcing "
             raise IOError("Model opened in read-only mode")
 
         if self.states:
-            self.logger.info("Writting states file")
+            self.logger.info("Writing states file")
 
             # get output filename and if needed update and re-write the config
             if fn_out is not None:

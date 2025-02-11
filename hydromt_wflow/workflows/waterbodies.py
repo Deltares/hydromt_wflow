@@ -66,7 +66,7 @@ def waterbodymaps(
         nskipped = res_id.size - gdf.index.size
         res_id = gdf["waterbody_id"].values
         logger.warning(
-            f"{nskipped} reservoirs are not succesfully rasterized and skipped!!"
+            f"{nskipped} reservoirs are not successfully rasterized and skipped!!"
             " Consider increasing the lakes min_area threshold."
         )
 
@@ -239,7 +239,7 @@ please use one of [gww, jrc] or None."
                 )
 
                 # Append series to df_ts which will contain all time series
-                # of all dowloaded reservoirs, with an outer join on the datetime index
+                # of all downloaded reservoirs, with an outer join on the datetime index
                 ts_index = pd.to_datetime([k * 1000000 for k in time_series["time"]])
                 ts_values = time_series["water_area"]
                 ts_series = pd.Series(
@@ -269,9 +269,9 @@ please use one of [gww, jrc] or None."
         gdf_bounds = json.dumps(
             shapely.geometry.box(*gdf.total_bounds, ccw=True).__geo_interface__
         )
-        # get reservoirs wihtin these bounds
+        # get reservoirs within these bounds
         gww_reservoirs = cli.get_reservoirs_by_geom(gdf_bounds)
-        # from the response, create a dictonary, linking the gww_id to the hylak_id
+        # from the response, create a dictionary, linking the gww_id to the hylak_id
         # (used in the default reservoir database)
         idlink = {
             k["properties"]["source_id"]: k["id"] for k in gww_reservoirs["features"]
@@ -288,7 +288,7 @@ please use one of [gww, jrc] or None."
                 )
 
                 # Append series to df_ts which will contain all time series
-                # of all dowloaded reservoirs, with an outer join on the datetime index
+                # of all downloaded reservoirs, with an outer join on the datetime index
                 ts_series = utils.to_timeseries(
                     time_series, name=f'{int(gdf["Hylak_id"].iloc[i])}'
                 ).drop_duplicates()
@@ -451,7 +451,7 @@ please use one of [gww, jrc] or None."
             min_cap_f = min_area_f * min_level  # [m3]
             accuracy_min = 3
 
-        # CHECK minumum level (1)
+        # CHECK minimum level (1)
         if accuracy_min == 1 and min_level > norm_level:
             accuracy_min = 21
             min_level = min_area_f / lin_coeff  # [m]
@@ -473,7 +473,7 @@ please use one of [gww, jrc] or None."
             norm_cap_f = max_cap
             accuracy_norm = 5
 
-        # CHECK minumum level (2)
+        # CHECK minimum level (2)
         if min_cap_f > norm_cap_f:
             logger.warning("min_cap > norm_cap! setting min_cap equal to norm_cap.")
             min_cap_f = norm_cap_f
@@ -525,7 +525,7 @@ def lakeattrs(
     - Lake_e: lake rating curve exponent [-]
     - LakeStorFunc: option to compute storage curve [-]
     - LakeOutflowFunc: option to compute rating curve [-]
-    - LakeThreshold: minimium threshold for lake outflow [m]
+    - LakeThreshold: minimum threshold for lake outflow [m]
     - LinkedLakeLocs: id of linked lake location if any
     - LakeMaxStorage: maximum storage [m3] (optional)
 
@@ -632,7 +632,7 @@ a minimum value of 0.01m3/s"
                 else:
                     logger.warning(
                         f"Rating data not available for lake {id}. \
-Using default Modified Puls Approach"
+Using default Modified Pulse Approach"
                     )
 
     # Create raster of lake params

@@ -34,7 +34,7 @@ the predefined KsatHorFrac map.
     xr.DataArray
         A xarray DataArray containing the scaled KsatHorFrac values.
     """
-    # Transfer data to a logaritmic scale
+    # Transfer data to a logarithmic scale
     da = np.log10(da)
     # Reproject the data
     da = da.raster.reproject_like(
@@ -136,7 +136,7 @@ def update_kvfrac(
     wflow_thicknesslayers = np.array(wflow_thicknesslayers)
     target_conductivity = np.array(target_conductivity)
 
-    # Prepare emtpy dataarray
+    # Prepare empty dataarray
     da_kvfrac = raster.full_like(ds_model["c"])
     # Set all values to 1
     da_kvfrac = da_kvfrac.where(
