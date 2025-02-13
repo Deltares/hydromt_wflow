@@ -9,6 +9,7 @@ import pyflwdir
 import xarray as xr
 from hydromt import flw
 from scipy import optimize
+from warnings import catch_warnings, filterwarnings
 
 logger = logging.getLogger(__name__)
 
@@ -128,16 +129,21 @@ def determine_omega(ds_sub_annual):
         for subcatch_index_nr in range(len(ds_sub_annual.index)):
             if evap_index[subcatch_index_nr] > 0:  # make sure evap index is not nan.
                 try:
-                    omega_temp = optimize.brentq(
-                        Zhang,
-                        0.000000000001,
-                        100,
-                        args=(
-                            aridity_index[subcatch_index_nr],
-                            evap_index[subcatch_index_nr],
-                        ),
-                    )
-                    omega[subcatch_index_nr] = omega_temp
+                    # during optimisation overflows can happen but those won't be chosen so this is okay here
+                    with catch_warnings():
+                        filterwarnings(
+                            "ignore", ".*overflow encountered in scalar power.*"
+                        )
+                        omega_temp = optimize.brentq(
+                            Zhang,
+                            0.000000000001,
+                            100,
+                            args=(
+                                aridity_index[subcatch_index_nr],
+                                evap_index[subcatch_index_nr],
+                            ),
+                        )
+                        omega[subcatch_index_nr] = omega_temp
                 # possible error that occurs: "ValueError: f(a) and f(b) must
                 # have different signs") -- increase a and b range solves the issue.
                 except ValueError:
