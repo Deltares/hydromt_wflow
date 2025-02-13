@@ -218,7 +218,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
             if basin_index_fn is not None:
-                bas_index = self.data_catalog[basin_index_fn]
+                bas_index = self.data_catalog.get_source(basin_index_fn)
             else:
                 bas_index = None
             geom, xy = hydromt.workflows.get_basin_geometry(
@@ -1526,8 +1526,8 @@ gauge locations [-] (if derive_subcatch)
                 handle_nodata=NoDataStrategy.IGNORE,
                 **kwargs,
             )
-        elif gauges_fn in self.data_catalog:
-            if self.data_catalog[gauges_fn].data_type == "GeoDataFrame":
+        elif self.data_catalog.contains_source(gauges_fn):
+            if self.data_catalog.get_source(gauges_fn).data_type == "GeoDataFrame":
                 gdf_gauges = self.data_catalog.get_geodataframe(
                     gauges_fn,
                     geom=self.basins,
@@ -1630,7 +1630,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             return
 
         # Add to grid
-        mapname = f'{str(self._MAPS["gauges"])}_{basename}'
+        mapname = f"{str(self._MAPS['gauges'])}_{basename}"
         self.set_grid(da, name=mapname)
 
         # geoms
@@ -1815,7 +1815,9 @@ rating curve fn {fn}. Skipping."
                     i = fns_ids.index(id)
                     rating_fn = rating_curve_fns[i]
                     # Read data
-                    if isfile(rating_fn) or rating_fn in self.data_catalog:
+                    if isfile(rating_fn) or self.data_catalog.contains_source(
+                        rating_fn
+                    ):
                         self.logger.info(
                             f"Preparing lake rating curve data from {rating_fn}"
                         )
@@ -4363,7 +4365,7 @@ Run setup_soilmaps first"
                 )
             tname = "time"
             time_axes = {
-                k: v for k, v in dict(self.grid.dims).items() if k.startswith("time")
+                k: v for k, v in self.grid.sizes.items() if k.startswith("time")
             }
             if data["time"].size not in time_axes.values():
                 tname = f"time_{data['time'].size}" if "time" in time_axes else tname
@@ -4860,7 +4862,7 @@ change name input.path_forcing "
                 name = basename(fn).split(".")[0]
                 tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
                 tbl.columns = [
-                    f"expr{i+1}" if i + 1 < len(tbl.columns) else "value"
+                    f"expr{i + 1}" if i + 1 < len(tbl.columns) else "value"
                     for i in range(len(tbl.columns))
                 ]  # rename columns
                 self.set_intbl(tbl, name=name)

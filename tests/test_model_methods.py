@@ -277,8 +277,10 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
                 )
             )
             == number_of_reservoirs
-        ), f"Number of non-null values in {i} not equal to \
+        ), (
+            f"Number of non-null values in {i} not equal to \
 number of reservoirs in model area"
+        )
 
 
 def test_setup_ksathorfrac(tmpdir, example_wflow_model):
@@ -530,7 +532,7 @@ def test_setup_outlets(example_wflow_model):
 def test_setup_gauges(example_wflow_model):
     # 1. Test with grdc data
     # uparea rename not in the latest artifact_data version
-    example_wflow_model.data_catalog["grdc"].rename = {"area": "uparea"}
+    example_wflow_model.data_catalog.get_source("grdc").rename = {"area": "uparea"}
     example_wflow_model.setup_gauges(
         gauges_fn="grdc",
         basename="grdc_uparea",
