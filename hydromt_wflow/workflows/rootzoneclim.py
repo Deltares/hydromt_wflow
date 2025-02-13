@@ -840,7 +840,7 @@ def rootzoneclim(
 
     # Get year sums of ds_sub
     # a threshold is used to use only years with sufficient data
-    ds_sub_annual = ds_sub.resample(time=f"AS-{start_hydro_year}").sum(
+    ds_sub_annual = ds_sub.resample(time=f"YS-{start_hydro_year.upper()}").sum(
         "time", skipna=True, min_count=missing_days_threshold
     )
 
@@ -851,9 +851,9 @@ def rootzoneclim(
     )
     # set runoff coefficient of cc_hist equal to runoff coeff of obs
     if correct_cc_deficit == True:
-        ds_sub_annual["discharge_coeff"].loc[
-            dict(forcing_type="cc_hist")
-        ] = ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
+        ds_sub_annual["discharge_coeff"].loc[dict(forcing_type="cc_hist")] = (
+            ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
+        )
 
     # Determine omega
     logger.info("Calculating the omega values, this can take a while")
@@ -894,7 +894,7 @@ def rootzoneclim(
     # are positive)
     storage_deficit_annual = -(
         ds_sub["storage_deficit"]
-        .resample(time=f"AS-{start_field_capacity}")
+        .resample(time=f"YS-{start_field_capacity.upper()}")
         .min("time", skipna=True)
     )
 
@@ -902,7 +902,7 @@ def rootzoneclim(
     # data for the Gumbel distribution
     storage_deficit_count = (
         ds_sub["storage_deficit"]
-        .resample(time=f"AS-{start_field_capacity}")
+        .resample(time=f"YS-{start_field_capacity.upper()}")
         .count("time")
     )
 
@@ -938,18 +938,16 @@ def rootzoneclim(
     # period
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:
-            gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ] = gumbel["rootzone_storage"].sel(
-                RP=return_period, forcing_type=forcing_type
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                gumbel["rootzone_storage"].sel(
+                    RP=return_period, forcing_type=forcing_type
+                )
             )
             # Make sure to give the NaNs a value, otherwise they will become 0.0
-            gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ] = gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ].fillna(
-                -999
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                gdf_basins_all[
+                    f"rootzone_storage_{forcing_type}_{str(return_period)}"
+                ].fillna(-9999)
             )
 
     # Rasterize this (from large subcatchments to small ones)
@@ -958,14 +956,14 @@ def rootzoneclim(
             da_area = ds_like.raster.rasterize(
                 gdf=gdf_basins_all,
                 col_name=f"rootzone_storage_{forcing_type}_{str(return_period)}",
-                nodata=-999,
+                nodata=-9999,
                 all_touched=True,
             ).to_dataset(name="rasterized_temp")
             # Fill up the not a numbers with the data from a downstream point
             out_raster = pyflwdir.FlwdirRaster.fillnodata(
                 flwdir,
                 data=da_area["rasterized_temp"],
-                nodata=-999,
+                nodata=-9999,
                 direction="up",
                 how="max",
             )
@@ -975,10 +973,11 @@ def rootzoneclim(
             for value in gdf_basins_all[
                 f"rootzone_storage_{forcing_type}_{str(return_period)}"
             ]:
-                if value > 0.0:
-                    if fill_value is None:
-                        fill_value = value
-            out_raster = np.where(out_raster == -999.0, fill_value, out_raster)
+                if value > 0.0 and fill_value is None:
+                    fill_value = value
+            out_raster = np.where(
+                np.isclose(out_raster, -9999.0), fill_value, out_raster
+            )
             # Store the rootzone_storage in ds_out is rootzone_storage flag is
             # set to True.
             if rootzone_storage == True:
@@ -987,9 +986,11 @@ def rootzoneclim(
                     out_raster,
                 )
             # Store the RootingDepth in ds_out
+            ts_less_tr = ds_like["thetaS"].values - ds_like["thetaR"].values
+            ts_less_tr = np.where(np.isclose(ts_less_tr, 0.0), np.nan, ts_less_tr)
             ds_out[f"RootingDepth_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim),
-                out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values),
+                out_raster / ts_less_tr,
             )
 
     return ds_out, gdf_basins_all

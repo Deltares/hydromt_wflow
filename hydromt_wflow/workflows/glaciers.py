@@ -91,23 +91,23 @@ storage per grid cell"
     elevtn = ds_like[elevtn_name]
     idx_valid = np.where(elevtn.values.flatten() != elevtn.raster.nodata)[0]
     gdf_grid = ds_like.raster.vector_grid().loc[idx_valid]
-    gdf_grid["glacierfrac"] = np.zeros(len(idx_valid), dtype=np.float32)
-    gdf_grid["glacierstore"] = np.zeros(len(idx_valid), dtype=np.float32)
+    gdf_grid["glacierfrac"] = np.zeros(len(idx_valid), dtype=np.float64)
+    gdf_grid["glacierstore"] = np.zeros(len(idx_valid), dtype=np.float64)
     gdf_grid["area"] = gdf_grid.to_crs(3857).area  # area calculation in projected crs
 
     # Calculate fraction and storage (i.e. volume) per (vector) grid cell
     # Looping over each vector GLACIER
     logger.debug("Setting glacierfrac and store values per glacier.")
+
     for i in range(len(gdf)):
         glacier = gdf.iloc[i]
         gridded_glacier = gdf_grid.intersection(glacier.geometry)
         gridded_glacier = gridded_glacier.loc[~gridded_glacier.is_empty]
         idxs = gridded_glacier.index
-        # logger.debug(f"index: {i}, ID: {glacier[id_column]} // {len(idxs)} cells")
         if np.any(idxs):
-            garea_cell = gridded_glacier.to_crs(
-                3857
-            ).area  # area calculation needs projected crs
+            garea_cell = gridded_glacier.to_crs(3857).area.astype(
+                np.float64
+            )  # area calculation needs projected crs
             gfrac = garea_cell / np.sum(garea_cell)
             gdf_grid.loc[idxs, "glacierfrac"] += garea_cell / gdf_grid.loc[idxs, "area"]
             gdf_grid.loc[idxs, "glacierstore"] += gfrac * glacier["glacierstore"]

@@ -215,7 +215,7 @@ please use one of [gww, jrc] or None."
     df_EO = pd.DataFrame(
         index=range(len(gdf["waterbody_id"])),
         columns=(["resid", "maxarea", "normarea", "minarea", "capmin", "capmax"]),
-    )
+    ).astype(np.float64)
     df_EO["resid"] = gdf["waterbody_id"].values
 
     # Create dtaframe for accuracy plots
@@ -319,14 +319,14 @@ please use one of [gww, jrc] or None."
     if "Area_avg" in gdf.columns:
         df_out["resarea"] = gdf["Area_avg"].values
         if timeseries_fn is not None:
-            df_out.loc[pd.notna(df_EO["maxarea"]), "resarea"] = df_EO["maxarea"][
-                pd.notna(df_EO["maxarea"])
-            ].values
+            df_out.loc[~df_EO["maxarea"].isna(), "resarea"] = df_EO.loc[
+                ~df_EO["maxarea"].isna(), "maxarea"
+            ]
         else:
             if pd.isna(["resares"]).any():
-                df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
-                    pd.isna(df_out["resarea"])
-                ].values
+                df_out.loc[df_out["resarea"].isna(), "resarea"] = df_EO.loc[
+                    df_out["resarea"].isna(), "maxarea"
+                ]
     else:
         df_out["resarea"] = df_EO["maxarea"].values
 
@@ -347,10 +347,9 @@ please use one of [gww, jrc] or None."
     # (if a valid source is provided)
     # TODO for now assumes that the reservoir-db is used
     # (combination of GRanD and HydroLAKES)
-    gdf = gdf.fillna(value=np.nan)
+
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
-        # import pdb; pdb.set_trace()
         dam_height = np.nanmax([gdf["Dam_height"].iloc[i], 0.0])
         max_level = np.nanmax([gdf["Depth_avg"].iloc[i], 0.0])
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])

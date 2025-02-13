@@ -2,6 +2,8 @@
 
 __version__ = "0.7.2.dev0"
 
+import netCDF4  # noqa: F401
+
 from .naming import *
 from .utils import *
 from .wflow import *
