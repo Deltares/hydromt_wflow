@@ -290,7 +290,7 @@ please use one of [gww, jrc] or None."
                 # Append series to df_ts which will contain all time series
                 # of all dowloaded reservoirs, with an outer join on the datetime index
                 ts_series = utils.to_timeseries(
-                    time_series, name=f'{int(gdf["Hylak_id"].iloc[i])}'
+                    time_series, name=f"{int(gdf['Hylak_id'].iloc[i])}"
                 ).drop_duplicates()
                 df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
 
@@ -323,9 +323,10 @@ please use one of [gww, jrc] or None."
                 pd.notna(df_EO["maxarea"])
             ].values
         else:
-            df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
-                pd.isna(df_out["resarea"])
-            ].values
+            if pd.isna(["resares"]).any():
+                df_out.loc[pd.isna(df_out["resarea"]), "resarea"] = df_EO["maxarea"][
+                    pd.isna(df_out["resarea"])
+                ].values
     else:
         df_out["resarea"] = df_EO["maxarea"].values
 
