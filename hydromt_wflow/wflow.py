@@ -947,6 +947,140 @@ to run setup_river method first.'
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
                 self.set_config(WFLOW_NAMES[name], name)
 
+    def setup_lulcmaps_from_vector(
+        self,
+        lulc_fn: Union[str, gpd.GeoDataFrame],
+        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        lulc_vars: List = [
+            "landuse",
+            "Kext",
+            "N",
+            "PathFrac",
+            "RootingDepth",
+            "Sl",
+            "Swood",
+            "WaterFrac",
+            "kc",
+            "alpha_h1",
+            "h1",
+            "h2",
+            "h3_high",
+            "h3_low",
+            "h4",
+        ],
+        lulc_res: Optional[Union[float, int]] = None,
+        all_touched: bool = False,
+        buffer: int = 1000,
+        save_raster_lulc: bool = False,
+    ):
+        """
+        Derive several wflow maps based on vector landuse-landcover (LULC) data.
+
+        The vector lulc data is first rasterized to a raster map at the model resolution
+        or at a higher resolution specified in ``lulc_res`` (recommended).
+
+        Lookup table `lulc_mapping_fn` columns are converted to lulc classes model
+        parameters based on literature. The data is remapped at its original resolution
+        and then resampled to the model resolution using the average value, unless noted
+        differently.
+
+        Adds model layers:
+
+        * **landuse** map: Landuse class [-]
+        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
+        * **Sl** map: Specific leaf storage [mm]
+        * **Swood** map: Fraction of wood in the vegetation/plant [-]
+        * **RootingDepth** map: Length of vegetation roots [mm]
+        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
+        * **WaterFrac** map: The fraction of open water per grid cell [-]
+        * **N** map: Manning Roughness [-]
+        * **kc** map: Crop coefficient [-]
+        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
+          (0 or 1) [-]
+        * **h1** map: Soil water pressure head h1 at which root water uptake is reduced
+          (Feddes) [cm]
+        * **h2** map: Soil water pressure head h2 at which root water uptake is reduced
+          (Feddes) [cm]
+        * **h3_high** map: Soil water pressure head h3 at which root water uptake is
+          reduced (Feddes) [cm]
+        * **h3_low** map: Soil water pressure head h3 at which root water uptake is
+          reduced (Feddes) [cm]
+        * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
+          (Feddes) [cm]
+
+        Parameters
+        ----------
+        lulc_fn : str, gpd.GeoDataFrame
+            GeoDataFrame or name in data catalog / path to (vector) landuse map.
+
+            * Required columns: 'landuse' [-]
+        lulc_mapping_fn : str, Path, pd.DataFrame
+            Path to a mapping csv file from landuse in source name to parameter values
+            in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
+            "esa_worldcover", "glmnco"}, a default mapping is used and this argument
+            becomes optional.
+        lulc_vars : dict
+            List of landuse parameters to prepare.
+            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood",
+            "WaterFrac"]
+        lulc_res : float, int, optional
+            Resolution of the intermediate rasterized landuse map. The unit (meter or
+            degree) depends on the CRS of lulc_fn (projected or not). By default None,
+            which uses the model resolution.
+        all_touched : bool, optional
+            If True, all pixels touched by the vector will be burned in the raster,
+            by default False.
+        buffer : int, optional
+            Buffer around the bounding box of the vector data to ensure that all
+            landuse classes are included in the rasterized map, by default 1000.
+        save_raster_lulc : bool, optional
+            If True, the (high) resolution rasterized landuse map will be saved to
+            maps/landuse_raster.tif, by default False.
+
+        See Also
+        --------
+        workflows.landuse_from_vector
+        """
+        self.logger.info("Preparing LULC parameter maps.")
+        # Read mapping table
+        if lulc_mapping_fn is None:
+            lulc_mapping_fn = f"{lulc_fn}_mapping_default"
+        df_map = self.data_catalog.get_dataframe(
+            lulc_mapping_fn,
+            driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
+        )
+        # read landuse map
+        gdf = self.data_catalog.get_geodataframe(
+            lulc_fn,
+            bbox=self.grid.raster.bounds,
+            buffer=buffer,
+            variables=["landuse"],
+        )
+        if save_raster_lulc:
+            lulc_out = join(self.root, "maps", "landuse_raster.tif")
+        else:
+            lulc_out = None
+
+        # process landuse
+        ds_lulc_maps = workflows.landuse_from_vector(
+            gdf=gdf,
+            ds_like=self.grid,
+            df=df_map,
+            params=lulc_vars,
+            lulc_res=lulc_res,
+            all_touched=all_touched,
+            buffer=buffer,
+            lulc_out=lulc_out,
+            logger=self.logger,
+        )
+        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
+        self.set_grid(ds_lulc_maps.rename(rmdict))
+
+        # Add entries to the config
+        for name in ds_lulc_maps.data_vars:
+            if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
+                self.set_config(WFLOW_NAMES[name], name)
+
     def setup_laimaps(
         self,
         lai_fn: Union[str, xr.DataArray],
@@ -2075,7 +2209,7 @@ a map for each of the wflow_sbm soil layers (n in total)
     def setup_ksathorfrac(
         self,
         ksat_fn: Union[str, xr.DataArray],
-        variable: str | None = None,
+        variable: Optional[str] = None,
         resampling_method: str = "average",
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
@@ -2086,9 +2220,9 @@ or created by a third party/ individual.
 
         Parameters
         ----------
-        ksat_fn : str, optional
+        ksat_fn : str, xr.DataArray
             The identifier of the KsatHorFrac dataset in the data catalog.
-        variable : str | None, optional
+        variable : str, optional
             The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
 ``ksat_fn`` contains several variables. By default None.
         resampling_method : str, optional
@@ -2131,6 +2265,59 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Set the grid
         self.set_grid(daout, name=lname)
         self.set_config("input.lateral.subsurface.ksathorfrac", lname)
+
+    def setup_ksatver_vegetation(
+        self,
+        soil_fn: str = "soilgrids",
+        alfa: float = 4.5,
+        beta: float = 5,
+    ):
+        """Calculate KsatVer values from vegetation in addition to soil characteristics.
+
+        This allows to account for biologically-promoted soil structure and \
+        heterogeneities in natural landscapes based on the work of \
+        Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
+
+        This method requires to have run setup_soilgrids and setup_lai first.
+
+        The following map is added to grid:
+
+        * **KsatVer_vegetation** map: saturated hydraulic conductivity considering \
+        vegetation characteristics [mm/d]
+
+        Parameters
+        ----------
+        soil_fn : {'soilgrids', 'soilgrids_2020'}
+            Name of RasterDataset source for soil parameter maps, see
+            data/data_sources.yml.
+            Should contain info for the sand percentage of the upper layer
+            * Required variable: 'sndppt_sl1' [%]
+        alfa : float, optional
+            Shape parameter. The default is 4.5 when using LAI.
+        beta : float, optional
+            Shape parameter. The default is 5 when using LAI.
+        """
+        self.logger.info("Modifying ksatver based on vegetation characteristics")
+
+        # open soil dataset to get sand percentage
+        sndppt = self.data_catalog.get_rasterdataset(
+            soil_fn, geom=self.region, buffer=2, variables=["sndppt_sl1"]
+        )
+
+        # in function get_ksatver_vegetation KsatVer should be provided in mm/d
+        KSatVer_vegetation = workflows.ksatver_vegetation(
+            ds_like=self.grid,
+            sndppt=sndppt,
+            alfa=alfa,
+            beta=beta,
+        )
+
+        map_name = "KsatVer_vegetation"
+
+        # add to grid
+        self.set_grid(KSatVer_vegetation, map_name)
+        # update config file
+        self.set_config("input.vertical.kv_0", map_name)
 
     def setup_lulcmaps_with_paddy(
         self,
@@ -4068,7 +4255,7 @@ Run setup_soilmaps first"
 
     def write_grid(
         self,
-        fn_out: Path | str = None,
+        fn_out: Optional[Union[Path, str]] = None,
     ):
         """
         Write grid to wflow static data file.
@@ -4079,7 +4266,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        fn_out : Path | str, optional
+        fn_out : Path, str, optional
             Name or path to the outgoing grid file (including extension). This is the
             path/name relative to the root folder and if present the ``dir_input``
             folder.
@@ -4239,7 +4426,7 @@ Run setup_soilmaps first"
     def write_geoms(
         self,
         geoms_fn: str = "staticgeoms",
-        precision: int | None = None,
+        precision: Optional[int] = None,
     ):
         """
         Write geoms in GeoJSON format.
@@ -4253,6 +4440,9 @@ Run setup_soilmaps first"
         geoms_fn : str, optional
             Folder name/path where the static geometries are stored relative to the
             model root and ``dir_input`` if any. By default "staticgeoms".
+        precision : int, optional
+            Decimal precision to write the geometries. By default None to use 1 decimal
+            for projected crs and 6 for non-projected crs.
         """
         # to write use self.geoms[var].to_file()
         if not self._write:
@@ -4461,10 +4651,10 @@ change name input.path_forcing "
                     # only correct dates in toml for standard calendars:
                     if not hasattr(da.indexes["time"], "to_datetimeindex"):
                         times = da.time.values
-                        if (start < pd.to_datetime(times[0])) | (start not in times):
+                        if (start < pd.to_datetime(times[0])) or (start not in times):
                             start = pd.to_datetime(times[0])
                             correct_times = True
-                        if (end > pd.to_datetime(times[-1])) | (end not in times):
+                        if (end > pd.to_datetime(times[-1])) or (end not in times):
                             end = pd.to_datetime(times[-1])
                             correct_times = True
             # merge, process and write forcing

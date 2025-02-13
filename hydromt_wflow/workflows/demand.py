@@ -1,7 +1,7 @@
 """Workflow for water demand."""
 
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import geopandas as gpd
 import numpy as np
@@ -438,7 +438,7 @@ def classify_pixels(
     da_irr: xr.DataArray,
     da_crop_model: xr.DataArray,
     threshold: float,
-    nodata_value: float | int = -9999,
+    nodata_value: Union[float, int] = -9999,
 ):
     """Classifies pixels based on a (fractional) threshold.
 
@@ -453,7 +453,7 @@ def classify_pixels(
         Layer of the masked cropland in wflow model
     threshold: float
         Threshold above which pixels are classified as irrigated
-    nodata_value: float | int = -9999
+    nodata_value: float, int = -9999
         Value to be used for nodata
 
     Returns

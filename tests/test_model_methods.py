@@ -309,6 +309,20 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     assert int(mean_val * 100) == 19991
 
 
+def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
+    # Build the KsatVer vegetation map
+    example_wflow_model.setup_ksatver_vegetation(
+        soil_fn="soilgrids",
+    )
+
+    # Check values
+    values = example_wflow_model.grid.KsatVer_vegetation.raster.mask_nodata()
+    max_val = values.max().values
+    mean_val = values.mean().values
+    assert int(max_val) == 4247
+    assert int(mean_val) == 1672
+
+
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read LAI data
@@ -830,6 +844,33 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         planted_forest_testdata.geometry.centroid
     )
     assert np.all(da.values == np.array([0.0881, 0.2188]))
+
+
+def test_setup_lulc_vector(
+    example_wflow_model,
+    example_sediment_model,
+    globcover_gdf,
+    planted_forest_testdata,
+):
+    # Test for wflow sbm
+    example_wflow_model.setup_lulcmaps_from_vector(
+        lulc_fn=globcover_gdf,
+        lulc_mapping_fn="globcover_mapping_default",
+        lulc_res=0.0025,
+        save_raster_lulc=False,
+    )
+    assert "wflow_landuse" in example_wflow_model.grid
+
+    # Test for sediment model
+    example_sediment_model.setup_lulcmaps_from_vector(
+        lulc_fn=globcover_gdf,
+        lulc_mapping_fn="globcover_mapping_default",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_res=None,
+        save_raster_lulc=False,
+        planted_forest_c=0.0881,
+    )
+    assert "USLE_C" in example_sediment_model.grid
 
 
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
