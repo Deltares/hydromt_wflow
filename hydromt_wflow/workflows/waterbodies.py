@@ -632,7 +632,7 @@ a minimum value of 0.01m3/s"
                 else:
                     logger.warning(
                         f"Rating data not available for lake {id}. \
-Using default Modified Pulse Approach"
+Using default Modified Puls Approach"
                     )
 
     # Create raster of lake params
