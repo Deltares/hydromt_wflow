@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Function to compute domestic demand from population and water use per capita.
+- Function to add irrigation areas from a vecor file.
 
 Changed
 -------

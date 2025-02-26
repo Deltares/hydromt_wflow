@@ -1116,7 +1116,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     assert "time" in example_wflow_model.grid["domestic_net"].dims
 
 
-def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
+def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(Path(tmpdir), mode="w")
@@ -1153,6 +1153,27 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
         .sum()
         .values
     )
+
+    # Test with geodataframe
+    # Use globcover gdf class 11
+    irrigation_gdf = globcover_gdf[globcover_gdf["landuse"].isin([14])]
+    example_wflow_model.setup_irrigation_from_vector(
+        irrigated_area_fn=irrigation_gdf,
+        cropland_class=[11, 14, 20, 30],
+        paddy_class=[],
+        area_threshold=0.6,
+        lai_threshold=0.2,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid
+
+    # Assert entries
+    assert "paddy_irrigation_areas" not in ds
+    assert "nonpaddy_irrigation_areas" in ds
+    assert "nonpaddy_irrigation_trigger" in ds
+
+    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 468
 
 
 def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):

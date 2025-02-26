@@ -7,7 +7,7 @@ import geopandas as gpd
 import numpy as np
 import xarray as xr
 from hydromt import raster
-from hydromt.workflows.grid import grid_from_constant
+from hydromt.workflows.grid import grid_from_constant, grid_from_geodataframe
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +18,7 @@ __all__ = [
     "other_demand",
     "surfacewaterfrac_used",
     "irrigation",
+    "irrigation_from_vector",
 ]
 
 map_vars = {
@@ -629,7 +630,8 @@ def irrigation(
     paddy_class: List[int]
         Values that indicate paddy fields in landuse map.
     area_threshold: float
-        Threshold for the area of a pixel to be classified as irrigated.
+        Threshold for the area of a pixel to be classified as irrigated (fraction of
+        the cell covered).
     lai_threshold: float
         Threshold for the LAI value to be classified as growing season.
 
@@ -672,5 +674,79 @@ def irrigation(
     ds_irrigation["nonpaddy_irrigation_trigger"] = trigger.where(nonpaddy_areas == 1, 0)
     if len(paddy_class) > 0:
         ds_irrigation["paddy_irrigation_trigger"] = trigger.where(paddy_areas == 1, 0)
+
+    return ds_irrigation
+
+
+def irrigation_from_vector(
+    gdf_irrigation: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    cropland_class: List[int],
+    paddy_class: List[int] = [],
+    area_threshold: float = 0.6,
+    lai_threshold: float = 0.2,
+    logger=logger,
+):
+    """
+    Prepare irrigation maps for paddy and non paddy from geodataframe.
+
+    Parameters
+    ----------
+    da_irrigation: gpd.GeoDataFrame
+        Irrigation map
+    ds_like: xr.Dataset
+        Dataset at wflow model domain and resolution.
+
+        * Required variables: ['wflow_landuse', 'LAI']
+    irrigation_value: List[int]
+        Values that indicate irrigation in da_irrigation.
+    cropland_class: List[int]
+        Values that indicate cropland in landuse map.
+    paddy_class: List[int]
+        Values that indicate paddy fields in landuse map.
+    area_threshold: float
+        Threshold for the area of a pixel to be classified as irrigated (fraction of
+        the cell covered).
+    lai_threshold: float
+        Threshold for the LAI value to be classified as growing season.
+
+    Returns
+    -------
+    ds_irrigation: xr.Dataset
+        Dataset with paddy and non-paddy irrigation maps: ['paddy_irrigation_areas',
+        'nonpaddy_irrigation_areas', 'paddy_irrigation_trigger',
+        'nonpaddy_irrigation_trigger']
+
+    See Also
+    --------
+    irrigation
+    """
+    # Rasterize the irrigation geometries
+    ds_irrigation = grid_from_geodataframe(
+        grid_like=ds_like,
+        gdf=gdf_irrigation,
+        rasterize_method="fraction",
+        rename="irrigated_area",
+        nodata=-1,
+        mask_name=None,
+    )
+    # Only keep fraction that are above area_threshold and convert to 1
+    da_irrigation = ds_irrigation["irrigated_area"]
+    da_irrigation = da_irrigation.where(
+        da_irrigation > area_threshold, da_irrigation.raster.nodata
+    )
+    da_irrigation = da_irrigation.where(da_irrigation != da_irrigation.raster.nodata, 1)
+
+    # Call the raster method
+    ds_irrigation = irrigation(
+        da_irrigation=da_irrigation,
+        ds_like=ds_like,
+        irrigation_value=[1],
+        cropland_class=cropland_class,
+        paddy_class=paddy_class,
+        area_threshold=area_threshold,
+        lai_threshold=lai_threshold,
+        logger=logger,
+    )
 
     return ds_irrigation

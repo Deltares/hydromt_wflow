@@ -4003,17 +4003,17 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
     ):
         """
-        Add required information to simulate irrigation water demand.
+        Add required information to simulate irrigation water demand from grid.
 
         THIS FUNCTION SHOULD BE RUN AFTER LANDUSE AND LAI MAPS ARE CREATED.
 
         The function requires data that contains information about the location of the
         irrigated areas (``irrigated_area_fn``). This, combined with the wflow landuse
-        map that contains classes for cropland (``cropland_class) and optionnally for
+        map that contains classes for cropland (``cropland_class``) and optionnally for
         paddy (rice) (``paddy_class``), determines which locations are considered to be
         paddy irrigation, and which locations are considered to be non-paddy irrigation.
 
-        Next, the irrigated are map is reprojected to the model resolution, where a
+        Next, the irrigated area map is reprojected to the model resolution, where a
         threshold (``area_threshold``) determines when pixels are considered to be
         classified as irrigation or rainfed cells (both paddy and non-paddy). It adds
         the resulting maps to the input data.
@@ -4076,6 +4076,148 @@ Run setup_soilmaps first"
             da_irrigation=irrigated_area,
             ds_like=self.grid,
             irrigation_value=irrigation_value,
+            cropland_class=cropland_class,
+            paddy_class=paddy_class,
+            area_threshold=area_threshold,
+            lai_threshold=lai_threshold,
+            logger=self.logger,
+        )
+
+        # Check if paddy and non paddy are present
+        cyclic_lai = len(self.grid["LAI"].dims) > 2
+        if (
+            "paddy_irrigation_areas" in ds_irrigation.data_vars
+            and ds_irrigation["paddy_irrigation_areas"]
+            .raster.mask_nodata()
+            .sum()
+            .values
+            != 0
+        ):
+            self.set_config("model.water_demand.paddy", True)
+            self.set_grid(ds_irrigation["paddy_irrigation_areas"])
+            self.set_config(
+                "input.vertical.paddy.irrigation_areas", "paddy_irrigation_areas"
+            )
+            # Irrigation trigger
+            self.set_grid(ds_irrigation["paddy_irrigation_trigger"])
+            self.set_config(
+                "input.vertical.paddy.irrigation_trigger", "paddy_irrigation_trigger"
+            )
+            if cyclic_lai:
+                self.config["input"]["cyclic"].append(
+                    "vertical.paddy.irrigation_trigger"
+                )
+        else:
+            self.set_config("model.water_demand.paddy", False)
+
+        if (
+            ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
+            != 0
+        ):
+            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_grid(ds_irrigation["nonpaddy_irrigation_areas"])
+            self.set_config(
+                "input.vertical.nonpaddy.irrigation_areas", "nonpaddy_irrigation_areas"
+            )
+            # Irrigation trigger
+            self.set_grid(ds_irrigation["nonpaddy_irrigation_trigger"])
+            self.set_config(
+                "input.vertical.nonpaddy.irrigation_trigger",
+                "nonpaddy_irrigation_trigger",
+            )
+            if cyclic_lai:
+                self.config["input"]["cyclic"].append(
+                    "vertical.nonpaddy.irrigation_trigger"
+                )
+        else:
+            self.set_config("model.water_demand.nonpaddy", False)
+
+    def setup_irrigation_from_vector(
+        self,
+        irrigated_area_fn: Union[str, Path, gpd.GeoDataFrame],
+        cropland_class: List[int],
+        paddy_class: List[int] = [],
+        area_threshold: float = 0.6,
+        lai_threshold: float = 0.2,
+    ):
+        """
+        Add required information to simulate irrigation water demand from vector.
+
+        THIS FUNCTION SHOULD BE RUN AFTER LANDUSE AND LAI MAPS ARE CREATED.
+
+        The function requires data that contains information about the location of the
+        irrigated areas (``irrigated_area_fn``). This, combined with the wflow landuse
+        map that contains classes for cropland (``cropland_class``) and optionnally for
+        paddy (rice) (``paddy_class``), determines which locations are considered to be
+        paddy irrigation, and which locations are considered to be non-paddy irrigation.
+
+        Next, the irrigated area geometries are rasterized, where a threshold
+        (``area_threshold``) determines when pixels are considered to be
+        classified as irrigation or rainfed cells (both paddy and non-paddy). It adds
+        the resulting maps to the input data.
+
+        To determine when irrigation is allowed to occur, an irrigation trigger map is
+        defined. This is a cyclic map, that defines (with a mask) when irrigation is
+        expected to occur. This is done based on the Leaf Area Index (LAI), that is
+        already present in the wflow model configuration. We follow the procedure
+        described by Peano et al. (2019). They describe a threshold value based on the
+        LAI variability to determine the growing season. This threshold is defined as
+        20% (default value) of the LAI variability, but can be adjusted via the
+        ``lai_threshold`` argument.
+
+        Adds model layers:
+
+        * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
+        * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
+        * **irrigation_trigger**: Map with monthly values, indicating whether irrigation
+          is allowed (1) or not (0) [-]
+
+        Parameters
+        ----------
+        irrigated_area_fn: str, Path, geopandas.GeoDataFrame
+            Name of the (vector) dataset that contains the location of irrigated areas.
+        cropland_class: list
+            List of values that are considered to be cropland in the wflow landuse data.
+        paddy_class: int
+            Class in the wflow landuse data that is considered as paddy or rice. Leave
+            empty if not present (default).
+        area_threshold: float
+            Fractional area of a (wflow) pixel before it gets classified as an irrigated
+            pixel, by default 0.6
+        lai_threshold: float
+            Value of LAI variability to be used to determine the irrigation trigger. By
+            default 0.2.
+
+        See Also
+        --------
+        workflows.demand.irrigation
+
+        References
+        ----------
+        Peano, D., Materia, S., Collalti, A., Alessandri, A., Anav, A., Bombelli, A., &
+        Gualdi, S. (2019). Global variability of simulated and observed vegetation
+        growing season. Journal of Geophysical Research: Biogeosciences, 124, 3569–3587.
+        https://doi.org/10.1029/2018JG004881
+        """
+        self.logger.info("Preparing irrigation maps.")
+
+        # Extract irrigated area dataset
+        irrigated_area = self.data_catalog.get_geodataframe(
+            irrigated_area_fn,
+            bbox=self.grid.raster.bounds,
+            buffer=1000,
+            predicate="intersects",
+        )
+
+        # Check if the geodataframe is empty
+        if irrigated_area.empty:
+            self.logger.info("No irrigated areas found in the provided geodataframe.")
+            return
+
+        # Get irrigation areas for paddy, non paddy and irrigation trigger
+        ds_irrigation = workflows.demand.irrigation_from_vector(
+            gdf_irrigation=irrigated_area,
+            ds_like=self.grid,
             cropland_class=cropland_class,
             paddy_class=paddy_class,
             area_threshold=area_threshold,
