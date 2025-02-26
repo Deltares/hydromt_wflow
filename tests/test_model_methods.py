@@ -1053,6 +1053,68 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     ind_mean = example_wflow_model.grid["industry_gross"].mean().values
     assert int(ind_mean * 10000) == 849
 
+    # test with other method
+    example_wflow_model.setup_domestic_demand_from_population(
+        population_fn="worldpop_2020_constrained",
+        domestic_gross_per_capita=0.35,
+        domestic_net_per_capita=0.25,
+    )
+
+    # Assert entries
+    assert "domestic_gross" in example_wflow_model.grid
+    assert "population" in example_wflow_model.grid
+
+    # Assert some values
+    dom_gross_vals = (
+        example_wflow_model.grid["domestic_gross"]
+        .isel(latitude=32, longitude=26)
+        .values
+    )
+    assert int(dom_gross_vals * 100) == 115
+
+    # Check other combination
+    with pytest.raises(ValueError, match="The provided domestic demand data is "):
+        example_wflow_model.setup_domestic_demand_from_population(
+            population_fn="worldpop_2020_constrained",
+            domestic_gross_per_capita=[0.35, 0.35, 0.34, 0.36],
+            domestic_net_per_capita=[0.25, 0.25, 0.24, 0.26],
+        )
+
+    # Check cyclic
+    example_wflow_model.setup_domestic_demand_from_population(
+        population_fn="worldpop_2020_constrained",
+        domestic_gross_per_capita=[
+            0.35,
+            0.35,
+            0.34,
+            0.34,
+            0.36,
+            0.36,
+            0.35,
+            0.35,
+            0.34,
+            0.34,
+            0.36,
+            0.36,
+        ],
+        domestic_net_per_capita=[
+            0.25,
+            0.25,
+            0.24,
+            0.24,
+            0.26,
+            0.26,
+            0.25,
+            0.25,
+            0.24,
+            0.24,
+            0.26,
+            0.26,
+        ],
+    )
+    assert "time" in example_wflow_model.grid["domestic_gross"].dims
+    assert "time" in example_wflow_model.grid["domestic_net"].dims
+
 
 def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
     # Read the data

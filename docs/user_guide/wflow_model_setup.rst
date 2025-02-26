@@ -85,7 +85,9 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_allocation_surfacewaterfrac`
       -  Create fraction of surface water used for allocation of the water demands.
     * - :py:func:`~WflowModel.setup_domestic_demand`
-      -  Create domestic water demand.
+      -  Create domestic water demand from grid.
+    * - :py:func:`~WflowModel.setup_domestic_demand_from_population`
+      -  Create domestic water demand using demand per capita and gridded population.
     * - :py:func:`~WflowModel.setup_other_demand`
       -  Create other water demand (eg industry, livestock).
     * - :py:func:`~WflowModel.setup_irrigation`

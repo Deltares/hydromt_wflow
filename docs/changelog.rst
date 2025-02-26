@@ -11,7 +11,7 @@ Unreleased
 
 Added
 -----
--
+- Function to compute domestic demand from population and water use per capita.
 
 Changed
 -------

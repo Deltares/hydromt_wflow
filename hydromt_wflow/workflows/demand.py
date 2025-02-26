@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 __all__ = [
     "allocation_areas",
     "domestic",
+    "domestic_from_population",
     "other_demand",
     "surfacewaterfrac_used",
     "irrigation",
@@ -159,6 +160,77 @@ def domestic(
             ds_scaled = ds_m3_model / ds_m3_model.raster.area_grid() / 1000
 
     return ds_scaled, popu_scaled
+
+
+def domestic_from_population(
+    popu: xr.Dataset,
+    ds_like: xr.Dataset,
+    gross_per_capita: Union[float, List[float]],
+    net_per_capita: Union[float, List[float]],
+) -> tuple:
+    """Create domestic water demand maps from statitics per capita.
+
+    Parameters
+    ----------
+    popu : xr.Dataset
+        Population dataset (number of people per gridcell).
+    ds_like : xr.Dataset
+        Dataset at wflow model domain and resolution.
+    gross_per_capita : float, List[float]
+        Gross domestic water demand per capita in m3/day.
+    net_per_capita : float, List[float], optional
+        Net domestic water demand per capita in m3/day.
+
+    Returns
+    -------
+    tuple
+        Domestic data at model resolution, Population data at model resolution.
+    """
+    # Convert population to density and reproject to model
+    popu = popu.raster.mask_nodata().fillna(0)
+    popu_density = popu / popu.raster.area_grid()
+    popu_density.name = "population_density"
+    popu_scaled = popu_density.raster.reproject_like(
+        ds_like,
+        method="average",
+    )
+    # Back to cap per cell
+    popu_scaled = popu_scaled * popu_scaled.raster.area_grid()
+    popu_scaled.name = "population"
+
+    # Create the demand maps
+    gross_per_capita = np.atleast_1d(gross_per_capita)
+    net_per_capita = np.atleast_1d(net_per_capita)
+    if len(gross_per_capita) != len(net_per_capita):
+        raise ValueError("Gross and net per capita demands must have the same length.")
+
+    # Non-cyclic
+    if len(gross_per_capita) == 1:
+        ds_demand = popu_scaled * gross_per_capita[0]
+        ds_demand.name = "dom_gross"
+        ds_demand = ds_demand.to_dataset()
+        ds_demand["dom_net"] = popu_scaled * net_per_capita[0]
+    # Cyclic
+    else:
+        ds_demand = xr.concat(
+            [popu_scaled * gross_per_capita[i] for i in range(len(gross_per_capita))],
+            dim="time",
+        )
+        ds_demand["time"] = [i for i in range(len(gross_per_capita))]
+        ds_demand = ds_demand.assign_coords(
+            time=[i for i in range(len(gross_per_capita))]
+        )
+        ds_demand = ds_demand.to_dataset(name="dom_gross")
+        ds_demand["dom_net"] = xr.concat(
+            [popu_scaled * net_per_capita[i] for i in range(len(net_per_capita))],
+            dim="time",
+        )
+
+    # Convert from m3/day to mm/day
+    for var in ds_demand.data_vars:
+        ds_demand[var] = ds_demand[var] / ds_demand.raster.area_grid() * 1000
+
+    return ds_demand, popu_scaled
 
 
 def other_demand(

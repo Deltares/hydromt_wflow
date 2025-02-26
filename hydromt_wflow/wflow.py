@@ -3815,6 +3815,91 @@ Run setup_soilmaps first"
                     f"vertical.domestic.demand_{demand_type}"
                 )
 
+    def setup_domestic_demand_from_population(
+        self,
+        population_fn: Union[str, xr.Dataset],
+        domestic_gross_per_capita: Union[float, List],
+        domestic_net_per_capita: Optional[Union[float, List]] = None,
+    ):
+        """
+        Prepare domestic water demand maps from statistics per capita.
+
+        Gross and net demands per capita can be provide as cyclic (list) or non-cyclic
+        (constant). The statistics are then multiplied by the population dataset to
+        derive the gross and net domestic demand.
+
+        Adds model layer:
+
+        * **domestic_gross**: gross domestic water demand [mm/day]
+        * **domestic_net**: net domestic water demand [mm/day]
+
+        Parameters
+        ----------
+        population_fn : Union[str, xr.Dataset]
+            The (gridded) population dataset in capita. Either provided as a dataset
+            directly or as a string referring to an entry in the data catalog.
+        domestic_gross_per_capita : Union[float, List]
+            The gross domestic water demand per capita [m3/day]. If cyclic, provide a
+            list with 12 values for monthly data or 365/366 values for daily data.
+        domestic_net_per_capita : Optional[Union[float, List]], optional
+            The net domestic water demand per capita [m3/day]. If cyclic, provide a
+            list with 12 values for monthly data or 365/366 values for daily data. If
+            not provided, the gross demand will be used as net demand.
+        """
+        self.logger.info("Preparing domestic demand maps based on population.")
+
+        # Set flag for cyclic data
+        _cyclic = False
+
+        # Check if data is time dependent
+        time_length = len(np.atleast_1d(domestic_gross_per_capita))
+        if time_length in [12, 365, 366]:
+            _cyclic = True
+        elif time_length > 1:
+            raise ValueError(
+                "The provided domestic demand data is cyclic but the length "
+                f"({time_length})does not match the expected length of 12, 365 or 366."
+            )
+        if domestic_net_per_capita is None:
+            domestic_net_per_capita = domestic_gross_per_capita
+            self.logger.info("Net domestic demand not provided, using gross demand.")
+
+        # Get population data
+        popu = self.data_catalog.get_rasterdataset(
+            population_fn,
+            bbox=self.bounds,
+            buffer=1000,
+        )
+
+        # Compute domestic demand
+        domestic, popu_scaled = workflows.demand.domestic_from_population(
+            popu,
+            ds_like=self.grid,
+            gross_per_capita=domestic_gross_per_capita,
+            net_per_capita=domestic_net_per_capita,
+        )
+
+        # Add to grid
+        rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
+        self.set_grid(domestic.rename(rmdict))
+        if population_fn is not None:
+            self.set_grid(popu_scaled, name="population")
+
+        # Update toml
+        if _cyclic and self.get_config("input.cyclic") is None:
+            self.set_config("input.cyclic", [])
+        self.set_config("model.water_demand.domestic", True)
+
+        for demand_type in ["gross", "net"]:
+            self.set_config(
+                f"input.vertical.domestic.demand_{demand_type}",
+                f"domestic_{demand_type}",
+            )
+            if _cyclic:
+                self.config["input"]["cyclic"].append(
+                    f"vertical.domestic.demand_{demand_type}"
+                )
+
     def setup_other_demand(
         self,
         demand_fn: Union[str, dict, xr.Dataset],
