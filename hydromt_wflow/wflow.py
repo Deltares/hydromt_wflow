@@ -4211,10 +4211,11 @@ Run setup_soilmaps first"
             bbox=self.grid.raster.bounds,
             buffer=1000,
             predicate="intersects",
+            handle_nodata=NoDataStrategy.IGNORE,
         )
 
         # Check if the geodataframe is empty
-        if irrigated_area.empty:
+        if irrigated_area is None or irrigated_area.empty:
             self.logger.info("No irrigated areas found in the provided geodataframe.")
             return
 
