@@ -3538,6 +3538,7 @@ Run setup_soilmaps first"
         self,
         waterareas_fn: Union[str, gpd.GeoDataFrame],
         priority_basins: bool = True,
+        minimum_area: float = 50.0,
     ):
         """Create water demand allocation areas.
 
@@ -3565,6 +3566,8 @@ Run setup_soilmaps first"
         priority_basins : bool, optional
             If True, merge the basins with the closest downstream basin, else merge
             with any large enough basin in the same water area, by default True.
+        minimum_area : float
+            Minimum area of the subbasins to keep in km2. Default is 50 km2.
         """
         self.logger.info("Preparing water demand allocation map.")
 
@@ -3580,6 +3583,7 @@ Run setup_soilmaps first"
             waterareas=waterareas,
             basins=self.basins,
             priority_basins=priority_basins,
+            minimum_area=minimum_area,
         )
         self.set_grid(da_alloc, name="allocation_areas")
 

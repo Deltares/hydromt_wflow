@@ -1173,7 +1173,7 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     assert "nonpaddy_irrigation_areas" in ds
     assert "nonpaddy_irrigation_trigger" in ds
 
-    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 468
+    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 8
 
 
 def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):

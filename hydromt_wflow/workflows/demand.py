@@ -276,6 +276,7 @@ def allocation_areas(
     waterareas: gpd.GeoDataFrame,
     basins: gpd.GeoDataFrame,
     priority_basins: bool = True,
+    minimum_area: float = 50.0,
 ) -> Tuple[xr.DataArray, gpd.GeoDataFrame]:
     """Create water allocation area.
 
@@ -297,6 +298,8 @@ def allocation_areas(
         boundaries, the priority_basins flag can be used to decide if these basins
         should be merged with the closest downstream basin (True, default) or with any
         large enough basin in the same administrative area (False).
+    minimum_area : float
+        Minimum area of the subbasins to keep in km2. Default is 50 km2.
 
     Returns
     -------
@@ -345,6 +348,18 @@ def allocation_areas(
     da_subbasins_to_keep = np.int32(
         da_subbasins_to_keep[~np.isnan(da_subbasins_to_keep)]
     )
+    # Filter with a minimum area for the subbasins to keep
+    subbasins_to_keep = subbasins[subbasins.index.isin(da_subbasins_to_keep)]
+    if subbasins_to_keep.crs.is_geographic:
+        subbasins_to_keep = subbasins_to_keep.to_crs(3857)
+    # Get the area of the subbasins
+    subbasins_to_keep["area"] = subbasins_to_keep.area
+    # Filter the subbasins based on the minimum area
+    subbasins_to_keep = subbasins_to_keep[
+        subbasins_to_keep["area"] > (minimum_area * 1e6)
+    ]
+    # Get the unique index of the subbasins to keep
+    da_subbasins_to_keep = subbasins_to_keep.index.values
 
     # Create the water allocation map starting with the subbasins that contain a river
     allocation_areas = da_subbasins.where(
@@ -730,12 +745,13 @@ def irrigation_from_vector(
         nodata=-1,
         mask_name=None,
     )
+
     # Only keep fraction that are above area_threshold and convert to 1
     da_irrigation = ds_irrigation["irrigated_area"]
     da_irrigation = da_irrigation.where(
-        da_irrigation > area_threshold, da_irrigation.raster.nodata
+        da_irrigation >= area_threshold, da_irrigation.raster.nodata
     )
-    da_irrigation = da_irrigation.where(da_irrigation != da_irrigation.raster.nodata, 1)
+    da_irrigation = da_irrigation.where(da_irrigation == da_irrigation.raster.nodata, 1)
 
     # Call the raster method
     ds_irrigation = irrigation(
