@@ -11,12 +11,12 @@ Unreleased
 
 Added
 -----
-- Function to compute domestic demand from population and water use per capita.
-- Function to add irrigation areas from a vecor file.
+- **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
+- **setup_irrigation_from_vector**: method to add irrigation areas from a vecor file. PR #334
 
 Changed
 -------
--
+- **setup_allocation_areas**: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334
 
 Fixed
 -----
