@@ -13,17 +13,17 @@ authors = [
 dependencies = [
     "dask",
     "geopandas>=0.10",
-    "hydromt>=0.9.4,<0.11",
+    # NOTE: remove hydromt from tool.make_env.deps_not_in_conda below when released
+    "hydromt@git+https://github.com/Deltares/hydromt.git@v0.10.1",
     "netcdf4",
-    "numpy>=1.23, <2",      # max version 2 while we wait for hydromt core to update
+    "numpy",
     "pandas",
     "pyflwdir>=0.5.7",
     "pyproj",
-    "rioxarray<=0.17.0",    # pin because of xarray pin
     "scipy",
     "shapely",
     "toml",
-    "xarray<=2024.3.0",     # pin xarray to avoid issues with time resampling and NaN interpolation
+    "xarray",
 ]
 requires-python = ">=3.10"
 readme = "README.rst"
@@ -94,6 +94,7 @@ deps_not_in_conda = [
     "sphinx_autosummary_accessors",
     "sphinx_design",
     "pyet",
+    "hydromt", # because of the git install
 ]
 
 [tool.black]
