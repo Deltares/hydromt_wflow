@@ -211,8 +211,10 @@ def river_bathymetry(
     dims = ds_model.raster.dims
     # check data variables.
     dvars_model = ["flwdir", "rivmsk", "rivlen"]
-    if method != "powlaw":
-        dvars_model += ["rivslp", "rivzs"]
+    if method == "manning":
+        dvars_model += ["rivslp"]
+    elif method == "gvf":
+        dvars_model += ["rivslp", "subelv"]
     if not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
 
@@ -299,6 +301,7 @@ def river_bathymetry(
             flwdir=flwdir_river,
             method=method,
             min_rivdph=min_rivdph,
+            rivzs_name="subelv",
             **kwargs,
         )
         attrs = dict(_FillValue=-9999, unit="m")

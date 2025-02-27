@@ -20,7 +20,7 @@ Changed
 
 Fixed
 -----
--
+- **setup_rivers**: fixed bug if manning or gvf methods are used to compute river depth. PR #334
 
 Deprecated
 ----------

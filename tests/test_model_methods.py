@@ -662,6 +662,60 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
 
+def test_setup_rivers_depth(tmpdir):
+    # Instantiate new wflow model
+    # Region
+    region = {
+        "subbasin": [12.3661, 46.3998],
+        "strord": 4,
+        "bounds": [11.70, 45.35, 12.95, 46.70],
+    }
+    mod = WflowModel(
+        root=str(tmpdir.join("wflow_river")),
+        mode="w",
+        data_libs=["artifact_data"],
+    )
+
+    mod.setup_basemaps(
+        region=region,
+        hydrography_fn="merit_hydro",
+        basin_index_fn="merit_hydro_index",
+        res=0.016666,
+    )
+
+    # Try using manning method
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method="manning",
+        min_rivdph=1,
+        min_rivwth=30,
+        slope_len=2000,
+        smooth_len=5000,
+        river_routing="local-inertial",
+        elevtn_map="wflow_dem",
+    )
+
+    assert "RiverDepth" in mod.grid
+
+    # Try using gvf method
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method="gvf",
+        min_rivdph=1,
+        min_rivwth=30,
+        slope_len=2000,
+        smooth_len=5000,
+        river_routing="local-inertial",
+        elevtn_map="dem_subgrid",
+    )
+
+    assert "RiverDepth" in mod.grid
+
+
 def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     flood_depths = [0.5, 1.0, 1.5, 2.0, 2.5]
 
