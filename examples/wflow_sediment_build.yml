@@ -42,7 +42,8 @@ setup_canopymaps:
 
 setup_soilmaps:
   soil_fn: soilgrids        # source for soilmaps: {soilgrids}
-  usleK_method: renard           # method to compute the USLE K factor: {renard, epic}
+  usleK_method: renard      # method to compute the USLE K factor: {renard, epic}
+  add_aggregates: True      # if True add small and large aggregates to soil composition
 
 setup_outlets:
   river_only: True
@@ -59,3 +60,10 @@ setup_constant_pars:             # constant parameters values
   eros_spl_EUROSEM: 2.0
   exp_Bagnold: 1.4
   ResTrapEff: 1.0
+  sediment_density: 2650
+  dm_clay: 2
+  dm_silt: 10
+  dm_sand: 200
+  dm_gravel: 2000
+  dm_sagg: 30
+  dm_lagg: 500

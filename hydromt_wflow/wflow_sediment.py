@@ -528,6 +528,9 @@ class WflowSedimentModel(WflowModel):
     ):
         """Generate sediments based river bed characteristics maps.
 
+        Optionnally also derives Kodatie transport capacity coefficients based on
+        the mean sediment diameter of the river bed.
+
         Adds model layers:
 
         * **D50_River** map: median sediment diameter of the river bed [mm]
@@ -535,15 +538,20 @@ class WflowSedimentModel(WflowModel):
         * **SiltF_River** map: fraction of silt material in the river bed [-]
         * **SandF_River** map: fraction of sand material in the river bed [-]
         * **GravelF_River** map: fraction of gravel material in the river bed [-]
+        * **a_kodatie** map: Kodatie transport capacity coefficient a [-]
+        * **b_kodatie** map: Kodatie transport capacity coefficient b [-]
+        * **c_kodatie** map: Kodatie transport capacity coefficient c [-]
+        * **d_kodatie** map: Kodatie transport capacity coefficient d [-]
 
         Parameters
         ----------
         bedsed_mapping_fn : str
-            Path to a mapping csv file from streamorder to river bed \
-particles characteristics. If None reverts to default values.
+            Path to a mapping csv file from streamorder to river bed particles
+            characteristics. If None reverts to default values.
 
-            * Required variable: \
-['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
+            * Required variable: ['strord','D50_River', 'ClayF_River', 'SiltF_River',
+              'SandF_River', 'GravelF_River']
+            * Optional variable: ['a_kodatie', 'b_kodatie', 'c_kodatie', 'd_kodatie']
 
         """
         self.logger.info("Preparing riverbedsed parameter maps.")
@@ -557,7 +565,7 @@ particles characteristics. If None reverts to default values.
         df = self.data_catalog.get_dataframe(fn_map)
 
         strord = self.grid[self._MAPS["strord"]].copy()
-        # max streamorder value above which values get the same N_River value
+        # max streamorder value above which values get the same D50 value
         max_str = df.index[-2]
         nodata = df.index[-1]
         # if streamroder value larger than max_str, assign last value
@@ -613,16 +621,29 @@ particles characteristics. If None reverts to default values.
         self,
         soil_fn: str = "soilgrids",
         usleK_method: str = "renard",
+        add_aggregates: bool = True,
     ):
         """Generate sediments based soil parameter maps.
 
+        Sediment size distribution and addition of small and large aggregates can be
+        estimated from primary particle size distribution with Foster et al. (1980).
+        USLE K factor can be computed from the soil data using Renard or EPIC methods.
+        Calculation of D50 and fraction of fine and very fine sand (fvfs) from
+        Fooladmand et al, 2006.
+
         Adds model layers:
 
-        * **PercentClay** map: clay content of the topsoil [%]
-        * **PercentSilt** map: silt content of the topsoil [%]
-        * **PercentOC** map: organic carbon in the topsoil [%]
-        * **ErosK** map: mean detachability of the soil (Morgan et al., 1998) [g/J]
-        * **USLE_K** map: soil erodibility factor from the USLE equation [-]
+        * **fclay_soil**: clay content of the topsoil [g/g]
+        * **fsilt_soil**: silt content of the topsoil [g/g]
+        * **fsand_soil**: sand content of the topsoil [g/g]
+        * **fsagg_soil**: small aggregate content of the topsoil [g/g]
+        * **flagg_soil**: large aggregate content of the topsoil [g/g]
+        * **soil_detachability** map: mean detachability of the soil (Morgan et al.,
+          1998) [g/J]
+        * **usle_k** map: soil erodibility factor from the USLE equation [-]
+        * **d50_soil** map: median sediment diameter of the soil [mm]
+        * **c_govers** map: Govers factor for overland flow transport capacity [-]
+        * **n_govers** map: Govers exponent for overland flow transport capacity [-]
 
 
         Parameters
@@ -633,6 +654,8 @@ particles characteristics. If None reverts to default values.
             * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
         usleK_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
+        add_aggregates: bool, optional
+            Add small and large aggregates based on soil texture, by default True.
         """
         self.logger.info("Preparing soil parameter maps.")
 
@@ -647,7 +670,8 @@ particles characteristics. If None reverts to default values.
         dsout = soilgrids_sediment(
             dsin,
             self.grid,
-            usleK_method,
+            usleK_method=usleK_method,
+            add_aggregates=add_aggregates,
             logger=self.logger,
         )
         self.set_grid(dsout)
