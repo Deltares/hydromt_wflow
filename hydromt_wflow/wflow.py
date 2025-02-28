@@ -1099,8 +1099,8 @@ to run setup_river method first.'
         will be derived from the LULC data. These tables can then be re-used later if
         you would like to add new LAI maps derived from this mapping table and new
         landuse scenarios. We advise to use a larger `buffer` to ensure that LAI values
-        can be assigned for all landuse classes and based on a large enough sample of the
-        LULC data.
+        can be assigned for all landuse classes and based on a large enough sample of
+        the LULC data.
 
         Adds model layers:
 
@@ -1630,7 +1630,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             return
 
         # Add to grid
-        mapname = f'{str(self._MAPS["gauges"])}_{basename}'
+        mapname = f"{str(self._MAPS['gauges'])}_{basename}"
         self.set_grid(da, name=mapname)
 
         # geoms
@@ -4860,7 +4860,7 @@ change name input.path_forcing "
                 name = basename(fn).split(".")[0]
                 tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
                 tbl.columns = [
-                    f"expr{i+1}" if i + 1 < len(tbl.columns) else "value"
+                    f"expr{i + 1}" if i + 1 < len(tbl.columns) else "value"
                     for i in range(len(tbl.columns))
                 ]  # rename columns
                 self.set_intbl(tbl, name=name)
