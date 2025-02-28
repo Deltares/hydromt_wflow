@@ -12,7 +12,8 @@ Unreleased
 Added
 -----
 - **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
-- **setup_irrigation_from_vector**: method to add irrigation areas from a vecor file. PR #334
+- **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
+- **setup_soilmaps**: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334
 
 Changed
 -------
