@@ -146,7 +146,7 @@ def update_kvfrac(
     # Get the actual depths
     wflow_depths = np.cumsum(wflow_thicknesslayers)
     # Find the index of the layers where a kvfrac should be set
-    idx = np.where(target_conductivity is not None)[0]
+    idx = target_conductivity.nonzero()[0]
 
     # Loop through the target_conductivity values
     for idx, target in enumerate(target_conductivity):
