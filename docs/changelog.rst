@@ -11,15 +11,17 @@ Unreleased
 
 Added
 -----
--
+- **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
+- **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
+- **setup_soilmaps**: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334
 
 Changed
 -------
--
+- **setup_allocation_areas**: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334
 
 Fixed
 -----
--
+- **setup_rivers**: fixed bug if manning or gvf methods are used to compute river depth. PR #334
 
 Deprecated
 ----------

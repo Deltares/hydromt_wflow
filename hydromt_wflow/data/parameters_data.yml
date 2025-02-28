@@ -223,3 +223,16 @@ riverbedsed_mapping_default:
     source_info: Mapping between stream order and river bed sediment
     source_version: 1.0
   path: wflow_sediment/riverbedsed_mapping.csv
+
+soil_mapping_default:
+  data_type: DataFrame
+  driver: csv
+  driver_kwargs:
+    index_col: 0
+    dtype:
+      infiltcapsoil: float32
+  meta:
+    category: soil
+    source_info: Mapping between USDA-NRCS soil texture and infiltration capacity
+    source_version: 1.0
+  path: wflow/soil_mapping.csv
