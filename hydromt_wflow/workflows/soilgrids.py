@@ -179,7 +179,7 @@ Global gridded soil information based on machine learning,
     return da_av
 
 
-def pore_size_distrution_index_layers(ds, thetas):
+def pore_size_distribution_index_layers(ds, thetas):
     """
     Determine pore size distribution index per soil layer depth based on PTF.
 
@@ -250,7 +250,7 @@ def brooks_corey_layers(
         Dataset containing c for the wflow_sbm soil layers.
     """
     # Get pore size distribution index
-    lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
+    lambda_sl_hr = pore_size_distribution_index_layers(ds, thetas_sl)
     lambda_sl = np.log(lambda_sl_hr)
     lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
     lambda_sl = np.exp(lambda_sl)
@@ -305,7 +305,7 @@ soilgrids data does not go deeper than 2 m."
             # layer fully within wflow layer
             elif soildepth[d] >= top_depth and soildepth[d + 1] <= bottom_depth:
                 c_nl = c_av * (soildepth[d + 1] - soildepth[d])
-            # bottom part of the layer wihtin wflow
+            # bottom part of the layer within wflow
             elif soildepth[d] <= bottom_depth and soildepth[d + 1] >= bottom_depth:
                 c_nl = c_av * (bottom_depth - soildepth[d])
             # top part of the layer within wflow
@@ -394,7 +394,7 @@ def do_linalg(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
+    idx = (~np.isinf(np.log(y))) & (~np.isnan(y))
     return np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][0]
 
 
@@ -402,7 +402,7 @@ def do_curve_fit(x, y):
     """
     Apply scipy.optimize.curve_fit and return fitted parameter.
 
-    If least-squares minimization fails with an inital guess p0 of 1e-3,
+    If least-squares minimization fails with an initial guess p0 of 1e-3,
     and 1e-4, np.linalg.lstsq is used for curve fitting.
 
     Parameters
@@ -418,7 +418,7 @@ def do_curve_fit(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
+    idx = (~np.isinf(np.log(y))) & (~np.isnan(y))
     if len(y[idx]) == 0:
         popt_0 = np.nan
     else:
@@ -504,7 +504,7 @@ index for the wflow_sbm soil layers.
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculcation KsatVer.
+        PTF to use for calculation KsatVer.
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
