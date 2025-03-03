@@ -5016,14 +5016,7 @@ change name input.path_forcing "
 
     ## WFLOW specific modification (clip for now) methods
 
-    def clip_grid(
-        self,
-        region,
-        buffer=0,
-        align=None,
-        crs=4326,
-        reverse_clip=False
-    ):
+    def clip_grid(self, region, buffer=0, align=None, crs=4326, reverse_clip=False):
         """Clip grid to subbasin.
 
         Parameters
@@ -5063,7 +5056,7 @@ change name input.path_forcing "
             )
         # Remove upstream part from model
         if reverse_clip:
-            geom = self.basins.overlay(geom, how='difference')
+            geom = self.basins.overlay(geom, how="difference")
         # clip based on subbasin args, geom or bbox
         if geom is not None:
             ds_grid = self.grid.raster.clip_geom(geom, align=align, buffer=buffer)
