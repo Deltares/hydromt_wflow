@@ -80,7 +80,7 @@ if args.profile not in ["", "min"]:
 conda_deps = []
 pip_deps = []
 for dep in deps_to_install:
-    if dep in deps_not_in_conda:
+    if any([dep.startswith(pypi_dep) for pypi_dep in deps_not_in_conda]):
         pip_deps.append(dep)
     else:
         conda_deps.append(dep)

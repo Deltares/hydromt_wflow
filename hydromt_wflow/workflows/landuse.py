@@ -1,21 +1,28 @@
 """Landuse workflows for Wflow plugin."""
 
 import logging
-from typing import List, Optional, Tuple
+import os
+from typing import List, Optional, Tuple, Union
 
+import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
+from shapely.geometry import box
+
+from .demand import create_grid_from_bbox
 
 logger = logging.getLogger(__name__)
 
 
 __all__ = [
     "landuse",
+    "landuse_from_vector",
     "lai",
     "create_lulc_lai_mapping_table",
     "lai_from_lulc_mapping",
     "add_paddy_to_landuse",
+    "add_planted_forest_to_landuse",
 ]
 
 
@@ -34,10 +41,6 @@ def landuse(
 
     The parameter maps are prepared based on landuse map and
     mapping table as provided in the generic data folder of hydromt.
-
-    The following topography maps are calculated:
-
-    - TODO
 
     Parameters
     ----------
@@ -79,6 +82,99 @@ def landuse(
         ds_out[param] = da_param.raster.reproject_like(
             ds_like, method=method
         )  # then resample
+
+    return ds_out
+
+
+def landuse_from_vector(
+    gdf: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    df: pd.DataFrame,
+    params: Optional[List] = None,
+    lulc_res: Optional[Union[float, int]] = None,
+    all_touched: bool = False,
+    buffer: int = 1000,
+    lulc_out: Optional[str] = None,
+    logger=logger,
+):
+    """
+    Derive several wflow maps based on vector landuse-landcover (LULC) data.
+
+    The vector lulc data is first rasterized to a raster map at the model resolution
+    or at a higher resolution specified in ``lulc_res``.
+
+    Lookup table `df` columns are converted to lulc classes model
+    parameters based on literature. The data is remapped at its rasterized resolution
+    and then resampled to the model resolution using the average value, unless noted
+    differently.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing LULC classes.
+    ds_like : xarray.Dataset
+        Dataset at model resolution.
+    df : pd.DataFrame
+        Mapping table with landuse values.
+    params : list of str, optional
+        List of parameters to derive, by default None
+    lulc_res : float or int, optional
+        Resolution of the rasterized LULC data, by default None (use model resolution)
+    all_touched : bool, optional
+        If True, all pixels touched by the polygon will be burned in, by default False
+    buffer : int, optional
+        Buffer in meters to add around the bounding box of the vector data, by default
+        1000.
+    lulc_out : str, optional
+        Path to save the rasterised original landuse map to file, by default None.
+    logger : logging.Logger, optional
+        Logger object.
+
+    Returns
+    -------
+    ds_out : xarray.Dataset
+        Dataset containing gridded landuse based maps
+    """
+    # intersect with bbox
+    bounds = gpd.GeoDataFrame(
+        geometry=[box(*ds_like.raster.bounds)], crs=ds_like.raster.crs
+    )
+    bounds = bounds.to_crs(3857).buffer(buffer).to_crs(gdf.crs)
+    gdf = gdf.overlay(gpd.GeoDataFrame(geometry=bounds), how="intersection")
+
+    # rasterize the vector data
+    logger.info("Rasterizing landuse map")
+    if lulc_res is None:
+        gdf_reproj = gdf.to_crs(ds_like.raster.crs)
+        grid_like = create_grid_from_bbox(
+            gdf_reproj.total_bounds,
+            res=max(np.abs(ds_like.raster.res)),
+            crs=ds_like.raster.crs,
+            align=True,
+        )
+    else:
+        grid_like = create_grid_from_bbox(
+            gdf.total_bounds,
+            res=lulc_res,
+            crs=gdf.crs,
+            align=True,
+        )
+    # get the nodata values of the landuse (last row in the df)
+    nodata = df["landuse"].values[-1]
+    da = grid_like.raster.rasterize(
+        gdf,
+        col_name="landuse",
+        nodata=nodata,
+        all_touched=all_touched,
+        dtype="int32",
+    )
+    if lulc_out is not None:
+        logger.info(f"Saving rasterized landuse map to {lulc_out}")
+        os.makedirs(os.path.dirname(lulc_out), exist_ok=True)
+        da.raster.to_raster(lulc_out)
+
+    # derive the landuse maps
+    ds_out = landuse(da, ds_like, df, params=params, logger=logger)
 
     return ds_out
 
@@ -364,3 +460,65 @@ def add_paddy_to_landuse(
     df_mapping = pd.concat([df_paddy_mapping, df_mapping])
 
     return landuse, df_mapping
+
+
+def add_planted_forest_to_landuse(
+    planted_forest: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    planted_forest_c: float = 0.0881,
+    orchard_name: str = "Orchard",
+    orchard_c: float = 0.2188,
+    logger=logger,
+) -> xr.DataArray:
+    """
+    Update USLE C map with planted forest and orchard data.
+
+    Default USLE C values for planted forest and orchards are derived from Panagos et
+    al., 2015 (10.1016/j.landusepol.2015.05.021).
+    For harvested forest at different regrowth stages see also Borrelli and Schutt, 2014
+    (10.1016/j.geomorph.2013.08.022).
+
+    Parameters
+    ----------
+    planted_forest : geopandas.GeoDataFrame
+        GeoDataFrame containing planted forest data. Required columns are: 'geometry',
+        and optionally 'forest_type' to find orchards.
+    ds_like : xr.Dataset
+        Dataset at model resolution. Required variables are 'USLE_C'.
+    planted_forest_c : float, optional
+        USLE C value for planted forest, by default 0.0881.
+    orchard_name : str, optional
+        Name of the orchard landuse class, by default "Orchard".
+    orchard_c : float, optional
+        USLE C value for orchards, by default 0.2188.
+
+    Returns
+    -------
+    usle_c : xr.DataArray
+        Updated USLE C map.
+    """
+    # Add a USLE_C column with default value
+    logger.info(
+        "Correcting USLE_C with planted forest and orchards"
+        "using {planted_forest_fn}."
+    )
+    planted_forest["USLE_C"] = planted_forest_c
+    # If forest_type column is available, update USLE_C value for orchards
+    if "forest_type" in planted_forest.columns:
+        planted_forest.loc[
+            planted_forest["forest_type"] == orchard_name, "USLE_C"
+        ] = orchard_c
+    # Rasterize forest data
+    usle_c = ds_like.raster.rasterize(
+        gdf=planted_forest,
+        col_name="USLE_C",
+        nodata=ds_like["USLE_C"].raster.nodata,
+        all_touched=False,
+    )
+    # Cover nodata with the USLE_C map from all landuse classes
+    usle_c = usle_c.where(
+        usle_c != usle_c.raster.nodata,
+        ds_like["USLE_C"],
+    )
+
+    return usle_c
