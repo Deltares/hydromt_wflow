@@ -168,10 +168,7 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
 
 
 def test_model_inverse_clip(tmpdir, example_wflow_model):
-    model = "wflow"
-
     # Clip method options
-    destination = str(tmpdir.join(model))
     region = {
         "subbasin": [12.3006, 46.4324],
         "wflow_streamorder": 4,
