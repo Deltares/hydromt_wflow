@@ -8,11 +8,9 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
-
-# from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
 import numpy as np
 import pandas as pd
@@ -21,7 +19,6 @@ import pyproj
 import shapely
 import toml
 import xarray as xr
-from dask.diagnostics import ProgressBar
 from hydromt._typing.error import NoDataStrategy
 from hydromt.gis import flw
 from hydromt.model import Model
@@ -55,37 +52,31 @@ class WflowModel(Model):
     def __init__(
         self,
         root: Optional[str] = None,
-        mode: Optional[str] = "w",
-        config_fn: Optional[str] = None,
-        data_libs: Union[List, str] = None,
-        logger=logger,
-        **artifact_keys,
+        *,
+        components: Optional[Dict[str, Any]] = None,
+        mode: str = "w",
+        data_libs: Optional[Union[List, str]] = None,
+        region_component: Optional[str] = None,
+        **catalog_keys,
     ):
-        if data_libs is None:
-            data_libs = []
-        for lib, version in artifact_keys.items():
-            logger.warning(
-                "Adding a predefined data catalog as key-word argument is deprecated, "
-                f"add the catalog as '{lib}={version}'"
-                " to the data_libs list instead."
-            )
-            if not version:  # False or None
-                continue
-            elif isinstance(version, str):
-                lib += f"={version}"
-            data_libs = [lib] + data_libs
+        default_components = {
+            "config": {"type": "WflowConfigComponent"},
+            "tables": {"type": "TablesComponent"},
+        }
+        if components:
+            default_components = {**default_components, **components}
 
         super().__init__(
             root=root,
+            components=default_components,
             mode=mode,
-            config_fn=config_fn,
             data_libs=data_libs,
-            logger=logger,
+            region_component=region_component,
+            **catalog_keys,
         )
 
         # wflow specific
         self._intbl = dict()
-        self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
 
@@ -290,7 +281,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
-            self.set_config("model.sizeinmetres", True)
+            self.config.set("model.sizeinmetres", True)
 
     def setup_rivers(
         self,
@@ -497,7 +488,7 @@ Select from {routing_options}.'
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
             self.set_grid(ds_riv1.rename(rmdict))
             # update config
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.config.set("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
         self.logger.debug("Adding rivers vector to geoms.")
         self.geoms.pop("rivers", None)  # remove old rivers if in geoms
@@ -525,12 +516,12 @@ Select from {routing_options}.'
             self.logger.debug(
                 f'Update wflow config model.river_routing="{river_routing}"'
             )
-            self.set_config("model.river_routing", river_routing)
+            self.config.set("model.river_routing", river_routing)
 
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.bankfull_elevation", name)
+            self.config.set("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self.config.set("input.lateral.river.bankfull_elevation", name)
         else:
-            self.set_config("model.river_routing", river_routing)
+            self.config.set("model.river_routing", river_routing)
 
     def setup_floodplains(
         self,
@@ -608,7 +599,7 @@ Select from {routing_options}.'
         pyflwdir.FlwdirRaster.dem_adjust
         setup_rivers
         """
-        if self.get_config("model.river_routing") != "local-inertial":
+        if self.config.get_value("model.river_routing") != "local-inertial":
             raise ValueError(
                 "Floodplains (1d or 2d) are currently only supported with \
 local inertial river routing"
@@ -705,45 +696,38 @@ setting new flood_depth dimensions"
 
         # Update config
         self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
-        self.set_config("model.floodplain_1d", floodplain_1d)
+        self.config.set("model.floodplain_1d", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
-        self.set_config("model.land_routing", land_routing)
+        self.config.set("model.land_routing", land_routing)
 
         if floodplain_type == "1d":
             # include new input data
-            self.set_config(
+            self.config.set(
                 "input.lateral.river.floodplain.volume", "floodplain_volume"
             )
             # Add states
-            self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
-            self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
-            self.set_config("state.lateral.land.q", "q_land")
+            self.config.set("state.lateral.river.floodplain.q", "q_floodplain")
+            self.config.set("state.lateral.river.floodplain.h", "h_floodplain")
+            self.config.set("state.lateral.land.q", "q_land")
             # Remove local-inertial land states
-            if self.get_config("state.lateral.land.qx") is not None:
-                self.config["state"]["lateral"]["land"].pop("qx", None)
-            if self.get_config("state.lateral.land.qy") is not None:
-                self.config["state"]["lateral"]["land"].pop("qy", None)
-            if self.get_config("output.lateral.land.qx") is not None:
-                self.config["output"]["lateral"]["land"].pop("qx", None)
-            if self.get_config("output.lateral.land.qy") is not None:
-                self.config["output"]["lateral"]["land"].pop("qy", None)
+            self.config.delete_key("state.lateral.land.qx")
+            self.config.delete_key("state.lateral.land.qy")
+            self.config.delete_key("output.lateral.land.qx")
+            self.config.delete_key("output.lateral.land.qy")
 
         else:
             # include new input data
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-            self.set_config("input.lateral.land.elevation", name)
+            self.config.set("input.lateral.river.bankfull_elevation", name)
+            self.config.set("input.lateral.land.elevation", name)
             # Add local-inertial land routing states
-            self.set_config("state.lateral.land.qx", "qx_land")
-            self.set_config("state.lateral.land.qy", "qy_land")
+            self.config.set("state.lateral.land.qx", "qx_land")
+            self.config.set("state.lateral.land.qy", "qy_land")
+
             # Remove kinematic-wave and 1d floodplain states
-            if self.get_config("state.lateral.land.q") is not None:
-                self.config["state"]["lateral"]["land"].pop("q", None)
-            if self.get_config("state.lateral.river.floodplain.q") is not None:
-                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
-            if self.get_config("state.lateral.river.floodplain.h") is not None:
-                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
-            if self.get_config("output.lateral.land.q") is not None:
-                self.config["output"]["lateral"]["land"].pop("q", None)
+            self.config.delete_key("state.lateral.river.floodplain.q")
+            self.config.delete_key("state.lateral.river.floodplain.h")
+            self.config.delete_key("state.lateral.land.q")
+            self.config.delete_key("output.lateral.land.q")
 
     def setup_riverwidth(
         self,
@@ -946,7 +930,7 @@ to run setup_river method first.'
         # Add entries to the config
         for name in ds_lulc_maps.data_vars:
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
+                self.config.set(WFLOW_NAMES[name], name)
 
     def setup_lulcmaps_from_vector(
         self,
@@ -1080,7 +1064,7 @@ to run setup_river method first.'
         # Add entries to the config
         for name in ds_lulc_maps.data_vars:
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
+                self.config.set(WFLOW_NAMES[name], name)
 
     def setup_laimaps(
         self,
@@ -1273,23 +1257,23 @@ to run setup_river method first.'
                 if not mapname.startswith("wflow")
                 else mapname.replace("wflow_", "")
             )
-            self.set_config(f"input.{basename}", mapname)
+            self.config.set(f"input.{basename}", mapname)
             # Settings and add csv or netcdf sections if not already in config
             # csv
             if toml_output == "csv":
                 header_name = "header"
                 var_name = "column"
-                if self.get_config("csv") is None:
-                    self.set_config("csv.path", "output.csv")
+                if self.config.get_value("csv") is None:
+                    self.config.set("csv.path", "output.csv")
             # netcdf
             if toml_output == "netcdf":
                 header_name = "name"
                 var_name = "variable"
-                if self.get_config("netcdf") is None:
-                    self.set_config("netcdf.path", "output_scalar.nc")
+                if self.config.get_value("netcdf") is None:
+                    self.config.set("netcdf.path", "output_scalar.nc")
             # initialise column / variable section
-            if self.get_config(f"{toml_output}.{var_name}") is None:
-                self.set_config(f"{toml_output}.{var_name}", [])
+            if self.config.get_value(f"{toml_output}.{var_name}") is None:
+                self.config.set(f"{toml_output}.{var_name}", [])
 
             # Add new output column/variable to config
             for o in range(len(param)):
@@ -1866,7 +1850,7 @@ Using default storage/outflow function parameters."
         if "LakeMaxStorage" in ds_lakes:
             lakes_toml["input.lateral.river.lake.maxstorage"] = "LakeMaxStorage"
         for option in lakes_toml:
-            self.set_config(option, lakes_toml[option])
+            self.config.set(option, lakes_toml[option])
 
     def setup_reservoirs(
         self,
@@ -2045,7 +2029,7 @@ Using default storage/outflow function parameters."
             )
 
         for option in res_toml:
-            self.set_config(option, res_toml[option])
+            self.config.set(option, res_toml[option])
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
         """Help with common workflow of setup_lakes and setup_reservoir.
@@ -2223,7 +2207,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         self.set_grid(dsout)
 
         # Update the toml file
-        self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+        self.config.set("model.thicknesslayers", wflow_thicknesslayers)
 
     def setup_ksathorfrac(
         self,
@@ -2283,7 +2267,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         # Set the grid
         self.set_grid(daout, name=lname)
-        self.set_config("input.lateral.subsurface.ksathorfrac", lname)
+        self.config.set("input.lateral.subsurface.ksathorfrac", lname)
 
     def setup_ksatver_vegetation(
         self,
@@ -2336,7 +2320,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # add to grid
         self.set_grid(KSatVer_vegetation, map_name)
         # update config file
-        self.set_config("input.vertical.kv_0", map_name)
+        self.config.set("input.vertical.kv_0", map_name)
 
     def setup_lulcmaps_with_paddy(
         self,
@@ -2549,7 +2533,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Get paddy pixels at model resolution
         wflow_paddy = landuse_maps["landuse"] == output_paddy_class
         if wflow_paddy.any():
-            if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
+            if self.config.get_value("model.thicknesslayers") == len(
+                wflow_thicknesslayers
+            ):
                 self.logger.info(
                     "same thickness already present, skipping updating `c` parameter"
                 )
@@ -2577,19 +2563,19 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             self.set_grid(soil_maps["kvfrac"], name="kvfrac")
             if "c" in soil_maps:
                 self.set_grid(soil_maps["c"], name="c")
-                self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+                self.config.set("model.thicknesslayers", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
-                self.set_config(f"input.vertical.paddy.{key}.value", value)
+                self.config.set(f"input.vertical.paddy.{key}.value", value)
             # Update the states
-            self.set_config("state.vertical.paddy.h", "h_paddy")
+            self.config.set("state.vertical.paddy.h", "h_paddy")
         else:
             self.logger.info("No paddy fields found, skipping updating soil parameters")
 
         # Add entries to the config
         for name in landuse_maps.data_vars:
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
+                self.config.set(WFLOW_NAMES[name], name)
 
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
@@ -2671,7 +2657,7 @@ added to glacierstore [-]
             self.set_geoms(gdf_org, name="glaciers")
 
             for option in glac_toml:
-                self.set_config(option, glac_toml[option])
+                self.config.set(option, glac_toml[option])
         else:
             self.logger.warning(
                 "No glaciers of sufficient size found within region!"
@@ -2790,7 +2776,7 @@ one variable and variables list is not provided."
                 )
             else:
                 for i in range(len(variables)):
-                    self.set_config(wflow_variables[i], variables[i])
+                    self.config.set(wflow_variables[i], variables[i])
 
     def setup_precip_forcing(
         self,
@@ -2825,9 +2811,9 @@ one variable and variables list is not provided."
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
         """
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        starttime = self.config.get_value("starttime")
+        endtime = self.config.get_value("endtime")
+        freq = pd.to_timedelta(self.config.get_value("timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
@@ -2962,9 +2948,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
         """
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        timestep = self.get_config("timestepsecs")
+        starttime = self.config.get_value("starttime")
+        endtime = self.config.get_value("endtime")
+        timestep = self.config.get_value("timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
@@ -3135,9 +3121,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         """
         self.logger.info("Preparing potential evapotranspiration forcing maps.")
 
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        starttime = self.config.get_value("starttime")
+        endtime = self.config.get_value("endtime")
+        freq = pd.to_timedelta(self.config.get_value("timestepsecs"), unit="s")
 
         pet = self.data_catalog.get_rasterdataset(
             pet_fn,
@@ -3381,7 +3367,7 @@ Run setup_soilmaps first"
         self.set_geoms(gdf, name="rootzone_storage")
 
         # update config
-        self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
+        self.config.set("input.vertical.rootingdepth", update_toml_rootingdepth)
 
     def setup_1dmodel_connection(
         self,
@@ -3607,7 +3593,7 @@ Run setup_soilmaps first"
         self.set_grid(da_alloc, name="allocation_areas")
 
         # Update the settings toml
-        self.set_config("input.vertical.allocation.areas", "allocation_areas")
+        self.config.set("input.vertical.allocation.areas", "allocation_areas")
 
         # Add alloc to geoms
         self.set_geoms(gdf_alloc, name="allocation_areas")
@@ -3718,7 +3704,7 @@ Run setup_soilmaps first"
         )
 
         # Update the settings toml
-        self.set_config(
+        self.config.set(
             "input.vertical.allocation.frac_sw_used",
             "frac_sw_used",
         )
@@ -3824,12 +3810,12 @@ Run setup_soilmaps first"
             self.set_grid(pop, name="population")
 
         # Update toml
-        if _cyclic and self.get_config("input.cyclic") is None:
-            self.set_config("input.cyclic", [])
-        self.set_config("model.water_demand.domestic", True)
+        if _cyclic and self.config.get_value("input.cyclic") is None:
+            self.config.set("input.cyclic", [])
+        self.config.set("model.water_demand.domestic", True)
 
         for demand_type in ["gross", "net"]:
-            self.set_config(
+            self.config.set(
                 f"input.vertical.domestic.demand_{demand_type}",
                 f"domestic_{demand_type}",
             )
@@ -3999,16 +3985,16 @@ Run setup_soilmaps first"
         self.set_grid(demand)
 
         # Update the settings toml
-        if _cyclic and self.get_config("input.cyclic") is None:
-            self.set_config("input.cyclic", [])
+        if _cyclic and self.config.get_value("input.cyclic") is None:
+            self.config.set("input.cyclic", [])
         for var in demand.data_vars:
             sname, suffix = var.split("_")
-            self.set_config(
+            self.config.set(
                 f"input.vertical.{sname}.demand_{suffix}",
                 var,
             )
             # Set flag
-            self.set_config(f"model.water_demand.{sname}", True)
+            self.config.set(f"model.water_demand.{sname}", True)
 
             # Also for the fact that these parameters are cyclic
             if _cyclic:
@@ -4116,14 +4102,14 @@ Run setup_soilmaps first"
             .values
             != 0
         ):
-            self.set_config("model.water_demand.paddy", True)
+            self.config.set("model.water_demand.paddy", True)
             self.set_grid(ds_irrigation["paddy_irrigation_areas"])
-            self.set_config(
+            self.config.set(
                 "input.vertical.paddy.irrigation_areas", "paddy_irrigation_areas"
             )
             # Irrigation trigger
             self.set_grid(ds_irrigation["paddy_irrigation_trigger"])
-            self.set_config(
+            self.config.set(
                 "input.vertical.paddy.irrigation_trigger", "paddy_irrigation_trigger"
             )
             if cyclic_lai:
@@ -4131,20 +4117,20 @@ Run setup_soilmaps first"
                     "vertical.paddy.irrigation_trigger"
                 )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.config.set("model.water_demand.paddy", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
             != 0
         ):
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.config.set("model.water_demand.nonpaddy", True)
             self.set_grid(ds_irrigation["nonpaddy_irrigation_areas"])
-            self.set_config(
+            self.config.set(
                 "input.vertical.nonpaddy.irrigation_areas", "nonpaddy_irrigation_areas"
             )
             # Irrigation trigger
             self.set_grid(ds_irrigation["nonpaddy_irrigation_trigger"])
-            self.set_config(
+            self.config.set(
                 "input.vertical.nonpaddy.irrigation_trigger",
                 "nonpaddy_irrigation_trigger",
             )
@@ -4153,7 +4139,7 @@ Run setup_soilmaps first"
                     "vertical.nonpaddy.irrigation_trigger"
                 )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.config.set("model.water_demand.nonpaddy", False)
 
     def setup_irrigation_from_vector(
         self,
@@ -4360,10 +4346,10 @@ Run setup_soilmaps first"
         self.set_states(states)
 
         # Update config to read the states
-        self.set_config("model.reinit", False)
+        self.config.set("model.reinit", False)
         # Update states variables names in config
         for option in states_config:
-            self.set_config(option, states_config[option])
+            self.config.set(option, states_config[option])
 
     # I/O
     def read(
@@ -4476,15 +4462,15 @@ Run setup_soilmaps first"
         pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
-        fn = self.get_config(
+        fn = self.config.get_value(
             "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
         )
 
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
+        if self.config.get_value("dir_input") is not None:
+            input_dir = self.config.get_value("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config("input.path_static", fallback=fn_default),
+                self.config.get_value("input.path_static", fallback=fn_default),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -4550,18 +4536,18 @@ Run setup_soilmaps first"
         # filename
         if fn_out is not None:
             fn = join(self.root, fn_out)
-            self.set_config("input.path_static", fn_out)
+            self.config.set("input.path_static", fn_out)
         else:
             fn_out = "staticmaps.nc"
-            fn = self.get_config(
+            fn = self.config.get_value(
                 "input.path_static", abs_path=True, fallback=join(self.root, fn_out)
             )
         # Append inputdir if required
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
+        if self.config.get_value("dir_input") is not None:
+            input_dir = self.config.get_value("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config("input.path_static", fallback=fn_out),
+                self.config.get_value("input.path_static", fallback=fn_out),
             )
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
@@ -4661,8 +4647,8 @@ Run setup_soilmaps first"
         if not self._write:
             self._geoms = dict()  # fresh start in read-only mode
         # Check if dir_input is set and add
-        if self.get_config("dir_input") is not None:
-            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
+        if self.config.get_value("dir_input") is not None:
+            dir_mod = join(self.config.get_value("dir_input", abs_path=True), geoms_fn)
         else:
             dir_mod = join(self.root, geoms_fn)
 
@@ -4709,9 +4695,9 @@ Run setup_soilmaps first"
                     _precision = 6
             grid_size = 10 ** (-_precision)
             # Prepare the output folder
-            if self.get_config("dir_input") is not None:
+            if self.config.get_value("dir_input") is not None:
                 geoms_dir = join(
-                    self.get_config("dir_input", abs_path=True),
+                    self.config.get_value("dir_input", abs_path=True),
                     geoms_fn,
                 )
             else:
@@ -4743,15 +4729,15 @@ Run setup_soilmaps first"
         xarray dataaray per forcing variable in the hydromt ``forcing`` dictionary.
         """
         fn_default = "inmaps.nc"
-        fn = self.get_config(
+        fn = self.config.get_value(
             "input.path_forcing", abs_path=True, fallback=join(self.root, fn_default)
         )
 
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
+        if self.config.get_value("dir_input") is not None:
+            input_dir = self.config.get_value("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config(
+                self.config.get_value(
                     "input.path_forcing",
                     fallback=fn_default,
                 ),
@@ -4820,14 +4806,14 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             self.logger.info("Write forcing file")
 
             # Get default forcing name from forcing attrs
-            yr0 = pd.to_datetime(self.get_config("starttime")).year
-            yr1 = pd.to_datetime(self.get_config("endtime")).year
-            freq = self.get_config("timestepsecs")
+            yr0 = pd.to_datetime(self.config.get_value("starttime")).year
+            yr1 = pd.to_datetime(self.config.get_value("endtime")).year
+            freq = self.config.get_value("timestepsecs")
             # get output filename
             if fn_out is not None:
-                self.set_config("input.path_forcing", fn_out)
+                self.config.set("input.path_forcing", fn_out)
             else:
-                fn_name = self.get_config("input.path_forcing", abs_path=False)
+                fn_name = self.config.get_value("input.path_forcing", abs_path=False)
                 if fn_name is not None:
                     if "*" in basename(fn_name):
                         # get rid of * in case model had multiple forcing files and
@@ -4838,8 +4824,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                         fn_name = join(
                             dirname(fn_name), basename(fn_name).replace("*", "")
                         )
-                    if self.get_config("dir_input") is not None:
-                        input_dir = self.get_config("dir_input", abs_path=True)
+                    if self.config.get_value("dir_input") is not None:
+                        input_dir = self.config.get_value("dir_input", abs_path=True)
                         fn_out = join(input_dir, fn_name)
                     else:
                         fn_out = join(self.root, fn_name)
@@ -4874,8 +4860,8 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     fn_default = (
                         f"inmaps{sourceP}{sourceT}{methodPET}_{freq}_{yr0}_{yr1}.nc"
                     )
-                    if self.get_config("dir_input") is not None:
-                        input_dir = self.get_config("dir_input", abs_path=True)
+                    if self.config.get_value("dir_input") is not None:
+                        input_dir = self.config.get_value("dir_input", abs_path=True)
                         fn_default_path = join(input_dir, fn_default)
                     else:
                         fn_default_path = join(self.root, fn_default)
@@ -4889,13 +4875,13 @@ change name input.path_forcing "
                         )
                         return
                     else:
-                        self.set_config("input.path_forcing", fn_default)
+                        self.config.set("input.path_forcing", fn_default)
                         fn_out = fn_default_path
 
             # Check if all dates between (starttime, endtime) are in all da forcing
             # Check if starttime and endtime timestamps are correct
-            start = pd.to_datetime(self.get_config("starttime"))
-            end = pd.to_datetime(self.get_config("endtime"))
+            start = pd.to_datetime(self.config.get_value("starttime"))
+            end = pd.to_datetime(self.config.get_value("endtime"))
             correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
@@ -4918,8 +4904,8 @@ change name input.path_forcing "
 {start} and endtime to {end} in the toml."
                 )
                 # Set the strings first
-                self.set_config("starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
-                self.set_config("endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
+                self.config.set("starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
+                self.config.set("endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
 
             if decimals is not None:
                 ds = ds.round(decimals)
@@ -4960,7 +4946,7 @@ change name input.path_forcing "
                 # Updating path forcing in config
                 fns_out = os.path.relpath(fn_out, self.root)
                 fns_out = f"{str(fns_out)[0:-3]}_*.nc"
-                self.set_config("input.path_forcing", fns_out)
+                self.config.set("input.path_forcing", fns_out)
                 for label, ds_gr in ds.resample(time=freq_out):
                     # ds_gr = group[1]
                     start = ds_gr["time"].dt.strftime("%Y%m%d")[0].item()
@@ -4972,8 +4958,7 @@ change name input.path_forcing "
                 delayed_obj = ds_gr.to_netcdf(
                     fn_out_gr, encoding=encoding, mode="w", compute=False
                 )
-                with ProgressBar():
-                    delayed_obj.compute(**kwargs)
+                delayed_obj.compute(**kwargs)
 
             # TO profile uncomment lines below to replace lines above
             # from dask.diagnostics import Profiler, CacheProfiler, ResourceProfiler
@@ -4987,15 +4972,15 @@ change name input.path_forcing "
     def read_states(self):
         """Read states at <root/instate/> and parse to dict of xr.DataArray."""
         fn_default = join("instate", "instates.nc")
-        fn = self.get_config(
+        fn = self.config.get_value(
             "state.path_input", abs_path=True, fallback=join(self.root, fn_default)
         )
 
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
+        if self.config.get_value("dir_input") is not None:
+            input_dir = self.config.get_value("dir_input", abs_path=True)
             fn = join(
                 input_dir,
-                self.get_config("state.path_input", fallback=fn_default),
+                self.config.get_value("state.path_input", fallback=fn_default),
             )
             self.logger.info(f"Input directory found {input_dir}")
 
@@ -5019,18 +5004,18 @@ change name input.path_forcing "
 
             # get output filename and if needed update and re-write the config
             if fn_out is not None:
-                self.set_config("state.path_input", fn_out)
+                self.config.set("state.path_input", fn_out)
                 self.write_config()  # re-write config
             else:
-                fn_name = self.get_config(
+                fn_name = self.config.get_value(
                     "state.path_input", abs_path=False, fallback=None
                 )
                 if fn_out is None:
                     fn_name = join("instate", "instates.nc")
-                    self.set_config("state.path_input", fn_name)
+                    self.config.set("state.path_input", fn_name)
                     self.write_config()  # re-write config
-                if self.get_config("dir_input") is not None:
-                    input_dir = self.get_config("dir_input", abs_path=True)
+                if self.config.get_value("dir_input") is not None:
+                    input_dir = self.config.get_value("dir_input", abs_path=True)
                     fn_out = join(input_dir, fn_name)
                 else:
                     fn_out = join(self.root, fn_name)
@@ -5055,11 +5040,11 @@ change name input.path_forcing "
             self._results = dict()
 
         output_dir = ""
-        if self.get_config("dir_output") is not None:
-            output_dir = self.get_config("dir_output")
+        if self.config.get_value("dir_output") is not None:
+            output_dir = self.config.get_value("dir_output")
 
         # Read gridded netcdf (output section)
-        nc_fn = self.get_config("output.path", abs_path=True)
+        nc_fn = self.config.get_value("output.path", abs_path=True)
         nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
@@ -5068,7 +5053,7 @@ change name input.path_forcing "
             self.set_results(ds, name="output")
 
         # Read scalar netcdf (netcdf section)
-        ncs_fn = self.get_config("netcdf.path", abs_path=True)
+        ncs_fn = self.config.get_value("netcdf.path", abs_path=True)
         ncs_fn = (
             ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
         )
@@ -5078,7 +5063,7 @@ change name input.path_forcing "
             self.set_results(ds, name="netcdf")
 
         # Read csv timeseries (csv section)
-        csv_fn = self.get_config("csv.path", abs_path=True)
+        csv_fn = self.config.get_value("csv.path", abs_path=True)
         csv_fn = (
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
@@ -5408,16 +5393,16 @@ change name input.path_forcing "
         # Remove the absolute path and if needed remove lakes and reservoirs
         if remove_reservoir:
             # change reservoirs = true to false
-            self.set_config("model.reservoirs", False)
+            self.config.set("model.reservoirs", False)
             # remove states
-            if self.get_config("state.lateral.river.reservoir") is not None:
+            if self.config.get_value("state.lateral.river.reservoir") is not None:
                 del self.config["state"]["lateral"]["river"]["reservoir"]
 
         if remove_lake:
             # change lakes = true to false
-            self.set_config("model.lakes", False)
+            self.config.set("model.lakes", False)
             # remove states
-            if self.get_config("state.lateral.river.lake") is not None:
+            if self.config.get_value("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
 
     def clip_forcing(self, crs=4326, **kwargs):
