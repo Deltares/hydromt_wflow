@@ -5029,6 +5029,9 @@ change name input.path_forcing "
             Align bounds of region to raster with resolution <align>, by default None
         crs: int, optional
             Default crs of the grid to clip.
+        reverse_clip: bool, optional
+            Flag to perform "reverse clipping": removing an upstream part of the model
+            instead of the subbasin itself, by default False
 
         Returns
         -------
