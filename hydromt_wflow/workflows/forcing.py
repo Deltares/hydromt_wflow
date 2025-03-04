@@ -9,6 +9,7 @@ from hydromt.workflows.forcing import resample_time
 from shapely.geometry import box
 
 try:
+    import wradlib as wrl
     from metpy.interpolate import (
         interpolate_to_grid,
         remove_nan_observations,
@@ -101,6 +102,39 @@ def pet(
 
 
 def spatial_interpolation(
+    forcing: xr.DataArray,
+    ds_like: xr.Dataset,
+    interp_type: str,
+    logger: Optional[logging.Logger] = logger,
+) -> xr.DataArray:
+    """
+    Interpolate spatial forcing data from station observations to a regular grid.
+
+    Filler
+    """
+    crs = ds_like.raster.crs
+    # Reprojection and data type
+    forcing = forcing.vector.to_crs(crs)
+    forcing = forcing.astype("float32")
+
+    # Source is obtained from station data
+    gdf_stations = forcing.vector.to_gdf()
+    src = np.vstack((gdf_stations.geometry.x, gdf_stations.geometry.y)).T
+
+    # Target is obtained from ds_like
+    x_coords = ds_like.coords[ds_like.raster.x_dim].values
+    y_coords = ds_like.coords[ds_like.raster.y_dim].values
+    grid_x, grid_y = np.meshgrid(x_coords, y_coords)
+    trg = np.vstack((grid_x.ravel(), grid_y.ravel())).T
+
+    vals = forcing.values
+
+    # Pass to convenience function wrl.ipol.interpolate which handles NaN values
+    wrl.ipol.interpolate(src, trg, vals, wrl.ipol.Nearest)
+
+
+# TODO: remove spatial_interpolation_metpy?
+def spatial_interpolation_metpy(
     forcing: xr.DataArray,
     interp_type: str,
     ds_like: xr.Dataset,
