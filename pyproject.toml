@@ -114,3 +114,23 @@ filterwarnings = [
     "ignore:The staticmaps property:DeprecationWarning",
     "ignore:The staticgeoms property:DeprecationWarning",
 ]
+
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["win-64"]
+
+[tool.pixi.pypi-dependencies]
+hydromt_wflow = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+doc = { features = ["doc", "examples", "extra"], solve-group = "default" }
+examples = { features = ["examples"], solve-group = "default" }
+extra = { features = ["extra"], solve-group = "default" }
+full = { features = ["full", "io", "extra", "dev", "test", "doc", "examples"], solve-group = "default" }
+io = { features = ["io"], solve-group = "default" }
+slim = { features = ["slim", "io", "extra", "examples"], solve-group = "default" }
+test = { features = ["test", "dev", "extra"], solve-group = "default" }
+
+[tool.pixi.tasks]
