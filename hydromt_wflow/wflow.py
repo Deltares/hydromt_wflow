@@ -2867,21 +2867,21 @@ one variable and variables list is not provided."
 
         Supported interpolation methods:
         * uniform: Applies spatially uniform precipitation to the model. \
-Only works when `precip_fn` contains a single timeseries.
+        Only works when `precip_fn` contains a single timeseries.
         * linear: Performs linear interpolation between data points.
         * nearest: Assigns the value of the nearest data point (nearest neighbour).
         * cubic: Uses cubic interpolation for smoother curves.
         * rbf: Applies Radial Basis Function interpolation for smooth, \
-multidimensional interpolation. Keyword arguments: `[rbf_func, rbf_smooth]`
+        multidimensional interpolation. Keyword arguments: `[rbf_func, rbf_smooth]`
         * natural_neighbor: Uses a weighted average of surrounding points based \
-on their proximity and area influence following Liang and Hale (2010).
+        on their proximity and area influence following Liang and Hale (2010).
         * cressman: Inverse Distance Weighing approach following Cresmann (1959). \
-It uses the ratio of observation distance to maximum allowable distance \
-for interpolation. Keyword arguments: [minimum_neighbors, search_radius]
+        It uses the ratio of observation distance to maximum allowable distance \
+        for interpolation. Keyword arguments: [minimum_neighbors, search_radius]
         * barnes: Inverse Distance Weighing approach following Barnes (1964). \
-It applies an inverse exponential ratio of observation distance to \
-average spacing for interpolation. Keyword arguments: \
-`[minimum_neighbours, search_radius. gamma, kappa_star]`
+        It applies an inverse exponential ratio of observation distance to \
+        average spacing for interpolation. Keyword arguments: \
+        `[minimum_neighbours, search_radius. gamma, kappa_star]`
 
         NOTE! Station interpolation is still in development.
         Cressman and natural neighbor are not working as expected.
@@ -2985,7 +2985,14 @@ average spacing for interpolation. Keyword arguments: \
                 # Use station ids from gdf_stations when reading the DataFrame
                 if index_col is not None:
                     gdf_stations = gdf_stations.set_index(index_col)
+                
+                # Index is required to contruct GeoDataArray
+                if gdf_stations.index.name is None:
+                    gdf_stations.index.name = "stations"
 
+                # Filter df_precip by stations within the buffered basin
+                df_precip = df_precip[gdf_stations.index]
+                
             # Convert to geodataset
             da_precip = hydromt.vector.GeoDataArray.from_gdf(
                 gdf=gdf_stations,
