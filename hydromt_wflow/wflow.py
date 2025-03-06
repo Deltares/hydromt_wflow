@@ -2954,10 +2954,10 @@ average spacing for interpolation. Keyword arguments: \
                 gdf_stations = gpd.GeoDataFrame(
                     data=None,
                     geometry=[self.basins.unary_union.centroid],
-                    index=["_station"],
+                    index=df_precip.columns,
                     crs=self.crs,
                 )
-                index_col = "_station"
+                index_col = df_precip.columns
                 interp_type = "nearest"
                 if df_precip.shape[1] != 1:
                     raise ValueError(
@@ -2986,6 +2986,15 @@ average spacing for interpolation. Keyword arguments: \
                 if index_col is not None:
                     gdf_stations = gdf_stations.set_index(index_col)
 
+                # Filter df_precip by stations within the buffered basin
+                df_precip = df_precip[gdf_stations.index]
+            
+            # Index is required to contruct GeoDataArray
+            if gdf_stations.index.name is None:
+                gdf_stations.index.name = "stations"
+    
+            print(gdf_stations)
+            print(df_precip)
             # Convert to geodataset
             da_precip = hydromt.vector.GeoDataArray.from_gdf(
                 gdf=gdf_stations,
