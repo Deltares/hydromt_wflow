@@ -11,7 +11,7 @@ Unreleased
 
 Added
 -----
--
+- Added support for inverse clipping by using the `inverse_clip=True` flag in the `clip_grid` method. PR #336
 
 Changed
 -------
