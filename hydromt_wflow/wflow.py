@@ -2992,9 +2992,7 @@ average spacing for interpolation. Keyword arguments: \
             # Index is required to contruct GeoDataArray
             if gdf_stations.index.name is None:
                 gdf_stations.index.name = "stations"
-    
-            print(gdf_stations)
-            print(df_precip)
+
             # Convert to geodataset
             da_precip = hydromt.vector.GeoDataArray.from_gdf(
                 gdf=gdf_stations,
