@@ -22,7 +22,7 @@ import shapely
 import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
-from hydromt import flw
+from hydromt.gis import flw
 from hydromt.models.model_grid import GridModel
 from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd

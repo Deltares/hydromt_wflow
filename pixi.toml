@@ -1,34 +1,32 @@
 [project]
-authors   = ["Sam Vente <savente93@proton.me>"]
-name      = "hydromt_wflow"
-channels  = ["conda-forge"]
+authors = ["Sam Vente <savente93@proton.me>"]
+name = "hydromt_wflow"
+channels = ["conda-forge"]
 platforms = ["linux-64", "win-64"]
 
 [tasks]
-
-install            = { depends-on = ["install-hydromt", "install-pre-commit"] }
-install-hydromt    = "pip install --no-deps --editable ."
+install = { depends-on = ["install-hydromt", "install-pre-commit"] }
 install-pre-commit = "pre-commit install"
 
 lint = { cmd = ["pre-commit", "run", "--all"] }
 
 doctest = { cmd = [
-	"sphinx-build",
-	"-M",
-	"doctest",
-	"docs",
-	"docs/_build",
-	"-W",
+  "sphinx-build",
+  "-M",
+  "doctest",
+  "docs",
+  "docs/_build",
+  "-W",
 ] }
 docs-build = { cmd = [
-	"sphinx-build",
-	"-M",
-	"html",
-	"docs",
-	"docs/_build",
-	"-W",
+  "sphinx-build",
+  "-M",
+  "html",
+  "docs",
+  "docs/_build",
+  "-W",
 ], depends-on = [
-	"doctest",
+  "doctest",
 ] }
 docs = { depends-on = ["docs-build"] } # alias
 doc = { depends-on = ["docs-build"] } # alias
@@ -37,10 +35,10 @@ serve = { cmd = ["python", "-m", "http.server", "-d", "docs/_build/html"] }
 
 # clean
 clean = { depends-on = [
-	"clean-dist",
-	"clean-docs-generated",
-	"clean-docs-build",
-	"clean-docs-exmaples",
+  "clean-dist",
+  "clean-docs-generated",
+  "clean-docs-build",
+  "clean-docs-exmaples",
 ] }
 clean-dist = { cmd = ["rm", "-rf", "dist"] }
 clean-docs-generated = { cmd = ["rm", "-rf", "docs/_generated"] }
@@ -51,40 +49,41 @@ test = { cmd = ["pytest"] }
 test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
 test-err-warn = { cmd = ["pytest", "--tb=short", "-W", "error"] }
 test-cov = { cmd = [
-	"pytest",
-	"--verbose",
-	"--cov=hydromt",
-	"--cov-report",
-	"xml",
+  "pytest",
+  "--verbose",
+  "--cov=hydromt",
+  "--cov-report",
+  "xml",
 ] }
 
 mypy = "mypy ."
 
 [dependencies]
-dask      = "*"
-hydromt   = ">=v0.10.1,<1"
+dask = "*"
+hydromt = ">=1"
 geopandas = ">=0.10"
-netcdf4   = "*"
-numpy     = "*"
-pandas    = "*"
-pyflwdir  = ">=0.5.7"
-pyproj    = "*"
-scipy     = "*"
-shapely   = "*"
-toml      = "*"
-xarray    = "*"
+netcdf4 = "*"
+numpy = "*"
+pandas = "*"
+pyflwdir = ">=0.5.7"
+pyproj = "*"
+scipy = "*"
+shapely = "*"
+toml = "*"
+xarray = "*"
+python = ">=3.11"
 
 [feature.lint.dependencies]
-ruff       = "*"
+ruff = "*"
 pre-commit = "*"
-mypy       = "*"
-pip        = ">=23.1.2"
+mypy = "*"
+pip = ">=23.1.2"
 
 
 [feature.test.dependencies]
-pytest-cov  = "*"
+pytest-cov = "*"
 pytest-mock = "*"
-pytest      = ">=2.7.3"
+pytest = ">=2.7.3"
 
 
 [feature.io.dependencies]
@@ -92,34 +91,42 @@ requests = "*"
 
 [feature.examples.dependencies]
 jupyterlab = "*"
-cartopy    = "*"
-notebook   = "*"
-nbconvert  = "==7.13.1"
+cartopy = "*"
+notebook = "*"
 
 [feature.extra.dependencies]
-gdal     = "*"
+gdal = "*"
 pcraster = "*"
 
 [feature.extra.pypi-dependencies]
-gwwapi      = "*"
+gwwapi = "*"
 hydroengine = "*"
-pyet        = "*"
+pyet = "*"
 
 [feature.doc.dependencies]
 pydata-sphinx-theme = "*"
-nbconvert           = "==7.13.1"
-nbsphinx            = "*"
-sphinx              = "*"
+nbconvert = "==7.13.1"
+nbsphinx = "*"
+sphinx = "*"
 
 [feature.doc.pypi-dependencies]
 sphinx-autosummary-accessors = "*"
-sphinx-design                = "*"
+sphinx-design = "*"
+
+[feature.dev.pypi-dependencies]
+hydromt_wflow = { path = ".", editable = true }
 
 [environments]
 lint = { features = ["lint"], no-default-feature = true, solve-group = "dev" }
 test = { features = ["test"], solve-group = "dev" }
-doc  = { features = ["doc", "examples", "io", "extra"], solve-group = "dev" }
-
-default = { features = ["full"] }
-full    = { features = ["extra", "io", "lint", "test", "doc", "examples"] }
-slim    = { features = ["io", "extra", "examples"] }
+doc = { features = ["doc", "examples", "io", "extra"], solve-group = "dev" }
+default = { features = [
+  "extra",
+  "io",
+  "lint",
+  "test",
+  "doc",
+  "examples",
+  "dev",
+], solve-group = "dev" }
+slim = { features = ["io", "extra", "examples"] }
