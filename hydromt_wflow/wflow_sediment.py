@@ -87,12 +87,12 @@ class WflowSedimentModel(WflowModel):
         Parameters
         ----------
         lakes_fn : {'hydro_lakes'}
-        Name of data source for lake parameters, see data/data_sources.yml.
+            Name of data source for lake parameters, see data/data_sources.yml.
 
-        * Required variables: \
+            * Required variables: \
 ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg']
         min_area : float, optional
-        Minimum lake area threshold [km2], by default 1.0 km2.
+            Minimum lake area threshold [km2], by default 1.0 km2.
         """
         super().setup_lakes(lakes_fn=lakes_fn, min_area=min_area)
         # Update the toml to match wflow_sediment and not wflow_sbm
@@ -162,26 +162,26 @@ class WflowSedimentModel(WflowModel):
         Parameters
         ----------
         reservoirs_fn : str
-        Name of data source for reservoir parameters, see data/data_sources.yml.
+            Name of data source for reservoir parameters, see data/data_sources.yml.
 
-        * Required variables for direct use: \
+            * Required variables for direct use: \
 ['waterbody_id', 'ResSimpleArea', 'ResMaxVolume', 'ResTargetMinFrac', \
 'ResTargetFullFrac', 'ResDemand', 'ResMaxRelease']
 
-        * Required variables for computation with timeseries_fn: \
+            * Required variables for computation with timeseries_fn: \
 ['waterbody_id', 'Hylak_id', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Dam_height']
 
-        * Required variables for computation without timeseries_fn: \
+            * Required variables for computation without timeseries_fn: \
 ['waterbody_id', 'Area_avg', 'Vol_avg', 'Depth_avg', 'Dis_avg', 'Capacity_max', \
 'Capacity_norm', 'Capacity_min', 'Dam_height']
         timeseries_fn : str {'gww', 'hydroengine', 'none'}, optional
-        Download and use time series of reservoir surface water area to calculate
-        and overwrite the reservoir volume/areas of the data source.
-        Timeseries are either downloaded from Global Water Watch 'gww'
-        (using gwwapi package) or JRC 'jrc' (using hydroengine package).
-        By default None.
+            Download and use time series of reservoir surface water area to calculate
+            and overwrite the reservoir volume/areas of the data source.
+            Timeseries are either downloaded from Global Water Watch 'gww'
+            (using gwwapi package) or JRC 'jrc' (using hydroengine package).
+            By default None.
         min_area : float, optional
-        Minimum reservoir area threshold [km2], by default 1.0 km2.
+            Minimum reservoir area threshold [km2], by default 1.0 km2.
         """
         super().setup_reservoirs(
             reservoirs_fn=reservoirs_fn,
@@ -539,10 +539,10 @@ class WflowSedimentModel(WflowModel):
         Parameters
         ----------
         bedsed_mapping_fn : str
-        Path to a mapping csv file from streamorder to river bed \
+            Path to a mapping csv file from streamorder to river bed \
 particles characteristics. If None reverts to default values.
 
-        * Required variable: \
+            * Required variable: \
 ['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
 
         """

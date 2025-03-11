@@ -227,19 +227,19 @@ def soil_texture_usda(clay, silt):
         based on integer mapping following Ballabio et al. 2016 \
 (https://doi.org/10.1016/j.geoderma.2015.07.006) for \
 European topsoil physical properties.
-        Value    NAME
-        1    Clay
-        2    Silty Clay
-        3    Silty Clay-Loam
-        4    Sandy Clay
-        5    Sandy Clay-Loam
-        6    Clay-Loam
-        7    Silt
-        8    Silt-Loam
-        9    Loam
-        10    Sand
-        11    Loamy Sand
-        12    Sandy Loam
+        Value	NAME
+        1	Clay
+        2	Silty Clay
+        3	Silty Clay-Loam
+        4	Sandy Clay
+        5	Sandy Clay-Loam
+        6	Clay-Loam
+        7	Silt
+        8	Silt-Loam
+        9	Loam
+        10	Sand
+        11	Loamy Sand
+        12	Sandy Loam
 
 
     """

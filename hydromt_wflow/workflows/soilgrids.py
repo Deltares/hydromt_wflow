@@ -478,16 +478,16 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
     - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)
     - **M** : model parameter [mm] that controls exponential decline of KsatVer with \
 soil depth
-    (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked
+      (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked
     - **M_** : model parameter [mm] that controls exponential decline of KsatVer with \
 soil depth
-    (fitted with numpy linalg regression), bounds of **M_** are checked
+      (fitted with numpy linalg regression), bounds of **M_** are checked
     - **M_original** : **M** without checking bounds
     - **M_original_** : **M_** without checking bounds
     - **f** : scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
     - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]
-    (fitted with numpy linalg regression), bounds are checked
+      (fitted with numpy linalg regression), bounds are checked
     - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
 index for the wflow_sbm soil layers.
     - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \
