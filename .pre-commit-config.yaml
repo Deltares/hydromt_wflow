@@ -15,10 +15,6 @@ repos:
     # Ruff version.
     rev: v0.9.10
     hooks:
-      # sort imports.
-      - id: ruff
-        types_or: [python, pyi]
-        args: ["--select", "I", "--fix"]
       # run linter and apply fixes where possible
       - id: ruff
         types_or: [python, pyi]
