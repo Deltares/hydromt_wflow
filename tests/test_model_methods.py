@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from hydromt.raster import full_like
+from hydromt.gis.raster import full_like
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel

@@ -7,7 +7,7 @@ import geopandas as gpd
 import numpy as np
 import xarray as xr
 from hydromt import raster
-from hydromt.workflows.grid import grid_from_constant
+from hydromt.model.processes.grid import grid_from_constant
 
 logger = logging.getLogger(__name__)
 
