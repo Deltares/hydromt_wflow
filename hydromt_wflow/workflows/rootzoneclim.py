@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import pyflwdir
 import xarray as xr
-from hydromt import flw
+from hydromt.gis import flw
 from scipy import optimize
 
 logger = logging.getLogger(__name__)
