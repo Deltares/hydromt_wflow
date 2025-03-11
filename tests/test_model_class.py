@@ -81,9 +81,9 @@ def _compare_wflow_models(mod0, mod1):
             assert geom0.index.size == geom1.index.size
             assert np.all(set(geom0.index) == set(geom1.index)), f"geom index {name}"
             assert geom0.columns.size == geom1.columns.size
-            assert np.all(
-                set(geom0.columns) == set(geom1.columns)
-            ), f"geom columns {name}"
+            assert np.all(set(geom0.columns) == set(geom1.columns)), (
+                f"geom columns {name}"
+            )
             assert geom0.crs == geom1.crs, f"geom crs {name}"
             if not np.all(geom0.geometry == geom1.geometry):
                 warnings.warn(f"New geom {name} different than the example one.")

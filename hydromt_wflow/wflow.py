@@ -363,41 +363,41 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         Parameters
         ----------
         hydrography_fn : str, Path, xarray.Dataset
-            Name of RasterDataset source for hydrography data.
-            Must be same as setup_basemaps for consistent results.
+        Name of RasterDataset source for hydrography data.
+        Must be same as setup_basemaps for consistent results.
 
-            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+        * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
               'elevtn'[m+REF]
-            * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
+        * Optional variables: 'rivwth' [m], 'qbankfull' [m3/s]
         river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
-            Name of GeoDataFrame source for river data.
+        Name of GeoDataFrame source for river data.
 
-            * Required variables: 'rivwth' [m], 'qbankfull' [m3/s]
+        * Required variables: 'rivwth' [m], 'qbankfull' [m3/s]
         river_upa : float, optional
-            Minimum upstream area threshold for the river map [km2]. By default 30.0
+        Minimum upstream area threshold for the river map [km2]. By default 30.0
         slope_len : float, optional
-            Length over which the river slope is calculated [km]. By default 2.0
+        Length over which the river slope is calculated [km]. By default 2.0
         min_rivlen_ratio: float, optional
-            Ratio of cell resolution used minimum length threshold in a moving
-            window based smoothing of river length, by default 0.0
-            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
-            For details about the river length smoothing,
-            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
+        Ratio of cell resolution used minimum length threshold in a moving
+        window based smoothing of river length, by default 0.0
+        The river length smoothing is skipped if `min_riverlen_ratio` = 0.
+        For details about the river length smoothing,
+        see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
         rivdph_method : {'gvf', 'manning', 'powlaw'}
-            see :py:meth:`hydromt.workflows.river_depth` for details, by default \
+        see :py:meth:`hydromt.workflows.river_depth` for details, by default \
                 "powlaw"
         river_routing : {'kinematic-wave', 'local-inertial'}
-            Routing methodology to be used, by default "kinematic-wave".
+        Routing methodology to be used, by default "kinematic-wave".
         smooth_len : float, optional
-            Length [m] over which to smooth the output river width and depth,
-            by default 5e3
+        Length [m] over which to smooth the output river width and depth,
+        by default 5e3
         min_rivdph : float, optional
-            Minimum river depth [m], by default 1.0
+        Minimum river depth [m], by default 1.0
         min_rivwth : float, optional
-            Minimum river width [m], by default 30.0
+        Minimum river width [m], by default 30.0
         elevtn_map : str, optional
-            Name of the elevation map in the current WflowModel.grid.
-            By default "wflow_dem"
+        Name of the elevation map in the current WflowModel.grid.
+        By default "wflow_dem"
 
         See Also
         --------
@@ -581,24 +581,24 @@ Select from {routing_options}.'
         Parameters
         ----------
         floodplain_type: {"1d", "2d"}
-            Option defining the type of floodplains, see below what arguments
-            are related to the different floodplain types
+        Option defining the type of floodplains, see below what arguments
+        are related to the different floodplain types
         hydrography_fn : str, Path, xarray.Dataset
-            Name of RasterDataset source for hydrography data. Must be same as
-            setup_basemaps for consistent results.
+        Name of RasterDataset source for hydrography data. Must be same as
+        setup_basemaps for consistent results.
 
-            * Required variables: ['flwdir', 'uparea', 'elevtn']
+        * Required variables: ['flwdir', 'uparea', 'elevtn']
         river_upa : float, optional
-            (1D floodplains) minimum upstream area threshold for drain in the HAND.
-            Optional value, as it is inferred from the grid metadata,
-            to be consistent with setup_rivers.
+        (1D floodplains) minimum upstream area threshold for drain in the HAND.
+        Optional value, as it is inferred from the grid metadata,
+        to be consistent with setup_rivers.
         flood_depths : tuple of float, optional
-            (1D floodplains) flood depths at which a volume is derived.
-            By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
+        (1D floodplains) flood depths at which a volume is derived.
+        By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
         elevtn_map: {"wflow_dem", "dem_subgrid"}
-            (2D floodplains) Name of staticmap to hydrologically condition.
-            By default "wflow_dem"
+        (2D floodplains) Name of staticmap to hydrologically condition.
+        By default "wflow_dem"
 
         See Also
         --------
@@ -1247,21 +1247,21 @@ to run setup_river method first.'
         Parameters
         ----------
         mapname : str
-            Name of the gauge map (in staticmaps.nc) to use for scalar output.
+        Name of the gauge map (in staticmaps.nc) to use for scalar output.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
-            toml file or do nothing. By default, 'csv'.
+        One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
+        toml file or do nothing. By default, 'csv'.
         header : list, optional
-            Save specific model parameters in csv section. This option defines
-            the header of the csv file.
-            By default saves Q (for lateral.river.q_av).
+        Save specific model parameters in csv section. This option defines
+        the header of the csv file.
+        By default saves Q (for lateral.river.q_av).
         param: list, optional
-            Save specific model parameters in csv section. This option defines
-            the wflow variable corresponding to the
-            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+        Save specific model parameters in csv section. This option defines
+        the wflow variable corresponding to the
+        names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
         reducer: list, optional
-            If map is an area rather than a point location, provides the reducer
-            for the parameters to save. By default None.
+        If map is an area rather than a point location, provides the reducer
+        for the parameters to save. By default None.
         """
         # # Add new outputcsv section in the config
         if toml_output == "csv" or toml_output == "netcdf":
@@ -1416,21 +1416,21 @@ skipping adding gauge specific outputs to the toml."
         There are four available methods to prepare the gauge map:
 
         * no snapping: ``mask=None``, ``snap_to_river=False``, ``snap_uparea=False``.
-          The gauge locations are used as is.
+        The gauge locations are used as is.
         * snapping to mask: the gauge locations are snapped to a boolean mask map based
-          on the closest dowsntream cell within the mask:
-          either provide ``mask`` or set ``snap_to_river=True``
-          to snap to the river cells (default).
-          ``max_dist`` can be used to set the maximum distance to snap to the mask.
+        on the closest dowsntream cell within the mask:
+        either provide ``mask`` or set ``snap_to_river=True``
+        to snap to the river cells (default).
+        ``max_dist`` can be used to set the maximum distance to snap to the mask.
         * snapping based on upstream area matching: : ``snap_uparea=True``.
-          The gauge locations are snapped to the closest matching upstream area value.
-          Requires gauges_fn to have an ``uparea`` [km2] column. The closest value will
-          be looked for in a cell window of size ``wdw`` and the absolute and relative
-          differences between the gauge and the closest value should be smaller than
-          ``abs_error`` and ``rel_error``.
+        The gauge locations are snapped to the closest matching upstream area value.
+        Requires gauges_fn to have an ``uparea`` [km2] column. The closest value will
+        be looked for in a cell window of size ``wdw`` and the absolute and relative
+        differences between the gauge and the closest value should be smaller than
+        ``abs_error`` and ``rel_error``.
         * snapping based on upstream area matching and mask: ``snap_uparea=True``,
-          ``mask`` or ``snap_to_river=True``. The gauge locations are snapped to the
-          closest matching upstream area value within the mask.
+        ``mask`` or ``snap_to_river=True``. The gauge locations are snapped to the
+        closest matching upstream area value within the mask.
 
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived
         from the gauge locations.
@@ -1452,59 +1452,59 @@ gauge locations [-] (if derive_subcatch)
         Parameters
         ----------
         gauges_fn : str, Path, geopandas.GeoDataFrame
-            Catalog source name, path to gauges file geometry file or
-            geopandas.GeoDataFrame.
+        Catalog source name, path to gauges file geometry file or
+        geopandas.GeoDataFrame.
 
-            * Required variables if snap_uparea is True: 'uparea' [km2]
+        * Required variables if snap_uparea is True: 'uparea' [km2]
         index_col : str, optional
-            Column in gauges_fn to use for ID values, by default None
-            (use the default index column)
+        Column in gauges_fn to use for ID values, by default None
+        (use the default index column)
         mask : np.boolean, optional
-            If provided snaps to the mask, else snaps to the river (default).
+        If provided snaps to the mask, else snaps to the river (default).
         snap_to_river : bool, optional
-            Snap point locations to the closest downstream river cell, by default True
+        Snap point locations to the closest downstream river cell, by default True
         snap_uparea: bool, optional
-            Snap gauges based on upstream area. Gauges_fn should have "uparea"
-            in its attributes.
+        Snap gauges based on upstream area. Gauges_fn should have "uparea"
+        in its attributes.
         max_dist : float, optional
-            Maximum distance [m] between original and snapped point location.
-            A warning is logged if exceeded. By default 10 000m.
+        Maximum distance [m] between original and snapped point location.
+        A warning is logged if exceeded. By default 10 000m.
         wdw: int, optional
-            Window size in number of cells around the gauge locations
-            to snap uparea to, only used if ``snap_uparea`` is True. By default 3.
+        Window size in number of cells around the gauge locations
+        to snap uparea to, only used if ``snap_uparea`` is True. By default 3.
         rel_error: float, optional
-            Maximum relative error (default 0.05)
-            between the gauge location upstream area and the upstream area of
-            the best fit grid cell, only used if snap_uparea is True.
+        Maximum relative error (default 0.05)
+        between the gauge location upstream area and the upstream area of
+        the best fit grid cell, only used if snap_uparea is True.
         abs_error: float, optional
-            Maximum absolute error (default 50.0)
-            between the gauge location upstream area and the upstream area of
-            the best fit grid cell, only used if snap_uparea is True.
+        Maximum absolute error (default 50.0)
+        between the gauge location upstream area and the upstream area of
+        the best fit grid cell, only used if snap_uparea is True.
         fillna: bool, optional
-            Fill missing values in the gauges uparea column with the values from wflow
-            upstream area (ie no snapping). By default False and the gauges with NaN
-            values are skipped.
+        Fill missing values in the gauges uparea column with the values from wflow
+        upstream area (ie no snapping). By default False and the gauges with NaN
+        values are skipped.
         derive_subcatch : bool, optional
-            Derive subcatch map for gauges, by default False
+        Derive subcatch map for gauges, by default False
         basename : str, optional
-            Map name in grid (wflow_gauges_basename)
-            if None use the gauges_fn basename.
+        Map name in grid (wflow_gauges_basename)
+        if None use the gauges_fn basename.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
-            wflow toml file or do nothing. By default, 'csv'.
+        One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
+        wflow toml file or do nothing. By default, 'csv'.
         gauge_toml_header : list, optional
-            Save specific model parameters in csv section.
-            This option defines the header of the csv file.
-            By default saves Q (for lateral.river.q_av) and
-            P (for vertical.precipitation).
+        Save specific model parameters in csv section.
+        This option defines the header of the csv file.
+        By default saves Q (for lateral.river.q_av) and
+        P (for vertical.precipitation).
         gauge_toml_param: list, optional
-            Save specific model parameters in csv section. This option defines
-            the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves lateral.river.q_av (for Q) and
-            vertical.precipitation (for P).
+        Save specific model parameters in csv section. This option defines
+        the wflow variable corresponding to the names in gauge_toml_header.
+        By default saves lateral.river.q_av (for Q) and
+        vertical.precipitation (for P).
         kwargs : dict, optional
-            Additional keyword arguments to pass to the get_data method ie
-            get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
+        Additional keyword arguments to pass to the get_data method ie
+        get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
         """
         # Read data
         kwargs = {}
@@ -1750,36 +1750,36 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         Parameters
         ----------
         lakes_fn :
-            Name of GeoDataFrame source for lake parameters, see data/data_sources.yml.
+        Name of GeoDataFrame source for lake parameters, see data/data_sources.yml.
 
-            * Required variables for direct use: \
+        * Required variables for direct use: \
 'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'Lake_b' [-], \
 'Lake_e' [-], 'LakeOutflowFunc' [-], 'LakeStorFunc' [-], 'LakeThreshold' [m], \
 'LinkedLakeLocs' [-]
 
-            * Required variables for parameter estimation: \
+        * Required variables for parameter estimation: \
 'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
         rating_curve_fns: str, Path, pandas.DataFrame, List, optional
-            Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
-            curve values for lakes. If None then will be derived from properties of
-            `lakes_fn`.
-            Assumes one file per lake (with all variables) and that the lake ID is
-            either in the filename or data catalog entry name (eg using placeholder).
-            The ID should be placed at the end separated by an underscore (eg
-            'rating_curve_12.csv' or 'rating_curve_12')
+        Data catalog entry/entries, path(s) or pandas.DataFrame containing rating
+        curve values for lakes. If None then will be derived from properties of
+        `lakes_fn`.
+        Assumes one file per lake (with all variables) and that the lake ID is
+        either in the filename or data catalog entry name (eg using placeholder).
+        The ID should be placed at the end separated by an underscore (eg
+        'rating_curve_12.csv' or 'rating_curve_12')
 
-            * Required variables for storage curve: 'elevtn' [m+REF], 'volume' [m3]
+        * Required variables for storage curve: 'elevtn' [m+REF], 'volume' [m3]
 
-            * Required variables for rating curve: 'elevtn' [m+REF], 'discharge' [m3/s]
+        * Required variables for rating curve: 'elevtn' [m+REF], 'discharge' [m3/s]
         min_area : float, optional
-            Minimum lake area threshold [km2], by default 10.0 km2.
+        Minimum lake area threshold [km2], by default 10.0 km2.
         add_maxstorage : bool, optional
-            If True, maximum storage of the lake is added to the output
-            (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
-            By default False (natural lake).
+        If True, maximum storage of the lake is added to the output
+        (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
+        By default False (natural lake).
         kwargs: optional
-            Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+        Keyword arguments passed to the method
+        hydromt.DataCatalog.get_rasterdataset()
         """
         # Derive lake are and outlet maps
         gdf_org, ds_lakes = self._setup_waterbodies(
@@ -1920,29 +1920,29 @@ Using default storage/outflow function parameters."
         Parameters
         ----------
         reservoirs_fn : str
-            Name of data source for reservoir parameters, see data/data_sources.yml.
+        Name of data source for reservoir parameters, see data/data_sources.yml.
 
-            * Required variables for direct use: \
+        * Required variables for direct use: \
 'waterbody_id' [-], 'ResSimpleArea' [m2], 'ResMaxVolume' [m3], 'ResTargetMinFrac' \
 [m3/m3], 'ResTargetFullFrac' [m3/m3], 'ResDemand' [m3/s], 'ResMaxRelease' [m3/s]
 
-            * Required variables for computation with timeseries_fn: \
+        * Required variables for computation with timeseries_fn: \
 'waterbody_id' [-], 'Hylak_id' [-], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' [m3/s], \
 'Dam_height' [m]
 
-            * Required variables for computation without timeseries_fn: \
+        * Required variables for computation without timeseries_fn: \
 'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' \
 [m3/s], 'Capacity_max' [m3], 'Capacity_norm' [m3], 'Capacity_min' [m3], 'Dam_height' [m]
         timeseries_fn : {'gww', 'hydroengine', None}, optional
-            Download and use time series of reservoir surface water area to calculate
-            and overwrite the reservoir volume/areas of the data source. Timeseries are
-            either downloaded from Global Water Watch 'gww' (using gwwapi package) or
-            JRC 'jrc' (using hydroengine package). By default None.
+        Download and use time series of reservoir surface water area to calculate
+        and overwrite the reservoir volume/areas of the data source. Timeseries are
+        either downloaded from Global Water Watch 'gww' (using gwwapi package) or
+        JRC 'jrc' (using hydroengine package). By default None.
         min_area : float, optional
-            Minimum reservoir area threshold [km2], by default 1.0 km2.
+        Minimum reservoir area threshold [km2], by default 1.0 km2.
         kwargs: optional
-            Keyword arguments passed to the method
-            hydromt.DataCatalog.get_rasterdataset()
+        Keyword arguments passed to the method
+        hydromt.DataCatalog.get_rasterdataset()
 
         """
         # rename to wflow naming convention
@@ -2174,21 +2174,21 @@ a map for each of the wflow_sbm soil layers (n in total)
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
-            Name of RasterDataset source for soil parameter maps, see
-            data/data_sources.yml.
-            Should contain info for the 7 soil depths of soilgrids
-            (or 6 depths intervals for soilgrids_2020).
-            * Required variables: \
+        Name of RasterDataset source for soil parameter maps, see
+        data/data_sources.yml.
+        Should contain info for the 7 soil depths of soilgrids
+        (or 6 depths intervals for soilgrids_2020).
+        * Required variables: \
 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%], 'oc_sl*' [%], 'ph_sl*' [-], \
 'sndppt_sl*' [%], 'soilthickness' [cm]
         ptf_ksatver : {'brakensiek', 'cosby'}
-            Pedotransfer function (PTF) to use for calculation KsatVer
-            (vertical saturated hydraulic conductivity [mm/day]).
-            By default 'brakensiek'.
+        Pedotransfer function (PTF) to use for calculation KsatVer
+        (vertical saturated hydraulic conductivity [mm/day]).
+        By default 'brakensiek'.
         wflow_thicknesslayers : list of int, optional
-            Thickness of soil layers [mm] for wflow_sbm soil model.
-            By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
-            Used only for Brooks Corey coefficients.
+        Thickness of soil layers [mm] for wflow_sbm soil model.
+        By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
+        Used only for Brooks Corey coefficients.
         """
         self.logger.info("Preparing soil parameter maps.")
         # TODO add variables list with required variable names
@@ -2221,12 +2221,12 @@ or created by a third party/ individual.
         Parameters
         ----------
         ksat_fn : str, xr.DataArray
-            The identifier of the KsatHorFrac dataset in the data catalog.
+        The identifier of the KsatHorFrac dataset in the data catalog.
         variable : str, optional
-            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
+        The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
 ``ksat_fn`` contains several variables. By default None.
         resampling_method : str, optional
-            The resampling method when up- or downscaled, by default "average"
+        The resampling method when up- or downscaled, by default "average"
         """
         self.logger.info("Preparing KsatHorFrac parameter map.")
 
@@ -2288,14 +2288,14 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         Parameters
         ----------
         soil_fn : {'soilgrids', 'soilgrids_2020'}
-            Name of RasterDataset source for soil parameter maps, see
-            data/data_sources.yml.
-            Should contain info for the sand percentage of the upper layer
-            * Required variable: 'sndppt_sl1' [%]
+        Name of RasterDataset source for soil parameter maps, see
+        data/data_sources.yml.
+        Should contain info for the sand percentage of the upper layer
+        * Required variable: 'sndppt_sl1' [%]
         alfa : float, optional
-            Shape parameter. The default is 4.5 when using LAI.
+        Shape parameter. The default is 4.5 when using LAI.
         beta : float, optional
-            Shape parameter. The default is 5 when using LAI.
+        Shape parameter. The default is 5 when using LAI.
         """
         self.logger.info("Modifying ksatver based on vegetation characteristics")
 
@@ -2599,11 +2599,11 @@ added to glacierstore [-]
         Parameters
         ----------
         glaciers_fn : {'rgi'}
-            Name of data source for glaciers, see data/data_sources.yml.
+        Name of data source for glaciers, see data/data_sources.yml.
 
-            * Required variables: ['simple_id']
+        * Required variables: ['simple_id']
         min_area : float, optional
-            Minimum glacier area threshold [km2], by default 0 (all included)
+        Minimum glacier area threshold [km2], by default 0 (all included)
         """
         glac_toml = {
             "model.glacier": True,
@@ -2710,27 +2710,27 @@ added to glacierstore [-]
         Parameters
         ----------
         raster_fn: str
-            Source name of RasterDataset in data_catalog.
+        Source name of RasterDataset in data_catalog.
         reproject_method: str
-            Reprojection method from rasterio.enums.Resampling.
-            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
+        Reprojection method from rasterio.enums.Resampling.
+        Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
 'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3', \
 'sum', 'rms']
         variables: list, optional
-            List of variables to add to grid from raster_fn. By default all.
+        List of variables to add to grid from raster_fn. By default all.
         wflow_variables: list, optional
-            List of corresponding wflow variables to update the config toml
-            (e.g: ["input.vertical.altitude"]).
-            Should match the variables list. variables list should be provided unless
-            raster_fn contains a single variable (len 1).
+        List of corresponding wflow variables to update the config toml
+        (e.g: ["input.vertical.altitude"]).
+        Should match the variables list. variables list should be provided unless
+        raster_fn contains a single variable (len 1).
         fill_method : str, optional
-            If specified, fills nodata values using fill_nodata method.
-            Available methods are {'linear', 'nearest', 'cubic', 'rio_idw'}.
+        If specified, fills nodata values using fill_nodata method.
+        Available methods are {'linear', 'nearest', 'cubic', 'rio_idw'}.
 
         Returns
         -------
         list
-            Names of added model staticmap layers.
+        Names of added model staticmap layers.
         """
         self.logger.info(f"Preparing grid data from raster source {raster_fn}")
         # Read raster data and select variables
@@ -2893,18 +2893,18 @@ one variable and variables list is not provided."
         Parameters
         ----------
         temp_pet_fn : str, xarray.Dataset
-            Name or path of RasterDataset source with variables to calculate temperature
-            and reference evapotranspiration, see data/forcing_sources.yml.
+        Name or path of RasterDataset source with variables to calculate temperature
+        and reference evapotranspiration, see data/forcing_sources.yml.
 
-            * Required variable for temperature: 'temp' [°C]
+        * Required variable for temperature: 'temp' [°C]
 
-            * Required variables for De Bruin reference evapotranspiration: \
+        * Required variables for De Bruin reference evapotranspiration: \
 'temp' [°C], 'press_msl' [hPa], 'kin' [W/m2], 'kout' [W/m2]
 
-            * Required variables for Makkink reference evapotranspiration: \
+        * Required variables for Makkink reference evapotranspiration: \
 'temp' [°C], 'press_msl' [hPa], 'kin'[W/m2]
 
-            * Required variables for daily Penman-Monteith \
+        * Required variables for daily Penman-Monteith \
 reference evapotranspiration: \
 either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%], 'kin' \
 [W/m2]} for 'penman-monteith_rh_simple' or {'temp' [°C], 'temp_min' [°C], 'temp_max' \
@@ -2912,36 +2912,36 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 "wind10_v" [m/s]} for 'penman-monteith_tdew' (these are the variables available in ERA5)
         pet_method : {'debruin', 'makkink', 'penman-monteith_rh_simple', \
 'penman-monteith_tdew'}, optional
-            Reference evapotranspiration method, by default 'debruin'.
-            If penman-monteith is used, requires the installation of the pyet package.
+        Reference evapotranspiration method, by default 'debruin'.
+        If penman-monteith is used, requires the installation of the pyet package.
         press_correction, temp_correction : bool, optional
-            If True pressure, temperature are corrected using elevation lapse rate,
-            by default False.
+        If True pressure, temperature are corrected using elevation lapse rate,
+        by default False.
         dem_forcing_fn : str, default None
-            Elevation data source with coverage of entire meteorological forcing domain.
-            If temp_correction is True and dem_forcing_fn is provided this is used in
-            combination with elevation at model resolution to correct the temperature.
+        Elevation data source with coverage of entire meteorological forcing domain.
+        If temp_correction is True and dem_forcing_fn is provided this is used in
+        combination with elevation at model resolution to correct the temperature.
 
-            * Required variable: 'elevtn' [m+REF]
+        * Required variable: 'elevtn' [m+REF]
         wind_correction : bool, optional
-            If True wind speed is corrected to wind at 2m altitude using
-            ``wind_altitude``. By default True.
+        If True wind speed is corrected to wind at 2m altitude using
+        ``wind_altitude``. By default True.
         wind_altitude : int, optional
-            Altitude of wind speed [m] variable, by default 10. Only used if
-            ``wind_correction`` is True.
+        Altitude of wind speed [m] variable, by default 10. Only used if
+        ``wind_correction`` is True.
         skip_pet : bool, optional
-            If True calculate temp only.
+        If True calculate temp only.
         reproj_method : str, optional
-            Reprojection method from rasterio.enums.Resampling. to reproject the climate
-            data to the model resolution. By default 'nearest_index'.
+        Reprojection method from rasterio.enums.Resampling. to reproject the climate
+        data to the model resolution. By default 'nearest_index'.
         fillna_method: str, optional
-            Method to fill NaN cells within the active model domain in the
-            temperature data e.g. 'nearest'
-            By default None for no interpolation.
+        Method to fill NaN cells within the active model domain in the
+        temperature data e.g. 'nearest'
+        By default None for no interpolation.
         chunksize: int, optional
-            Chunksize on time dimension for processing data (not for saving to disk!).
-            If None the data chunksize is used, this can however be optimized for
-            large/small catchments. By default None.
+        Chunksize on time dimension for processing data (not for saving to disk!).
+        If None the data chunksize is used, this can however be optimized for
+        large/small catchments. By default None.
         """
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
@@ -3220,62 +3220,62 @@ different return periods RP. Only if rootzone_storage is set to True!
         Parameters
         ----------
         run_fn : str, Path, xr.Dataset
-            Geodataset with streamflow timeseries (m3/s) per x,y location.
-            The geodataset expects the coordinate names "index" (for each station id)
-            and the variable name "discharge".
+        Geodataset with streamflow timeseries (m3/s) per x,y location.
+        The geodataset expects the coordinate names "index" (for each station id)
+        and the variable name "discharge".
         forcing_obs_fn : str, Path, xr.Dataset
-            Gridded timeseries with the observed forcing [mm/timestep].
-            Expects to have variables "precip" and "pet".
+        Gridded timeseries with the observed forcing [mm/timestep].
+        Expects to have variables "precip" and "pet".
         forcing_cc_hist_fn : str, Path, xr.Dataset, optional
-            Gridded timeseries with the simulated historical forcing [mm/timestep],
-            based on a climate model. Expects to have variables "precip" and "pet".
-            The default is None.
+        Gridded timeseries with the simulated historical forcing [mm/timestep],
+        based on a climate model. Expects to have variables "precip" and "pet".
+        The default is None.
         forcing_cc_fut_fn : str, optional
-            Gridded timeseries with the simulated climate forcing [mm/timestep],
-            based on a climate model. Expects to have variables "precip" and "pet".
-            The default is None.
+        Gridded timeseries with the simulated climate forcing [mm/timestep],
+        based on a climate model. Expects to have variables "precip" and "pet".
+        The default is None.
         chunksize : int, optional
-            Chunksize on time dimension for processing data (not for saving to
-            disk!). The default is 100.
+        Chunksize on time dimension for processing data (not for saving to
+        disk!). The default is 100.
         return_period : list, optional
-            List with one or more values indicating the return period(s) (in
-            years) for which the rootzone storage depth should be calculated. The
-            default is [2,3,5,10,15,20,25,50,60,100] years.
+        List with one or more values indicating the return period(s) (in
+        years) for which the rootzone storage depth should be calculated. The
+        default is [2,3,5,10,15,20,25,50,60,100] years.
         Imax : float, optional
-            The maximum interception storage capacity [mm]. The default is 2.0 mm.
+        The maximum interception storage capacity [mm]. The default is 2.0 mm.
         start_hydro_year : str, optional
-            The start month (abbreviated to the first three letters of the month,
-            starting with a capital letter) of the hydrological year. The
-            default is 'Sep'.
+        The start month (abbreviated to the first three letters of the month,
+        starting with a capital letter) of the hydrological year. The
+        default is 'Sep'.
         start_field_capacity : str, optional
-            The end of the wet season / commencement of dry season. This is the
-            moment when the soil is at field capacity, i.e. there is no storage
-            deficit yet. The default is 'Apr'.
+        The end of the wet season / commencement of dry season. This is the
+        moment when the soil is at field capacity, i.e. there is no storage
+        deficit yet. The default is 'Apr'.
         LAI : bool, optional
-            Determine whether the LAI will be used to determine Imax. The
-            default is False.
-            If set to True, requires to have run setup_laimaps.
+        Determine whether the LAI will be used to determine Imax. The
+        default is False.
+        If set to True, requires to have run setup_laimaps.
         rootzone_storage : bool, optional
-            Determines whether the rootzone storage maps
-            should be stored in the grid or not. The default is False.
+        Determines whether the rootzone storage maps
+        should be stored in the grid or not. The default is False.
         correct_cc_deficit : bool, optional
-            Determines whether a bias-correction of the future deficit should be
-            applied using the cc_hist deficit. Only works if the time periods of
-            cc_hist and cc_fut are the same. If the climate change scenario and
-            hist period are bias-corrected, this should probably set to False.
-            The default is False.
+        Determines whether a bias-correction of the future deficit should be
+        applied using the cc_hist deficit. Only works if the time periods of
+        cc_hist and cc_fut are the same. If the climate change scenario and
+        hist period are bias-corrected, this should probably set to False.
+        The default is False.
         time_tuple: tuple, optional
-            Select which time period to read from all the forcing files.
-            There should be some overlap between the time period available in the
-            forcing files for the historical period and in the observed streamflow data.
+        Select which time period to read from all the forcing files.
+        There should be some overlap between the time period available in the
+        forcing files for the historical period and in the observed streamflow data.
         missing_days_threshold: int, optional
-            Minimum number of days within a year for that year to be counted in
-            the long-term Budyko analysis.
+        Minimum number of days within a year for that year to be counted in
+        the long-term Budyko analysis.
         update_toml_rootingdepth: str, optional
-            Update the wflow_sbm model config of the RootingDepth variable with
-            the estimated RootingDepth.
-            The default is RootingDepth_obs_20,
-            which requires to have RP 20 in the list provided for \
+        Update the wflow_sbm model config of the RootingDepth variable with
+        the estimated RootingDepth.
+        The default is RootingDepth_obs_20,
+        which requires to have RP 20 in the list provided for \
 the return_period argument.
         """
         self.logger.info("Preparing climate based root zone storage parameter maps.")
@@ -4538,29 +4538,29 @@ Run setup_soilmaps first"
         If no ``fn_out`` path is provided and path_forcing from the  wflow toml exists,
         the following default filenames are used:
 
-            * Default name format (with downscaling): \
+        * Default name format (with downscaling): \
 inmaps_sourcePd_sourceTd_methodPET_freq_startyear_endyear.nc
-            * Default name format (no downscaling): \
+        * Default name format (no downscaling): \
 inmaps_sourceP_sourceT_methodPET_freq_startyear_endyear.nc
 
         Parameters
         ----------
         fn_out: str, Path, optional
-            Path to save output netcdf file; if None the name is read from the wflow
-            toml file.
+        Path to save output netcdf file; if None the name is read from the wflow
+        toml file.
         freq_out: str (Offset), optional
-            Write several files for the forcing according to fn_freq. For example 'Y'
-            for one file per year or 'M' for one file per month.
-            By default writes the one file.
-            For more options, \
+        Write several files for the forcing according to fn_freq. For example 'Y'
+        for one file per year or 'M' for one file per month.
+        By default writes the one file.
+        For more options, \
 see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
         chunksize: int, optional
-            Chunksize on time dimension when saving to disk. By default 1.
+        Chunksize on time dimension when saving to disk. By default 1.
         decimals: int, optional
-            Round the output data to the given number of decimals.
+        Round the output data to the given number of decimals.
         time_units: str, optional
-            Common time units when writing several netcdf forcing files.
-            By default "days since 1900-01-01T00:00:00".
+        Common time units when writing several netcdf forcing files.
+        By default "days since 1900-01-01T00:00:00".
 
         """
         if not self._write:
