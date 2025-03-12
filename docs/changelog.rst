@@ -15,7 +15,10 @@ Added
 
 Changed
 -------
--
+- **setup_soilmaps** [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.
+- **setup_soilmaps** [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).
+- **setup_constant_pars** [sediment]: added additional default values for sediment density and particle diameters.
+- **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.
 
 Fixed
 -----
