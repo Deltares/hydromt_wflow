@@ -44,7 +44,7 @@ def test_setup_lulc_vector(
 def test_setup_soilmaps_sed(
     example_sediment_model,
 ):
-    values = example_sediment_model.grid["USLE_K"].raster.mask_nodata()
+    values = example_sediment_model.grid["usle_k"].raster.mask_nodata()
     mean_val = values.mean().values
     assert int(mean_val * 1000000) == 22215
 
