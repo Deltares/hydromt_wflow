@@ -325,6 +325,23 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
     assert int(mean_val) == 1672
 
 
+def test_soil_mapping(example_wflow_model):
+    # Read soil mapping table
+    soil_mapping = example_wflow_model.data_catalog.get_dataframe(
+        "soil_mapping_default"
+    )
+
+    ds_soil_params = workflows.landuse(
+        example_wflow_model.grid["wflow_soil"],
+        ds_like=example_wflow_model.grid,
+        df=soil_mapping,
+        logger=example_wflow_model.logger,
+    )
+
+    assert "InfiltCapSoil" in ds_soil_params
+    assert int(ds_soil_params["InfiltCapSoil"].mean().values) == 269
+
+
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read LAI data
@@ -662,6 +679,63 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         .raster.mask_nodata()
         .equals(floodplain1d_testdata[mapname])
     )
+
+
+def test_setup_rivers_depth(tmpdir):
+    # Instantiate new wflow model
+    # Region
+    region = {
+        "subbasin": [12.3661, 46.3998],
+        "strord": 4,
+        "bounds": [11.70, 45.35, 12.95, 46.70],
+    }
+    mod = WflowModel(
+        root=str(tmpdir.join("wflow_river")),
+        mode="w",
+        data_libs=["artifact_data"],
+    )
+
+    mod.setup_basemaps(
+        region=region,
+        hydrography_fn="merit_hydro",
+        basin_index_fn="merit_hydro_index",
+        res=0.016666,
+    )
+
+    # Try using manning method
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method="manning",
+        min_rivdph=1,
+        min_rivwth=30,
+        slope_len=2000,
+        smooth_len=5000,
+        river_routing="local-inertial",
+        elevtn_map="wflow_dem",
+    )
+
+    assert "RiverDepth" in mod.grid
+
+    # Try using gvf method
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method="gvf",
+        min_rivdph=1,
+        min_rivwth=30,
+        slope_len=2000,
+        smooth_len=5000,
+        river_routing="local-inertial",
+        elevtn_map="dem_subgrid",
+    )
+
+    # RiverDepth iteslf doesn't matter here, this assertion
+    # is just to check the method ran without errors
+    # as this will error if something went wrong in the process
+    assert "RiverDepth" in mod.grid
 
 
 def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
@@ -1055,8 +1129,70 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     ind_mean = example_wflow_model.grid["industry_gross"].mean().values
     assert int(ind_mean * 10000) == 849
 
+    # test with other method
+    example_wflow_model.setup_domestic_demand_from_population(
+        population_fn="worldpop_2020_constrained",
+        domestic_gross_per_capita=0.35,
+        domestic_net_per_capita=0.25,
+    )
 
-def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
+    # Assert entries
+    assert "domestic_gross" in example_wflow_model.grid
+    assert "population" in example_wflow_model.grid
+
+    # Assert some values
+    dom_gross_vals = (
+        example_wflow_model.grid["domestic_gross"]
+        .isel(latitude=32, longitude=26)
+        .values
+    )
+    assert int(dom_gross_vals * 100) == 115
+
+    # Check other combination
+    with pytest.raises(ValueError, match="The provided domestic demand data is "):
+        example_wflow_model.setup_domestic_demand_from_population(
+            population_fn="worldpop_2020_constrained",
+            domestic_gross_per_capita=[0.35, 0.35, 0.34, 0.36],
+            domestic_net_per_capita=[0.25, 0.25, 0.24, 0.26],
+        )
+
+    # Check cyclic
+    example_wflow_model.setup_domestic_demand_from_population(
+        population_fn="worldpop_2020_constrained",
+        domestic_gross_per_capita=[
+            0.35,
+            0.35,
+            0.34,
+            0.34,
+            0.36,
+            0.36,
+            0.35,
+            0.35,
+            0.34,
+            0.34,
+            0.36,
+            0.36,
+        ],
+        domestic_net_per_capita=[
+            0.25,
+            0.25,
+            0.24,
+            0.24,
+            0.26,
+            0.26,
+            0.25,
+            0.25,
+            0.24,
+            0.24,
+            0.26,
+            0.26,
+        ],
+    )
+    assert "time" in example_wflow_model.grid["domestic_gross"].dims
+    assert "time" in example_wflow_model.grid["domestic_net"].dims
+
+
+def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(Path(tmpdir), mode="w")
@@ -1093,6 +1229,27 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir):
         .sum()
         .values
     )
+
+    # Test with geodataframe
+    # Use globcover gdf class 11
+    irrigation_gdf = globcover_gdf[globcover_gdf["landuse"].isin([14])]
+    example_wflow_model.setup_irrigation_from_vector(
+        irrigated_area_fn=irrigation_gdf,
+        cropland_class=[11, 14, 20, 30],
+        paddy_class=[],
+        area_threshold=0.6,
+        lai_threshold=0.2,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid
+
+    # Assert entries
+    assert "paddy_irrigation_areas" not in ds
+    assert "nonpaddy_irrigation_areas" in ds
+    assert "nonpaddy_irrigation_trigger" in ds
+
+    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 8
 
 
 def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
