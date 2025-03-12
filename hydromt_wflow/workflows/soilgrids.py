@@ -471,7 +471,7 @@ Global gridded soil information based on machine learning,
 producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.
     https://doi.org/10.5194/soil-2020-65.
 
-    A ``soil_mapping`` table can optionnally be provided to derive parameters based
+    A ``soil_mapping`` table can optionally be provided to derive parameters based
     on soil texture classes. A default table *soil_mapping_default* is available
     to derive the infiltration capacity of the soil.
 

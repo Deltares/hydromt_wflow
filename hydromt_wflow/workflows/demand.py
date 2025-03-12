@@ -707,14 +707,14 @@ def irrigation_from_vector(
 
     Parameters
     ----------
-    da_irrigation: gpd.GeoDataFrame
-        Irrigation map
+    gdf_irrigation: gpd.GeoDataFrame
+        Shapefile with irrigation areas.
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
         * Required variables: ['wflow_landuse', 'LAI']
     irrigation_value: List[int]
-        Values that indicate irrigation in da_irrigation.
+        Values that indicate irrigation in gdf_irrigation.
     cropland_class: List[int]
         Values that indicate cropland in landuse map.
     paddy_class: List[int]
