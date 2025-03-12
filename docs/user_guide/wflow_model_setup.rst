@@ -85,11 +85,15 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_allocation_surfacewaterfrac`
       -  Create fraction of surface water used for allocation of the water demands.
     * - :py:func:`~WflowModel.setup_domestic_demand`
-      -  Create domestic water demand.
+      -  Create domestic water demand from grid.
+    * - :py:func:`~WflowModel.setup_domestic_demand_from_population`
+      -  Create domestic water demand using demand per capita and gridded population.
     * - :py:func:`~WflowModel.setup_other_demand`
       -  Create other water demand (eg industry, livestock).
     * - :py:func:`~WflowModel.setup_irrigation`
-      -  Create irrigation areas and trigger for paddy and nonpaddy crops.
+      -  Create irrigation areas and trigger for paddy and nonpaddy crops from a raster file.
+    * - :py:func:`~WflowModel.setup_irrigation_from_vector`
+      -  Create irrigation areas and trigger for paddy and nonpaddy crops from a vector file.
     * - :py:func:`~WflowModel.setup_1dmodel_connection`
       -  Setup subbasins and gauges to save results from wflow to be used in 1D river models.
     * - :py:func:`~WflowModel.setup_grid_from_raster`
