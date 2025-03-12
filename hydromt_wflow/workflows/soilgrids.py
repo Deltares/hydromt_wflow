@@ -1,7 +1,7 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List
+from typing import List, Optional, Union
 
 import hydromt
 import numpy as np
@@ -9,11 +9,17 @@ import pandas as pd
 import xarray as xr
 from scipy.optimize import curve_fit
 
-from . import ptf
+from . import ptf, soilparams
+from .landuse import landuse
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["soilgrids", "soilgrids_sediment", "soilgrids_brooks_corey"]
+__all__ = [
+    "soilgrids",
+    "soilgrids_sediment",
+    "soilgrids_brooks_corey",
+    "update_soil_with_paddy",
+]
 
 # soilgrids_2017
 soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
@@ -174,7 +180,7 @@ Global gridded soil information based on machine learning,
     return da_av
 
 
-def pore_size_distrution_index_layers(ds, thetas):
+def pore_size_distribution_index_layers(ds, thetas):
     """
     Determine pore size distribution index per soil layer depth based on PTF.
 
@@ -245,7 +251,7 @@ def brooks_corey_layers(
         Dataset containing c for the wflow_sbm soil layers.
     """
     # Get pore size distribution index
-    lambda_sl_hr = pore_size_distrution_index_layers(ds, thetas_sl)
+    lambda_sl_hr = pore_size_distribution_index_layers(ds, thetas_sl)
     lambda_sl = np.log(lambda_sl_hr)
     lambda_sl = lambda_sl.raster.reproject_like(ds_like, method="average")
     lambda_sl = np.exp(lambda_sl)
@@ -300,7 +306,7 @@ soilgrids data does not go deeper than 2 m."
             # layer fully within wflow layer
             elif soildepth[d] >= top_depth and soildepth[d + 1] <= bottom_depth:
                 c_nl = c_av * (soildepth[d + 1] - soildepth[d])
-            # bottom part of the layer wihtin wflow
+            # bottom part of the layer within wflow
             elif soildepth[d] <= bottom_depth and soildepth[d + 1] >= bottom_depth:
                 c_nl = c_av * (bottom_depth - soildepth[d])
             # top part of the layer within wflow
@@ -389,7 +395,7 @@ def do_linalg(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
+    idx = (~np.isinf(np.log(y))) & (~np.isnan(y))
     return np.linalg.lstsq(x[idx, np.newaxis], np.log(y[idx]), rcond=None)[0][0]
 
 
@@ -397,7 +403,7 @@ def do_curve_fit(x, y):
     """
     Apply scipy.optimize.curve_fit and return fitted parameter.
 
-    If least-squares minimization fails with an inital guess p0 of 1e-3,
+    If least-squares minimization fails with an initial guess p0 of 1e-3,
     and 1e-4, np.linalg.lstsq is used for curve fitting.
 
     Parameters
@@ -413,7 +419,7 @@ def do_curve_fit(x, y):
         Optimal value for the parameter fit.
 
     """
-    idx = ((~np.isinf(np.log(y)))) & ((~np.isnan(y)))
+    idx = (~np.isinf(np.log(y))) & (~np.isnan(y))
     if len(y[idx]) == 0:
         popt_0 = np.nan
     else:
@@ -445,6 +451,7 @@ def soilgrids(
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
+    soil_mapping: Optional[pd.DataFrame] = None,
     wflow_layers: List[int] = [100, 300, 800],
     logger=logger,
 ):
@@ -463,6 +470,10 @@ Global gridded soil information based on machine learning,
     E. and Rossiter, D., 2020. SoilGrids 2.0: \
 producing quality-assessed soil information for the globe. SOIL Discussions, pp.1-37.
     https://doi.org/10.5194/soil-2020-65.
+
+    A ``soil_mapping`` table can optionally be provided to derive parameters based
+    on soil texture classes. A default table *soil_mapping_default* is available
+    to derive the infiltration capacity of the soil.
 
     The following soil parameter maps are calculated:
 
@@ -490,6 +501,8 @@ index for the wflow_sbm soil layers.
     - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
+    - **InfiltCapPath** : Infiltration capacity of the soil based on soil texture \
+classes (optional).
 
 
     Parameters
@@ -499,9 +512,13 @@ index for the wflow_sbm soil layers.
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculcation KsatVer.
+        PTF to use for calculation KsatVer.
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
+    soil_mapping : pd.DataFrame, optional
+        DataFrame containing soil mapping data based on soil texture. The index column
+        of the table should contain the soil 'texture' classes and the other columns
+        should be the name of the corresponding wflow parameter(s). By default None.
     wflow_layers : list
         List of soil layer depths [cm] for which c is calculated.
 
@@ -552,10 +569,10 @@ index for the wflow_sbm soil layers.
 
     logger.info("calculate and resample thetaR")
     thetar_sl = xr.apply_ufunc(
-        ptf.thetar_toth,
-        ds["oc"],
+        ptf.thetar_rawls_brakensiek,
+        ds["sndppt"],
         ds["clyppt"],
-        ds["sltppt"],
+        thetas_sl,
         dask="parallelized",
         output_dtypes=[float],
         keep_attrs=True,
@@ -664,10 +681,22 @@ index for the wflow_sbm soil layers.
         keep_attrs=True,
     )
 
-    soil_texture = soil_texture.raster.reproject_like(ds_like, method="mode")
+    soil_texture_out = soil_texture.raster.reproject_like(ds_like, method="mode")
     # np.nan is not a valid value for array with type integer
-    ds_out["wflow_soil"] = soil_texture
+    ds_out["wflow_soil"] = soil_texture_out
     ds_out["wflow_soil"].raster.set_nodata(0)
+
+    # optional soil mapping
+    if soil_mapping is not None:
+        logger.info("Mapping soil parameters based on soil texture")
+        ds_soil_params = landuse(
+            soil_texture,
+            ds_like=ds_like,
+            df=soil_mapping,
+            logger=logger,
+        )
+        # Add to ds_out
+        ds_out = xr.merge([ds_out, ds_soil_params])
 
     # for writing pcraster map files a scalar nodata value is required
     dtypes = {"wflow_soil": np.int32}
@@ -903,5 +932,96 @@ def soilgrids_sediment(
         logger.info(f"Interpolate NAN values for {var}")
         ds_out[var] = ds_out[var].fillna(nodata)
         ds_out[var].raster.set_nodata(nodata)
+
+    return ds_out
+
+
+def update_soil_with_paddy(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    paddy_mask: xr.DataArray,
+    soil_fn: str = "soilgrids",
+    update_c: bool = True,
+    wflow_layers: List[int] = [50, 100, 50, 200, 800],
+    target_conductivity: List[Union[None, int, float]] = [None, None, 5, None, None],
+    logger=logger,
+):
+    """
+    Update c and kvfrac soil properties for paddy fields.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        Dataset containing soil properties.
+    ds_like : xarray.DataArray
+        Dataset at model resolution.
+        Required variables: wflow_subcatch, KsatVer, f
+    paddy_mask : xarray.DataArray
+        Dataset containing paddy fields mask.
+    soil_fn : str
+        soilgrids version {'soilgrids', 'soilgrids_2020'}
+    update_c : bool
+        Update c based on change in wflow_layers.
+    wflow_layers : list
+        List of soil layer depths [cm] for which c is calculated.
+    target_conductivity : list
+        Target conductivity for each wflow layer.
+
+    Returns
+    -------
+    soil_out : xarray.Dataset
+        Dataset containing updated soil properties.
+    """
+    if len(wflow_layers) != len(target_conductivity):
+        raise ValueError(
+            "Lengths of wflow_thicknesslayers and target_conductivity does not match"
+        )
+
+    # Set kvfrac maps, determine the fraction required to reach target_conductivity
+    # Using to wflow exponential decline to determine the conductivity at the
+    # required depth Find value at the bottom of the required layer and infer
+    # required correction factor for that layer Values are only set for locations
+    # with paddy irrigation, all other cells are set to be equal to 1
+    logger.info("Adding kvfrac map")
+    kv0 = ds_like["KsatVer"]
+    f = ds_like["f"]
+    kv0_mask = kv0.where(paddy_mask == 1)
+    f_mask = f.where(paddy_mask == 1)
+
+    # update c
+    if update_c:
+        ds_out = soilgrids_brooks_corey(
+            ds=ds,
+            ds_like=ds_like,
+            soil_fn=soil_fn,
+            wflow_layers=wflow_layers,
+        )
+        for var in ds_out:
+            dtype = np.float32
+            logger.debug(f"Interpolate nodata (NaN) values for {var}")
+            ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+            ds_out[var] = ds_out[var].where(
+                ~ds_like["wflow_subcatch"].raster.mask_nodata().isnull()
+            )
+            ds_out[var] = ds_out[var].fillna(-9999).astype(dtype)
+            ds_out[var].raster.set_nodata(np.dtype(dtype).type(-9999))
+
+        # temporarily add the dem to the dataset
+        ds_out["wflow_dem"] = ds_like["wflow_dem"]
+
+    # Compute the kv_frac (should be done after updating c!)
+    da_kvfrac = soilparams.update_kvfrac(
+        ds_model=ds_like if not update_c else ds_out,
+        kv0_mask=kv0_mask,
+        f_mask=f_mask,
+        wflow_thicknesslayers=wflow_layers,
+        target_conductivity=target_conductivity,
+    )
+    if update_c:
+        ds_out["kvfrac"] = da_kvfrac
+        # Remove wflow_dem
+        ds_out = ds_out.drop_vars("wflow_dem")
+    else:
+        ds_out = da_kvfrac.to_dataset(name="kvfrac")
 
     return ds_out

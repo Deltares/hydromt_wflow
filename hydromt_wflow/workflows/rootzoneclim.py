@@ -104,7 +104,7 @@ def determine_omega(ds_sub_annual):
         is the same for all forcing types and based on the observations.
 
     """
-    # Constract the output variable in the dataset
+    # Construct the output variable in the dataset
     ds_sub_annual = ds_sub_annual.assign(
         omega=lambda ds_sub_annual: ds_sub_annual["discharge_coeff"] * np.nan
     )
@@ -430,8 +430,8 @@ def gumbel_su_calc_xr(
         indicates on how many days a minimum in year_min_storage_deficit is
         based.
     return_period : list
-        List with one or more values indiciating the return period(s) (in
-        years) for wich the rootzone storage depth should be calculated.
+        List with one or more values indicating the return period(s) (in
+        years) for which the rootzone storage depth should be calculated.
     threshold : int
         Required minimum number of days in a year containing data to take the
         year into account for the calculation..
@@ -525,7 +525,7 @@ def Zhang_future(omega, aridity_index):
 
     Once omega has been derived for historical situations, it can be used to
     derive the new discharge coefficient when the future aridity index (Ep/P)
-    is known. This will allow the discharge coeffcient to shift over the same
+    is known. This will allow the discharge coefficient to shift over the same
     line as the historical situation.
 
     Parameters
@@ -656,14 +656,14 @@ def rootzoneclim(
         based on a climate model.
         The default is None.
     return_period : list
-        List with one or more values indiciating the return period(s) (in
-        years) for wich the rootzone storage depth should be calculated.
+        List with one or more values indicating the return period(s) (in
+        years) for which the rootzone storage depth should be calculated.
         The default is [2,3,5,10,15,20,25,50,60,100]
     Imax : float
         The maximum interception storage capacity [mm].
         The default is 2 mm.
     start_hydro_year : str
-        The start month (abreviated to the first three letters of the month,
+        The start month (abbreviated to the first three letters of the month,
         starting with a capital letter) of the hydrological year.
         The default is "Sep".
     start_field_capacity : str
@@ -851,9 +851,9 @@ def rootzoneclim(
     )
     # set runoff coefficient of cc_hist equal to runoff coeff of obs
     if correct_cc_deficit == True:
-        ds_sub_annual["discharge_coeff"].loc[
-            dict(forcing_type="cc_hist")
-        ] = ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
+        ds_sub_annual["discharge_coeff"].loc[dict(forcing_type="cc_hist")] = (
+            ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
+        )
 
     # Determine omega
     logger.info("Calculating the omega values, this can take a while")
@@ -938,18 +938,16 @@ def rootzoneclim(
     # period
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:
-            gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ] = gumbel["rootzone_storage"].sel(
-                RP=return_period, forcing_type=forcing_type
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                gumbel["rootzone_storage"].sel(
+                    RP=return_period, forcing_type=forcing_type
+                )
             )
             # Make sure to give the NaNs a value, otherwise they will become 0.0
-            gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ] = gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ].fillna(
-                -999
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                gdf_basins_all[
+                    f"rootzone_storage_{forcing_type}_{str(return_period)}"
+                ].fillna(-999)
             )
 
     # Rasterize this (from large subcatchments to small ones)

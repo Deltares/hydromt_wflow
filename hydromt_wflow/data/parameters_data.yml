@@ -12,7 +12,13 @@ corine_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      kc: float32
       alpha_h1: int16
+      h1: int16
+      h2: int16
+      h3_high: int16
+      h3_low: int16
+      h4: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -35,7 +41,13 @@ esa_worldcover_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      kc: float32
       alpha_h1: int16
+      h1: int16
+      h2: int16
+      h3_high: int16
+      h3_low: int16
+      h4: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -58,7 +70,13 @@ globcover_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      kc: float32
       alpha_h1: int16
+      h1: int16
+      h2: int16
+      h3_high: int16
+      h3_low: int16
+      h4: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -81,7 +99,13 @@ vito_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      kc: float32
       alpha_h1: int16
+      h1: int16
+      h2: int16
+      h3_high: int16
+      h3_low: int16
+      h4: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -104,7 +128,13 @@ glcnmo_mapping_default:
       Sl: float32
       Swood: float32
       WaterFrac: float32
+      kc: float32
       alpha_h1: int16
+      h1: int16
+      h2: int16
+      h3_high: int16
+      h3_low: int16
+      h4: int16
       USLE_C: float32
       Cov_River: float32
   meta:
@@ -112,6 +142,35 @@ glcnmo_mapping_default:
     source_info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
     source_version: 1.0
   path: lulc/glcnmo_mapping.csv
+
+paddy_mapping_default:
+  data_type: DataFrame
+  driver: csv
+  driver_kwargs:
+    index_col: 0
+    dtype:
+      landuse: int16
+      Kext: float32
+      N: float32
+      PathFrac: float32
+      RootingDepth: float32
+      Sl: float32
+      Swood: float32
+      WaterFrac: float32
+      kc: float32
+      alpha_h1: int16
+      h1: int16
+      h2: int16
+      h3_high: int16
+      h3_low: int16
+      h4: int16
+      USLE_C: float32
+      Cov_River: float32
+  meta:
+    category: landuse
+    source_info: landuse parameters for rice based on glcnmo classification
+    source_version: 1.0
+  path: lulc/paddy_mapping.csv
 
 koppen_geiger_mapping_default:
   data_type: DataFrame
@@ -164,3 +223,16 @@ riverbedsed_mapping_default:
     source_info: Mapping between stream order and river bed sediment
     source_version: 1.0
   path: wflow_sediment/riverbedsed_mapping.csv
+
+soil_mapping_default:
+  data_type: DataFrame
+  driver: csv
+  driver_kwargs:
+    index_col: 0
+    dtype:
+      infiltcapsoil: float32
+  meta:
+    category: soil
+    source_info: Mapping between USDA-NRCS soil texture and infiltration capacity
+    source_version: 1.0
+  path: wflow/soil_mapping.csv

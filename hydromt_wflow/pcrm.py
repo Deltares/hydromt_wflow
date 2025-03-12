@@ -1,10 +1,12 @@
 """Some pcraster functions to support older models."""
+
 import glob
 import logging
 import os
 import tempfile
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -187,7 +189,7 @@ def write_map(
 
 
 def read_staticmaps_pcr(
-    root: Path | str, crs: int = 4326, obj: object = None, **kwargs
+    root: Union[Path, str], crs: int = 4326, obj: object = None, **kwargs
 ):
     """
     Read pcraster staticmaps at <root/staticmaps> and parse to xarray.
@@ -196,7 +198,7 @@ def read_staticmaps_pcr(
 
     Parameters
     ----------
-    root : Path | str
+    root : Path, str
         Path to the root directory of the model. Assumes this folder contains a
         staticmaps folder with the pcraster maps.
     crs : int, optional
@@ -256,7 +258,7 @@ def read_staticmaps_pcr(
 
 def write_staticmaps_pcr(
     staticmaps: xr.Dataset,
-    root: Path | str,
+    root: Union[Path, str],
 ):
     """
     Write staticmaps at <root/staticmaps> in PCRaster maps format.
@@ -265,7 +267,7 @@ def write_staticmaps_pcr(
     ----------
     staticmaps : xr.Dataset
         Dataset with the staticmaps.
-    root : Path | str
+    root : Path, str
         Path to the root directory of the model. A staticmaps folder will be created
         in this folder with the pcraster maps.
     """
@@ -339,7 +341,7 @@ def write_staticmaps_pcr(
                     if dim0:
                         bname = basename(raster_path).split(".")[0]
                         bname = f"{bname[:8]:8s}".replace(" ", "0")
-                        raster_path = join(dirname(raster_path), f"{bname}.{i+1:03d}")
+                        raster_path = join(dirname(raster_path), f"{bname}.{i + 1:03d}")
                         data = da_out.isel({dim0: i}).load().squeeze().data
                     else:
                         data = da_out.load().data

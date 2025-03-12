@@ -42,7 +42,7 @@ def wflow_1dmodel_connection(
         tributaries.
 
     If `add_tributary` option is on, you can decide to include or exclude the upstream
-    boundary of the 1d river as an additionnal tributary using the
+    boundary of the 1d river as an additional tributary using the
     `include_river_boundaries` option.
 
     River edges or river nodes are snapped to the closest downstream wflow river

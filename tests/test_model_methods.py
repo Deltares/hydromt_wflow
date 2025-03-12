@@ -3,6 +3,7 @@
 import logging
 from itertools import product
 from os.path import abspath, dirname, isfile, join
+from pathlib import Path
 
 import numpy as np
 
@@ -82,7 +83,7 @@ def test_setup_grid(example_wflow_model):
     assert example_wflow_model.get_config("input.vertical.altitude") == "elevtn"
 
     example_wflow_model.setup_grid_from_raster(
-        raster_fn="globcover",
+        raster_fn="globcover_2009",
         reproject_method="mode",
         wflow_variables=["input.vertical.landuse"],
     )
@@ -153,7 +154,7 @@ def test_projected_crs(tmpdir):
     )
 
     # Add more data eg landuse
-    mod.setup_lulcmaps("globcover")
+    mod.setup_lulcmaps("globcover_2009", lulc_mapping_fn="globcover_mapping_default")
 
     assert mod.grid.raster.crs == 3857
     assert np.quantile(mod.grid["wflow_landuse"], 0.95) == 190.0  # urban
@@ -276,8 +277,10 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
                 )
             )
             == number_of_reservoirs
-        ), f"Number of non-null values in {i} not equal to \
+        ), (
+            f"Number of non-null values in {i} not equal to \
 number of reservoirs in model area"
+        )
 
 
 def test_setup_ksathorfrac(tmpdir, example_wflow_model):
@@ -308,6 +311,37 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     assert int(mean_val * 100) == 19991
 
 
+def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
+    # Build the KsatVer vegetation map
+    example_wflow_model.setup_ksatver_vegetation(
+        soil_fn="soilgrids",
+    )
+
+    # Check values
+    values = example_wflow_model.grid.KsatVer_vegetation.raster.mask_nodata()
+    max_val = values.max().values
+    mean_val = values.mean().values
+    assert int(max_val) == 4247
+    assert int(mean_val) == 1672
+
+
+def test_soil_mapping(example_wflow_model):
+    # Read soil mapping table
+    soil_mapping = example_wflow_model.data_catalog.get_dataframe(
+        "soil_mapping_default"
+    )
+
+    ds_soil_params = workflows.landuse(
+        example_wflow_model.grid["wflow_soil"],
+        ds_like=example_wflow_model.grid,
+        df=soil_mapping,
+        logger=example_wflow_model.logger,
+    )
+
+    assert "InfiltCapSoil" in ds_soil_params
+    assert int(ds_soil_params["InfiltCapSoil"].mean().values) == 269
+
+
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read LAI data
@@ -316,7 +350,7 @@ def test_setup_lai(tmpdir, example_wflow_model):
     )
     # Read landuse data
     da_landuse = example_wflow_model.data_catalog.get_rasterdataset(
-        "vito", geom=example_wflow_model.region, buffer=2
+        "vito_2015", geom=example_wflow_model.region, buffer=2
     )
 
     # Derive mapping for using the method any
@@ -353,7 +387,7 @@ def test_setup_lai(tmpdir, example_wflow_model):
 
     # Try to use the mapping tables to setup the LAI
     example_wflow_model.setup_laimaps_from_lulc_mapping(
-        lulc_fn="vito",
+        lulc_fn="vito_2015",
         lai_mapping_fn=df_lai_any,
     )
 
@@ -552,7 +586,7 @@ def test_setup_gauges(example_wflow_model):
 
     # Check that not all geometries of gdf_snap and gdf_no_snap are equal
     assert not gdf_snap.equals(gdf_no_snap)
-    # Find wich row is identical
+    # Find which row is identical
     equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
     assert len(equal) == 1
     assert equal.index.values[0] == 1003
@@ -619,7 +653,7 @@ def test_setup_gauges(example_wflow_model):
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
-        river_geom_fn="rivers_lin2019_v1",
+        river_geom_fn="hydro_rivers_lin",
         river_upa=30,
         rivdph_method="powlaw",
         min_rivdph=1,
@@ -647,12 +681,69 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
 
+def test_setup_rivers_depth(tmpdir):
+    # Instantiate new wflow model
+    # Region
+    region = {
+        "subbasin": [12.3661, 46.3998],
+        "strord": 4,
+        "bounds": [11.70, 45.35, 12.95, 46.70],
+    }
+    mod = WflowModel(
+        root=str(tmpdir.join("wflow_river")),
+        mode="w",
+        data_libs=["artifact_data"],
+    )
+
+    mod.setup_basemaps(
+        region=region,
+        hydrography_fn="merit_hydro",
+        basin_index_fn="merit_hydro_index",
+        res=0.016666,
+    )
+
+    # Try using manning method
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method="manning",
+        min_rivdph=1,
+        min_rivwth=30,
+        slope_len=2000,
+        smooth_len=5000,
+        river_routing="local-inertial",
+        elevtn_map="wflow_dem",
+    )
+
+    assert "RiverDepth" in mod.grid
+
+    # Try using gvf method
+    mod.setup_rivers(
+        hydrography_fn="merit_hydro",
+        river_geom_fn="hydro_rivers_lin",
+        river_upa=30,
+        rivdph_method="gvf",
+        min_rivdph=1,
+        min_rivwth=30,
+        slope_len=2000,
+        smooth_len=5000,
+        river_routing="local-inertial",
+        elevtn_map="dem_subgrid",
+    )
+
+    # RiverDepth iteslf doesn't matter here, this assertion
+    # is just to check the method ran without errors
+    # as this will error if something went wrong in the process
+    assert "RiverDepth" in mod.grid
+
+
 def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     flood_depths = [0.5, 1.0, 1.5, 2.0, 2.5]
 
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
-        river_geom_fn="rivers_lin2019_v1",
+        river_geom_fn="hydro_rivers_lin",
         river_upa=30,
         rivdph_method="powlaw",
         min_rivdph=1,
@@ -687,7 +778,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
-        river_geom_fn="rivers_lin2019_v1",
+        river_geom_fn="hydro_rivers_lin",
         river_upa=30,
         rivdph_method="powlaw",
         min_rivdph=1,
@@ -817,9 +908,10 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
 
 def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     example_sediment_model.setup_lulcmaps(
-        lulc_fn="globcover",
+        lulc_fn="globcover_2009",
+        lulc_mapping_fn="globcover_mapping_default",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars={"USLE_C": "input.vertical.usleC"},
+        lulc_vars=["USLE_C"],
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,
@@ -828,6 +920,372 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         planted_forest_testdata.geometry.centroid
     )
     assert np.all(da.values == np.array([0.0881, 0.2188]))
+
+
+def test_setup_lulc_vector(
+    example_wflow_model,
+    example_sediment_model,
+    globcover_gdf,
+    planted_forest_testdata,
+):
+    # Test for wflow sbm
+    example_wflow_model.setup_lulcmaps_from_vector(
+        lulc_fn=globcover_gdf,
+        lulc_mapping_fn="globcover_mapping_default",
+        lulc_res=0.0025,
+        save_raster_lulc=False,
+    )
+    assert "wflow_landuse" in example_wflow_model.grid
+
+    # Test for sediment model
+    example_sediment_model.setup_lulcmaps_from_vector(
+        lulc_fn=globcover_gdf,
+        lulc_mapping_fn="globcover_mapping_default",
+        planted_forest_fn=planted_forest_testdata,
+        lulc_res=None,
+        save_raster_lulc=False,
+        planted_forest_c=0.0881,
+    )
+    assert "USLE_C" in example_sediment_model.grid
+
+
+def test_setup_lulc_paddy(example_wflow_model, tmpdir):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(Path(tmpdir), mode="w")
+
+    layers = [50, 100, 50, 200, 800]
+
+    # Use the method
+    # Note: 11 this not NOT a rice class, but chosen just for testing purposes
+    example_wflow_model.setup_lulcmaps_with_paddy(
+        lulc_fn="glcnmo",
+        paddy_class=11,
+        wflow_thicknesslayers=layers,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid.copy()
+
+    assert "kvfrac" in ds
+    assert "kc" in ds
+    assert "c" in ds
+    # Assert layers are updated
+    assert example_wflow_model.config["model"]["thicknesslayers"] == layers
+    # Adding +1 to the layers to also represent the last layer
+    assert len(ds.layer) == len(layers) + 1
+    assert ds.c.shape[0] == len(layers) + 1
+    assert ds.kvfrac.shape[0] == len(layers) + 1
+
+    # Test kvfrac is not 1 at the right layer for a paddy cell
+    kvfrac_values = ds.kvfrac.sel(
+        latitude=45.89, longitude=12.10, method="nearest"
+    ).values
+    assert kvfrac_values[0] == 1.0
+    assert kvfrac_values[2] != 1.0
+    assert kvfrac_values[5] == 1.0
+
+    # Test values for updated C
+    c_values = ds.c.sel(latitude=45.89, longitude=12.10, method="nearest").values
+    assert np.isclose(c_values[0], 9.220022)
+    assert np.isclose(c_values[2], 9.553196)
+    assert np.isclose(c_values[5], 9.849495)
+
+    # Test values for crop coefficient
+    assert np.isclose(ds["kc"].raster.mask_nodata().mean().values, 0.91258438)
+
+    # Test with a separate paddy_map
+    example_wflow_model.setup_lulcmaps_with_paddy(
+        lulc_fn="globcover_2009",
+        paddy_class=11,
+        output_paddy_class=12,
+        paddy_fn=ds["wflow_landuse"].where(
+            ds["wflow_landuse"] == 11, ds["wflow_landuse"].raster.nodata
+        ),
+        lulc_mapping_fn="globcover_mapping_default",
+        wflow_thicknesslayers=layers,
+    )
+
+    ds2 = example_wflow_model.grid.copy()
+
+    assert np.any(ds2["wflow_landuse"] == 12)
+
+
+def test_setup_allocation_areas(example_wflow_model, tmpdir):
+    # Read the data and set new root
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+
+    # Use the method
+    example_wflow_model.setup_allocation_areas(
+        waterareas_fn="gadm_level2",
+        priority_basins=True,
+    )
+
+    # Assert entries
+    assert "allocation_areas" in example_wflow_model.geoms
+    assert "allocation_areas" in example_wflow_model.grid
+
+    # Assert output values
+    assert len(example_wflow_model.geoms["allocation_areas"]) == 3
+    # on unique values
+    uni = example_wflow_model.geoms["allocation_areas"].value.unique()
+    assert np.all(np.sort(uni) == [11, 16, 17])
+
+
+def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
+    # Read the data and set new root
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+    # Add lisflood data from test
+    lisflood_yml = join(TESTDATADIR, "demand", "data_catalog.yml")
+    example_wflow_model.data_catalog = example_wflow_model.data_catalog.from_yml(
+        lisflood_yml
+    )
+
+    # Use the method fully with lisflood
+    example_wflow_model.setup_allocation_surfacewaterfrac(
+        gwfrac_fn="lisflood_gwfrac",
+        waterareas_fn="lisflood_waterregions",
+        gwbodies_fn="lisflood_gwbodies",
+        ncfrac_fn="lisflood_ncfrac",
+        interpolate_nodata=False,
+    )
+
+    # Assert entries
+    assert "frac_sw_used" in example_wflow_model.grid
+    assert np.isclose(
+        example_wflow_model.grid["frac_sw_used"].raster.mask_nodata().mean().values,
+        0.9411998,
+    )
+
+    # Use the method without gwbodies and ncfrac and waterareas from wflow
+    example_wflow_model.setup_allocation_areas(
+        waterareas_fn="gadm_level2",
+    )
+    example_wflow_model.setup_allocation_surfacewaterfrac(
+        gwfrac_fn="lisflood_gwfrac",
+        waterareas_fn=None,
+        gwbodies_fn=None,
+        ncfrac_fn=None,
+        interpolate_nodata=False,
+    )
+
+    # Assert entries
+    assert "frac_sw_used" in example_wflow_model.grid
+    assert np.isclose(
+        example_wflow_model.grid["frac_sw_used"].raster.mask_nodata().mean().values,
+        0.9865037,
+    )
+
+
+def test_setup_non_irrigation(example_wflow_model, tmpdir):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+
+    # Use the method
+    example_wflow_model.setup_domestic_demand(
+        domestic_fn="pcr_globwb",
+        population_fn="worldpop_2020_constrained",
+        domestic_fn_original_res=0.5,
+    )
+    example_wflow_model.setup_other_demand(
+        demand_fn="pcr_globwb",
+        variables=["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
+    )
+
+    # Assert entries
+    assert "domestic_gross" in example_wflow_model.grid
+    assert "population" in example_wflow_model.grid
+
+    # Assert some values
+    dom_gross_vals = (
+        example_wflow_model.grid["domestic_gross"]
+        .isel(latitude=32, longitude=26)
+        .values
+    )
+    assert int(np.mean(dom_gross_vals) * 100) == 136
+    popu_val = (
+        example_wflow_model.grid["population"].isel(latitude=32, longitude=26).values
+    )
+    assert int(popu_val) == 7842
+
+    ind_mean = example_wflow_model.grid["industry_gross"].mean().values
+    assert int(ind_mean * 10000) == 849
+
+    # test with other method
+    example_wflow_model.setup_domestic_demand_from_population(
+        population_fn="worldpop_2020_constrained",
+        domestic_gross_per_capita=0.35,
+        domestic_net_per_capita=0.25,
+    )
+
+    # Assert entries
+    assert "domestic_gross" in example_wflow_model.grid
+    assert "population" in example_wflow_model.grid
+
+    # Assert some values
+    dom_gross_vals = (
+        example_wflow_model.grid["domestic_gross"]
+        .isel(latitude=32, longitude=26)
+        .values
+    )
+    assert int(dom_gross_vals * 100) == 115
+
+    # Check other combination
+    with pytest.raises(ValueError, match="The provided domestic demand data is "):
+        example_wflow_model.setup_domestic_demand_from_population(
+            population_fn="worldpop_2020_constrained",
+            domestic_gross_per_capita=[0.35, 0.35, 0.34, 0.36],
+            domestic_net_per_capita=[0.25, 0.25, 0.24, 0.26],
+        )
+
+    # Check cyclic
+    example_wflow_model.setup_domestic_demand_from_population(
+        population_fn="worldpop_2020_constrained",
+        domestic_gross_per_capita=[
+            0.35,
+            0.35,
+            0.34,
+            0.34,
+            0.36,
+            0.36,
+            0.35,
+            0.35,
+            0.34,
+            0.34,
+            0.36,
+            0.36,
+        ],
+        domestic_net_per_capita=[
+            0.25,
+            0.25,
+            0.24,
+            0.24,
+            0.26,
+            0.26,
+            0.25,
+            0.25,
+            0.24,
+            0.24,
+            0.26,
+            0.26,
+        ],
+    )
+    assert "time" in example_wflow_model.grid["domestic_gross"].dims
+    assert "time" in example_wflow_model.grid["domestic_net"].dims
+
+
+def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(Path(tmpdir), mode="w")
+
+    # Use the method
+    example_wflow_model.setup_irrigation(
+        irrigated_area_fn="irrigated_area",
+        irrigation_value=[1],
+        cropland_class=[11, 14, 20, 30],
+        paddy_class=[],
+        area_threshold=0.6,
+        lai_threshold=0.2,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid
+
+    # Assert entries
+    assert "paddy_irrigation_areas" not in ds
+    assert "nonpaddy_irrigation_areas" in ds
+    assert "nonpaddy_irrigation_trigger" in ds
+
+    # Assert the irrigation_trigger map has the same shape as LAI
+    assert ds["nonpaddy_irrigation_trigger"].shape[0] == ds["LAI"].shape[0]
+
+    # There is no paddy in this region
+    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 5
+    # Check if more irrigation is allowed during summer than winter
+    assert (
+        ds["nonpaddy_irrigation_trigger"].raster.mask_nodata().sel(time=2).sum().values
+        < ds["nonpaddy_irrigation_trigger"]
+        .raster.mask_nodata()
+        .sel(time=8)
+        .sum()
+        .values
+    )
+
+    # Test with geodataframe
+    # Use globcover gdf class 11
+    irrigation_gdf = globcover_gdf[globcover_gdf["landuse"].isin([14])]
+    example_wflow_model.setup_irrigation_from_vector(
+        irrigated_area_fn=irrigation_gdf,
+        cropland_class=[11, 14, 20, 30],
+        paddy_class=[],
+        area_threshold=0.6,
+        lai_threshold=0.2,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid
+
+    # Assert entries
+    assert "paddy_irrigation_areas" not in ds
+    assert "nonpaddy_irrigation_areas" in ds
+    assert "nonpaddy_irrigation_trigger" in ds
+
+    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 8
+
+
+def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
+    # Read the data
+    example_wflow_model.read()
+    example_wflow_model.set_root(
+        Path(
+            tmpdir,
+        ),
+        mode="w",
+    )
+
+    # First update landuse to add rice
+    layers = [50, 100, 50, 200, 800]
+    # Note: 11 this not NOT a rice class, but chosen just for testing purposes
+    example_wflow_model.setup_lulcmaps_with_paddy(
+        lulc_fn="glcnmo",
+        paddy_class=11,
+        wflow_thicknesslayers=layers,
+    )
+
+    example_wflow_model.setup_irrigation(
+        irrigated_area_fn="irrigated_area",
+        irrigation_value=[1],
+        cropland_class=[11, 13],
+        paddy_class=[11],
+        area_threshold=0.6,
+        lai_threshold=0.2,
+    )
+
+    # Set to shorter name to improve readability of tests
+    ds = example_wflow_model.grid
+
+    # Assert entries
+    assert "paddy_irrigation_areas" in ds
+    assert "paddy_irrigation_trigger" in ds
 
 
 def test_setup_cold_states(example_wflow_model, tmpdir):
@@ -839,7 +1297,7 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
     assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
     assert np.isclose(
         example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,
-        559.73975,
+        648.43677,
     )
     assert np.isclose(
         example_wflow_model.states["ssf"].raster.mask_nodata().mean().values, 67.45569

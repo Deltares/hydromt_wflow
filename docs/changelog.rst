@@ -11,15 +11,62 @@ Unreleased
 
 Added
 -----
--
+- Added support for inverse clipping by using the `inverse_clip=True` flag in the `clip_grid` method. PR #336
+- **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
+- **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
+- **setup_soilmaps**: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334
+
 
 Changed
 -------
--
+- **setup_allocation_areas**: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334
 
 Fixed
 -----
+- **setup_rivers**: fixed bug if manning or gvf methods are used to compute river depth. PR #334
+
+Deprecated
+----------
 -
+
+v0.7.1 (29 January 2025)
+========================
+Officially drop support for python 3.9.
+
+Added
+-----
+- **setup_ksatver_vegetation**: method to calculate KsatVer_vegetation to account for biologically-enhanced soil structure in KsatVer. PR #313
+- **setup_lulcmaps_from_vector**: method to prepare LULC map and params from a vector input rather than raster. PR #320
+
+Deprecated
+----------
+- Support for python 3.9 (already not supported in previous releases).
+
+v0.7.0 (8 November 2024)
+========================
+This release adds support to create water demand and allocation related data (available since Wflow.jl version 0.8.0).
+For now, the new methods for demands support is limited to already gridded input datasets.
+The release also includes support for the paddy land use type and additional landuse parameters (crop coefficient and root uptake).
+
+Added
+-----
+- **setup_lulcmaps_with_paddy**: method to add paddy to the model. Adding paddies leads to changes in landuse and soil parameters. PR #226
+- **setup_domestic_demand** and **setup_other_demand**: methods to prepare water demands for different sectors using gridded datasets. PR #226
+- **setup_irrigation**: method to prepare irrigation areas and parameters. PR #226
+- **setup_allocation_areas**: method to prepare allocation areas for water allocation. PR #226
+- **setup_allocation_surfacewaterfrac**: method to prepare surface water fraction for water allocation. PR #226
+
+Changed
+-------
+- **setup_lulcmaps** prepares new vegetation parameters (crop coefficient kc and h values). PR #226
+- **set_grid** supports several cyclic time dimensions. PR #226
+
+Fixed
+-----
+- Error in computation of LAI values from mapping to landuse in **setup_laimaps**. PR #297
+- IO error for write_states in write. PR #297
+- Creating the staticgeoms folder if it does not already exist (eg when dir_input is provided). PR #297
+- Pedo-transfer function for estimation of residual water content. PR #300
 
 v0.6.1 (16 September 2024)
 ==========================
@@ -52,16 +99,17 @@ Added
 - If applicable, basins geometry based on the higher resolution DEM is stored seperately under **basins_highres** `PR #266 <https://github.com/Deltares/hydromt_wflow/pull/266>`_
 - New function **setup_1dmodel_connection** to connect wflow to 1D river model (eg Delft3D FM 1D, HEC-RAS, etc.) `PR #210 <https://github.com/Deltares/hydromt_wflow/pull/210>`_
 - New setup method for the **KsatHorFrac** parameter **setup_ksathorfarc** to up-downscale existing ksathorfrac maps. `PR #255 <https://github.com/Deltares/hydromt_wflow/pull/255>`_
-- new function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
+- New function **setup_pet_forcing** to reproject existing pet data rather than computing from other meteo data. PR #257
 - Workflow to compute brooks corey c for the wflow layers based on soilgrids data, soilgrids_brooks_corey. PR #242
+- Better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
 - **setup_lulcmaps** for wflow_sediment: if planted forest data is available, it can be used to update the values of the USLE C parameter. PR #234
-- better support for WflowModel states with new methods: **read_states**, **write_states** and **clip_states**. PR #252
-- new function **setup_cold_states** to prepare cold states for WflowModel. PR #252
-- new utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
+- New function **setup_cold_states** to prepare cold states for WflowModel. PR #252
+- New utils method **get_grid_from_config** to get the right wflow staticmaps variable based on the TOML configuration (e.g. detects name in netcdf, value, scale and offset). Only applied now to prepare cold states (e.g. not yet in read_grid). PR #252
 - Added support for the "GLCNMO" land-use dataset, with a default parameter mapping table (similar to the existing tables). PR #272
 - Added the `alpha_h1` parameter (based on land use maps). This parameter represents whether root water uptake reduction at soil water pressure head h1 occurs or not. By default, it is set  to 0.0 for all "non-natural" vegetation (crops) and to 1.0 for all "natural vegetation" PR #272
 - Parameter for output filename in **write_grid** (`fn_out`). PR #278
 - New function **setup_laimaps_from_lulc_mapping** to set leaf area index (LAI) climatology maps per month based on landuse mapping. PR #273
+
 
 Changed
 -------

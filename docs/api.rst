@@ -35,9 +35,19 @@ Setup components
    WflowModel.setup_reservoirs
    WflowModel.setup_glaciers
    WflowModel.setup_lulcmaps
+   WflowModel.setup_lulcmaps_from_vector
+   WflowModel.setup_lulcmaps_with_paddy
    WflowModel.setup_laimaps
    WflowModel.setup_laimaps_from_lulc_mapping
+   WflowModel.setup_allocation_areas
+   WflowModel.setup_allocation_surfacewaterfrac
+   WflowModel.setup_domestic_demand
+   WflowModel.setup_domestic_demand_from_population
+   WflowModel.setup_other_demand
+   WflowModel.setup_irrigation
+   WflowModel.setup_irrigation_from_vector
    WflowModel.setup_ksathorfrac
+   WflowModel.setup_ksatver_vegetation
    WflowModel.setup_rootzoneclim
    WflowModel.setup_soilmaps
    WflowModel.setup_outlets
@@ -153,6 +163,7 @@ Setup components
    WflowSedimentModel.setup_lakes
    WflowSedimentModel.setup_reservoirs
    WflowSedimentModel.setup_lulcmaps
+   WflowSedimentModel.setup_lulcmaps_from_vector
    WflowSedimentModel.setup_laimaps
    WflowSedimentModel.setup_laimaps_from_lulc_mapping
    WflowSedimentModel.setup_canopymaps
@@ -241,19 +252,31 @@ Wflow workflows
 .. autosummary::
    :toctree: _generated
 
+   workflows.allocation_areas
+   workflows.surfacewaterfrac_used
+   workflows.domestic
+   workflows.domestic_from_population
+   workflows.other_demand
+   workflows.irrigation
+   workflows.irrigation_from_vector
    workflows.hydrography
    workflows.topography
    workflows.river
    workflows.river_bathymetry
    workflows.pet
    workflows.landuse
+   workflows.landuse_from_vector
    workflows.lai
    workflows.create_lulc_lai_mapping_table
    workflows.lai_from_lulc_mapping
+   workflows.add_paddy_to_landuse
+   workflows.add_planted_forest_to_landuse
    workflows.ksathorfrac
+   workflows.ksatver_vegetation
    workflows.soilgrids
    workflows.soilgrids_sediment
    workflows.soilgrids_brooks_corey
+   workflows.update_soil_with_paddy
    workflows.waterbodymaps
    workflows.reservoirattrs
    workflows.lakeattrs
