@@ -290,7 +290,7 @@ please use one of [gww, jrc] or None."
                 # Append series to df_ts which will contain all time series
                 # of all downloaded reservoirs, with an outer join on the datetime index
                 ts_series = utils.to_timeseries(
-                    time_series, name=f'{int(gdf["Hylak_id"].iloc[i])}'
+                    time_series, name=f"{int(gdf['Hylak_id'].iloc[i])}"
                 ).drop_duplicates()
                 df_ts = pd.concat([df_ts, ts_series], join="outer", axis=1)
 
