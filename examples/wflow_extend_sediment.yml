@@ -10,7 +10,8 @@ setup_riverbedsed:
   bedsed_mapping_fn:       # path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used
 
 setup_lulcmaps:
-  lulc_fn: globcover        # source for lulc maps: {globcover, vito, corine}
+  lulc_fn: globcover_2009        # source for lulc maps: {globcover, vito, corine}
+  lulc_mapping_fn: globcover_mapping_default  # default mapping for lulc classes
 
 setup_canopymaps:
   canopy_fn: simard           # source for vegetation canopy height: {simard}

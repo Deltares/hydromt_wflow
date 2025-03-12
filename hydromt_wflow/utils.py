@@ -1,4 +1,5 @@
 """Some utilities from the Wflow plugin."""
+
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Optional, Union
@@ -15,7 +16,7 @@ __all__ = ["read_csv_results", "get_config", "get_grid_from_config"]
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
-    """Read wflow results csv timeseries and parse to dictionnary.
+    """Read wflow results csv timeseries and parse to dictionary.
 
     Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
@@ -35,7 +36,7 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
     Returns
     -------
     csv_dict: dict
-        Dictionnary of hydromt.GeoDataArrays for the different csv.column section \
+        Dictionary of hydromt.GeoDataArrays for the different csv.column section \
 of the config.
     """
     # Count items by csv.column
@@ -203,7 +204,7 @@ def get_config(
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
         If True return the absolute path relative to the model root,
-        by deafult False.
+        by default False.
 
     Returns
     -------

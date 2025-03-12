@@ -8,6 +8,7 @@ import geopandas as gpd
 import numpy as np
 import pytest
 import xarray as xr
+from hydromt import DataCatalog
 from hydromt.cli.cli_utils import parse_config
 from shapely.geometry import box
 
@@ -28,7 +29,10 @@ def example_wflow_model():
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=["artifact_data"],
+        data_libs=[
+            "artifact_data",
+            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+        ],
         logger=logger,
     )
     return mod
@@ -41,7 +45,10 @@ def example_sediment_model():
     mod = WflowSedimentModel(
         root=root,
         mode="r",
-        data_libs=["artifact_data"],
+        data_libs=[
+            "artifact_data",
+            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+        ],
         logger=logger,
     )
     return mod
@@ -102,7 +109,10 @@ def clipped_wflow_model():
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=["artifact_data"],
+        data_libs=[
+            "artifact_data",
+            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+        ],
     )
     return mod
 
@@ -115,6 +125,15 @@ def floodplain1d_testdata():
         mode="r",
     )
     return data
+
+
+@pytest.fixture()
+def globcover_gdf():
+    cat = DataCatalog("artifact_data")
+    globcover = cat.get_rasterdataset("globcover_2009")
+    globcover_gdf = globcover.raster.vectorize()
+    globcover_gdf.rename(columns={"value": "landuse"}, inplace=True)
+    return globcover_gdf
 
 
 @pytest.fixture()

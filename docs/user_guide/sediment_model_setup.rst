@@ -41,7 +41,9 @@ a specific method see its documentation.
     * - :py:func:`~WflowSedimentModel.setup_reservoirs`
       - This component generates maps of lake areas and outlets as well as parameters with average reservoir area, demand, min and max target storage capacities and discharge capacity values.
     * - :py:func:`~WflowSedimentModel.setup_lulcmaps`
-      - This component derives several wflow maps are derived based on landuse- landcover (LULC) data.
+      - This component derives several wflow maps based on landuse- landcover (LULC) raster data.
+    * - :py:func:`~WflowModel.setup_lulcmaps_from_vector`
+      - This component derives several wflow maps based on landuse- landcover (LULC) vector data.
     * - :py:func:`~WflowSedimentModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
     * - :py:func:`~WflowSedimentModel.setup_laimaps_from_lulc_mapping`

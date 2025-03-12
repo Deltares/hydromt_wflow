@@ -104,7 +104,7 @@ def determine_omega(ds_sub_annual):
         is the same for all forcing types and based on the observations.
 
     """
-    # Constract the output variable in the dataset
+    # Construct the output variable in the dataset
     ds_sub_annual = ds_sub_annual.assign(
         omega=lambda ds_sub_annual: ds_sub_annual["discharge_coeff"] * np.nan
     )
@@ -430,8 +430,8 @@ def gumbel_su_calc_xr(
         indicates on how many days a minimum in year_min_storage_deficit is
         based.
     return_period : list
-        List with one or more values indiciating the return period(s) (in
-        years) for wich the rootzone storage depth should be calculated.
+        List with one or more values indicating the return period(s) (in
+        years) for which the rootzone storage depth should be calculated.
     threshold : int
         Required minimum number of days in a year containing data to take the
         year into account for the calculation..
@@ -525,7 +525,7 @@ def Zhang_future(omega, aridity_index):
 
     Once omega has been derived for historical situations, it can be used to
     derive the new discharge coefficient when the future aridity index (Ep/P)
-    is known. This will allow the discharge coeffcient to shift over the same
+    is known. This will allow the discharge coefficient to shift over the same
     line as the historical situation.
 
     Parameters
@@ -656,14 +656,14 @@ def rootzoneclim(
         based on a climate model.
         The default is None.
     return_period : list
-        List with one or more values indiciating the return period(s) (in
-        years) for wich the rootzone storage depth should be calculated.
+        List with one or more values indicating the return period(s) (in
+        years) for which the rootzone storage depth should be calculated.
         The default is [2,3,5,10,15,20,25,50,60,100]
     Imax : float
         The maximum interception storage capacity [mm].
         The default is 2 mm.
     start_hydro_year : str
-        The start month (abreviated to the first three letters of the month,
+        The start month (abbreviated to the first three letters of the month,
         starting with a capital letter) of the hydrological year.
         The default is "Sep".
     start_field_capacity : str

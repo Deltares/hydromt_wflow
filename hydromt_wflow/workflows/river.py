@@ -608,7 +608,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
     areagrid = gis_utils.reggrid_area(lat, lon) / 1e6
 
-    # calculate "local runoff" (note: set missings in precipitation to zero)
+    # calculate "local runoff" (note: set missing in precipitation to zero)
     runoff = (np.maximum(precip, 0) * params["precip"]) + (areagrid * params["area"])
     runoff = np.maximum(runoff, 0)  # make sure runoff is not negative
 

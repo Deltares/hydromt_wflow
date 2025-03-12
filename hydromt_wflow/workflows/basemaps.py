@@ -94,7 +94,7 @@ parametrization of distributed hydrological models.
         basins = flwdir.basins(xy=xy).astype(np.int32)
         ds.coords["mask"].data = basins != 0
         if not np.any(ds.coords["mask"]):
-            raise ValueError("Delineating subbasins not successfull.")
+            raise ValueError("Delineating subbasins not successful.")
     elif xy is not None:
         # NOTE: this mask is passed on from get_basin_geometry method
         logger.debug("Mask in dataset assumed to represent subbasins.")

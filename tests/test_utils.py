@@ -1,4 +1,5 @@
 """Tests for the utils module."""
+
 import numpy as np
 
 from hydromt_wflow.utils import get_grid_from_config
