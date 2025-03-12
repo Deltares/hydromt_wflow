@@ -584,7 +584,7 @@ def test_setup_gauges(example_wflow_model):
 
     # Check that not all geometries of gdf_snap and gdf_no_snap are equal
     assert not gdf_snap.equals(gdf_no_snap)
-    # Find wich row is identical
+    # Find which row is identical
     equal = gdf_snap[gdf_snap["geometry"] == gdf_no_snap["geometry"]]
     assert len(equal) == 1
     assert equal.index.values[0] == 1003
