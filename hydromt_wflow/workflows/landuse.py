@@ -499,15 +499,14 @@ def add_planted_forest_to_landuse(
     """
     # Add a USLE_C column with default value
     logger.info(
-        "Correcting USLE_C with planted forest and orchards"
-        "using {planted_forest_fn}."
+        "Correcting USLE_C with planted forest and orchards using {planted_forest_fn}."
     )
     planted_forest["USLE_C"] = planted_forest_c
     # If forest_type column is available, update USLE_C value for orchards
     if "forest_type" in planted_forest.columns:
-        planted_forest.loc[
-            planted_forest["forest_type"] == orchard_name, "USLE_C"
-        ] = orchard_c
+        planted_forest.loc[planted_forest["forest_type"] == orchard_name, "USLE_C"] = (
+            orchard_c
+        )
     # Rasterize forest data
     usle_c = ds_like.raster.rasterize(
         gdf=planted_forest,

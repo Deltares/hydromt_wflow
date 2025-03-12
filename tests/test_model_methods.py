@@ -277,8 +277,10 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
                 )
             )
             == number_of_reservoirs
-        ), f"Number of non-null values in {i} not equal to \
+        ), (
+            f"Number of non-null values in {i} not equal to \
 number of reservoirs in model area"
+        )
 
 
 def test_setup_ksathorfrac(tmpdir, example_wflow_model):
