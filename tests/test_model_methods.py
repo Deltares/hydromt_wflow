@@ -732,7 +732,7 @@ def test_setup_rivers_depth(tmpdir):
         elevtn_map="dem_subgrid",
     )
 
-    # RiverDepth iteslf doesn't matter here, this assertion 
+    # RiverDepth iteslf doesn't matter here, this assertion
     # is just to check the method ran without errors
     # as this will error if something went wrong in the process
     assert "RiverDepth" in mod.grid
