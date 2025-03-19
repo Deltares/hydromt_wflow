@@ -61,10 +61,13 @@ class WflowModel(Model):
     ):
         default_components = {
             "config": {"type": "WflowConfigComponent"},
+            "grid": {"type": "WflowGridComponent"},
             "tables": {"type": "TablesComponent"},
         }
         if components:
             default_components = {**default_components, **components}
+
+        region_component = region_component or "grid"
 
         super().__init__(
             root=root,
@@ -264,7 +267,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             ds_base["flwdir"] = da_flwdir
         # Rename and add to grid
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_base.data_vars}
-        self.set_grid(ds_base.rename(rmdict))
+        self.grid.set(ds_base.rename(rmdict))
         # Call basins once to set it
         self.basins
 
@@ -274,7 +277,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         )
         ds_topo["lndslp"] = np.maximum(ds_topo["lndslp"], 0.0)
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
-        self.set_grid(ds_topo.rename(rmdict))
+        self.grid.set(ds_topo.rename(rmdict))
         # set basin geometry
         self.logger.debug("Adding region vector to geoms.")
         self.set_geoms(self.region, name="region")
@@ -443,7 +446,7 @@ Select from {routing_options}.'
         )
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
-        self.set_grid(ds_riv[dvars].rename(rmdict))
+        self.grid.set(ds_riv[dvars].rename(rmdict))
 
         # TODO make separate workflows.river_manning  method
         # Make N_River map from csv file with mapping
@@ -464,7 +467,7 @@ Select from {routing_options}.'
             df=df,
             logger=self.logger,
         )
-        self.set_grid(ds_nriver)
+        self.grid.set(ds_nriver)
 
         # get rivdph, rivwth
         # while we still have setup_riverwidth one can skip river_bathymetry here
@@ -486,7 +489,7 @@ Select from {routing_options}.'
                 **kwargs,
             )
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
-            self.set_grid(ds_riv1.rename(rmdict))
+            self.grid.set(ds_riv1.rename(rmdict))
             # update config
             self.config.set("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
@@ -510,7 +513,7 @@ Select from {routing_options}.'
                 river_d8=True,
                 logger=self.logger,
             ).rename(name)
-            self.set_grid(ds_out)
+            self.grid.set(ds_out)
 
             # update toml model.river_routing
             self.logger.debug(
@@ -657,7 +660,7 @@ the value found in the grid ({new_river_upa})"
 
             # check if the layer already exists, since overwriting with different
             # flood_depth values is not working properly if this is the case
-            if "floodplain_volume" in self.grid:
+            if "floodplain_volume" in self.grid.data:
                 self.logger.warning(
                     "Layer `floodplain_volume` already in grid, removing layer \
 and `flood_depth` dimension to ensure correctly \
@@ -665,13 +668,13 @@ setting new flood_depth dimensions"
                 )
                 self._grid = self._grid.drop_dims("flood_depth")
 
-            self.set_grid(da_fldpln, "floodplain_volume")
+            self.grid.set(da_fldpln, "floodplain_volume")
 
         elif floodplain_type == "2d":
             floodplain_1d = False
             land_routing = "local-inertial"
 
-            if elevtn_map not in self.grid:
+            if elevtn_map not in self.grid.data:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
 
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
@@ -683,16 +686,16 @@ setting new flood_depth dimensions"
             name = f"hydrodem{postfix}_D{connectivity}"
             self.logger.info(f"Preparing {name} map for land routing.")
             ds_out = flw.dem_adjust(
-                da_flwdir=self.grid[self._MAPS["flwdir"]],
-                da_elevtn=self.grid[elevtn_map],
-                da_rivmsk=self.grid[self._MAPS["rivmsk"]],
+                da_flwdir=self.grid.data[self._MAPS["flwdir"]],
+                da_elevtn=self.grid.data[elevtn_map],
+                da_rivmsk=self.grid.data[self._MAPS["rivmsk"]],
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
                 logger=self.logger,
             ).rename(name)
 
-            self.set_grid(ds_out)
+            self.grid.set(ds_out)
 
         # Update config
         self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
@@ -791,7 +794,7 @@ setting new flood_depth dimensions"
 and will soon be removed. '
             'You can now use the "setup_river" method for all river parameters.'
         )
-        if self._MAPS["rivmsk"] not in self.grid:
+        if self._MAPS["rivmsk"] not in self.grid.data:
             raise ValueError(
                 'The "setup_riverwidth" method requires \
 to run setup_river method first.'
@@ -812,9 +815,9 @@ to run setup_river method first.'
             da_climate.name = climate_fn
             data["da_climate"] = da_climate
 
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data}
         da_rivwth = workflows.river_width(
-            ds_like=self.grid.rename(inv_rename),
+            ds_like=self.grid.data.rename(inv_rename),
             flwdir=self.flwdir,
             data=data,
             fill=fill,
@@ -829,7 +832,7 @@ to run setup_river method first.'
             **kwargs,
         )
 
-        self.set_grid(da_rivwth, name=self._MAPS["rivwth"])
+        self.grid.set(da_rivwth, name=self._MAPS["rivwth"])
 
     def setup_lulcmaps(
         self,
@@ -919,13 +922,13 @@ to run setup_river method first.'
         # process landuse
         ds_lulc_maps = workflows.landuse(
             da=da,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             df=df_map,
             params=lulc_vars,
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.grid.set(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
         for name in ds_lulc_maps.data_vars:
@@ -1037,7 +1040,7 @@ to run setup_river method first.'
         # read landuse map
         gdf = self.data_catalog.get_geodataframe(
             lulc_fn,
-            bbox=self.grid.raster.bounds,
+            bbox=self.grid.data.raster.bounds,
             buffer=buffer,
             variables=["landuse"],
         )
@@ -1049,7 +1052,7 @@ to run setup_river method first.'
         # process landuse
         ds_lulc_maps = workflows.landuse_from_vector(
             gdf=gdf,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             df=df_map,
             params=lulc_vars,
             lulc_res=lulc_res,
@@ -1059,7 +1062,7 @@ to run setup_river method first.'
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
-        self.set_grid(ds_lulc_maps.rename(rmdict))
+        self.grid.set(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
         for name in ds_lulc_maps.data_vars:
@@ -1159,12 +1162,12 @@ to run setup_river method first.'
         # Resample LAI data to wflow model resolution
         da_lai = workflows.lai(
             da=da,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             logger=self.logger,
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_grid(da_lai.rename(rmdict), name="LAI")
+        self.grid.set(da_lai.rename(rmdict), name="LAI")
 
     def setup_laimaps_from_lulc_mapping(
         self,
@@ -1206,12 +1209,12 @@ to run setup_river method first.'
         # process landuse with LULC-LAI mapping table
         da_lai = workflows.lai_from_lulc_mapping(
             da=da,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             df=df_lai_mapping,
             logger=self.logger,
         )
         # Add to grid
-        self.set_grid(da_lai, name="LAI")
+        self.grid.set(da_lai, name="LAI")
 
     def setup_config_output_timeseries(
         self,
@@ -1338,22 +1341,22 @@ skipping adding gauge specific outputs to the toml."
         # Only keep river outlets for gauges
         if river_only:
             idxs_out = idxs_out[
-                (self.grid[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
+                (self.grid.data[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
         # Use the wflow_subcatch ids
-        if self._MAPS["basins"] in self.grid:
-            ids = self.grid[self._MAPS["basins"]].values.flat[idxs_out]
+        if self._MAPS["basins"] in self.grid.data:
+            ids = self.grid.data[self._MAPS["basins"]].values.flat[idxs_out]
         else:
             ids = None
         da_out, idxs_out, ids_out = flw.gauge_map(
-            self.grid,
+            self.grid.data,
             idxs=idxs_out,
             ids=ids,
             flwdir=self.flwdir,
             logger=self.logger,
         )
-        self.set_grid(da_out, name=self._MAPS["gauges"])
-        points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs_out))
+        self.grid.set(da_out, name=self._MAPS["gauges"])
+        points = gpd.points_from_xy(*self.grid.data.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
         )
@@ -1562,7 +1565,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         xs, ys = np.vectorize(lambda p: (p.xy[0][0], p.xy[1][0]))(
             gdf_gauges["geometry"]
         )
-        idxs = self.grid.raster.xy_to_idx(xs, ys)
+        idxs = self.grid.data.raster.xy_to_idx(xs, ys)
         if index_col is not None and index_col in gdf_gauges.columns:
             gdf_gauges = gdf_gauges.set_index(index_col)
         if np.any(gdf_gauges.index == 0):
@@ -1574,11 +1577,11 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         if snap_to_river and mask is None:
             mask = self._MAPS["rivmsk"]
         if mask is not None:
-            mask = self.grid[mask].values
+            mask = self.grid.data[mask].values
         if snap_uparea and "uparea" in gdf_gauges.columns:
             # Derive gauge map based on upstream area snapping
             da, idxs, ids = workflows.gauge_map_uparea(
-                self.grid,
+                self.grid.data,
                 gdf_gauges,
                 uparea_name="wflow_uparea",
                 mask=mask,
@@ -1591,7 +1594,7 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
         else:
             # Derive gauge map
             da, idxs, ids = flw.gauge_map(
-                self.grid,
+                self.grid.data,
                 idxs=idxs,
                 ids=ids,
                 stream=mask,
@@ -1602,7 +1605,9 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             # Filter gauges that could not be snapped to rivers
             if snap_to_river:
                 ids_old = ids.copy()
-                da = da.where(self.grid[self._MAPS["rivmsk"]] != 0, da.raster.nodata)
+                da = da.where(
+                    self.grid.data[self._MAPS["rivmsk"]] != 0, da.raster.nodata
+                )
                 ids_new = np.unique(da.values[da.values > 0])
                 idxs = idxs[np.isin(ids_old, ids_new)]
                 ids = da.values.flat[idxs]
@@ -1616,10 +1621,10 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
 
         # Add to grid
         mapname = f"{str(self._MAPS['gauges'])}_{basename}"
-        self.set_grid(da, name=mapname)
+        self.grid.set(da, name=mapname)
 
         # geoms
-        points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs))
+        points = gpd.points_from_xy(*self.grid.data.raster.idx_to_xy(idxs))
         # if csv contains additional columns, these are also written in the geoms
         gdf_snapped = gpd.GeoDataFrame(
             index=ids.astype(np.int32), geometry=points, crs=self.crs
@@ -1647,10 +1652,12 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
 
         # add subcatch
         if derive_subcatch:
-            da_basins = flw.basin_map(self.grid, self.flwdir, idxs=idxs, ids=ids)[0]
+            da_basins = flw.basin_map(self.grid.data, self.flwdir, idxs=idxs, ids=ids)[
+                0
+            ]
             mapname = self._MAPS["basins"] + "_" + basename
-            self.set_grid(da_basins, name=mapname)
-            gdf_basins = self.grid[mapname].raster.vectorize()
+            self.grid.set(da_basins, name=mapname)
+            gdf_basins = self.grid.data[mapname].raster.vectorize()
             self.set_geoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
     def setup_areamap(
@@ -1685,13 +1692,13 @@ incorrect data_type (GeoDataFrame or GeoDataset)."
             )
             return
         else:
-            da_area = self.grid.raster.rasterize(
+            da_area = self.grid.data.raster.rasterize(
                 gdf=gdf_org,
                 col_name=col2raster,
                 nodata=nodata,
                 all_touched=True,
             )
-        self.set_grid(da_area.rename(col2raster))
+        self.grid.set(da_area.rename(col2raster))
 
     def setup_lakes(
         self,
@@ -1824,7 +1831,7 @@ Using default storage/outflow function parameters."
         )
 
         # add to grid
-        self.set_grid(ds_lakes)
+        self.grid.set(ds_lakes)
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_lakes, name="lakes")
         # add the tables
@@ -1969,7 +1976,7 @@ Using default storage/outflow function parameters."
 
         # Continue method if data has been found
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
-        self.set_grid(ds_res.rename(rmdict))
+        self.grid.set(ds_res.rename(rmdict))
 
         # add attributes
         # if present use directly
@@ -2017,7 +2024,7 @@ Using default storage/outflow function parameters."
             da_res = ds_res.raster.rasterize(
                 gdf_org_points, col_name=name, dtype="float32", nodata=-999
             )
-            self.set_grid(da_res)
+            self.grid.set(da_res)
 
         # Save accuracy information on reservoir parameters
         if reservoir_accuracy is not None:
@@ -2069,7 +2076,7 @@ Using default storage/outflow function parameters."
             )
             # add waterbody maps
             uparea_name = self._MAPS["uparea"]
-            if uparea_name not in self.grid.data_vars:
+            if uparea_name not in self.grid.data.data_vars:
                 self.logger.warning(
                     f"Upstream area map for {wb_type} outlet setup not found. "
                     "Database coordinates used instead"
@@ -2077,7 +2084,7 @@ Using default storage/outflow function parameters."
                 uparea_name = None
             ds_waterbody, gdf_wateroutlet = workflows.waterbodymaps(
                 gdf=gdf_org,
-                ds_like=self.grid,
+                ds_like=self.grid.data,
                 wb_type=wb_type,
                 uparea_name=uparea_name,
                 logger=self.logger,
@@ -2197,14 +2204,14 @@ a map for each of the wflow_sbm soil layers (n in total)
 
         dsout = workflows.soilgrids(
             ds=dsin,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             ptfKsatVer=ptf_ksatver,
             soil_fn=soil_fn,
             soil_mapping=soil_mapping,
             wflow_layers=wflow_thicknesslayers,
             logger=self.logger,
         ).reset_coords(drop=True)
-        self.set_grid(dsout)
+        self.grid.set(dsout)
 
         # Update the toml file
         self.config.set("model.thicknesslayers", wflow_thicknesslayers)
@@ -2251,7 +2258,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Create scaled ksathorfrac map
         daout = workflows.ksathorfrac(
             dain,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             resampling_method=resampling_method,
         )
 
@@ -2266,7 +2273,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             lname += f"_{variable}"
 
         # Set the grid
-        self.set_grid(daout, name=lname)
+        self.grid.set(daout, name=lname)
         self.config.set("input.lateral.subsurface.ksathorfrac", lname)
 
     def setup_ksatver_vegetation(
@@ -2309,7 +2316,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         # in function get_ksatver_vegetation KsatVer should be provided in mm/d
         KSatVer_vegetation = workflows.ksatver_vegetation(
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             sndppt=sndppt,
             alfa=alfa,
             beta=beta,
@@ -2318,7 +2325,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         map_name = "KsatVer_vegetation"
 
         # add to grid
-        self.set_grid(KSatVer_vegetation, map_name)
+        self.grid.set(KSatVer_vegetation, map_name)
         # update config file
         self.config.set("input.vertical.kv_0", map_name)
 
@@ -2469,7 +2476,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         # Check if soil data is available
-        if "KsatVer" not in self.grid.data_vars:
+        if "KsatVer" not in self.grid.data.data_vars:
             raise ValueError(
                 "KsatVer and f are required to update the soil parameters with paddies."
                 "Please run setup_soilmaps first."
@@ -2521,13 +2528,13 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Prepare landuse parameters
         landuse_maps = workflows.landuse(
             da=landuse,
-            ds_like=self.grid,
+            ds_like=self.data.grid,
             df=df_mapping,
             params=lulc_vars,
             logger=self.logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in landuse_maps.data_vars}
-        self.set_grid(landuse_maps.rename(rmdict))
+        self.grid.set(landuse_maps.rename(rmdict))
 
         # Update soil parameters if there are paddies in the domain
         # Get paddy pixels at model resolution
@@ -2552,7 +2559,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             # update soil parameters c and kvfrac
             soil_maps = workflows.update_soil_with_paddy(
                 ds=soil,
-                ds_like=self.grid,
+                ds_like=self.grid.data,
                 paddy_mask=wflow_paddy,
                 soil_fn=soil_fn,
                 update_c=update_c,
@@ -2560,9 +2567,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 target_conductivity=target_conductivity,
                 logger=self.logger,
             )
-            self.set_grid(soil_maps["kvfrac"], name="kvfrac")
+            self.grid.set(soil_maps["kvfrac"], name="kvfrac")
             if "c" in soil_maps:
-                self.set_grid(soil_maps["c"], name="c")
+                self.grid.set(soil_maps["c"], name="c")
                 self.config.set("model.thicknesslayers", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
@@ -2645,14 +2652,14 @@ added to glacierstore [-]
             # add glacier maps
             ds_glac = workflows.glaciermaps(
                 gdf=gdf_org,
-                ds_like=self.grid,
+                ds_like=self.grid.data,
                 id_column="simple_id",
                 elevtn_name=self._MAPS["elevtn"],
                 logger=self.logger,
             )
 
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
-            self.set_grid(ds_glac.rename(rmdict))
+            self.grid.set(ds_glac.rename(rmdict))
 
             self.set_geoms(gdf_org, name="glaciers")
 
@@ -2685,13 +2692,13 @@ added to glacierstore [-]
         """
         for key, value in kwargs.items():
             nodata = np.dtype(dtype).type(nodata)
-            da_param = xr.where(self.grid[self._MAPS["basins"]], value, nodata).astype(
-                dtype
-            )
+            da_param = xr.where(
+                self.grid.data[self._MAPS["basins"]], value, nodata
+            ).astype(dtype)
             da_param.raster.set_nodata(nodata)
 
             da_param = da_param.rename(key)
-            self.set_grid(da_param)
+            self.grid.set(da_param)
 
     def setup_grid_from_raster(
         self,
@@ -2750,9 +2757,9 @@ added to glacierstore [-]
         if fill_method is not None:
             ds = ds.raster.interpolate_na(method=fill_method)
         # Reprojection
-        ds_out = ds.raster.reproject_like(self.grid, method=reproject_method)
+        ds_out = ds.raster.reproject_like(self.grid.data, method=reproject_method)
         # Add to grid
-        self.set_grid(ds_out)
+        self.grid.set(ds_out)
 
         # Update config
         if wflow_variables is not None:
@@ -2814,7 +2821,7 @@ one variable and variables list is not provided."
         starttime = self.config.get_value("starttime")
         endtime = self.config.get_value("endtime")
         freq = pd.to_timedelta(self.config.get_value("timestepsecs"), unit="s")
-        mask = self.grid[self._MAPS["basins"]].values > 0
+        mask = self.grid.data[self._MAPS["basins"]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
             precip_fn,
@@ -2840,7 +2847,7 @@ one variable and variables list is not provided."
 
         precip_out = hydromt.workflows.forcing.precip(
             precip=precip,
-            da_like=self.grid[self._MAPS["elevtn"]],
+            da_like=self.grid.data[self._MAPS["elevtn"]],
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
@@ -2952,7 +2959,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         endtime = self.config.get_value("endtime")
         timestep = self.config.get_value("timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
-        mask = self.grid[self._MAPS["basins"]].values > 0
+        mask = self.grid.data[self._MAPS["basins"]].values > 0
 
         variables = ["temp"]
         if not skip_pet:
@@ -3008,7 +3015,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         temp_in = hydromt.workflows.forcing.temp(
             ds["temp"],
-            dem_model=self.grid[self._MAPS["elevtn"]],
+            dem_model=self.grid.data[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
             logger=self.logger,
@@ -3021,7 +3028,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         ):  # also downscaled temp_min and temp_max for Penman needed
             temp_max_in = hydromt.workflows.forcing.temp(
                 ds["temp_max"],
-                dem_model=self.grid[self._MAPS["elevtn"]],
+                dem_model=self.grid.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 logger=self.logger,
@@ -3032,7 +3039,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
             temp_min_in = hydromt.workflows.forcing.temp(
                 ds["temp_min"],
-                dem_model=self.grid[self._MAPS["elevtn"]],
+                dem_model=self.grid.data[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
                 logger=self.logger,
@@ -3047,7 +3054,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             pet_out = hydromt.workflows.forcing.pet(
                 ds[variables[1:]],
                 temp=temp_in,
-                dem_model=self.grid[self._MAPS["elevtn"]],
+                dem_model=self.grid.data[self._MAPS["elevtn"]],
                 method=pet_method,
                 press_correction=press_correction,
                 wind_correction=wind_correction,
@@ -3136,7 +3143,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         pet_out = workflows.forcing.pet(
             pet=pet,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             freq=freq,
             mask_name=self._MAPS["basins"],
             chunksize=chunksize,
@@ -3327,13 +3334,13 @@ the return_period argument.
 
         # check if setup_soilmaps and setup_laimaps were run if LAI =True and
         # if rooting_depth = True"
-        if (LAI == True) and ("LAI" not in self.grid):
+        if (LAI == True) and ("LAI" not in self.grid.data):
             self.logger.error(
                 "LAI variable not found in grid. \
 Set LAI to False or run setup_laimaps first"
             )
 
-        if ("thetaR" not in self.grid) or ("thetaS" not in self.grid):
+        if ("thetaR" not in self.grid.data) or ("thetaS" not in self.grid.data):
             self.logger.error(
                 "thetaS or thetaR variables not found in grid. \
 Run setup_soilmaps first"
@@ -3343,7 +3350,7 @@ Run setup_soilmaps first"
         dsout, gdf = workflows.rootzoneclim(
             dsrun=dsrun,
             ds_obs=ds_obs,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             flwdir=self.flwdir,
             ds_cc_hist=ds_cc_hist,
             ds_cc_fut=ds_cc_fut,
@@ -3360,10 +3367,10 @@ Run setup_soilmaps first"
         )
 
         # set nodata value outside basin
-        dsout = dsout.where(self.grid[self._MAPS["basins"]] > 0, -999)
+        dsout = dsout.where(self.grid.data[self._MAPS["basins"]] > 0, -999)
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
-        self.set_grid(dsout)
+        self.grid.set(dsout)
         self.set_geoms(gdf, name="rootzone_storage")
 
         # update config
@@ -3466,10 +3473,10 @@ Run setup_soilmaps first"
         )
 
         # derive subcatchments and tributaries
-        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data}
         ds_out = workflows.wflow_1dmodel_connection(
             gdf_riv,
-            ds_model=self.grid.rename(inv_rename),
+            ds_model=self.grid.data.rename(inv_rename),
             connection_method=connection_method,
             area_max=area_max,
             add_tributaries=add_tributaries,
@@ -3480,7 +3487,7 @@ Run setup_soilmaps first"
 
         # Derive tributary gauge map
         if "gauges" in ds_out.data_vars:
-            self.set_grid(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
+            self.grid.set(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
             gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
@@ -3491,10 +3498,12 @@ Run setup_soilmaps first"
 
             # Add a check that all gauges are on the river
             if (
-                self.grid[self._MAPS["rivmsk"]].raster.sample(gdf_tributary)
-                == self.grid[self._MAPS["rivmsk"]].raster.nodata
+                self.grid.data[self._MAPS["rivmsk"]].raster.sample(gdf_tributary)
+                == self.grid.data[self._MAPS["rivmsk"]].raster.nodata
             ).any():
-                river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get("river_upa", "")
+                river_upa = self.grid.data[self._MAPS["rivmsk"]].attrs.get(
+                    "river_upa", ""
+                )
                 self.logger.warning(
                     "Not all tributary gauges are on the river network and river "
                     "discharge cannot be saved. You should use a higher threshold "
@@ -3516,13 +3525,13 @@ Run setup_soilmaps first"
                 )
 
         # Derive subcatchment map
-        self.set_grid(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
+        self.grid.set(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
         self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
+        self.grid.set(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
@@ -3584,13 +3593,13 @@ Run setup_soilmaps first"
 
         # Create the allocation grid
         da_alloc, gdf_alloc = workflows.demand.allocation_areas(
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             waterareas=waterareas,
             basins=self.basins,
             priority_basins=priority_basins,
             minimum_area=minimum_area,
         )
-        self.set_grid(da_alloc, name="allocation_areas")
+        self.grid.set(da_alloc, name="allocation_areas")
 
         # Update the settings toml
         self.config.set("input.vertical.allocation.areas", "allocation_areas")
@@ -3678,13 +3687,13 @@ Run setup_soilmaps first"
         # check whether to use the models own allocation areas
         if waterareas_fn is None:
             self.logger.info("Using wflow model allocation areas.")
-            if "allocation_areas" not in self.grid:
+            if "allocation_areas" not in self.grid.data:
                 self.logger.error(
                     "No allocation areas found. Run setup_allocation_areas first "
                     "or provide a waterareas_fn."
                 )
                 return
-            waterareas = self.grid["allocation_areas"]
+            waterareas = self.grid.data["allocation_areas"]
         else:
             waterareas = self.data_catalog.get_rasterdataset(
                 waterareas_fn,
@@ -3695,7 +3704,7 @@ Run setup_soilmaps first"
         # Call the workflow
         w_frac = workflows.demand.surfacewaterfrac_used(
             gwfrac_raw=gwfrac_raw,
-            da_like=self.grid["wflow_dem"],
+            da_like=self.grid.data["wflow_dem"],
             waterareas=waterareas,
             gwbodies=gwbodies,
             ncfrac=ncfrac,
@@ -3710,7 +3719,7 @@ Run setup_soilmaps first"
         )
 
         # Set the dataarray to the wflow grid
-        self.set_grid(w_frac, name="frac_sw_used")
+        self.grid.set(w_frac, name="frac_sw_used")
 
     def setup_domestic_demand(
         self,
@@ -3799,15 +3808,15 @@ Run setup_soilmaps first"
         # Compute domestic demand
         domestic, pop = workflows.demand.domestic(
             domestic_raw,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             popu=pop_raw,
             original_res=domestic_fn_original_res,
         )
         # Add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
-        self.set_grid(domestic.rename(rmdict))
+        self.grid.set(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="population")
+            self.grid.set(pop, name="population")
 
         # Update toml
         if _cyclic and self.config.get_value("input.cyclic") is None:
@@ -3977,12 +3986,12 @@ Run setup_soilmaps first"
         # Create static water demand rasters
         demand = workflows.demand.other_demand(
             demand_raw,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             ds_method=resampling_method,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in demand.data_vars}
         demand = demand.rename(rmdict)
-        self.set_grid(demand)
+        self.grid.set(demand)
 
         # Update the settings toml
         if _cyclic and self.config.get_value("input.cyclic") is None:
@@ -4077,13 +4086,13 @@ Run setup_soilmaps first"
 
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_rasterdataset(
-            irrigated_area_fn, bbox=self.grid.raster.bounds, buffer=3
+            irrigated_area_fn, bbox=self.grid.data.raster.bounds, buffer=3
         )
 
         # Get irrigation areas for paddy, non paddy and irrigation trigger
         ds_irrigation = workflows.demand.irrigation(
             da_irrigation=irrigated_area,
-            ds_like=self.grid,
+            ds_like=self.grid.data,
             irrigation_value=irrigation_value,
             cropland_class=cropland_class,
             paddy_class=paddy_class,
@@ -4093,7 +4102,7 @@ Run setup_soilmaps first"
         )
 
         # Check if paddy and non paddy are present
-        cyclic_lai = len(self.grid["LAI"].dims) > 2
+        cyclic_lai = len(self.grid.data["LAI"].dims) > 2
         if (
             "paddy_irrigation_areas" in ds_irrigation.data_vars
             and ds_irrigation["paddy_irrigation_areas"]
@@ -4103,12 +4112,12 @@ Run setup_soilmaps first"
             != 0
         ):
             self.config.set("model.water_demand.paddy", True)
-            self.set_grid(ds_irrigation["paddy_irrigation_areas"])
+            self.grid.set(ds_irrigation["paddy_irrigation_areas"])
             self.config.set(
                 "input.vertical.paddy.irrigation_areas", "paddy_irrigation_areas"
             )
             # Irrigation trigger
-            self.set_grid(ds_irrigation["paddy_irrigation_trigger"])
+            self.grid.set(ds_irrigation["paddy_irrigation_trigger"])
             self.config.set(
                 "input.vertical.paddy.irrigation_trigger", "paddy_irrigation_trigger"
             )
@@ -4124,12 +4133,12 @@ Run setup_soilmaps first"
             != 0
         ):
             self.config.set("model.water_demand.nonpaddy", True)
-            self.set_grid(ds_irrigation["nonpaddy_irrigation_areas"])
+            self.grid.set(ds_irrigation["nonpaddy_irrigation_areas"])
             self.config.set(
                 "input.vertical.nonpaddy.irrigation_areas", "nonpaddy_irrigation_areas"
             )
             # Irrigation trigger
-            self.set_grid(ds_irrigation["nonpaddy_irrigation_trigger"])
+            self.grid.set(ds_irrigation["nonpaddy_irrigation_trigger"])
             self.config.set(
                 "input.vertical.nonpaddy.irrigation_trigger",
                 "nonpaddy_irrigation_trigger",
@@ -4338,7 +4347,7 @@ Run setup_soilmaps first"
             from the config.
         """
         states, states_config = workflows.prepare_cold_states(
-            self.grid,
+            self.grid.data,
             config=self.config,
             timestamp=timestamp,
         )
@@ -4446,187 +4455,6 @@ Run setup_soilmaps first"
             os.makedirs(dirname(fn))
         self.logger.info(f"Writing model config to {fn}")
         self._configwrite(fn)
-
-    def read_grid(self, **kwargs):
-        """
-        Read wflow static input and add to ``grid``.
-
-        Checks the path of the file in the config toml using both ``input.path_static``
-        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
-        root folder.
-
-        For reading old PCRaster maps, see the pcrm submodule.
-
-        See Also
-        --------
-        pcrm.read_staticmaps_pcr
-        """
-        fn_default = "staticmaps.nc"
-        fn = self.config.get_value(
-            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
-        )
-
-        if self.config.get_value("dir_input") is not None:
-            input_dir = self.config.get_value("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.config.get_value("input.path_static", fallback=fn_default),
-            )
-            self.logger.info(f"Input directory found {input_dir}")
-
-        if not self._write:
-            # start fresh in read-only mode
-            self._grid = xr.Dataset()
-        if fn is not None and isfile(fn):
-            self.logger.info(f"Read grid from {fn}")
-            # FIXME: we need a smarter (lazy) solution for big models which also
-            # works when overwriting / appending data in the same source!
-            ds = xr.open_dataset(
-                fn, mask_and_scale=False, decode_coords="all", **kwargs
-            ).load()
-            ds.close()
-            # make sure internally maps are always North -> South oriented
-            if ds.raster.res[1] > 0:
-                ds = ds.raster.flipud()
-            self.set_grid(ds)
-
-    def write_grid(
-        self,
-        fn_out: Optional[Union[Path, str]] = None,
-    ):
-        """
-        Write grid to wflow static data file.
-
-        Checks the path of the file in the config toml using both ``input.path_static``
-        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
-        root folder.
-
-        Parameters
-        ----------
-        fn_out : Path, str, optional
-            Name or path to the outgoing grid file (including extension). This is the
-            path/name relative to the root folder and if present the ``dir_input``
-            folder.
-        """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # clean-up grid and write CRS according to CF-conventions
-        # TODO replace later with hydromt.raster.gdal_compliant method
-        # after core release
-        crs = self.grid.raster.crs
-        ds_out = self.grid.reset_coords()
-        # TODO?!
-        # if ds_out.raster.res[1] < 0: # write data with South -> North orientation
-        #     ds_out = ds_out.raster.flipud()
-        x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
-        ds_out = ds_out.rename({ds_out.raster.x_dim: x_dim, ds_out.raster.y_dim: y_dim})
-        ds_out[x_dim].attrs.update(x_attrs)
-        ds_out[y_dim].attrs.update(y_attrs)
-        ds_out = ds_out.drop_vars(["mask", "spatial_ref", "ls"], errors="ignore")
-        ds_out.rio.write_crs(crs, inplace=True)
-        ds_out.rio.write_transform(self.grid.raster.transform, inplace=True)
-        ds_out.raster.set_spatial_dims()
-
-        # Remove FillValue Nan for x_dim, y_dim
-        encoding = dict()
-        for v in [ds_out.raster.x_dim, ds_out.raster.y_dim]:
-            ds_out[v].attrs.pop("_FillValue", None)
-            encoding[v] = {"_FillValue": None}
-
-        # filename
-        if fn_out is not None:
-            fn = join(self.root, fn_out)
-            self.config.set("input.path_static", fn_out)
-        else:
-            fn_out = "staticmaps.nc"
-            fn = self.config.get_value(
-                "input.path_static", abs_path=True, fallback=join(self.root, fn_out)
-            )
-        # Append inputdir if required
-        if self.config.get_value("dir_input") is not None:
-            input_dir = self.config.get_value("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.config.get_value("input.path_static", fallback=fn_out),
-            )
-        # Check if all sub-folders in fn exists and if not create them
-        if not isdir(dirname(fn)):
-            os.makedirs(dirname(fn))
-        self.logger.info(f"Write grid to {fn}")
-        mask = ds_out[self._MAPS["basins"]] > 0
-        for v in ds_out.data_vars:
-            # nodata is required for all but boolean fields
-            if ds_out[v].dtype != "bool":
-                ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
-        ds_out.to_netcdf(fn, encoding=encoding)
-
-    def set_grid(
-        self,
-        data: Union[xr.DataArray, xr.Dataset, np.ndarray],
-        name: Optional[str] = None,
-    ):
-        """Add data to grid.
-
-        All layers of grid must have identical spatial coordinates. This is an inherited
-        method from HydroMT-core's GridModel.set_grid with some fixes.
-
-        The first fix is when data with a time axis is being added. Since Wflow.jl
-        v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
-        the dimension name starts with "time". In this function, a check is done if a
-        time axis with that exact shape is already present in the grid object, and will
-        use that dimension (and its name) to set the data. If a time dimension does not
-        yet exist with that shape, it is created following the format
-        "time_{length_data}".
-
-        The other fix is that when the model is updated with a different number of
-        layers, this is not automatically updated correctly. With this fix, the old
-        layer dimension is removed (including all associated data), and the new data is
-        added with the correct "layer" dimension.
-
-        Parameters
-        ----------
-        data: xarray.DataArray or xarray.Dataset
-            new map layer to add to grid
-        name: str, optional
-            Name of new map layer, this is used to overwrite the name of a DataArray and
-            ignored if data is a Dataset
-        """
-        if "time" in data.dims:
-            # Raise error if the dimension does not have a supported length
-            if len(data.time) not in [12, 365, 366]:
-                raise ValueError(
-                    f"Length of cyclic dataset ({len(data)}) is not supported by "
-                    "Wflow.jl. Ensure the data has length 12, 365, or 366"
-                )
-            tname = "time"
-            time_axes = {
-                k: v for k, v in dict(self.grid.dims).items() if k.startswith("time")
-            }
-            if data["time"].size not in time_axes.values():
-                tname = f"time_{data['time'].size}" if "time" in time_axes else tname
-            else:
-                k = list(
-                    filter(lambda x: time_axes[x] == data["time"].size, time_axes)
-                )[0]
-                tname = k
-
-            if tname != "time":
-                data = data.rename_dims({"time": tname})
-        if "layer" in data.dims and "layer" in self.grid:
-            if len(data["layer"]) != len(self.grid["layer"]):
-                vars_to_drop = [
-                    var for var in self.grid.variables if "layer" in self.grid[var].dims
-                ]
-                # Drop variables
-                self.logger.info(
-                    "Dropping these variables, as they depend on the layer "
-                    f"dimension: {vars_to_drop}"
-                )
-                # Use `_grid` as `grid` cannot be set
-                self._grid = self.grid.drop_vars(vars_to_drop)
-
-        # fall back on default set_grid behaviour
-        # GridModel.set_grid(self, data, name)
 
     def read_geoms(
         self,
@@ -5069,7 +4897,7 @@ change name input.path_forcing "
         )
         if csv_fn is not None and isfile(csv_fn):
             csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config, maps=self.grid
+                csv_fn, config=self.config, maps=self.grid.data
             )
             for key in csv_dict:
                 # Add to results
@@ -5079,7 +4907,6 @@ change name input.path_forcing "
         """Write results at <root/?/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
 
     def read_intbl(self, **kwargs):
         """Read and intbl files at <root/intbl> and parse to xarray."""
@@ -5193,10 +5020,10 @@ change name input.path_forcing "
         """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd."""
         flwdir_name = flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
-            self.grid[flwdir_name],
+            self.grid.data[flwdir_name],
             ftype=ftype,
             check_ftype=True,
-            mask=(self.grid[self._MAPS["basins"]] > 0),
+            mask=(self.grid.data[self._MAPS["basins"]] > 0),
         )
 
     @property
@@ -5204,9 +5031,9 @@ change name input.path_forcing "
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
         if "basins" in self.geoms:
             gdf = self.geoms["basins"]
-        elif self._MAPS["basins"] in self.grid:
+        elif self._MAPS["basins"] in self.grid.data:
             gdf = (
-                self.grid[self._MAPS["basins"]]
+                self.grid.data[self._MAPS["basins"]]
                 .raster.vectorize()
                 .set_index("value")
                 .sort_index()
@@ -5235,8 +5062,8 @@ change name input.path_forcing "
         """
         if "rivers" in self.geoms:
             gdf = self.geoms["rivers"]
-        elif self._MAPS["rivmsk"] in self.grid:
-            rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
+        elif self._MAPS["rivmsk"] in self.grid.data:
+            rivmsk = self.grid.data[self._MAPS["rivmsk"]].values != 0
             # Check if there are river cells in the model before continuing
             if np.any(rivmsk):
                 # add stream order 'strord' column
@@ -5286,7 +5113,7 @@ change name input.path_forcing "
             if kind == "subbasin" and bbox is None:
                 region.update(bbox=self.bounds)
             geom, _ = hydromt.workflows.get_basin_geometry(
-                ds=self.grid,
+                ds=self.grid.data,
                 logger=self.logger,
                 kind=kind,
                 basins_name=basins_name,
@@ -5298,27 +5125,27 @@ change name input.path_forcing "
             geom = self.basins.overlay(geom, how="difference")
         # clip based on subbasin args, geom or bbox
         if geom is not None:
-            ds_grid = self.grid.raster.clip_geom(geom, align=align, buffer=buffer)
+            ds_grid = self.grid.data.raster.clip_geom(geom, align=align, buffer=buffer)
             ds_grid.coords["mask"] = ds_grid.raster.geometry_mask(geom)
             ds_grid[basins_name] = ds_grid[basins_name].where(
-                ds_grid.coords["mask"], self.grid[basins_name].raster.nodata
+                ds_grid.coords["mask"], self.grid.data[basins_name].raster.nodata
             )
             ds_grid[basins_name].attrs.update(
-                _FillValue=self.grid[basins_name].raster.nodata
+                _FillValue=self.grid.data[basins_name].raster.nodata
             )
         elif bbox is not None:
-            ds_grid = self.grid.raster.clip_bbox(bbox, align=align, buffer=buffer)
+            ds_grid = self.grid.data.raster.clip_bbox(bbox, align=align, buffer=buffer)
 
         # Update flwdir grid and geoms
         if self.crs is None and crs is not None:
             self.set_crs(crs)
 
         self._grid = xr.Dataset()
-        self.set_grid(ds_grid)
+        self.grid.set(ds_grid)
 
         # add pits at edges after clipping
         self._flwdir = None  # make sure old flwdir object is removed
-        self.grid[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
+        self.grid.data[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
 
         # Reinitiliase geoms and re-create basins/rivers
         self._geoms = dict()
@@ -5328,12 +5155,15 @@ change name input.path_forcing "
         # remove when updating wflow to new objects
         # Basin shape
         basins = (
-            self.grid[basins_name].raster.vectorize().set_index("value").sort_index()
+            self.grid.data[basins_name]
+            .raster.vectorize()
+            .set_index("value")
+            .sort_index()
         )
         basins.index.name = basins_name
         self.set_geoms(basins, name="basins")
 
-        rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
+        rivmsk = self.grid.data[self._MAPS["rivmsk"]].values != 0
         # Check if there are river cells in the model before continuing
         if np.any(rivmsk):
             # add stream order 'strord' column
@@ -5345,8 +5175,8 @@ change name input.path_forcing "
 
         # Update reservoir and lakes
         remove_reservoir = False
-        if self._MAPS["resareas"] in self.grid:
-            reservoir = self.grid[self._MAPS["resareas"]]
+        if self._MAPS["resareas"] in self.grid.data:
+            reservoir = self.grid.data[self._MAPS["resareas"]]
             if not np.any(reservoir > 0):
                 remove_reservoir = True
                 remove_maps = [
@@ -5359,11 +5189,11 @@ change name input.path_forcing "
                     "ResMaxRelease",
                     "ResMaxVolume",
                 ]
-                self._grid = self.grid.drop_vars(remove_maps)
+                self._grid = self.grid.data.drop_vars(remove_maps)
 
         remove_lake = False
-        if self._MAPS["lakeareas"] in self.grid:
-            lake = self.grid[self._MAPS["lakeareas"]]
+        if self._MAPS["lakeareas"] in self.grid.data:
+            lake = self.grid.data[self._MAPS["lakeareas"]]
             if not np.any(lake > 0):
                 remove_lake = True
                 remove_maps = [
@@ -5379,7 +5209,7 @@ change name input.path_forcing "
                     "Lake_b",
                     "Lake_e",
                 ]
-                self._grid = self.grid.drop_vars(remove_maps)
+                self._grid = self.grid.data.drop_vars(remove_maps)
 
             # Update tables
             ids = np.unique(lake)
@@ -5395,15 +5225,13 @@ change name input.path_forcing "
             # change reservoirs = true to false
             self.config.set("model.reservoirs", False)
             # remove states
-            if self.config.get_value("state.lateral.river.reservoir") is not None:
-                del self.config["state"]["lateral"]["river"]["reservoir"]
+            self.config.delete_key("state.lateral.river.reservoir")
 
         if remove_lake:
             # change lakes = true to false
             self.config.set("model.lakes", False)
             # remove states
-            if self.config.get_value("state.lateral.river.lake") is not None:
-                del self.config["state"]["lateral"]["river"]["lake"]
+            self.config.delete_key("state.lateral.river.lake")
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
@@ -5417,7 +5245,7 @@ change name input.path_forcing "
         if len(self.forcing) > 0:
             self.logger.info("Clipping NetCDF forcing..")
             ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
-                self.grid.raster.bounds
+                self.grid.data.raster.bounds
             )
             self.set_forcing(ds_forcing)
 
@@ -5432,14 +5260,14 @@ change name input.path_forcing "
         if len(self.states) > 0:
             self.logger.info("Clipping NetCDF states..")
             ds_states = xr.merge(self.states.values()).raster.clip_bbox(
-                self.grid.raster.bounds
+                self.grid.data.raster.bounds
             )
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
-            if self._MAPS["resareas"] not in self.grid:
+            if self._MAPS["resareas"] not in self.grid.data:
                 if "volume_reservoir" in ds_states:
                     remove_maps.extend(["volume_reservoir"])
-            if self._MAPS["lakeareas"] not in self.grid:
+            if self._MAPS["lakeareas"] not in self.grid.data:
                 if "waterlevel_lake" in ds_states:
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
