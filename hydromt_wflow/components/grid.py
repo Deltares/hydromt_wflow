@@ -4,9 +4,12 @@ from logging import Logger, getLogger
 from os import makedirs
 from os.path import dirname, isdir, isfile, join
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
+import geopandas as gpd
+import hydromt
 import numpy as np
+import pyproj
 import xarray as xr
 from hydromt.git import _axes_attrs
 from hydromt.model.components.grid import GridComponent
@@ -229,3 +232,242 @@ class WflowGridComponent(GridComponent):
             if ds_out[v].dtype != "bool":
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn, encoding=encoding)
+
+    def setup_grid_from_raster(
+        self,
+        raster_fn: Union[str, xr.Dataset],
+        reproject_method: str,
+        variables: Optional[List[str]] = None,
+        wflow_variables: Optional[List[str]] = None,
+        fill_method: Optional[str] = None,
+    ) -> List[str]:
+        """
+        Add data variable(s) from ``raster_fn`` to grid object.
+
+        If raster is a dataset, all variables will be added unless ``variables``
+        list is specified. The config toml can also be updated to include
+        the new maps using ``wflow_variables``.
+
+        Adds model layers:
+
+        * **raster.name** or **variables** grid: data from raster_fn
+
+        Parameters
+        ----------
+        raster_fn: str
+            Source name of RasterDataset in data_catalog.
+        reproject_method: str
+            Reprojection method from rasterio.enums.Resampling.
+            Available methods: ['nearest', 'bilinear', 'cubic', 'cubic_spline', \
+'lanczos', 'average', 'mode', 'gauss', 'max', 'min', 'med', 'q1', 'q3', \
+'sum', 'rms']
+        variables: list, optional
+            List of variables to add to grid from raster_fn. By default all.
+        wflow_variables: list, optional
+            List of corresponding wflow variables to update the config toml
+            (e.g: ["input.vertical.altitude"]).
+            Should match the variables list. variables list should be provided unless
+            raster_fn contains a single variable (len 1).
+        fill_method : str, optional
+            If specified, fills nodata values using fill_nodata method.
+            Available methods are {'linear', 'nearest', 'cubic', 'rio_idw'}.
+
+        Returns
+        -------
+        list
+            Names of added model staticmap layers.
+        """
+        self.logger.info(f"Preparing grid data from raster source {raster_fn}")
+        # Read raster data and select variables
+        ds = self.data_catalog.get_rasterdataset(
+            raster_fn,
+            geom=self.region,
+            buffer=2,
+            variables=variables,
+            single_var_as_array=False,
+        )
+        # Fill nodata
+        if fill_method is not None:
+            ds = ds.raster.interpolate_na(method=fill_method)
+        # Reprojection
+        ds_out = ds.raster.reproject_like(self.grid, method=reproject_method)
+        # Add to grid
+        self.set_grid(ds_out)
+
+        # Update config
+        if wflow_variables is not None:
+            self.logger.info(
+                f"Updating the config for wflow_variables: {wflow_variables}"
+            )
+            if variables is None:
+                if len(ds_out.data_vars) == 1:
+                    variables = list(ds_out.data_vars.keys())
+                else:
+                    raise ValueError(
+                        "Cannot update the toml if raster_fn has more than \
+one variable and variables list is not provided."
+                    )
+
+            # Check on len
+            if len(wflow_variables) != len(variables):
+                raise ValueError(
+                    f"Length of variables {variables} do not match wflow_variables \
+{wflow_variables}. Cannot update the toml."
+                )
+            else:
+                for i in range(len(variables)):
+                    self.config.set(wflow_variables[i], variables[i])
+
+    def clip(
+        self,
+        region,
+        buffer=0,
+        align=None,
+        crs=4326,
+    ):
+        """Clip grid to subbasin.
+
+        Parameters
+        ----------
+        region : dict
+            See :meth:`models.wflow.WflowModel.setup_basemaps`
+        buffer : int, optional
+            Buffer around subbasin in number of pixels, by default 0
+        align : float, optional
+            Align bounds of region to raster with resolution <align>, by default None
+        crs: int, optional
+            Default crs of the grid to clip.
+
+        Returns
+        -------
+        xarray.DataSet
+            Clipped grid.
+        """
+        basins_name = self._MAPS["basins"]
+        flwdir_name = self._MAPS["flwdir"]
+
+        kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
+        # translate basin and outlet kinds to geom
+        geom = region.get("geom", None)
+        bbox = region.get("bbox", None)
+        if kind in ["basin", "outlet", "subbasin"]:
+            # supply bbox to avoid getting basin bounds first when clipping subbasins
+            if kind == "subbasin" and bbox is None:
+                region.update(bbox=self.bounds)
+            geom, _ = hydromt.workflows.get_basin_geometry(
+                ds=self.grid.data,
+                logger=self.logger,
+                kind=kind,
+                basins_name=basins_name,
+                flwdir_name=flwdir_name,
+                **region,
+            )
+        # clip based on subbasin args, geom or bbox
+        if geom is not None:
+            ds_grid = self.grid.data.raster.clip_geom(geom, align=align, buffer=buffer)
+            ds_grid.coords["mask"] = ds_grid.raster.geometry_mask(geom)
+            ds_grid[basins_name] = ds_grid[basins_name].where(
+                ds_grid.coords["mask"], self.grid.data[basins_name].raster.nodata
+            )
+            ds_grid[basins_name].attrs.update(
+                _FillValue=self.grid.data[basins_name].raster.nodata
+            )
+        elif bbox is not None:
+            ds_grid = self.grid.data.raster.clip_bbox(bbox, align=align, buffer=buffer)
+
+        # Update flwdir grid and geoms
+        if self.crs is None and crs is not None:
+            self.set_crs(crs)
+
+        self._grid = xr.Dataset()
+        self.grid.set(ds_grid)
+
+        # add pits at edges after clipping
+        self._flwdir = None  # make sure old flwdir object is removed
+        self.grid.data[self._MAPS["flwdir"]].data = self.flwdir.to_array("ldd")
+
+        # Reinitiliase geoms and re-create basins/rivers
+        self._geoms = dict()
+        # self.basins
+        # self.rivers
+        # now geoms links to geoms which does not exist in every hydromt version
+        # remove when updating wflow to new objects
+        # Basin shape
+        basins = (
+            self.grid.data[basins_name]
+            .raster.vectorize()
+            .set_index("value")
+            .sort_index()
+        )
+        basins.index.name = basins_name
+        self.set_geoms(basins, name="basins")
+
+        rivmsk = self.grid.data[self._MAPS["rivmsk"]].values != 0
+        # Check if there are river cells in the model before continuing
+        if np.any(rivmsk):
+            # add stream order 'strord' column
+            strord = self.flwdir.stream_order(mask=rivmsk)
+            feats = self.flwdir.streams(mask=rivmsk, strord=strord)
+            gdf = gpd.GeoDataFrame.from_features(feats)
+            gdf.crs = pyproj.CRS.from_user_input(self.crs)
+            self.set_geoms(gdf, name="rivers")
+
+        # Update reservoir and lakes
+        remove_reservoir = False
+        if self._MAPS["resareas"] in self.grid.data:
+            reservoir = self.grid.data[self._MAPS["resareas"]]
+            if not np.any(reservoir > 0):
+                remove_reservoir = True
+                remove_maps = [
+                    self._MAPS["resareas"],
+                    self._MAPS["reslocs"],
+                    "ResSimpleArea",
+                    "ResDemand",
+                    "ResTargetFullFrac",
+                    "ResTargetMinFrac",
+                    "ResMaxRelease",
+                    "ResMaxVolume",
+                ]
+                self._grid = self.grid.data.drop_vars(remove_maps)
+
+        remove_lake = False
+        if self._MAPS["lakeareas"] in self.grid.data:
+            lake = self.grid.data[self._MAPS["lakeareas"]]
+            if not np.any(lake > 0):
+                remove_lake = True
+                remove_maps = [
+                    self._MAPS["lakeareas"],
+                    self._MAPS["lakelocs"],
+                    "LinkedLakeLocs",
+                    "LakeStorFunc",
+                    "LakeOutflowFunc",
+                    "LakeArea",
+                    "LakeAvgLevel",
+                    "LakeAvgOut",
+                    "LakeThreshold",
+                    "Lake_b",
+                    "Lake_e",
+                ]
+                self._grid = self.grid.data.drop_vars(remove_maps)
+
+            # Update tables
+            ids = np.unique(lake)
+            self._tables = {
+                k: v
+                for k, v in self.tables.items()
+                if not any([str(x) in k for x in ids])
+            }
+
+        # Update config
+        # Remove the absolute path and if needed remove lakes and reservoirs
+        if remove_reservoir:
+            # change reservoirs = true to false
+            self.model.config.set("model.reservoirs", False)
+            # remove states
+            self.model.config.delete_key("state.lateral.river.reservoir")
+
+        if remove_lake:
+            # change lakes = true to false
+            self.model.config.set("model.lakes", False)
+            # remove states
+            self.model.config.delete_key("state.lateral.river.lake")
