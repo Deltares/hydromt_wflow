@@ -6,7 +6,7 @@ from typing import Optional
 import geopandas as gpd
 import numpy as np
 import xarray as xr
-from hydromt import flw
+from hydromt.gis import flw
 
 logger = logging.getLogger(__name__)
 

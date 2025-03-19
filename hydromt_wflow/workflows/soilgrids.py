@@ -1,7 +1,7 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List, Optional, Union
+from typing import List, Union
 
 import hydromt
 import numpy as np

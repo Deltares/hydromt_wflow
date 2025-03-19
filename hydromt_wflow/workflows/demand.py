@@ -7,7 +7,7 @@ import geopandas as gpd
 import numpy as np
 import xarray as xr
 from hydromt import raster
-from hydromt.workflows.grid import grid_from_constant, grid_from_geodataframe
+from hydromt.model.processes.grid import grid_from_constant
 
 logger = logging.getLogger(__name__)
 
@@ -167,7 +167,6 @@ def domestic_from_population(
     popu: xr.Dataset,
     ds_like: xr.Dataset,
     gross_per_capita: Union[float, List[float]],
-    net_per_capita: Union[float, List[float]],
 ) -> tuple:
     """Create domestic water demand maps from statitics per capita.
 

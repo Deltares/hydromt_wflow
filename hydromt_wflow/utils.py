@@ -6,9 +6,9 @@ from typing import Dict, Optional, Union
 
 import numpy as np
 import xarray as xr
-from hydromt.io import open_timeseries_from_table
-from hydromt.vector import GeoDataArray
-from hydromt.workflows.grid import grid_from_constant
+from hydromt._io import _open_timeseries_from_table
+from hydromt.gis.vector import GeoDataArray
+from hydromt.model.processes.grid import grid_from_constant
 
 DATADIR = join(dirname(abspath(__file__)), "data")
 

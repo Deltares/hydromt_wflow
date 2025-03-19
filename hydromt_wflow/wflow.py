@@ -22,9 +22,9 @@ import shapely
 import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
-from hydromt import flw
-from hydromt.models.model_grid import GridModel
-from hydromt.nodata import NoDataStrategy
+from hydromt.gis import flw
+from hydromt.model import Model
+from hydromt._typing.error import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
@@ -37,7 +37,7 @@ __all__ = ["WflowModel"]
 logger = logging.getLogger(__name__)
 
 
-class WflowModel(GridModel):
+class WflowModel(Model):
     """Wflow model class."""
 
     _NAME = "wflow"
