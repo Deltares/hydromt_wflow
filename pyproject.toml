@@ -216,12 +216,12 @@ clean = { depends-on = [
   "clean-dist",
   "clean-docs-generated",
   "clean-docs-build",
-  "clean-docs-exmaples",
+  "clean-docs-examples",
 ] }
 clean-dist = { cmd = ["rm", "-rf", "dist"] }
 clean-docs-generated = { cmd = ["rm", "-rf", "docs/_generated"] }
 clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
-clean-docs-exmaples = { cmd = ["rm", "-rf", "docs/examples"] }
+clean-docs-examples = { cmd = ["rm", "-rf", "docs/examples"] }
 
 test = { cmd = ["pytest"] }
 test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
