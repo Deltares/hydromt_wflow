@@ -135,6 +135,9 @@ python = "3.11.*"
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"
 
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
 [tool.pixi.feature.extra.dependencies]
 gdal     = "<=3.8" # pin is necesary to avoid dependency conflict with numba re numpy 2.2.4
 pcraster = "*"
@@ -169,6 +172,15 @@ py311 = { solve-group = "py311", features = [
 ] }
 py312 = { solve-group = "py312", features = [
   "py312",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
+py313 = { solve-group = "py313", features = [
+  "py313",
   "io",
   "extra",
   "dev",
