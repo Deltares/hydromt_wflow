@@ -77,6 +77,9 @@ if args.profile not in ["", "min"]:
     extra_deps = _parse_profile(args.profile, opt_deps, project_name)
     deps_to_install.extend(extra_deps)
 
+if "conda_only_deps" in install_config:
+    deps_to_install.extend(install_config["conda_only_deps"])
+
 conda_deps = []
 pip_deps = []
 for dep in deps_to_install:

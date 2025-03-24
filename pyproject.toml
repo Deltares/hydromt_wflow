@@ -77,6 +77,10 @@ wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 
 [tool.make_env]
 channels = ["conda-forge"]
+conda_only_deps = [
+  "gdal",
+  "pcraster"
+]
 deps_not_in_conda = [
   "gwwapi",
   "hydroengine",
