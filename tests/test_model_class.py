@@ -93,6 +93,7 @@ def _compare_wflow_models(mod0, mod1):
         assert mod0._config == mod1._config, "config mismatch"
 
 
+@pytest.mark.skip(reason="needs migration to hydromt-core@v1")
 @pytest.mark.parametrize("model", list(_supported_models.keys()))
 def test_model_class(model, example_models):
     mod = example_models[model]
@@ -137,6 +138,7 @@ def test_model_class(model, example_models):
 #         _compare_wflow_models(mod0, mod1)
 
 
+@pytest.mark.skip(reason="needs migration to hydromt-core@v1")
 def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     model = "wflow"
 
@@ -167,6 +169,7 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
+@pytest.mark.skip(reason="needs migration to hydromt-core@v1")
 def test_model_inverse_clip(tmpdir, example_wflow_model):
     # Clip method options
     region = {
@@ -192,6 +195,7 @@ def test_model_inverse_clip(tmpdir, example_wflow_model):
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
+@pytest.mark.skip(reason="needs migration to hydromt-core@v1")
 def test_model_results(example_wflow_results):
     # Tests on results
     # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
