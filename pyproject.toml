@@ -33,17 +33,18 @@ classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering :: Hydrology",
-  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3)+",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
   "Programming Language :: Python :: 3",
 ]
 dynamic = ['version', 'description']
 
 [project.optional-dependencies]
 io = ["requests"]
-# extra = ["hydroengine", "gdal", "gwwapi", "pcraster", "pyet"]
+extra = ["hydroengine", "gwwapi", "pyet"]
 dev = ["ruff", "pre-commit", "pip>=23.1.2"]
 test = [
   "pytest>=2.7.3",
+  "pytest-timeout",
   "pytest-cov",
   "pytest-mock",
   "hydromt_wflow[dev, extra]",
