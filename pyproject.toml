@@ -38,8 +38,8 @@ dynamic = ['version', 'description']
 
 [project.optional-dependencies]
 io = ["requests"]
-extra = ["hydroengine", "gdal", "gwwapi", "pcraster", "pyet"]
-dev = ["black", "ruff", "pre-commit", "pip>=23.1.2"]
+# extra = ["hydroengine", "gdal", "gwwapi", "pcraster", "pyet"]
+dev = ["ruff", "pre-commit", "pip>=23.1.2"]
 test = [
   "pytest>=2.7.3",
   "pytest-cov",
@@ -122,61 +122,56 @@ platforms = ["linux-64", "win-64"]
 [tool.pixi.pypi-dependencies]
 hydromt_wflow = { path = ".", editable = true }
 
-[tool.pixi.feature.py310.dependencies]
-python = "3.10.*"
+# [tool.pixi.feature.py310.dependencies]
+# python = "3.10.*"
 
-[tool.pixi.feature.py311.dependencies]
-python = "3.11.*"
+# [tool.pixi.feature.py311.dependencies]
+# python = "3.11.*"
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"
 
 [tool.pixi.feature.extra.dependencies]
-gdal     = "*"
+# gdal = "<3.10"
 pcraster = "*"
 
 [tool.pixi.environments]
-default = { solve-group = "default" }
-dev = { features = [
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
-], solve-group = "default" }
-
-py310 = { features = ["py310"], solve-group = "py310" }
-py311 = { features = ["py311"], solve-group = "py311" }
-py312 = { features = ["py312"], solve-group = "py312" }
-
-dev-py310 = { features = [
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
-  "py310",
-], solve-group = "py310" }
-dev-py311 = { features = [
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
-  "py311",
-], solve-group = "py311" }
-dev-py312 = { features = [
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
+default = { features = [
   "py312",
-], solve-group = "py312" }
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
+# py310 = { solve-group = "py310", features = [
+#   "py310",
+#   "io",
+#   "extra",
+#   "dev",
+#   "test",
+#   "doc",
+#   "examples",
+# ] }
+# py311 = { solve-group = "py311", features = [
+#   "py311",
+#   "io",
+#   "extra",
+#   "dev",
+#   "test",
+#   "doc",
+#   "examples",
+# ] }
+py312 = { solve-group = "py312", features = [
+  "py312",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
 [tool.pixi.tasks]
 install = { depends-on = ["install-pre-commit"] }
 install-pre-commit = "pre-commit install"
