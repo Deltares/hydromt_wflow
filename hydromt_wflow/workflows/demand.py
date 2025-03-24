@@ -167,6 +167,7 @@ def domestic_from_population(
     popu: xr.Dataset,
     ds_like: xr.Dataset,
     gross_per_capita: Union[float, List[float]],
+    net_per_capita: Union[float, List[float]],
 ) -> tuple:
     """Create domestic water demand maps from statitics per capita.
 
@@ -736,7 +737,7 @@ def irrigation_from_vector(
     irrigation
     """
     # Rasterize the irrigation geometries
-    ds_irrigation = grid_from_geodataframe(
+    ds_irrigation = grid_from_geodataframe(  # noqa: F821
         grid_like=ds_like,
         gdf=gdf_irrigation,
         rasterize_method="fraction",

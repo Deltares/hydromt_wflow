@@ -7,10 +7,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
-from hydromt import gis
+from hydromt import gis, stats
 from hydromt.gis import flw
 from hydromt.model.processes.rivers import river_depth
-from hydromt import stats
 from scipy.optimize import curve_fit
 
 from hydromt_wflow.utils import DATADIR  # global var

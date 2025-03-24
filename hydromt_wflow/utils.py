@@ -59,7 +59,7 @@ of the config.
             usecols = [0]
             usecols = np.append(usecols, np.arange(count, count + len(gdf.index)))
             count += len(gdf.index)
-            da_ts = open_timeseries_from_table(
+            da_ts = _open_timeseries_from_table(
                 fn, name=f"{header}_{col['map']}", usecols=usecols
             )
             da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
@@ -70,10 +70,10 @@ of the config.
             usecols = np.append(usecols, np.arange(count, count + 1))
             count += 1
             try:
-                da_ts = open_timeseries_from_table(fn, name=header, usecols=usecols)
+                da_ts = _open_timeseries_from_table(fn, name=header, usecols=usecols)
             except Exception:
                 colnames = ["time", "0"]
-                da_ts = open_timeseries_from_table(
+                da_ts = _open_timeseries_from_table(
                     fn,
                     name=header,
                     usecols=usecols,

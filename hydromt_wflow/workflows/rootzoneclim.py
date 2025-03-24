@@ -851,9 +851,9 @@ def rootzoneclim(
     )
     # set runoff coefficient of cc_hist equal to runoff coeff of obs
     if correct_cc_deficit == True:
-        ds_sub_annual["discharge_coeff"].loc[
-            dict(forcing_type="cc_hist")
-        ] = ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
+        ds_sub_annual["discharge_coeff"].loc[dict(forcing_type="cc_hist")] = (
+            ds_sub_annual["discharge_coeff"].sel(forcing_type="obs")
+        )
 
     # Determine omega
     logger.info("Calculating the omega values, this can take a while")
@@ -938,18 +938,16 @@ def rootzoneclim(
     # period
     for return_period in gumbel.RP.values:
         for forcing_type in gumbel.forcing_type.values:
-            gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ] = gumbel["rootzone_storage"].sel(
-                RP=return_period, forcing_type=forcing_type
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                gumbel["rootzone_storage"].sel(
+                    RP=return_period, forcing_type=forcing_type
+                )
             )
             # Make sure to give the NaNs a value, otherwise they will become 0.0
-            gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ] = gdf_basins_all[
-                f"rootzone_storage_{forcing_type}_{str(return_period)}"
-            ].fillna(
-                -999
+            gdf_basins_all[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                gdf_basins_all[
+                    f"rootzone_storage_{forcing_type}_{str(return_period)}"
+                ].fillna(-999)
             )
 
     # Rasterize this (from large subcatchments to small ones)
