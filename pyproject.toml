@@ -24,8 +24,10 @@ dependencies = [
   "toml",
   "xarray",
 ]
+
 requires-python = ">=3.10"
-readme = "README.rst"
+readme          = "README.rst"
+
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
@@ -84,6 +86,7 @@ deps_not_in_conda = [
 [tool.ruff]
 line-length = 88
 exclude     = ["docs", "examples"]
+
 [tool.ruff.lint]
 # enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
 select = ["E", "F", "I", "PT", "D"]
@@ -122,17 +125,17 @@ platforms = ["linux-64", "win-64"]
 [tool.pixi.pypi-dependencies]
 hydromt_wflow = { path = ".", editable = true }
 
-# [tool.pixi.feature.py310.dependencies]
-# python = "3.10.*"
+[tool.pixi.feature.py310.dependencies]
+python = "3.10.*"
 
-# [tool.pixi.feature.py311.dependencies]
-# python = "3.11.*"
+[tool.pixi.feature.py311.dependencies]
+python = "3.11.*"
 
 [tool.pixi.feature.py312.dependencies]
 python = "3.12.*"
 
 [tool.pixi.feature.extra.dependencies]
-# gdal = "<3.10"
+gdal     = "<=3.8" # pin is necesary to avoid dependency conflict with numba re numpy 2.2.4
 pcraster = "*"
 
 [tool.pixi.environments]
@@ -145,24 +148,24 @@ default = { features = [
   "doc",
   "examples",
 ] }
-# py310 = { solve-group = "py310", features = [
-#   "py310",
-#   "io",
-#   "extra",
-#   "dev",
-#   "test",
-#   "doc",
-#   "examples",
-# ] }
-# py311 = { solve-group = "py311", features = [
-#   "py311",
-#   "io",
-#   "extra",
-#   "dev",
-#   "test",
-#   "doc",
-#   "examples",
-# ] }
+py310 = { solve-group = "py310", features = [
+  "py310",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
+py311 = { solve-group = "py311", features = [
+  "py311",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
 py312 = { solve-group = "py312", features = [
   "py312",
   "io",
@@ -201,8 +204,9 @@ docs-build = { cmd = [
 ], depends-on = [
   "doctest",
 ] }
-docs = { depends-on = ["docs-build"] } # alias
-doc = { depends-on = ["docs-build"] } # alias
+
+docs  = { depends-on = ["docs-build"] }                                     # alias
+doc   = { depends-on = ["docs-build"] }                                     # alias
 serve = { cmd = ["python", "-m", "http.server", "-d", "docs/_build/html"] }
 
 
@@ -213,14 +217,16 @@ clean = { depends-on = [
   "clean-docs-build",
   "clean-docs-examples",
 ] }
-clean-dist = { cmd = ["rm", "-rf", "dist"] }
-clean-docs-generated = { cmd = ["rm", "-rf", "docs/_generated"] }
-clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
-clean-docs-examples = { cmd = ["rm", "-rf", "docs/examples"] }
 
-test = { cmd = ["pytest"] }
-test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
+clean-dis            = { cmd = ["rm", "-rf", "dist"] }
+clean-docs-generated = { cmd = ["rm", "-rf", "docs/_generated"] }
+clean-docs-build     = { cmd = ["rm", "-rf", "docs/_build"] }
+clean-docs-examples  = { cmd = ["rm", "-rf", "docs/examples"] }
+
+test          = { cmd = ["pytest"] }
+test-lf       = { cmd = ["pytest", "--lf", "--tb=short"] }
 test-err-warn = { cmd = ["pytest", "--tb=short", "-W", "error"] }
+
 test-cov = { cmd = [
   "pytest",
   "--verbose",
