@@ -499,7 +499,7 @@ def add_planted_forest_to_landuse(
     """
     # Add a USLE_C column with default value
     logger.info(
-        "Correcting USLE_C with planted forest and orchardsusing {planted_forest_fn}."
+        "Correcting USLE_C with planted forest and orchards using {planted_forest_fn}."
     )
     planted_forest["USLE_C"] = planted_forest_c
     # If forest_type column is available, update USLE_C value for orchards

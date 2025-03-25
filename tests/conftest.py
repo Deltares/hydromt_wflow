@@ -65,28 +65,28 @@ def example_models(example_wflow_model, example_sediment_model):
     return models
 
 
-# @pytest.fixture()
+# @pytest.fixture
 # def wflow_ini():
 #     config = join(TESTDATADIR, "wflow_piave_build_subbasin.yml")
 #     opt = parse_config(config)
 #     return opt
 
 
-# @pytest.fixture()
+# @pytest.fixture
 # def sediment_ini():
 #     config = join(TESTDATADIR, "wflow_sediment_piave_build_subbasin.yml")
 #     opt = parse_config(config)
 #     return opt
 
 
-# @pytest.fixture()
+# @pytest.fixture
 # def wflow_simple_ini():
 #     config = join(dirname(abspath(__file__)), "..", "examples", "wflow_build.yml")
 #     opt = parse_config(config)
 #     return opt
 
 
-# @pytest.fixture()
+# @pytest.fixture
 # def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 #     inis = {
 #         "wflow": wflow_ini,
