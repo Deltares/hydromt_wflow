@@ -75,19 +75,6 @@ Source        = "https://github.com/Deltares/hydromt_wflow"
 wflow          = "hydromt_wflow.wflow:WflowModel"
 wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 
-[tool.make_env]
-channels = ["conda-forge"]
-conda_only_deps = [
-  "gdal",
-  "pcraster"
-]
-deps_not_in_conda = [
-  "gwwapi",
-  "hydroengine",
-  "sphinx_autosummary_accessors",
-  "sphinx_design",
-  "pyet",
-]
 [tool.ruff]
 line-length = 88
 exclude     = ["docs", "examples"]
@@ -143,7 +130,7 @@ python = "3.12.*"
 python = "3.13.*"
 
 [tool.pixi.feature.extra.dependencies]
-gdal     = "<=3.8" # pin is necesary to avoid dependency conflict with numba re numpy 2.2.4
+gdal     = "<=3.8" # pin is necessary to avoid dependency conflict with numba re numpy 2.2.4
 pcraster = "*"
 
 [tool.pixi.environments]
@@ -158,39 +145,15 @@ default = { features = [
 ] }
 py310 = { solve-group = "py310", features = [
   "py310",
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
 ] }
 py311 = { solve-group = "py311", features = [
   "py311",
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
 ] }
 py312 = { solve-group = "py312", features = [
   "py312",
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
 ] }
 py313 = { solve-group = "py313", features = [
   "py313",
-  "io",
-  "extra",
-  "dev",
-  "test",
-  "doc",
-  "examples",
 ] }
 [tool.pixi.tasks]
 install = { depends-on = ["install-pre-commit"] }
