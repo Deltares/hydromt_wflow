@@ -65,7 +65,7 @@ cyclic = ["vertical.leaf_area_index"]
 [input.vertical]
 altitude = "wflow_dem"
 canopyheight = "CanopyHeight"
-erosk = "ErosK"
+erosk = "soil_detachability"
 erosspl = "eros_spl_EUROSEM"
 erosov = "eros_ov"
 h_land = "lwl" # forcing
@@ -80,13 +80,19 @@ specific_leaf = "Sl"
 storage_wood = "Swood"
 usleC = "USLE_C"
 usleK = "USLE_K"
-pclay = "PercentClay"
-psilt = "PercentSilt"
 rivcell = "wflow_river"
 # Reservoir
 resareas = "wflow_reservoirareas"
 # Lake
 lakeareas = "wflow_lakeareas"
+
+[input.vertical.pclay]
+netcdf.variable.name = "fclay_soil"
+scale = 100
+
+[input.vertical.psilt]
+netcdf.variable.name = "fsilt_soil"
+scale = 100
 
 [input.lateral.land]
 slope = "Slope"
