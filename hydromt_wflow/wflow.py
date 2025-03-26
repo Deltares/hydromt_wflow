@@ -2610,7 +2610,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         * **wflow_glacierareas** map: glacier IDs [-]
         * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
-        * **G_TT** map: temperature threshold for glacier melt/buildup [°C]
+        * **G_TTM** map: temperature threshold for glacier melt/buildup [°C]
         * **G_Cfmax** map: glacier melting factor [mm/°C*day]
         * **G_SIfrac** map: fraction of snowpack on top of glacier converted to ice, \
 added to glacierstore [-]
@@ -2630,7 +2630,7 @@ added to glacierstore [-]
             "input.vertical.glacierstore": "wflow_glacierstore",
             "input.vertical.glacierfrac": "wflow_glacierfrac",
             "input.vertical.g_cfmax": "G_Cfmax",
-            "input.vertical.g_tt": "G_TT",
+            "input.vertical.g_ttm": "G_TTM",
             "input.vertical.g_sifrac": "G_SIfrac",
         }
         # retrieve data for basin
