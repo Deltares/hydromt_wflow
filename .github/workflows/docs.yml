@@ -3,7 +3,7 @@ name: Build Documentation
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, v1, wflow-v1]
     paths:
       - tests/*
       - hydromt_wflow/*
@@ -11,7 +11,7 @@ on:
       - examples/*
       - pyproject.toml
   pull_request:
-    branches: [main]
+    branches: [main, v1, wflow-v1]
     paths:
       - tests/*
       - hydromt_wflow/*
