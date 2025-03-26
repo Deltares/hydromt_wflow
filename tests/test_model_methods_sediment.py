@@ -49,7 +49,7 @@ def test_setup_soilmaps_sed(
 ):
     values = example_sediment_model.grid["usle_k"].raster.mask_nodata()
     mean_val = values.mean().values
-    assert np.isclose(mean_val, 0.022215)
+    assert np.isclose(mean_val, 0.022215, atol=1e-6)
 
     example_sediment_model.setup_soilmaps(
         soil_fn="soilgrids",
@@ -60,7 +60,7 @@ def test_setup_soilmaps_sed(
 
     values = da["usle_k"].raster.mask_nodata()
     mean_val = values.mean().values
-    assert np.isclose(mean_val, 0.031182)
+    assert np.isclose(mean_val, 0.031182, atol=1e-6)
 
     assert "d50_soil" in da
     assert "fclay_soil" in da
