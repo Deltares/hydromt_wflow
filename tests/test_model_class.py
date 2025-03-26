@@ -81,9 +81,9 @@ def _compare_wflow_models(mod0, mod1):
             assert geom0.index.size == geom1.index.size
             assert np.all(set(geom0.index) == set(geom1.index)), f"geom index {name}"
             assert geom0.columns.size == geom1.columns.size
-            assert np.all(
-                set(geom0.columns) == set(geom1.columns)
-            ), f"geom columns {name}"
+            assert np.all(set(geom0.columns) == set(geom1.columns)), (
+                f"geom columns {name}"
+            )
             assert geom0.crs == geom1.crs, f"geom crs {name}"
             if not np.all(geom0.geometry == geom1.geometry):
                 warnings.warn(f"New geom {name} different than the example one.")
@@ -165,6 +165,31 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     clipped_wflow_model.read()
     # compare models
     _compare_wflow_models(clipped_wflow_model, mod1)
+
+
+def test_model_inverse_clip(tmpdir, example_wflow_model):
+    # Clip method options
+    region = {
+        "subbasin": [12.3006, 46.4324],
+        "wflow_streamorder": 4,
+    }
+
+    # Clip workflow, based on example model
+    example_wflow_model.read()
+    # Get number of active pixels from full model
+    n_pixels_full = example_wflow_model.grid["wflow_subcatch"].sum()
+    example_wflow_model.clip_grid(region, inverse_clip=True)
+    # Get number of active pixels from inversely clipped model
+    n_pixels_inverse_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+
+    # Do clipping again, but normally
+    example_wflow_model.read()
+    example_wflow_model.clip_grid(region, inverse_clip=False)
+    # Get number of active pixels from clipped model
+    n_pixels_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+
+    assert n_pixels_inverse_clipped < n_pixels_full
+    assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
 
 
 def test_model_results(example_wflow_results):

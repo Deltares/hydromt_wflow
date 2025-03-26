@@ -172,7 +172,7 @@ def update_kvfrac(
 
 def get_ks_veg(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
     """
-    based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
+    Based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
 
     Parameters
     ----------

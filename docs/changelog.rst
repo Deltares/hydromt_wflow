@@ -11,15 +11,25 @@ Unreleased
 
 Added
 -----
--
+- Added support for inverse clipping by using the `inverse_clip=True` flag in the `clip_grid` method. PR #336
+- **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
+- **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
+- **setup_soilmaps**: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334
+
 
 Changed
 -------
 - Changed name of `g_tt` parameter to `g_ttm`, to align with the changes in https://github.com/Deltares/Wflow.jl/pull/512
+- **setup_allocation_areas**: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334
+- **setup_soilmaps** [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.
+- **setup_soilmaps** [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).
+- **setup_constant_pars** [sediment]: added additional default values for sediment density and particle diameters.
+- **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.
+
 
 Fixed
 -----
--
+- **setup_rivers**: fixed bug if manning or gvf methods are used to compute river depth. PR #334
 
 Deprecated
 ----------

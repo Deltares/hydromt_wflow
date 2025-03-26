@@ -7,16 +7,18 @@ import geopandas as gpd
 import numpy as np
 import xarray as xr
 from hydromt import raster
-from hydromt.workflows.grid import grid_from_constant
+from hydromt.workflows.grid import grid_from_constant, grid_from_geodataframe
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "allocation_areas",
     "domestic",
+    "domestic_from_population",
     "other_demand",
     "surfacewaterfrac_used",
     "irrigation",
+    "irrigation_from_vector",
 ]
 
 map_vars = {
@@ -161,6 +163,77 @@ def domestic(
     return ds_scaled, popu_scaled
 
 
+def domestic_from_population(
+    popu: xr.Dataset,
+    ds_like: xr.Dataset,
+    gross_per_capita: Union[float, List[float]],
+    net_per_capita: Union[float, List[float]],
+) -> tuple:
+    """Create domestic water demand maps from statitics per capita.
+
+    Parameters
+    ----------
+    popu : xr.Dataset
+        Population dataset (number of people per gridcell).
+    ds_like : xr.Dataset
+        Dataset at wflow model domain and resolution.
+    gross_per_capita : float, List[float]
+        Gross domestic water demand per capita in m3/day.
+    net_per_capita : float, List[float], optional
+        Net domestic water demand per capita in m3/day.
+
+    Returns
+    -------
+    tuple
+        Domestic data at model resolution, Population data at model resolution.
+    """
+    # Convert population to density and reproject to model
+    popu = popu.raster.mask_nodata().fillna(0)
+    popu_density = popu / popu.raster.area_grid()
+    popu_density.name = "population_density"
+    popu_scaled = popu_density.raster.reproject_like(
+        ds_like,
+        method="average",
+    )
+    # Back to cap per cell
+    popu_scaled = popu_scaled * popu_scaled.raster.area_grid()
+    popu_scaled.name = "population"
+
+    # Create the demand maps
+    gross_per_capita = np.atleast_1d(gross_per_capita)
+    net_per_capita = np.atleast_1d(net_per_capita)
+    if len(gross_per_capita) != len(net_per_capita):
+        raise ValueError("Gross and net per capita demands must have the same length.")
+
+    # Non-cyclic
+    if len(gross_per_capita) == 1:
+        ds_demand = popu_scaled * gross_per_capita[0]
+        ds_demand.name = "dom_gross"
+        ds_demand = ds_demand.to_dataset()
+        ds_demand["dom_net"] = popu_scaled * net_per_capita[0]
+    # Cyclic
+    else:
+        ds_demand = xr.concat(
+            [popu_scaled * gross_per_capita[i] for i in range(len(gross_per_capita))],
+            dim="time",
+        )
+        ds_demand["time"] = [i for i in range(len(gross_per_capita))]
+        ds_demand = ds_demand.assign_coords(
+            time=[i for i in range(len(gross_per_capita))]
+        )
+        ds_demand = ds_demand.to_dataset(name="dom_gross")
+        ds_demand["dom_net"] = xr.concat(
+            [popu_scaled * net_per_capita[i] for i in range(len(net_per_capita))],
+            dim="time",
+        )
+
+    # Convert from m3/day to mm/day
+    for var in ds_demand.data_vars:
+        ds_demand[var] = ds_demand[var] / ds_demand.raster.area_grid() * 1000
+
+    return ds_demand, popu_scaled
+
+
 def other_demand(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
@@ -203,6 +276,7 @@ def allocation_areas(
     waterareas: gpd.GeoDataFrame,
     basins: gpd.GeoDataFrame,
     priority_basins: bool = True,
+    minimum_area: float = 50.0,
 ) -> Tuple[xr.DataArray, gpd.GeoDataFrame]:
     """Create water allocation area.
 
@@ -224,6 +298,8 @@ def allocation_areas(
         boundaries, the priority_basins flag can be used to decide if these basins
         should be merged with the closest downstream basin (True, default) or with any
         large enough basin in the same administrative area (False).
+    minimum_area : float
+        Minimum area of the subbasins to keep in km2. Default is 50 km2.
 
     Returns
     -------
@@ -272,6 +348,18 @@ def allocation_areas(
     da_subbasins_to_keep = np.int32(
         da_subbasins_to_keep[~np.isnan(da_subbasins_to_keep)]
     )
+    # Filter with a minimum area for the subbasins to keep
+    subbasins_to_keep = subbasins[subbasins.index.isin(da_subbasins_to_keep)]
+    if subbasins_to_keep.crs.is_geographic:
+        subbasins_to_keep = subbasins_to_keep.to_crs(3857)
+    # Get the area of the subbasins
+    subbasins_to_keep["area"] = subbasins_to_keep.area
+    # Filter the subbasins based on the minimum area
+    subbasins_to_keep = subbasins_to_keep[
+        subbasins_to_keep["area"] > (minimum_area * 1e6)
+    ]
+    # Get the unique index of the subbasins to keep
+    da_subbasins_to_keep = subbasins_to_keep.index.values
 
     # Create the water allocation map starting with the subbasins that contain a river
     allocation_areas = da_subbasins.where(
@@ -557,7 +645,8 @@ def irrigation(
     paddy_class: List[int]
         Values that indicate paddy fields in landuse map.
     area_threshold: float
-        Threshold for the area of a pixel to be classified as irrigated.
+        Threshold for the area of a pixel to be classified as irrigated (fraction of
+        the cell covered).
     lai_threshold: float
         Threshold for the LAI value to be classified as growing season.
 
@@ -600,5 +689,80 @@ def irrigation(
     ds_irrigation["nonpaddy_irrigation_trigger"] = trigger.where(nonpaddy_areas == 1, 0)
     if len(paddy_class) > 0:
         ds_irrigation["paddy_irrigation_trigger"] = trigger.where(paddy_areas == 1, 0)
+
+    return ds_irrigation
+
+
+def irrigation_from_vector(
+    gdf_irrigation: gpd.GeoDataFrame,
+    ds_like: xr.Dataset,
+    cropland_class: List[int],
+    paddy_class: List[int] = [],
+    area_threshold: float = 0.6,
+    lai_threshold: float = 0.2,
+    logger=logger,
+):
+    """
+    Prepare irrigation maps for paddy and non paddy from geodataframe.
+
+    Parameters
+    ----------
+    gdf_irrigation: gpd.GeoDataFrame
+        Shapefile with irrigation areas.
+    ds_like: xr.Dataset
+        Dataset at wflow model domain and resolution.
+
+        * Required variables: ['wflow_landuse', 'LAI']
+    irrigation_value: List[int]
+        Values that indicate irrigation in gdf_irrigation.
+    cropland_class: List[int]
+        Values that indicate cropland in landuse map.
+    paddy_class: List[int]
+        Values that indicate paddy fields in landuse map.
+    area_threshold: float
+        Threshold for the area of a pixel to be classified as irrigated (fraction of
+        the cell covered).
+    lai_threshold: float
+        Threshold for the LAI value to be classified as growing season.
+
+    Returns
+    -------
+    ds_irrigation: xr.Dataset
+        Dataset with paddy and non-paddy irrigation maps: ['paddy_irrigation_areas',
+        'nonpaddy_irrigation_areas', 'paddy_irrigation_trigger',
+        'nonpaddy_irrigation_trigger']
+
+    See Also
+    --------
+    irrigation
+    """
+    # Rasterize the irrigation geometries
+    ds_irrigation = grid_from_geodataframe(
+        grid_like=ds_like,
+        gdf=gdf_irrigation,
+        rasterize_method="fraction",
+        rename="irrigated_area",
+        nodata=-1,
+        mask_name=None,
+    )
+
+    # Only keep fraction that are above area_threshold and convert to 1
+    da_irrigation = ds_irrigation["irrigated_area"]
+    da_irrigation = da_irrigation.where(
+        da_irrigation >= area_threshold, da_irrigation.raster.nodata
+    )
+    da_irrigation = da_irrigation.where(da_irrigation == da_irrigation.raster.nodata, 1)
+
+    # Call the raster method
+    ds_irrigation = irrigation(
+        da_irrigation=da_irrigation,
+        ds_like=ds_like,
+        irrigation_value=[1],
+        cropland_class=cropland_class,
+        paddy_class=paddy_class,
+        area_threshold=area_threshold,
+        lai_threshold=lai_threshold,
+        logger=logger,
+    )
 
     return ds_irrigation
