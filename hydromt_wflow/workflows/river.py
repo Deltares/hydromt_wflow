@@ -7,7 +7,9 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
-from hydromt import flw, gis_utils, stats, workflows
+from hydromt import gis, stats
+from hydromt.gis import flw
+from hydromt.model.processes.rivers import river_depth
 from scipy.optimize import curve_fit
 
 from hydromt_wflow.utils import DATADIR  # global var
@@ -115,7 +117,7 @@ def river(
     xres, yres = ds_model.raster.res
     if ds_model.raster.crs.is_geographic:  # convert degree to meters
         lat_avg = ds_model.raster.ycoords.values.mean()
-        xres, yres = gis_utils.cellres(lat_avg, xres, yres)
+        xres, yres = gis.cellres(lat_avg, xres, yres)
     rivlen = np.where(riv_mask.values, rivlen, -9999)
     # set mean length at most downstream (if channel_dir=down) or upstream
     # (if channel_dir=up) river lengths
@@ -244,12 +246,12 @@ def river_bathymetry(
         gdf_out = gpd.GeoDataFrame(
             geometry=gpd.points_from_xy(xs_out, ys_out), crs=ds_model.raster.crs
         )
-        idx_nn, dst_nn = gis_utils.nearest(gdf_out, gdf_riv)
+        idx_nn, dst_nn = gis.nearest(gdf_out, gdf_riv)
         # get valid river data within max half pixel distance
         xres, yres = ds_model.raster.res
         if ds_model.raster.crs.is_geographic:  # convert degree to meters
             lat_avg = ds_model.raster.ycoords.values.mean()
-            xres, yres = gis_utils.cellres(lat_avg, xres, yres)
+            xres, yres = gis.cellres(lat_avg, xres, yres)
         max_dist = np.mean(np.abs([xres, yres])) / 2.0
         nriv, nsnap = xs_out.size, int(np.sum(dst_nn < max_dist))
         logger.debug(
@@ -296,12 +298,11 @@ def river_bathymetry(
                 dims, rivdst, attrs=dict(_FillValue=nodata)
             )
         # add river distance to outlet -> required for manning/gvf method
-        rivdph = workflows.river_depth(
+        rivdph = river_depth(
             data=ds_model,
             flwdir=flwdir_river,
             method=method,
             min_rivdph=min_rivdph,
-            rivzs_name="subelv",
             **kwargs,
         )
         attrs = dict(_FillValue=-9999, unit="m")
@@ -569,7 +570,7 @@ def _precip(ds_like, flwdir, da_precip, logger=logger):
     )  # [m/yr]
     precip = np.maximum(precip, 0)
     lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    area = gis_utils.reggrid_area(lat, lon)
+    area = gis.reggrid_area(lat, lon)
     # 10 x average flow
     accu_precip = flwdir.accuflux(precip * area / (86400 * 365) * 10)  # [m3/s]
     return accu_precip
@@ -609,7 +610,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
 
     # derive cell areas (m2)
     lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
-    areagrid = gis_utils.reggrid_area(lat, lon) / 1e6
+    areagrid = gis.reggrid_area(lat, lon) / 1e6
 
     # calculate "local runoff" (note: set missing in precipitation to zero)
     runoff = (np.maximum(precip, 0) * params["precip"]) + (areagrid * params["area"])

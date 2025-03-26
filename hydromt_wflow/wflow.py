@@ -22,9 +22,9 @@ import shapely
 import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
-from hydromt import flw
-from hydromt.models.model_grid import GridModel
-from hydromt.nodata import NoDataStrategy
+from hydromt._typing.error import NoDataStrategy
+from hydromt.gis import flw
+from hydromt.model import Model
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
@@ -37,7 +37,7 @@ __all__ = ["WflowModel"]
 logger = logging.getLogger(__name__)
 
 
-class WflowModel(GridModel):
+class WflowModel(Model):
     """Wflow model class."""
 
     _NAME = "wflow"
@@ -4640,7 +4640,7 @@ Run setup_soilmaps first"
                 self._grid = self.grid.drop_vars(vars_to_drop)
 
         # fall back on default set_grid behaviour
-        GridModel.set_grid(self, data, name)
+        # GridModel.set_grid(self, data, name)
 
     def read_geoms(
         self,

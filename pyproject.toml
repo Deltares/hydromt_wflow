@@ -12,7 +12,7 @@ authors = [
 ]
 dependencies = [
   "dask",
-  "geopandas>=0.10",
+  "geopandas[all]>=0.10",
   "hydromt>=v1.0.0,<2",
   "netcdf4",
   "numpy",
@@ -46,6 +46,7 @@ test = [
   "pytest>=2.7.3",
   "pytest-timeout",
   "pytest-cov",
+  "pytest-timeout",
   "pytest-mock",
   "hydromt_wflow[dev, extra]",
 ]

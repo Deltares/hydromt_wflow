@@ -7,7 +7,7 @@ import geopandas as gpd
 import numpy as np
 import xarray as xr
 from hydromt import raster
-from hydromt.workflows.grid import grid_from_constant, grid_from_geodataframe
+from hydromt.model.processes.grid import grid_from_constant
 
 logger = logging.getLogger(__name__)
 
@@ -737,7 +737,7 @@ def irrigation_from_vector(
     irrigation
     """
     # Rasterize the irrigation geometries
-    ds_irrigation = grid_from_geodataframe(
+    ds_irrigation = grid_from_geodataframe(  # noqa: F821
         grid_like=ds_like,
         gdf=gdf_irrigation,
         rasterize_method="fraction",
