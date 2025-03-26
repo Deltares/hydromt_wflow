@@ -779,19 +779,35 @@ def soilgrids_brooks_corey(
     return ds_out
 
 
-def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
+def soilgrids_sediment(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    usleK_method: str = "renard",
+    add_aggregates: bool = True,
+    logger=logger,
+) -> xr.Dataset:
     """
     Return soil parameter maps for sediment modelling at model resolution.
 
     Based on soil properties from SoilGrids dataset.
+    Sediment size distribution and addition of small and large aggregates can be
+    estimated from primary particle size distribution with Foster et al. (1980).
+    USLE K factor can be computed from the soil data using Renard or EPIC methods.
+    Calculation of D50 and fraction of fine and very fine sand (fvfs) from
+    Fooladmand et al, 2006.
 
     The following soil parameter maps are calculated:
 
-    * PercentClay: clay content of the topsoil [%]
-    * PercentSilt: silt content of the topsoil [%]
-    * PercentOC: organic carbon in the topsoil [%]
-    * ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]
-    * USLE_K: soil erodibility factor from the USLE equation [-]
+    * fclay_soil: clay content of the topsoil [g/g]
+    * fsilt_soil: silt content of the topsoil [g/g]
+    * fsand_soil: sand content of the topsoil [g/g]
+    * fsagg_soil: small aggregate content of the topsoil [g/g]
+    * flagg_soil: large aggregate content of the topsoil [g/g]
+    * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
+    * usle_k: soil erodibility factor from the USLE equation [-]
+    * d50_soil: median sediment diameter of the soil [mm]
+    * c_govers: Govers factor for overland flow transport capacity [-]
+    * n_govers: Govers exponent for overland flow transport capacity [-]
 
     Parameters
     ----------
@@ -801,6 +817,8 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         Dataset at model resolution.
     usleK_method : str
         Method to use for calculation of USLE_K {"renard", "epic"}.
+    add_aggregates : bool
+        Add small and large aggregates to the soil properties. Default is True.
 
     Returns
     -------
@@ -816,16 +834,8 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     # soil properties
     pclay = ds["clyppt_sl1"]
-    percentclay = pclay.raster.reproject_like(ds_like, method="average")
-    ds_out["PercentClay"] = percentclay.astype(np.float32)
-
     psilt = ds["sltppt_sl1"]
-    percentsilt = psilt.raster.reproject_like(ds_like, method="average")
-    ds_out["PercentSilt"] = percentsilt.astype(np.float32)
-
     poc = ds["oc_sl1"]
-    percentoc = poc.raster.reproject_like(ds_like, method="average")
-    ds_out["PercentOC"] = percentoc.astype(np.float32)
 
     # Detachability of the soil
     erosK = xr.apply_ufunc(
@@ -837,7 +847,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         keep_attrs=True,
     )
     erosK = erosK.raster.reproject_like(ds_like, method="average")
-    ds_out["ErosK"] = erosK.astype(np.float32)
+    ds_out["soil_detachability"] = erosK.astype(np.float32)
 
     # USLE K parameter
     if usleK_method == "renard":
@@ -860,7 +870,61 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             keep_attrs=True,
         )
     usleK = usleK.raster.reproject_like(ds_like, method="average")
-    ds_out["USLE_K"] = usleK.astype(np.float32)
+    ds_out["usle_k"] = usleK.astype(np.float32)
+
+    # Mean diameter of the soil
+    d50 = xr.apply_ufunc(
+        ptf.mean_diameter_soil,
+        pclay,
+        psilt,
+        dask="parallelized",
+        output_dtypes=[float],
+        keep_attrs=True,
+    )
+    ds_out["d50_soil"] = d50.raster.reproject_like(ds_like, method="average").astype(
+        np.float32
+    )
+
+    # Govers factor and exponent for overland flow transport capacity
+    c_govers = ((d50 * 1000 + 5) / 0.32) ** (-0.6)
+    n_govers = ((d50 * 1000 + 5) / 300) ** (0.25)
+    ds_out["c_govers"] = c_govers.raster.reproject_like(
+        ds_like, method="average"
+    ).astype(np.float32)
+    ds_out["n_govers"] = n_govers.raster.reproject_like(
+        ds_like, method="average"
+    ).astype(np.float32)
+
+    # Sediment size distribution
+    if add_aggregates:
+        fclay = 0.20 * pclay / 100
+        fsilt = 0.13 * psilt / 100
+        fsand = (1 - pclay / 100 - psilt / 100) * (1 - pclay / 100) ** 2.4
+        fsagg = 0.28 * (pclay / 100 - 0.25) + 0.5
+        fsagg = fsagg.where(pclay < 50, 0.57)
+        fsagg = fsagg.where(pclay > 25, 2 * pclay / 100)
+    else:
+        fclay = pclay / 100
+        fsilt = psilt / 100
+        fsagg = fclay * 0.0
+
+    # Reproject to model resolution
+    fclay = fclay.raster.reproject_like(ds_like, method="average")
+    ds_out["fclay_soil"] = fclay.astype(np.float32)
+    fsilt = fsilt.raster.reproject_like(ds_like, method="average")
+    ds_out["fsilt_soil"] = fsilt.astype(np.float32)
+    fsagg = fsagg.raster.reproject_like(ds_like, method="average")
+    ds_out["fsagg_soil"] = fsagg.astype(np.float32)
+    # Make sure that the sum of the percentages is 100
+    if add_aggregates:
+        fsand = fsand.raster.reproject_like(ds_like, method="average").astype(
+            np.float32
+        )
+        ds_out["fsand_soil"] = fsand
+        ds_out["flagg_soil"] = (1 - fclay - fsilt - fsand - fsagg).astype(np.float32)
+    else:
+        ds_out["fsand_soil"] = (1 - fclay - fsilt).astype(np.float32)
+        ds_out["flagg_soil"] = (fclay * 0.0).astype(np.float32)
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
