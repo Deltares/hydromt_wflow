@@ -49,7 +49,7 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.hydrography" href="hydromt_wflow.workflows.hydrography.html" />
+    <link rel="next" title="hydromt_wflow.workflows.irrigation_from_vector" href="hydromt_wflow.workflows.irrigation_from_vector.html" />
     <link rel="prev" title="hydromt_wflow.workflows.other_demand" href="hydromt_wflow.workflows.other_demand.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -382,8 +382,10 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_allocation_areas.html">hydromt_wflow.WflowModel.setup_allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac.html">hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_domestic_demand.html">hydromt_wflow.WflowModel.setup_domestic_demand</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_domestic_demand_from_population.html">hydromt_wflow.WflowModel.setup_domestic_demand_from_population</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_other_demand.html">hydromt_wflow.WflowModel.setup_other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_irrigation.html">hydromt_wflow.WflowModel.setup_irrigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_irrigation_from_vector.html">hydromt_wflow.WflowModel.setup_irrigation_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksathorfrac.html">hydromt_wflow.WflowModel.setup_ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksatver_vegetation.html">hydromt_wflow.WflowModel.setup_ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html">hydromt_wflow.WflowModel.setup_rootzoneclim</a></li>
@@ -525,8 +527,10 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.surfacewaterfrac_used.html">hydromt_wflow.workflows.surfacewaterfrac_used</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic.html">hydromt_wflow.workflows.domestic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic_from_population.html">hydromt_wflow.workflows.domestic_from_population</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.other_demand.html">hydromt_wflow.workflows.other_demand</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.irrigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.irrigation_from_vector.html">hydromt_wflow.workflows.irrigation_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.hydrography.html">hydromt_wflow.workflows.hydrography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.topography.html">hydromt_wflow.workflows.topography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
@@ -639,7 +643,8 @@
 <li><p><strong>irrigation_value</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Values that indicate irrigation in da_irrigation.</p></li>
 <li><p><strong>cropland_class</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Values that indicate cropland in landuse map.</p></li>
 <li><p><strong>paddy_class</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Values that indicate paddy fields in landuse map.</p></li>
-<li><p><strong>area_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Threshold for the area of a pixel to be classified as irrigated.</p></li>
+<li><p><strong>area_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Threshold for the area of a pixel to be classified as irrigated (fraction of
+the cell covered).</p></li>
 <li><p><strong>lai_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Threshold for the LAI value to be classified as growing season.</p></li>
 </ul>
 </dd>
@@ -676,11 +681,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.workflows.hydrography.html"
+       href="hydromt_wflow.workflows.irrigation_from_vector.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.hydrography</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.irrigation_from_vector</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -766,7 +771,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>

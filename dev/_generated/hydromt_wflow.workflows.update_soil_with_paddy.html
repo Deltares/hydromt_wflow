@@ -382,8 +382,10 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_allocation_areas.html">hydromt_wflow.WflowModel.setup_allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac.html">hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_domestic_demand.html">hydromt_wflow.WflowModel.setup_domestic_demand</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_domestic_demand_from_population.html">hydromt_wflow.WflowModel.setup_domestic_demand_from_population</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_other_demand.html">hydromt_wflow.WflowModel.setup_other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_irrigation.html">hydromt_wflow.WflowModel.setup_irrigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_irrigation_from_vector.html">hydromt_wflow.WflowModel.setup_irrigation_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksathorfrac.html">hydromt_wflow.WflowModel.setup_ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksatver_vegetation.html">hydromt_wflow.WflowModel.setup_ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html">hydromt_wflow.WflowModel.setup_rootzoneclim</a></li>
@@ -525,8 +527,10 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.surfacewaterfrac_used.html">hydromt_wflow.workflows.surfacewaterfrac_used</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic.html">hydromt_wflow.workflows.domestic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic_from_population.html">hydromt_wflow.workflows.domestic_from_population</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.other_demand.html">hydromt_wflow.workflows.other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.irrigation.html">hydromt_wflow.workflows.irrigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.irrigation_from_vector.html">hydromt_wflow.workflows.irrigation_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.hydrography.html">hydromt_wflow.workflows.hydrography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.topography.html">hydromt_wflow.workflows.topography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
@@ -630,10 +634,10 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.1.3.dev0)"><em>xarray.Dataset</em></a>) – Dataset containing soil properties.</p></li>
-<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.1.dev0)"><em>xarray.Dataset</em></a>) – Dataset containing soil properties.</p></li>
+<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.
 Required variables: wflow_subcatch, KsatVer, f</p></li>
-<li><p><strong>paddy_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.1.3.dev0)"><em>xarray.DataArray</em></a>) – Dataset containing paddy fields mask.</p></li>
+<li><p><strong>paddy_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset containing paddy fields mask.</p></li>
 <li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – soilgrids version {‘soilgrids’, ‘soilgrids_2020’}</p></li>
 <li><p><strong>update_c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Update c based on change in wflow_layers.</p></li>
 <li><p><strong>wflow_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List of soil layer depths [cm] for which c is calculated.</p></li>
@@ -644,7 +648,7 @@ Required variables: wflow_subcatch, KsatVer, f</p></li>
 <dd class="field-even"><p><strong>soil_out</strong> – Dataset containing updated soil properties.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.1.3.dev0)">xarray.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.1.dev0)">xarray.Dataset</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -761,7 +765,7 @@ Required variables: wflow_subcatch, KsatVer, f</p></li>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>

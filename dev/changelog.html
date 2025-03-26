@@ -440,19 +440,22 @@
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li></li>
+<li><p>Added support for inverse clipping by using the <cite>inverse_clip=True</cite> flag in the <cite>clip_grid</cite> method. PR #336</p></li>
+<li><p><strong>setup_domestic_demand_from_population</strong>: method to compute domestic demand from population and water use per capita. PR #334</p></li>
+<li><p><strong>setup_irrigation_from_vector</strong>: method to add irrigation areas from a vector file. PR #334</p></li>
+<li><p><strong>setup_soilmaps</strong>: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334</p></li>
 </ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li></li>
+<li><p><strong>setup_allocation_areas</strong>: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334</p></li>
 </ul>
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li></li>
+<li><p><strong>setup_rivers</strong>: fixed bug if manning or gvf methods are used to compute river depth. PR #334</p></li>
 </ul>
 </section>
 <section id="deprecated">
@@ -1191,7 +1194,7 @@ Note that the new river width estimates are different and result in different mo
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>

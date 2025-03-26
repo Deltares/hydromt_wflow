@@ -382,8 +382,10 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_allocation_areas.html">hydromt_wflow.WflowModel.setup_allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac.html">hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_domestic_demand.html">hydromt_wflow.WflowModel.setup_domestic_demand</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_domestic_demand_from_population.html">hydromt_wflow.WflowModel.setup_domestic_demand_from_population</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_other_demand.html">hydromt_wflow.WflowModel.setup_other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_irrigation.html">hydromt_wflow.WflowModel.setup_irrigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_irrigation_from_vector.html">hydromt_wflow.WflowModel.setup_irrigation_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_ksathorfrac.html">hydromt_wflow.WflowModel.setup_ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation.html">hydromt_wflow.WflowModel.setup_ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html">hydromt_wflow.WflowModel.setup_rootzoneclim</a></li>
@@ -525,8 +527,10 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.surfacewaterfrac_used.html">hydromt_wflow.workflows.surfacewaterfrac_used</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.domestic.html">hydromt_wflow.workflows.domestic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.domestic_from_population.html">hydromt_wflow.workflows.domestic_from_population</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.other_demand.html">hydromt_wflow.workflows.other_demand</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.irrigation.html">hydromt_wflow.workflows.irrigation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.irrigation_from_vector.html">hydromt_wflow.workflows.irrigation_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.hydrography.html">hydromt_wflow.workflows.hydrography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.topography.html">hydromt_wflow.workflows.topography</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
@@ -682,11 +686,17 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_domestic_demand.html#hydromt_wflow.WflowModel.setup_domestic_demand" title="hydromt_wflow.WflowModel.setup_domestic_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_domestic_demand</span></code></a>(domestic_fn)</p></td>
 <td><p>Prepare domestic water demand maps from a raster dataset.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_other_demand.html#hydromt_wflow.WflowModel.setup_other_demand" title="hydromt_wflow.WflowModel.setup_other_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_other_demand</span></code></a>(demand_fn[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_domestic_demand_from_population.html#hydromt_wflow.WflowModel.setup_domestic_demand_from_population" title="hydromt_wflow.WflowModel.setup_domestic_demand_from_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_domestic_demand_from_population</span></code></a>(...)</p></td>
+<td><p>Prepare domestic water demand maps from statistics per capita.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_other_demand.html#hydromt_wflow.WflowModel.setup_other_demand" title="hydromt_wflow.WflowModel.setup_other_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_other_demand</span></code></a>(demand_fn[, ...])</p></td>
 <td><p>Create water demand maps from other sources (e.g. industry, livestock).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_irrigation.html#hydromt_wflow.WflowModel.setup_irrigation" title="hydromt_wflow.WflowModel.setup_irrigation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_irrigation</span></code></a>(...[, ...])</p></td>
-<td><p>Add required information to simulate irrigation water demand.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_irrigation.html#hydromt_wflow.WflowModel.setup_irrigation" title="hydromt_wflow.WflowModel.setup_irrigation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_irrigation</span></code></a>(...[, ...])</p></td>
+<td><p>Add required information to simulate irrigation water demand from grid.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_irrigation_from_vector.html#hydromt_wflow.WflowModel.setup_irrigation_from_vector" title="hydromt_wflow.WflowModel.setup_irrigation_from_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_irrigation_from_vector</span></code></a>(...)</p></td>
+<td><p>Add required information to simulate irrigation water demand from vector.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_ksathorfrac.html#hydromt_wflow.WflowModel.setup_ksathorfrac" title="hydromt_wflow.WflowModel.setup_ksathorfrac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_ksathorfrac</span></code></a>(ksat_fn[, ...])</p></td>
 <td><p>Set KsatHorFrac parameter values from a predetermined map.</p></td>
@@ -1133,11 +1143,17 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.domestic.html#hydromt_wflow.workflows.domestic" title="hydromt_wflow.workflows.domestic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.domestic</span></code></a>(ds, ds_like[, popu, ...])</p></td>
 <td><p>Create domestic water demand maps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.other_demand.html#hydromt_wflow.workflows.other_demand" title="hydromt_wflow.workflows.other_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.other_demand</span></code></a>(ds, ds_like[, ds_method])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.domestic_from_population.html#hydromt_wflow.workflows.domestic_from_population" title="hydromt_wflow.workflows.domestic_from_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.domestic_from_population</span></code></a>(popu, ...)</p></td>
+<td><p>Create domestic water demand maps from statitics per capita.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.other_demand.html#hydromt_wflow.workflows.other_demand" title="hydromt_wflow.workflows.other_demand"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.other_demand</span></code></a>(ds, ds_like[, ds_method])</p></td>
 <td><p>Create non-irrigation water demand maps.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.irrigation.html#hydromt_wflow.workflows.irrigation" title="hydromt_wflow.workflows.irrigation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.irrigation</span></code></a>(da_irrigation, ds_like, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.irrigation.html#hydromt_wflow.workflows.irrigation" title="hydromt_wflow.workflows.irrigation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.irrigation</span></code></a>(da_irrigation, ds_like, ...)</p></td>
 <td><p>Prepare irrigation maps for paddy and non paddy.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.irrigation_from_vector.html#hydromt_wflow.workflows.irrigation_from_vector" title="hydromt_wflow.workflows.irrigation_from_vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.irrigation_from_vector</span></code></a>(...[, ...])</p></td>
+<td><p>Prepare irrigation maps for paddy and non paddy from geodataframe.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.hydrography.html#hydromt_wflow.workflows.hydrography" title="hydromt_wflow.workflows.hydrography"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.hydrography</span></code></a>(ds, res[, xy, ...])</p></td>
 <td><p>Return hydrography maps (see list below) and FlwdirRaster object.</p></td>
@@ -1385,7 +1401,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.1.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
   </p>
 </div>
