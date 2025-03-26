@@ -57,7 +57,7 @@ def test_setup_soilmaps_sed(
 
     values = da["usle_k"].raster.mask_nodata()
     mean_val = values.mean().values
-    assert int(mean_val * 1000000) == 31182
+    assert np.isclose(mean_val , 0.031182)
 
     assert "d50_soil" in da
     assert "fclay_soil" in da
