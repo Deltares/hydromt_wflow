@@ -21,7 +21,7 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     da = example_sediment_model.grid["USLE_C"].raster.sample(
         planted_forest_testdata.geometry.centroid
     )
-    assert np.all(da.values == np.array([0.0881, 0.2188]))
+    assert np.allclose(da.values, np.array([0.0881, 0.2188]))
 
 
 def test_setup_lulc_vector(
@@ -46,7 +46,7 @@ def test_setup_soilmaps_sed(
 ):
     values = example_sediment_model.grid["usle_k"].raster.mask_nodata()
     mean_val = values.mean().values
-    assert int(mean_val * 1000000) == 22215
+    assert np.isclose(mean_val,  0.022215) 
 
     example_sediment_model.setup_soilmaps(
         soil_fn="soilgrids",
