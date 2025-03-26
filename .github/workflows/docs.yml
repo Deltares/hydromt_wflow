@@ -4,7 +4,7 @@ name: Build Documentation
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, v1, wflow-v1]
     paths:
       - docs/*
       - examples/*
@@ -12,7 +12,7 @@ on:
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
-    branches: [main]
+    branches: [main, v1, wflow-v1]
     paths:
       - docs/*
       - examples/*
