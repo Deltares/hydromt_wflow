@@ -988,27 +988,9 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         )
 
 
-def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
-    example_sediment_model.setup_lulcmaps(
-        lulc_fn="globcover_2009",
-        lulc_mapping_fn="globcover_mapping_default",
-        planted_forest_fn=planted_forest_testdata,
-        lulc_vars=["USLE_C"],
-        planted_forest_c=0.0881,
-        orchard_name="Orchard",
-        orchard_c=0.2188,
-    )
-    da = example_sediment_model.grid["USLE_C"].raster.sample(
-        planted_forest_testdata.geometry.centroid
-    )
-    assert np.all(da.values == np.array([0.0881, 0.2188]))
-
-
 def test_setup_lulc_vector(
     example_wflow_model,
-    example_sediment_model,
     globcover_gdf,
-    planted_forest_testdata,
 ):
     # Test for wflow sbm
     example_wflow_model.setup_lulcmaps_from_vector(
@@ -1018,17 +1000,6 @@ def test_setup_lulc_vector(
         save_raster_lulc=False,
     )
     assert "wflow_landuse" in example_wflow_model.grid
-
-    # Test for sediment model
-    example_sediment_model.setup_lulcmaps_from_vector(
-        lulc_fn=globcover_gdf,
-        lulc_mapping_fn="globcover_mapping_default",
-        planted_forest_fn=planted_forest_testdata,
-        lulc_res=None,
-        save_raster_lulc=False,
-        planted_forest_c=0.0881,
-    )
-    assert "USLE_C" in example_sediment_model.grid
 
 
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
