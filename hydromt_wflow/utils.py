@@ -150,6 +150,7 @@ of the config.
                     # Filter and reduce full_index based on mask
                     full_index = full_index.where(mask != mask.raster.nodata, 0)
                     full_index.attrs.update(_FillValue=0)
+
                     mask_index = full_index.values.flatten()
                     mask_index = mask_index[mask_index != 0]
                     # idx corresponding to the wflow index
@@ -316,3 +317,41 @@ def get_grid_from_config(
             da = grid[var_name] * scale + offset
 
     return da
+
+
+def mask_raster_from_layer(ds_grid: xr.Dataset, layer_name: str) -> xr.Dataset:
+    """Mask the data in the supplied grid based if the value in one of the layers.
+
+        This for example can be used to mask a grid based on subcatchment data.
+        All data in the rest of the data variables in the dataset will be set to
+        the `raster.nodata` value except for boolean variables which will be set to
+        False. If the supplied grid is not an xarray dataset, or does not contain
+        the correct layer, it will be returned unaltered.
+
+        The layer supplied can be either boolean or numeric. Array elements where the
+        layer is larger than 0 (after type conversion) will be masked.
+
+    Parameters
+    ----------
+        ds_grid (xr.Dataset):
+            The grid containing both the data that should be masked and a layer that
+            will be used to determine the mask
+        layer_name (string):
+            name of the layer that the grid will be masked to. Values can be boolean or
+            numeric. Places where this layer is greater than 0 will be masked in the
+            other data variables
+
+    Returns
+    -------
+        xr.Dataset: The grid with all of the data variables masked.
+    """
+    if isinstance(ds_grid, xr.Dataset) and layer_name in ds_grid.data_vars:
+        mask = ds_grid[layer_name] > 0
+        for var in ds_grid.data_vars:
+            # nodata is required for all but boolean fields
+            if ds_grid[var].dtype != "bool":
+                ds_grid[var] = ds_grid[var].where(mask, ds_grid[var].raster.nodata)
+            else:
+                ds_grid[var] = ds_grid[var].where(mask, False)
+
+    return ds_grid

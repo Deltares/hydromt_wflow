@@ -28,6 +28,8 @@ from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
+from hydromt_wflow.utils import mask_raster_from_layer
+
 from . import utils, workflows
 from .naming import HYDROMT_NAMES, WFLOW_NAMES
 from .utils import DATADIR
@@ -4567,20 +4569,8 @@ Run setup_soilmaps first"
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
         self.logger.info(f"Write grid to {fn}")
-        ds_out = self._mask_grid_to_basins(ds_out)
 
         ds_out.to_netcdf(fn, encoding=encoding)
-
-    def _mask_grid_to_basins(self, ds_out):
-        basin_layer_name = self._MAPS["basins"]
-        if isinstance(ds_out, xr.Dataset) and basin_layer_name in ds_out.data_vars:
-            mask = ds_out[basin_layer_name] > 0
-            for v in ds_out.data_vars:
-                # nodata is required for all but boolean fields
-                if ds_out[v].dtype != "bool":
-                    ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
-
-        return ds_out
 
     def set_grid(
         self,
@@ -4647,7 +4637,7 @@ Run setup_soilmaps first"
                 # Use `_grid` as `grid` cannot be set
                 self._grid = self.grid.drop_vars(vars_to_drop)
 
-        data = self._mask_grid_to_basins(data)
+        data = mask_raster_from_layer(data, self._MAPS["basins"])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
 
