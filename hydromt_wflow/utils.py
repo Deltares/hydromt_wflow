@@ -320,7 +320,7 @@ def get_grid_from_config(
 
 
 def mask_raster_from_layer(ds_grid: xr.Dataset, layer_name: str) -> xr.Dataset:
-    """Mask the data in the supplied grid based if the value in one of the layers.
+    """Mask the data in the supplied grid based on the value in one of the layers.
 
         This for example can be used to mask a grid based on subcatchment data.
         All data in the rest of the data variables in the dataset will be set to
