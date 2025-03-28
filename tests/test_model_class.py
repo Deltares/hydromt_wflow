@@ -54,9 +54,11 @@ def _compare_wflow_models(mod0, mod1):
                     else f"{map1.dtype} instead of {map0.dtype}"
                 )
                 # Check on nodata
+                # hilariously np.nan == np.nan returns False, hence the additional check
                 err = (
                     err
                     if map0.raster.nodata == map1.raster.nodata
+                    or (np.isnan(map0.raster.nodata) and np.isnan(map1.raster.nodata))
                     else f"nodata {map1.raster.nodata} instead of \
 {map0.raster.nodata}; {err}"
                 )
@@ -66,7 +68,7 @@ def _compare_wflow_models(mod0, mod1):
                     # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                     # yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
                     diff = (map0.values - map1.values)[notclose].mean()
-                    err = f"diff ({ncells:d} cells): {diff:.4f}; {err}"
+                    err = f"mean diff ({ncells:d} cells): {diff:.4f}; {err}"
                 invalid_maps[name] = err
     # invalid_map_str = ", ".join(invalid_maps)
     # assert (

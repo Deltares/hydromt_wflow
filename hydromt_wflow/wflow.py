@@ -28,9 +28,10 @@ from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
-from . import utils, workflows
+from hydromt_wflow.utils import DATADIR, mask_raster_from_layer, read_csv_results
+
+from . import workflows
 from .naming import HYDROMT_NAMES, WFLOW_NAMES
-from .utils import DATADIR
 
 __all__ = ["WflowModel"]
 
@@ -4745,11 +4746,7 @@ Run setup_soilmaps first"
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
         self.logger.info(f"Write grid to {fn}")
-        mask = ds_out[self._MAPS["basins"]] > 0
-        for v in ds_out.data_vars:
-            # nodata is required for all but boolean fields
-            if ds_out[v].dtype != "bool":
-                ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
+
         ds_out.to_netcdf(fn, encoding=encoding)
 
     def set_grid(
@@ -4760,7 +4757,8 @@ Run setup_soilmaps first"
         """Add data to grid.
 
         All layers of grid must have identical spatial coordinates. This is an inherited
-        method from HydroMT-core's GridModel.set_grid with some fixes.
+        method from HydroMT-core's GridModel.set_grid with some fixes. If basin data is
+        available the grid will be masked to that upon setting.
 
         The first fix is when data with a time axis is being added. Since Wflow.jl
         v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
@@ -4817,6 +4815,7 @@ Run setup_soilmaps first"
                 # Use `_grid` as `grid` cannot be set
                 self._grid = self.grid.drop_vars(vars_to_drop)
 
+        data = mask_raster_from_layer(data, self._MAPS["basins"])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
 
@@ -5261,9 +5260,7 @@ change name input.path_forcing "
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
         if csv_fn is not None and isfile(csv_fn):
-            csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config, maps=self.grid
-            )
+            csv_dict = read_csv_results(csv_fn, config=self.config, maps=self.grid)
             for key in csv_dict:
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
