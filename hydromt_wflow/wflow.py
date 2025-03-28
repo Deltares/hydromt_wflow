@@ -4579,7 +4579,8 @@ Run setup_soilmaps first"
         """Add data to grid.
 
         All layers of grid must have identical spatial coordinates. This is an inherited
-        method from HydroMT-core's GridModel.set_grid with some fixes.
+        method from HydroMT-core's GridModel.set_grid with some fixes. If basin data is
+        available the grid will be masked to that upon setting.
 
         The first fix is when data with a time axis is being added. Since Wflow.jl
         v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
