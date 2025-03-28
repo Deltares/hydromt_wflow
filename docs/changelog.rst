@@ -43,7 +43,7 @@ Changed
 - **setup_soilmaps** [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).
 - **setup_constant_pars** [sediment]: added additional default values for sediment density and particle diameters.
 - **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.
-
+- Grid data is masked to subcatchment on `set_grid` now instead of on `write_grid` (#349)
 
 Fixed
 -----
