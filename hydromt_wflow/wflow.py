@@ -28,11 +28,10 @@ from hydromt.nodata import NoDataStrategy
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
-from hydromt_wflow.utils import mask_raster_from_layer
+from hydromt_wflow.utils import DATADIR, mask_raster_from_layer, read_csv_results
 
-from . import utils, workflows
+from . import workflows
 from .naming import HYDROMT_NAMES, WFLOW_NAMES
-from .utils import DATADIR
 
 __all__ = ["WflowModel"]
 
@@ -5082,9 +5081,7 @@ change name input.path_forcing "
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
         if csv_fn is not None and isfile(csv_fn):
-            csv_dict = utils.read_csv_results(
-                csv_fn, config=self.config, maps=self.grid
-            )
+            csv_dict = read_csv_results(csv_fn, config=self.config, maps=self.grid)
             for key in csv_dict:
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
