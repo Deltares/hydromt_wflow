@@ -211,8 +211,10 @@ def river_bathymetry(
     dims = ds_model.raster.dims
     # check data variables.
     dvars_model = ["flwdir", "rivmsk", "rivlen"]
-    if method != "powlaw":
-        dvars_model += ["rivslp", "rivzs"]
+    if method == "manning":
+        dvars_model += ["rivslp"]
+    elif method == "gvf":
+        dvars_model += ["rivslp", "subelv"]
     if not np.all([v in ds_model for v in dvars_model]):
         raise ValueError(f"One or more variables missing from ds_model: {dvars_model}")
 
@@ -299,6 +301,7 @@ def river_bathymetry(
             flwdir=flwdir_river,
             method=method,
             min_rivdph=min_rivdph,
+            rivzs_name="subelv",
             **kwargs,
         )
         attrs = dict(_FillValue=-9999, unit="m")
@@ -608,7 +611,7 @@ def _discharge(ds_like, flwdir, da_precip, da_climate, logger=logger):
     lat, lon = ds_like.raster.ycoords.values, ds_like.raster.xcoords.values
     areagrid = gis_utils.reggrid_area(lat, lon) / 1e6
 
-    # calculate "local runoff" (note: set missings in precipitation to zero)
+    # calculate "local runoff" (note: set missing in precipitation to zero)
     runoff = (np.maximum(precip, 0) * params["precip"]) + (areagrid * params["area"])
     runoff = np.maximum(runoff, 0)  # make sure runoff is not negative
 

@@ -1,4 +1,5 @@
 """Some pcraster functions to support older models."""
+
 import glob
 import logging
 import os
@@ -340,7 +341,7 @@ def write_staticmaps_pcr(
                     if dim0:
                         bname = basename(raster_path).split(".")[0]
                         bname = f"{bname[:8]:8s}".replace(" ", "0")
-                        raster_path = join(dirname(raster_path), f"{bname}.{i+1:03d}")
+                        raster_path = join(dirname(raster_path), f"{bname}.{i + 1:03d}")
                         data = da_out.isel({dim0: i}).load().squeeze().data
                     else:
                         data = da_out.load().data

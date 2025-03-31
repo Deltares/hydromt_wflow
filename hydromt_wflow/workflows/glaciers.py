@@ -67,7 +67,7 @@ def glaciermaps(
     # inf/nan values, using the area listed in the dataset
 
     gdf["geometry"] = gdf.geometry.buffer(0)  # fix potential geometry errors
-    # TODO: use alternative to calucate area? There seems to be a factor 2 difference
+    # TODO: use alternative to calculate area? There seems to be a factor 2 difference
     # with the AREA column
     # gdf["AREA2"] = gdf.to_crs(3857).area / 1e6  # km2, area calculation
     # needs projected crs

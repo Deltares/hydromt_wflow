@@ -1,4 +1,5 @@
 """Some utilities from the Wflow plugin."""
+
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Optional, Union
@@ -15,7 +16,7 @@ __all__ = ["read_csv_results", "get_config", "get_grid_from_config"]
 
 
 def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
-    """Read wflow results csv timeseries and parse to dictionnary.
+    """Read wflow results csv timeseries and parse to dictionary.
 
     Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
     column (csv section and csv.column sections of the TOML). The xy coordinates are the
@@ -35,7 +36,7 @@ def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Di
     Returns
     -------
     csv_dict: dict
-        Dictionnary of hydromt.GeoDataArrays for the different csv.column section \
+        Dictionary of hydromt.GeoDataArrays for the different csv.column section \
 of the config.
     """
     # Count items by csv.column
@@ -59,7 +60,7 @@ of the config.
             usecols = np.append(usecols, np.arange(count, count + len(gdf.index)))
             count += len(gdf.index)
             da_ts = open_timeseries_from_table(
-                fn, name=f'{header}_{col["map"]}', usecols=usecols
+                fn, name=f"{header}_{col['map']}", usecols=usecols
             )
             da = GeoDataArray.from_gdf(gdf, da_ts, index_dim="index")
         # Column based on xy coordinates or reducer for the full model domain domain
@@ -104,7 +105,7 @@ of the config.
                     # Dimensions are ascending and ordered as (x,y,layer,time)
                     # Indices are created before ordering for compatibility with
                     # raster.idx_to_xy
-                    full_index = maps[f'{config["input"].get("subcatchment")}'].copy()
+                    full_index = maps[f"{config['input'].get('subcatchment')}"].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
                         full_index = full_index.reindex(
@@ -127,18 +128,18 @@ of the config.
                         "vertical" in col["parameter"]
                         or "lateral.land" in col["parameter"]
                     ):
-                        mask = maps[f'{config["input"].get("subcatchment")}'].copy()
+                        mask = maps[f"{config['input'].get('subcatchment')}"].copy()
                     elif "reservoir" in col["parameter"]:
                         mask = maps[
-                            f'{config["input"]["lateral"]["river"]["reservoir"].get("locs")}'
+                            f"{config['input']['lateral']['river']['reservoir'].get('locs')}"
                         ].copy()
                     elif "lake" in col["parameter"]:
                         mask = maps[
-                            f'{config["input"]["lateral"]["river"]["lake"].get("locs")}'
+                            f"{config['input']['lateral']['river']['lake'].get('locs')}"
                         ].copy()
                     # Else lateral.river
                     else:
-                        mask = maps[f'{config["input"].get("river_location")}'].copy()
+                        mask = maps[f"{config['input'].get('river_location')}"].copy()
                     # Rearrange the mask
                     res_x, res_y = mask.raster.res
                     if res_y < 0:
@@ -203,7 +204,7 @@ def get_config(
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
         If True return the absolute path relative to the model root,
-        by deafult False.
+        by default False.
 
     Returns
     -------

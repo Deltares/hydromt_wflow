@@ -42,8 +42,10 @@ Setup components
    WflowModel.setup_allocation_areas
    WflowModel.setup_allocation_surfacewaterfrac
    WflowModel.setup_domestic_demand
+   WflowModel.setup_domestic_demand_from_population
    WflowModel.setup_other_demand
    WflowModel.setup_irrigation
+   WflowModel.setup_irrigation_from_vector
    WflowModel.setup_ksathorfrac
    WflowModel.setup_ksatver_vegetation
    WflowModel.setup_rootzoneclim
@@ -253,8 +255,10 @@ Wflow workflows
    workflows.allocation_areas
    workflows.surfacewaterfrac_used
    workflows.domestic
+   workflows.domestic_from_population
    workflows.other_demand
    workflows.irrigation
+   workflows.irrigation_from_vector
    workflows.hydrography
    workflows.topography
    workflows.river
