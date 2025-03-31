@@ -106,11 +106,26 @@ def spatial_interpolation(
     ds_like: xr.Dataset,
     interp_type: str,
     logger: Optional[logging.Logger] = logger,
+    **kwargs,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.
 
-    Filler
+    This workflow uses the wradlib.ipol.interpolate function in wradlib.
+
+    Parameters
+    ----------
+    forcing : pxr.DataArray
+        GeoDataArray with the forcing data with time and index of the point data.
+    interp_type : str
+        Type of interpolation to use. Supported types are "nearest", "idw", "linear", \
+        "ordinarykriging", and "externaldriftkriging".
+    ds_like : xr.Dataset
+        Dataset with the grid to interpolate to.
+
+    See Also
+    --------
+    `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`_
     """
     crs = ds_like.raster.crs
     # Reprojection and data type
@@ -121,16 +136,44 @@ def spatial_interpolation(
     gdf_stations = forcing.vector.to_gdf()
     src = np.vstack((gdf_stations.geometry.x, gdf_stations.geometry.y)).T
 
+    # Check interpolation type
+    ipclasses = {
+        "nearest": wrl.ipol.Nearest,
+        "idw": wrl.ipol.Idw,
+        "linear": wrl.ipol.Linear,
+        "ordinarykriging": wrl.ipol.OrdinaryKriging,
+        "externaldriftkriging": wrl.ipol.ExternalDriftKriging,
+    }
+    if interp_type not in ipclasses.keys():
+        raise ValueError(
+            f"Interpolation type should be one of {', '.join(ipclasses.keys())}, "
+            f"not '{interp_type}'"
+        )
+
+    # Some info/checks on the station data
+    nb_stations = len(gdf_stations)
+    basins = ds_like["wflow_subcatch"].raster.vectorize()
+    nb_inside = gdf_stations.within(basins.unary_union).shape[0]
+    logger.info(
+        f"""Found {nb_stations} stations in the forcing data,
+        (of which {nb_inside} are located inside the basin)"""
+    )
+    if forcing.isnull().any():
+        logger.warning(
+            "Forcing data contains NaN values. "
+            "These will be skipped during interpolation."
+        )
+
     # Target is obtained from ds_like
     x_coords = ds_like.coords[ds_like.raster.x_dim].values
     y_coords = ds_like.coords[ds_like.raster.y_dim].values
     grid_x, grid_y = np.meshgrid(x_coords, y_coords)
     trg = np.vstack((grid_x.ravel(), grid_y.ravel())).T
 
-    vals = forcing.values
-
     # Pass to convenience function wrl.ipol.interpolate which handles NaN values
-    wrl.ipol.interpolate(src, trg, vals, wrl.ipol.Nearest)
+    wrl.ipol.interpolate(
+        src=src, trg=trg, vals=forcing.values, ipclass=ipclasses[interp_type], **kwargs
+    )
 
 
 # TODO: remove spatial_interpolation_metpy?
