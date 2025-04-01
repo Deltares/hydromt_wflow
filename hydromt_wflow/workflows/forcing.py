@@ -10,18 +10,9 @@ from shapely.geometry import box
 
 try:
     import wradlib as wrl
-    from metpy.interpolate import (
-        interpolate_to_grid,
-        remove_nan_observations,
-    )
-    from metpy.interpolate.grid import (
-        generate_grid,
-        get_boundary_coords,
-    )
-
-    HAS_METPY = True
+    HAS_WRADLIB = True
 except ImportError:
-    HAS_METPY = False
+    HAS_WRADLIB = False
 
 logger = logging.getLogger(__name__)
 
@@ -115,20 +106,29 @@ def spatial_interpolation(
 
     Parameters
     ----------
-    forcing : pxr.DataArray
+    forcing : xr.DataArray
         GeoDataArray with the forcing data with time and index of the point data.
     interp_type : str
-        Type of interpolation to use. Supported types are "nearest", "idw", "linear", \
+        Type of interpolation to use. Supported types are "nearest", "idw", "linear",
         "ordinarykriging", and "externaldriftkriging".
     ds_like : xr.Dataset
         Dataset with the grid to interpolate to.
+
+    Returns
+    -------
+    xr.DataArray
+        Interpolated forcing data on a regular grid.
 
     See Also
     --------
     `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`_
     """
-    crs = ds_like.raster.crs
+    if not HAS_WRADLIB:
+        raise ModuleNotFoundError(
+            "The wradlib package is required for spatial interpolation."
+        )
     # Reprojection and data type
+    crs = ds_like.raster.crs
     forcing = forcing.vector.to_crs(crs)
     forcing = forcing.astype("float32")
 
@@ -158,6 +158,7 @@ def spatial_interpolation(
         f"""Found {nb_stations} stations in the forcing data,
         (of which {nb_inside} are located inside the basin)"""
     )
+
     if forcing.isnull().any():
         logger.warning(
             "Forcing data contains NaN values. "
@@ -170,11 +171,30 @@ def spatial_interpolation(
     grid_x, grid_y = np.meshgrid(x_coords, y_coords)
     trg = np.vstack((grid_x.ravel(), grid_y.ravel())).T
 
-    # Pass to convenience function wrl.ipol.interpolate which handles NaN values
-    wrl.ipol.interpolate(
+    # Perform interpolation using wradlib
+    interpolated = wrl.ipol.interpolate(
         src=src, trg=trg, vals=forcing.values, ipclass=ipclasses[interp_type], **kwargs
     )
-
+    
+    # Reshape values and use ds_like to populate
+    interpolated_reshaped = interpolated.reshape(
+        (len(forcing.time), len(y_coords), len(x_coords))
+    )
+    da_forcing = xr.DataArray(
+        data=interpolated_reshaped,
+        coords={
+            "time": forcing.time,
+            ds_like.raster.y_dim: y_coords,
+            ds_like.raster.x_dim: x_coords,
+        },
+    )
+    
+    # Ensure correct metadata
+    da_forcing = da_forcing.astype("float32")
+    da_forcing.raster.set_nodata(np.nan)
+    da_forcing.raster.set_crs(crs)
+    
+    return da_forcing
 
 # TODO: remove spatial_interpolation_metpy?
 def spatial_interpolation_metpy(
