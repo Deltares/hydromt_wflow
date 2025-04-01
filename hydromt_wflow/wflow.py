@@ -3040,6 +3040,10 @@ one variable and variables list is not provided."
         precip_out = precip_out.astype("float32")
         self.set_forcing(precip_out.where(mask), name="precip")
 
+        # Add to geoms
+        gdf_stations = da_precip.vector.to_gdf().to_crs(self.crs)
+        self.set_geoms(gdf_stations, name="stations_precipitation")
+
     def setup_temp_pet_forcing(
         self,
         temp_pet_fn: Union[str, xr.Dataset],
