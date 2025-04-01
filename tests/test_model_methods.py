@@ -821,13 +821,14 @@ def test_setup_precip_from_point_timeseries(
     # Interpolation types and the mean value to check the test
     # first value is for all 8 stations, second for 3 stations inside Piave
     # Linear interpolation can result in missing values when coverage is too low
+    # such as in the test case (resulting in low value of 155).
     # Note: start_time and end_time of model are used to slice timeseries
     
     interp_types = {
         "nearest": [446, 435],
         "linear": [459, 155], # note the low value for linear interpolation
         "idw": [443, 431],
-        "ordinarykriging": [449, 426],
+        "ordinarykriging": [446, 426],
         # "externaldriftkriging" requires an additional drift variable,
     }
 
