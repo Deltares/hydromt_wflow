@@ -147,7 +147,7 @@ def spatial_interpolation(
 
     See Also
     --------
-    `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`_
+    `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`
     """
     if not HAS_WRADLIB:
         raise ModuleNotFoundError(
