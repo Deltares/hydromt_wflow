@@ -9,6 +9,7 @@ from hydromt.workflows.forcing import resample_time
 
 try:
     import wradlib as wrl
+
     HAS_WRADLIB = True
 except ImportError:
     HAS_WRADLIB = False
@@ -19,13 +20,14 @@ __all__ = ["pet", "spatial_interpolation"]
 
 
 interpolation_classes = {
-    "nearest": {"obj": wrl.ipol.Nearest,"args": None},
-    "linear": {"obj": wrl.ipol.Linear,"args": ["remove_missing"]},
-    "idw": {"obj": wrl.ipol.Idw,"args": ["nnearest", "p"]},
+    "nearest": {"obj": wrl.ipol.Nearest, "args": None},
+    "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
+    "idw": {"obj": wrl.ipol.Idw, "args": ["nnearest", "p"]},
     "ordinarykriging": {"obj": wrl.ipol.OrdinaryKriging, "args": ["cov", "nnearest"]},
-    "externaldriftkriging": {"obj": wrl.ipol.ExternalDriftKriging, "args": [
-        "cov", "nnearest", "src_drift", "trg_drift", "remove_missing"
-    ]},
+    "externaldriftkriging": {
+        "obj": wrl.ipol.ExternalDriftKriging,
+        "args": ["cov", "nnearest", "src_drift", "trg_drift", "remove_missing"],
+    },
 }
 
 
@@ -100,7 +102,7 @@ def spatial_interpolation(
     nnearest: int = 4,
     p: float = 2,
     remove_missing: bool = False,
-    cov: str = '1.0 Exp(10000.)',
+    cov: str = "1.0 Exp(10000.)",
     src_drift: np.ndarray = None,
     trg_drift: np.ndarray = None,
 ) -> xr.DataArray:
@@ -139,7 +141,7 @@ def spatial_interpolation(
         External drift values at source points (stations).
     trg_drift : np.ndarray, optional
         External drift values at target points (grid).
-    
+
     Returns
     -------
     xr.DataArray
@@ -202,21 +204,17 @@ def spatial_interpolation(
         "src_drift": src_drift,
         "trg_drift": trg_drift,
     }
-    
+
     if required_args:
-        interp_args = {
-            k: v for k, v in interp_args_all.items() if k in required_args
-        }
-        interp_args_log = ", ".join(
-                            f"{k}={v}" for k, v in interp_args.items()
-        )
+        interp_args = {k: v for k, v in interp_args_all.items() if k in required_args}
+        interp_args_log = ", ".join(f"{k}={v}" for k, v in interp_args.items())
         logger.info(
             f"Starting interpolation with type '{interp_type}' ({interp_args_log})."
         )
     else:
         interp_args = {}
         logger.info(f"Starting interpolation with type '{interp_type}'.")
-    
+
     # Perform interpolation using wradlib
     interpolated = wrl.ipol.interpolate(
         src=src,
@@ -224,8 +222,8 @@ def spatial_interpolation(
         vals=forcing.values,
         ipclass=ipclass,
         **interp_args,
-            )
-    
+    )
+
     # Reshape interpolated data and create DataArray
     interpolated_reshaped = interpolated.reshape(
         (len(y_coords), len(x_coords), len(forcing.time))
@@ -237,12 +235,12 @@ def spatial_interpolation(
             ds_like.raster.y_dim: y_coords,
             ds_like.raster.x_dim: x_coords,
         },
-dims=["time", ds_like.raster.y_dim, ds_like.raster.x_dim],
+        dims=["time", ds_like.raster.y_dim, ds_like.raster.x_dim],
     )
-    
+
     # Set metadata
     da_forcing = da_forcing.astype("float32")
     da_forcing.raster.set_nodata(np.nan)
     da_forcing.raster.set_crs(crs)
-    
+
     return da_forcing

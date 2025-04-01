@@ -3007,7 +3007,7 @@ average spacing for interpolation. Keyword arguments: \
 
                 # Filter df_precip by stations within the buffered basin
                 df_precip = df_precip[gdf_stations.index]
-            
+
             # Index is required to contruct GeoDataArray
             if gdf_stations.index.name is None:
                 gdf_stations.index.name = "stations"
