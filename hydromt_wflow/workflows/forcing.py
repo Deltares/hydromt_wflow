@@ -18,14 +18,15 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["pet", "spatial_interpolation"]
 
-interpolation_supported = {
-    "nearest": None,
-    "linear": None,
-    "cubic": None,
-    "rbf": ["rbf_func", "rbf_smooth"],
-    # "natural_neighbor": None,
-    # "cressman": ["minimum_neighbors", "search_radius"],
-    "barnes": ["minimum_neighbors", "search_radius", "gamma", "kappa_star"],
+
+interpolation_classes = {
+    "nearest": {"obj": wrl.ipol.Nearest,"args": None},
+    "linear": {"obj": wrl.ipol.Linear,"args": ["remove_missing"]},
+    "idw": {"obj": wrl.ipol.Idw,"args": ["nnearest", "p"]},
+    "ordinarykriging": {"obj": wrl.ipol.OrdinaryKriging, "args": ["cov", "nnearest"]},
+    "externaldriftkriging": {"obj": wrl.ipol.ExternalDriftKriging, "args": [
+        "cov", "nnearest", "src_drift", "trg_drift", "remove_missing"
+    ]},
 }
 
 
@@ -97,27 +98,53 @@ def spatial_interpolation(
     ds_like: xr.Dataset,
     interp_type: str,
     logger: Optional[logging.Logger] = logger,
-    **kwargs,
+    nnearest: int = 4,
+    p: float = 2,
+    remove_missing: bool = False,
+    cov: str = '1.0 Exp(10000.)',
+    src_drift: np.ndarray = None,
+    trg_drift: np.ndarray = None,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.
 
-    This workflow uses the wradlib.ipol.interpolate function in wradlib.
+    This workflow uses the wradlib.ipol.interpolate function in wradlib. \
+    It wraps the following interpolation types into a single function:
+    - "nearest": nearest-neighbour interpolation, also works with a single station.
+    - "idw": inverse-distance weighing using 1 / distance ** p.
+    - "linear": linear interpolation using scipy.interpolate.LinearNDInterpolator, \
+    may result in missing values when station coverage is limited.
+    - "ordinarykriging": interpolate using Ordinary Kriging, see wradlib documentation \
+    for a full explanation: `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`
+    - "externaldriftkriging": Kriging interpolation including an external drift, see \
+    wradlib documentation for a full explanation: `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`
 
     Parameters
     ----------
     forcing : xr.DataArray
         GeoDataArray with the forcing data with time and index of the point data.
-    interp_type : str
-        Type of interpolation to use. Supported types are "nearest", "idw", "linear",
-        "ordinarykriging", and "externaldriftkriging".
     ds_like : xr.Dataset
-        Dataset with the grid to interpolate to.
-
+        Target dataset defining the grid for interpolation.
+    interp_type : str
+        Interpolation method. Options: "nearest", "idw", "linear", \
+        "ordinarykriging", "externaldriftkriging".
+    nnearest : int, optional
+        Maximum number of neighbors for interpolation. Default is 4.
+    p : float, optional
+        Power parameter for IDW interpolation. Default is 2.
+    remove_missing : bool, optional
+        Whether to mask NaN values in the input data. Default is False.
+    cov : str, optional
+        Covariance model for Kriging. Default is '1.0 Exp(10000.)'.
+    src_drift : np.ndarray, optional
+        External drift values at source points (stations).
+    trg_drift : np.ndarray, optional
+        External drift values at target points (grid).
+    
     Returns
     -------
     xr.DataArray
-        Interpolated forcing data on a regular grid.
+        Interpolated forcing data on the targeted grid.
 
     See Also
     --------
@@ -127,36 +154,22 @@ def spatial_interpolation(
         raise ModuleNotFoundError(
             "The wradlib package is required for spatial interpolation."
         )
-    # Reprojection and data type
-    crs = ds_like.raster.crs
-    forcing = forcing.vector.to_crs(crs)
-    forcing = forcing.astype("float32")
 
-    # Source is obtained from station data
+    # Reproject forcing data to match the target CRS
+    crs = ds_like.raster.crs
+    forcing = forcing.vector.to_crs(crs).astype("float32")
+
+    # Extract station coordinates
     gdf_stations = forcing.vector.to_gdf()
     src = np.vstack((gdf_stations.geometry.x, gdf_stations.geometry.y)).T
-
-    # Check interpolation type
-    ipclasses = {
-        "nearest": wrl.ipol.Nearest,
-        "idw": wrl.ipol.Idw,
-        "linear": wrl.ipol.Linear,
-        "ordinarykriging": wrl.ipol.OrdinaryKriging,
-        "externaldriftkriging": wrl.ipol.ExternalDriftKriging,
-    }
-    if interp_type not in ipclasses.keys():
-        raise ValueError(
-            f"Interpolation type should be one of {', '.join(ipclasses.keys())}, "
-            f"not '{interp_type}'"
-        )
 
     # Some info/checks on the station data
     nb_stations = len(gdf_stations)
     basins = ds_like["wflow_subcatch"].raster.vectorize()
     nb_inside = gdf_stations.within(basins.unary_union).shape[0]
     logger.info(
-        f"""Found {nb_stations} stations in the forcing data,
-        (of which {nb_inside} are located inside the basin)"""
+        f"Found {nb_stations} stations in the forcing data, "
+        f"of which {nb_inside} are located inside the basin."
     )
 
     if forcing.isnull().any():
@@ -165,18 +178,56 @@ def spatial_interpolation(
             "These will be skipped during interpolation."
         )
 
-    # Target is obtained from ds_like
+    # Extract grid coordinates
     x_coords = ds_like.coords[ds_like.raster.x_dim].values
     y_coords = ds_like.coords[ds_like.raster.y_dim].values
     grid_x, grid_y = np.meshgrid(x_coords, y_coords)
     trg = np.vstack((grid_x.ravel(), grid_y.ravel())).T
 
+    # Validate interpolation type
+    if interp_type not in interpolation_classes:
+        raise ValueError(
+            f"Unsupported interpolation type '{interp_type}'. "
+            f"Choose from: {', '.join(interpolation_classes.keys())}."
+        )
+
+    # Prepare interpolation arguments
+    ipclass = interpolation_classes[interp_type]["obj"]
+    required_args = interpolation_classes[interp_type]["args"]
+
+    interp_args_all = {
+        "nnearest": nnearest,
+        "p": p,
+        "remove_missing": remove_missing,
+        "cov": cov,
+        "src_drift": src_drift,
+        "trg_drift": trg_drift,
+    }
+    
+    if required_args:
+        interp_args = {
+            k: v for k, v in interp_args_all.items() if k in required_args
+        }
+        interp_args_log = ", ".join(
+                            f"{k}={v}" for k, v in interp_args.items()
+        )
+        logger.info(
+            f"Starting interpolation with type '{interp_type}' ({interp_args_log})."
+        )
+    else:
+        interp_args = {}
+        logger.info(f"Starting interpolation with type '{interp_type}'.")
+    
     # Perform interpolation using wradlib
     interpolated = wrl.ipol.interpolate(
-        src=src, trg=trg, vals=forcing.values, ipclass=ipclasses[interp_type], **kwargs
-    )
+        src=src,
+        trg=trg,
+        vals=forcing.values,
+        ipclass=ipclass,
+        **interp_args,
+            )
     
-    # Reshape values and fill in DataArray
+    # Reshape interpolated data and create DataArray
     interpolated_reshaped = interpolated.reshape(
         (len(y_coords), len(x_coords), len(forcing.time))
     ).transpose(2, 0, 1)
@@ -187,9 +238,10 @@ def spatial_interpolation(
             ds_like.raster.y_dim: y_coords,
             ds_like.raster.x_dim: x_coords,
         },
+dims=["time", ds_like.raster.y_dim, ds_like.raster.x_dim],
     )
     
-    # Ensure correct metadata
+    # Set metadata
     da_forcing = da_forcing.astype("float32")
     da_forcing.raster.set_nodata(np.nan)
     da_forcing.raster.set_crs(crs)
