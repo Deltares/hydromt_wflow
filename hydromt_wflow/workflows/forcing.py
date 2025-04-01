@@ -167,7 +167,7 @@ def spatial_interpolation(
     # Some info/checks on the station data
     nb_stations = len(gdf_stations)
     basins = ds_like["wflow_subcatch"].raster.vectorize()
-    nb_inside = gdf_stations.within(basins.unary_union).shape[0]
+    nb_inside = gdf_stations.within(basins.unary_union).sum()
     logger.info(
         f"Found {nb_stations} stations in the forcing data, "
         f"of which {nb_inside} are located inside the basin."

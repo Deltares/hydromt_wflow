@@ -2916,8 +2916,8 @@ one variable and variables list is not provided."
         index_col : str, optional
             Column in precip_stations_fn to use for station ID values, by default None.
         buffer: int, optional
-            Number of cells to use around the basins as a buffer to determine which
-            stations to include. Set to 100 cells by default.
+            Buffer around the basins in metres to determine which
+            stations to include. Set to 100 km (1e5 metres) by default.
         **kwargs
             Additional keyword arguments passed to the interpolation function. \
             Supported arguments depend on the interpolation type:
