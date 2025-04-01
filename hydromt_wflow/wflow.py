@@ -2878,7 +2878,8 @@ one variable and variables list is not provided."
         buffer: int = 100,
         **kwargs,
     ) -> None:
-        """Generate gridded precipitation from point timeseries (requires MetPy).
+        """
+        Generate gridded precipitation from point timeseries (requires wradlib).
 
         Adds model layer:
 
@@ -2886,25 +2887,17 @@ one variable and variables list is not provided."
 
         Supported interpolation methods:
         * uniform: Applies spatially uniform precipitation to the model. \
-Only works when `precip_fn` contains a single timeseries.
-        * linear: Performs linear interpolation between data points.
-        * nearest: Assigns the value of the nearest data point (nearest neighbour).
-        * cubic: Uses cubic interpolation for smoother curves.
-        * rbf: Applies Radial Basis Function interpolation for smooth, \
-multidimensional interpolation. Keyword arguments: `[rbf_func, rbf_smooth]`
-        * natural_neighbor: Uses a weighted average of surrounding points based \
-on their proximity and area influence following Liang and Hale (2010).
-        * cressman: Inverse Distance Weighing approach following Cresmann (1959). \
-It uses the ratio of observation distance to maximum allowable distance \
-for interpolation. Keyword arguments: [minimum_neighbors, search_radius]
-        * barnes: Inverse Distance Weighing approach following Barnes (1964). \
-It applies an inverse exponential ratio of observation distance to \
-average spacing for interpolation. Keyword arguments: \
-`[minimum_neighbours, search_radius. gamma, kappa_star]`
+        Only works when `precip_fn` contains a single timeseries.
+        * nearest: Nearest-neighbour interpolation, also works with a single station.
+        * idw: Inverse-distance weighting using 1 / distance ** p.
+        * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator, \
+        may result in missing values when station coverage is limited.
+        * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib \
+        documentation for a full explanation: `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`.
+        * externaldriftkriging: Kriging interpolation including an external drift, \
+        see wradlib documentation for a full explanation: \
+        `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`.
 
-        NOTE! Station interpolation is still in development.
-        Cressman and natural neighbor are not working as expected.
-        Barnes works but it slow.
 
         Parameters
         ----------
@@ -2916,9 +2909,8 @@ average spacing for interpolation. Keyword arguments: \
 
             * Required variable: 'time', 'precip' [mm]
         interp_type : str
-            Type of interpolation to use as supported by MetPy. Available options
-            include: 1) “linear”, “nearest”, “cubic”, or “rbf” from scipy.interpolate.
-            2) “barnes”, from metpy.interpolate.
+            Interpolation method. Options: "nearest", "idw", "linear", \
+            "ordinarykriging", "externaldriftkriging".
         precip_stations_fn : str, gpd.GeoDataFrame
             Source for the locations of the stations as points: (x, y) or (lat, lon).
         index_col : str, optional
@@ -2927,19 +2919,20 @@ average spacing for interpolation. Keyword arguments: \
             Number of cells to use around the basins as a buffer to determine which
             stations to include. Set to 100 cells by default.
         **kwargs
-            Additional keyword arguments passed to the interpolation function.
-            See also ::py:meth:`workflows.forcing.spatial_interpolation`.
+            Additional keyword arguments passed to the interpolation function. \
+            Supported arguments depend on the interpolation type:
+            - nnearest: Maximum number of neighbors for interpolation (default: 4).
+            - p: Power parameter for IDW interpolation (default: 2).
+            - remove_missing: Mask NaN values in the input data (default: False).
+            - cov: Covariance model for Kriging (default: '1.0 Exp(10000.)').
+            - src_drift: External drift values at source points (stations).
+            - trg_drift: External drift values at target points (grid).
 
         See Also
         --------
         hydromt_wflow.workflows.forcing.spatial_interpolation
-        metpy.interpolate.interpolate_to_grid
+        `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`
         """
-        self.logger.warning(
-            "Use of setup_precip_from_point_timeseries is still in development."
-        )
-        # TODO remove logging message above when publishing
-
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
         freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
