@@ -820,15 +820,15 @@ def test_setup_precip_from_point_timeseries(
 ):
     # Interpolation types and the mean value to check the test
     # first value is for all 8 stations, second for 3 stations inside Piave
+    # Linear interpolation can result in missing values when coverage is too low
     # Note: start_time and end_time of model are used to slice timeseries
+    
     interp_types = {
-        "nearest": [445, 433],
-        "linear": [458, 417],
-        "cubic": [441, 417],
-        "rbf": [440, 424],
-        "barnes": [447, 434],
-        # TODO natural neighbor is not working yet in test and code
-        # TODO cressman gives weird results (uniform)
+        "nearest": [446, 435],
+        "linear": [459, 155], # note the low value for linear interpolation
+        "idw": [443, 431],
+        "ordinarykriging": [449, 426],
+        # "externaldriftkriging" requires an additional drift variable,
     }
 
     for interp_type, test_val in interp_types.items():
@@ -836,7 +836,7 @@ def test_setup_precip_from_point_timeseries(
             precip_fn=df_precip_stations,
             precip_stations_fn=gdf_precip_stations,
             interp_type=interp_type,
-            buffer=100,
+            buffer=1e6,
         )
         # Check forcing and dtype
         assert "precip" in example_wflow_model.forcing
@@ -857,8 +857,9 @@ def test_setup_precip_from_point_timeseries(
         assert int(mean_inside * 1000) == test_val[1]
 
     # Also include a test for uniform precipitation
+
     example_wflow_model.setup_precip_from_point_timeseries(
-        precip_fn=df_precip_stations.iloc[:, 0],
+        precip_fn=df_precip_stations.iloc[:, 0].to_frame(),
         precip_stations_fn=None,
         interp_type="uniform",
     )
