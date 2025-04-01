@@ -176,10 +176,10 @@ def spatial_interpolation(
         src=src, trg=trg, vals=forcing.values, ipclass=ipclasses[interp_type], **kwargs
     )
     
-    # Reshape values and use ds_like to populate
+    # Reshape values and fill in DataArray
     interpolated_reshaped = interpolated.reshape(
-        (len(forcing.time), len(y_coords), len(x_coords))
-    )
+        (len(y_coords), len(x_coords), len(forcing.time))
+    ).transpose(2, 0, 1)
     da_forcing = xr.DataArray(
         data=interpolated_reshaped,
         coords={
