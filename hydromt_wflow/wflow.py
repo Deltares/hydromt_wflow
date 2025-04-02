@@ -2903,9 +2903,11 @@ one variable and variables list is not provided."
         ----------
         precip_fn : str, pd.DataFrame, xr.Dataset
             Precipitation source as DataFrame or GeoDataset. \
-            For a DataFrame: the index column should contain time and the other \
+            - DataFrame: the index column should contain time and the other \
             columns should correspond to the name or ID values of the stations \
             in `precip_stations_fn`.
+            - GeoDataset: the dataset should contain the variable 'precip' and \
+            the station locations as points.
 
             * Required variable: 'time', 'precip' [mm]
         interp_type : str

@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt.raster import full_like
+from hydromt.vector import GeoDataset
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel
@@ -857,8 +858,31 @@ def test_setup_precip_from_point_timeseries(
         mean_inside = example_wflow_model.forcing["precip"].mean().values
         assert int(mean_inside * 1000) == test_val[1]
 
-    # Also include a test for uniform precipitation
+    # Similar test but for GeoDataset
+    for interp_type, test_val in interp_types.items():
+        geodataset_precip_stations = GeoDataset.from_gdf(
+            gdf=gdf_precip_stations,
+            data_vars={"precip": df_precip_stations},
+            index_dim="stations",
+            keep_cols=False,
+            merge_index="gdf",
+        )
 
+        example_wflow_model.setup_precip_from_point_timeseries(
+            precip_fn=geodataset_precip_stations,
+            precip_stations_fn=None,
+            interp_type=interp_type,
+            buffer=1e6,
+        )
+        # Check forcing and dtype
+        assert "precip" in example_wflow_model.forcing
+        assert example_wflow_model.forcing["precip"].dtype == "float32"
+
+        # Compare computed value with expected value using all stations
+        mean_all = example_wflow_model.forcing["precip"].mean().values
+        assert int(mean_all * 1000) == test_val[0]
+
+    # Also include a test for uniform precipitation
     example_wflow_model.setup_precip_from_point_timeseries(
         precip_fn=df_precip_stations.iloc[:, 0].to_frame(),
         precip_stations_fn=None,
