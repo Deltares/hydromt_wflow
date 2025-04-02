@@ -177,9 +177,7 @@ def spatial_interpolation(
             f"of which {nb_inside} are located inside the basin."
         )
     else:
-        logger.info(
-            f"Found {nb_stations} stations in the forcing data."
-        )
+        logger.info(f"Found {nb_stations} stations in the forcing data.")
     if forcing.isnull().any():
         logger.warning(
             "Forcing data contains NaN values. "
