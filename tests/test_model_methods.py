@@ -863,7 +863,7 @@ def test_setup_precip_from_point_timeseries(
         geodataset_precip_stations = GeoDataset.from_gdf(
             gdf=gdf_precip_stations,
             data_vars={"precip": df_precip_stations},
-            index_dim="stations",
+            index_dim="index",
             keep_cols=False,
             merge_index="gdf",
         )
