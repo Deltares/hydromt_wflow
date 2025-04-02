@@ -2914,7 +2914,7 @@ one variable and variables list is not provided."
         precip_stations_fn : str, gpd.GeoDataFrame
             Source for the locations of the stations as points: (x, y) or (lat, lon).
         index_col : str, optional
-            Column in precip_stations_fn to use for station ID values, by default None.
+            Column in precip_stations_fn to use for station ID values, by default None to use the default index column.
         buffer: int, optional
             Number of cells to use around the basins as a buffer to determine which
             stations to include. Set to 100 cells by default.
