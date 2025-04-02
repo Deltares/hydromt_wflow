@@ -2809,14 +2809,14 @@ one variable and variables list is not provided."
         Parameters
         ----------
         precip_fn : str, xarray.DataArray
-            Precipitation RasterDataset source, see data/forcing_sources.yml.
+            Precipitation RasterDataset source.
 
             * Required variable: 'precip' [mm]
 
             * Required dimension: 'time'  [timestamp]
         precip_clim_fn : str, xarray.DataArray, optional
             High resolution climatology precipitation RasterDataset source to correct
-            precipitation, see data/forcing_sources.yml.
+            precipitation.
 
             * Required variable: 'precip' [mm]
 
@@ -2875,7 +2875,7 @@ one variable and variables list is not provided."
         interp_type: str = "nearest",
         precip_stations_fn: Optional[Union[str, gpd.GeoDataFrame]] = None,
         index_col: Optional[str] = None,
-        buffer: int = 100,
+        buffer: float = 1e5,
         **kwargs,
     ) -> None:
         """
@@ -2902,20 +2902,21 @@ one variable and variables list is not provided."
         Parameters
         ----------
         precip_fn : str, pd.DataFrame, xr.Dataset
-            Precipitation source as DataFrame or GeoDataset, see
-            data/forcing_sources.yml. The first column should contain time and the other
-            columns should correspond to the name or ID values of the stations in
-            `precip_stations_fn`.
+            Precipitation source as DataFrame or GeoDataset. \
+            For a DataFrame: the index column should contain time and the other \
+            columns should correspond to the name or ID values of the stations \
+            in `precip_stations_fn`.
 
             * Required variable: 'time', 'precip' [mm]
         interp_type : str
             Interpolation method. Options: "nearest", "idw", "linear", \
             "ordinarykriging", "externaldriftkriging".
-        precip_stations_fn : str, gpd.GeoDataFrame
-            Source for the locations of the stations as points: (x, y) or (lat, lon).
+        precip_stations_fn : str, gpd.GeoDataFrame, optional
+            Source for the locations of the stations as points: (x, y) or (lat, lon). \
+            Only required if precip_fn is of type DataFrame.
         index_col : str, optional
             Column in precip_stations_fn to use for station ID values, by default None.
-        buffer: int, optional
+        buffer: float, optional
             Buffer around the basins in metres to determine which
             stations to include. Set to 100 km (1e5 metres) by default.
         **kwargs
@@ -2997,9 +2998,6 @@ one variable and variables list is not provided."
                 # Use station ids from gdf_stations when reading the DataFrame
                 if index_col is not None:
                     gdf_stations = gdf_stations.set_index(index_col)
-
-                # Filter df_precip by stations within the buffered basin
-                df_precip = df_precip[gdf_stations.index]
 
             # Index is required to contruct GeoDataArray
             if gdf_stations.index.name is None:
@@ -3089,7 +3087,7 @@ one variable and variables list is not provided."
         ----------
         temp_pet_fn : str, xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
-            and reference evapotranspiration, see data/forcing_sources.yml.
+            and reference evapotranspiration.
 
             * Required variable for temperature: 'temp' [°C]
 
