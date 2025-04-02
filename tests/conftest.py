@@ -164,7 +164,7 @@ def df_precip_stations():
     data = np.random.rand(len(time), 8)
     df = pd.DataFrame(data=data, columns=[1, 2, 3, 4, 5, 6, 7, 8], index=time)
     df.index.name = "time"
-    df.columns.name = "stations"
+    df.columns.name = "index"
     return df
 
 
@@ -185,7 +185,7 @@ def gdf_precip_stations():
     gdf = gpd.GeoDataFrame(
         data=None, index=[1, 2, 3, 4, 5, 6, 7, 8], geometry=geometry, crs="EPSG:4326"
     )
-    gdf.index.name = "stations"
+    gdf.index.name = "index"
     return gdf
 
 

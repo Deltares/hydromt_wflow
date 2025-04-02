@@ -2907,7 +2907,7 @@ one variable and variables list is not provided."
             columns should correspond to the name or ID values of the stations \
             in `precip_stations_fn`.
             - GeoDataset: the dataset should contain the variable 'precip' and \
-            the station locations as points.
+            the dimensions 'time' and 'index'.
 
             * Required variable: 'time', 'precip' [mm]
         interp_type : str
