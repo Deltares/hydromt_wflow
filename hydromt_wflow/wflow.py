@@ -1552,7 +1552,8 @@ gauge locations [-] (if derive_subcatch)
         else:
             raise ValueError(
                 f"{gauges_fn} data source not found or \
-incorrect data_type (GeoDataFrame or GeoDataset)."
+                incorrect data_type ({self.data_catalog[gauges_fn].data_type} \
+                instead of GeoDataFrame or GeoDataset)."
             )
 
         # Create basename
@@ -2808,14 +2809,14 @@ one variable and variables list is not provided."
         Parameters
         ----------
         precip_fn : str, xarray.DataArray
-            Precipitation RasterDataset source, see data/forcing_sources.yml.
+            Precipitation RasterDataset source.
 
             * Required variable: 'precip' [mm]
 
             * Required dimension: 'time'  [timestamp]
         precip_clim_fn : str, xarray.DataArray, optional
             High resolution climatology precipitation RasterDataset source to correct
-            precipitation, see data/forcing_sources.yml.
+            precipitation.
 
             * Required variable: 'precip' [mm]
 
@@ -2868,6 +2869,182 @@ one variable and variables list is not provided."
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
         self.set_forcing(precip_out.where(mask), name="precip")
 
+    def setup_precip_from_point_timeseries(
+        self,
+        precip_fn: Union[str, pd.DataFrame, xr.Dataset],
+        interp_type: str = "nearest",
+        precip_stations_fn: Optional[Union[str, gpd.GeoDataFrame]] = None,
+        index_col: Optional[str] = None,
+        buffer: float = 1e5,
+        **kwargs,
+    ) -> None:
+        """
+        Generate gridded precipitation from point timeseries (requires wradlib).
+
+        Adds model layer:
+
+        * **precip**: precipitation [mm]
+
+        Supported interpolation methods:
+        * uniform: Applies spatially uniform precipitation to the model. \
+        Only works when `precip_fn` contains a single timeseries.
+        * nearest: Nearest-neighbour interpolation, also works with a single station.
+        * idw: Inverse-distance weighting using 1 / distance ** p.
+        * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator, \
+        may result in missing values when station coverage is limited.
+        * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib \
+        documentation for a full explanation: `wradlib.ipol.OrdinaryKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html>`.
+        * externaldriftkriging: Kriging interpolation including an external drift, \
+        see wradlib documentation for a full explanation: \
+        `wradlib.ipol.ExternalDriftKriging <https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html>`.
+
+
+        Parameters
+        ----------
+        precip_fn : str, pd.DataFrame, xr.Dataset
+            Precipitation source as DataFrame or GeoDataset. \
+            - DataFrame: the index column should contain time and the other \
+            columns should correspond to the name or ID values of the stations \
+            in `precip_stations_fn`.
+            - GeoDataset: the dataset should contain the variable 'precip' and \
+            the dimensions 'time' and 'index'.
+
+            * Required variable: 'time', 'precip' [mm]
+        interp_type : str
+            Interpolation method. Options: "nearest", "idw", "linear", \
+            "ordinarykriging", "externaldriftkriging".
+        precip_stations_fn : str, gpd.GeoDataFrame, optional
+            Source for the locations of the stations as points: (x, y) or (lat, lon). \
+            Only required if precip_fn is of type DataFrame.
+        index_col : str, optional
+            Column in precip_stations_fn to use for station ID values, by default None.
+        buffer: float, optional
+            Buffer around the basins in metres to determine which
+            stations to include. Set to 100 km (1e5 metres) by default.
+        **kwargs
+            Additional keyword arguments passed to the interpolation function. \
+            Supported arguments depend on the interpolation type:
+            - nnearest: Maximum number of neighbors for interpolation (default: 4).
+            - p: Power parameter for IDW interpolation (default: 2).
+            - remove_missing: Mask NaN values in the input data (default: False).
+            - cov: Covariance model for Kriging (default: '1.0 Exp(10000.)').
+            - src_drift: External drift values at source points (stations).
+            - trg_drift: External drift values at target points (grid).
+
+        See Also
+        --------
+        hydromt_wflow.workflows.forcing.spatial_interpolation
+        `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`
+        """
+        starttime = self.get_config("starttime")
+        endtime = self.get_config("endtime")
+        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        mask = self.grid[self._MAPS["basins"]].values > 0
+
+        # Check data type of precip_fn if it is provided through the data catalog
+        if isinstance(precip_fn, str) and precip_fn in self.data_catalog:
+            _data_type = self.data_catalog[precip_fn].data_type
+        else:
+            _data_type = None
+
+        # Read the precipitation timeseries
+        if isinstance(precip_fn, xr.Dataset) or _data_type == "GeoDataset":
+            da_precip = self.data_catalog.get_geodataset(
+                precip_fn,
+                geom=self.region,
+                buffer=buffer,
+                variables=["precip"],
+                time_tuple=(starttime, endtime),
+                single_var_as_array=True,
+            )
+        else:
+            # Read timeseries
+            df_precip = self.data_catalog.get_dataframe(
+                precip_fn,
+                time_tuple=(starttime, endtime),
+            )
+            # Get locs
+            if interp_type == "uniform":
+                # Use basin centroid as 'station' for uniform case
+                gdf_stations = gpd.GeoDataFrame(
+                    data=None,
+                    geometry=[self.basins.unary_union.centroid],
+                    index=df_precip.columns,
+                    crs=self.crs,
+                )
+                index_col = df_precip.columns
+                interp_type = "nearest"
+                if df_precip.shape[1] != 1:
+                    raise ValueError(
+                        f"""
+                        Data source ({precip_fn}) should contain
+                        a single timeseries, not {df_precip.shape[1]}."""
+                    )
+                self.logger.info(
+                    "Uniform interpolation is applied using method 'nearest'."
+                )
+            elif precip_stations_fn is None:
+                raise ValueError(
+                    "Using a DataFrame as precipitation source requires that station "
+                    "locations are provided separately through precip_station_fn."
+                )
+            else:
+                # Load the stations and their coordinates
+                gdf_stations = self.data_catalog.get_geodataframe(
+                    precip_stations_fn,
+                    geom=self.basins,
+                    buffer=buffer,
+                    assert_gtype="Point",
+                    handle_nodata=NoDataStrategy.IGNORE,
+                )
+                # Use station ids from gdf_stations when reading the DataFrame
+                if index_col is not None:
+                    gdf_stations = gdf_stations.set_index(index_col)
+
+            # Index is required to contruct GeoDataArray
+            if gdf_stations.index.name is None:
+                gdf_stations.index.name = "stations"
+
+            # Convert to geodataset
+            da_precip = hydromt.vector.GeoDataArray.from_gdf(
+                gdf=gdf_stations,
+                data=df_precip,
+                name="precip",
+                index_dim=None,
+                dims=["time", gdf_stations.index.name],
+                keep_cols=False,
+                merge_index="gdf",
+            )
+
+        # Calling interpolation workflow
+        precip = workflows.forcing.spatial_interpolation(
+            forcing=da_precip,
+            interp_type=interp_type,
+            ds_like=self.grid,
+            mask_name=self._MAPS["basins"],
+            logger=self.logger,
+            **kwargs,
+        )
+
+        # Use precip workflow to create the forcing file
+        precip_out = hydromt.workflows.forcing.precip(
+            precip=precip,
+            da_like=self.grid[self._MAPS["elevtn"]],
+            clim=None,
+            freq=freq,
+            resample_kwargs=dict(label="right", closed="right"),
+            logger=self.logger,
+        )
+
+        # Update meta attributes (used for default output filename later)
+        precip_out.attrs.update({"precip_fn": precip_fn})
+        precip_out = precip_out.astype("float32")
+        self.set_forcing(precip_out.where(mask), name="precip")
+
+        # Add to geoms
+        gdf_stations = da_precip.vector.to_gdf().to_crs(self.crs)
+        self.set_geoms(gdf_stations, name="stations_precipitation")
+
     def setup_temp_pet_forcing(
         self,
         temp_pet_fn: Union[str, xr.Dataset],
@@ -2913,7 +3090,7 @@ one variable and variables list is not provided."
         ----------
         temp_pet_fn : str, xarray.Dataset
             Name or path of RasterDataset source with variables to calculate temperature
-            and reference evapotranspiration, see data/forcing_sources.yml.
+            and reference evapotranspiration.
 
             * Required variable for temperature: 'temp' [°C]
 

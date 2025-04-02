@@ -6,11 +6,12 @@ from os.path import abspath, dirname, join
 
 import geopandas as gpd
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
 from hydromt.cli.cli_utils import parse_config
-from shapely.geometry import box
+from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 
@@ -152,6 +153,40 @@ def rivers1d():
         join(dirname(abspath(__file__)), "..", "examples", "data", "rivers.geojson"),
     )
     return data
+
+
+@pytest.fixture
+def df_precip_stations():
+    np.random.seed(42)
+    time = pd.date_range(
+        start="2010-02-01T00:00:00", end="2010-09-01T00:00:00", freq="D"
+    )
+    data = np.random.rand(len(time), 8)
+    df = pd.DataFrame(data=data, columns=[1, 2, 3, 4, 5, 6, 7, 8], index=time)
+    df.index.name = "time"
+    df.columns.name = "index"
+    return df
+
+
+@pytest.fixture
+def gdf_precip_stations():
+    geometry = [
+        # inside Piave basin
+        Point(12.6, 46.6),
+        Point(11.9, 46.3),
+        Point(12.1, 45.9),
+        # outside Piave basin
+        Point(11.4, 46.9),
+        Point(13.1, 46.7),
+        Point(11.5, 45.7),
+        Point(12.6, 46.0),
+        Point(12.5, 45.6),
+    ]
+    gdf = gpd.GeoDataFrame(
+        data=None, index=[1, 2, 3, 4, 5, 6, 7, 8], geometry=geometry, crs="EPSG:4326"
+    )
+    gdf.index.name = "index"
+    return gdf
 
 
 @pytest.fixture

@@ -55,6 +55,7 @@ Setup components
    WflowModel.setup_areamap
    WflowModel.setup_config_output_timeseries
    WflowModel.setup_precip_forcing
+   WflowModel.setup_precip_from_point_timeseries
    WflowModel.setup_temp_pet_forcing
    WflowModel.setup_pet_forcing
    WflowModel.setup_constant_pars
@@ -264,6 +265,7 @@ Wflow workflows
    workflows.river
    workflows.river_bathymetry
    workflows.pet
+   workflows.spatial_interpolation
    workflows.landuse
    workflows.landuse_from_vector
    workflows.lai

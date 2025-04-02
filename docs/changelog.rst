@@ -11,6 +11,7 @@ Unreleased
 
 Added
 -----
+- **setup_precip_from_point_timeseries**: method to interpolate rainfall station data as model forcing. PR #315
 - Added support for inverse clipping by using the `inverse_clip=True` flag in the `clip_grid` method. PR #336
 - **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
 - **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
