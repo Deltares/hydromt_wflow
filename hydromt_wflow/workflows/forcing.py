@@ -98,13 +98,14 @@ def spatial_interpolation(
     forcing: xr.DataArray,
     ds_like: xr.Dataset,
     interp_type: str,
+    nnearest: Optional[int] = 4,
+    p: Optional[float] = 2,
+    remove_missing: Optional[bool] = False,
+    cov: Optional[str] = "1.0 Exp(10000.)",
+    src_drift: Optional[np.ndarray] = None,
+    trg_drift: Optional[np.ndarray] = None,
+    mask_name: Optional[str] = None,
     logger: Optional[logging.Logger] = logger,
-    nnearest: int = 4,
-    p: float = 2,
-    remove_missing: bool = False,
-    cov: str = "1.0 Exp(10000.)",
-    src_drift: np.ndarray = None,
-    trg_drift: np.ndarray = None,
 ) -> xr.DataArray:
     """
     Interpolate spatial forcing data from station observations to a regular grid.
@@ -141,6 +142,8 @@ def spatial_interpolation(
         External drift values at source points (stations).
     trg_drift : np.ndarray, optional
         External drift values at target points (grid).
+    mask_name : str, optional
+        Name of the mask variable in ds_like, by default None.
 
     Returns
     -------
@@ -166,13 +169,17 @@ def spatial_interpolation(
 
     # Some info/checks on the station data
     nb_stations = len(gdf_stations)
-    basins = ds_like["wflow_subcatch"].raster.vectorize()
-    nb_inside = gdf_stations.within(basins.unary_union).sum()
-    logger.info(
-        f"Found {nb_stations} stations in the forcing data, "
-        f"of which {nb_inside} are located inside the basin."
-    )
-
+    if mask_name is not None:
+        basins = ds_like[mask_name].raster.vectorize()
+        nb_inside = gdf_stations.within(basins.unary_union).sum()
+        logger.info(
+            f"Found {nb_stations} stations in the forcing data, "
+            f"of which {nb_inside} are located inside the basin."
+        )
+    else:
+        logger.info(
+            f"Found {nb_stations} stations in the forcing data."
+        )
     if forcing.isnull().any():
         logger.warning(
             "Forcing data contains NaN values. "
@@ -242,5 +249,10 @@ def spatial_interpolation(
     da_forcing = da_forcing.astype("float32")
     da_forcing.raster.set_nodata(np.nan)
     da_forcing.raster.set_crs(crs)
+
+    # Mask data
+    if mask_name is not None:
+        mask = ds_like[mask_name].values > 0
+        da_forcing = da_forcing.where(mask)
 
     return da_forcing

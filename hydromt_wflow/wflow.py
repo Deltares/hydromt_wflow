@@ -3019,6 +3019,7 @@ one variable and variables list is not provided."
             forcing=da_precip,
             interp_type=interp_type,
             ds_like=self.grid,
+            mask_name=self._MAPS["basins"],
             logger=self.logger,
             **kwargs,
         )
