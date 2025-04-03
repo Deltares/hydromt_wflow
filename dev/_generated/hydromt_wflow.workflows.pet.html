@@ -49,7 +49,7 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.landuse" href="hydromt_wflow.workflows.landuse.html" />
+    <link rel="next" title="hydromt_wflow.workflows.spatial_interpolation" href="hydromt_wflow.workflows.spatial_interpolation.html" />
     <link rel="prev" title="hydromt_wflow.workflows.river_bathymetry" href="hydromt_wflow.workflows.river_bathymetry.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -395,6 +395,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config_output_timeseries.html">hydromt_wflow.WflowModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_from_point_timeseries.html">hydromt_wflow.WflowModel.setup_precip_from_point_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">hydromt_wflow.WflowModel.setup_temp_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_pet_forcing.html">hydromt_wflow.WflowModel.setup_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_constant_pars.html">hydromt_wflow.WflowModel.setup_constant_pars</a></li>
@@ -536,6 +537,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html">hydromt_wflow.workflows.river_bathymetry</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.pet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.spatial_interpolation.html">hydromt_wflow.workflows.spatial_interpolation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse_from_vector.html">hydromt_wflow.workflows.landuse_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai.html">hydromt_wflow.workflows.lai</a></li>
@@ -629,7 +631,7 @@
 <h1>hydromt_wflow.workflows.pet<a class="headerlink" href="#hydromt-wflow-workflows-pet" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.pet">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">pet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pet:</span> <span class="pre">~xarray.core.dataarray.DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'D'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunksize:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger:</span> <span class="pre">~logging.Logger</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.forcing</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><span class="pre">DataArray</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/forcing.html#pet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.pet" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">pet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pet:</span> <span class="pre">~xarray.core.dataarray.DataArray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'D'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name:</span> <span class="pre">str</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunksize:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger:</span> <span class="pre">~logging.Logger</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.forcing</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><span class="pre">DataArray</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/forcing.html#pet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.pet" title="Link to this definition">#</a></dt>
 <dd><p>Resample and reproject PET to the grid of ds_like.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -673,11 +675,11 @@ time chunk.</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.workflows.landuse.html"
+       href="hydromt_wflow.workflows.spatial_interpolation.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.landuse</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.spatial_interpolation</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

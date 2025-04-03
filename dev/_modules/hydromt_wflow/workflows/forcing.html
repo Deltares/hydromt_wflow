@@ -418,9 +418,28 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.workflows.forcing</span><span class="w"> </span><span class="kn">import</span> <span class="n">resample_time</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">wradlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">wrl</span>
+
+    <span class="n">HAS_WRADLIB</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">HAS_WRADLIB</span> <span class="o">=</span> <span class="kc">False</span>
+
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;spatial_interpolation&quot;</span><span class="p">]</span>
+
+
+<span class="n">interpolation_classes</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;nearest&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Nearest</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+    <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;remove_missing&quot;</span><span class="p">]},</span>
+    <span class="s2">&quot;idw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Idw</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">]},</span>
+    <span class="s2">&quot;ordinarykriging&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">OrdinaryKriging</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">]},</span>
+    <span class="s2">&quot;externaldriftkriging&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">ExternalDriftKriging</span><span class="p">,</span>
+        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;src_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;trg_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_missing&quot;</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="pet">
@@ -486,6 +505,171 @@
     <span class="n">pet_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot;mm&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">pet_out</span></div>
+
+
+
+<div class="viewcode-block" id="spatial_interpolation">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.spatial_interpolation.html#hydromt_wflow.workflows.spatial_interpolation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spatial_interpolation</span><span class="p">(</span>
+    <span class="n">forcing</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">interp_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">nnearest</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">remove_missing</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cov</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1.0 Exp(10000.)&quot;</span><span class="p">,</span>
+    <span class="n">src_drift</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">trg_drift</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mask_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">logger</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">]</span> <span class="o">=</span> <span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate spatial forcing data from station observations to a regular grid.</span>
+
+<span class="sd">    This workflow uses the wradlib.ipol.interpolate function in wradlib. \</span>
+<span class="sd">    It wraps the following interpolation types into a single function:</span>
+<span class="sd">    - &quot;nearest&quot;: nearest-neighbour interpolation, also works with a single station.</span>
+<span class="sd">    - &quot;idw&quot;: inverse-distance weighing using 1 / distance ** p.</span>
+<span class="sd">    - &quot;linear&quot;: linear interpolation using scipy.interpolate.LinearNDInterpolator, \</span>
+<span class="sd">    may result in missing values when station coverage is limited.</span>
+<span class="sd">    - &quot;ordinarykriging&quot;: interpolate using Ordinary Kriging, see wradlib documentation \</span>
+<span class="sd">    for a full explanation: `wradlib.ipol.OrdinaryKriging &lt;https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html&gt;`</span>
+<span class="sd">    - &quot;externaldriftkriging&quot;: Kriging interpolation including an external drift, see \</span>
+<span class="sd">    wradlib documentation for a full explanation: `wradlib.ipol.ExternalDriftKriging &lt;https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html&gt;`</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    forcing : xr.DataArray</span>
+<span class="sd">        GeoDataArray with the forcing data with time and index of the point data.</span>
+<span class="sd">    ds_like : xr.Dataset</span>
+<span class="sd">        Target dataset defining the grid for interpolation.</span>
+<span class="sd">    interp_type : str</span>
+<span class="sd">        Interpolation method. Options: &quot;nearest&quot;, &quot;idw&quot;, &quot;linear&quot;, \</span>
+<span class="sd">        &quot;ordinarykriging&quot;, &quot;externaldriftkriging&quot;.</span>
+<span class="sd">    nnearest : int, optional</span>
+<span class="sd">        Maximum number of neighbors for interpolation. Default is 4.</span>
+<span class="sd">    p : float, optional</span>
+<span class="sd">        Power parameter for IDW interpolation. Default is 2.</span>
+<span class="sd">    remove_missing : bool, optional</span>
+<span class="sd">        Whether to mask NaN values in the input data. Default is False.</span>
+<span class="sd">    cov : str, optional</span>
+<span class="sd">        Covariance model for Kriging. Default is &#39;1.0 Exp(10000.)&#39;.</span>
+<span class="sd">    src_drift : np.ndarray, optional</span>
+<span class="sd">        External drift values at source points (stations).</span>
+<span class="sd">    trg_drift : np.ndarray, optional</span>
+<span class="sd">        External drift values at target points (grid).</span>
+<span class="sd">    mask_name : str, optional</span>
+<span class="sd">        Name of the mask variable in ds_like, by default None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        Interpolated forcing data on the targeted grid.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    `wradlib.ipol.interpolate &lt;https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate&gt;`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">HAS_WRADLIB</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
+            <span class="s2">&quot;The wradlib package is required for spatial interpolation.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Reproject forcing data to match the target CRS</span>
+    <span class="n">crs</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>
+    <span class="n">forcing</span> <span class="o">=</span> <span class="n">forcing</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Extract station coordinates</span>
+    <span class="n">gdf_stations</span> <span class="o">=</span> <span class="n">forcing</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">gdf_stations</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">gdf_stations</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># Some info/checks on the station data</span>
+    <span class="n">nb_stations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf_stations</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mask_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">basins</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">mask_name</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+        <span class="n">nb_inside</span> <span class="o">=</span> <span class="n">gdf_stations</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">basins</span><span class="o">.</span><span class="n">unary_union</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">nb_stations</span><span class="si">}</span><span class="s2"> stations in the forcing data, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;of which </span><span class="si">{</span><span class="n">nb_inside</span><span class="si">}</span><span class="s2"> are located inside the basin.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">nb_stations</span><span class="si">}</span><span class="s2"> stations in the forcing data.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">forcing</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Forcing data contains NaN values. &quot;</span>
+            <span class="s2">&quot;These will be skipped during interpolation.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Extract grid coordinates</span>
+    <span class="n">x_coords</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">y_coords</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">grid_x</span><span class="p">,</span> <span class="n">grid_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x_coords</span><span class="p">,</span> <span class="n">y_coords</span><span class="p">)</span>
+    <span class="n">trg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">grid_x</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">grid_y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># Validate interpolation type</span>
+    <span class="k">if</span> <span class="n">interp_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">interpolation_classes</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Unsupported interpolation type &#39;</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Choose from: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">interpolation_classes</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Prepare interpolation arguments</span>
+    <span class="n">ipclass</span> <span class="o">=</span> <span class="n">interpolation_classes</span><span class="p">[</span><span class="n">interp_type</span><span class="p">][</span><span class="s2">&quot;obj&quot;</span><span class="p">]</span>
+    <span class="n">required_args</span> <span class="o">=</span> <span class="n">interpolation_classes</span><span class="p">[</span><span class="n">interp_type</span><span class="p">][</span><span class="s2">&quot;args&quot;</span><span class="p">]</span>
+
+    <span class="n">interp_args_all</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;nnearest&quot;</span><span class="p">:</span> <span class="n">nnearest</span><span class="p">,</span>
+        <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+        <span class="s2">&quot;remove_missing&quot;</span><span class="p">:</span> <span class="n">remove_missing</span><span class="p">,</span>
+        <span class="s2">&quot;cov&quot;</span><span class="p">:</span> <span class="n">cov</span><span class="p">,</span>
+        <span class="s2">&quot;src_drift&quot;</span><span class="p">:</span> <span class="n">src_drift</span><span class="p">,</span>
+        <span class="s2">&quot;trg_drift&quot;</span><span class="p">:</span> <span class="n">trg_drift</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">required_args</span><span class="p">:</span>
+        <span class="n">interp_args</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">interp_args_all</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">required_args</span><span class="p">}</span>
+        <span class="n">interp_args_log</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">interp_args</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Starting interpolation with type &#39;</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">&#39; (</span><span class="si">{</span><span class="n">interp_args_log</span><span class="si">}</span><span class="s2">).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">interp_args</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Starting interpolation with type &#39;</span><span class="si">{</span><span class="n">interp_type</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Perform interpolation using wradlib</span>
+    <span class="n">interpolated</span> <span class="o">=</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+        <span class="n">src</span><span class="o">=</span><span class="n">src</span><span class="p">,</span>
+        <span class="n">trg</span><span class="o">=</span><span class="n">trg</span><span class="p">,</span>
+        <span class="n">vals</span><span class="o">=</span><span class="n">forcing</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">ipclass</span><span class="o">=</span><span class="n">ipclass</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">interp_args</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Reshape interpolated data and create DataArray</span>
+    <span class="n">interpolated_reshaped</span> <span class="o">=</span> <span class="n">interpolated</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+        <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y_coords</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_coords</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">forcing</span><span class="o">.</span><span class="n">time</span><span class="p">))</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">da_forcing</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">interpolated_reshaped</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">forcing</span><span class="o">.</span><span class="n">time</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">:</span> <span class="n">y_coords</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">:</span> <span class="n">x_coords</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Set metadata</span>
+    <span class="n">da_forcing</span> <span class="o">=</span> <span class="n">da_forcing</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+    <span class="n">da_forcing</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">da_forcing</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="c1"># Mask data</span>
+    <span class="k">if</span> <span class="n">mask_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="n">mask_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">da_forcing</span> <span class="o">=</span> <span class="n">da_forcing</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">da_forcing</span></div>
 
 </pre></div>
 

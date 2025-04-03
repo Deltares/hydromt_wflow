@@ -1997,7 +1997,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">gauges_fn</span><span class="si">}</span><span class="s2"> data source not found or </span><span class="se">\</span>
-<span class="s2">incorrect data_type (GeoDataFrame or GeoDataset).&quot;</span>
+<span class="s2">                incorrect data_type (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">gauges_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span><span class="si">}</span><span class="s2"> </span><span class="se">\</span>
+<span class="s2">                instead of GeoDataFrame or GeoDataset).&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># Create basename</span>
@@ -3286,14 +3287,14 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        precip_fn : str, xarray.DataArray</span>
-<span class="sd">            Precipitation RasterDataset source, see data/forcing_sources.yml.</span>
+<span class="sd">            Precipitation RasterDataset source.</span>
 
 <span class="sd">            * Required variable: &#39;precip&#39; [mm]</span>
 
 <span class="sd">            * Required dimension: &#39;time&#39;  [timestamp]</span>
 <span class="sd">        precip_clim_fn : str, xarray.DataArray, optional</span>
 <span class="sd">            High resolution climatology precipitation RasterDataset source to correct</span>
-<span class="sd">            precipitation, see data/forcing_sources.yml.</span>
+<span class="sd">            precipitation.</span>
 
 <span class="sd">            * Required variable: &#39;precip&#39; [mm]</span>
 
@@ -3347,6 +3348,185 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="WflowModel.setup_precip_from_point_timeseries">
+<a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_precip_from_point_timeseries.html#hydromt_wflow.WflowModel.setup_precip_from_point_timeseries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_precip_from_point_timeseries</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">precip_fn</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">],</span>
+        <span class="n">interp_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="n">precip_stations_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">index_col</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e5</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate gridded precipitation from point timeseries (requires wradlib).</span>
+
+<span class="sd">        Adds model layer:</span>
+
+<span class="sd">        * **precip**: precipitation [mm]</span>
+
+<span class="sd">        Supported interpolation methods:</span>
+<span class="sd">        * uniform: Applies spatially uniform precipitation to the model. \</span>
+<span class="sd">        Only works when `precip_fn` contains a single timeseries.</span>
+<span class="sd">        * nearest: Nearest-neighbour interpolation, also works with a single station.</span>
+<span class="sd">        * idw: Inverse-distance weighting using 1 / distance ** p.</span>
+<span class="sd">        * linear: Linear interpolation using scipy.interpolate.LinearNDInterpolator, \</span>
+<span class="sd">        may result in missing values when station coverage is limited.</span>
+<span class="sd">        * ordinarykriging: Interpolate using Ordinary Kriging, see wradlib \</span>
+<span class="sd">        documentation for a full explanation: `wradlib.ipol.OrdinaryKriging &lt;https://docs.wradlib.org/en/latest/generated/wradlib.ipol.OrdinaryKriging.html&gt;`.</span>
+<span class="sd">        * externaldriftkriging: Kriging interpolation including an external drift, \</span>
+<span class="sd">        see wradlib documentation for a full explanation: \</span>
+<span class="sd">        `wradlib.ipol.ExternalDriftKriging &lt;https://docs.wradlib.org/en/latest/generated/wradlib.ipol.ExternalDriftKriging.html&gt;`.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        precip_fn : str, pd.DataFrame, xr.Dataset</span>
+<span class="sd">            Precipitation source as DataFrame or GeoDataset. \</span>
+<span class="sd">            - DataFrame: the index column should contain time and the other \</span>
+<span class="sd">            columns should correspond to the name or ID values of the stations \</span>
+<span class="sd">            in `precip_stations_fn`.</span>
+<span class="sd">            - GeoDataset: the dataset should contain the variable &#39;precip&#39; and \</span>
+<span class="sd">            the dimensions &#39;time&#39; and &#39;index&#39;.</span>
+
+<span class="sd">            * Required variable: &#39;time&#39;, &#39;precip&#39; [mm]</span>
+<span class="sd">        interp_type : str</span>
+<span class="sd">            Interpolation method. Options: &quot;nearest&quot;, &quot;idw&quot;, &quot;linear&quot;, \</span>
+<span class="sd">            &quot;ordinarykriging&quot;, &quot;externaldriftkriging&quot;.</span>
+<span class="sd">        precip_stations_fn : str, gpd.GeoDataFrame, optional</span>
+<span class="sd">            Source for the locations of the stations as points: (x, y) or (lat, lon). \</span>
+<span class="sd">            Only required if precip_fn is of type DataFrame.</span>
+<span class="sd">        index_col : str, optional</span>
+<span class="sd">            Column in precip_stations_fn to use for station ID values, by default None.</span>
+<span class="sd">        buffer: float, optional</span>
+<span class="sd">            Buffer around the basins in metres to determine which</span>
+<span class="sd">            stations to include. Set to 100 km (1e5 metres) by default.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to the interpolation function. \</span>
+<span class="sd">            Supported arguments depend on the interpolation type:</span>
+<span class="sd">            - nnearest: Maximum number of neighbors for interpolation (default: 4).</span>
+<span class="sd">            - p: Power parameter for IDW interpolation (default: 2).</span>
+<span class="sd">            - remove_missing: Mask NaN values in the input data (default: False).</span>
+<span class="sd">            - cov: Covariance model for Kriging (default: &#39;1.0 Exp(10000.)&#39;).</span>
+<span class="sd">            - src_drift: External drift values at source points (stations).</span>
+<span class="sd">            - trg_drift: External drift values at target points (grid).</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        hydromt_wflow.workflows.forcing.spatial_interpolation</span>
+<span class="sd">        `wradlib.ipol.interpolate &lt;https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate&gt;`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;starttime&quot;</span><span class="p">)</span>
+        <span class="n">endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;endtime&quot;</span><span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="s2">&quot;timestepsecs&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="c1"># Check data type of precip_fn if it is provided through the data catalog</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precip_fn</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">precip_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">:</span>
+            <span class="n">_data_type</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="p">[</span><span class="n">precip_fn</span><span class="p">]</span><span class="o">.</span><span class="n">data_type</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_data_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Read the precipitation timeseries</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">precip_fn</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_data_type</span> <span class="o">==</span> <span class="s2">&quot;GeoDataset&quot;</span><span class="p">:</span>
+            <span class="n">da_precip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataset</span><span class="p">(</span>
+                <span class="n">precip_fn</span><span class="p">,</span>
+                <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span>
+                <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span>
+                <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;precip&quot;</span><span class="p">],</span>
+                <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+                <span class="n">single_var_as_array</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Read timeseries</span>
+            <span class="n">df_precip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span>
+                <span class="n">precip_fn</span><span class="p">,</span>
+                <span class="n">time_tuple</span><span class="o">=</span><span class="p">(</span><span class="n">starttime</span><span class="p">,</span> <span class="n">endtime</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="c1"># Get locs</span>
+            <span class="k">if</span> <span class="n">interp_type</span> <span class="o">==</span> <span class="s2">&quot;uniform&quot;</span><span class="p">:</span>
+                <span class="c1"># Use basin centroid as &#39;station&#39; for uniform case</span>
+                <span class="n">gdf_stations</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+                    <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="o">.</span><span class="n">unary_union</span><span class="o">.</span><span class="n">centroid</span><span class="p">],</span>
+                    <span class="n">index</span><span class="o">=</span><span class="n">df_precip</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
+                    <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">index_col</span> <span class="o">=</span> <span class="n">df_precip</span><span class="o">.</span><span class="n">columns</span>
+                <span class="n">interp_type</span> <span class="o">=</span> <span class="s2">&quot;nearest&quot;</span>
+                <span class="k">if</span> <span class="n">df_precip</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                        Data source (</span><span class="si">{</span><span class="n">precip_fn</span><span class="si">}</span><span class="s2">) should contain</span>
+<span class="s2">                        a single timeseries, not </span><span class="si">{</span><span class="n">df_precip</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Uniform interpolation is applied using method &#39;nearest&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">precip_stations_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Using a DataFrame as precipitation source requires that station &quot;</span>
+                    <span class="s2">&quot;locations are provided separately through precip_station_fn.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Load the stations and their coordinates</span>
+                <span class="n">gdf_stations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
+                    <span class="n">precip_stations_fn</span><span class="p">,</span>
+                    <span class="n">geom</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">basins</span><span class="p">,</span>
+                    <span class="n">buffer</span><span class="o">=</span><span class="n">buffer</span><span class="p">,</span>
+                    <span class="n">assert_gtype</span><span class="o">=</span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+                    <span class="n">handle_nodata</span><span class="o">=</span><span class="n">NoDataStrategy</span><span class="o">.</span><span class="n">IGNORE</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># Use station ids from gdf_stations when reading the DataFrame</span>
+                <span class="k">if</span> <span class="n">index_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">gdf_stations</span> <span class="o">=</span> <span class="n">gdf_stations</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">index_col</span><span class="p">)</span>
+
+            <span class="c1"># Index is required to contruct GeoDataArray</span>
+            <span class="k">if</span> <span class="n">gdf_stations</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gdf_stations</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;stations&quot;</span>
+
+            <span class="c1"># Convert to geodataset</span>
+            <span class="n">da_precip</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">GeoDataArray</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span>
+                <span class="n">gdf</span><span class="o">=</span><span class="n">gdf_stations</span><span class="p">,</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">df_precip</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">,</span>
+                <span class="n">index_dim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">gdf_stations</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+                <span class="n">keep_cols</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">merge_index</span><span class="o">=</span><span class="s2">&quot;gdf&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Calling interpolation workflow</span>
+        <span class="n">precip</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">spatial_interpolation</span><span class="p">(</span>
+            <span class="n">forcing</span><span class="o">=</span><span class="n">da_precip</span><span class="p">,</span>
+            <span class="n">interp_type</span><span class="o">=</span><span class="n">interp_type</span><span class="p">,</span>
+            <span class="n">ds_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">mask_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">],</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Use precip workflow to create the forcing file</span>
+        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">workflows</span><span class="o">.</span><span class="n">forcing</span><span class="o">.</span><span class="n">precip</span><span class="p">(</span>
+            <span class="n">precip</span><span class="o">=</span><span class="n">precip</span><span class="p">,</span>
+            <span class="n">da_like</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]],</span>
+            <span class="n">clim</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span>
+            <span class="n">resample_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">),</span>
+            <span class="n">logger</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Update meta attributes (used for default output filename later)</span>
+        <span class="n">precip_out</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;precip_fn&quot;</span><span class="p">:</span> <span class="n">precip_fn</span><span class="p">})</span>
+        <span class="n">precip_out</span> <span class="o">=</span> <span class="n">precip_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_forcing</span><span class="p">(</span><span class="n">precip_out</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;precip&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add to geoms</span>
+        <span class="n">gdf_stations</span> <span class="o">=</span> <span class="n">da_precip</span><span class="o">.</span><span class="n">vector</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_stations</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;stations_precipitation&quot;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="WflowModel.setup_temp_pet_forcing">
 <a class="viewcode-back" href="../../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_temp_pet_forcing</span><span class="p">(</span>
@@ -3394,7 +3574,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        temp_pet_fn : str, xarray.Dataset</span>
 <span class="sd">            Name or path of RasterDataset source with variables to calculate temperature</span>
-<span class="sd">            and reference evapotranspiration, see data/forcing_sources.yml.</span>
+<span class="sd">            and reference evapotranspiration.</span>
 
 <span class="sd">            * Required variable for temperature: &#39;temp&#39; [°C]</span>
 

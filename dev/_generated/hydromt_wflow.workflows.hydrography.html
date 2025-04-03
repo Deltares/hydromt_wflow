@@ -395,6 +395,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config_output_timeseries.html">hydromt_wflow.WflowModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_from_point_timeseries.html">hydromt_wflow.WflowModel.setup_precip_from_point_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">hydromt_wflow.WflowModel.setup_temp_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_pet_forcing.html">hydromt_wflow.WflowModel.setup_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_constant_pars.html">hydromt_wflow.WflowModel.setup_constant_pars</a></li>
@@ -536,6 +537,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html">hydromt_wflow.workflows.river_bathymetry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.pet.html">hydromt_wflow.workflows.pet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.spatial_interpolation.html">hydromt_wflow.workflows.spatial_interpolation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse_from_vector.html">hydromt_wflow.workflows.landuse_from_vector</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai.html">hydromt_wflow.workflows.lai</a></li>
@@ -649,7 +651,7 @@ the following maps are added:</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset containing gridded flow direction and elevation data.</p></li>
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – Dataset containing gridded flow direction and elevation data.</p></li>
 <li><p><strong>res</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – output resolution</p></li>
 <li><p><strong>xy</strong> (<a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.0.1)"><em>geopandas.GeoDataFrame</em></a><em>, </em><em>optional</em>) – Subbasin pits. Only required when upscaling a subbasin.</p></li>
 <li><p><strong>upscale_method</strong> (<em>{'ihu'</em><em>, </em><em>'eam'</em><em>, </em><em>'dmm'}</em>) – Upscaling method for flow direction data, by default ‘ihu’, see <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></li>

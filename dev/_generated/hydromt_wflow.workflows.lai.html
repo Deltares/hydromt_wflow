@@ -395,6 +395,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_areamap.html">hydromt_wflow.WflowModel.setup_areamap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_config_output_timeseries.html">hydromt_wflow.WflowModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_forcing.html">hydromt_wflow.WflowModel.setup_precip_forcing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_precip_from_point_timeseries.html">hydromt_wflow.WflowModel.setup_precip_from_point_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_temp_pet_forcing.html">hydromt_wflow.WflowModel.setup_temp_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_pet_forcing.html">hydromt_wflow.WflowModel.setup_pet_forcing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_constant_pars.html">hydromt_wflow.WflowModel.setup_constant_pars</a></li>
@@ -536,6 +537,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river.html">hydromt_wflow.workflows.river</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.river_bathymetry.html">hydromt_wflow.workflows.river_bathymetry</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.pet.html">hydromt_wflow.workflows.pet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.spatial_interpolation.html">hydromt_wflow.workflows.spatial_interpolation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse.html">hydromt_wflow.workflows.landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.landuse_from_vector.html">hydromt_wflow.workflows.landuse_from_vector</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.lai</a></li>
@@ -636,15 +638,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.1.dev0)"><em>xarray.Dataset</em></a>) – DataArray or Dataset with LAI array containing LAI values.</p></li>
-<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
+<li><p><strong>da</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.2.dev0)"><em>xarray.Dataset</em></a>) – DataArray or Dataset with LAI array containing LAI values.</p></li>
+<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>da_out</strong> – Dataset containing resampled LAI maps</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.1.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)">xarray.DataArray</a></p>
 </dd>
 </dl>
 </dd></dl>
