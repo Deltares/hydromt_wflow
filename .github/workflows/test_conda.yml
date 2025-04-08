@@ -1,0 +1,44 @@
+name: Conda dependency check
+
+on:
+  schedule:
+  # At 00:00 UTC every Monday
+    - cron: "0 0 * * 1"
+  # on demand
+  workflow_dispatch:
+
+jobs:
+  Test:
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        include:
+        - os: ubuntu-latest
+          label: linux-64
+
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pixi env
+        uses: prefix-dev/setup-pixi@v0.8.5
+        with:
+          pixi-version: "v0.45.0"
+          environments: test-full-py311
+          locked: false
+
+      - name: Install hydromt_wflow from conda-forge
+        run: |
+          pixi add hydromt_wflow
+
+      - name: Test build model
+        run: |
+          pixi run -e test-full-py311 python -m pytest --verbose tests/test_model_class.py::test_model_build

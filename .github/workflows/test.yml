@@ -1,0 +1,66 @@
+name: Test Package
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - hydromt_wflow/*
+      - tests/*
+      - pyproject.toml
+      - .github/workflows/docs.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - hydromt_wflow/*
+      - tests/*
+      - pyproject.toml
+      - .github/workflows/docs.yml
+
+jobs:
+  test:
+    defaults:
+      run:
+        shell: bash -l {0}
+    env:
+      branch_name: ${{ github.head_ref || github.ref_name }}
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        python-version: ['310', '311']
+        include:
+        - os: ubuntu-latest
+          label: linux-64
+
+    name: ${{ matrix.label }} - py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.python-version }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pixi env
+        uses: prefix-dev/setup-pixi@v0.8.5
+        with:
+          pixi-version: "v0.45.0"
+          environments: test-full-py${{ matrix.python-version }}
+          locked: false
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Tests
+        run: |
+          pixi run -e test-full-py${{ matrix.python-version }} test-cov
+
+      - name: Upload coverage to codecov.io
+        if: matrix.python-version == '311'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
