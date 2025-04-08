@@ -1,5 +1,5 @@
+---
 name: Build Documentation
-
 on:
   workflow_dispatch:
   push:
@@ -10,6 +10,7 @@ on:
       - docs/*
       - examples/*
       - pyproject.toml
+      - .github/workflows/docs.yml
   pull_request:
     branches: [main]
     paths:
@@ -18,91 +19,55 @@ on:
       - docs/*
       - examples/*
       - pyproject.toml
+      - .github/workflows/docs.yml
 
 jobs:
-  # Build docs on Linux
-  Docs:
+  test-docs:
     defaults:
       run:
-        shell: bash -l {0}
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ["ubuntu-latest" ] #, "macos-latest", "windows-latest"]
-        python-version: ['3.11']
-        include:
-        - os: ubuntu-latest
-          label: linux-64
-          prefix: /usr/share/miniconda3/envs/hydromt_wflow
-
-    name: ${{ matrix.label }}
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
-
+        shell: bash -e -l {0}
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Generate env yaml
-        run: |
-          pip install tomli
-          python make_env.py doc -p ${{ matrix.python-version }}.* -n hydromt_wflow
-
-      - name: Load cache
-        id: cache
-        uses: actions/cache/restore@v3
+      - name: checkout code
+        uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.8.2
         with:
-          path: |
-            /usr/share/miniconda3
-            ~/pycache
-            ./docs/_build
-          # the below two settings mean we'll alway srestore the cache
-          # but the cache hit output can tell us if we have to update afterwards
-          key: docs-${{ hashFiles('environment.yml')  }}
-          restore-keys: |
-            docs
+          pixi-version: "v0.41.1"
 
-      - name: Failed cache restore
-        if: steps.cache.outputs.cache-matched-key == ''
-        run: |
-          echo "Failed to restore any cache. exiting..."
-          exit 1
-
-      # by avoiding the mamba setup stage by loading it from cache instead we save
-      # a lot of setup time, but we do have to do our own PATH management
-      # hence the exports
-      - name: Update environment
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          mamba env update -n hydromt_wflow -f environment.yml
-
-      # - name: Install HydroMT-core dev
-      #   run: |
-      #     export PATH=/usr/share/miniconda3/bin:$PATH
-      #     mamba run -n hydromt_wflow python -m pip install git+https://github.com/Deltares/hydromt.git@main --user
-
+      # if we're not publishing we don't have to write them, so we might as well
+      # save ourself a bunch of IO time
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          PYTHONPYCACHEPREFIX=~/pycache mamba run -n hydromt_wflow sphinx-build ./docs ./docs/_build -b dummy
+        run: pixi run --locked sphinx-build ./docs ./docs/_build -b dummy -W
 
       - name: Generate docs
-        if: ${{ github.event_name != 'pull_request' && !github.event.act }}
+        if: ${{ github.event_name != 'pull_request' }}
         run: |
-          export PATH=/usr/share/miniconda3/bin:$PATH
-          PYTHONPYCACHEPREFIX=~/pycache mamba run -n hydromt_wflow sphinx-build -M html ./docs ./docs/_build
-          echo "DOC_VERSION=$(mamba run -n hydromt_wflow python -c 'from hydromt_wflow import __version__ as v; print("dev" if "dev" in v else "v"+v.replace(".dev",""))')" >> $GITHUB_ENV
+          pixi run --locked docs
+          export CURRENT_VERSION=$(grep "__version__" hydromt/__init__.py | cut -d= -f 2 | tr -d "\" ")
+
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Could not determine version, exiting..."
+            exit 1
+          fi
+
+          # Are we a dev version or not?
+          if echo "$CURRENT_VERSION" | grep -q "dev"; then
+            # If it's a dev version, just echo "dev"
+            echo "DOC_VERSION=dev" >> "$GITHUB_ENV"
+          else
+            # Otherwise, echo the version number
+            echo "DOC_VERSION=v$CURRENT_VERSION" >> "$GITHUB_ENV"
+          fi
 
       - name: Upload to GitHub Pages
-        if: ${{ github.event_name != 'pull_request'}}
-        uses: peaceiris/actions-gh-pages@v3.8.0
+        if: ${{ github.event_name != 'pull_request' }}
+        uses: peaceiris/actions-gh-pages@v3.9.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
-          exclude_assets: '.buildinfo,_sources/*,_examples/*.ipynb'
+          exclude_assets: .buildinfo,_sources/*,_examples/*.ipynb
           destination_dir: ./${{ env.DOC_VERSION }}
           keep_files: false
           full_commit_message: Deploy ${{ env.DOC_VERSION }} to GitHub Pages
