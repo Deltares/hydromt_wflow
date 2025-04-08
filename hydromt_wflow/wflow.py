@@ -2576,6 +2576,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 logger=self.logger,
             )
             self.set_grid(soil_maps["kvfrac"], name="kvfrac")
+            self.set_config("vertical.kvfrac", "kvfrac")
             if "c" in soil_maps:
                 self.set_grid(soil_maps["c"], name="c")
                 self.set_config("model.thicknesslayers", wflow_thicknesslayers)
