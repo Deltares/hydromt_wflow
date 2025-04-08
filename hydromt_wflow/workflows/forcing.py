@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 __all__ = ["pet", "spatial_interpolation"]
 
 
+
 interpolation_classes = {
     "nearest": {"obj": wrl.ipol.Nearest, "args": None},
     "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
