@@ -1,30 +1,24 @@
+## Build system
 [build-system]
 requires      = ["flit_core >=3.4.0,<4"]
 build-backend = "flit_core.buildapi"
 
+[tool.flit.sdist]
+include = ["hydromt_wflow"]
+exclude = ["docs", "examples", "envs", "tests", "binder", ".github"]
+
+# Project related entries
 [project]
 name = "hydromt_wflow"
+dynamic = ['version', 'description']
+
 authors = [
   { name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
   { name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
   { name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
   { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
 ]
-dependencies = [
-    "dask",
-    "geopandas>=0.10",
-    "hydromt>=v0.10.1,<0.11",
-    "netcdf4",
-    "numpy",
-    "pandas",
-    "pyflwdir>=0.5.7",
-    "pyproj",
-    "scipy",
-    "shapely",
-    "toml",
-    "xarray",
-]
-requires-python = ">=3.10"
+
 readme = "README.rst"
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -34,60 +28,111 @@ classifiers = [
   "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
   "Programming Language :: Python :: 3",
 ]
-dynamic = ['version', 'description']
 
+# Core dependencies
+requires-python = ">=3.10"
+dependencies = [
+    "dask",
+    "geopandas>=0.10",
+    "hydromt>=v0.10.1,<0.11",
+    "numpy",
+    "pandas",
+    "pyflwdir>=0.5.7",
+    "pyproj",
+    "scipy",
+    "shapely",
+    "toml",
+    "xarray",
+]
+
+# Optional dependencies
 [project.optional-dependencies]
-io = ["requests"]
-extra = ["hydroengine", "gdal", "gwwapi", "pcraster", "pyet", "wradlib"]
-dev = ["black", "ruff", "pre-commit", "pip>=23.1.2"]
+dev = [
+  "pre-commit",
+  "ruff"
+]
+docs = [
+  "nbsphinx",
+  "pydata-sphinx-theme",
+  "sphinx",
+  "sphinx_design",
+  "sphinx_autosummary_accessors",
+]
+extra = [
+  "gwwapi",
+  "hydroengine",
+  "pyet",
+  "wradlib"
+]
+examples = [
+  "cartopy",
+  "jupyterlab",
+  "nbconvert==7.13.1", # Pin as of (02-2024); 7.14 onwards causes issues with the progressbar in example notebooks. See issue #233 for more info (https://github.com/Deltares/hydromt_wflow/issues/233).
+  "notebook",
+]
 test = [
   "pytest>=2.7.3",
   "pytest-cov",
   "pytest-mock",
-  "hydromt_wflow[dev, extra]",
 ]
-doc = [
-  "nbsphinx",
-  "sphinx",
-  "sphinx_design",
-  "pydata-sphinx-theme",
-  "sphinx_autosummary_accessors",
-  "hydromt_wflow[examples,extra]",
-]
-examples = [
-  "jupyterlab",
-  "cartopy",
-  "nbconvert==7.13.1", # Pin as of (02-2024); 7.14 onwards causes issues with the progressbar in example notebooks. See issue #233 for more info (https://github.com/Deltares/hydromt_wflow/issues/233).
-  "notebook",
-]
-
-full = ["hydromt_wflow[io,extra,dev,test,doc,examples]"]
-slim = ["hydromt_wflow[io,extra,examples]"]
-
-[project.urls]
-Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
-Source        = "https://github.com/Deltares/hydromt_wflow"
 
 [project.entry-points."hydromt.models"]
 wflow          = "hydromt_wflow.wflow:WflowModel"
 wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 
-[tool.make_env]
-channels = ["conda-forge"]
-deps_not_in_conda = [
-  "gwwapi",
-  "hydroengine",
-  "sphinx_autosummary_accessors",
-  "sphinx_design",
-  "pyet",
+[project.urls]
+Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
+Source        = "https://github.com/Deltares/hydromt_wflow"
+
+## Pytest and coverage
+
+[tool.pytest.ini_options]
+filterwarnings = [
+  "ignore:distutils Version classes are deprecated:DeprecationWarning",
+  "ignore:The staticmaps property:DeprecationWarning",
+  "ignore:The staticgeoms property:DeprecationWarning",
 ]
+testpaths = [
+  "tests",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["./hydromt_wflow"]
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    ]
+# omit = ["hydromt_wflow/data/fetch.py"]
+ignore_errors = true
+
+[tool.coverage.html]
+directory = ".cov"
+
+## Linting and formatting
 [tool.ruff]
 line-length = 88
 exclude     = ["docs", "examples"]
+
 [tool.ruff.lint]
 # enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
 select = ["E", "F", "I", "PT", "D"]
-ignore = ["D211", "D213", "E741", "D105", "E712"]
+ignore = ["D105", "D211", "D213", "E712", "E741"]
 
 [tool.ruff.format]
 quote-style                = "double"
@@ -96,21 +141,94 @@ docstring-code-format      = true
 docstring-code-line-length = 20
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**"                            = ["D103", "D100", "D104"]
 "hydromt_wflow/__init__.py"           = ["E402", "F401", "F403"]
 "hydromt_wflow/workflows/__init__.py" = ["F403"]
+"tests/**"                            = ["D103", "D100", "D104"]
 "tests/conftest.py"                   = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.flit.sdist]
-include = ["hydromt_wflow"]
-exclude = ["docs", "examples", "envs", "tests", "binder", ".github"]
+## Pixi related entries
+[tool.pixi.project]
+channels = ["conda-forge"]
+platforms = ["linux-64", "win-64"]
 
-[tool.pytest.ini_options]
-filterwarnings = [
-  "ignore:distutils Version classes are deprecated:DeprecationWarning",
-  "ignore:The staticmaps property:DeprecationWarning",
-  "ignore:The staticgeoms property:DeprecationWarning",
-]
+## The different tasks of this project
+[tool.pixi.tasks]
+# Installation
+install = { depends-on = ["install-pre-commit"] }
+install-pre-commit = "pre-commit install"
+
+# Repo related tasks
+lint = { cmd = ["pre-commit", "run", "--all"] }
+
+# Docker related stuff (expand in future)
+docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
+
+# Documentation generation
+docs-dummy = {cmd = ["sphinx-build", "./docs", "./docs/_build", "-b", "dummy", "-W"] }
+docs-html = { cmd = ["sphinx-build", "-M", "html", "docs", "docs/_build", "-W"] }
+docs-html-rebuild = { depends-on = ["clean-docs", "docs-html"] }
+serve = { cmd = ["python", "-m", "http.server", "8000", "-d", "docs/_build/html"] }
+
+# Testing
+test = { cmd = ["pytest"] }
+test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
+test-cov = { cmd = ["pytest", "--verbose", "--cov=hydromt_wflow", "--cov-report", "xml"] }
+test-cov-local = { cmd = ["pytest", "--verbose", "--cov", "--cov-report", "html",] }
+
+# Clean up (some of) the temporary files
+clean = { depends-on = [
+  "clean-env-files",
+  "clean-bin",
+  "clean-dist",
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
+] }
+clean-env-files = { cmd = ["rm", "-f", "environment.yml"] }
+clean-bin = { cmd = ["rm", "-rf", "bin"] }
+clean-dist = {cmd = ["rm", "-rf", "dist"] }
+clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
+clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
+clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
+clean-docs = { depends-on = [
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
+] }
+
+## Dependencies
+[tool.pixi.dependencies]
+h5py = "*"
+pip = "*"
+pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly (<2.2 required by numba)
+
+[tool.pixi.pypi-dependencies]
+hydromt_wflow = { path = ".", editable = true }
+
+[tool.pixi.feature.examples.dependencies]
+pandoc = "*"
+
+[tool.pixi.feature.extra.dependencies]
+gdal = ">=3.5"
+pcraster = "*"
+
+# Extra python environments
+[tool.pixi.feature.py311.dependencies]
+python = "3.11.*"
+
+[tool.pixi.feature.py310.dependencies]
+python = "3.10.*"
+
+## Define the environments
+[tool.pixi.environments]
+default = { features = ["py310", "dev", "docs", "examples", "extra", "test"] }
+docs = { features = ["docs", "examples", "extra"] }
+full = { features = ["extra"] }
+slim = { features = [] }
+test-slim-py311 = { features = ["py311", "test"] }
+test-slim-py310 = { features = ["py310", "test"] }
+test-full-py311 = { features = ["py311", "extra", "test"] }
+test-full-py310 = { features = ["py310", "extra", "test"] }
