@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["pet", "spatial_interpolation"]
 
+
 if HAS_WRADLIB:
     interpolation_classes = {
         "nearest": {"obj": wrl.ipol.Nearest, "args": None},
