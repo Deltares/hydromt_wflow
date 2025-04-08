@@ -11,18 +11,18 @@ authors = [
   { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
 ]
 dependencies = [
-    "dask",
-    "geopandas>=0.10",
-    "hydromt>=v0.10.1,<0.11",
-    "netcdf4",
-    "numpy",
-    "pandas",
-    "pyflwdir>=0.5.7",
-    "pyproj",
-    "scipy",
-    "shapely",
-    "toml",
-    "xarray",
+  "dask",
+  "geopandas[all]>=0.10",
+  "hydromt>=v0.10.1,<0.11",
+  "netcdf4",
+  "numpy",
+  "pandas",
+  "pyflwdir>=0.5.7",
+  "pyproj",
+  "scipy",
+  "shapely",
+  "toml",
+  "xarray",
 ]
 requires-python = ">=3.10"
 readme = "README.rst"
@@ -35,13 +35,13 @@ classifiers = [
   "Programming Language :: Python :: 3",
 ]
 dynamic = ['version', 'description']
-
 [project.optional-dependencies]
 io = ["requests"]
-extra = ["hydroengine", "gdal", "gwwapi", "pcraster", "pyet", "wradlib"]
-dev = ["black", "ruff", "pre-commit", "pip>=23.1.2"]
+extra = ["hydroengine", "gwwapi", "pyet"]
+dev = ["ruff", "pre-commit", "pip>=23.1.2"]
 test = [
   "pytest>=2.7.3",
+  "pytest-timeout",
   "pytest-cov",
   "pytest-mock",
   "hydromt_wflow[dev, extra]",
@@ -81,9 +81,11 @@ deps_not_in_conda = [
   "sphinx_design",
   "pyet",
 ]
+
 [tool.ruff]
 line-length = 88
 exclude     = ["docs", "examples"]
+
 [tool.ruff.lint]
 # enable pydocstyle (E), pyflake (F) and isort (I), pytest-style (PT)
 select = ["E", "F", "I", "PT", "D"]
@@ -114,3 +116,128 @@ filterwarnings = [
   "ignore:The staticmaps property:DeprecationWarning",
   "ignore:The staticgeoms property:DeprecationWarning",
 ]
+
+
+[tool.pixi.project]
+channels  = ["conda-forge"]
+platforms = ["linux-64", "win-64"]
+
+[tool.pixi.pypi-dependencies]
+hydromt_wflow = { path = ".", editable = true }
+
+[tool.pixi.feature.py310.dependencies]
+python = "3.10.*"
+
+[tool.pixi.feature.py311.dependencies]
+python = "3.11.*"
+
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
+
+[tool.pixi.feature.extra.dependencies]
+gdal     = "*"
+pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly (<2.2 required by numba)
+pcraster = "*"
+
+[tool.pixi.environments]
+default = { features = [
+  "py310",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
+py311 = { solve-group = "py311", features = [
+  "py311",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
+py312 = { solve-group = "py312", features = [
+  "py312",
+  "io",
+  "extra",
+  "dev",
+  "test",
+  "doc",
+  "examples",
+] }
+  py313 = { solve-group = "py313", features = [
+    "py313",
+    "io",
+    "extra",
+    "dev",
+    "test",
+    "doc",
+    "examples",
+  ] }
+[tool.pixi.tasks]
+install = { depends-on = ["install-pre-commit"] }
+install-pre-commit = "pre-commit install"
+lint = { cmd = [
+  "pre-commit",
+  "run",
+  "--all",
+], depends-on = [
+  'install-pre-commit',
+] }
+
+doctest = { cmd = [
+  "sphinx-build",
+  "-M",
+  "doctest",
+  "docs",
+  "docs/_build",
+  "-W",
+] }
+docs-build = { cmd = [
+  "sphinx-build",
+  "-M",
+  "html",
+  "docs",
+  "docs/_build",
+  "-W",
+], depends-on = [
+  "doctest",
+] }
+
+docs  = { depends-on = ["docs-build"] }                                     # alias
+doc   = { depends-on = ["docs-build"] }                                     # alias
+serve = { cmd = ["python", "-m", "http.server", "-d", "docs/_build/html"] }
+
+
+# clean
+clean = { depends-on = [
+  "clean-dist",
+  "clean-docs-generated",
+  "clean-docs-build",
+  "clean-docs-examples",
+] }
+
+clean-dist            = { cmd = ["rm", "-rf", "dist"] }
+clean-docs-generated = { cmd = ["rm", "-rf", "docs/_generated"] }
+clean-docs-build     = { cmd = ["rm", "-rf", "docs/_build"] }
+clean-docs-examples  = { cmd = ["rm", "-rf", "docs/examples"] }
+
+test          = { cmd = ["pytest"] }
+test-lf       = { cmd = ["pytest", "--lf", "--tb=short"] }
+test-err-warn = { cmd = ["pytest", "--tb=short", "-W", "error"] }
+
+test-cov = { cmd = [
+  "pytest",
+  "--verbose",
+  "--cov=hydromt_wflow",
+  "--cov-report",
+  "xml",
+] }
+
+mypy = "mypy ."
