@@ -24,7 +24,10 @@ if HAS_WRADLIB:
         "nearest": {"obj": wrl.ipol.Nearest, "args": None},
         "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
         "idw": {"obj": wrl.ipol.Idw, "args": ["nnearest", "p"]},
-        "ordinarykriging": {"obj": wrl.ipol.OrdinaryKriging, "args": ["cov", "nnearest"]},
+        "ordinarykriging": {
+            "obj": wrl.ipol.OrdinaryKriging,
+            "args": ["cov", "nnearest"],
+        },
         "externaldriftkriging": {
             "obj": wrl.ipol.ExternalDriftKriging,
             "args": ["cov", "nnearest", "src_drift", "trg_drift", "remove_missing"],
