@@ -18,17 +18,17 @@ logger = logging.getLogger(__name__)
 
 __all__ = ["pet", "spatial_interpolation"]
 
-
-interpolation_classes = {
-    "nearest": {"obj": wrl.ipol.Nearest, "args": None},
-    "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
-    "idw": {"obj": wrl.ipol.Idw, "args": ["nnearest", "p"]},
-    "ordinarykriging": {"obj": wrl.ipol.OrdinaryKriging, "args": ["cov", "nnearest"]},
-    "externaldriftkriging": {
-        "obj": wrl.ipol.ExternalDriftKriging,
-        "args": ["cov", "nnearest", "src_drift", "trg_drift", "remove_missing"],
-    },
-}
+if HAS_WRADLIB:
+    interpolation_classes = {
+        "nearest": {"obj": wrl.ipol.Nearest, "args": None},
+        "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
+        "idw": {"obj": wrl.ipol.Idw, "args": ["nnearest", "p"]},
+        "ordinarykriging": {"obj": wrl.ipol.OrdinaryKriging, "args": ["cov", "nnearest"]},
+        "externaldriftkriging": {
+            "obj": wrl.ipol.ExternalDriftKriging,
+            "args": ["cov", "nnearest", "src_drift", "trg_drift", "remove_missing"],
+        },
+    }
 
 
 def pet(
