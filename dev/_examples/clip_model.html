@@ -56,7 +56,7 @@
     <link rel="prev" title="Clipping a model" href="../user_guide/wflow_clip.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.2.dev0" />
+  <meta name="docsearch:version" content="0.8.1.dev0" />
   </head>
   
   
@@ -546,34 +546,34 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-04-09 09:24:13,639 - clip - log - INFO - HydroMT version: 0.10.1
-2025-04-09 09:24:13,639 - clip - main - INFO - Clipping instance of wflow model.
-2025-04-09 09:24:13,639 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
-2025-04-09 09:24:14,178 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.2.dev0).
-2025-04-09 09:24:14,178 - clip - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-04-09 09:24:14,191 - clip - main - INFO - Reading model to clip
-2025-04-09 09:24:14,193 - clip - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2025-04-09 09:24:14,240 - clip - wflow - INFO - Reading model staticgeom files.
-2025-04-09 09:24:14,282 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2025-04-09 09:24:14,299 - clip - wflow - INFO - Reading model intbl files.
-2025-04-09 09:24:14,299 - clip - wflow - INFO - Reading model table files.
-2025-04-09 09:24:14,299 - clip - wflow - INFO - Model read
-2025-04-09 09:24:14,300 - clip - main - INFO - Clipping grid
-2025-04-09 09:24:17,066 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
-2025-04-09 09:24:18,610 - clip - wflow - INFO - Reading model table files.
-2025-04-09 09:24:18,611 - clip - main - INFO - Clipping forcing
-2025-04-09 09:24:18,611 - clip - wflow - INFO - Clipping NetCDF forcing..
-2025-04-09 09:24:18,615 - clip - model_api - WARNING - Replacing forcing: precip
-2025-04-09 09:24:18,615 - clip - model_api - WARNING - Replacing forcing: pet
-2025-04-09 09:24:18,615 - clip - model_api - WARNING - Replacing forcing: temp
-2025-04-09 09:24:18,615 - clip - main - INFO - Writting clipped model
-2025-04-09 09:24:18,616 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
-2025-04-09 09:24:18,647 - clip - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
-2025-04-09 09:24:18,782 - clip - wflow - INFO - Writing model staticgeom to file.
-2025-04-09 09:24:18,789 - clip - wflow - INFO - Write forcing file
-2025-04-09 09:24:18,797 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
-[########################################] | 100% Completed | 100.83 ms
-2025-04-09 09:24:18,906 - clip - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
+2025-04-09 13:40:42,466 - clip - log - INFO - HydroMT version: 0.10.1
+2025-04-09 13:40:42,466 - clip - main - INFO - Clipping instance of wflow model.
+2025-04-09 13:40:42,466 - clip - main - INFO - Region: {&#39;subbasin&#39;: [12.3006, 46.4324], &#39;wflow_streamorder&#39;: 4}
+2025-04-09 13:40:42,849 - clip - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.2.dev0).
+2025-04-09 13:40:42,849 - clip - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-04-09 13:40:42,862 - clip - main - INFO - Reading model to clip
+2025-04-09 13:40:42,864 - clip - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2025-04-09 13:40:43,042 - clip - wflow - INFO - Reading model staticgeom files.
+2025-04-09 13:40:43,086 - clip - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2025-04-09 13:40:43,104 - clip - wflow - INFO - Reading model intbl files.
+2025-04-09 13:40:43,104 - clip - wflow - INFO - Reading model table files.
+2025-04-09 13:40:43,104 - clip - wflow - INFO - Model read
+2025-04-09 13:40:43,105 - clip - main - INFO - Clipping grid
+2025-04-09 13:40:46,007 - clip - basin_mask - INFO - subbasin bbox: [12.0083, 46.3417, 12.3250, 46.6750]
+2025-04-09 13:40:47,629 - clip - wflow - INFO - Reading model table files.
+2025-04-09 13:40:47,629 - clip - main - INFO - Clipping forcing
+2025-04-09 13:40:47,629 - clip - wflow - INFO - Clipping NetCDF forcing..
+2025-04-09 13:40:47,634 - clip - model_api - WARNING - Replacing forcing: precip
+2025-04-09 13:40:47,634 - clip - model_api - WARNING - Replacing forcing: pet
+2025-04-09 13:40:47,634 - clip - model_api - WARNING - Replacing forcing: temp
+2025-04-09 13:40:47,634 - clip - main - INFO - Writting clipped model
+2025-04-09 13:40:47,634 - clip - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip
+2025-04-09 13:40:47,667 - clip - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/staticmaps.nc
+2025-04-09 13:40:47,803 - clip - wflow - INFO - Writing model staticgeom to file.
+2025-04-09 13:40:47,810 - clip - wflow - INFO - Write forcing file
+2025-04-09 13:40:47,820 - clip - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/inmaps.nc
+[########################################] | 100% Completed | 101.01 ms
+2025-04-09 13:40:47,930 - clip - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_clip/wflow_sbm.toml
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt clip</strong> with:</p>

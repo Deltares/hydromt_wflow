@@ -50,7 +50,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.2.dev0" />
+  <meta name="docsearch:version" content="0.8.1.dev0" />
   </head>
   
   
@@ -418,28 +418,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt.workflows.forcing</span><span class="w"> </span><span class="kn">import</span> <span class="n">resample_time</span>
 
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">wradlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">wrl</span>
-
-    <span class="n">HAS_WRADLIB</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">HAS_WRADLIB</span> <span class="o">=</span> <span class="kc">False</span>
-
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;pet&quot;</span><span class="p">,</span> <span class="s2">&quot;spatial_interpolation&quot;</span><span class="p">]</span>
-
-
-<span class="n">interpolation_classes</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;nearest&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Nearest</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
-    <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;remove_missing&quot;</span><span class="p">]},</span>
-    <span class="s2">&quot;idw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Idw</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">]},</span>
-    <span class="s2">&quot;ordinarykriging&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">OrdinaryKriging</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">]},</span>
-    <span class="s2">&quot;externaldriftkriging&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">ExternalDriftKriging</span><span class="p">,</span>
-        <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;src_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;trg_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_missing&quot;</span><span class="p">],</span>
-    <span class="p">},</span>
-<span class="p">}</span>
 
 
 <div class="viewcode-block" id="pet">
@@ -570,10 +551,27 @@
 <span class="sd">    --------</span>
 <span class="sd">    `wradlib.ipol.interpolate &lt;https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate&gt;`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">HAS_WRADLIB</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">wradlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">wrl</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ModuleNotFoundError</span><span class="p">(</span>
             <span class="s2">&quot;The wradlib package is required for spatial interpolation.&quot;</span>
         <span class="p">)</span>
+
+    <span class="c1"># Specify wradlib interpolation classes</span>
+    <span class="n">interpolation_classes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;nearest&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Nearest</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span>
+        <span class="s2">&quot;linear&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Linear</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;remove_missing&quot;</span><span class="p">]},</span>
+        <span class="s2">&quot;idw&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">Idw</span><span class="p">,</span> <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">]},</span>
+        <span class="s2">&quot;ordinarykriging&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">OrdinaryKriging</span><span class="p">,</span>
+            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;externaldriftkriging&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;obj&quot;</span><span class="p">:</span> <span class="n">wrl</span><span class="o">.</span><span class="n">ipol</span><span class="o">.</span><span class="n">ExternalDriftKriging</span><span class="p">,</span>
+            <span class="s2">&quot;args&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cov&quot;</span><span class="p">,</span> <span class="s2">&quot;nnearest&quot;</span><span class="p">,</span> <span class="s2">&quot;src_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;trg_drift&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_missing&quot;</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
 
     <span class="c1"># Reproject forcing data to match the target CRS</span>
     <span class="n">crs</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>

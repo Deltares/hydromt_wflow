@@ -53,7 +53,7 @@
     <link rel="prev" title="hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac" href="hydromt_wflow.WflowModel.setup_allocation_surfacewaterfrac.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.2.dev0" />
+  <meta name="docsearch:version" content="0.8.1.dev0" />
   </head>
   
   
@@ -650,7 +650,7 @@ while the original data has a resolution of 0.5 degrees. Use the
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>domestic_fn</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.Dataset</em><em>]</em>) – <p>The domestic dataset. This can either be the dataset directly (xr.Dataset),
+<li><p><strong>domestic_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>xr.Dataset</em>) – <p>The domestic dataset. This can either be the dataset directly (xr.Dataset),
 a string referring to an entry in the data catalog or a dictionary
 containing the name of the dataset (keyword: <cite>source</cite>) and any optional
 keyword arguments (e.g. <cite>version</cite>). The data can be cyclic
@@ -660,7 +660,7 @@ keyword arguments (e.g. <cite>version</cite>). The data can be cyclic
 <li><p>Required variables: ‘dom_gross’ [mm/day], ‘dom_net’ [mm/day]</p></li>
 </ul>
 </p></li>
-<li><p><strong>population_fn</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.Dataset</em><em>]</em>) – The population dataset in capita. Either provided as a dataset directly or
+<li><p><strong>population_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>xr.Dataset</em>) – The population dataset in capita. Either provided as a dataset directly or
 as a string referring to an entry in the data catalog.</p></li>
 <li><p><strong>domestic_fn_original_res</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The original resolution of the domestic dataset, by default None to skip
 upscaling before downsampling with population.</p></li>

@@ -53,7 +53,7 @@
     <link rel="prev" title="hydromt_wflow.WflowModel.setup_allocation_areas" href="hydromt_wflow.WflowModel.setup_allocation_areas.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.7.2.dev0" />
+  <meta name="docsearch:version" content="0.8.1.dev0" />
   </head>
   
   
@@ -648,15 +648,15 @@ other brackish water.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>gwfrac_fn</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.DataArray</em><em>]</em>) – The raw groundwater fraction per grid cell. The values of these cells need
+<li><p><strong>gwfrac_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>xr.DataArray</em>) – The raw groundwater fraction per grid cell. The values of these cells need
 to be between 0 and 1.</p></li>
-<li><p><strong>waterareas_fn</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.DataArray</em><em>]</em>) – The areas over which the water has to be distributed. This may either be
+<li><p><strong>waterareas_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>| </em><em>xr.DataArray</em>) – The areas over which the water has to be distributed. This may either be
 a global (or more local map). If not provided, the source areas created by
 the <cite>setup_allocation_areas</cite> will be used.</p></li>
-<li><p><strong>gwbodies_fn</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.DataArray</em><em>]</em><em>, </em><em>optional</em>) – The presence of groundwater bodies per grid cell. The values are ought to
+<li><p><strong>gwbodies_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>xr.DataArray</em><em> | </em><em>None</em>) – The presence of groundwater bodies per grid cell. The values are ought to
 be binary (either 0 or 1). If they are not provided, we assume groundwater
 bodies are present where gwfrac is more than 0.</p></li>
-<li><p><strong>ncfrac_fn</strong> (<em>Union</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>xr.DataArray</em><em>]</em><em>, </em><em>optional</em>) – The non-conventional fraction. Same types of values apply as for
+<li><p><strong>ncfrac_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em> | </em><em>xr.DataArray</em><em> | </em><em>None</em>) – The non-conventional fraction. Same types of values apply as for
 <cite>gwfrac_fn</cite>. If not provided, we assume no non-conventional sources are
 used.</p></li>
 <li><p><strong>interpolate_nodata</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, nodata values in the resulting frac_sw_used map will be linearly
