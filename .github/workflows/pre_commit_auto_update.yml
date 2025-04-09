@@ -9,11 +9,11 @@ jobs:
   auto-update:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: setup python for pre-commit
+      - name: Setup python for pre-commit
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
