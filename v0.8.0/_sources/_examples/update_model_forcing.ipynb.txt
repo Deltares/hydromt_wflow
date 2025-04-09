@@ -1,0 +1,259 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "3f28abc3",
+   "metadata": {},
+   "source": [
+    "## Update a Wflow model: forcing"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a2553c7d",
+   "metadata": {},
+   "source": [
+    "Once you have a **Wflow** model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.\n",
+    "\n",
+    "With HydroMT, you can easily read your model and update one or several components of your model using the **update** function of the command line interface (CLI). Here are the steps and some examples on how to **update the model forcing**.\n",
+    "\n",
+    "All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more feedback."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eb86e5ad",
+   "metadata": {},
+   "source": [
+    "### Import packages"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "6451cc67",
+   "metadata": {},
+   "source": [
+    "In this notebook, we will use some functions of HydroMT to plot the precipitation from the original and updated models. Here are the libraries to import to realize these steps."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e9515676",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import xarray as xr\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d897fbcc",
+   "metadata": {},
+   "source": [
+    "### Model setup configuration"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "285bff3c",
+   "metadata": {},
+   "source": [
+    "Updating landuse is an easy step with the command line but sometimes, for example with forcing, you want to update several things at the same time. This is possible by preparing a **configuration file** that includes every methods and settings that you want to do during your update.\n",
+    "\n",
+    "The HydroMT configuration file (YAML) contains the model setup configuration and determines which methods are updated and in which sequence and sets optional arguments for each method. This configuration is passed to hydromt using `-i <path_to_config_file>`.\n",
+    "\n",
+    "Each header (without indent) (e.g. `setup_precip_forcing:`) corresponds with a model method which are explained in the [docs (model methods)](https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html).\n",
+    "\n",
+    "Let's open the example configuration file **wflow_update_forcing.yml** from the model repository [examples folder] and have a look at the settings."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "033f24ab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fn_config = \"wflow_update_forcing.yml\"\n",
+    "with open(fn_config, \"r\") as f:\n",
+    "    txt = f.read()\n",
+    "print(txt)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "100f6165",
+   "metadata": {},
+   "source": [
+    "Here we can see that to fully update wflow forcing, we will run three methods of **Wflow**:\n",
+    "\n",
+    "- **setup_config**: modifies the Wflow TOML configuration file and tells hydroMT what are the start, end, timestep of the forcing data we want to prepare. Note that you can change any options in the TOML file here, including for example the name of the output forcing file with the option *input.path_forcing*.\n",
+    "- **setup_precip_forcing**: tells hydroMT how to prepare precipitation data including from which data source and with or without downscaling.\n",
+    "- **setup_temp_pet_forcing**: tells hydroMT how to prepare temperature and potential evapotranspiration data including which data source, which computation method for PET and with or without downscaling.\n",
+    "\n",
+    "We also decide to not write our forcing not as one file but one file per month.\n",
+    "\n",
+    "You can find more information on the different methods and their options in the [docs (model methods)](https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html).\n",
+    "\n",
+    "Here we can see that we will prepare daily forcing for 10 days in February 2010 using CHIRPS for precipitation and ERA5 for temperature and potential evapotranspiration."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d3a9c2d7",
+   "metadata": {},
+   "source": [
+    "### HydroMT CLI update interface"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "84c580a3",
+   "metadata": {},
+   "source": [
+    "Using the **HydroMT build** API, we can update one or several components of an already existing Wflow model. Let's get an overview of the available options:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f9253e01",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Print the options available from the update command\n",
+    "! hydromt update --help"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "ee4d250d",
+   "metadata": {},
+   "source": [
+    "### Update Wflow forcing layers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dd69c94d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# NOTE: copy this line (without !) to your shell for more direct feedback\n",
+    "! hydromt update wflow wflow_piave_subbasin -o ./wflow_piave_forcing -i wflow_update_forcing.yml -d artifact_data -v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "90b9ec42",
+   "metadata": {},
+   "source": [
+    "The example above means the following: run **hydromt** with:\n",
+    "\n",
+    "- `update wflow`: i.e. update a wflow model\n",
+    "- `wflow_piave_subbasin`: original model folder\n",
+    "- `-o ./wflow_piave_forcing`: output updated model folder\n",
+    "- `-i wflow_update_forcing.yml`: setup configuration file containing the components to update and their different options\n",
+    "- `-d artifact_data`: specify to use the artifact_data catalog\n",
+    "- `v`: give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c2f94675",
+   "metadata": {},
+   "source": [
+    "### Model comparison"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1fff56c3",
+   "metadata": {},
+   "source": [
+    "From the information above, you can see that the different forcing variables where updated. Compared to the original model, the temperature and potential evapotranspiration still come from the ERA5 data source but now the precipitation are using CHIRPS data.\n",
+    "\n",
+    "Using the script from the [plot example](https://deltares.github.io/hydromt_wflow/latest/_examples/plot_wflow_forcing.html), we can compare the two precipitation datasets together (here *basin average* values)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4da9d10a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load both models with hydromt\n",
+    "from hydromt_wflow import WflowModel\n",
+    "\n",
+    "mod0 = WflowModel(root=\"wflow_piave_subbasin\", mode=\"r\")\n",
+    "mod1 = WflowModel(root=\"wflow_piave_forcing\", mode=\"r\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "94a183be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# read wflow forcing; mask region outside the basin and compute the basin average\n",
+    "# NOTE: only very limited forcing data is available from the artifacts\n",
+    "ds_forcing0 = xr.merge(mod0.forcing.values()).where(mod0.grid[\"wflow_subcatch\"] > 0)\n",
+    "ds_forcing0 = ds_forcing0.mean(dim=[ds_forcing0.raster.x_dim, ds_forcing0.raster.y_dim])\n",
+    "\n",
+    "ds_forcing1 = xr.merge(mod1.forcing.values()).where(mod1.grid[\"wflow_subcatch\"] > 0)\n",
+    "ds_forcing1 = ds_forcing1.mean(dim=[ds_forcing1.raster.x_dim, ds_forcing1.raster.y_dim])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e53070e4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plot precipitation\n",
+    "fig, axes = plt.subplots(1, 1, figsize=(6, 3))\n",
+    "df0 = ds_forcing0[\"precip\"].squeeze().to_series()\n",
+    "df1 = ds_forcing1[\"precip\"].squeeze().to_series()\n",
+    "\n",
+    "# axes.bar(df1.index, df1.values, facecolor='green', label='CHIRPS')\n",
+    "# axes.bar(df0.index, df0.values, facecolor='darkblue', label='ERA5')\n",
+    "\n",
+    "df0.plot.line(ax=axes, x=\"time\", color=\"darkblue\", label=\"ERA5\")\n",
+    "df1.plot.line(ax=axes, x=\"time\", color=\"green\", label=\"CHIRPS\")\n",
+    "\n",
+    "\n",
+    "axes.set_xlabel(\"time\")\n",
+    "axes.legend()\n",
+    "axes.set_title(\"precipitation\")\n",
+    "axes.set_ylabel(\"precipitation\\nmm.day-1\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

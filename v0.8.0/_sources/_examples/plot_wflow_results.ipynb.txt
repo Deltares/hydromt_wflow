@@ -1,0 +1,276 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Plot Wflow results"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**HydroMT** provides a simple interface to model results from which we can make beautiful plots:\n",
+    "\n",
+    "- Results layers are saved to the model `results` component as a dictionnary of `xarray.Dataset` or `xarray.DataArray`.\n",
+    "\n",
+    "These plots can be useful to analyze the model results or also compare model runs with different settings (different precipitation source or different parameters values)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Load dependencies"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "import hydromt\n",
+    "from hydromt_wflow import WflowModel"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Read the model run(s) results"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The **wflow_piave_subbasin** model was run using the default global data sources of the hydromt_wflow plugin. The different variables to save after the wflow were set in a separate wflow configuration file: *wflow_sbm_results.toml*.\n",
+    "\n",
+    "A second run of the model was also done, where the KsatHorFrac parameter of wflow was set to 10 (instead of the default 100 value) using an alternative configuration file: *wflow_sbm_results2.toml*.\n",
+    "\n",
+    "We will use the below `runs` dictionnary to define the model run(s) we want to read and some settings for plotting. If you want to plot and compare several runs together, you can simply add them to the `runs` dictionnary."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Dictionnary listing the different wflow models and runs to compare, including plotting options\n",
+    "runs = {\n",
+    "    \"run1\": {\n",
+    "        \"longname\": \"default\",\n",
+    "        \"color\": \"blue\",\n",
+    "        \"root\": \"wflow_piave_subbasin\",\n",
+    "        \"config_fn\": \"wflow_sbm_results.toml\",\n",
+    "    },\n",
+    "    \"run2\": {\n",
+    "        \"longname\": \"KsatHorFrac10\",\n",
+    "        \"color\": \"green\",\n",
+    "        \"root\": \"wflow_piave_subbasin\",\n",
+    "        \"config_fn\": \"wflow_sbm_results2.toml\",\n",
+    "    },\n",
+    "}\n",
+    "mainrun = \"run1\""
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Initialize the different model run(s)\n",
+    "for r in runs:\n",
+    "    run = runs[r]\n",
+    "    mod = WflowModel(root=run[\"root\"], mode=\"r+\", config_fn=run[\"config_fn\"])\n",
+    "    runs[r].update({\"mod\": mod})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Wflow can save different types of outputs (netcdf gridded output, netcdf scalar netcdf, csv scalar timeseries) that are also reflected in the organisation of the HydroMT `results` component:\n",
+    "\n",
+    "* a **\"output\" xarray.Dataset** for the gridded netcdf file (output section of the TOML)\n",
+    "* a **\"netcdf\" xarray.Dataset** for the netcdf point timeseries file (netcdf section of the TOML)\n",
+    "* different **hydromt.GeoDataArrays for the csv file** , one per column (csv section and csv.column sections of the TOML). The xy coordinates are the coordinates of the station or of the representative point of the subcatch/area. The variable name in the GeoDataArray corresponds to the csv header attribute or header_map when available.\n",
+    "\n",
+    "Below you can see how to access to the results of *run1* and its contents:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mod1 = runs[\"run1\"][\"mod\"]\n",
+    "mod1.results"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Read observations"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "You can also use HydroMT to read observations data in order to analyze your model results.\n",
+    "Here a **fictional** observations timeseries was prepared for the gauges_grdc locations. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Discharge data\n",
+    "timeseries_fn = \"gauges_observed_flow.csv\"  # observed discharge timeseries\n",
+    "name = \"gauges_grdc\"  # gauges locations in staticgeoms\n",
+    "stationID = \"grdc_no\"  # column name in staticgeoms containing the stations IDs\n",
+    "\n",
+    "# Read the observations data\n",
+    "# read timeseries data and match with existing gdf\n",
+    "gdf = runs[mainrun][\"mod\"].geoms[name]\n",
+    "gdf.index = gdf[stationID]\n",
+    "da_ts = hydromt.io.open_timeseries_from_table(timeseries_fn, name=name, sep=\";\")\n",
+    "da = hydromt.vector.GeoDataArray.from_gdf(gdf, da_ts, index_dim=\"index\")\n",
+    "\n",
+    "obs = da\n",
+    "obs"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Plot model results"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Here we plot the different model results for the gauges_grdc locations."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Plotting options\n",
+    "# select the gauges_grdc results (name in csv column of wflow results to plot)\n",
+    "result_name = \"Q_gauges_grdc\"\n",
+    "\n",
+    "# selection of runs to plot (all or a subset)\n",
+    "runs_subset = [\"run1\", \"run2\"]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Plots\n",
+    "from hydromt.stats import skills as skillstats\n",
+    "\n",
+    "# from hydromt import stats as skillstats # for hydromt < v0.4.5\n",
+    "\n",
+    "station_ids = list(runs[mainrun][\"mod\"].results[result_name].index.values)\n",
+    "\n",
+    "for i, st in enumerate(station_ids):\n",
+    "    n = 2\n",
+    "    fig, axes = plt.subplots(n, 1, sharex=True, figsize=(15, n * 4))\n",
+    "    axes = [axes] if n == 1 else axes\n",
+    "\n",
+    "    # Discharge\n",
+    "    obs_i = obs.sel(index=st)\n",
+    "    obs_i.plot.line(ax=axes[0], x=\"time\", label=\"obs\", color=\"black\")\n",
+    "\n",
+    "    for r in runs_subset:\n",
+    "        run = runs[r]\n",
+    "        run_i = run[\"mod\"].results[result_name].sel(index=st)\n",
+    "        # Stats\n",
+    "        nse_i = skillstats.nashsutcliffe(run_i, obs_i).values.round(2)\n",
+    "        kge_i = skillstats.kge(run_i, obs_i)[\"kge\"].values.round(2)\n",
+    "        labeltxt = f\"{run['longname']}, NSE: {nse_i}, KGE: {kge_i}\"\n",
+    "        run_i.plot.line(\n",
+    "            ax=axes[0],\n",
+    "            x=\"time\",\n",
+    "            label=labeltxt,\n",
+    "            color=f\"{run['color']}\",\n",
+    "            linestyle=\"--\",\n",
+    "        )\n",
+    "\n",
+    "    axes[0].set_title(f\"Simulated discharge at station {st}\")\n",
+    "    axes[0].set_ylabel(\"Discharge [m3/s]\")\n",
+    "    axes[0].legend()\n",
+    "\n",
+    "    # Cumulative Discharge\n",
+    "    obs_i = obs.sel(index=st)\n",
+    "    obs_i.cumsum().plot.line(ax=axes[1], x=\"time\", label=\"obs\", color=\"black\")\n",
+    "\n",
+    "    for r in runs_subset:\n",
+    "        run = runs[r]\n",
+    "        run_i = run[\"mod\"].results[result_name].sel(index=st)\n",
+    "        run_i.cumsum().plot.line(\n",
+    "            ax=axes[1],\n",
+    "            x=\"time\",\n",
+    "            label=f\"{run['longname']}\",\n",
+    "            color=f\"{run['color']}\",\n",
+    "            linestyle=\"--\",\n",
+    "        )\n",
+    "\n",
+    "    axes[1].set_title(f\"Cumulative discharge at station {st}\")\n",
+    "    axes[1].set_ylabel(\"Cumulative Discharge [m3/s]\")\n",
+    "    axes[1].legend()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "You can see on the discharge plots legends that some statistical criteria were computed using the fictional observations and the model runs results.\n",
+    "\n",
+    "These statistics were computed using the **stats** module of HydroMT. You can find the available statisctics functions in the [documentation](https://deltares.github.io/hydromt/latest/user_guide/methods_stats.html).\n",
+    "\n",
+    "And finally once the `results` are loaded, you can use them to derive more statistics or plots to further analyze your model."
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

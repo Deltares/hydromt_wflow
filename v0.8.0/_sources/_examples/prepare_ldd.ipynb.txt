@@ -1,0 +1,406 @@
+{
+ "cells": [
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Prepare flow directions and related data from a DEM"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "With HydroMT-Wflow, a user can choose to build a model in a geographic or projected coordinate system from an input Digital Elevation Model (DEM) and Flow Direction (flwdir) dataset.\n",
+    "\n",
+    "While DEM data are often available, this is not the always the case for the flow directions (flwdir). We made the choice to build a Wflow model directly from user provided DEM and flwdir datasets rather than reprojecting a DEM and/or deriving flwdir on the fly. This is because deriving flow directions is often an iterative process to be sure the flow directions matche the terrain and river network. Note that for the best results the flwdir data should be derived from a high-res DEM (<100 m spatial resolution). The HydroMT-Wflow model builder will automatically resample the flwdir data to the model resolution.\n",
+    "\n",
+    "Because of this, we prefer to provide this notebook as a possible **pre-processing step** before calling a build a Wflow model with HydroMt-Wflow. Here we use the different [flow directions methods from HydroMT](https://deltares.github.io/hydromt/latest/api.html#flow-direction-methods) and [PyFlwDir](https://deltares.github.io/pyflwdir/latest/index.html)"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Load dependencies"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import os\n",
+    "import xarray as xr\n",
+    "import numpy as np\n",
+    "import geopandas as gpd\n",
+    "\n",
+    "# pyflwdir\n",
+    "import pyflwdir\n",
+    "\n",
+    "# hydromt\n",
+    "from hydromt import DataCatalog, flw\n",
+    "\n",
+    "# plot\n",
+    "import matplotlib.pyplot as plt\n",
+    "from matplotlib import cm, colors"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Deriving flow directions from Elevation data"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In this example we will use the `merit_hydro` data in the pre-defined `artifact_data` catalog of HydroMT. \n",
+    "\n",
+    "The typical starting point to derive flow direction is a DEM and a river network vector file.\n",
+    "However, just for this example were we already have flow direction data, we will derive the river network from the flow direction data. And then use the DEM and the river network to derive flow directions.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# read data\n",
+    "data_catalog = DataCatalog(\"artifact_data\")\n",
+    "ds_hydro_org = data_catalog.get_rasterdataset(\n",
+    "    \"merit_hydro\",\n",
+    "    variables=[\"elevtn\", \"flwdir\", \"uparea\", \"strord\"],\n",
+    "    bbox=[12, 46.0, 12.3, 46.2],\n",
+    ")\n",
+    "\n",
+    "# derive river network\n",
+    "# Note: this is typically not needed, instead a user supplied river network is used\n",
+    "flwdir_org = flw.flwdir_from_da(ds_hydro_org[\"flwdir\"], ftype=\"infer\", check_ftype=True)\n",
+    "gdf_riv_org = gpd.GeoDataFrame.from_features(\n",
+    "    flwdir_org.streams(uparea=ds_hydro_org[\"uparea\"].values, min_sto=3),\n",
+    "    crs=ds_hydro_org.raster.crs,\n",
+    ")"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To derive flow directions from a DEM, you can use the [hydromt.flw.d8_from_dem](https://deltares.github.io/hydromt/latest/_generated/hydromt.flw.d8_from_dem.html#hydromt.flw.d8_from_dem) method of HydroMT.\n",
+    "\n",
+    "This method derives D8 flow directions grid from an elevation grid and allows several options to the users:\n",
+    "- **river burning**: provide a river vector layer ``gdf_riv`` with ``uparea`` (km2) or ``rivdph`` column to guide the derivation of flow directions. This is important to get the correct flow directions, especially in flat areas.\n",
+    " - **outlets**: outlets can be defined at ``edge``s of the grid (defualt) or force all flow to go to the minimum elevation point ``min``. The latter only makes sense if your DEM only is masked to the catchment. Additionnally, the user can also force specific pits locations via ``idxs_pit``.\n",
+    " - **depression filling**: local depressions are filled based on their lowest pour point level if the pour point depth is smaller than the maximum pour point depth ``max_depth``, otherwise the lowest elevation in the depression becomes a pit. By default ``max_depth`` is set to -1 m filling all local depressions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Derive flow directions with outlets at the edges -> this is the default\n",
+    "da_flwdir = flw.d8_from_dem(\n",
+    "    da_elv=ds_hydro_org[\"elevtn\"],\n",
+    "    max_depth=-1,  # max depression poir point depth; -1 means no local pits\n",
+    "    outlets=\"edge\",  # option: \"edge\" (default), \"min\", \"idxs_pit\"\n",
+    "    idxs_pit=None,\n",
+    "    gdf_riv=gdf_riv_org,  # user supplied river network to aid flow direction derivation\n",
+    "    riv_burn_method=\"uparea\",  # options: \"fixed\" (default), \"rivdph\", \"uparea\"\n",
+    "    # riv_depth=5, # fixed river depth in meters, only used if riv_burn_method=\"fixed\"\n",
+    "    # **kwargs to be passed to pyflwdir.dem.fill_depressions\n",
+    ")\n",
+    "\n",
+    "# convert to vector for plotting based no minimum stream order\n",
+    "flwdir = flw.flwdir_from_da(da_flwdir, ftype=\"infer\", check_ftype=True)\n",
+    "gdf_riv = gpd.GeoDataFrame.from_features(\n",
+    "    flwdir.streams(min_sto=3), crs=da_flwdir.raster.crs\n",
+    ")"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's compare the original with the derived flow direction data. Note that we do not see a big difference here, because the river network file that we used was created from the original flow directions."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plot\n",
+    "\n",
+    "# initialize image with geoaxes\n",
+    "fig = plt.figure(figsize=(8, 8))\n",
+    "ax = fig.add_subplot()\n",
+    "\n",
+    "# set some meta data for plots\n",
+    "ds_hydro_org = ds_hydro_org.raster.gdal_compliant()  # spatial\n",
+    "ds_hydro_org[\"elevtn\"].attrs.update(units=\"m\", long_name=\"Elevation\")\n",
+    "\n",
+    "# plot elevation\n",
+    "# create nice elevation colormap\n",
+    "cmap_dem = colors.LinearSegmentedColormap.from_list(\n",
+    "    \"dem\", plt.cm.terrain(np.linspace(0.25, 1, 256))\n",
+    ")\n",
+    "norm_dem = colors.Normalize(vmin=0, vmax=2000)\n",
+    "ds_hydro_org[\"elevtn\"].plot(\n",
+    "    ax=ax,\n",
+    "    zorder=1,\n",
+    "    cbar_kwargs=dict(aspect=30, shrink=0.5),\n",
+    "    alpha=0.5,\n",
+    "    cmap=cmap_dem,\n",
+    "    norm=norm_dem,\n",
+    ")\n",
+    "\n",
+    "# plot river network from original flow directions\n",
+    "gdf_riv_org.to_crs(da_flwdir.raster.crs).plot(\n",
+    "    ax=ax,\n",
+    "    color=\"blue\",\n",
+    "    linewidth=gdf_riv_org[\"strord\"] / 3,\n",
+    "    label=\"Original flow directions\",\n",
+    ")\n",
+    "\n",
+    "# plot river network from new flow directions\n",
+    "gdf_riv.plot(\n",
+    "    ax=ax,\n",
+    "    color=\"green\",\n",
+    "    linewidth=gdf_riv[\"strord\"] / 3,\n",
+    "    label=\"Derived flow directions\",\n",
+    ")\n",
+    "\n",
+    "ax.set_title(\"MERIT Hydro derived vs. original flow directions\")\n",
+    "ax.legend()"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Deriving other DEM and flow directions related data"
+   ]
+  },
+  {
+   "attachments": {},
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Once you are satisfied with your flow direction map, you can create additionnal derived variables like upstream area or streamorder that can prove useful for example to build a model based on ``subbasin`` region.\n",
+    "\n",
+    "**Note** that to calculating *upstream area* and *stream order* requires all upstream areas to be included, which is not the case for all basins in this example. \n",
+    "Here are some examples how to do that using PyFlwdir methods."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Create a new ds_hydro dataset with the riverburn flow directions\n",
+    "ds_hydro = da_flwdir.to_dataset(name=\"flwdir\")\n",
+    "ds_hydro = ds_hydro.raster.gdal_compliant()  # update spatial metadata\n",
+    "dims = ds_hydro.raster.dims\n",
+    "\n",
+    "# add hydrological corrected elevation based on Yamazaki et al. (2012)\n",
+    "elevtn = flwdir.dem_adjust(elevtn=ds_hydro_org[\"elevtn\"].values)\n",
+    "attrs = dict(_FillValue=-9999, long_name=\"corrected elevation\", units=\"m\")\n",
+    "ds_hydro[\"elevtn\"] = xr.Variable(dims, elevtn, attrs=attrs)\n",
+    "\n",
+    "# uparea (Note that this requires all upstream areas to be included.)\n",
+    "uparea = flwdir.upstream_area(unit=\"km2\")\n",
+    "attrs = dict(_FillValue=-9999, long_name=\"upstream area\", units=\"km2\")\n",
+    "ds_hydro[\"uparea\"] = xr.Variable(dims, uparea, attrs=attrs)\n",
+    "\n",
+    "# stream order (Note that this requires all upstream areas to be included.)\n",
+    "strord = flwdir.stream_order()\n",
+    "attrs = dict(_FillValue=np.uint8(225), long_name=\"stream order\", units=\"-\")\n",
+    "ds_hydro[\"strord\"] = xr.Variable(dims, strord, attrs=attrs)\n",
+    "\n",
+    "# slope\n",
+    "slope = pyflwdir.dem.slope(\n",
+    "    elevtn=ds_hydro[\"elevtn\"].values,\n",
+    "    nodata=ds_hydro[\"elevtn\"].raster.nodata,\n",
+    "    latlon=ds_hydro.raster.crs.is_geographic,  # True if geographic crs, False if projected crs\n",
+    "    transform=ds_hydro[\"elevtn\"].raster.transform,\n",
+    ")\n",
+    "attrs = dict(_FillValue=-9999, long_name=\"slope\", units=\"m/m\")\n",
+    "ds_hydro[\"slope\"] = xr.Variable(dims, slope, attrs=attrs)\n",
+    "\n",
+    "# basin at the pits locations\n",
+    "basins = flwdir.basins(idxs=flwdir.idxs_pit).astype(np.int32)\n",
+    "attrs = dict(_FillValue=0, long_name=\"basin ids\", units=\"-\")\n",
+    "ds_hydro[\"basins\"] = xr.Variable(dims, basins, attrs=attrs)\n",
+    "\n",
+    "# basin index file\n",
+    "gdf_basins = ds_hydro[\"basins\"].raster.vectorize()\n",
+    "\n",
+    "ds_hydro"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# NOTE that *upstream area* and *stream order* are not correct as not all upstream area is fully included in the domain.\n",
+    "\n",
+    "# plot\n",
+    "fig, axes = plt.subplots(2, 2, figsize=(12, 10), sharex=True, sharey=True)\n",
+    "\n",
+    "# plot uparea; use a log scale colormap\n",
+    "ds_hydro[\"uparea\"].plot(\n",
+    "    ax=axes[0, 0],\n",
+    "    norm=colors.LogNorm(vmin=1, vmax=ds_hydro[\"uparea\"].max()),\n",
+    "    cmap=\"viridis\",\n",
+    ")\n",
+    "axes[0, 0].set_title(\"Upstream area [km2]\")\n",
+    "\n",
+    "# plot strord\n",
+    "ds_hydro[\"strord\"].plot(\n",
+    "    ax=axes[0, 1], cmap=colors.ListedColormap(cm.Blues(np.linspace(0, 1, 7)))\n",
+    ")\n",
+    "axes[0, 1].set_title(\"Strahler Stream order\")\n",
+    "\n",
+    "# plot slope\n",
+    "ds_hydro[\"slope\"].plot(ax=axes[1, 1])\n",
+    "axes[1, 1].set_title(\"Slope\")\n",
+    "\n",
+    "# plot basins\n",
+    "# elevation cmap\n",
+    "ds_hydro[\"elevtn\"].plot(ax=axes[1, 0], cmap=cmap_dem, norm=norm_dem)\n",
+    "axes[1, 0].set_title(\"Elevation\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Exporting the newly created data and corresponding data catalog"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Finally, once we are happy with the new dataset, we can write out the data and create the corresponding data catalog so that it can be re-used to build a new wflow model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Export the gridded data as tif files in a new folder\n",
+    "output_path = \"./hydro_data\"\n",
+    "\n",
+    "# export the hydrography data as tif files (one per variable)\n",
+    "ds_hydro.raster.to_mapstack(\n",
+    "    root=os.path.join(output_path, \"ds_hydro\"),\n",
+    "    driver=\"GTiff\",\n",
+    ")\n",
+    "\n",
+    "# export the basin index as geosjon\n",
+    "gdf_basins.to_file(\n",
+    "    os.path.join(output_path, \"da_hydro_basins.geojson\"), driver=\"GeoJSON\"\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now let's prepare the corresponding data catalog: (the writefile command will directly write a file using the lines in the jupyter cell)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%writefile ./hydro_data/data_catalog.yml\n",
+    "ds_hydro:\n",
+    "  data_type: RasterDataset\n",
+    "  driver: raster\n",
+    "  path: ./ds_hydro/{variable}.tif\n",
+    "  rename:\n",
+    "    slope: lndslp\n",
+    "  meta:\n",
+    "    category: topography\n",
+    "    processing_notes: prepared from MERIT Hydro using hydromt d8_from_dem and pyflwdir\n",
+    "    processing_script: prepare_ldd.ipynb from hydromt_wflow repository\n",
+    "\n",
+    "da_hydro_new_index:\n",
+    "  data_type: GeoDataFrame\n",
+    "  driver: vector\n",
+    "  path: ./da_hydro_basins.geojson\n",
+    "  rename:\n",
+    "    value: basid\n",
+    "  meta:\n",
+    "    processing_notes: prepared from MERIT Hydro using hydromt d8_from_dem and pyflwdir\n",
+    "    processing_script: prepare_ldd.ipynb from hydromt_wflow repository\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "And now let's try to load our data again with hydromt:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data_catalog = DataCatalog(data_libs=\"./hydro_data/data_catalog.yml\")\n",
+    "\n",
+    "ds_hydro_new = data_catalog.get_rasterdataset(\"ds_hydro\")\n",
+    "ds_hydro_new"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "hydromt-wflow",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  },
+  "orig_nbformat": 4
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

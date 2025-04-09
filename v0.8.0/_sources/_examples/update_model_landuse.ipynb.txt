@@ -1,0 +1,292 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "id": "3f28abc3",
+   "metadata": {},
+   "source": [
+    "## Update a Wflow model: landuse"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "a2553c7d",
+   "metadata": {},
+   "source": [
+    "Once you have a **Wflow** model, you may want to update your model in order to use a new landuse map, change a parameter value, add sample locations, use different forcing data, create and run different scenarios etc.\n",
+    "\n",
+    "With HydroMT, you can easily read your model and update one or several components of your model using the **update** function of the command line interface (CLI). Here are the steps and some examples on how to **update the landuse map and parameters**.\n",
+    "\n",
+    "All lines in this notebook which starts with ! are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste them in your shell to get more direct feedback."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "eb86e5ad",
+   "metadata": {},
+   "source": [
+    "### Import packages"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "0122c4b9",
+   "metadata": {},
+   "source": [
+    "In this notebook, we will use some functions of HydroMT to check available datasets and also to plot the landuse maps from the original and updated models. Here are the libraries to import to realize these steps."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "adc6795e",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "import pandas as pd\n",
+    "import hydromt\n",
+    "from hydromt_wflow import WflowModel\n",
+    "\n",
+    "# for plotting\n",
+    "import matplotlib as mpl\n",
+    "import matplotlib.pyplot as plt\n",
+    "import cartopy.crs as ccrs\n",
+    "\n",
+    "proj = ccrs.PlateCarree()  # plot projection"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d897fbcc",
+   "metadata": {},
+   "source": [
+    "### Searching the data catalog for landuse"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "285bff3c",
+   "metadata": {},
+   "source": [
+    "In our previous notebook, we built a Wflow model using the *GlobCover* landuse classification. But we could as well have chosen another one. Let's what other landuse landcover data are available in HydroMT and choose another landuse classification for our model. For this we will open the data catalog.\n",
+    "\n",
+    "You can also directly open and search the HydroMT yaml library by downloading and opening the data_catalog.yml file in [hydromt-artifacts](https://github.com/DirkEilander/hydromt-artifacts/releases/tag/v0.0.3) or look at the list of data sources in the [documentation](https://deltares.github.io/hydromt/latest/user_guide/data_existing_cat.html)."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "033f24ab",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load the default data catalog of HydroMT\n",
+    "data_catalog = hydromt.DataCatalog(\"artifact_data\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "9654cc41",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Check which landuse/lancover sources are available in the DataCatalog\n",
+    "data_table = data_catalog.to_dataframe()\n",
+    "data_table.source_url[data_table[\"category\"] == \"landuse & landcover\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "100f6165",
+   "metadata": {},
+   "source": [
+    "Here we can see that we have five data sources in HydroMT related to landuse & landcover properties. Out of these, three are landuse classifications:\n",
+    "\n",
+    "- **globcover_2009** (already used in our current model)\n",
+    "- **corine**\n",
+    "- **vito_2015**\n",
+    "\n",
+    "The other datasets include a Leaf Area Index dataset (modis_lai) and a canopy height dataset (simard).\n",
+    "\n",
+    "Let's now see how to update our current model in one command line to use the **corine** classification."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d3a9c2d7",
+   "metadata": {},
+   "source": [
+    "### HydroMT CLI update interface"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "467d4f9a",
+   "metadata": {},
+   "source": [
+    "Using the **HydroMT build** API, we can update one or several components of an already existing Wflow model. Let's get an overview of the available options:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "f9253e01",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Print the options available from the update command\n",
+    "! hydromt update --help"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d891df25",
+   "metadata": {},
+   "source": [
+    "### Update Wflow landuse layers"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "dd69c94d",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# NOTE: copy this line (without !) to your shell for more direct feedback\n",
+    "! hydromt update wflow wflow_piave_subbasin -o ./wflow_piave_corine -c setup_lulcmaps --opt lulc_fn=corine -d artifact_data -v"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "90b9ec42",
+   "metadata": {},
+   "source": [
+    "The example above means the following: run **hydromt** with:\n",
+    "\n",
+    "- `update wflow`: i.e. update a wflow model\n",
+    "- `wflow_piave_subbasin`: original model folder\n",
+    "- `-o ./wflow_piave_corine`: output updated model folder\n",
+    "- `-c setup_lulcmaps`: model component to update, here setup_lulcmaps for landuse layers\n",
+    "- `--opt lulc_fn=corine`: arguments to use when updating the setup_lulcmaps component, all options are described in the [docs (setup lulcmaps)](https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowModel.setup_lulcmaps.html#hydromt_wflow.WflowModel.setup_lulcmaps)\n",
+    "- `-d artifact_data`: specify to use the artifact_data catalog\n",
+    "- `-v`: give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "c2f94675",
+   "metadata": {},
+   "source": [
+    "### Model comparison"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "1fff56c3",
+   "metadata": {},
+   "source": [
+    "From the information above, you can see that not only was the landuse map updated but also all wflow landuse-related parameters with it: Kext, N, PathFrac, RootingDepth, Sl, Swood and WaterFrac.\n",
+    "\n",
+    "Let's now have a look at the different landuse maps of our two models and check that they were indeed updated."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "4da9d10a",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load both models with hydromt\n",
+    "mod0 = WflowModel(root=\"wflow_piave_subbasin\", mode=\"r\")\n",
+    "mod1 = WflowModel(root=\"wflow_piave_corine\", mode=\"r\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "94a183be",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.read_csv(\"./legends/GLOBCOVER_2009_QGIS.txt\", header=None, index_col=0)\n",
+    "\n",
+    "# plot  globcover map\n",
+    "levels = df.index\n",
+    "colors = (df.iloc[:-1, :4] / 255).values\n",
+    "ticklabs = df.iloc[:-1, 4].values\n",
+    "cmap, norm = mpl.colors.from_levels_and_colors(levels, colors)\n",
+    "ticks = np.array(levels[:-1]) + np.diff(levels) / 2.0\n",
+    "\n",
+    "# create new figure\n",
+    "fig = plt.figure(figsize=(14, 7))\n",
+    "ax = fig.add_subplot(projection=proj)\n",
+    "# plot globcover landuse\n",
+    "mask = mod0.grid[\"wflow_subcatch\"] > 0\n",
+    "p = (\n",
+    "    mod0.grid[\"wflow_landuse\"]\n",
+    "    .raster.mask_nodata()\n",
+    "    .plot(ax=ax, cmap=cmap, norm=norm, cbar_kwargs=dict(ticks=ticks))\n",
+    ")\n",
+    "p.axes.set_title(\"GlobCover LULC\")\n",
+    "_ = p.colorbar.ax.set_yticklabels(ticklabs)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "id": "e53070e4",
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plot  corine map\n",
+    "df = pd.read_csv(\n",
+    "    \"./legends/CLC2018_CLC2018_V2018_20_QGIS.txt\", header=None, index_col=0\n",
+    ")\n",
+    "\n",
+    "# plot  globcover map\n",
+    "levels = df.index\n",
+    "colors = (df.iloc[:-1, :4] / 255).values\n",
+    "ticklabs = df.iloc[:-1, 4].values\n",
+    "cmap, norm = mpl.colors.from_levels_and_colors(levels, colors)\n",
+    "ticks = np.array(levels[:-1]) + np.diff(levels) / 2.0\n",
+    "\n",
+    "# create new figure\n",
+    "fig = plt.figure(figsize=(14, 7))\n",
+    "ax = fig.add_subplot(projection=proj)\n",
+    "# plot corine landuse\n",
+    "p = (\n",
+    "    mod1.grid[\"wflow_landuse\"]\n",
+    "    .raster.mask_nodata()\n",
+    "    .plot(ax=ax, cmap=cmap, norm=norm, cbar_kwargs=dict(ticks=ticks))\n",
+    ")\n",
+    "p.axes.set_title(\"Corine LULC\")\n",
+    "_ = p.colorbar.ax.set_yticklabels(ticklabs)"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "hydromt-wflow",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}

@@ -1,0 +1,153 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Plot Wflow forcing"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**HydroMT** provides a simple interface to model forcing data from which we can make beautiful plots:\n",
+    "\n",
+    "- Forcing model layers are saved to model `forcing` component as a `dict` of `xarray.DataArray`"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Load dependencies"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import xarray as xr\n",
+    "import matplotlib.pyplot as plt\n",
+    "import hydromt\n",
+    "from hydromt_wflow import WflowModel"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Read the model"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "root = \"wflow_piave_subbasin\"\n",
+    "mod = WflowModel(root, mode=\"r\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Plot model forcing"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Here we plot the model *basin average* forcing."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# read wflow forcing; mask region outside the basin and compute the basin average\n",
+    "# NOTE: only very limited forcing data is available from the artifacts\n",
+    "ds_forcing = xr.merge(mod.forcing.values()).where(mod.grid[\"wflow_subcatch\"] > 0)\n",
+    "ds_forcing = ds_forcing.mean(dim=[ds_forcing.raster.x_dim, ds_forcing.raster.y_dim])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# plot axes labels\n",
+    "_ATTRS = {\n",
+    "    \"precip\": {\n",
+    "        \"standard_name\": \"precipitation\",\n",
+    "        \"unit\": \"mm.day-1\",\n",
+    "        \"color\": \"darkblue\",\n",
+    "    },\n",
+    "    \"pet\": {\n",
+    "        \"standard_name\": \"potential evapotranspiration\",\n",
+    "        \"unit\": \"mm.day-1\",\n",
+    "        \"color\": \"purple\",\n",
+    "    },\n",
+    "    \"temp\": {\"standard_name\": \"temperature\", \"unit\": \"degree C\", \"color\": \"orange\"},\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "n = len(ds_forcing.data_vars)\n",
+    "kwargs0 = dict(sharex=True, figsize=(6, n * 3))\n",
+    "\n",
+    "fig, axes = plt.subplots(n, 1, **kwargs0)\n",
+    "axes = [axes] if n == 1 else axes\n",
+    "for i, name in enumerate(ds_forcing.data_vars):\n",
+    "    df = ds_forcing[name].squeeze().to_series()\n",
+    "    attrs = _ATTRS[name]\n",
+    "    longname = attrs.get(\"standard_name\", \"\")\n",
+    "    unit = attrs.get(\"unit\", \"\")\n",
+    "    if name == \"precip\":\n",
+    "        axes[i].bar(df.index, df.values, facecolor=attrs[\"color\"])\n",
+    "    else:\n",
+    "        df.plot.line(ax=axes[i], x=\"time\", color=attrs[\"color\"])\n",
+    "    axes[i].set_title(longname)\n",
+    "    axes[i].set_ylabel(f\"{longname}\\n[{unit}]\")\n",
+    "\n",
+    "# save figure\n",
+    "# fn_out = join(mod.root, \"figs\", \"forcing.png\")\n",
+    "# plt.savefig(fn_out, dpi=225, bbox_inches=\"tight\")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.2"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}

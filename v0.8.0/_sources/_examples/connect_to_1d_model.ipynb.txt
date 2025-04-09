@@ -1,0 +1,495 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Connect Wflow to a 1D model"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "If you have a **Wflow** model, one of the applications is that you would like to connect it to a another model such as a 1D hydraulic model like Delft3D or HEC-RAS or a 1D water allocation model like RIBASIM where wflow would give them both river discharge at the boundaries of these models and the runoff generated within the 1D model domain.\n",
+    "\n",
+    "HydroMT-Wflow uses a new function **setup_1dmodel_connection** to try and help you out with these steps. What it does is:\n",
+    "\n",
+    "- Add gauges at the 1D model upstream boundaries to exchange river discharge.\n",
+    "- Derive the sub-basins draining into the 1D model river to exchange the amount of water that enters the river (river inwater).\n",
+    "- Optionally, while deriving the sub-basins, large sub-basins can be taken out as tributaries and river discharge is exchanged instead.\n",
+    "\n",
+    "Through this notebook we will see some examples of how to use this new function."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Import packages"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In this notebook, we will update out Wflow model using python rather than the **update** command line and do some plotting to visualize the outputs of the function."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from hydromt_wflow import WflowModel\n",
+    "import geopandas as gpd\n",
+    "import numpy as np\n",
+    "from shapely.geometry import box, Point\n",
+    "\n",
+    "# Plotting\n",
+    "import matplotlib.pyplot as plt\n",
+    "import cartopy.crs as ccrs\n",
+    "\n",
+    "proj = ccrs.PlateCarree()  # plot projection"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Connecting to a 1D model"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To connect Wflow to a 1D model, we will use the [setup_1dmodel_connection](https://deltares.github.io/hydromt_wflow/latest/_generated/hydromt_wflow.WflowModel.setup_1dmodel_connection.html).\n",
+    "\n",
+    "It uses a 1D river geometry file and there are two methods to connect the models:\n",
+    "\n",
+    "- `subbasin_area`: creates subcatchments linked to the 1d river based\n",
+    "on an area threshold (area_max) for the subbasin size. With this method,\n",
+    "if a tributary is larger than the `area_max`, it will be connected to\n",
+    "the 1d river directly.\n",
+    "- `nodes`: subcatchments are derived based on the 1driver nodes (used as\n",
+    "gauges locations). With this method, large tributaries can also be derived\n",
+    "separately using the `add_tributaries` option and adding a `area_max`\n",
+    "threshold for the tributaries.\n",
+    "\n",
+    "So let's first load our wflow model and the river file of the 1D model we would like to connect to:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Load the wflow model of Piave\n",
+    "mod = WflowModel(root=\"wflow_piave_subbasin\", mode=\"r\")\n",
+    "\n",
+    "# Open the river of the 1D model\n",
+    "rivers1d = gpd.read_file(\"data/rivers.geojson\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# And plot the model and the river\n",
+    "# Plot\n",
+    "# we assume the model maps are in the geographic CRS EPSG:4326\n",
+    "proj = ccrs.PlateCarree()\n",
+    "# adjust zoomlevel and figure size to your basis size & aspect\n",
+    "zoom_level = 10\n",
+    "figsize = (10, 8)\n",
+    "shaded = False\n",
+    "\n",
+    "# initialize image with geoaxes\n",
+    "fig = plt.figure(figsize=figsize)\n",
+    "ax = fig.add_subplot(projection=proj)\n",
+    "bbox = mod.grid.raster.box.to_crs(3857).buffer(5e3)\n",
+    "extent = np.array(bbox.to_crs(mod.grid.raster.crs).total_bounds)[[0, 2, 1, 3]]\n",
+    "ax.set_extent(extent, crs=proj)\n",
+    "\n",
+    "# Wflow\n",
+    "# plot rivers with increasing width with stream order\n",
+    "mod.rivers.plot(\n",
+    "    ax=ax, lw=mod.rivers[\"strord\"] / 2, color=\"blue\", zorder=3, label=\" wflow river\"\n",
+    ")\n",
+    "# plot the basin boundary\n",
+    "mod.basins.boundary.plot(ax=ax, color=\"k\", linewidth=0.5)\n",
+    "\n",
+    "# 1D river\n",
+    "rivers1d.to_crs(mod.crs).plot(\n",
+    "    ax=ax, color=\"red\", linewidth=2, zorder=4, label=\"1D river\"\n",
+    ")\n",
+    "\n",
+    "ax.xaxis.set_visible(True)\n",
+    "ax.yaxis.set_visible(True)\n",
+    "ax.set_ylabel(f\"latitude [degree north]\")\n",
+    "ax.set_xlabel(f\"longitude [degree east]\")\n",
+    "_ = ax.set_title(f\"Wflow model and 1D river network of Piave subbasin\")\n",
+    "legend = ax.legend(\n",
+    "    handles=[*ax.get_legend_handles_labels()[0]],\n",
+    "    title=\"Legend\",\n",
+    "    loc=\"lower right\",\n",
+    "    frameon=True,\n",
+    "    framealpha=0.7,\n",
+    "    edgecolor=\"k\",\n",
+    "    facecolor=\"white\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Subbasin area connection method and tributaries"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We see that our 1D model is located in the Northern part of our Wflow model.\n",
+    "\n",
+    "Let's connect the two using the ``subbasin_area`` method and including tributaries for subbasins that are larger than 30 km2."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Run the setup_1d_model_connection function\n",
+    "mod.setup_1dmodel_connection(\n",
+    "    river1d_fn=rivers1d,\n",
+    "    connection_method=\"subbasin_area\",\n",
+    "    area_max=30.0,\n",
+    "    add_tributaries=True,\n",
+    "    include_river_boundaries=True,\n",
+    "    mapname=\"1dmodel\",\n",
+    "    update_toml=True,\n",
+    "    toml_output=\"netcdf\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We can see than in that case the toml was already updated to save the relevant outputs for our new gauges and subcatch:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mod.config[\"netcdf\"]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "And let's visualize our results:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# And plot the model and the river\n",
+    "# Plot\n",
+    "# we assume the model maps are in the geographic CRS EPSG:4326\n",
+    "proj = ccrs.PlateCarree()\n",
+    "# adjust zoomlevel and figure size to your basis size & aspect\n",
+    "zoom_level = 10\n",
+    "figsize = (10, 8)\n",
+    "shaded = False\n",
+    "\n",
+    "# initialize image with geoaxes\n",
+    "fig = plt.figure(figsize=figsize)\n",
+    "ax = fig.add_subplot(projection=proj)\n",
+    "bbox = gpd.GeoDataFrame(geometry=[box(*rivers1d.total_bounds)], crs=rivers1d.crs)\n",
+    "bbox = bbox.buffer(10e3)\n",
+    "extent = np.array(bbox.to_crs(mod.grid.raster.crs).total_bounds)[[0, 2, 1, 3]]\n",
+    "ax.set_extent(extent, crs=proj)\n",
+    "\n",
+    "# Wflow\n",
+    "# plot rivers with increasing width with stream order\n",
+    "mod.rivers.plot(\n",
+    "    ax=ax, lw=mod.rivers[\"strord\"] / 2, color=\"blue\", zorder=3, label=\" wflow river\"\n",
+    ")\n",
+    "# plot the basin boundary\n",
+    "mod.basins.boundary.plot(ax=ax, color=\"k\", linewidth=0.5, label=\"wflow Piave basin\")\n",
+    "# Add the boundry gauges and tributary gauges\n",
+    "if \"gauges_1dmodel\" in mod.geoms:\n",
+    "    mod.geoms[\"gauges_1dmodel\"].plot(\n",
+    "        ax=ax, color=\"green\", zorder=4, label=\"wflow 1D model gauges\"\n",
+    "    )\n",
+    "# Add the full subbasins and river only\n",
+    "mod.geoms[\"subcatch_1dmodel\"].boundary.plot(\n",
+    "    ax=ax, color=\"red\", zorder=4, label=\"wflow subbasins draining to 1D river\"\n",
+    ")\n",
+    "mod.geoms[\"subcatch_riv_1dmodel\"].boundary.plot(\n",
+    "    ax=ax,\n",
+    "    color=\"orange\",\n",
+    "    linewidth=0.5,\n",
+    "    zorder=4,\n",
+    "    label=\"wflow subbasins river cells only\",\n",
+    ")\n",
+    "\n",
+    "# 1D river\n",
+    "rivers1d.to_crs(mod.crs).plot(\n",
+    "    ax=ax, color=\"red\", linewidth=2, zorder=5, label=\"1D river\"\n",
+    ")\n",
+    "\n",
+    "ax.xaxis.set_visible(True)\n",
+    "ax.yaxis.set_visible(True)\n",
+    "ax.set_ylabel(f\"latitude [degree north]\")\n",
+    "ax.set_xlabel(f\"longitude [degree east]\")\n",
+    "_ = ax.set_title(f\"Wflow model and 1D river network of Piave subbasin\")\n",
+    "legend = ax.legend(\n",
+    "    handles=[*ax.get_legend_handles_labels()[0]],\n",
+    "    title=\"Legend\",\n",
+    "    loc=\"lower right\",\n",
+    "    frameon=True,\n",
+    "    framealpha=0.7,\n",
+    "    edgecolor=\"k\",\n",
+    "    facecolor=\"white\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's try the same if we do not include river boundaries:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Run the setup_1d_model_connection function\n",
+    "mod1 = WflowModel(root=\"wflow_piave_subbasin\", mode=\"r\")\n",
+    "mod1.setup_1dmodel_connection(\n",
+    "    river1d_fn=rivers1d,\n",
+    "    connection_method=\"subbasin_area\",\n",
+    "    area_max=30.0,\n",
+    "    add_tributaries=True,\n",
+    "    include_river_boundaries=False,\n",
+    "    mapname=\"1dmodel\",\n",
+    "    update_toml=True,\n",
+    "    toml_output=\"netcdf\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# And plot the model and the river\n",
+    "# Plot\n",
+    "# we assume the model maps are in the geographic CRS EPSG:4326\n",
+    "proj = ccrs.PlateCarree()\n",
+    "# adjust zoomlevel and figure size to your basis size & aspect\n",
+    "zoom_level = 10\n",
+    "figsize = (10, 8)\n",
+    "shaded = False\n",
+    "\n",
+    "# initialize image with geoaxes\n",
+    "fig = plt.figure(figsize=figsize)\n",
+    "ax = fig.add_subplot(projection=proj)\n",
+    "bbox = gpd.GeoDataFrame(geometry=[box(*rivers1d.total_bounds)], crs=rivers1d.crs)\n",
+    "bbox = bbox.buffer(10e3)\n",
+    "extent = np.array(bbox.to_crs(mod.grid.raster.crs).total_bounds)[[0, 2, 1, 3]]\n",
+    "ax.set_extent(extent, crs=proj)\n",
+    "\n",
+    "# Wflow\n",
+    "# plot rivers with increasing width with stream order\n",
+    "mod1.rivers.plot(\n",
+    "    ax=ax, lw=mod1.rivers[\"strord\"] / 2, color=\"blue\", zorder=3, label=\" wflow river\"\n",
+    ")\n",
+    "# plot the basin boundary\n",
+    "mod1.basins.boundary.plot(ax=ax, color=\"k\", linewidth=0.5, label=\"wflow Piave basin\")\n",
+    "# Add the boundry gauges and tributary gauges\n",
+    "mod1.geoms[\"gauges_1dmodel\"].plot(\n",
+    "    ax=ax, color=\"green\", zorder=4, label=\"wflow 1D model gauges\"\n",
+    ")\n",
+    "# Add the full subbasins and river only\n",
+    "mod1.geoms[\"subcatch_1dmodel\"].boundary.plot(\n",
+    "    ax=ax, color=\"red\", zorder=4, label=\"wflow subbasins draining to 1D river\"\n",
+    ")\n",
+    "mod1.geoms[\"subcatch_riv_1dmodel\"].boundary.plot(\n",
+    "    ax=ax,\n",
+    "    color=\"orange\",\n",
+    "    linewidth=0.5,\n",
+    "    zorder=4,\n",
+    "    label=\"wflow subbasins river cells only\",\n",
+    ")\n",
+    "\n",
+    "# 1D river\n",
+    "rivers1d.to_crs(mod1.crs).plot(\n",
+    "    ax=ax, color=\"red\", linewidth=2, zorder=5, label=\"1D river\"\n",
+    ")\n",
+    "\n",
+    "ax.xaxis.set_visible(True)\n",
+    "ax.yaxis.set_visible(True)\n",
+    "ax.set_ylabel(f\"latitude [degree north]\")\n",
+    "ax.set_xlabel(f\"longitude [degree east]\")\n",
+    "_ = ax.set_title(f\"Wflow model and 1D river network of Piave subbasin\")\n",
+    "legend = ax.legend(\n",
+    "    handles=[*ax.get_legend_handles_labels()[0]],\n",
+    "    title=\"Legend\",\n",
+    "    loc=\"lower right\",\n",
+    "    frameon=True,\n",
+    "    framealpha=0.7,\n",
+    "    edgecolor=\"k\",\n",
+    "    facecolor=\"white\",\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Nodes connection method"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This connection is different as we create subbasins only for all nodes of the 1D river file. Let's see the difference:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Run the setup_1d_model_connection function\n",
+    "mod1 = WflowModel(root=\"wflow_piave_subbasin\", mode=\"r\")\n",
+    "mod1.setup_1dmodel_connection(\n",
+    "    river1d_fn=rivers1d,\n",
+    "    connection_method=\"nodes\",\n",
+    "    area_max=30.0,\n",
+    "    add_tributaries=False,\n",
+    "    include_river_boundaries=False,\n",
+    "    mapname=\"1dmodel\",\n",
+    "    update_toml=False,\n",
+    ")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# And plot the model and the river\n",
+    "# Plot\n",
+    "# we assume the model maps are in the geographic CRS EPSG:4326\n",
+    "proj = ccrs.PlateCarree()\n",
+    "# adjust zoomlevel and figure size to your basis size & aspect\n",
+    "zoom_level = 10\n",
+    "figsize = (10, 8)\n",
+    "shaded = False\n",
+    "\n",
+    "# initialize image with geoaxes\n",
+    "fig = plt.figure(figsize=figsize)\n",
+    "ax = fig.add_subplot(projection=proj)\n",
+    "bbox = gpd.GeoDataFrame(geometry=[box(*rivers1d.total_bounds)], crs=rivers1d.crs)\n",
+    "bbox = bbox.buffer(25e3)\n",
+    "extent = np.array(bbox.to_crs(mod.grid.raster.crs).total_bounds)[[0, 2, 1, 3]]\n",
+    "ax.set_extent(extent, crs=proj)\n",
+    "\n",
+    "# Wflow\n",
+    "# plot rivers with increasing width with stream order\n",
+    "mod1.rivers.plot(\n",
+    "    ax=ax, lw=mod1.rivers[\"strord\"] / 2, color=\"blue\", zorder=3, label=\" wflow river\"\n",
+    ")\n",
+    "# plot the basin boundary\n",
+    "mod1.basins.boundary.plot(ax=ax, color=\"k\", linewidth=0.5, label=\"wflow Piave basin\")\n",
+    "# Add the full subbasins and river only\n",
+    "mod1.geoms[\"subcatch_1dmodel\"].boundary.plot(\n",
+    "    ax=ax, color=\"red\", zorder=4, label=\"wflow subbasins draining to 1D river\"\n",
+    ")\n",
+    "mod1.geoms[\"subcatch_riv_1dmodel\"].boundary.plot(\n",
+    "    ax=ax,\n",
+    "    color=\"orange\",\n",
+    "    linewidth=0.5,\n",
+    "    zorder=4,\n",
+    "    label=\"wflow subbasins river cells only\",\n",
+    ")\n",
+    "\n",
+    "# 1D river\n",
+    "rivers1d.to_crs(mod1.crs).plot(\n",
+    "    ax=ax, color=\"red\", linewidth=2, zorder=5, label=\"1D river\"\n",
+    ")\n",
+    "# Plot the rivers1d nodes\n",
+    "nodes = []\n",
+    "for bi, branch in rivers1d.iterrows():\n",
+    "    nodes.append([Point(branch.geometry.coords[0]), bi])  # start\n",
+    "    nodes.append([Point(branch.geometry.coords[-1]), bi])  # end\n",
+    "gdf_nodes = gpd.GeoDataFrame(nodes, columns=[\"geometry\", \"river_id\"], crs=rivers1d.crs)\n",
+    "# Drop duplicates geometry\n",
+    "gdf_nodes = gdf_nodes[~gdf_nodes.geometry.duplicated(keep=\"first\")]\n",
+    "gdf_nodes.to_crs(mod1.crs).plot(ax=ax, color=\"black\", zorder=6, label=\"1D river nodes\")\n",
+    "\n",
+    "ax.xaxis.set_visible(True)\n",
+    "ax.yaxis.set_visible(True)\n",
+    "ax.set_ylabel(f\"latitude [degree north]\")\n",
+    "ax.set_xlabel(f\"longitude [degree east]\")\n",
+    "_ = ax.set_title(f\"Wflow model and 1D river network of Piave subbasin\")\n",
+    "legend = ax.legend(\n",
+    "    handles=[*ax.get_legend_handles_labels()[0]],\n",
+    "    title=\"Legend\",\n",
+    "    loc=\"lower right\",\n",
+    "    frameon=True,\n",
+    "    framealpha=0.7,\n",
+    "    edgecolor=\"k\",\n",
+    "    facecolor=\"white\",\n",
+    ")"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "hydromt-wflow",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.11.7"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
