@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 
 [tool.flit.sdist]
 include = ["hydromt_wflow"]
-exclude = ["docs", "examples", "envs", "tests", "binder", ".github"]
+exclude = ["docs", "examples", "tests", ".github"]
 
 # Project related entries
 [project]
@@ -17,6 +17,10 @@ authors = [
   { name = "Hélène Boisgontier", email = "helene.boisgontier@deltares.nl" },
   { name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
   { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
+  { name = "Tjalling de Jong", email = "tjalling.dejong@deltares.nl" },
+  { name = "Sam Vente", email = "sam.vente@deltares.nl"},
+  { name = "Marnix Kraus", email = "marnix.kraus@deltares.nl" },
+  { name = "Luuk Blom", email = "luuk.blom@deltares.nl" }
 ]
 
 readme = "README.rst"
@@ -74,6 +78,7 @@ test = [
   "pytest>=2.7.3",
   "pytest-cov",
   "pytest-mock",
+  "pytest-timeout",
 ]
 
 [project.entry-points."hydromt.models"]
@@ -110,10 +115,6 @@ exclude_also = [
     # Don't complain if tests don't hit defensive assertion code:
     "raise AssertionError",
     "raise NotImplementedError",
-
-    # Don't complain if non-runnable code isn't run:
-    "if 0:",
-    "if __name__ == .__main__.:",
 
     # Don't complain about abstract methods, they aren't run:
     "@(abc\\.)?abstractmethod",
@@ -180,14 +181,12 @@ test-cov-local = { cmd = ["pytest", "--verbose", "--cov", "--cov-report", "html"
 
 # Clean up (some of) the temporary files
 clean = { depends-on = [
-  "clean-env-files",
   "clean-bin",
   "clean-dist",
   "clean-docs-build",
   "clean-docs-example",
   "clean-docs-gen",
 ] }
-clean-env-files = { cmd = ["rm", "-f", "environment.yml"] }
 clean-bin = { cmd = ["rm", "-rf", "bin"] }
 clean-dist = {cmd = ["rm", "-rf", "dist"] }
 clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
