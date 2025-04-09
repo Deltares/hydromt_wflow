@@ -46,6 +46,8 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_examples/update_model_gauges';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -589,7 +591,6 @@ Options:
   -q, --quiet                Decrease verbosity.
   -v, --verbose              Increase verbosity.
   --help                     Show this message and exit.
-
 </pre></div></div>
 </div>
 </section>
@@ -609,44 +610,43 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-04-03 01:26:05,615 - update - log - INFO - HydroMT version: 0.10.1
-2025-04-03 01:26:05,615 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
-2025-04-03 01:26:05,615 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-04-03 01:26:05,615 - update - main - INFO - User settings:
-2025-04-03 01:26:06,086 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.2.dev0).
-2025-04-03 01:26:06,086 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-04-03 01:26:06,100 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
-2025-04-03 01:26:06,151 - update - wflow - INFO - Reading model staticgeom files.
-2025-04-03 01:26:06,190 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
-2025-04-03 01:26:06,203 - update - wflow - INFO - Reading model intbl files.
-2025-04-03 01:26:06,204 - update - wflow - INFO - Reading model table files.
-2025-04-03 01:26:06,204 - update - wflow - INFO - Model read
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.index_col: None
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.snap_to_river: True
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.mask: None
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.snap_uparea: False
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.wdw: 3
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.rel_error: 0.05
-2025-04-03 01:26:06,207 - update - model_api - INFO - setup_gauges.abs_error: 50.0
-2025-04-03 01:26:06,208 - update - model_api - INFO - setup_gauges.fillna: False
-2025-04-03 01:26:06,208 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2025-04-03 01:26:06,208 - update - model_api - INFO - setup_gauges.basename: test-flow
-2025-04-03 01:26:06,208 - update - model_api - INFO - setup_gauges.toml_output: csv
-2025-04-03 01:26:06,208 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
-2025-04-03 01:26:06,208 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
-2025-04-03 01:26:06,209 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
-2025-04-03 01:26:06,213 - update - wflow - INFO - 3 test-flow gauge locations found within domain
-2025-04-03 01:26:07,807 - update - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
-2025-04-03 01:26:07,807 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-04-03 01:26:07,845 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2025-04-03 01:26:08,147 - update - wflow - INFO - Writing model staticgeom to file.
-2025-04-03 01:26:08,232 - update - wflow - INFO - Write forcing file
-2025-04-03 01:26:08,241 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
-[########################################] | 100% Completed | 100.95 ms
-2025-04-03 01:26:08,350 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-
+2025-04-09 09:25:43,807 - update - log - INFO - HydroMT version: 0.10.1
+2025-04-09 09:25:43,807 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin (r).
+2025-04-09 09:25:43,807 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-04-09 09:25:43,807 - update - main - INFO - User settings:
+2025-04-09 09:25:44,373 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.2.dev0).
+2025-04-09 09:25:44,373 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-04-09 09:25:44,387 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/staticmaps.nc
+2025-04-09 09:25:44,435 - update - wflow - INFO - Reading model staticgeom files.
+2025-04-09 09:25:44,477 - update - wflow - INFO - Read forcing from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_subbasin/inmaps.nc
+2025-04-09 09:25:44,494 - update - wflow - INFO - Reading model intbl files.
+2025-04-09 09:25:44,494 - update - wflow - INFO - Reading model table files.
+2025-04-09 09:25:44,494 - update - wflow - INFO - Model read
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.index_col: None
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.snap_to_river: True
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.mask: None
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.snap_uparea: False
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.wdw: 3
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.rel_error: 0.05
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.abs_error: 50.0
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.fillna: False
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.basename: test-flow
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.toml_output: csv
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
+2025-04-09 09:25:44,498 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
+2025-04-09 09:25:44,499 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
+2025-04-09 09:25:44,505 - update - wflow - INFO - 3 test-flow gauge locations found within domain
+2025-04-09 09:25:46,021 - update - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
+2025-04-09 09:25:46,021 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-04-09 09:25:46,060 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2025-04-09 09:25:46,246 - update - wflow - INFO - Writing model staticgeom to file.
+2025-04-09 09:25:46,332 - update - wflow - INFO - Write forcing file
+2025-04-09 09:25:46,342 - update - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/inmaps.nc
+[########################################] | 100% Completed | 100.52 ms
+2025-04-09 09:25:46,450 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -683,38 +683,37 @@ Options:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-04-03 01:26:10,744 - update - log - INFO - HydroMT version: 0.10.1
-2025-04-03 01:26:10,744 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
-2025-04-03 01:26:10,744 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-04-03 01:26:10,744 - update - main - INFO - User settings:
-2025-04-03 01:26:11,213 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.2.dev0).
-2025-04-03 01:26:11,213 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-04-03 01:26:11,229 - update - wflow - INFO - Reading model staticgeom files.
-2025-04-03 01:26:11,234 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2025-04-03 01:26:11,323 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.index_col: None
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.snap_to_river: False
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.mask: None
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.snap_uparea: False
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.wdw: 3
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.rel_error: 0.05
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.abs_error: 50.0
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.fillna: False
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.derive_subcatch: False
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.basename: test-rain
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.toml_output: csv
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
-2025-04-03 01:26:11,324 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
-2025-04-03 01:26:11,325 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
-2025-04-03 01:26:11,330 - update - wflow - INFO - 3 test-rain gauge locations found within domain
-2025-04-03 01:26:12,120 - update - wflow - INFO - Adding [&#39;vertical.precipitation&#39;] to csv section of toml.
-2025-04-03 01:26:12,120 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
-2025-04-03 01:26:12,120 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
-2025-04-03 01:26:12,159 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
-2025-04-03 01:26:12,460 - update - wflow - INFO - Writing model staticgeom to file.
-2025-04-03 01:26:12,545 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
-
+2025-04-09 09:25:48,739 - update - log - INFO - HydroMT version: 0.10.1
+2025-04-09 09:25:48,740 - update - main - INFO - Updating wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges (r+).
+2025-04-09 09:25:48,740 - update - main - INFO - Output dir: /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-04-09 09:25:48,740 - update - main - INFO - User settings:
+2025-04-09 09:25:49,312 - update - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.7.2.dev0).
+2025-04-09 09:25:49,312 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-04-09 09:25:49,327 - update - wflow - INFO - Reading model staticgeom files.
+2025-04-09 09:25:49,333 - update - wflow - INFO - Read grid from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2025-04-09 09:25:49,422 - update - model_api - INFO - setup_gauges.gauges_fn: test_stations.csv
+2025-04-09 09:25:49,422 - update - model_api - INFO - setup_gauges.index_col: None
+2025-04-09 09:25:49,422 - update - model_api - INFO - setup_gauges.snap_to_river: False
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.mask: None
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.snap_uparea: False
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.max_dist: 10000.0
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.wdw: 3
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.rel_error: 0.05
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.abs_error: 50.0
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.fillna: False
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.derive_subcatch: False
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.basename: test-rain
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.toml_output: csv
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;P-station&#39;]
+2025-04-09 09:25:49,423 - update - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;vertical.precipitation&#39;]
+2025-04-09 09:25:49,424 - update - geodataframe - INFO - Reading  csv data from test_stations.csv
+2025-04-09 09:25:49,429 - update - wflow - INFO - 3 test-rain gauge locations found within domain
+2025-04-09 09:25:50,110 - update - wflow - INFO - Adding [&#39;vertical.precipitation&#39;] to csv section of toml.
+2025-04-09 09:25:50,110 - update - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges
+2025-04-09 09:25:50,111 - update - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/hydromt_data.yml
+2025-04-09 09:25:50,151 - update - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/staticmaps.nc
+2025-04-09 09:25:50,339 - update - wflow - INFO - Writing model staticgeom to file.
+2025-04-09 09:25:50,428 - update - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_piave_gauges/wflow_sbm.toml
 </pre></div></div>
 </div>
 <p>The example above means the following: run <strong>hydromt</strong> with:</p>
@@ -953,7 +952,7 @@ Options:
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
     <br/>
   </p>
 </div>
