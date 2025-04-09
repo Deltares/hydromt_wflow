@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -91,7 +91,7 @@ def landuse_from_vector(
     ds_like: xr.Dataset,
     df: pd.DataFrame,
     params: Optional[List] = None,
-    lulc_res: Optional[Union[float, int]] = None,
+    lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
     lulc_out: Optional[str] = None,

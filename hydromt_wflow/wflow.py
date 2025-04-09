@@ -8,7 +8,7 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 import geopandas as gpd
 
@@ -57,7 +57,7 @@ class WflowModel(GridModel):
         root: Optional[str] = None,
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
-        data_libs: Union[List, str] = None,
+        data_libs: List[str] | str | None = None,
         logger=logger,
         **artifact_keys,
     ):
@@ -93,9 +93,9 @@ class WflowModel(GridModel):
     def setup_basemaps(
         self,
         region: Dict,
-        hydrography_fn: Union[str, xr.Dataset],
-        basin_index_fn: Union[str, xr.Dataset] = None,
-        res: Union[float, int] = 1 / 120.0,
+        hydrography_fn: str | xr.Dataset,
+        basin_index_fn: str | xr.Dataset | None = None,
+        res: float | int = 1 / 120.0,
         upscale_method: str = "ihu",
     ):
         """
@@ -294,8 +294,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
     def setup_rivers(
         self,
-        hydrography_fn: Union[str, xr.Dataset],
-        river_geom_fn: Union[str, gpd.GeoDataFrame] = None,
+        hydrography_fn: str | xr.Dataset,
+        river_geom_fn: str | gpd.GeoDataFrame | None = None,
         river_upa: float = 30,
         rivdph_method: str = "powlaw",
         slope_len: float = 2e3,
@@ -303,9 +303,9 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         min_rivdph: float = 1,
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
-        rivman_mapping_fn: Union[
-            str, Path, pd.DataFrame
-        ] = "roughness_river_mapping_default",
+        rivman_mapping_fn: str
+        | Path
+        | pd.DataFrame = "roughness_river_mapping_default",
         elevtn_map: str = "wflow_dem",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
@@ -534,7 +534,7 @@ Select from {routing_options}.'
 
     def setup_floodplains(
         self,
-        hydrography_fn: Union[str, xr.Dataset],
+        hydrography_fn: str | xr.Dataset,
         floodplain_type: str,
         ### Options for 1D floodplains
         river_upa: Optional[float] = None,
@@ -751,8 +751,8 @@ setting new flood_depth dimensions"
         fill: bool = False,
         fit: bool = False,
         min_wth: float = 1.0,
-        precip_fn: Union[str, xr.DataArray] = "chelsa",
-        climate_fn: Union[str, xr.DataArray] = "koppen_geiger",
+        precip_fn: str | xr.DataArray = "chelsa",
+        climate_fn: str | xr.DataArray = "koppen_geiger",
         **kwargs,
     ):
         """
@@ -849,8 +849,8 @@ to run setup_river method first.'
 
     def setup_lulcmaps(
         self,
-        lulc_fn: Union[str, xr.DataArray],
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        lulc_fn: str | xr.DataArray,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: List = [
             "landuse",
             "Kext",
@@ -950,8 +950,8 @@ to run setup_river method first.'
 
     def setup_lulcmaps_from_vector(
         self,
-        lulc_fn: Union[str, gpd.GeoDataFrame],
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        lulc_fn: str | gpd.GeoDataFrame,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: List = [
             "landuse",
             "Kext",
@@ -969,7 +969,7 @@ to run setup_river method first.'
             "h3_low",
             "h4",
         ],
-        lulc_res: Optional[Union[float, int]] = None,
+        lulc_res: float | int | None = None,
         all_touched: bool = False,
         buffer: int = 1000,
         save_raster_lulc: bool = False,
@@ -1084,8 +1084,8 @@ to run setup_river method first.'
 
     def setup_laimaps(
         self,
-        lai_fn: Union[str, xr.DataArray],
-        lulc_fn: Optional[Union[str, xr.DataArray]] = None,
+        lai_fn: str | xr.DataArray,
+        lulc_fn: str | xr.DataArray | None = None,
         lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
         buffer: int = 2,
@@ -1184,8 +1184,8 @@ to run setup_river method first.'
 
     def setup_laimaps_from_lulc_mapping(
         self,
-        lulc_fn: Optional[Union[str, xr.DataArray]],
-        lai_mapping_fn: Union[str, pd.DataFrame],
+        lulc_fn: str | xr.DataArray,
+        lai_mapping_fn: str | pd.DataFrame,
     ):
         """
         Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
@@ -1386,7 +1386,7 @@ skipping adding gauge specific outputs to the toml."
 
     def setup_gauges(
         self,
-        gauges_fn: Union[str, Path, gpd.GeoDataFrame],
+        gauges_fn: str | Path | gpd.GeoDataFrame,
         index_col: Optional[str] = None,
         snap_to_river: bool = True,
         mask: Optional[np.ndarray] = None,
@@ -1672,9 +1672,9 @@ gauge locations [-] (if derive_subcatch)
 
     def setup_areamap(
         self,
-        area_fn: Union[str, gpd.GeoDataFrame],
+        area_fn: str | gpd.GeoDataFrame,
         col2raster: str,
-        nodata: Union[int, float] = -1,
+        nodata: int | float = -1,
     ):
         """Set area map from vector data to save wflow outputs for specific area.
 
@@ -1712,8 +1712,8 @@ gauge locations [-] (if derive_subcatch)
 
     def setup_lakes(
         self,
-        lakes_fn: Union[str, Path, gpd.GeoDataFrame],
-        rating_curve_fns: List[Union[str, Path, pd.DataFrame]] = None,
+        lakes_fn: str | Path | gpd.GeoDataFrame,
+        rating_curve_fns: List[str | Path | pd.DataFrame] | None = None,
         min_area: float = 10.0,
         add_maxstorage: bool = False,
         **kwargs,
@@ -1871,8 +1871,8 @@ Using default storage/outflow function parameters."
 
     def setup_reservoirs(
         self,
-        reservoirs_fn: Union[str, gpd.GeoDataFrame],
-        timeseries_fn: str = None,
+        reservoirs_fn: str | gpd.GeoDataFrame,
+        timeseries_fn: str | None = None,
         min_area: float = 1.0,
         **kwargs,
     ):
@@ -2117,7 +2117,7 @@ Using default storage/outflow function parameters."
         self,
         soil_fn: str = "soilgrids",
         ptf_ksatver: str = "brakensiek",
-        soil_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        soil_mapping_fn: str | Path | pd.DataFrame | None = None,
         wflow_thicknesslayers: List[int] = [100, 300, 800],
     ):
         """
@@ -2228,8 +2228,8 @@ a map for each of the wflow_sbm soil layers (n in total)
 
     def setup_ksathorfrac(
         self,
-        ksat_fn: Union[str, xr.DataArray],
-        variable: Optional[str] = None,
+        ksat_fn: str | xr.DataArray,
+        variable: str | None = None,
         resampling_method: str = "average",
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
@@ -2341,15 +2341,15 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
     def setup_lulcmaps_with_paddy(
         self,
-        lulc_fn: Union[str, Path, xr.DataArray],
+        lulc_fn: str | Path | xr.DataArray,
         paddy_class: int,
         output_paddy_class: Optional[int] = None,
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        paddy_fn: Optional[Union[str, Path, xr.DataArray]] = None,
-        paddy_mapping_fn: Optional[Union[str, Path, pd.DataFrame]] = None,
-        soil_fn: Union[str, Path, xr.DataArray] = "soilgrids",
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        paddy_fn: str | Path | xr.DataArray | None = None,
+        paddy_mapping_fn: str | Path | pd.DataFrame | None = None,
+        soil_fn: str | Path | xr.DataArray = "soilgrids",
         wflow_thicknesslayers: List[int] = [50, 100, 50, 200, 800],
-        target_conductivity: List[Union[None, int, float]] = [
+        target_conductivity: List[None | int | float] = [
             None,
             None,
             5,
@@ -2681,7 +2681,7 @@ added to glacierstore [-]
             )
 
     def setup_constant_pars(
-        self, dtype: str = "float32", nodata: Union[int, float] = -999, **kwargs
+        self, dtype: str = "float32", nodata: int | float = -999, **kwargs
     ):
         """Generate constant parameter maps for all active model cells.
 
@@ -2711,11 +2711,11 @@ added to glacierstore [-]
 
     def setup_grid_from_raster(
         self,
-        raster_fn: Union[str, xr.Dataset],
+        raster_fn: str | xr.Dataset,
         reproject_method: str,
-        variables: Optional[List[str]] = None,
-        wflow_variables: Optional[List[str]] = None,
-        fill_method: Optional[str] = None,
+        variables: List[str] | None = None,
+        wflow_variables: List[str] | None = None,
+        fill_method: str | None = None,
     ) -> List[str]:
         """
         Add data variable(s) from ``raster_fn`` to grid object.
@@ -2796,9 +2796,9 @@ one variable and variables list is not provided."
 
     def setup_precip_forcing(
         self,
-        precip_fn: Union[str, xr.DataArray],
-        precip_clim_fn: Optional[Union[str, xr.DataArray]] = None,
-        chunksize: Optional[int] = None,
+        precip_fn: str | xr.DataArray,
+        precip_clim_fn: str | xr.DataArray | None = None,
+        chunksize: int | None = None,
         **kwargs,
     ) -> None:
         """Generate gridded precipitation forcing at model resolution.
@@ -2872,10 +2872,10 @@ one variable and variables list is not provided."
 
     def setup_precip_from_point_timeseries(
         self,
-        precip_fn: Union[str, pd.DataFrame, xr.Dataset],
+        precip_fn: str | pd.DataFrame | xr.Dataset,
         interp_type: str = "nearest",
-        precip_stations_fn: Optional[Union[str, gpd.GeoDataFrame]] = None,
-        index_col: Optional[str] = None,
+        precip_stations_fn: str | gpd.GeoDataFrame | None = None,
+        index_col: str | None = None,
         buffer: float = 1e5,
         **kwargs,
     ) -> None:
@@ -3048,16 +3048,16 @@ one variable and variables list is not provided."
 
     def setup_temp_pet_forcing(
         self,
-        temp_pet_fn: Union[str, xr.Dataset],
+        temp_pet_fn: str | xr.Dataset,
         pet_method: str = "debruin",
         press_correction: bool = True,
         temp_correction: bool = True,
         wind_correction: bool = True,
         wind_altitude: int = 10,
         reproj_method: str = "nearest_index",
-        fillna_method: Optional[str] = None,
-        dem_forcing_fn: Union[str, xr.DataArray] = None,
-        skip_pet: str = False,
+        fillna_method: str | None = None,
+        dem_forcing_fn: str | xr.DataArray | None = None,
+        skip_pet: bool = False,
         chunksize: Optional[int] = None,
         **kwargs,
     ) -> None:
@@ -3288,8 +3288,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
     def setup_pet_forcing(
         self,
-        pet_fn: Union[str, xr.DataArray],
-        chunksize: Optional[int] = None,
+        pet_fn: str | xr.DataArray,
+        chunksize: int | None = None,
     ):
         """
         Prepare PET forcing from existig PET data.
@@ -3341,10 +3341,10 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
     def setup_rootzoneclim(
         self,
-        run_fn: Union[str, Path, xr.Dataset],
-        forcing_obs_fn: Union[str, Path, xr.Dataset],
-        forcing_cc_hist_fn: Optional[Union[str, Path, xr.Dataset]] = None,
-        forcing_cc_fut_fn: Optional[Union[str, Path, xr.Dataset]] = None,
+        run_fn: str | Path | xr.Dataset,
+        forcing_obs_fn: str | Path | xr.Dataset,
+        forcing_cc_hist_fn: str | Path | xr.Dataset | None = None,
+        forcing_cc_fut_fn: str | Path | xr.Dataset | None = None,
         chunksize: Optional[int] = 100,
         return_period: Optional[list] = [2, 3, 5, 10, 15, 20, 25, 50, 60, 100],
         Imax: Optional[float] = 2.0,
@@ -3563,7 +3563,7 @@ Run setup_soilmaps first"
 
     def setup_1dmodel_connection(
         self,
-        river1d_fn: Union[str, Path, gpd.GeoDataFrame],
+        river1d_fn: str | Path | gpd.GeoDataFrame,
         connection_method: str = "subbasin_area",
         area_max: float = 30.0,
         add_tributaries: bool = True,
@@ -3733,7 +3733,7 @@ Run setup_soilmaps first"
 
     def setup_allocation_areas(
         self,
-        waterareas_fn: Union[str, gpd.GeoDataFrame],
+        waterareas_fn: str | gpd.GeoDataFrame,
         priority_basins: bool = True,
         minimum_area: float = 50.0,
     ):
@@ -3756,7 +3756,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        waterareas_fn : Union[str, gpd.GeoDataFrame]
+        waterareas_fn : str | gpd.GeoDataFrame
             Administrative boundaries GeoDataFrame data, this could be
             e.g. water management areas by water boards or the administrative
             boundaries of countries.
@@ -3792,10 +3792,10 @@ Run setup_soilmaps first"
 
     def setup_allocation_surfacewaterfrac(
         self,
-        gwfrac_fn: Union[str, xr.DataArray],
-        waterareas_fn: Optional[Union[str, xr.DataArray]] = None,
-        gwbodies_fn: Optional[Union[str, xr.DataArray]] = None,
-        ncfrac_fn: Optional[Union[str, xr.DataArray]] = None,
+        gwfrac_fn: str | xr.DataArray,
+        waterareas_fn: str | xr.DataArray | None = None,
+        gwbodies_fn: str | xr.DataArray | None = None,
+        ncfrac_fn: str | xr.DataArray | None = None,
         interpolate_nodata: bool = False,
         mask_and_scale_gwfrac: bool = True,
     ):
@@ -3818,18 +3818,18 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        gwfrac_fn : Union[str, xr.DataArray]
+        gwfrac_fn : str | xr.DataArray
             The raw groundwater fraction per grid cell. The values of these cells need
             to be between 0 and 1.
-        waterareas_fn : Union[str, xr.DataArray]
+        waterareas_fn : str| xr.DataArray
             The areas over which the water has to be distributed. This may either be
             a global (or more local map). If not provided, the source areas created by
             the `setup_allocation_areas` will be used.
-        gwbodies_fn : Union[str, xr.DataArray], optional
+        gwbodies_fn : str | xr.DataArray | None
             The presence of groundwater bodies per grid cell. The values are ought to
             be binary (either 0 or 1). If they are not provided, we assume groundwater
             bodies are present where gwfrac is more than 0.
-        ncfrac_fn : Union[str, xr.DataArray], optional
+        ncfrac_fn : str | xr.DataArray | None
             The non-conventional fraction. Same types of values apply as for
             `gwfrac_fn`. If not provided, we assume no non-conventional sources are
             used.
@@ -3906,9 +3906,9 @@ Run setup_soilmaps first"
 
     def setup_domestic_demand(
         self,
-        domestic_fn: Union[str, xr.Dataset],
-        population_fn: Optional[Union[str, xr.Dataset]] = None,
-        domestic_fn_original_res: Optional[float] = None,
+        domestic_fn: str | xr.Dataset,
+        population_fn: str | xr.Dataset | None = None,
+        domestic_fn_original_res: float | None = None,
     ):
         """
         Prepare domestic water demand maps from a raster dataset.
@@ -3931,7 +3931,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        domestic_fn : Union[str, xr.Dataset]
+        domestic_fn : str | xr.Dataset
             The domestic dataset. This can either be the dataset directly (xr.Dataset),
             a string referring to an entry in the data catalog or a dictionary
             containing the name of the dataset (keyword: `source`) and any optional
@@ -3940,7 +3940,7 @@ Run setup_soilmaps first"
             (12) or dayofyear (365 or 366).
 
             * Required variables: 'dom_gross' [mm/day], 'dom_net' [mm/day]
-        population_fn : Union[str, xr.Dataset]
+        population_fn : str | xr.Dataset
             The population dataset in capita. Either provided as a dataset directly or
             as a string referring to an entry in the data catalog.
         domestic_fn_original_res : Optional[float], optional
@@ -4018,9 +4018,9 @@ Run setup_soilmaps first"
 
     def setup_domestic_demand_from_population(
         self,
-        population_fn: Union[str, xr.Dataset],
-        domestic_gross_per_capita: Union[float, List],
-        domestic_net_per_capita: Optional[Union[float, List]] = None,
+        population_fn: str | xr.Dataset,
+        domestic_gross_per_capita: float | List[float],
+        domestic_net_per_capita: float | List[float] | None = None,
     ):
         """
         Prepare domestic water demand maps from statistics per capita.
@@ -4036,13 +4036,13 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        population_fn : Union[str, xr.Dataset]
+        population_fn : str | xr.Dataset
             The (gridded) population dataset in capita. Either provided as a dataset
             directly or as a string referring to an entry in the data catalog.
-        domestic_gross_per_capita : Union[float, List]
+        domestic_gross_per_capita : float | List[float]
             The gross domestic water demand per capita [m3/day]. If cyclic, provide a
             list with 12 values for monthly data or 365/366 values for daily data.
-        domestic_net_per_capita : Optional[Union[float, List]], optional
+        domestic_net_per_capita : float | List[float] | None
             The net domestic water demand per capita [m3/day]. If cyclic, provide a
             list with 12 values for monthly data or 365/366 values for daily data. If
             not provided, the gross demand will be used as net demand.
@@ -4103,7 +4103,7 @@ Run setup_soilmaps first"
 
     def setup_other_demand(
         self,
-        demand_fn: Union[str, dict, xr.Dataset],
+        demand_fn: str | Dict[str, Dict[str, Any]] | xr.Dataset,
         variables: list = ["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
         resampling_method: str = "average",
     ):
@@ -4127,7 +4127,7 @@ Run setup_soilmaps first"
 
         Parameters
         ----------
-        demand_fn : Union[str, dict, xr.Dataset]
+        demand_fn : str | Dict[str, Dict[str, Any]], xr.Dataset]
             The water demand dataset. This can either be the dataset directly
             (xr.Dataset), a string referring to an entry in the data catalog or
             a dictionary containing the name of the dataset (keyword: `source`) and
@@ -4196,7 +4196,7 @@ Run setup_soilmaps first"
 
     def setup_irrigation(
         self,
-        irrigated_area_fn: Union[str, Path, xr.DataArray],
+        irrigated_area_fn: str | Path | xr.DataArray,
         irrigation_value: List[int],
         cropland_class: List[int],
         paddy_class: List[int] = [],
@@ -4335,7 +4335,7 @@ Run setup_soilmaps first"
 
     def setup_irrigation_from_vector(
         self,
-        irrigated_area_fn: Union[str, Path, gpd.GeoDataFrame],
+        irrigated_area_fn: str | Path | gpd.GeoDataFrame,
         cropland_class: List[int],
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
@@ -4559,11 +4559,11 @@ Run setup_soilmaps first"
 
     def write(
         self,
-        config_fn: str = None,
-        grid_fn: Union[Path, str] = "staticmaps.nc",
-        geoms_fn: Union[Path, str] = "staticgeoms",
-        forcing_fn: Union[Path, str] = None,
-        states_fn: Union[Path, str] = None,
+        config_fn: str | None = None,
+        grid_fn: Path | str = "staticmaps.nc",
+        geoms_fn: Path | str = "staticgeoms",
+        forcing_fn: Path | str | None = None,
+        states_fn: Path | str | None = None,
     ):
         """
         Write the complete model schematization and configuration to file.
@@ -4684,7 +4684,7 @@ Run setup_soilmaps first"
 
     def write_grid(
         self,
-        fn_out: Optional[Union[Path, str]] = None,
+        fn_out: Path | str | None = None,
     ):
         """
         Write grid to wflow static data file.
@@ -4754,8 +4754,8 @@ Run setup_soilmaps first"
 
     def set_grid(
         self,
-        data: Union[xr.DataArray, xr.Dataset, np.ndarray],
-        name: Optional[str] = None,
+        data: xr.DataArray | xr.Dataset | np.ndarray,
+        name: str | None = None,
     ):
         """Add data to grid.
 
@@ -5187,7 +5187,7 @@ change name input.path_forcing "
             for v in ds.data_vars:
                 self.set_states(ds[v])
 
-    def write_states(self, fn_out: Union[str, Path] = None):
+    def write_states(self, fn_out: str | Path | None = None):
         """Write states at <root/instate/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
