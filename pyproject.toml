@@ -36,17 +36,17 @@ classifiers = [
 # Core dependencies
 requires-python = ">=3.10"
 dependencies = [
-    "dask",
-    "geopandas>=0.10",
-    "hydromt>=v0.10.1,<0.11",
-    "numpy",
-    "pandas",
-    "pyflwdir>=0.5.7",
-    "pyproj",
-    "scipy",
-    "shapely",
-    "toml",
-    "xarray",
+  "dask",
+  "geopandas>=0.10",
+  "hydromt>=v0.10.1,<0.11",
+  "numpy",
+  "pandas",
+  "pyflwdir>=0.5.7",
+  "pyproj",
+  "scipy",
+  "shapely",
+  "toml",
+  "xarray",
 ]
 
 # Optional dependencies
@@ -82,12 +82,12 @@ test = [
 ]
 
 [project.entry-points."hydromt.models"]
-wflow          = "hydromt_wflow.wflow:WflowModel"
+wflow = "hydromt_wflow.wflow:WflowModel"
 wflow_sediment = "hydromt_wflow.wflow_sediment:WflowSedimentModel"
 
 [project.urls]
 Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
-Source        = "https://github.com/Deltares/hydromt_wflow"
+Source = "https://github.com/Deltares/hydromt_wflow"
 
 ## Pytest and coverage
 
@@ -108,17 +108,17 @@ source = ["./hydromt_wflow"]
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration
 exclude_also = [
-    # Don't complain about missing debug-only code:
-    "def __repr__",
-    "if self\\.debug",
+  # Don't complain about missing debug-only code:
+  "def __repr__",
+  "if self\\.debug",
 
-    # Don't complain if tests don't hit defensive assertion code:
-    "raise AssertionError",
-    "raise NotImplementedError",
+  # Don't complain if tests don't hit defensive assertion code:
+  "raise AssertionError",
+  "raise NotImplementedError",
 
-    # Don't complain about abstract methods, they aren't run:
-    "@(abc\\.)?abstractmethod",
-    ]
+  # Don't complain about abstract methods, they aren't run:
+  "@(abc\\.)?abstractmethod",
+  ]
 # omit = ["hydromt_wflow/data/fetch.py"]
 ignore_errors = true
 
@@ -136,16 +136,16 @@ select = ["E", "F", "I", "PT", "D"]
 ignore = ["D105", "D211", "D213", "E712", "E741"]
 
 [tool.ruff.format]
-quote-style                = "double"
-indent-style               = "space"
-docstring-code-format      = true
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
 docstring-code-line-length = 20
 
 [tool.ruff.lint.per-file-ignores]
-"hydromt_wflow/__init__.py"           = ["E402", "F401", "F403"]
+"hydromt_wflow/__init__.py" = ["E402", "F401", "F403"]
 "hydromt_wflow/workflows/__init__.py" = ["F403"]
-"tests/**"                            = ["D103", "D100", "D104"]
-"tests/conftest.py"                   = ["E402"]
+"tests/**" = ["D103", "D100", "D104"]
+"tests/conftest.py" = ["E402"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
