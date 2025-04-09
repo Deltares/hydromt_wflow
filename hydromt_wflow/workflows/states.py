@@ -96,13 +96,14 @@ def prepare_cold_states(
     # Times
     if timestamp is None:
         # states time = starttime for Wflow.jl > 0.7.0)
-        starttime = pd.to_datetime(config.get("starttime", None))
-        timestamp = starttime  # - pd.Timedelta(seconds=timestepsecs)
+        if "time" in config:
+            starttime = pd.to_datetime(config["time"].get("starttime", None))
+            timestamp = starttime  # - pd.Timedelta(seconds=timestepsecs)
         if timestamp is None:
             raise ValueError("No timestamp provided and no starttime in config.")
     else:
         timestamp = pd.to_datetime(timestamp)
-    timestepsecs = config.get("timestepsecs", 86400)
+    timestepsecs = config.get("time.timestepsecs", 86400)
 
     # Create empty dataset
     ds_out = xr.Dataset()
@@ -159,7 +160,6 @@ def prepare_cold_states(
         "soil_layer_water__brooks-corey_epsilon_parameter",
         config=config,
         grid=ds_like,
-        fallback="c",
     )
     usld = full_like(c, nodata=nodata)
     for sl in usld["layer"]:
@@ -172,43 +172,36 @@ def prepare_cold_states(
         "soil__thickness",
         config=config,
         grid=ds_like,
-        fallback="SoilThickness",
     )
     ts = get_grid_from_config(
         "soil_water__saturated_volume_fraction",
         config=config,
         grid=ds_like,
-        fallback="thetaS",
     )
     tr = get_grid_from_config(
         "soil_water__residual_volume_fraction",
         config=config,
         grid=ds_like,
-        fallback="thetaR",
     )
     ksh = get_grid_from_config(
         "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",
         config=config,
         grid=ds_like,
-        fallback="KsatHorFrac",
     )
     ksv = get_grid_from_config(
         "soil_surface_water__vertical_saturated_hydraulic_conductivity",
         config=config,
         grid=ds_like,
-        fallback="KsatVer",
     )
     f = get_grid_from_config(
         "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter",
         config=config,
         grid=ds_like,
-        fallback="f",
     )
     sl = get_grid_from_config(
         "land_surface__slope",
         config=config,
         grid=ds_like,
-        fallback="Slope",
     )
 
     # satwaterdepth
@@ -257,19 +250,16 @@ def prepare_cold_states(
             "reservoir_water~full-target__volume_fraction",
             config=config,
             grid=ds_like,
-            fallback="ResTargetFullFrac",
         )
         mv = get_grid_from_config(
             "reservoir_water__max_volume",
             config=config,
             grid=ds_like,
-            fallback="ResMaxVolume",
         )
         locs = get_grid_from_config(
             "reservoir_location__count",
             config=config,
             grid=ds_like,
-            fallback="wflow_reservoirlocs",
         )
         resvol = tff * mv
         resvol = xr.where(locs > 0, resvol, nodata)
@@ -284,7 +274,6 @@ def prepare_cold_states(
             "lake_water_level__initial_elevation",
             config=config,
             grid=ds_like,
-            fallback="LakeAvgLevel",
         )
         ll = ll.where(ll != ll.raster.nodata, nodata)
         ll.raster.set_nodata(nodata)
@@ -300,10 +289,9 @@ def prepare_cold_states(
             "glacier_ice__leq-volume",
             config=config,
             grid=ds_like,
-            fallback="wflow_glacierstore",
         )
-        if gs_vn in ds_like:
-            ds_out["glacierstore"] = ds_like[gs_vn]
+        if gs_vn.name in ds_like:
+            ds_out["glacierstore"] = ds_like[gs_vn.name]
         else:
             glacstore = grid_from_constant(
                 ds_like,

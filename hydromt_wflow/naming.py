@@ -195,7 +195,7 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.kvfrac",
         "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_factor",
     },
-    "KsatHorFrac": {  # ksat_horizontal_fraction
+    "ksathorfrac": {  # ksat_horizontal_fraction
         "wflow_v0": "lateral.subsurface.ksathorfrac",
         "wflow_v1": "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",  # noqa: E501
     },

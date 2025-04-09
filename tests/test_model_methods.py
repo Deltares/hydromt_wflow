@@ -76,19 +76,22 @@ def test_setup_grid(example_wflow_model):
         raster_fn="merit_hydro",
         reproject_method="average",
         variables=["elevtn"],
-        wflow_variables=["input.vertical.altitude"],
+        wflow_variables=["land_surface_water_flow__ground_elevation"],
         fill_method="nearest",
     )
     assert "elevtn" in example_wflow_model.grid
-    assert example_wflow_model.get_config("input.vertical.altitude") == "elevtn"
+    assert (
+        example_wflow_model.get_config(
+            "input.static.land_surface_water_flow__ground_elevation"
+        )
+        == "elevtn"
+    )
 
     example_wflow_model.setup_grid_from_raster(
         raster_fn="globcover_2009",
         reproject_method="mode",
-        wflow_variables=["input.vertical.landuse"],
     )
     assert "globcover" in example_wflow_model.grid
-    assert example_wflow_model.get_config("input.vertical.landuse") == "globcover"
 
     # Test on exceptions
     with pytest.raises(ValueError, match="Length of variables"):
@@ -96,13 +99,13 @@ def test_setup_grid(example_wflow_model):
             raster_fn="merit_hydro",
             reproject_method="average",
             variables=["elevtn", "lndslp"],
-            wflow_variables=["input.vertical.altitude"],
+            wflow_variables=["land_surface_water_flow__ground_elevation"],
         )
     with pytest.raises(ValueError, match="variables list is not provided"):
         example_wflow_model.setup_grid_from_raster(
             raster_fn="merit_hydro",
             reproject_method="average",
-            wflow_variables=["input.vertical.altitude"],
+            wflow_variables=["land_surface_water_flow__ground_elevation"],
         )
 
 
@@ -288,12 +291,12 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     model = "wflow"
     example_wflow_model.read()
     # Create dummy ksat data
-    da = full_like(example_wflow_model.grid["KsatHorFrac"])
+    da = full_like(example_wflow_model.grid["KsatVer"])
     data = np.zeros(da.shape)
     for x, y in product(*[range(item) for item in da.shape]):
         data[x, y] = 750 - ((x + y) ** 0.4 * 114.07373)
     da.values = data
-
+    da.name = "ksathorfrac"
     # Set the output directory
     destination = str(tmpdir.join(model))
     example_wflow_model.set_root(destination, mode="w")
@@ -304,7 +307,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     )
 
     # Check values
-    values = example_wflow_model.grid.KsatHorFrac.raster.mask_nodata()
+    values = example_wflow_model.grid.ksathorfrac.raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
     assert int(max_val * 100) == 75000
@@ -318,7 +321,7 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
     )
 
     # Check values
-    values = example_wflow_model.grid.KsatVer_vegetation.raster.mask_nodata()
+    values = example_wflow_model.grid["KsatVer_vegetation"].raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
     assert int(max_val) == 4247
@@ -475,7 +478,7 @@ def test_setup_rootzoneclim(example_wflow_model):
         time_tuple_fut=("2005-01-01", "2020-12-31"),
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
-        update_toml_rootingdepth="RootingDepth_obs_2",
+        output_name_rootingdepth="RootingDepth_obs_2",
         rootzone_storage=True,
     )
 
@@ -488,7 +491,7 @@ def test_setup_rootzoneclim(example_wflow_model):
     assert "rootzone_storage_cc_fut_15" in example_wflow_model.grid
 
     assert (
-        example_wflow_model.get_config("input.vertical.rootingdepth")
+        example_wflow_model.get_config("input.static.vegetation_root__depth")
         == "RootingDepth_obs_2"
     )
 
@@ -516,7 +519,7 @@ def test_setup_rootzoneclim(example_wflow_model):
         correct_cc_deficit=True,
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
-        update_toml_rootingdepth="RootingDepth_obs_2",
+        output_name_rootingdepth="RootingDepth_obs_2",
     )
 
     assert example_wflow_model.geoms["rootzone_storage"].loc[1][
@@ -662,6 +665,7 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         smooth_len=5000,
         river_routing="local-inertial",
         elevtn_map=elevtn_map,
+        output_names={},
     )
 
     mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
@@ -671,7 +675,7 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     assert mapname in example_wflow_model.grid
     assert example_wflow_model.get_config("model.river_routing") == "local-inertial"
     assert (
-        example_wflow_model.get_config("input.lateral.river.bankfull_elevation")
+        example_wflow_model.get_config("input.static.river_bank_water__elevation")
         == mapname
     )
     assert (
@@ -765,7 +769,9 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     assert example_wflow_model.get_config("model.floodplain_1d") == True
     assert example_wflow_model.get_config("model.land_routing") == "kinematic-wave"
     assert (
-        example_wflow_model.get_config("input.lateral.river.floodplain.volume")
+        example_wflow_model.get_config(
+            "input.static.floodplain_water__sum_of_volume-per-depth"
+        )
         == "floodplain_volume"
     )
     assert np.all(example_wflow_model.grid.flood_depth.values == flood_depths)
@@ -787,6 +793,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         smooth_len=5000,
         river_routing="local-inertial",
         elevtn_map="wflow_dem",
+        output_names={},
     )
 
     example_wflow_model.setup_floodplains(
@@ -801,11 +808,13 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     assert example_wflow_model.get_config("model.floodplain_1d") == False
     assert example_wflow_model.get_config("model.land_routing") == "local-inertial"
     assert (
-        example_wflow_model.get_config("input.lateral.river.bankfull_elevation")
+        example_wflow_model.get_config("input.static.river_bank_water__elevation")
         == f"{mapname}_D4"
     )
     assert (
-        example_wflow_model.get_config("input.lateral.land.elevation")
+        example_wflow_model.get_config(
+            "input.static.land_surface_water_flow__ground_elevation"
+        )
         == f"{mapname}_D4"
     )
     assert (
@@ -840,7 +849,7 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
         include_river_boundaries=True,
         mapname="1dmodel",
         update_toml=True,
-        toml_output="netcdf",
+        toml_output="netcdf_scalar",
     )
 
     assert "gauges_1dmodel" in example_wflow_model.geoms
@@ -852,9 +861,11 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     conf_dict = {
         "name": "Q",
         "map": "gauges_1dmodel",
-        "parameter": "lateral.river.q_av",
+        "parameter": "river_water__volume_flow_rate",
     }
-    assert conf_dict in example_wflow_model.config["netcdf"]["variable"]
+    assert (
+        conf_dict in example_wflow_model.config["output"]["netcdf_scalar"]["variable"]
+    )
 
     # test subbasin_area method with river boundaries
     example_wflow_model.setup_1dmodel_connection(

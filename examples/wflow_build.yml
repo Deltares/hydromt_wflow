@@ -3,6 +3,9 @@ setup_config:                 # options parsed to wflow toml file <section>.<opt
   time.endtime: 2010-03-31T00:00:00
   time.timestepsecs: 86400
   input.path_forcing: inmaps-era5-2010.nc
+  output.netcdf_grid.path: output.nc
+  output.netcdf_grid.compressionlevel: 1
+  output.netcdf_grid.variables.river_water__volume_flow_rate: q_av
 
 setup_basemaps:
   hydrography_fn: merit_hydro   # source hydrography data {merit_hydro, merit_hydro_1k}
@@ -50,7 +53,7 @@ setup_lakes:
 
 setup_glaciers:
   glaciers_fn: rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}
-  min_area: 1.0           # minimum glacier area to consider [km2]
+  min_area: 0.0           # minimum glacier area to consider [km2]
 
 setup_lulcmaps:
   lulc_fn : globcover_2009     # source for lulc maps: {globcover, vito, corine}
