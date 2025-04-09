@@ -4,7 +4,7 @@
 HydroMT-Wflow: Wflow plugin for HydroMT
 =======================================
 
-|pypi| |conda_forge| |docs_latest| |docs_stable| |codecov| |license| |doi| |binder|
+|pypi| |conda_forge| |docs_latest| |docs_stable| |license| |doi| |binder| |sonarqube_coverage| |sonarqube|
 
 What is the HydroMT-Wflow plugin
 --------------------------------
@@ -48,8 +48,13 @@ happy to discuss how it can be implemented for your model.
 .. _Hydromt: https://deltares.github.io/hydromt/latest/
 .. _Wflow: https://github.com/Deltares/Wflow.jl
 
-.. |codecov| image:: https://codecov.io/gh/Deltares/hydromt_wflow/branch/main/graph/badge.svg?token=ss3EgmwHhH
-    :target: https://codecov.io/gh/Deltares/hydromt_wflow
+.. |sonarqube| image:: https://sonarcloud.io/api/project_badges/measure?project=Deltares_hydromt_wflow&metric=alert_status
+    :target: https://sonarcloud.io/summary/new_code?id=Deltares_hydromt_wflow
+    :alt: SonarQube status
+
+.. |sonarqube_coverage| image:: https://sonarcloud.io/api/project_badges/measure?project=Deltares_hydromt_wflow&metric=coverage
+    :alt: Coverage
+    :target: https://sonarcloud.io/summary/new_code?id=Deltares_hydromt_wflow
 
 .. |docs_latest| image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
     :target: https://deltares.github.io/hydromt_wflow/latest
