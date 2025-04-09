@@ -25,13 +25,17 @@ from dask.diagnostics import ProgressBar
 from hydromt import flw
 from hydromt.models.model_grid import GridModel
 from hydromt.nodata import NoDataStrategy
-from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
-from hydromt_wflow.utils import DATADIR, mask_raster_from_layer, read_csv_results
+from hydromt_wflow.utils import (
+    DATADIR,
+    convert_to_wflow_v1,
+    mask_raster_from_layer,
+    read_csv_results,
+)
 
 from . import workflows
-from .naming import HYDROMT_NAMES, WFLOW_NAMES
+from .naming import _create_hydromt_mapping_wflow, _create_variable_mapping_wflow
 
 __all__ = ["WflowModel"]
 
@@ -46,11 +50,8 @@ class WflowModel(GridModel):
     _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
     _DATADIR = DATADIR
     _GEOMS = {}
-    _MAPS = HYDROMT_NAMES
-    _FOLDERS = [
-        "instate",
-        "run_default",
-    ]
+    _MAPS = _create_hydromt_mapping_wflow()
+    _FOLDERS = []
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
@@ -59,6 +60,7 @@ class WflowModel(GridModel):
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
         data_libs: List[str] | str | None = None,
+        wflow_version: str = "1.0.0",
         logger=logger,
         **artifact_keys,
     ):
@@ -90,6 +92,13 @@ class WflowModel(GridModel):
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
 
+        # deal with wflow version
+        self.wflow_version = wflow_version
+        self._is_wflow_v1 = wflow_version.startswith("1.")
+        logger.info(f"Using Wflow.jl version {self.wflow_version}")
+        # wflow variable names
+        self._WFLOW_NAMES = _create_variable_mapping_wflow(wflow_version)
+
     # COMPONENTS
     def setup_basemaps(
         self,
@@ -98,6 +107,11 @@ class WflowModel(GridModel):
         basin_index_fn: str | xr.Dataset | None = None,
         res: float | int = 1 / 120.0,
         upscale_method: str = "ihu",
+        output_names: Dict = {
+            "local_drain_direction": "wflow_ldd",
+            "subcatchment_location__count": "subcatchment",
+            "land_surface__slope": "slope",
+        },
     ):
         """
         Build the DEM and flow direction for a Wflow model.
@@ -187,6 +201,10 @@ class WflowModel(GridModel):
             Output model resolution
         upscale_method : {'ihu', 'eam', 'dmm'}, optional
             Upscaling method for flow direction data, by default 'ihu'.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
 
         See Also
         --------
@@ -196,6 +214,8 @@ class WflowModel(GridModel):
         workflows.topography
         """
         self.logger.info("Preparing base hydrography basemaps.")
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming(output_names)
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
 
@@ -256,25 +276,11 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             upscale_method=upscale_method,
             logger=self.logger,
         )
-        # Convert flow direction from d8 to ldd format
-        flwdir_data = ds_base["flwdir"].values.astype(np.uint8)  # force dtype
-        # if d8 convert to ldd
-        if core_d8.isvalid(flwdir_data):
-            data = core_conversion.d8_to_ldd(flwdir_data)
-            da_flwdir = xr.DataArray(
-                name="flwdir",
-                data=data,
-                coords=ds_base.raster.coords,
-                dims=ds_base.raster.dims,
-                attrs=dict(
-                    long_name="ldd flow direction",
-                    _FillValue=core_ldd._mv,
-                ),
-            )
-            ds_base["flwdir"] = da_flwdir
         # Rename and add to grid
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_base.data_vars}
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
+        # update config
+        self._update_config_variable_name(ds_base.rename(rmdict).data_vars, None)
         # Call basins once to set it
         self.basins
 
@@ -282,9 +288,10 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         ds_topo = workflows.topography(
             ds=ds_org, ds_like=self.grid, method="average", logger=self.logger
         )
-        ds_topo["lndslp"] = np.maximum(ds_topo["lndslp"], 0.0)
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
+        # update config
+        self._update_config_variable_name(ds_topo.rename(rmdict).data_vars)
         # set basin geometry
         self.logger.debug("Adding region vector to geoms.")
         self.set_geoms(self.region, name="region")
@@ -310,7 +317,15 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         elevtn_map: str = "wflow_dem",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
-        **kwargs,
+        output_names: Dict = {
+            "river_location__mask": "wflow_river",
+            "river__length": "wflow_riverlength",
+            "river__width": "wflow_riverwidth",
+            "river_bank_water__depth": "RiverDepth",
+            "river__slope": "RiverSlope",
+            "river_water_flow__manning_n_parameter": "N_River",
+            "river_bank_water__elevation": "hydrodem_avg",
+        },
     ):
         """
         Set all river parameter maps.
@@ -400,6 +415,10 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         elevtn_map : str, optional
             Name of the elevation map in the current WflowModel.grid.
             By default "wflow_dem"
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
 
         See Also
         --------
@@ -409,6 +428,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         setup_floodplains
         """
         self.logger.info("Preparing river maps.")
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming(output_names)
 
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
         if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
@@ -454,6 +475,12 @@ Select from {routing_options}.'
         dvars = ["rivmsk", "rivlen", "rivslp"]
         rmdict = {k: self._MAPS.get(k, k) for k in dvars}
         self.set_grid(ds_riv[dvars].rename(rmdict))
+        # update config
+        for dvar in dvars:
+            if dvar == "rivmsk":
+                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
+            else:
+                self._update_config_variable_name(self._MAPS[dvar])
 
         # TODO make separate workflows.river_manning  method
         # Make N_River map from csv file with mapping
@@ -474,7 +501,10 @@ Select from {routing_options}.'
             df=df,
             logger=self.logger,
         )
-        self.set_grid(ds_nriver)
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_nriver.data_vars}
+        self.set_grid(ds_nriver.rename(rmdict))
+        # update config
+        self._update_config_variable_name(ds_nriver.rename(rmdict).data_vars)
 
         # get rivdph, rivwth
         # while we still have setup_riverwidth one can skip river_bathymetry here
@@ -493,23 +523,29 @@ Select from {routing_options}.'
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
                 logger=self.logger,
-                **kwargs,
             )
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
+            rmdict = {k: self._MAPS.get(k, k) for k in ds_riv1.data_vars}
             self.set_grid(ds_riv1.rename(rmdict))
             # update config
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
+            self._update_config_variable_name(ds_riv1.rename(rmdict).data_vars)
 
         self.logger.debug("Adding rivers vector to geoms.")
         self.geoms.pop("rivers", None)  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
         # Add hydrologically conditioned elevation map for the river, if required
+        self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
+        self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
             name = f"hydrodem{postfix}"
+            # Check if users wanted a specific name for the hydrodem
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            if hydrodem_var in output_names:
+                name = output_names[hydrodem_var]
+            self._update_naming({hydrodem_var: name})
 
             ds_out = flw.dem_adjust(
                 da_flwdir=self.grid[self._MAPS["flwdir"]],
@@ -523,15 +559,7 @@ Select from {routing_options}.'
             self.set_grid(ds_out)
 
             # update toml model.river_routing
-            self.logger.debug(
-                f'Update wflow config model.river_routing="{river_routing}"'
-            )
-            self.set_config("model.river_routing", river_routing)
-
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-        else:
-            self.set_config("model.river_routing", river_routing)
+            self._update_config_variable_name(name)
 
     def setup_floodplains(
         self,
@@ -543,6 +571,10 @@ Select from {routing_options}.'
         ### Options for 2D floodplains
         elevtn_map: str = "wflow_dem",
         connectivity: int = 4,
+        output_names: Dict = {
+            "floodplain_water__sum_of_volume-per-depth": "floodplain_volume",
+            "hydrodem": "hydrodem_avg_D4",
+        },
     ):
         """
         Add floodplain information to the model schematisation.
@@ -601,6 +633,10 @@ Select from {routing_options}.'
         elevtn_map: {"wflow_dem", "dem_subgrid"}
             (2D floodplains) Name of staticmap to hydrologically condition.
             By default "wflow_dem"
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
 
         See Also
         --------
@@ -614,6 +650,10 @@ Select from {routing_options}.'
                 "Floodplains (1d or 2d) are currently only supported with \
 local inertial river routing"
             )
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        var = "floodplain_water__sum_of_volume-per-depth"
+        if var in output_names:
+            self._update_naming({var: output_names[var]})
 
         r_list = ["1d", "2d"]
         if floodplain_type not in r_list:
@@ -667,7 +707,7 @@ the value found in the grid ({new_river_upa})"
 
             # check if the layer already exists, since overwriting with different
             # flood_depth values is not working properly if this is the case
-            if "floodplain_volume" in self.grid:
+            if self._MAPS["floodplain_volume"] in self.grid:
                 self.logger.warning(
                     "Layer `floodplain_volume` already in grid, removing layer \
 and `flood_depth` dimension to ensure correctly \
@@ -675,7 +715,9 @@ setting new flood_depth dimensions"
                 )
                 self._grid = self._grid.drop_dims("flood_depth")
 
-            self.set_grid(da_fldpln, "floodplain_volume")
+            da_fldpln.name = self._MAPS["floodplain_volume"]
+            self.set_grid(da_fldpln)
+            self._update_config_variable_name(da_fldpln.name)
 
         elif floodplain_type == "2d":
             floodplain_1d = False
@@ -687,10 +729,19 @@ setting new flood_depth dimensions"
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
-            name = f"hydrodem{postfix}"
-
-            self.logger.info(f"Preparing {name} map for land routing.")
             name = f"hydrodem{postfix}_D{connectivity}"
+            # Check if users wanted a specific name for the hydrodem
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            lndelv_var = self._WFLOW_NAMES.get(self._MAPS["lndelv"])
+            # hydrodem is used for two wflow variables
+            if hydrodem_var in output_names:
+                name = output_names[hydrodem_var]
+            self._update_naming(
+                {
+                    hydrodem_var: name,
+                    lndelv_var: name,
+                }
+            )
             self.logger.info(f"Preparing {name} map for land routing.")
             ds_out = flw.dem_adjust(
                 da_flwdir=self.grid[self._MAPS["flwdir"]],
@@ -701,8 +752,8 @@ setting new flood_depth dimensions"
                 river_d8=True,
                 logger=self.logger,
             ).rename(name)
-
             self.set_grid(ds_out)
+            self._update_config_variable_name(["hydrodem", "lndelv"])
 
         # Update config
         self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
@@ -711,40 +762,102 @@ setting new flood_depth dimensions"
         self.set_config("model.land_routing", land_routing)
 
         if floodplain_type == "1d":
-            # include new input data
-            self.set_config(
-                "input.lateral.river.floodplain.volume", "floodplain_volume"
-            )
             # Add states
-            self.set_config("state.lateral.river.floodplain.q", "q_floodplain")
-            self.set_config("state.lateral.river.floodplain.h", "h_floodplain")
-            self.set_config("state.lateral.land.q", "q_land")
+            self.set_config(
+                "state.floodplain_water__instantaneous_volume_flow_rate", "q_floodplain"
+            )
+            self.set_config(
+                "state.floodplain_water__instantaneous_depth", "h_floodplain"
+            )
+            self.set_config(
+                "state.land_surface_water__instantaneous_volume_flow_rate", "q_land"
+            )
             # Remove local-inertial land states
-            if self.get_config("state.lateral.land.qx") is not None:
-                self.config["state"]["lateral"]["land"].pop("qx", None)
-            if self.get_config("state.lateral.land.qy") is not None:
-                self.config["state"]["lateral"]["land"].pop("qy", None)
-            if self.get_config("output.lateral.land.qx") is not None:
-                self.config["output"]["lateral"]["land"].pop("qx", None)
-            if self.get_config("output.lateral.land.qy") is not None:
-                self.config["output"]["lateral"]["land"].pop("qy", None)
-
+            if (
+                self.get_config(
+                    "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["state"].pop(
+                    "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                    None,
+                )
+            if (
+                self.get_config(
+                    "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["state"].pop(
+                    "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                    None,
+                )
+            # Remove from output.netcdf_grid section
+            if (
+                self.get_config(
+                    "output.netcdf_grid.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["output"]["netcdf_grid"]["variables"].pop(
+                    "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                    None,
+                )
+            if (
+                self.get_config(
+                    "output.netcdf_grid.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["output"]["netcdf_grid"]["variables"].pop(
+                    "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                    None,
+                )
         else:
-            # include new input data
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-            self.set_config("input.lateral.land.elevation", name)
             # Add local-inertial land routing states
-            self.set_config("state.lateral.land.qx", "qx_land")
-            self.set_config("state.lateral.land.qy", "qy_land")
+            self.set_config(
+                "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
+                "qx_land",
+            )
+            self.set_config(
+                "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
+                "qy_land",
+            )
             # Remove kinematic-wave and 1d floodplain states
-            if self.get_config("state.lateral.land.q") is not None:
-                self.config["state"]["lateral"]["land"].pop("q", None)
-            if self.get_config("state.lateral.river.floodplain.q") is not None:
-                self.config["state"]["lateral"]["river"]["floodplain"].pop("q", None)
-            if self.get_config("state.lateral.river.floodplain.h") is not None:
-                self.config["state"]["lateral"]["river"]["floodplain"].pop("h", None)
-            if self.get_config("output.lateral.land.q") is not None:
-                self.config["output"]["lateral"]["land"].pop("q", None)
+            if (
+                self.get_config(
+                    "state.land_surface_water__instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["state"].pop(
+                    "land_surface_water__instantaneous_volume_flow_rate", None
+                )
+            if (
+                self.get_config(
+                    "state.floodplain_water__instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["state"].pop(
+                    "floodplain_water__instantaneous_volume_flow_rate", None
+                )
+            if (
+                self.get_config("state.floodplain_water__instantaneous_depth")
+                is not None
+            ):
+                self.config["state"].pop("floodplain_water__instantaneous_depth", None)
+            # Remove from output.netcdf_grid section
+            if (
+                self.get_config(
+                    "output.netcdf_grid.variables.land_surface_water__instantaneous_volume_flow_rate"
+                )
+                is not None
+            ):
+                self.config["output"]["netcdf_grid"]["variables"].pop(
+                    "land_surface_water__instantaneous_volume_flow_rate", None
+                )
 
     def setup_riverwidth(
         self,
@@ -754,6 +867,9 @@ setting new flood_depth dimensions"
         min_wth: float = 1.0,
         precip_fn: str | xr.DataArray = "chelsa",
         climate_fn: str | xr.DataArray = "koppen_geiger",
+        output_names: Dict = {
+            "river__width": "wflow_riverwidth",
+        },
         **kwargs,
     ):
         """
@@ -802,6 +918,10 @@ setting new flood_depth dimensions"
         climate_fn: str, xarray.DataArray
             Source of long-term climate grid if the predictor is set to 'discharge'.
             By default "koppen_geiger".
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         self.logger.warning(
             'The "setup_riverwidth" method has been deprecated \
@@ -810,9 +930,11 @@ and will soon be removed. '
         )
         if self._MAPS["rivmsk"] not in self.grid:
             raise ValueError(
-                'The "setup_riverwidth" method requires \
-to run setup_river method first.'
+                "The setup_riverwidth method requires to run setup_river method first."
             )
+
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming(output_names)
 
         # derive river width
         data = {}
@@ -845,30 +967,31 @@ to run setup_river method first.'
             fit=fit,
             **kwargs,
         )
-
         self.set_grid(da_rivwth, name=self._MAPS["rivwth"])
+        self._update_config_variable_name(self._MAPS["rivwth"])
 
     def setup_lulcmaps(
         self,
         lulc_fn: str | xr.DataArray,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
-        lulc_vars: List = [
-            "landuse",
-            "Kext",
-            "N",
-            "PathFrac",
-            "RootingDepth",
-            "Sl",
-            "Swood",
-            "WaterFrac",
-            "kc",
-            "alpha_h1",
-            "h1",
-            "h2",
-            "h3_high",
-            "h3_low",
-            "h4",
-        ],
+        lulc_vars: Dict = {
+            "landuse": None,
+            "Kext": "vegetation_canopy__light-extinction_coefficient",  # kext
+            "N": "land_surface_water_flow__manning_n_parameter",  # manning_n
+            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
+            "RootingDepth": "vegetation_root__depth",  # root_depth
+            "Sl": "vegetation__specific-leaf_storage",  # leaf_storage
+            "Swood": "vegetation_wood_water__storage_capacity",  # wood_storage
+            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
+            "kc": "vegetation__crop_factor",  # crop_factor
+            "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+            "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
+            "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
+            "h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",
+            "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
+            "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+        },
+        output_names_suffix: Optional[str] = None,
     ):
         """
         Derive several wflow maps based on landuse-landcover (LULC) data.
@@ -916,11 +1039,24 @@ to run setup_river method first.'
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
             "esa_worldcover", "glmnco"}, a default mapping is used and this argument
             becomes optional.
-        lulc_vars : dict
-            List of landuse parameters to prepare.
-            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood",
-            "WaterFrac"]
+        lulc_vars : Dict
+            Dictionnary of landuse parameters to prepare. The names are the
+            the columns of the mapping file and the values are the corresponding
+            Wflow.jl variables if any.
+        output_names_suffix : str, optional
+            Suffix to be added to the output names to avoid having to rename all the
+            columns of the mapping tables. For example if the suffix is "vito", all
+            variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
         """
+        if output_names_suffix is not None:
+            # rename lulc_vars with the suffix
+            output_names = {
+                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
+            }
+        else:
+            output_names = {v: k for k, v in lulc_vars.items()}
+        self._update_naming(output_names)
+
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
             lulc_mapping_fn = f"{lulc_fn}_mapping_default"
@@ -938,42 +1074,41 @@ to run setup_river method first.'
             da=da,
             ds_like=self.grid,
             df=df_map,
-            params=lulc_vars,
+            params=list(lulc_vars.keys()),
             logger=self.logger,
         )
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
 
         # Add entries to the config
-        for name in ds_lulc_maps.data_vars:
-            if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
+        self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
 
     def setup_lulcmaps_from_vector(
         self,
         lulc_fn: str | gpd.GeoDataFrame,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
-        lulc_vars: List = [
-            "landuse",
-            "Kext",
-            "N",
-            "PathFrac",
-            "RootingDepth",
-            "Sl",
-            "Swood",
-            "WaterFrac",
-            "kc",
-            "alpha_h1",
-            "h1",
-            "h2",
-            "h3_high",
-            "h3_low",
-            "h4",
-        ],
+        lulc_vars: Dict = {
+            "landuse": None,  # hydromt_landuse
+            "Kext": "vegetation_canopy__light-extinction_coefficient",  # kext
+            "N": "land_surface_water_flow__manning_n_parameter",  # manning_n
+            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
+            "RootingDepth": "vegetation_root__depth",  # root_depth
+            "Sl": "vegetation__specific-leaf_storage",  # leaf_storage
+            "Swood": "vegetation_wood_water__storage_capacity",  # wood_storage
+            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
+            "kc": "vegetation__crop_factor",  # crop_factor
+            "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+            "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
+            "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
+            "h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",
+            "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
+            "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+        },
         lulc_res: float | int | None = None,
         all_touched: bool = False,
         buffer: int = 1000,
         save_raster_lulc: bool = False,
+        output_names_suffix: Optional[str] = None,
     ):
         """
         Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -1021,10 +1156,10 @@ to run setup_river method first.'
             in lulc_vars. If lulc_fn is one of {"globcover", "vito", "corine",
             "esa_worldcover", "glmnco"}, a default mapping is used and this argument
             becomes optional.
-        lulc_vars : dict
-            List of landuse parameters to prepare.
-            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood",
-            "WaterFrac"]
+        lulc_vars : Dict
+            Dictionnary of landuse parameters to prepare. The names are the
+            the columns of the mapping file and the values are the corresponding
+            Wflow.jl variables.
         lulc_res : float, int, optional
             Resolution of the intermediate rasterized landuse map. The unit (meter or
             degree) depends on the CRS of lulc_fn (projected or not). By default None,
@@ -1038,11 +1173,24 @@ to run setup_river method first.'
         save_raster_lulc : bool, optional
             If True, the (high) resolution rasterized landuse map will be saved to
             maps/landuse_raster.tif, by default False.
+        output_names_suffix : str, optional
+            Suffix to be added to the output names to avoid having to rename all the
+            columns of the mapping tables. For example if the suffix is "vito", all
+            variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
 
         See Also
         --------
         workflows.landuse_from_vector
         """
+        if output_names_suffix is not None:
+            # rename lulc_vars with the suffix
+            output_names = {
+                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
+            }
+        else:
+            output_names = {v: k for k, v in lulc_vars.items()}
+        self._update_naming(output_names)
+
         self.logger.info("Preparing LULC parameter maps.")
         # Read mapping table
         if lulc_mapping_fn is None:
@@ -1068,20 +1216,17 @@ to run setup_river method first.'
             gdf=gdf,
             ds_like=self.grid,
             df=df_map,
-            params=lulc_vars,
+            params=list(lulc_vars.keys()),
             lulc_res=lulc_res,
             all_touched=all_touched,
             buffer=buffer,
             lulc_out=lulc_out,
             logger=self.logger,
         )
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
-
-        # Add entries to the config
-        for name in ds_lulc_maps.data_vars:
-            if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
+        # update config variable names
+        self._update_config_variable_name(ds_lulc_maps.rename(rmdict).data_vars)
 
     def setup_laimaps(
         self,
@@ -1090,6 +1235,9 @@ to run setup_river method first.'
         lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
         buffer: int = 2,
+        output_names: Dict = {
+            "vegetation__leaf-area_index": "LAI",
+        },
     ):
         """
         Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].
@@ -1147,9 +1295,14 @@ to run setup_river method first.'
             By default empty.
         buffer : int, optional
             Buffer around the region to read the data, by default 2.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         # retrieve data for region
         self.logger.info("Preparing LAI maps.")
+        self._update_naming(output_names)
         da = self.data_catalog.get_rasterdataset(
             lai_fn, geom=self.region, buffer=buffer
         )
@@ -1181,12 +1334,16 @@ to run setup_river method first.'
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_grid(da_lai.rename(rmdict), name="LAI")
+        self.set_grid(da_lai.rename(rmdict), name=self._MAPS["LAI"])
+        self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     def setup_laimaps_from_lulc_mapping(
         self,
         lulc_fn: str | xr.DataArray,
         lai_mapping_fn: str | pd.DataFrame,
+        output_names: Dict = {
+            "vegetation__leaf-area_index": "LAI",
+        },
     ):
         """
         Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
@@ -1207,10 +1364,16 @@ to run setup_river method first.'
             and LAI values for each month. The columns should be named as the
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         self.logger.info(
             "Preparing LAI maps from LULC data using LULC-LAI mapping table."
         )
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming(output_names)
 
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
@@ -1228,14 +1391,16 @@ to run setup_river method first.'
             logger=self.logger,
         )
         # Add to grid
-        self.set_grid(da_lai, name="LAI")
+        self.set_grid(da_lai, name=self._MAPS["LAI"])
+        # Add to config
+        self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     def setup_config_output_timeseries(
         self,
         mapname: str,
         toml_output: Optional[str] = "csv",
         header: Optional[List[str]] = ["Q"],
-        param: Optional[List[str]] = ["lateral.river.q_av"],
+        param: Optional[List[str]] = ["river_water__volume_flow_rate"],
         reducer: Optional[List[str]] = None,
     ):
         """Set the default gauge map based on basin outlets.
@@ -1251,22 +1416,24 @@ to run setup_river method first.'
         mapname : str
             Name of the gauge map (in staticmaps.nc) to use for scalar output.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
-            toml file or do nothing. By default, 'csv'.
+            One of ['csv', 'netcdf_scalar', None] to update [output.csv] or
+            [output.netcdf_scalar] section of wflow toml file or do nothing. By
+            default, 'csv'.
         header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for lateral.river.q_av).
+            By default saves Q (for river_water__volume_flow_rate).
         param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the
-            names in gauge_toml_header. By default saves lateral.river.q_av (for Q).
+            names in gauge_toml_header. By default saves river_water__volume_flow_rate
+            (for Q).
         reducer: list, optional
             If map is an area rather than a point location, provides the reducer
             for the parameters to save. By default None.
         """
         # # Add new outputcsv section in the config
-        if toml_output == "csv" or toml_output == "netcdf":
+        if toml_output == "csv" or toml_output == "netcdf_scalar":
             self.logger.info(f"Adding {param} to {toml_output} section of toml.")
             # Add map to the input section of config
             basename = (
@@ -1280,17 +1447,17 @@ to run setup_river method first.'
             if toml_output == "csv":
                 header_name = "header"
                 var_name = "column"
-                if self.get_config("csv") is None:
-                    self.set_config("csv.path", "output.csv")
+                if self.get_config("output.csv") is None:
+                    self.set_config("output.csv.path", "output.csv")
             # netcdf
-            if toml_output == "netcdf":
+            if toml_output == "netcdf_scalar":
                 header_name = "name"
                 var_name = "variable"
-                if self.get_config("netcdf") is None:
-                    self.set_config("netcdf.path", "output_scalar.nc")
+                if self.get_config("output.netcdf_scalar") is None:
+                    self.set_config("output.netcdf_scalar.path", "output_scalar.nc")
             # initialise column / variable section
-            if self.get_config(f"{toml_output}.{var_name}") is None:
-                self.set_config(f"{toml_output}.{var_name}", [])
+            if self.get_config(f"output.{toml_output}.{var_name}") is None:
+                self.set_config(f"output.{toml_output}.{var_name}", [])
 
             # Add new output column/variable to config
             for o in range(len(param)):
@@ -1302,8 +1469,8 @@ to run setup_river method first.'
                 if reducer is not None:
                     gauge_toml_dict["reducer"] = reducer[o]
                 # If the gauge column/variable already exists skip writing twice
-                if gauge_toml_dict not in self.config[toml_output][var_name]:
-                    self.config[toml_output][var_name].append(gauge_toml_dict)
+                if gauge_toml_dict not in self.config["output"][toml_output][var_name]:
+                    self.config["output"][toml_output][var_name].append(gauge_toml_dict)
         else:
             self.logger.info(
                 f"toml_output set to {toml_output}, \
@@ -1315,7 +1482,7 @@ skipping adding gauge specific outputs to the toml."
         river_only=True,
         toml_output="csv",
         gauge_toml_header=["Q"],
-        gauge_toml_param=["lateral.river.q_av"],
+        gauge_toml_param=["river_water__volume_flow_rate"],
     ):
         """Set the default gauge map based on basin outlets.
 
@@ -1335,16 +1502,17 @@ skipping adding gauge specific outputs to the toml."
             Only derive outlet locations if they are located on a river instead of
             locations for all catchments, by default True.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
-            wflow toml file or do nothing. By default, 'csv'.
+            One of ['csv', 'netcdf_scalar', None] to update [output.csv] or
+            [output.netcdf_scalar] section of wflow toml file or do nothing. By
+            default, 'csv'.
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for lateral.river.q_av).
+            By default saves Q (for river_water__volume_flow_rate).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves lateral.river.q_av (for Q).
+            By default saves river_water__volume_flow_rate (for Q).
         """
         # read existing geoms; important to get the right basin when updating
         # fix in set_geoms / set_geoms method
@@ -1369,7 +1537,7 @@ skipping adding gauge specific outputs to the toml."
             flwdir=self.flwdir,
             logger=self.logger,
         )
-        self.set_grid(da_out, name=self._MAPS["gauges"])
+        self.set_grid(da_out, name="wflow_gauges")
         points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
@@ -1402,8 +1570,8 @@ skipping adding gauge specific outputs to the toml."
         toml_output: str = "csv",
         gauge_toml_header: List[str] = ["Q", "P"],
         gauge_toml_param: List[str] = [
-            "lateral.river.q_av",
-            "vertical.precipitation",
+            "river_water__volume_flow_rate",
+            "atmosphere_water__precipitation_volume_flux",
         ],
         **kwargs,
     ):
@@ -1437,10 +1605,10 @@ skipping adding gauge specific outputs to the toml."
         If ``derive_subcatch`` is set to True, an additional subcatch map is derived
         from the gauge locations.
 
-        Finally the output locations can be added to wflow TOML file sections [csv]
-        or [netcdf] using the ``toml_output`` option. The ``gauge_toml_header`` and
-        ``gauge_toml_param`` options can be used to define the header and corresponding
-        wflow variable names in the TOML file.
+        Finally the output locations can be added to wflow TOML file sections
+        [output.csv] or [output.netcdf_scalar] using the ``toml_output`` option. The
+        ``gauge_toml_header`` and ``gauge_toml_param`` options can be used to define
+        the header and corresponding wflow variable names in the TOML file.
 
         Adds model layers:
 
@@ -1492,18 +1660,19 @@ gauge locations [-] (if derive_subcatch)
             Map name in grid (wflow_gauges_basename)
             if None use the gauges_fn basename.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of
-            wflow toml file or do nothing. By default, 'csv'.
+            One of ['csv', 'netcdf_scalar', None] to update [output.csv] or
+            [output.netcdf_scalar] section of wflow toml file or do nothing. By
+            default, 'csv'.
         gauge_toml_header : list, optional
             Save specific model parameters in csv section.
             This option defines the header of the csv file.
-            By default saves Q (for lateral.river.q_av) and
-            P (for vertical.precipitation).
+            By default saves Q (for river_water__volume_flow_rate) and
+            P (for "atmosphere_water__precipitation_volume_flux").
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves lateral.river.q_av (for Q) and
-            vertical.precipitation (for P).
+            By default saves river_water__volume_flow_rate (for Q) and
+            "atmosphere_water__precipitation_volume_flux" (for P).
         kwargs : dict, optional
             Additional keyword arguments to pass to the get_data method ie
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
@@ -1598,7 +1767,7 @@ gauge locations [-] (if derive_subcatch)
             da, idxs, ids = workflows.gauge_map_uparea(
                 self.grid,
                 gdf_gauges,
-                uparea_name="wflow_uparea",
+                uparea_name=self._MAPS["uparea"],
                 mask=mask,
                 wdw=wdw,
                 rel_error=rel_error,
@@ -1633,7 +1802,7 @@ gauge locations [-] (if derive_subcatch)
             return
 
         # Add to grid
-        mapname = f"{str(self._MAPS['gauges'])}_{basename}"
+        mapname = f"wflow_gauges_{basename}"
         self.set_grid(da, name=mapname)
 
         # geoms
@@ -1676,6 +1845,7 @@ gauge locations [-] (if derive_subcatch)
         area_fn: str | gpd.GeoDataFrame,
         col2raster: str,
         nodata: int | float = -1,
+        output_names: Dict = {},
     ):
         """Set area map from vector data to save wflow outputs for specific area.
 
@@ -1692,8 +1862,14 @@ gauge locations [-] (if derive_subcatch)
         nodata : int/float, optional
             Nodata value to use when rasterizing. Should match the dtype of `col2raster`
             . By default -1.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file. If another name is provided than col2raster, this name
+            will be used.
         """
         self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
+        self._update_naming(output_names)
         gdf_org = self.data_catalog.get_geodataframe(
             area_fn, geom=self.basins, dst_crs=self.crs
         )
@@ -1709,7 +1885,17 @@ gauge locations [-] (if derive_subcatch)
                 nodata=nodata,
                 all_touched=True,
             )
-        self.set_grid(da_area.rename(col2raster))
+        if any(output_names):
+            if len(output_names) > 1:
+                raise ValueError(
+                    "Only one output name is allowed for areamap, \
+                    please provide a dictionary with one key."
+                )
+            col2raster_name = list(output_names.values())[0]
+            self._update_config_variable_name(col2raster_name)
+        else:
+            col2raster_name = col2raster
+        self.set_grid(da_area.rename(col2raster_name))
 
     def setup_lakes(
         self,
@@ -1717,6 +1903,19 @@ gauge locations [-] (if derive_subcatch)
         rating_curve_fns: List[str | Path | pd.DataFrame] | None = None,
         min_area: float = 10.0,
         add_maxstorage: bool = False,
+        output_names: Dict = {
+            "lake_area__count": "wflow_lakeareas",
+            "lake_location__count": "wflow_lakelocs",
+            "lake_surface__area": "LakeArea",
+            "lake_water_level__initial_elevation": "LakeAvgLevel",
+            "lake_water_flow_threshold-level__elevation": "LakeThreshold",
+            "lake_water__rating_curve_coefficient": "Lake_b",
+            "lake_water__rating_curve_exponent": "Lake_e",
+            "lake_water__rating_curve_type_count": "LakeOutflowFunc",
+            "lake_water__storage_curve_type_count": "LakeStorFunc",
+            "lake~lower_location__count": "LinkedLakeLocs",
+        },
+        geom_name: str = "lakes",
         **kwargs,
     ):
         """Generate maps of lake areas and outlets.
@@ -1743,10 +1942,13 @@ gauge locations [-] (if derive_subcatch)
         * **wflow_lakelocs** map: lake IDs at outlet locations [-]
         * **LakeArea** map: lake area [m2]
         * **LakeAvgLevel** map: lake average water level [m]
+        * **LakeThreshold** map: lake outflow threshold water level [m]
         * **LakeAvgOut** map: lake average discharge [m3/s]
         * **Lake_b** map: lake rating curve coefficient [-]
+        * **Lake_e** map: lake rating curve exponent [-]
         * **LakeOutflowFunc** map: option to compute rating curve [-]
         * **LakeStorFunc** map: option to compute storage curve [-]
+        * **LinkedLakeLocs** map: optional, lower linked lake locations [-]
         * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
@@ -1780,6 +1982,13 @@ gauge locations [-] (if derive_subcatch)
             If True, maximum storage of the lake is added to the output
             (controlled lake) based on 'Vol_max' [m3] column of lakes_fn.
             By default False (natural lake).
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
+        geom_name : str, optional
+            Name of the lakes geometry in the staticgeoms folder, by default 'lakes'
+            for lakes.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
@@ -1791,8 +2000,7 @@ gauge locations [-] (if derive_subcatch)
         if ds_lakes is None:
             self.logger.info("Skipping method, as no data has been found")
             return
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
-        ds_lakes = ds_lakes.rename(rmdict)
+        self._update_naming(output_names)
 
         # If rating_curve_fn prepare rating curve dict
         rating_dict = dict()
@@ -1842,39 +2050,42 @@ Using default storage/outflow function parameters."
         )
 
         # add to grid
-        self.set_grid(ds_lakes)
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
+        self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes, name="lakes")
+        self.set_geoms(gdf_lakes, name=geom_name)
         # add the tables
         for k, v in rating_curves.items():
             self.set_tables(v, name=k)
 
-        # if there are lakes, change True in toml
         # Lake settings in the toml to update
-        lakes_toml = {
-            "model.lakes": True,
-            "state.lateral.river.lake.waterlevel": "waterlevel_lake",
-            "input.lateral.river.lake.area": "LakeArea",
-            "input.lateral.river.lake.areas": "wflow_lakeareas",
-            "input.lateral.river.lake.b": "Lake_b",
-            "input.lateral.river.lake.e": "Lake_e",
-            "input.lateral.river.lake.locs": "wflow_lakelocs",
-            "input.lateral.river.lake.outflowfunc": "LakeOutflowFunc",
-            "input.lateral.river.lake.storfunc": "LakeStorFunc",
-            "input.lateral.river.lake.threshold": "LakeThreshold",
-            "input.lateral.river.lake.linkedlakelocs": "LinkedLakeLocs",
-            "input.lateral.river.lake.waterlevel": "LakeAvgLevel",
-        }
-        if "LakeMaxStorage" in ds_lakes:
-            lakes_toml["input.lateral.river.lake.maxstorage"] = "LakeMaxStorage"
-        for option in lakes_toml:
-            self.set_config(option, lakes_toml[option])
+        self.set_config("model.lakes", True)
+        self.set_config(
+            "state.variables.lake_water_level__initial_elevation", "waterlevel_lake"
+        )
+
+        for dvar in ds_lakes.data_vars:
+            if dvar == "lakeareas" or dvar == "lakelocs":
+                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
+            elif dvar in self._WFLOW_NAMES:
+                self._update_config_variable_name(self._MAPS[dvar])
 
     def setup_reservoirs(
         self,
         reservoirs_fn: str | gpd.GeoDataFrame,
         timeseries_fn: str | None = None,
         min_area: float = 1.0,
+        output_names: Dict = {
+            "reservoir_area__count": "wflow_reservoirareas",
+            "reservoir_location__count": "wflow_reservoirlocs",
+            "reservoir_surface__area": "ResSimpleArea",
+            "reservoir_water__max_volume": "ResMaxVolume",
+            "reservoir_water~min-target__volume_fraction": "ResTargetMinFrac",
+            "reservoir_water~full-target__volume_fraction": "ResTargetFullFrac",
+            "reservoir_water_demand~required~downstream__volume_flow_rate": "ResDemand",
+            "reservoir_water_release-below-spillway__max_volume_flow_rate": "ResMaxRelease",  # noqa: E501
+        },
+        geom_name: str = "reservoirs",
         **kwargs,
     ):
         """Generate maps of reservoir areas and outlets.
@@ -1943,51 +2154,34 @@ Using default storage/outflow function parameters."
             JRC 'jrc' (using hydroengine package). By default None.
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
+        geom_name : str, optional
+            Name of the reservoirs geometry in the staticgeoms folder, by default
+            "reservoirs" for reservoirs.geojson.
         kwargs: optional
             Keyword arguments passed to the method
             hydromt.DataCatalog.get_rasterdataset()
 
         """
-        # rename to wflow naming convention
-        tbls = {
-            "resarea": "ResSimpleArea",
-            "resdemand": "ResDemand",
-            "resfullfrac": "ResTargetFullFrac",
-            "resminfrac": "ResTargetMinFrac",
-            "resmaxrelease": "ResMaxRelease",
-            "resmaxvolume": "ResMaxVolume",
-            "resid": "expr1",
-        }
-
-        res_toml = {
-            "model.reservoirs": True,
-            "state.lateral.river.reservoir.volume": "volume_reservoir",
-            "input.lateral.river.reservoir.area": "ResSimpleArea",
-            "input.lateral.river.reservoir.areas": "wflow_reservoirareas",
-            "input.lateral.river.reservoir.demand": "ResDemand",
-            "input.lateral.river.reservoir.locs": "wflow_reservoirlocs",
-            "input.lateral.river.reservoir.maxrelease": "ResMaxRelease",
-            "input.lateral.river.reservoir.maxvolume": "ResMaxVolume",
-            "input.lateral.river.reservoir.targetfullfrac": "ResTargetFullFrac",
-            "input.lateral.river.reservoir.targetminfrac": "ResTargetMinFrac",
-        }
-
+        # Derive reservoir area and outlet maps
         gdf_org, ds_res = self._setup_waterbodies(
             reservoirs_fn, "reservoir", min_area, **kwargs
         )
-        # TODO: check if there are missing values in the above columns of
-        # the parameters tbls =
-        # if everything is present, skip calculate reservoirattrs() and
-        # directly make the maps
 
         # Skip method if no data is returned
         if ds_res is None:
             self.logger.info("Skipping method, as no data has been found")
             return
-
+        self._update_naming(output_names)
         # Continue method if data has been found
-        rmdict = {k: v for k, v in self._MAPS.items() if k in ds_res.data_vars}
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
+        self._update_config_variable_name(
+            ds_res.rename(rmdict).data_vars, data_type=None
+        )
 
         # add attributes
         # if present use directly
@@ -2013,7 +2207,6 @@ Using default storage/outflow function parameters."
             ) = workflows.reservoirattrs(
                 gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
             )
-            intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
         # create a geodf with id of reservoir and geometry at outflow location
         gdf_org_points = gpd.GeoDataFrame(
@@ -2028,14 +2221,16 @@ Using default storage/outflow function parameters."
         gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
 
         # write reservoirs with param values to geoms
-        self.set_geoms(gdf_org, name="reservoirs")
+        self.set_geoms(gdf_org, name=geom_name)
 
         for name in gdf_org_points.columns[2:]:
             gdf_org_points[name] = gdf_org_points[name].astype("float32")
             da_res = ds_res.raster.rasterize(
                 gdf_org_points, col_name=name, dtype="float32", nodata=-999
             )
-            self.set_grid(da_res)
+            output_name = self._MAPS.get(name, name)
+            self.set_grid(da_res.rename(output_name))
+            self._update_config_variable_name(output_name, data_type="static")
 
         # Save accuracy information on reservoir parameters
         if reservoir_accuracy is not None:
@@ -2046,8 +2241,11 @@ Using default storage/outflow function parameters."
                 join(self.root, f"reservoir_timeseries_{timeseries_fn}.csv")
             )
 
-        for option in res_toml:
-            self.set_config(option, res_toml[option])
+        # update toml
+        self.set_config("model.reservoirs", True)
+        self.set_config(
+            "state.variables.reservoir_water__instantaneous_volume", "volume_reservoir"
+        )
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
         """Help with common workflow of setup_lakes and setup_reservoir.
@@ -2120,6 +2318,14 @@ Using default storage/outflow function parameters."
         ptf_ksatver: str = "brakensiek",
         soil_mapping_fn: str | Path | pd.DataFrame | None = None,
         wflow_thicknesslayers: List[int] = [100, 300, 800],
+        output_names: Dict = {
+            "soil_water__saturated_volume_fraction": "thetaS",
+            "soil_water__residual_volume_fraction": "thetaR",
+            "soil_surface_water__vertical_saturated_hydraulic_conductivity": "KsatVer",
+            "soil__thickness": "SoilThickness",
+            "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "f",  # noqa: E501
+            "soil_layer_water__brooks-corey_epsilon_parameter": "c",
+        },
     ):
         """
         Derive several (layered) soil parameters.
@@ -2204,8 +2410,13 @@ a map for each of the wflow_sbm soil layers (n in total)
             Thickness of soil layers [mm] for wflow_sbm soil model.
             By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
             Used only for Brooks Corey coefficients.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         self.logger.info("Preparing soil parameter maps.")
+        self._update_naming(output_names)
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         if soil_mapping_fn is not None:
@@ -2222,16 +2433,19 @@ a map for each of the wflow_sbm soil layers (n in total)
             wflow_layers=wflow_thicknesslayers,
             logger=self.logger,
         ).reset_coords(drop=True)
-        self.set_grid(dsout)
+        rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
+        self.set_grid(dsout.rename(rmdict))
 
         # Update the toml file
         self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+        self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     def setup_ksathorfrac(
         self,
         ksat_fn: str | xr.DataArray,
         variable: str | None = None,
         resampling_method: str = "average",
+        output_name: Optional[str] = None,
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
 
@@ -2248,9 +2462,12 @@ or created by a third party/ individual.
 ``ksat_fn`` contains several variables. By default None.
         resampling_method : str, optional
             The resampling method when up- or downscaled, by default "average"
+        output_name : str, optional
+            The name of the output map. If None (default), the name will be set
+            to the name of the ksat_fn DataArray.
         """
         self.logger.info("Preparing KsatHorFrac parameter map.")
-
+        wflow_var = "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio"  # noqa: E501
         dain = self.data_catalog.get_rasterdataset(
             ksat_fn,
             geom=self.region,
@@ -2272,26 +2489,19 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             ds_like=self.grid,
             resampling_method=resampling_method,
         )
-
-        # Set the output variable name
-        if not isinstance(ksat_fn, str):
-            bname = ksat_fn.name if ksat_fn.name is not None else "KsatHorFrac"
-        else:
-            bname = ksat_fn  # base name of the outgoing layer name
-
-        lname = bname
-        if variable is not None:
-            lname += f"_{variable}"
-
+        if output_name is not None:
+            daout.name = output_name
+        self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout, name=lname)
-        self.set_config("input.lateral.subsurface.ksathorfrac", lname)
+        self.set_grid(daout, name=self._MAPS["ksathorfrac"])
+        self._update_config_variable_name(daout.name)
 
     def setup_ksatver_vegetation(
         self,
         soil_fn: str = "soilgrids",
         alfa: float = 4.5,
         beta: float = 5,
+        output_name: str = "KsatVer_vegetation",
     ):
         """Calculate KsatVer values from vegetation in addition to soil characteristics.
 
@@ -2317,8 +2527,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             Shape parameter. The default is 4.5 when using LAI.
         beta : float, optional
             Shape parameter. The default is 5 when using LAI.
+        output_name : dict, optional
+            Name of the output map. By default 'KsatVer_vegetation'.
         """
-        self.logger.info("Modifying ksatver based on vegetation characteristics")
+        self.logger.info("Modifying ksat_vertical based on vegetation characteristics")
+        wflow_var = self._WFLOW_NAMES[self._MAPS["ksat_vertical"]]
+        self._update_naming({wflow_var: output_name})
 
         # open soil dataset to get sand percentage
         sndppt = self.data_catalog.get_rasterdataset(
@@ -2326,19 +2540,17 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         )
 
         # in function get_ksatver_vegetation KsatVer should be provided in mm/d
+        inv_rename = {v: k for k, v in self._MAPS.items()}
         KSatVer_vegetation = workflows.ksatver_vegetation(
-            ds_like=self.grid,
+            ds_like=self.grid.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
             beta=beta,
         )
-
-        map_name = "KsatVer_vegetation"
-
         # add to grid
-        self.set_grid(KSatVer_vegetation, map_name)
+        self.set_grid(KSatVer_vegetation, output_name)
         # update config file
-        self.set_config("input.vertical.kv_0", map_name)
+        self._update_config_variable_name(output_name)
 
     def setup_lulcmaps_with_paddy(
         self,
@@ -2357,25 +2569,26 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             None,
             None,
         ],
-        lulc_vars: List = [
-            "landuse",
-            "Kext",
-            "N",
-            "PathFrac",
-            "RootingDepth",
-            "Sl",
-            "Swood",
-            "WaterFrac",
-            "kc",
-            "alpha_h1",
-            "h1",
-            "h2",
-            "h3_high",
-            "h3_low",
-            "h4",
-        ],
+        lulc_vars: Dict = {
+            "landuse": None,  # hydromt_landuse
+            "Kext": "vegetation_canopy__light-extinction_coefficient",  # kext
+            "N": "land_surface_water_flow__manning_n_parameter",  # manning_n
+            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
+            "RootingDepth": "vegetation_root__depth",  # root_depth
+            "Sl": "vegetation__specific-leaf_storage",  # leaf_storage
+            "Swood": "vegetation_wood_water__storage_capacity",  # wood_storage
+            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
+            "kc": "vegetation__crop_factor",  # crop_factor
+            "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+            "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
+            "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
+            "h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",
+            "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
+            "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+        },
         paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
         save_high_resolution_lulc: bool = False,
+        output_names_suffix: Optional[str] = None,
     ):
         """Set up landuse maps and parameters including for paddy fields.
 
@@ -2474,23 +2687,47 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             List of target vertical conductivities [mm/day] for each layer in
             ``wflow_thicknesslayers``. Set value to `None` if no specific value is
             required, by default [None, None, 5, None, None].
-        lulc_vars : list
-            List of landuse parameters to prepare.
-            By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood",
-            "WaterFrac"]
+        lulc_vars : Dict
+            Dictionnary of landuse parameters to prepare. The names are the
+            the columns of the mapping file and the values are the corresponding
+            Wflow.jl variables.
         paddy_waterlevels : dict
             Dictionary with the minimum, optimal and maximum water levels for paddy
             fields [mm]. By default {"h_min": 20, "h_opt": 50, "h_max": 80}
         save_high_resolution_lulc : bool
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
+        output_names_suffix : str, optional
+            Suffix to be added to the output names to avoid having to rename all the
+            columns of the mapping tables. For example if the suffix is "vito", all
+            variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
+            Note that the suffix will also be used to rename the paddy parameters
+            kvfrac, h_min, h_opt and h_max but not the c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
+        if output_names_suffix is not None:
+            # rename lulc_vars with the suffix
+            output_names = {
+                v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
+            }
+            # Add the other parameters
+            for var in ["kvfrac", "h_min", "h_opt", "h_max"]:
+                output_names[self._WFLOW_NAMES[self._MAPS[var]]] = (
+                    f"{var}_{output_names_suffix}"
+                )
+                # for paddy also update the dictionnary
+                if var != "kvfrac":
+                    value = paddy_waterlevels.pop(var)
+                    paddy_waterlevels[f"{var}_{output_names_suffix}"] = value
+        else:
+            output_names = {v: k for k, v in lulc_vars.items()}
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming(output_names)
         # Check if soil data is available
-        if "KsatVer" not in self.grid.data_vars:
+        if self._MAPS["ksat_vertical"] not in self.grid.data_vars:
             raise ValueError(
-                "KsatVer and f are required to update the soil parameters with paddies."
-                "Please run setup_soilmaps first."
+                "ksat_vertical and f are required to update the soil parameters with "
+                "paddies. Please run setup_soilmaps first."
             )
 
         if lulc_mapping_fn is None:
@@ -2541,11 +2778,13 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             da=landuse,
             ds_like=self.grid,
             df=df_mapping,
-            params=lulc_vars,
+            params=list(lulc_vars.keys()),
             logger=self.logger,
         )
-        rmdict = {k: v for k, v in self._MAPS.items() if k in landuse_maps.data_vars}
+        rmdict = {k: self._MAPS.get(k, k) for k in landuse_maps.data_vars}
         self.set_grid(landuse_maps.rename(rmdict))
+        # update config
+        self._update_config_variable_name(landuse_maps.rename(rmdict).data_vars)
 
         # Update soil parameters if there are paddies in the domain
         # Get paddy pixels at model resolution
@@ -2566,9 +2805,10 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 soil_fn, geom=self.region, buffer=2
             )
             # update soil parameters c and kvfrac
+            inv_rename = {v: k for k, v in self._MAPS.items()}
             soil_maps = workflows.update_soil_with_paddy(
                 ds=soil,
-                ds_like=self.grid,
+                ds_like=self.grid.rename(inv_rename),
                 paddy_mask=wflow_paddy,
                 soil_fn=soil_fn,
                 update_c=update_c,
@@ -2576,30 +2816,32 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 target_conductivity=target_conductivity,
                 logger=self.logger,
             )
-            self.set_grid(soil_maps["kvfrac"], name="kvfrac")
-            self.set_config("input.vertical.kvfrac", "kvfrac")
+            self.set_grid(soil_maps["kvfrac"], name=self._MAPS["kvfrac"])
+            self._update_config_variable_name(self._MAPS["kvfrac"])
             if "c" in soil_maps:
-                self.set_grid(soil_maps["c"], name="c")
+                self.set_grid(soil_maps["c"], name=self._MAPS["c"])
+                self._update_config_variable_name(self._MAPS["c"])
                 self.set_config("model.thicknesslayers", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
-                self.set_config(f"input.vertical.paddy.{key}.value", value)
+                self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
-            self.set_config("state.vertical.paddy.h", "h_paddy")
+            self.set_config("state.land_surface_water~paddy__depth", "h_paddy")
         else:
             self.logger.info("No paddy fields found, skipping updating soil parameters")
 
-        # Add entries to the config
-        for name in landuse_maps.data_vars:
-            if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
-
-    def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
+    def setup_glaciers(
+        self,
+        glaciers_fn: Union[str, Path, gpd.GeoDataFrame],
+        min_area: float = 1.0,
+        output_names: Dict = {
+            "glacier_surface__area_fraction": "wflow_glacierfrac",
+            "glacier_ice__leq-volume": "wflow_glacierstore",
+        },
+        geom_name: str = "glaciers",
+    ):
         """
         Generate maps of glacier areas, area fraction and volume fraction.
-
-        Also generates tables with temperature threshold, melting factor and snow-to-ice
-        conversion fraction.
 
         The data is generated from features with ``min_area`` [km2] (default is 1 km2)
         from a database with glacier geometry, IDs and metadata.
@@ -2613,29 +2855,24 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         * **wflow_glacierareas** map: glacier IDs [-]
         * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
-        * **G_TTM** map: temperature threshold for glacier melt/buildup [°C]
-        * **G_Cfmax** map: glacier melting factor [mm/°C*day]
-        * **G_SIfrac** map: fraction of snowpack on top of glacier converted to ice, \
-added to glacierstore [-]
 
         Parameters
         ----------
-        glaciers_fn : {'rgi'}
+        glaciers_fn :
             Name of data source for glaciers, see data/data_sources.yml.
 
             * Required variables: ['simple_id']
         min_area : float, optional
             Minimum glacier area threshold [km2], by default 0 (all included)
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
+        geom_name : str, optional
+            Name of the geometry to be used in the model, by default "glaciers" for
+            glaciers.geojson.
         """
-        glac_toml = {
-            "model.glacier": True,
-            "state.vertical.glacierstore": "glacierstore",
-            "input.vertical.glacierstore": "wflow_glacierstore",
-            "input.vertical.glacierfrac": "wflow_glacierfrac",
-            "input.vertical.g_cfmax": "G_Cfmax",
-            "input.vertical.g_ttm": "G_TTM",
-            "input.vertical.g_sifrac": "G_SIfrac",
-        }
+        self._update_naming(output_names)
         # retrieve data for basin
         self.logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
@@ -2654,36 +2891,14 @@ added to glacierstore [-]
             gdf_org = gdf_org[gdf_org["AREA"] >= min_area]
         # get glacier maps and parameters
         nb_glac = gdf_org.geometry.size
-        ds_glac = None
-        if nb_glac > 0:
-            self.logger.info(
-                f"{nb_glac} glaciers of sufficient size found within region."
-            )
-            # add glacier maps
-            ds_glac = workflows.glaciermaps(
-                gdf=gdf_org,
-                ds_like=self.grid,
-                id_column="simple_id",
-                elevtn_name=self._MAPS["elevtn"],
-                logger=self.logger,
-            )
-
-            rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
-            self.set_grid(ds_glac.rename(rmdict))
-
-            self.set_geoms(gdf_org, name="glaciers")
-
-            for option in glac_toml:
-                self.set_config(option, glac_toml[option])
-        else:
+        if nb_glac == 0:
             self.logger.warning(
                 "No glaciers of sufficient size found within region!"
                 "Skipping glacier procedures!"
             )
+            return
 
-    def setup_constant_pars(
-        self, dtype: str = "float32", nodata: int | float = -999, **kwargs
-    ):
+    def setup_constant_pars(self, **kwargs):
         """Generate constant parameter maps for all active model cells.
 
         Adds model layer:
@@ -2697,18 +2912,26 @@ added to glacierstore [-]
         nodata: int or float
             nodata value
         kwargs
-            "param_name: value" pairs for constant grid.
+            "param_name: value" pairs for constant grid. Param_name should be the
+            Wflow.jl variable name.
 
         """
-        for key, value in kwargs.items():
-            nodata = np.dtype(dtype).type(nodata)
-            da_param = xr.where(self.grid[self._MAPS["basins"]], value, nodata).astype(
-                dtype
-            )
-            da_param.raster.set_nodata(nodata)
-
-            da_param = da_param.rename(key)
-            self.set_grid(da_param)
+        wflow_variables = [v for k, v in self._WFLOW_NAMES.items()]
+        for wflow_var, value in kwargs.items():
+            if wflow_var not in wflow_variables:
+                raise ValueError(
+                    f"Parameter {wflow_var} not recognised as a Wflow variable. "
+                    f"Please check the name."
+                )
+            # check if param is already in toml and will be overwritten
+            if self.get_config(wflow_var, None) is not None:
+                self.logger.info(
+                    f"Parameter {wflow_var} already in toml and will be overwritten."
+                )
+            # remove from config
+            self._config.pop(wflow_var, None)
+            # Add to config
+            self.set_config(f"input.static.{wflow_var}.value", value)
 
     def setup_grid_from_raster(
         self,
@@ -2742,7 +2965,7 @@ added to glacierstore [-]
             List of variables to add to grid from raster_fn. By default all.
         wflow_variables: list, optional
             List of corresponding wflow variables to update the config toml
-            (e.g: ["input.vertical.altitude"]).
+            (e.g: ["vegetation_root__depth"]).
             Should match the variables list. variables list should be provided unless
             raster_fn contains a single variable (len 1).
         fill_method : str, optional
@@ -2793,7 +3016,7 @@ one variable and variables list is not provided."
                 )
             else:
                 for i in range(len(variables)):
-                    self.set_config(wflow_variables[i], variables[i])
+                    self.set_config(f"input.static.{wflow_variables[i]}", variables[i])
 
     def setup_precip_forcing(
         self,
@@ -2827,10 +3050,13 @@ one variable and variables list is not provided."
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
+        **kwargs : dict, optional
+            Additional arguments passed to the forcing function.
+            See hydromt.workflows.forcing.precip for more details.
         """
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        starttime = self.get_config("time.starttime")
+        endtime = self.get_config("time.endtime")
+        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
         precip = self.data_catalog.get_rasterdataset(
@@ -2870,6 +3096,7 @@ one variable and variables list is not provided."
         if precip_clim_fn is not None:
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
         self.set_forcing(precip_out.where(mask), name="precip")
+        self._update_config_variable_name(self._MAPS["precip"], data_type="forcing")
 
     def setup_precip_from_point_timeseries(
         self,
@@ -3060,7 +3287,6 @@ one variable and variables list is not provided."
         dem_forcing_fn: str | xr.DataArray | None = None,
         skip_pet: bool = False,
         chunksize: Optional[int] = None,
-        **kwargs,
     ) -> None:
         """Generate gridded temperature and reference evapotranspiration forcing.
 
@@ -3141,9 +3367,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
         """
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        timestep = self.get_config("timestepsecs")
+        starttime = self.get_config("time.starttime")
+        endtime = self.get_config("time.endtime")
+        timestep = self.get_config("time.timestepsecs")
         freq = pd.to_timedelta(timestep, unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
@@ -3206,7 +3432,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             lapse_correction=temp_correction,
             logger=self.logger,
             freq=None,  # resample time after pet workflow
-            **kwargs,
         )
 
         if (
@@ -3219,7 +3444,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 lapse_correction=temp_correction,
                 logger=self.logger,
                 freq=None,  # resample time after pet workflow
-                **kwargs,
             )
             temp_max_in.name = "temp_max"
 
@@ -3230,7 +3454,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 lapse_correction=temp_correction,
                 logger=self.logger,
                 freq=None,  # resample time after pet workflow
-                **kwargs,
             )
             temp_min_in.name = "temp_min"
 
@@ -3249,7 +3472,6 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
                 logger=self.logger,
-                **kwargs,
             )
             # Update meta attributes with setup opt
             opt_attr = {
@@ -3258,6 +3480,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             }
             pet_out.attrs.update(opt_attr)
             self.set_forcing(pet_out.where(mask), name="pet")
+            self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
         # make sure only temp is written to netcdf
         if "penman-monteith" in pet_method:
@@ -3286,6 +3509,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 fill_value="extrapolate",
             )
         self.set_forcing(temp_out.where(mask), name="temp")
+        self._update_config_variable_name(self._MAPS["temp"], data_type="forcing")
 
     def setup_pet_forcing(
         self,
@@ -3310,13 +3534,12 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             Chunksize on time dimension for processing data (not for saving to disk!).
             If None the data chunksize is used, this can however be optimized for
             large/small catchments. By default None.
-
         """
         self.logger.info("Preparing potential evapotranspiration forcing maps.")
 
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        starttime = self.get_config("time.starttime")
+        endtime = self.get_config("time.endtime")
+        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
 
         pet = self.data_catalog.get_rasterdataset(
             pet_fn,
@@ -3339,6 +3562,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
         self.set_forcing(pet_out, name="pet")
+        self._update_config_variable_name(self._MAPS["pet"], data_type="forcing")
 
     def setup_rootzoneclim(
         self,
@@ -3357,7 +3581,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         time_tuple: Optional[tuple] = None,
         time_tuple_fut: Optional[tuple] = None,
         missing_days_threshold: Optional[int] = 330,
-        update_toml_rootingdepth: Optional[str] = "RootingDepth_obs_20",
+        output_name_rootingdepth: Optional[str] = "RootingDepth_obs_20",
     ) -> None:
         """
         Set the RootingDepth.
@@ -3469,7 +3693,7 @@ different return periods RP. Only if rootzone_storage is set to True!
         missing_days_threshold: int, optional
             Minimum number of days within a year for that year to be counted in
             the long-term Budyko analysis.
-        update_toml_rootingdepth: str, optional
+        output_name_rootingdepth: str, optional
             Update the wflow_sbm model config of the RootingDepth variable with
             the estimated RootingDepth.
             The default is RootingDepth_obs_20,
@@ -3520,23 +3744,26 @@ the return_period argument.
 
         # check if setup_soilmaps and setup_laimaps were run if LAI =True and
         # if rooting_depth = True"
-        if (LAI == True) and ("LAI" not in self.grid):
+        if (LAI == True) and (self._MAPS["LAI"] not in self.grid):
             self.logger.error(
                 "LAI variable not found in grid. \
 Set LAI to False or run setup_laimaps first"
             )
 
-        if ("thetaR" not in self.grid) or ("thetaS" not in self.grid):
+        if (self._MAPS["thetaR"] not in self.grid) or (
+            self._MAPS["thetaS"] not in self.grid
+        ):
             self.logger.error(
                 "thetaS or thetaR variables not found in grid. \
 Run setup_soilmaps first"
             )
 
         # Run the rootzone clim workflow
+        inv_rename = {v: k for k, v in self._MAPS.items()}
         dsout, gdf = workflows.rootzoneclim(
             dsrun=dsrun,
             ds_obs=ds_obs,
-            ds_like=self.grid,
+            ds_like=self.grid.rename(inv_rename),
             flwdir=self.flwdir,
             ds_cc_hist=ds_cc_hist,
             ds_cc_fut=ds_cc_fut,
@@ -3560,7 +3787,7 @@ Run setup_soilmaps first"
         self.set_geoms(gdf, name="rootzone_storage")
 
         # update config
-        self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
+        self.set_config("input.static.vegetation_root__depth", output_name_rootingdepth)
 
     def setup_1dmodel_connection(
         self,
@@ -3571,7 +3798,7 @@ Run setup_soilmaps first"
         include_river_boundaries: bool = True,
         mapname: str = "1dmodel",
         update_toml: bool = True,
-        toml_output: str = "netcdf",
+        toml_output: str = "netcdf_scalar",
         **kwargs,
     ):
         """
@@ -3635,8 +3862,9 @@ Run setup_soilmaps first"
             If True, updates the wflow configuration file to save the required outputs
             for the 1D model.
         toml_output : str, optional
-            One of ['csv', 'netcdf', None] to update [csv] or [netcdf] section of wflow
-            toml file or do nothing. By default, 'netcdf'.
+            One of ['csv', 'netcdf_scalar', None] to update [output.csv] or
+            [output.netcdf_scalar] section of wflow toml file or do nothing. By
+            default, 'netcdf_scalar'.
         **kwargs
             Additional keyword arguments passed to the snapping method
             hydromt.flw.gauge_map. See its documentation for more information.
@@ -3704,7 +3932,7 @@ Run setup_soilmaps first"
                     mapname=f"wflow_gauges_{mapname}",
                     toml_output=toml_output,
                     header=["Q"],
-                    param=["lateral.river.q_av"],
+                    param=["river_water__volume_flow_rate"],
                     reducer=None,
                 )
 
@@ -3728,7 +3956,7 @@ Run setup_soilmaps first"
                 mapname=f"wflow_subcatch_riv_{mapname}",
                 toml_output=toml_output,
                 header=["Qlat"],
-                param=["lateral.river.inwater"],
+                param=["river_water_inflow~lateral__volume_flow_rate"],
                 reducer=["sum"],
             )
 
@@ -3737,6 +3965,7 @@ Run setup_soilmaps first"
         waterareas_fn: str | gpd.GeoDataFrame,
         priority_basins: bool = True,
         minimum_area: float = 50.0,
+        output_name: str = "allocation_areas",
     ):
         """Create water demand allocation areas.
 
@@ -3766,9 +3995,13 @@ Run setup_soilmaps first"
             with any large enough basin in the same water area, by default True.
         minimum_area : float
             Minimum area of the subbasins to keep in km2. Default is 50 km2.
+        output_name : str, optional
+            Name of the allocation areas map to be saved in the wflow model staticmaps
+            and staticgeoms. Default is 'allocation_areas'.
+
         """
         self.logger.info("Preparing water demand allocation map.")
-
+        self._update_naming("land_water_allocation_area__number", output_name)
         # Read the data
         waterareas = self.data_catalog.get_geodataframe(
             waterareas_fn,
@@ -3776,20 +4009,19 @@ Run setup_soilmaps first"
         )
 
         # Create the allocation grid
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         da_alloc, gdf_alloc = workflows.demand.allocation_areas(
-            ds_like=self.grid,
+            ds_like=self.grid.rename(inv_rename),
             waterareas=waterareas,
             basins=self.basins,
             priority_basins=priority_basins,
             minimum_area=minimum_area,
         )
-        self.set_grid(da_alloc, name="allocation_areas")
-
-        # Update the settings toml
-        self.set_config("input.vertical.allocation.areas", "allocation_areas")
-
+        self.set_grid(da_alloc, name=output_name)
+        # Update the config
+        self.set_config("input.static.land_water_allocation_area__number", output_name)
         # Add alloc to geoms
-        self.set_geoms(gdf_alloc, name="allocation_areas")
+        self.set_geoms(gdf_alloc, name=output_name)
 
     def setup_allocation_surfacewaterfrac(
         self,
@@ -3799,6 +4031,7 @@ Run setup_soilmaps first"
         ncfrac_fn: str | xr.DataArray | None = None,
         interpolate_nodata: bool = False,
         mask_and_scale_gwfrac: bool = True,
+        output_name: str = "frac_sw_used",
     ):
         """Create the fraction of water allocated from surface water.
 
@@ -3843,6 +4076,9 @@ Run setup_soilmaps first"
             the average gwfrac used over waterareas similar after the masking, gwfrac
             for areas with groundwater bodies can increase. If False, gwfrac will be
             used as is. By default True.
+        output_name : str, optional
+            Name of the fraction of surface water used map to be saved in the wflow
+            model staticmaps file. Default is 'frac_sw_used'.
         """
         self.logger.info("Preparing surface water fraction map.")
         # Load the data
@@ -3871,13 +4107,13 @@ Run setup_soilmaps first"
         # check whether to use the models own allocation areas
         if waterareas_fn is None:
             self.logger.info("Using wflow model allocation areas.")
-            if "allocation_areas" not in self.grid:
+            if self._MAPS["allocation_areas"] not in self.grid:
                 self.logger.error(
                     "No allocation areas found. Run setup_allocation_areas first "
                     "or provide a waterareas_fn."
                 )
                 return
-            waterareas = self.grid["allocation_areas"]
+            waterareas = self.grid[self._MAPS["allocation_areas"]]
         else:
             waterareas = self.data_catalog.get_rasterdataset(
                 waterareas_fn,
@@ -3888,7 +4124,7 @@ Run setup_soilmaps first"
         # Call the workflow
         w_frac = workflows.demand.surfacewaterfrac_used(
             gwfrac_raw=gwfrac_raw,
-            da_like=self.grid["wflow_dem"],
+            da_like=self.grid[self._MAPS["elevtn"]],
             waterareas=waterareas,
             gwbodies=gwbodies,
             ncfrac=ncfrac,
@@ -3897,19 +4133,22 @@ Run setup_soilmaps first"
         )
 
         # Update the settings toml
-        self.set_config(
-            "input.vertical.allocation.frac_sw_used",
-            "frac_sw_used",
-        )
+        wflow_var = "land_surface_water__withdrawal_fraction"
+        self._update_naming(wflow_var, output_name)
+        self.set_config(f"input.static.{wflow_var}", output_name)
 
         # Set the dataarray to the wflow grid
-        self.set_grid(w_frac, name="frac_sw_used")
+        self.set_grid(w_frac, name=output_name)
 
     def setup_domestic_demand(
         self,
         domestic_fn: str | xr.Dataset,
         population_fn: str | xr.Dataset | None = None,
         domestic_fn_original_res: float | None = None,
+        output_names: Dict = {
+            "land~domestic__gross_water_demand_volume_flux": "domestic_gross",
+            "land~domestic__net_water_demand_volume_flux": "domestic_net",
+        },
     ):
         """
         Prepare domestic water demand maps from a raster dataset.
@@ -3947,8 +4186,13 @@ Run setup_soilmaps first"
         domestic_fn_original_res : Optional[float], optional
             The original resolution of the domestic dataset, by default None to skip
             upscaling before downsampling with population.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         self.logger.info("Preparing domestic demand maps.")
+        self._update_naming(output_names)
         # Set flag for cyclic data
         _cyclic = False
 
@@ -4000,28 +4244,22 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="population")
+            self.set_grid(pop, name="population")  # meta_population
 
         # Update toml
-        if _cyclic and self.get_config("input.cyclic") is None:
-            self.set_config("input.cyclic", [])
         self.set_config("model.water_demand.domestic", True)
-
-        for demand_type in ["gross", "net"]:
-            self.set_config(
-                f"input.vertical.domestic.demand_{demand_type}",
-                f"domestic_{demand_type}",
-            )
-            if _cyclic:
-                self.config["input"]["cyclic"].append(
-                    f"vertical.domestic.demand_{demand_type}"
-                )
+        data_type = "cyclic" if _cyclic else "static"
+        self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
     def setup_domestic_demand_from_population(
         self,
         population_fn: str | xr.Dataset,
         domestic_gross_per_capita: float | List[float],
         domestic_net_per_capita: float | List[float] | None = None,
+        output_names: Dict = {
+            "land~domestic__gross_water_demand_volume_flux": "domestic_gross",
+            "land~domestic__net_water_demand_volume_flux": "domestic_net",
+        },
     ):
         """
         Prepare domestic water demand maps from statistics per capita.
@@ -4047,11 +4285,16 @@ Run setup_soilmaps first"
             The net domestic water demand per capita [m3/day]. If cyclic, provide a
             list with 12 values for monthly data or 365/366 values for daily data. If
             not provided, the gross demand will be used as net demand.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         self.logger.info("Preparing domestic demand maps based on population.")
 
         # Set flag for cyclic data
         _cyclic = False
+        self._update_naming(output_names)
 
         # Check if data is time dependent
         time_length = len(np.atleast_1d(domestic_gross_per_capita))
@@ -4085,28 +4328,24 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="population")
+            self.set_grid(popu_scaled, name="population")  # meta_population
 
         # Update toml
-        if _cyclic and self.get_config("input.cyclic") is None:
-            self.set_config("input.cyclic", [])
         self.set_config("model.water_demand.domestic", True)
-
-        for demand_type in ["gross", "net"]:
-            self.set_config(
-                f"input.vertical.domestic.demand_{demand_type}",
-                f"domestic_{demand_type}",
-            )
-            if _cyclic:
-                self.config["input"]["cyclic"].append(
-                    f"vertical.domestic.demand_{demand_type}"
-                )
+        data_type = "cyclic" if _cyclic else "static"
+        self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
     def setup_other_demand(
         self,
         demand_fn: str | Dict[str, Dict[str, Any]] | xr.Dataset,
         variables: list = ["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
         resampling_method: str = "average",
+        output_names: Dict = {
+            "land~industry__gross_water_demand_volume_flux": "ind_gross",
+            "land~industry__net_water_demand_volume_flux": "ind_net",
+            "land~livestock__gross_water_demand_volume_flux": "lsk_gross",
+            "land~livestock__net_water_demand_volume_flux": "lsk_net",
+        },
     ):
         """Create water demand maps from other sources (e.g. industry, livestock).
 
@@ -4144,10 +4383,15 @@ Run setup_soilmaps first"
             net demand for industry and livestock are processed.
         resampling_method : str, optional
             Resampling method for the demand maps, by default "average"
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
         """
         self.logger.info(f"Preparing water demand maps for {variables}.")
         # Set flag for cyclic data
         _cyclic = False
+        self._update_naming(output_names)
 
         # Selecting data
         demand_raw = self.data_catalog.get_rasterdataset(
@@ -4174,26 +4418,17 @@ Run setup_soilmaps first"
             ds_method=resampling_method,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in demand.data_vars}
-        demand = demand.rename(rmdict)
-        self.set_grid(demand)
+        self.set_grid(demand.rename(rmdict))
 
         # Update the settings toml
-        if _cyclic and self.get_config("input.cyclic") is None:
-            self.set_config("input.cyclic", [])
-        for var in demand.data_vars:
-            sname, suffix = var.split("_")
-            self.set_config(
-                f"input.vertical.{sname}.demand_{suffix}",
-                var,
-            )
-            # Set flag
-            self.set_config(f"model.water_demand.{sname}", True)
-
-            # Also for the fact that these parameters are cyclic
-            if _cyclic:
-                self.config["input"]["cyclic"].append(
-                    f"vertical.{sname}.demand_{suffix}",
-                )
+        if "dom_gross" in demand.data_vars:
+            self.set_config("model.water_demand.domestic", True)
+        if "ind_gross" in demand.data_vars:
+            self.set_config("model.water_demand.industry", True)
+        if "lsk_gross" in demand.data_vars:
+            self.set_config("model.water_demand.livestock", True)
+        data_type = "cyclic" if _cyclic else "static"
+        self._update_config_variable_name(demand.rename(rmdict).data_vars, data_type)
 
     def setup_irrigation(
         self,
@@ -4203,6 +4438,12 @@ Run setup_soilmaps first"
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
+        output_names: Dict = {
+            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
+            "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
+        },
     ):
         """
         Add required information to simulate irrigation water demand from grid.
@@ -4231,10 +4472,12 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
         * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
-        * **irrigation_trigger**: Map with monthly values, indicating whether irrigation
-          is allowed (1) or not (0) [-]
+        * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
+        * **paddy_irrigation_trigger**: Map with monthly values, indicating whether
+          irrigation is allowed (1) or not (0) [-] for paddy areas
+        * **nonpaddy_irrigation_trigger**: Map with monthly values, indicating whether
+          irrigation is allowed (1) or not (0) [-] for non-paddy areas
 
         Parameters
         ----------
@@ -4254,6 +4497,10 @@ Run setup_soilmaps first"
         lai_threshold: float
             Value of LAI variability to be used to determine the irrigation trigger. By
             default 0.2.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
 
         See Also
         --------
@@ -4274,9 +4521,10 @@ Run setup_soilmaps first"
         )
 
         # Get irrigation areas for paddy, non paddy and irrigation trigger
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         ds_irrigation = workflows.demand.irrigation(
             da_irrigation=irrigated_area,
-            ds_like=self.grid,
+            ds_like=self.grid.rename(inv_rename),
             irrigation_value=irrigation_value,
             cropland_class=cropland_class,
             paddy_class=paddy_class,
@@ -4286,7 +4534,7 @@ Run setup_soilmaps first"
         )
 
         # Check if paddy and non paddy are present
-        cyclic_lai = len(self.grid["LAI"].dims) > 2
+        cyclic_lai = len(self.grid[self._MAPS["LAI"]].dims) > 2
         if (
             "paddy_irrigation_areas" in ds_irrigation.data_vars
             and ds_irrigation["paddy_irrigation_areas"]
@@ -4295,20 +4543,26 @@ Run setup_soilmaps first"
             .values
             != 0
         ):
+            # Select the paddy variables in output_names
+            paddy_names = {
+                k: v for k, v in output_names.items() if "irrigated-paddy" in v
+            }
+            self._update_naming(paddy_names)
+            ds_paddy = ds_irrigation[
+                ["paddy_irrigation_areas", "paddy_irrigation_trigger"]
+            ]
+            rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
+            self.set_grid(ds_paddy.rename(rmdict))
             self.set_config("model.water_demand.paddy", True)
-            self.set_grid(ds_irrigation["paddy_irrigation_areas"])
-            self.set_config(
-                "input.vertical.paddy.irrigation_areas", "paddy_irrigation_areas"
+            self._update_config_variable_name(
+                self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
+                "static",
             )
-            # Irrigation trigger
-            self.set_grid(ds_irrigation["paddy_irrigation_trigger"])
-            self.set_config(
-                "input.vertical.paddy.irrigation_trigger", "paddy_irrigation_trigger"
+            data_type = "cyclic" if cyclic_lai else "static"
+            self._update_config_variable_name(
+                self._MAPS.get("paddy_irrigation_trigger", "paddy_irrigation_trigger"),
+                data_type,
             )
-            if cyclic_lai:
-                self.config["input"]["cyclic"].append(
-                    "vertical.paddy.irrigation_trigger"
-                )
         else:
             self.set_config("model.water_demand.paddy", False)
 
@@ -4316,21 +4570,30 @@ Run setup_soilmaps first"
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
             != 0
         ):
+            nonpaddy_names = {
+                k: v for k, v in output_names.items() if "irrigated-non-paddy" in v
+            }
+            self._update_naming(nonpaddy_names)
+            ds_nonpaddy = ds_irrigation[
+                ["nonpaddy_irrigation_areas", "nonpaddy_irrigation_trigger"]
+            ]
+            rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
+            self.set_grid(ds_nonpaddy.rename(rmdict))
+            # Update the config
             self.set_config("model.water_demand.nonpaddy", True)
-            self.set_grid(ds_irrigation["nonpaddy_irrigation_areas"])
-            self.set_config(
-                "input.vertical.nonpaddy.irrigation_areas", "nonpaddy_irrigation_areas"
+            self._update_config_variable_name(
+                self._MAPS.get(
+                    "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
+                ),
+                "static",
             )
-            # Irrigation trigger
-            self.set_grid(ds_irrigation["nonpaddy_irrigation_trigger"])
-            self.set_config(
-                "input.vertical.nonpaddy.irrigation_trigger",
-                "nonpaddy_irrigation_trigger",
+            data_type = "cyclic" if cyclic_lai else "static"
+            self._update_config_variable_name(
+                self._MAPS.get(
+                    "nonpaddy_irrigation_trigger", "nonpaddy_irrigation_trigger"
+                ),
+                data_type,
             )
-            if cyclic_lai:
-                self.config["input"]["cyclic"].append(
-                    "vertical.nonpaddy.irrigation_trigger"
-                )
         else:
             self.set_config("model.water_demand.nonpaddy", False)
 
@@ -4341,6 +4604,12 @@ Run setup_soilmaps first"
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
+        output_names: Dict = {
+            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
+            "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
+        },
     ):
         """
         Add required information to simulate irrigation water demand from vector.
@@ -4371,8 +4640,10 @@ Run setup_soilmaps first"
 
         * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
         * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
-        * **irrigation_trigger**: Map with monthly values, indicating whether irrigation
-          is allowed (1) or not (0) [-]
+        * **paddy_irrigation_trigger**: Map with monthly values, indicating whether
+          irrigation is allowed (1) or not (0) [-] for paddy areas
+        * **nonpaddy_irrigation_trigger**: Map with monthly values, indicating whether
+          irrigation is allowed (1) or not (0) [-] for non-paddy areas
 
         Parameters
         ----------
@@ -4389,6 +4660,10 @@ Run setup_soilmaps first"
         lai_threshold: float
             Value of LAI variability to be used to determine the irrigation trigger. By
             default 0.2.
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
 
         See Also
         --------
@@ -4418,9 +4693,10 @@ Run setup_soilmaps first"
             return
 
         # Get irrigation areas for paddy, non paddy and irrigation trigger
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
         ds_irrigation = workflows.demand.irrigation_from_vector(
             gdf_irrigation=irrigated_area,
-            ds_like=self.grid,
+            ds_like=self.grid.rename(inv_rename),
             cropland_class=cropland_class,
             paddy_class=paddy_class,
             area_threshold=area_threshold,
@@ -4429,7 +4705,7 @@ Run setup_soilmaps first"
         )
 
         # Check if paddy and non paddy are present
-        cyclic_lai = len(self.grid["LAI"].dims) > 2
+        cyclic_lai = len(self.grid[self._MAPS["LAI"]].dims) > 2
         if (
             "paddy_irrigation_areas" in ds_irrigation.data_vars
             and ds_irrigation["paddy_irrigation_areas"]
@@ -4438,20 +4714,26 @@ Run setup_soilmaps first"
             .values
             != 0
         ):
+            paddy_names = {
+                k: v for k, v in output_names.items() if "irrigated-paddy" in v
+            }
+            self._update_naming(paddy_names)
+            ds_paddy = ds_irrigation[
+                ["paddy_irrigation_areas", "paddy_irrigation_trigger"]
+            ]
+            rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
+            self.set_grid(ds_paddy.rename(rmdict))
+            # Update the config
             self.set_config("model.water_demand.paddy", True)
-            self.set_grid(ds_irrigation["paddy_irrigation_areas"])
-            self.set_config(
-                "input.vertical.paddy.irrigation_areas", "paddy_irrigation_areas"
+            self._update_config_variable_name(
+                self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
+                "static",
             )
-            # Irrigation trigger
-            self.set_grid(ds_irrigation["paddy_irrigation_trigger"])
-            self.set_config(
-                "input.vertical.paddy.irrigation_trigger", "paddy_irrigation_trigger"
+            data_type = "cyclic" if cyclic_lai else "static"
+            self._update_config_variable_name(
+                self._MAPS.get("paddy_irrigation_trigger", "paddy_irrigation_trigger"),
+                data_type,
             )
-            if cyclic_lai:
-                self.config["input"]["cyclic"].append(
-                    "vertical.paddy.irrigation_trigger"
-                )
         else:
             self.set_config("model.water_demand.paddy", False)
 
@@ -4459,21 +4741,30 @@ Run setup_soilmaps first"
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
             != 0
         ):
+            nonpaddy_names = {
+                k: v for k, v in output_names.items() if "irrigated-non-paddy" in v
+            }
+            self._update_naming(nonpaddy_names)
+            ds_nonpaddy = ds_irrigation[
+                ["nonpaddy_irrigation_areas", "nonpaddy_irrigation_trigger"]
+            ]
+            rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
+            self.set_grid(ds_nonpaddy.rename(rmdict))
+            # Update the config
             self.set_config("model.water_demand.nonpaddy", True)
-            self.set_grid(ds_irrigation["nonpaddy_irrigation_areas"])
-            self.set_config(
-                "input.vertical.nonpaddy.irrigation_areas", "nonpaddy_irrigation_areas"
+            self._update_config_variable_name(
+                self._MAPS.get(
+                    "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
+                ),
+                "static",
             )
-            # Irrigation trigger
-            self.set_grid(ds_irrigation["nonpaddy_irrigation_trigger"])
-            self.set_config(
-                "input.vertical.nonpaddy.irrigation_trigger",
-                "nonpaddy_irrigation_trigger",
+            data_type = "cyclic" if cyclic_lai else "static"
+            self._update_config_variable_name(
+                self._MAPS.get(
+                    "nonpaddy_irrigation_trigger", "nonpaddy_irrigation_trigger"
+                ),
+                data_type,
             )
-            if cyclic_lai:
-                self.config["input"]["cyclic"].append(
-                    "vertical.nonpaddy.irrigation_trigger"
-                )
         else:
             self.set_config("model.water_demand.nonpaddy", False)
 
@@ -4534,6 +4825,8 @@ Run setup_soilmaps first"
             self.grid,
             config=self.config,
             timestamp=timestamp,
+            mask_name_land=self._MAPS("basins"),
+            mask_name_river=self._MAPS("rivmsk"),
         )
 
         self.set_states(states)
@@ -4543,6 +4836,19 @@ Run setup_soilmaps first"
         # Update states variables names in config
         for option in states_config:
             self.set_config(option, states_config[option])
+
+    def upgrade_to_v1_wflow(self):
+        """
+        Upgrade the model to wflow v1 format.
+
+        The function reads a TOML from wflow v0x and converts it to wflow v1x format.
+        The other components stay the same.
+        This function should be followed by write_config() to write the upgraded file.
+        """
+        config_out = convert_to_wflow_v1(self.config, logger=self.logger)
+        self._config = dict()
+        for option in config_out:
+            self.set_config(option, config_out[option])
 
     # I/O
     def read(
@@ -4639,6 +4945,47 @@ Run setup_soilmaps first"
             os.makedirs(dirname(fn))
         self.logger.info(f"Writing model config to {fn}")
         self._configwrite(fn)
+
+    def set_config(self, *args):
+        """Update the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        args : key(s), value tuple, with minimal length of two
+            keys can given by multiple args: ('key1', 'key2', 'value')
+            or a string with '.' indicating a new level: ('key1.key2', 'value')
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> set_config('a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+        >> set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+        """
+        self._initialize_config()
+        if len(args) < 2:
+            raise TypeError("set_config() requires a least one key and one value.")
+        args = list(args)
+        value = args.pop(-1)
+        if len(args) == 1 and "." in args[0]:
+            args = args[0].split(".") + args[1:]
+        # Check for value in args (to add in the same line for wflow TOML)
+        value_flag = False
+        if "value" in args:
+            args.remove("value")
+            value_flag = True
+        branch = self._config
+        for key in args[:-1]:
+            if key not in branch or not isinstance(branch[key], dict):
+                branch[key] = {}
+            branch = branch[key]
+        if value_flag:
+            branch[f"{args[-1]}.value"] = value  #
+        else:
+            branch[args[-1]] = value
 
     def read_grid(self, **kwargs):
         """
@@ -4997,9 +5344,9 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
             self.logger.info("Write forcing file")
 
             # Get default forcing name from forcing attrs
-            yr0 = pd.to_datetime(self.get_config("starttime")).year
-            yr1 = pd.to_datetime(self.get_config("endtime")).year
-            freq = self.get_config("timestepsecs")
+            yr0 = pd.to_datetime(self.get_config("time.starttime")).year
+            yr1 = pd.to_datetime(self.get_config("time.endtime")).year
+            freq = self.get_config("time.timestepsecs")
             # get output filename
             if fn_out is not None:
                 self.set_config("input.path_forcing", fn_out)
@@ -5071,8 +5418,8 @@ change name input.path_forcing "
 
             # Check if all dates between (starttime, endtime) are in all da forcing
             # Check if starttime and endtime timestamps are correct
-            start = pd.to_datetime(self.get_config("starttime"))
-            end = pd.to_datetime(self.get_config("endtime"))
+            start = pd.to_datetime(self.get_config("time.starttime"))
+            end = pd.to_datetime(self.get_config("time.endtime"))
             correct_times = False
             for da in self.forcing.values():
                 if "time" in da.coords:
@@ -5095,8 +5442,8 @@ change name input.path_forcing "
 {start} and endtime to {end} in the toml."
                 )
                 # Set the strings first
-                self.set_config("starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
-                self.set_config("endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
+                self.set_config("time.starttime", start.strftime("%Y-%m-%dT%H:%M:%S"))
+                self.set_config("time.endtime", end.strftime("%Y-%m-%dT%H:%M:%S"))
 
             if decimals is not None:
                 ds = ds.round(decimals)
@@ -5236,7 +5583,7 @@ change name input.path_forcing "
             output_dir = self.get_config("dir_output")
 
         # Read gridded netcdf (output section)
-        nc_fn = self.get_config("output.path", abs_path=True)
+        nc_fn = self.get_config("output.netcdf_grid.path", abs_path=True)
         nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
@@ -5245,7 +5592,7 @@ change name input.path_forcing "
             self.set_results(ds, name="output")
 
         # Read scalar netcdf (netcdf section)
-        ncs_fn = self.get_config("netcdf.path", abs_path=True)
+        ncs_fn = self.get_config("output.netcdf_scalar.path", abs_path=True)
         ncs_fn = (
             ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
         )
@@ -5255,7 +5602,7 @@ change name input.path_forcing "
             self.set_results(ds, name="netcdf")
 
         # Read csv timeseries (csv section)
-        csv_fn = self.get_config("csv.path", abs_path=True)
+        csv_fn = self.get_config("output.csv.path", abs_path=True)
         csv_fn = (
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
@@ -5355,8 +5702,62 @@ change name input.path_forcing "
         with codecs.open(fn, "w", encoding="utf-8") as f:
             toml.dump(self.config, f)
 
-    ## WFLOW specific data and methods
+    def _update_naming(self, rename_dict: dict):
+        """Update the naming of the model variables.
 
+        Parameters
+        ----------
+        rename_dict: dict
+            Dictionary with the wflow variable and new output name in file.
+        """
+        _wflow_names_inv = {v: k for k, v in self._WFLOW_NAMES.items()}
+        _hydromt_names_inv = {v: k for k, v in self._MAPS.items()}
+        for wflow_var, new_name in rename_dict.items():
+            if wflow_var is None:
+                continue
+            # Find the previous name in self._WFLOW_NAMES
+            old_name = _wflow_names_inv.get(wflow_var, None)
+            if old_name is not None:
+                # Rename the variable in self._WFLOW_NAMES
+                self._WFLOW_NAMES.pop(old_name)
+                self._WFLOW_NAMES[new_name] = wflow_var
+                # Rename the variable in self._MAPS
+                hydromt_name = _hydromt_names_inv.get(old_name, None)
+                if hydromt_name is not None:
+                    self._MAPS[hydromt_name] = new_name
+            else:
+                self.logger.warning(
+                    f"Wflow variable {wflow_var} not found, check spelling."
+                )
+
+    def _update_config_variable_name(
+        self, data_vars: Union[str, List[str]], data_type: Optional[str] = "static"
+    ):
+        """Update the variable names in the config file.
+
+        Parameters
+        ----------
+        data_vars: list of str
+            List of variable names to update in the config file.
+        data_type: str, optional
+            Type of data (static, forcing, cyclic, None), by default "static"
+        """
+        data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
+        _prefix = f"input.{data_type}" if data_type is not None else "input"
+        for var in data_vars:
+            if var in self._WFLOW_NAMES:
+                # Get the name from the Wflow variable name
+                wflow_var = self._WFLOW_NAMES[var]
+                # Update the config variable name
+                self.set_config(f"{_prefix}.{wflow_var}", var)
+            # else not a wflow variable
+            # (spelling mistakes should have been checked in _update_naming)
+            else:
+                self.logger.warning(
+                    f"Wflow variable {var} does not exist. Check spelling."
+                )
+
+    ## WFLOW specific data and method
     @property
     def intbl(self):
         """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
@@ -5381,7 +5782,7 @@ change name input.path_forcing "
 
     def set_flwdir(self, ftype="infer"):
         """Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd."""
-        flwdir_name = flwdir_name = self._MAPS["flwdir"]
+        flwdir_name = self._MAPS["flwdir"]
         self._flwdir = flw.flwdir_from_da(
             self.grid[flwdir_name],
             ftype=ftype,

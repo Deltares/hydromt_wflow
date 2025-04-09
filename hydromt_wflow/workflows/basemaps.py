@@ -8,6 +8,7 @@ import numpy as np
 import pyflwdir
 import xarray as xr
 from hydromt import flw, gis_utils
+from pyflwdir import core_conversion, core_d8, core_ldd
 
 logger = logging.getLogger(__name__)
 
@@ -274,6 +275,24 @@ parametrization of distributed hydrological models.
             "resolution. For subbasin models, consider a (higher) threshold to snap "
             "the outlet."
         )
+
+    # Convert flow direction from d8 to ldd format
+    flwdir_data = ds_out["flwdir"].values.astype(np.uint8)  # force dtype
+    # if d8 convert to ldd
+    if core_d8.isvalid(flwdir_data):
+        data = core_conversion.d8_to_ldd(flwdir_data)
+        da_flwdir = xr.DataArray(
+            name="flwdir",
+            data=data,
+            coords=ds_out.raster.coords,
+            dims=ds_out.raster.dims,
+            attrs=dict(
+                long_name="ldd flow direction",
+                _FillValue=core_ldd._mv,
+            ),
+        )
+        ds_out["flwdir"] = da_flwdir
+
     return ds_out, flwdir_out
 
 
@@ -332,6 +351,8 @@ def topography(
         ds[lndslp_name].raster.set_nodata(nodata)
     # clip or reproject if non-identical grids
     ds_out = ds[[elevtn_name, lndslp_name]].raster.reproject_like(ds_like, method)
+    # Mask possible negative values for slope
+    ds_out["lndslp"] = np.maximum(ds_out["lndslp"], 0.0)
     ds_out[elevtn_name].attrs.update(unit="m")
     ds_out[lndslp_name].attrs.update(unit="m.m-1")
     return ds_out

@@ -17,6 +17,8 @@ def prepare_cold_states(
     ds_like: xr.Dataset,
     config: dict,
     timestamp: str = None,
+    mask_name_land: str = "wflow_subcatch",
+    mask_name_river: str = "wflow_river",
 ) -> Tuple[xr.Dataset, Dict[str, str]]:
     """
     Prepare cold states for Wflow.
@@ -73,6 +75,12 @@ def prepare_cold_states(
     timestamp : str, optional
         Timestamp of the cold states. By default uses the starttime
         from the config.
+    mask_name_land : str, optional
+        Name of the land mask variable in the ds_like dataset. By default
+        wflow_subcatch.
+    mask_name_river : str, optional
+        Name of the river mask variable in the ds_like dataset. By default
+        wflow_river.
 
     Returns
     -------
@@ -101,18 +109,16 @@ def prepare_cold_states(
 
     # Base output config dict for states
     states_config = {
-        "state.vertical.satwaterdepth": "satwaterdepth",
-        "state.vertical.snow": "snow",
-        "state.vertical.tsoil": "tsoil",
-        "state.vertical.ustorelayerdepth": "ustorelayerdepth",
-        "state.vertical.snowwater": "snowwater",
-        "state.vertical.canopystorage": "canopystorage",
-        "state.lateral.subsurface.ssf": "ssf",
-        "state.lateral.land.h": "h_land",
-        "state.lateral.land.h_av": "h_av_land",
-        "state.lateral.river.q": "q_river",
-        "state.lateral.river.h": "h_river",
-        "state.lateral.river.h_av": "h_av_river",
+        "state.variables.soil_water_sat-zone__depth": "satwaterdepth",
+        "state.variables.snowpack~dry__leq-depth": "snow",
+        "state.variables.soil_surface__temperature": "tsoil",
+        "state.variables.soil_layer_water_unsat-zone__depth": "ustorelayerdepth",
+        "state.variables.snowpack~liquid__depth": "snowwater",
+        "state.variables.vegetation_canopy_water__depth": "canopystorage",
+        "state.variables.subsurface_water__volume_flow_rate": "ssf",
+        "state.variables.land_surface_water__instantaneous_depth": "h_land",
+        "state.variables.river_water__instantaneous_volume_flow_rate": "q_river",
+        "state.variables.river_water__instantaneous_depth": "h_river",
     }
 
     # Map with constant values or zeros for basin
@@ -120,11 +126,17 @@ def prepare_cold_states(
     land_routing = config["model"].get("land_routing", "kinematic-wave")
     if land_routing == "local-inertial":
         zeromap.extend(["qx_land", "qy_land"])
-        states_config["state.lateral.land.qx"] = "qx_land"
-        states_config["state.lateral.land.qy"] = "qy_land"
+        states_config[
+            "state.variables.land_surface_water__x_component_of_instantaneous_volume_flow_rate"
+        ] = "qx_land"
+        states_config[
+            "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
+        ] = "qy_land"
     else:
         zeromap.extend(["q_land"])
-        states_config["state.lateral.land.q"] = "q_land"
+        states_config[
+            "state.variables.land_surface_water__instantaneous_volume_flow_rate"
+        ] = "q_land"
 
     for var in zeromap:
         if var == "tsoil":
@@ -137,53 +149,71 @@ def prepare_cold_states(
             name=var,
             dtype=dtype,
             nodata=nodata,
-            mask_name="wflow_subcatch",
+            mask_name=mask_name_land,
         )
         ds_out[var] = da_param
 
     # ustorelayerdepth (zero per layer)
     # layers are based on c parameter
     c = get_grid_from_config(
-        "input.vertical.c", config=config, grid=ds_like, fallback="c"
+        "soil_layer_water__brooks-corey_epsilon_parameter",
+        config=config,
+        grid=ds_like,
+        fallback="c",
     )
     usld = full_like(c, nodata=nodata)
     for sl in usld["layer"]:
-        usld.loc[dict(layer=sl)] = xr.where(ds_like["wflow_subcatch"], 0.0, nodata)
+        usld.loc[dict(layer=sl)] = xr.where(ds_like[mask_name_land], 0.0, nodata)
     ds_out["ustorelayerdepth"] = usld
 
     # Compute other soil states
     # Get required variables from config
     st = get_grid_from_config(
-        "input.vertical.soilthickness",
+        "soil__thickness",
         config=config,
         grid=ds_like,
         fallback="SoilThickness",
     )
     ts = get_grid_from_config(
-        "input.vertical.theta_s", config=config, grid=ds_like, fallback="thetaS"
+        "soil_water__saturated_volume_fraction",
+        config=config,
+        grid=ds_like,
+        fallback="thetaS",
     )
     tr = get_grid_from_config(
-        "input.vertical.theta_r", config=config, grid=ds_like, fallback="thetaR"
+        "soil_water__residual_volume_fraction",
+        config=config,
+        grid=ds_like,
+        fallback="thetaR",
     )
     ksh = get_grid_from_config(
-        "input.lateral.subsurface.ksathorfrac",
+        "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",
         config=config,
         grid=ds_like,
         fallback="KsatHorFrac",
     )
     ksv = get_grid_from_config(
-        "input.vertical.kv_0", config=config, grid=ds_like, fallback="KsatVer"
+        "soil_surface_water__vertical_saturated_hydraulic_conductivity",
+        config=config,
+        grid=ds_like,
+        fallback="KsatVer",
     )
     f = get_grid_from_config(
-        "input.vertical.f", config=config, grid=ds_like, fallback="f"
+        "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter",
+        config=config,
+        grid=ds_like,
+        fallback="f",
     )
     sl = get_grid_from_config(
-        "input.vertical.slope", config=config, grid=ds_like, fallback="Slope"
+        "land_surface__slope",
+        config=config,
+        grid=ds_like,
+        fallback="Slope",
     )
 
     # satwaterdepth
     swd = 0.85 * st * (ts - tr)
-    swd = swd.where(ds_like["wflow_subcatch"] > 0, nodata)
+    swd = swd.where(ds_like[mask_name_land] > 0, nodata)
     swd.raster.set_nodata(nodata)
     ds_out["satwaterdepth"] = swd
 
@@ -193,7 +223,7 @@ def prepare_cold_states(
     ssf = (kh0 * np.maximum(0.00001, sl) / (f * 1000)) * (
         np.exp(-f * 1000 * zi * 0.001)
     ) - (np.exp(-f * 1000 * st) * np.sqrt(ds_like.raster.area_grid()))
-    ssf = ssf.where(ds_like["wflow_subcatch"] > 0, nodata)
+    ssf = ssf.where(ds_like[mask_name_land] > 0, nodata)
     ssf.raster.set_nodata(nodata)
     ds_out["ssf"] = ssf
 
@@ -202,8 +232,12 @@ def prepare_cold_states(
     # 1D floodplain
     if config["model"].get("floodplain_1d", False):
         zeromap_riv.extend(["q_floodplain", "h_floodplain"])
-        states_config["state.lateral.floodplain.q"] = "q_floodplain"
-        states_config["state.lateral.floodplain.h"] = "h_floodplain"
+        states_config[
+            "state.variables.floodplain_water__instantaneous_volume_flow_rate"
+        ] = "q_floodplain"
+        states_config["state.variables.floodplain_water__instantaneous_depth"] = (
+            "h_floodplain"
+        )
     for var in zeromap_riv:
         value = 0.0
         da_param = grid_from_constant(
@@ -212,7 +246,7 @@ def prepare_cold_states(
             name=var,
             dtype=dtype,
             nodata=nodata,
-            mask_name="wflow_river",
+            mask_name=mask_name_river,
         )
         da_param = da_param.rename(var)
         ds_out[var] = da_param
@@ -220,19 +254,19 @@ def prepare_cold_states(
     # reservoir
     if config["model"].get("reservoirs", False):
         tff = get_grid_from_config(
-            "input.lateral.river.reservoir.targetfullfrac",
+            "reservoir_water~full-target__volume_fraction",
             config=config,
             grid=ds_like,
             fallback="ResTargetFullFrac",
         )
         mv = get_grid_from_config(
-            "input.lateral.river.reservoir.maxvolume",
+            "reservoir_water__max_volume",
             config=config,
             grid=ds_like,
             fallback="ResMaxVolume",
         )
         locs = get_grid_from_config(
-            "input.lateral.river.reservoir.locs",
+            "reservoir_location__count",
             config=config,
             grid=ds_like,
             fallback="wflow_reservoirlocs",
@@ -242,12 +276,12 @@ def prepare_cold_states(
         resvol.raster.set_nodata(nodata)
         ds_out["volume_reservoir"] = resvol
 
-        states_config["state.lateral.river.reservoir.volume"] = "volume_reservoir"
+        states_config["state.variables.volume_reservoir"] = "volume_reservoir"
 
     # lake
     if config["model"].get("lakes", False):
         ll = get_grid_from_config(
-            "input.lateral.river.lake.waterlevel",
+            "lake_water_level__initial_elevation",
             config=config,
             grid=ds_like,
             fallback="LakeAvgLevel",
@@ -256,11 +290,18 @@ def prepare_cold_states(
         ll.raster.set_nodata(nodata)
         ds_out["waterlevel_lake"] = ll
 
-        states_config["state.lateral.river.lake.waterlevel"] = "waterlevel_lake"
+        states_config["state.variables.lake_water_level__initial_elevation"] = (
+            "waterlevel_lake"
+        )
 
     # glacier
     if config["model"].get("glacier", False):
-        gs_vn = config["input"]["vertical"].get("glacierstore", "wflow_glacierstore")
+        gs_vn = get_grid_from_config(
+            "glacier_ice__leq-volume",
+            config=config,
+            grid=ds_like,
+            fallback="wflow_glacierstore",
+        )
         if gs_vn in ds_like:
             ds_out["glacierstore"] = ds_like[gs_vn]
         else:
@@ -270,11 +311,11 @@ def prepare_cold_states(
                 name="glacierstore",
                 nodata=nodata,
                 dtype=dtype,
-                mask="wflow_subcatch",
+                mask=mask_name_land,
             )
             ds_out["glacierstore"] = glacstore
 
-        states_config["state.vertical.glacierstore"] = "glacierstore"
+        states_config["state.variables.glacier_ice__leq-volume"] = "glacierstore"
 
     # paddy
     if config["model"].get("water_demand.paddy", False):
@@ -284,11 +325,11 @@ def prepare_cold_states(
             name="h_paddy",
             nodata=nodata,
             dtype=dtype,
-            mask="wflow_subcatch",
+            mask=mask_name_land,
         )
         ds_out["h_paddy"] = h_paddy
 
-        states_config["state.vertical.paddy.h"] = "h_paddy"
+        states_config["state.variables.land_surface_water~paddy__depth"] = "h_paddy"
 
     # Add time dimension
     ds_out = ds_out.expand_dims(dim=dict(time=[timestamp]))
