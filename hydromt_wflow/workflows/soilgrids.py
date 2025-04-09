@@ -955,7 +955,7 @@ def update_soil_with_paddy(
         Dataset containing soil properties.
     ds_like : xarray.DataArray
         Dataset at model resolution.
-        Required variables: wflow_subcatch, KsatVer, f
+        Required variables: basins, ksat_vertical, f, elevtn, c
     paddy_mask : xarray.DataArray
         Dataset containing paddy fields mask.
     soil_fn : str
@@ -983,7 +983,7 @@ def update_soil_with_paddy(
     # required correction factor for that layer Values are only set for locations
     # with paddy irrigation, all other cells are set to be equal to 1
     logger.info("Adding kvfrac map")
-    kv0 = ds_like["KsatVer"]
+    kv0 = ds_like["ksat_vertical"]
     f = ds_like["f"]
     kv0_mask = kv0.where(paddy_mask == 1)
     f_mask = f.where(paddy_mask == 1)
@@ -1001,13 +1001,13 @@ def update_soil_with_paddy(
             logger.debug(f"Interpolate nodata (NaN) values for {var}")
             ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
             ds_out[var] = ds_out[var].where(
-                ~ds_like["wflow_subcatch"].raster.mask_nodata().isnull()
+                ~ds_like["basins"].raster.mask_nodata().isnull()
             )
             ds_out[var] = ds_out[var].fillna(-9999).astype(dtype)
             ds_out[var].raster.set_nodata(np.dtype(dtype).type(-9999))
 
         # temporarily add the dem to the dataset
-        ds_out["wflow_dem"] = ds_like["wflow_dem"]
+        ds_out["elevtn"] = ds_like["elevtn"]
 
     # Compute the kv_frac (should be done after updating c!)
     da_kvfrac = soilparams.update_kvfrac(
@@ -1020,7 +1020,7 @@ def update_soil_with_paddy(
     if update_c:
         ds_out["kvfrac"] = da_kvfrac
         # Remove wflow_dem
-        ds_out = ds_out.drop_vars("wflow_dem")
+        ds_out = ds_out.drop_vars("elevtn")
     else:
         ds_out = da_kvfrac.to_dataset(name="kvfrac")
 

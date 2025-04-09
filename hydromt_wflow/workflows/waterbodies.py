@@ -500,6 +500,18 @@ please use one of [gww, jrc] or None."
             / df_out.loc[pd.isna(df_out["resfullfrac"]), "resmaxvolume"].values
         )
 
+    # rename to wflow naming convention
+    tbls = {
+        "resarea": "ResSimpleArea",
+        "resdemand": "ResDemand",
+        "resfullfrac": "ResTargetFullFrac",
+        "resminfrac": "ResTargetMinFrac",
+        "resmaxrelease": "ResMaxRelease",
+        "resmaxvolume": "ResMaxVolume",
+        "resid": "expr1",
+    }
+    df_out = df_out.rename(columns=tbls)
+
     return df_out, df_plot, df_ts
 
 
