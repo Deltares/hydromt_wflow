@@ -25,6 +25,8 @@ Changed
 Fixed
 -----
 - **setup_rivers**: fixed bug if manning or gvf methods are used to compute river depth. PR #334
+- **setup_lulcmaps_with_paddy**: input.vertical.kvfrac is set to kvfrac in config. PR #362
+- **create_lulc_lai_mapping_table**: hardcoded x and y dim names are now set to raster.y_dim and raster.x_dim. PR #362
 
 Deprecated
 ----------
