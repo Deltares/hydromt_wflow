@@ -7,7 +7,8 @@ The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
 v0.8.0 (9 April 2025)
-========================
+=====================
+Precipitation from point data and other new features.
 
 Added
 -----
