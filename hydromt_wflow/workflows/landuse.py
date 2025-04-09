@@ -319,7 +319,9 @@ def create_lulc_lai_mapping_table(
             lu["lai"] = da_lai
 
             # Stack and remove the nodata values
-            lu = lu.stack(z=("y", "x")).dropna(dim="z", how="all", subset=["landuse"])
+            lu = lu.stack(z=(lu.raster.y_dim, lu.raster.x_dim)).dropna(
+                dim="z", how="all", subset=["landuse"]
+            )
 
             # Count the number of samples
             n_samples = len(lu["z"])
