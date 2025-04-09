@@ -6,8 +6,9 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v0.8.0 (9 April 2025)
+=====================
+Precipitation from point data and other new features.
 
 Added
 -----
@@ -16,7 +17,6 @@ Added
 - **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
 - **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
 - **setup_soilmaps**: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334
-
 
 Changed
 -------
@@ -27,10 +27,6 @@ Fixed
 - **setup_rivers**: fixed bug if manning or gvf methods are used to compute river depth. PR #334
 - **setup_lulcmaps_with_paddy**: input.vertical.kvfrac is set to kvfrac in config. PR #362
 - **create_lulc_lai_mapping_table**: hardcoded x and y dim names are now set to raster.y_dim and raster.x_dim. PR #362
-
-Deprecated
-----------
--
 
 v0.7.1 (29 January 2025)
 ========================
