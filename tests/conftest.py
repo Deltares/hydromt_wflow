@@ -137,7 +137,6 @@ def globcover_gdf():
     return globcover_gdf
 
 
-
 @pytest.fixture
 def planted_forest_testdata():
     bbox1 = [12.38, 46.12, 12.42, 46.16]
