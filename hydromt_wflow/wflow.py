@@ -109,8 +109,8 @@ class WflowModel(GridModel):
         upscale_method: str = "ihu",
         output_names: Dict = {
             "local_drain_direction": "wflow_ldd",
-            "subcatchment_location__count": "subcatchment",
-            "land_surface__slope": "slope",
+            "subcatchment_location__count": "wflow_subcatch",
+            "land_surface__slope": "Slope",
         },
     ):
         """
@@ -753,7 +753,9 @@ setting new flood_depth dimensions"
                 logger=self.logger,
             ).rename(name)
             self.set_grid(ds_out)
-            self._update_config_variable_name(["hydrodem", "lndelv"])
+            # TODO: WFLOW_NAMES should be inverted as there may not be one on one
+            # mapping between wflow variables and name in staticmaps
+            self._update_config_variable_name(name)
 
         # Update config
         self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
@@ -2532,7 +2534,6 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         """
         self.logger.info("Modifying ksat_vertical based on vegetation characteristics")
         wflow_var = self._WFLOW_NAMES[self._MAPS["ksat_vertical"]]
-        self._update_naming({wflow_var: output_name})
 
         # open soil dataset to get sand percentage
         sndppt = self.data_catalog.get_rasterdataset(
@@ -2540,13 +2541,14 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         )
 
         # in function get_ksatver_vegetation KsatVer should be provided in mm/d
-        inv_rename = {v: k for k, v in self._MAPS.items()}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
         KSatVer_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
             sndppt=sndppt,
             alfa=alfa,
             beta=beta,
         )
+        self._update_naming({wflow_var: output_name})
         # add to grid
         self.set_grid(KSatVer_vegetation, output_name)
         # update config file
@@ -2805,7 +2807,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 soil_fn, geom=self.region, buffer=2
             )
             # update soil parameters c and kvfrac
-            inv_rename = {v: k for k, v in self._MAPS.items()}
+            inv_rename = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
             soil_maps = workflows.update_soil_with_paddy(
                 ds=soil,
                 ds_like=self.grid.rename(inv_rename),
@@ -3759,7 +3763,7 @@ Run setup_soilmaps first"
             )
 
         # Run the rootzone clim workflow
-        inv_rename = {v: k for k, v in self._MAPS.items()}
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
         dsout, gdf = workflows.rootzoneclim(
             dsrun=dsrun,
             ds_obs=ds_obs,
@@ -4001,7 +4005,7 @@ Run setup_soilmaps first"
 
         """
         self.logger.info("Preparing water demand allocation map.")
-        self._update_naming("land_water_allocation_area__number", output_name)
+        self._update_naming({"land_water_allocation_area__number": output_name})
         # Read the data
         waterareas = self.data_catalog.get_geodataframe(
             waterareas_fn,
@@ -4134,7 +4138,7 @@ Run setup_soilmaps first"
 
         # Update the settings toml
         wflow_var = "land_surface_water__withdrawal_fraction"
-        self._update_naming(wflow_var, output_name)
+        self._update_naming({wflow_var: output_name})
         self.set_config(f"input.static.{wflow_var}", output_name)
 
         # Set the dataarray to the wflow grid
@@ -4341,10 +4345,10 @@ Run setup_soilmaps first"
         variables: list = ["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
         resampling_method: str = "average",
         output_names: Dict = {
-            "land~industry__gross_water_demand_volume_flux": "ind_gross",
-            "land~industry__net_water_demand_volume_flux": "ind_net",
-            "land~livestock__gross_water_demand_volume_flux": "lsk_gross",
-            "land~livestock__net_water_demand_volume_flux": "lsk_net",
+            "land~industry__gross_water_demand_volume_flux": "industry_gross",
+            "land~industry__net_water_demand_volume_flux": "industry_net",
+            "land~livestock__gross_water_demand_volume_flux": "livestock_gross",
+            "land~livestock__net_water_demand_volume_flux": "livestock_net",
         },
     ):
         """Create water demand maps from other sources (e.g. industry, livestock).
@@ -4825,8 +4829,8 @@ Run setup_soilmaps first"
             self.grid,
             config=self.config,
             timestamp=timestamp,
-            mask_name_land=self._MAPS("basins"),
-            mask_name_river=self._MAPS("rivmsk"),
+            mask_name_land=self._MAPS["basins"],
+            mask_name_river=self._MAPS["rivmsk"],
         )
 
         self.set_states(states)
@@ -5752,10 +5756,10 @@ change name input.path_forcing "
                 self.set_config(f"{_prefix}.{wflow_var}", var)
             # else not a wflow variable
             # (spelling mistakes should have been checked in _update_naming)
-            else:
-                self.logger.warning(
-                    f"Wflow variable {var} does not exist. Check spelling."
-                )
+            # else:
+            #     self.logger.warning(
+            #         f"Wflow variable {var} does not exist. Check spelling."
+            #     )
 
     ## WFLOW specific data and method
     @property

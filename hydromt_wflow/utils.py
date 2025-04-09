@@ -307,6 +307,9 @@ def get_grid_from_config(
             abs_path=abs_path,
         )
     if var is None:
+        # try with input.static.var.value
+        var = config["input"]["static"].get(f"{var_name}.value", None)
+    if var is None:
         # try with input.cyclic
         var = get_config(
             f"input.cyclic.{var_name}",
@@ -327,10 +330,11 @@ def get_grid_from_config(
 
     else:  # dict type
         # constant value in config
-        if "value" in var:
+        if isinstance(var, (int, float)) or "value" in var:
+            value = var if isinstance(var, (int, float)) else var["value"]
             da = grid_from_constant(
                 grid,
-                constant=var["value"],
+                constant=value,
                 name=var_name,
                 nodata=nodata,
                 mask_name=mask_name,
