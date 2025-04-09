@@ -90,7 +90,6 @@ Documentation = "http://deltares.github.io/hydromt_wflow/latest/"
 Source = "https://github.com/Deltares/hydromt_wflow"
 
 ## Pytest and coverage
-
 [tool.pytest.ini_options]
 filterwarnings = [
   "ignore:distutils Version classes are deprecated:DeprecationWarning",
@@ -202,7 +201,8 @@ clean-docs = { depends-on = [
 [tool.pixi.dependencies]
 h5py = "*"
 pip = "*"
-pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly (<2.2 required by numba)
+pyflwdir = ">0.5.7" # duplication is necessary to resolve numpy version correctly
+# (<2.2 required by numba)
 
 [tool.pixi.pypi-dependencies]
 hydromt_wflow = { path = ".", editable = true }
