@@ -7,14 +7,14 @@ on:
       - hydromt_wflow/*
       - tests/*
       - pyproject.toml
-      - .github/workflows/docs.yml
+      - .github/workflows/test.yml
   pull_request:
     branches: [main]
     paths:
       - hydromt_wflow/*
       - tests/*
       - pyproject.toml
-      - .github/workflows/docs.yml
+      - .github/workflows/test.yml
 
 jobs:
   test:
@@ -23,16 +23,18 @@ jobs:
         shell: bash -l {0}
     env:
       branch_name: ${{ github.head_ref || github.ref_name }}
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest"]
+        os: ["ubuntu-latest", "windows-latest"]
         python-version: ['310', '311']
         include:
         - os: ubuntu-latest
           label: linux-64
+        - os: windows-latest
+          label: win-64
 
     name: ${{ matrix.label }} - py${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
@@ -56,11 +58,3 @@ jobs:
       - name: Tests
         run: |
           pixi run -e test-full-py${{ matrix.python-version }} test-cov
-
-      - name: Upload coverage to codecov.io
-        if: matrix.python-version == '311'
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./coverage.xml
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true

@@ -8,6 +8,7 @@ on:
     paths:
       - docs/*
       - examples/*
+      - hydromt_wflow/*
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
@@ -15,6 +16,7 @@ on:
     paths:
       - docs/*
       - examples/*
+      - hydromt_wflow/*
       - pyproject.toml
       - .github/workflows/docs.yml
 
@@ -26,7 +28,7 @@ jobs:
         shell: bash -l {0}
     env:
       branch_name: ${{ github.head_ref || github.ref_name }}
-    timeout-minutes: 30
+    timeout-minutes: 15
 
     strategy:
       fail-fast: false

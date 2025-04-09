@@ -35,6 +35,10 @@ jobs:
           environments: test-full-py311
           locked: false
 
+      - name: Update packages
+        run: |
+          pixi update -e test-full-py311
+
       - name: Install hydromt_wflow from conda-forge
         run: |
           pixi add hydromt_wflow
