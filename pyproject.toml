@@ -1,6 +1,6 @@
 ## Build system
 [build-system]
-requires      = ["flit_core >=3.4.0,<4"]
+requires = ["flit_core >=3.4.0,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.sdist]
@@ -18,9 +18,9 @@ authors = [
   { name = "Joost Buitink", email = "joost.buitink@deltares.nl" },
   { name = "Brendan Dalmijn", email = "brendan.dalmijn@deltares.nl" },
   { name = "Tjalling de Jong", email = "tjalling.dejong@deltares.nl" },
-  { name = "Sam Vente", email = "sam.vente@deltares.nl"},
+  { name = "Sam Vente", email = "sam.vente@deltares.nl" },
   { name = "Marnix Kraus", email = "marnix.kraus@deltares.nl" },
-  { name = "Luuk Blom", email = "luuk.blom@deltares.nl" }
+  { name = "Luuk Blom", email = "luuk.blom@deltares.nl" },
 ]
 
 readme = "README.rst"
@@ -71,7 +71,7 @@ extra = [
 examples = [
   "cartopy",
   "jupyterlab",
-  "nbconvert==7.13.1", # Pin as of (02-2024); 7.14 onwards causes issues with the progressbar in example notebooks. See issue #233 for more info (https://github.com/Deltares/hydromt_wflow/issues/233).
+  "nbconvert==7.13.1", # Pin as of (02-2024); 7.14 onwards causes issues with the progressbar in example notebooks. See issue #233 for more info (https://github.com/Deltares/hydromt_wflow/issues/233)
   "notebook",
 ]
 test = [
