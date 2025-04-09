@@ -9,14 +9,18 @@ jobs:
   auto-update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: checkout code
+        uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - uses: actions/setup-python@v5
+      - name: setup python for pre-commit
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - uses: browniebroke/pre-commit-autoupdate-action@main
-      - uses: peter-evans/create-pull-request@v7
+      - name: Update pre-commit hooks
+        uses: browniebroke/pre-commit-autoupdate-action@main
+      - name: Create PR with updated hook versions
+        uses: peter-evans/create-pull-request@v7
         if: always()
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
