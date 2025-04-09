@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this page.
 The format is based on `Keep a Changelog`_, and this project adheres to
 `Semantic Versioning`_.
 
-Unreleased
-==========
+v0.8.0 (9 April 2025)
+========================
 
 Added
 -----
@@ -16,7 +16,6 @@ Added
 - **setup_domestic_demand_from_population**: method to compute domestic demand from population and water use per capita. PR #334
 - **setup_irrigation_from_vector**: method to add irrigation areas from a vector file. PR #334
 - **setup_soilmaps**: possibility to derive parameters based on soil texture. Added defaults for InfiltCapSoil. PR #334
-
 
 Changed
 -------
