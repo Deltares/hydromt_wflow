@@ -134,10 +134,8 @@ def globcover_gdf():
     globcover = cat.get_rasterdataset("globcover_2009")
     globcover_gdf = globcover.raster.vectorize()
     globcover_gdf.rename(columns={"value": "landuse"}, inplace=True)
+    return globcover_gdf
 
-    yield globcover_gdf
-
-    globcover_gdf.close()
 
 
 @pytest.fixture
