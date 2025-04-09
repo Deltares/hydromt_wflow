@@ -27,10 +27,6 @@ Fixed
 - **setup_lulcmaps_with_paddy**: input.vertical.kvfrac is set to kvfrac in config. PR #362
 - **create_lulc_lai_mapping_table**: hardcoded x and y dim names are now set to raster.y_dim and raster.x_dim. PR #362
 
-Deprecated
-----------
--
-
 v0.7.1 (29 January 2025)
 ========================
 Officially drop support for python 3.9.
