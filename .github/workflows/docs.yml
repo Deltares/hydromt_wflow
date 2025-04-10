@@ -4,19 +4,19 @@ name: Build Documentation
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [v1]
     paths:
       - docs/*
       - examples/*
-      - hydromt_wflow/*
+      - src/hydromt_wflow/*
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
-    branches: [main]
+    branches: [v1]
     paths:
       - docs/*
       - examples/*
-      - hydromt_wflow/*
+      - src/hydromt_wflow/*
       - pyproject.toml
       - .github/workflows/docs.yml
 
@@ -52,7 +52,7 @@ jobs:
           environments: docs
           locked: false
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'v1' }}
 
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
