@@ -157,7 +157,7 @@ def prepare_cold_states(
     # ustorelayerdepth (zero per layer)
     # layers are based on c parameter
     c = get_grid_from_config(
-        "soil_layer_water__brooks-corey_epsilon_parameter",
+        "soil_layer_water__brooks-corey_exponent",
         config=config,
         grid=ds_like,
     )
@@ -271,7 +271,7 @@ def prepare_cold_states(
     # lake
     if config["model"].get("lakes", False):
         ll = get_grid_from_config(
-            "lake_water_level__initial_elevation",
+            "lake_water_surface__initial_elevation",
             config=config,
             grid=ds_like,
         )
@@ -279,14 +279,14 @@ def prepare_cold_states(
         ll.raster.set_nodata(nodata)
         ds_out["waterlevel_lake"] = ll
 
-        states_config["state.variables.lake_water_level__initial_elevation"] = (
+        states_config["state.variables.lake_water_surface__instantaneous_elevation"] = (
             "waterlevel_lake"
         )
 
     # glacier
     if config["model"].get("glacier", False):
         gs_vn = get_grid_from_config(
-            "glacier_ice__leq-volume",
+            "glacier_ice__initial_leq-depth",
             config=config,
             grid=ds_like,
         )
@@ -303,7 +303,7 @@ def prepare_cold_states(
             )
             ds_out["glacierstore"] = glacstore
 
-        states_config["state.variables.glacier_ice__leq-volume"] = "glacierstore"
+        states_config["state.variables.glacier_ice__leq-depth"] = "glacierstore"
 
     # paddy
     if config["model"].get("water_demand.paddy", False):

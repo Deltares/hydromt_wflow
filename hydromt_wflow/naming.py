@@ -1,5 +1,7 @@
 """Mapping dictionaries from hydromt to hydromt_wflow to Wflow.jl names."""
 
+from typing import Tuple
+
 # These names cannot be read from TOML
 # Decide if users should be able to update these or not
 # Eg landuse may be handy to have several maps in one model for scenarios
@@ -79,7 +81,7 @@ WFLOW_NAMES = {
     # snow
     "Cfmax": {  # cfmax
         "wflow_v0": "vertical.cfmax",
-        "wflow_v1": "snowpack~dry__degree-day_coefficient",
+        "wflow_v1": "snowpack__degree-day_coefficient",
     },
     "TT": {  # tt
         "wflow_v0": "vertical.tt",
@@ -105,7 +107,7 @@ WFLOW_NAMES = {
     },
     "wflow_glacierstore": {  # glacier_storage
         "wflow_v0": "vertical.glacierstore",
-        "wflow_v1": "glacier_ice__leq-volume",
+        "wflow_v1": "glacier_ice__initial_leq-depth",
         "hydromt_name": "glacstore",
     },
     "G_TTM": {  # glacier_ttm
@@ -179,7 +181,7 @@ WFLOW_NAMES = {
     # soil
     "c": {
         "wflow_v0": "vertical.c",
-        "wflow_v1": "soil_layer_water__brooks-corey_epsilon_parameter",
+        "wflow_v1": "soil_layer_water__brooks-corey_exponent",
         "hydromt_name": "c",
     },
     "cf_soil": {
@@ -372,7 +374,7 @@ WFLOW_NAMES = {
     },
     "LakeAvgLevel": {  # lake_waterlevel
         "wflow_v0": "lateral.river.lake.waterlevel",
-        "wflow_v1": "lake_water_level__initial_elevation",
+        "wflow_v1": "lake_water_surface__initial_elevation",
     },
     "LakeThreshold": {  # lake_threshold
         "wflow_v0": "lateral.river.lake.threshold",
@@ -423,6 +425,39 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.river.reservoir.targetminfrac",
         "wflow_v1": "reservoir_water~min-target__volume_fraction",
     },
+    # gwf
+    "constant_head": {
+        "wflow_v0": "lateral.subsurface.constant_head",
+        "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
+    },
+    "conductivity_profile": {
+        "wflow_v0": "lateral.subsurface.conductivity_profile",
+        "wflow_v1": "conductivity_profile",
+    },
+    "kh_surface": {
+        "wflow_v0": "lateral.subsurface.conductivity",
+        "wflow_v1": "subsurface_surface_water__horizontal_saturated_hydraulic_conductivity",  # noqa: E501
+    },
+    "zb_river": {
+        "wflow_v0": "lateral.subsurface.river_bottom",
+        "wflow_v1": "river_bottom__elevation",
+    },
+    "riverbed_cond_infilt": {
+        "wflow_v0": "lateral.subsurface.infiltration_conductance",
+        "wflow_v1": "river_water__infiltration_conductance",
+    },
+    "riverbed_cond_exfil": {
+        "wflow_v0": "lateral.subsurface.exfiltration_conductance",
+        "wflow_v1": "river_water__exfiltration_conductance",
+    },
+    "specific_yield": {
+        "wflow_v0": "lateral.subsurface.specific_yield",
+        "wflow_v1": "subsurface_water__specific_yield",
+    },
+    "gwf_f": {
+        "wflow_v0": "lateral.subsurface.gwf_f",
+        "wflow_v1": "subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
+    },
 }
 
 WFLOW_STATES_NAMES = {
@@ -452,7 +487,7 @@ WFLOW_STATES_NAMES = {
     },
     "glacierstore": {
         "wflow_v0": "vertical.glacierstore",
-        "wflow_v1": "glacier_ice__leq-volume",
+        "wflow_v1": "glacier_ice__leq-depth",
     },
     "q_land": {
         "wflow_v0": "lateral.land.q",
@@ -473,6 +508,10 @@ WFLOW_STATES_NAMES = {
     "h_av_land": {
         "wflow_v0": "lateral.land.h_av",
         "wflow_v1": None,
+    },
+    "head": {
+        "wflow_v0": "lateral.subsurface.flow.aquifer.head",
+        "wflow_v1": "subsurface_water__hydraulic_head",
     },
     "ssf": {
         "wflow_v0": "lateral.subsurface.ssf",
@@ -500,7 +539,7 @@ WFLOW_STATES_NAMES = {
     },
     "waterlevel_lake": {
         "wflow_v0": "lateral.river.lake.waterlevel",
-        "wflow_v1": "lake_water_level__initial_elevation",
+        "wflow_v1": "lake_water_surface__instantaneous_elevation",
     },
     "volume_reservoir": {
         "wflow_v0": "lateral.river.reservoir.volume",
@@ -513,7 +552,6 @@ WFLOW_STATES_NAMES = {
 }
 
 WFLOW_SEDIMENT_NAMES = {
-    "landuse": None,
     "PathFrac": {
         "wflow_v0": "vertical.pathfrac",
         "wflow_v1": "soil~compacted__area_fraction",
@@ -521,93 +559,127 @@ WFLOW_SEDIMENT_NAMES = {
     "USLE_C": {
         "wflow_v0": "vertical.usleC",
         "wflow_v1": "soil_erosion__usle_c_factor",
-        "hydromt_name": "USLE_C",  # usle_c_factor
+        "hydromt_name": "USLE_C",  # usle_c
     },
 }
 
 
-def _create_hydromt_mapping(hydromt_dict: dict, model_dict: dict) -> dict:
+def _create_hydromt_wflow_mapping(
+    hydromt_dict: dict,
+    model_dict: dict,
+    config_dict: dict,
+    wflow_version="wflow_v1",
+) -> Tuple[dict, dict]:
     """
-    Create a dictionnary to convert from hydromt names to default wflow input names.
+    Create dictionnaries to convert from hydromt/Wflow names to staticmaps names.
 
-    These names will be used to rename from hydromt convention
+    The first dictionnary will be used to rename from hydromt convention
     name into name in staticmaps/forcing.
+    The second dictionnary will be used to link the right name
+    in staticmaps/forcing files to the right Wflow.jl variables in the toml file.
+
+    Parameters
+    ----------
+    hydromt_dict : dict
+        Dictionary of default hydromt names and name in staticmaps for the variables
+        that are not needed by Wflow but needed for model building.
+    model_dict : dict
+        Dictionary of default name in staticmaps and a potential "hydromt_name" key if
+        some of the variables have a convention on name in hydromt. Also contains
+        the wflow variable names to be able to update the default names based on the
+        config.
+    config_dict : dict
+        Dictionnary of the current model config to update from the default name in
+        staticmaps to the actual name in staticmaps.
+    wflow_version : str
+        Version of Wflow to use for the mapping (as defined in ``model_dict``). Default
+        is "wflow_v1".
+
+    Returns
+    -------
+    mapping : dict
+        Dictionnary of the mapping from hydromt names to staticmaps names.
     """
-    mapping = {}
+    # First dictionnary
+    mapping_inv = {}  # name_in_staticmaps : name_in_hydromt
+    # Second dictionnary
+    wflow_names = dict()  # wflow_variable: name_in_staticmaps
     # Instantiate the mapping with default names (ie non wflow variables)
     for k, v in hydromt_dict.items():
-        mapping[k] = v
-    # Go trhough the wflow variables and add them if hydromt name is not None
+        mapping_inv[v] = k
+
+    # Go through the wflow variables and add them if hydromt name is not None
     for k, v in model_dict.items():
-        if isinstance(v, dict) and "hydromt_name" in v:
-            mapping[v.get("hydromt_name")] = k
-        # else use the default staticmap name as the name
-        else:
-            mapping[k] = k
-    # TODO: read and update using toml for the others
-    return mapping
+        if isinstance(v, dict):
+            if "hydromt_name" in v:
+                mapping_inv[k] = v.get("hydromt_name")
+            # else use the default staticmap name as the name
+            else:
+                mapping_inv[k] = k
+            if wflow_version in v:
+                wflow_names[v.get(wflow_version)] = k
+
+    # Update with the TOML
+    # Check if wflow v0 config then do not update
+    wflow_v0 = False
+    if "starttime" in config_dict:  # first check
+        wflow_v0 = True
+    # second check for safety
+    if "input" in config_dict and "vertical" in config_dict["input"]:
+        wflow_v0 = True
+
+    if "input" in config_dict and not wflow_v0:
+        variable_types = ["forcing", "cyclic", "static"]
+        for var_type in variable_types:
+            if var_type not in config_dict["input"]:
+                continue
+            for var_name, new_name in config_dict["input"][var_type].items():
+                # Get the old name
+                old_name = wflow_names.get(var_name)
+                # If they are different update the mapping
+                if isinstance(new_name, dict):
+                    if "value" in new_name:
+                        # Do not update
+                        new_name = None
+                    elif "netcdf" in new_name:
+                        new_name = new_name["netcdf"]["variable"]["name"]
+                if new_name is not None and old_name != new_name:
+                    # Update the mapping with the new name
+                    mapping_inv[new_name] = mapping_inv.get(old_name, old_name)
+                    # Remove the old name from the mapping
+                    mapping_inv.pop(old_name, None)
+                    # Update wflow_names with the new name
+                    wflow_names[var_name] = new_name
+
+    # Invert mapping to get hydromt_name: staticmap_name
+    mapping_hydromt = dict()
+    for k, v in mapping_inv.items():
+        mapping_hydromt[v] = k
+    # Get a mapping of staticmap_name: wflow_variable
+    mapping_wflow = dict()
+    for k, v in wflow_names.items():
+        mapping_wflow[v] = k
+
+    return mapping_hydromt, mapping_wflow
 
 
-def _create_hydromt_mapping_wflow() -> dict:
+def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
     """
     Create a dictionnary to convert from hydromt names to wflow sbm input names.
 
     These names will be used in staticmaps/forcing and linked to the right wflow
     internal variables in the toml.
     """
-    mapping = _create_hydromt_mapping(HYDROMT_NAMES_DEFAULT, WFLOW_NAMES)
-    return mapping
+    return _create_hydromt_wflow_mapping(HYDROMT_NAMES_DEFAULT, WFLOW_NAMES, config)
 
 
-def _create_hydromt_mapping_sediment() -> dict:
+def _create_hydromt_wflow_mapping_sediment(config: dict) -> Tuple[dict, dict]:
     """
     Create a dictionnary to convert from hydromt names to wflow sediment input names.
 
     These names will be used in staticmaps/forcing and linked to the right wflow
     internal variables in the toml.
     """
-    mapping = _create_hydromt_mapping(
-        HYDROMT_NAMES_DEFAULT_SEDIMENT, WFLOW_SEDIMENT_NAMES
+    return _create_hydromt_wflow_mapping(
+        HYDROMT_NAMES_DEFAULT_SEDIMENT, WFLOW_SEDIMENT_NAMES, config
     )
-    return mapping
-
-
-def _create_variable_mapping(model_dict: dict, wflow_version="1.0.0") -> dict:
-    """
-    Create a dictionnary to convert from hydromt names to wflow internal variable names.
-
-    These names will be used in the toml file to link the right wflow internal
-    variables to the right sbm variables.
-    """
-    # wflow variable names
-    mapping = dict()
-    _is_v1 = wflow_version.startswith("1.")
-    variable_version = "wflow_v1" if _is_v1 else "wflow_v0"
-    for k, v in model_dict.items():
-        if isinstance(v, dict) and variable_version in v:
-            mapping[k] = v.get(variable_version)
-        # else not a wflow but a hydromt variable so will not be added to toml
-
-    return mapping
-
-
-def _create_variable_mapping_wflow(wflow_version="1.0.0") -> dict:
-    """
-    Create a dictionnary to convert from hydromt to wflow sbm internal variable names.
-
-    These names will be used in the toml file to link the right wflow internal
-    variables to the right sbm variables.
-    """
-    mapping = _create_variable_mapping(WFLOW_NAMES, wflow_version)
-    return mapping
-
-
-def _create_variable_mapping_sediment(wflow_version="1.0.0") -> dict:
-    """
-    Create a dictionnary to convert from hydromt to wflow sediment internal names.
-
-    These names will be used in the toml file to link the right wflow internal
-    variables to the right sbm variables.
-    """
-    mapping = _create_variable_mapping(WFLOW_SEDIMENT_NAMES, wflow_version)
-    return mapping
