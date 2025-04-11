@@ -5770,26 +5770,8 @@ change name input.path_forcing "
 
         # Reinitiliase geoms and re-create basins/rivers
         self._geoms = dict()
-        # self.basins
-        # self.rivers
-        # now geoms links to geoms which does not exist in every hydromt version
-        # remove when updating wflow to new objects
-        # Basin shape
-        basins = (
-            self.grid[basins_name].raster.vectorize().set_index("value").sort_index()
-        )
-        basins.index.name = basins_name
-        self.set_geoms(basins, name="basins")
-
-        rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
-        # Check if there are river cells in the model before continuing
-        if np.any(rivmsk):
-            # add stream order 'strord' column
-            strord = self.flwdir.stream_order(mask=rivmsk)
-            feats = self.flwdir.streams(mask=rivmsk, strord=strord)
-            gdf = gpd.GeoDataFrame.from_features(feats)
-            gdf.crs = pyproj.CRS.from_user_input(self.crs)
-            self.set_geoms(gdf, name="rivers")
+        self.basins
+        self.rivers
 
         # Update reservoir and lakes
         remove_reservoir = False
@@ -5800,12 +5782,12 @@ change name input.path_forcing "
                 remove_maps = [
                     self._MAPS["resareas"],
                     self._MAPS["reslocs"],
-                    "ResSimpleArea",
-                    "ResDemand",
-                    "ResTargetFullFrac",
-                    "ResTargetMinFrac",
-                    "ResMaxRelease",
-                    "ResMaxVolume",
+                    self._MAPS["ResSimpleArea"],
+                    self._MAPS["ResDemand"],
+                    self._MAPS["ResTargetFullFrac"],
+                    self._MAPS["ResTargetMinFrac"],
+                    self._MAPS["ResMaxRelease"],
+                    self._MAPS["ResMaxVolume"],
                 ]
                 self._grid = self.grid.drop_vars(remove_maps)
 
@@ -5817,15 +5799,15 @@ change name input.path_forcing "
                 remove_maps = [
                     self._MAPS["lakeareas"],
                     self._MAPS["lakelocs"],
-                    "LinkedLakeLocs",
-                    "LakeStorFunc",
-                    "LakeOutflowFunc",
-                    "LakeArea",
-                    "LakeAvgLevel",
-                    "LakeAvgOut",
-                    "LakeThreshold",
-                    "Lake_b",
-                    "Lake_e",
+                    self._MAPS["LinkedLakeLocs"],
+                    self._MAPS["LakeStorFunc"],
+                    self._MAPS["LakeOutflowFunc"],
+                    self._MAPS["LakeArea"],
+                    self._MAPS["LakeAvgLevel"],
+                    "LakeAvgOut",  # this is a hydromt meta map
+                    self._MAPS["LakeThreshold"],
+                    self._MAPS["Lake_b"],
+                    self._MAPS["Lake_e"],
                 ]
                 self._grid = self.grid.drop_vars(remove_maps)
 
@@ -5843,15 +5825,29 @@ change name input.path_forcing "
             # change reservoirs = true to false
             self.set_config("model.reservoirs", False)
             # remove states
-            if self.get_config("state.lateral.river.reservoir") is not None:
-                del self.config["state"]["lateral"]["river"]["reservoir"]
+            if (
+                self.get_config("state.variables.reservoir_water__instantaneous_volume")
+                is not None
+            ):
+                del self.config["state"]["variables"][
+                    "reservoir_water__instantaneous_volume"
+                ]
+            # TODO: remove in input.static in config
 
         if remove_lake:
             # change lakes = true to false
             self.set_config("model.lakes", False)
             # remove states
-            if self.get_config("state.lateral.river.lake") is not None:
-                del self.config["state"]["lateral"]["river"]["lake"]
+            if (
+                self.get_config(
+                    "state.variables.lake_water_surface__instantaneous_elevation"
+                )
+                is not None
+            ):
+                del self.config["state"]["variables"][
+                    "lake_water_surface__instantaneous_elevation"
+                ]
+            # TODO: remove in input.static in config
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
