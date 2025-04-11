@@ -29,7 +29,7 @@ from shapely.geometry import box
 
 from hydromt_wflow.utils import (
     DATADIR,
-    convert_to_wflow_v1,
+    convert_to_wflow_v1_sbm,
     mask_raster_from_layer,
     read_csv_results,
 )
@@ -91,10 +91,8 @@ class WflowModel(GridModel):
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
 
-        # deal with wflow version
-        self.wflow_version = wflow_version
-        self._is_wflow_v1 = wflow_version.startswith("1.")
-        logger.info(f"Using Wflow.jl version {self.wflow_version}")
+        # Supported Wflow.jl version
+        logger.info("Supported Wflow.jl version v1+")
         # hydromt mapping and wflow variable names
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(self.config)
 
@@ -1483,17 +1481,17 @@ skipping adding gauge specific outputs to the toml."
 
     def setup_outlets(
         self,
-        river_only=True,
-        toml_output="csv",
-        gauge_toml_header=["Q"],
-        gauge_toml_param=["river_water__volume_flow_rate"],
+        river_only: bool = True,
+        toml_output: str = "csv",
+        gauge_toml_header: List[str] = ["Q"],
+        gauge_toml_param: List[str] = ["river_water__volume_flow_rate"],
     ):
         """Set the default gauge map based on basin outlets.
 
         If wflow_subcatch is available, the catchment outlets IDs will be matching the
         wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.
 
-        Can also add csv/netcdf output settings in the TOML.
+        Can also add csv/netcdf_scalar output settings in the TOML.
 
         Adds model layers:
 
@@ -1959,7 +1957,7 @@ gauge locations [-] (if derive_subcatch)
         Parameters
         ----------
         lakes_fn :
-            Name of GeoDataFrame source for lake parameters, see data/data_sources.yml.
+            Name of GeoDataFrame source for lake parameters.
 
             * Required variables for direct use: \
 'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'Lake_b' [-], \
@@ -4871,7 +4869,7 @@ Run setup_soilmaps first"
         The other components stay the same.
         This function should be followed by write_config() to write the upgraded file.
         """
-        config_out = convert_to_wflow_v1(self.config, logger=self.logger)
+        config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
         self._config = dict()
         for option in config_out:
             self.set_config(option, config_out[option])
