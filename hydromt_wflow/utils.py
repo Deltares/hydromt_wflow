@@ -55,7 +55,7 @@ of the config.
     count = 1
     csv_dict = dict()
     # Loop over csv.column
-    for col in config["csv"].get("column"):
+    for col in config["output"]["csv"].get("column"):
         header = col["header"]
         # Column based on map
         if "map" in col.keys():
@@ -117,7 +117,9 @@ of the config.
                     # Dimensions are ascending and ordered as (x,y,layer,time)
                     # Indices are created before ordering for compatibility with
                     # raster.idx_to_xy
-                    full_index = maps[f"{config['input'].get('subcatchment')}"].copy()
+                    full_index = maps[
+                        f"{config['input'].get('subcatchment_location__count')}"
+                    ].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
                         full_index = full_index.reindex(
@@ -135,23 +137,23 @@ of the config.
                         full_index.raster.x_dim, full_index.raster.y_dim
                     )
                     # Index depends on the struct
-                    # For land uses the active subcatch IDs
-                    if (
-                        "vertical" in col["parameter"]
-                        or "lateral.land" in col["parameter"]
-                    ):
-                        mask = maps[f"{config['input'].get('subcatchment')}"].copy()
-                    elif "reservoir" in col["parameter"]:
+                    if "reservoir" in col["parameter"]:
                         mask = maps[
-                            f"{config['input']['lateral']['river']['reservoir'].get('locs')}"
+                            f"{config['input'].get('reservoir_location__count')}"
                         ].copy()
                     elif "lake" in col["parameter"]:
                         mask = maps[
-                            f"{config['input']['lateral']['river']['lake'].get('locs')}"
+                            f"{config['input'].get('lake_location__count')}"
                         ].copy()
-                    # Else lateral.river
+                    elif "river" in col["parameter"]:
+                        mask = maps[
+                            f"{config['input'].get('river_location__mask')}"
+                        ].copy()
+                    # Else all the rest should be for the whole subcatchment
                     else:
-                        mask = maps[f"{config['input'].get('river_location')}"].copy()
+                        mask = maps[
+                            f"{config['input'].get('subcatchment_location__count')}"
+                        ].copy()
                     # Rearrange the mask
                     res_x, res_y = mask.raster.res
                     if res_y < 0:
@@ -353,7 +355,9 @@ def get_grid_from_config(
     return da
 
 
-def mask_raster_from_layer(ds_grid: xr.Dataset, layer_name: str) -> xr.Dataset:
+def mask_raster_from_layer(
+    data: Union[xr.Dataset, xr.DataArray], mask: xr.DataArray
+) -> Union[xr.Dataset, xr.DataArray]:
     """Mask the data in the supplied grid based on the value in one of the layers.
 
         This for example can be used to mask a grid based on subcatchment data.
@@ -367,28 +371,35 @@ def mask_raster_from_layer(ds_grid: xr.Dataset, layer_name: str) -> xr.Dataset:
 
     Parameters
     ----------
-        ds_grid (xr.Dataset):
-            The grid containing both the data that should be masked and a layer that
-            will be used to determine the mask
+        data (xr.Dataset, xr.DataArray):
+            The grid data containing the data that should be masked
         layer_name (string):
-            name of the layer that the grid will be masked to. Values can be boolean or
-            numeric. Places where this layer is greater than 0 will be masked in the
-            other data variables
+            mask that the data will be masked to. Values can be boolean or
+            numeric. Places where this layer is different than the rater nodata will be
+            masked in the other data variables
 
     Returns
     -------
-        xr.Dataset: The grid with all of the data variables masked.
+        xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
     """
-    if isinstance(ds_grid, xr.Dataset) and layer_name in ds_grid.data_vars:
-        mask = ds_grid[layer_name] > 0
-        for var in ds_grid.data_vars:
+    mask = mask != mask.raster.nodata
+    # Need to duplicate or else data should have a name ie we duplicate functionality
+    # of GridModel.set_grid
+    if isinstance(data, xr.DataArray):
+        # nodata is required for all but boolean fields
+        if data.dtype != "bool":
+            data = data.where(mask, data.raster.nodata)
+        else:
+            data = data.where(mask, False)
+    else:
+        for var in data.data_vars:
             # nodata is required for all but boolean fields
-            if ds_grid[var].dtype != "bool":
-                ds_grid[var] = ds_grid[var].where(mask, ds_grid[var].raster.nodata)
+            if data[var].dtype != "bool":
+                data[var] = data[var].where(mask, data[var].raster.nodata)
             else:
-                ds_grid[var] = ds_grid[var].where(mask, False)
+                data[var] = data[var].where(mask, False)
 
-    return ds_grid
+    return data
 
 
 def convert_to_wflow_v1(
@@ -507,7 +518,7 @@ def convert_to_wflow_v1(
     logger.info("Converting config input section")
     input_name_updated = {
         "ldd": "local_drain_direction",
-        "river_location": "river__location",
+        "river_location": "river_location__mask",
         "subcatchment": "subcatchment_location__count",
     }
     # variables that were moved to input rather than input.static
@@ -516,6 +527,7 @@ def convert_to_wflow_v1(
         "lateral.river.lake.locs",
         "lateral.river.reservoir.areas",
         "lateral.river.reservoir.locs",
+        "lateral.subsurface.conductivity_profile",
     ]
     cyclic_variables = []
     forcing_variables = []
@@ -633,6 +645,8 @@ def convert_to_wflow_v1(
         for nc_scalar in nc_scalar_vars:
             if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
+                if "map" in nc_scalar and nc_scalar["map"] in input_name_updated.keys():
+                    nc_scalar["map"] = input_name_updated[nc_scalar["map"]]
                 config_out["output.netcdf_scalar.variable"].append(nc_scalar)
             else:
                 warn_str(nc_scalar["parameter"], "netcdf_scalar")
@@ -640,13 +654,15 @@ def convert_to_wflow_v1(
     # Output csv section
     if get_config("csv", config=config, fallback=None) is not None:
         config_out["output.csv"] = {
-            "path": get_config("netcdf.path", config=config, fallback="output.csv"),
+            "path": get_config("csv.path", config=config, fallback="output.csv"),
         }
         config_out["output.csv.column"] = []
         csv_vars = get_config("csv.column", config=config, fallback=[])
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
+                if "map" in csv_var and csv_var["map"] in input_name_updated.keys():
+                    csv_var["map"] = input_name_updated[csv_var["map"]]
                 config_out["output.csv.column"].append(csv_var)
             else:
                 warn_str(csv_var["parameter"], "csv")

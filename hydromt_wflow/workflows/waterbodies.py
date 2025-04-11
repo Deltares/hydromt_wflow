@@ -349,7 +349,6 @@ please use one of [gww, jrc] or None."
     gdf = gdf.fillna(value=np.nan)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
-        # import pdb; pdb.set_trace()
         dam_height = np.nanmax([gdf["Dam_height"].iloc[i], 0.0])
         max_level = np.nanmax([gdf["Depth_avg"].iloc[i], 0.0])
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])

@@ -35,7 +35,7 @@ from hydromt_wflow.utils import (
 )
 
 from . import workflows
-from .naming import _create_hydromt_mapping_wflow, _create_variable_mapping_wflow
+from .naming import _create_hydromt_wflow_mapping_sbm
 
 __all__ = ["WflowModel"]
 
@@ -50,7 +50,6 @@ class WflowModel(GridModel):
     _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
     _DATADIR = DATADIR
     _GEOMS = {}
-    _MAPS = _create_hydromt_mapping_wflow()
     _FOLDERS = []
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
@@ -96,8 +95,8 @@ class WflowModel(GridModel):
         self.wflow_version = wflow_version
         self._is_wflow_v1 = wflow_version.startswith("1.")
         logger.info(f"Using Wflow.jl version {self.wflow_version}")
-        # wflow variable names
-        self._WFLOW_NAMES = _create_variable_mapping_wflow(wflow_version)
+        # hydromt mapping and wflow variable names
+        self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(self.config)
 
     # COMPONENTS
     def setup_basemaps(
@@ -753,9 +752,12 @@ setting new flood_depth dimensions"
                 logger=self.logger,
             ).rename(name)
             self.set_grid(ds_out)
-            # TODO: WFLOW_NAMES should be inverted as there may not be one on one
-            # mapping between wflow variables and name in staticmaps
-            self._update_config_variable_name(name)
+            # Update the bankfull elevation map
+            self.set_config("input.static.river_bank_water__elevation", name)
+            # In this case hydrodem is also used for the ground elevation?
+            self.set_config(
+                "input.static.land_surface_water_flow__ground_elevation", name
+            )
 
         # Update config
         self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
@@ -1909,7 +1911,7 @@ gauge locations [-] (if derive_subcatch)
             "lake_area__count": "wflow_lakeareas",
             "lake_location__count": "wflow_lakelocs",
             "lake_surface__area": "LakeArea",
-            "lake_water_level__initial_elevation": "LakeAvgLevel",
+            "lake_water_surface__initial_elevation": "LakeAvgLevel",
             "lake_water_flow_threshold-level__elevation": "LakeThreshold",
             "lake_water__rating_curve_coefficient": "Lake_b",
             "lake_water__rating_curve_exponent": "Lake_e",
@@ -2063,7 +2065,8 @@ Using default storage/outflow function parameters."
         # Lake settings in the toml to update
         self.set_config("model.lakes", True)
         self.set_config(
-            "state.variables.lake_water_level__initial_elevation", "waterlevel_lake"
+            "state.variables.lake_water_surface__instantaneous_elevation",
+            "waterlevel_lake",
         )
 
         for dvar in ds_lakes.data_vars:
@@ -2326,7 +2329,7 @@ Using default storage/outflow function parameters."
             "soil_surface_water__vertical_saturated_hydraulic_conductivity": "KsatVer",
             "soil__thickness": "SoilThickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "f",  # noqa: E501
-            "soil_layer_water__brooks-corey_epsilon_parameter": "c",
+            "soil_layer_water__brooks-corey_exponent": "c",
         },
     ):
         """
@@ -2840,7 +2843,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         min_area: float = 1.0,
         output_names: Dict = {
             "glacier_surface__area_fraction": "wflow_glacierfrac",
-            "glacier_ice__leq-volume": "wflow_glacierstore",
+            "glacier_ice__initial_leq-depth": "wflow_glacierstore",
         },
         geom_name: str = "glaciers",
     ):
@@ -2901,6 +2904,25 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 "Skipping glacier procedures!"
             )
             return
+
+        self.logger.info(f"{nb_glac} glaciers of sufficient size found within region.")
+        # add glacier maps
+        ds_glac = workflows.glaciermaps(
+            gdf=gdf_org,
+            ds_like=self.grid,
+            id_column="simple_id",
+            elevtn_name=self._MAPS["elevtn"],
+            logger=self.logger,
+        )
+
+        rmdict = {k: self._MAPS.get(k, k) for k in ds_glac.data_vars}
+        self.set_grid(ds_glac.rename(rmdict))
+        # update config
+        self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
+        self.set_config("model.glacier", True)
+        self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
+        # update geoms
+        self.set_geoms(gdf_org, name=geom_name)
 
     def setup_constant_pars(self, **kwargs):
         """Generate constant parameter maps for all active model cells.
@@ -4977,19 +4999,19 @@ Run setup_soilmaps first"
         if len(args) == 1 and "." in args[0]:
             args = args[0].split(".") + args[1:]
         # Check for value in args (to add in the same line for wflow TOML)
-        value_flag = False
-        if "value" in args:
-            args.remove("value")
-            value_flag = True
+        # value_flag = False
+        # if "value" in args:
+        #    args.remove("value")
+        #    value_flag = True
         branch = self._config
         for key in args[:-1]:
             if key not in branch or not isinstance(branch[key], dict):
                 branch[key] = {}
             branch = branch[key]
-        if value_flag:
-            branch[f"{args[-1]}.value"] = value  #
-        else:
-            branch[args[-1]] = value
+        # if value_flag:
+        #    branch[f'"{args[-1]}".value'] = value  #
+        # else:
+        branch[args[-1]] = value
 
     def read_grid(self, **kwargs):
         """
@@ -5166,7 +5188,15 @@ Run setup_soilmaps first"
                 # Use `_grid` as `grid` cannot be set
                 self._grid = self.grid.drop_vars(vars_to_drop)
 
-        data = mask_raster_from_layer(data, self._MAPS["basins"])
+        if isinstance(data, np.ndarray):
+            # TODO: because of all types for data, masking should move to
+            # GridModel.set_grid or we should duplicate functionality here
+            if name is not None:
+                self.logger.warning(f"Layer {name} will not be masked with basins.")
+        elif self._MAPS["basins"] in self.grid:
+            data = mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
+        elif self._MAPS["basins"] in data:
+            data = mask_raster_from_layer(data, data[self._MAPS["basins"]])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
 
@@ -5593,7 +5623,7 @@ change name input.path_forcing "
             self.logger.info(f"Read results from {nc_fn}")
             ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
             # TODO ? align coords names and values of results nc with grid
-            self.set_results(ds, name="output")
+            self.set_results(ds, name="netcdf_grid")
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("output.netcdf_scalar.path", abs_path=True)
@@ -5603,7 +5633,7 @@ change name input.path_forcing "
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
             ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
-            self.set_results(ds, name="netcdf")
+            self.set_results(ds, name="netcdf_scalar")
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("output.csv.path", abs_path=True)

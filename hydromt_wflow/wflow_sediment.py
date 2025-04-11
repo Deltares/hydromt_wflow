@@ -11,7 +11,7 @@ import xarray as xr
 
 from hydromt_wflow.wflow import WflowModel
 
-from .naming import _create_hydromt_mapping_sediment, _create_variable_mapping_sediment
+from .naming import _create_hydromt_wflow_mapping_sediment
 from .utils import DATADIR
 from .workflows import add_planted_forest_to_landuse, landuse, soilgrids_sediment
 
@@ -27,7 +27,6 @@ class WflowSedimentModel(WflowModel):
     _CONF = "wflow_sediment.toml"
     _DATADIR = DATADIR
     _GEOMS = {}
-    _MAPS = _create_hydromt_mapping_sediment()
     _FOLDERS = WflowModel._FOLDERS
 
     def __init__(
@@ -47,7 +46,9 @@ class WflowSedimentModel(WflowModel):
             logger=logger,
         )
         # Update compared to wflow sbm
-        self._WFLOW_NAMES = _create_variable_mapping_sediment(wflow_version)
+        self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sediment(
+            self.config
+        )
 
     def setup_rivers(self, *args, **kwargs):
         """Copy the functionality of WflowModel.
