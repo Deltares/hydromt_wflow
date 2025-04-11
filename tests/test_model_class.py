@@ -196,14 +196,14 @@ def test_model_inverse_clip(tmpdir, example_wflow_model):
 
 def test_model_results(example_wflow_results):
     # Tests on results
-    # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
+    # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column
     assert len(example_wflow_results.results) == (
-        2 + len(example_wflow_results.get_config("csv.column"))
+        2 + len(example_wflow_results.get_config("output.csv.column"))
     )
 
     # Check that the output and netcdf xr.Dataset are present
-    assert "output" in example_wflow_results.results
-    assert isinstance(example_wflow_results.results["netcdf"], xr.Dataset)
+    assert "netcdf_grid" in example_wflow_results.results
+    assert isinstance(example_wflow_results.results["netcdf_scalar"], xr.Dataset)
 
     # Checks for the csv columns
     # Q for gauges_grdc

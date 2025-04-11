@@ -179,7 +179,6 @@ def river_bathymetry(
     min_rivdph: float = 1.0,
     min_rivwth: float = 30.0,
     logger=logger,
-    **kwargs,
 ) -> xr.Dataset:
     """Get river width and bankfull discharge.
 
@@ -302,7 +301,6 @@ def river_bathymetry(
             method=method,
             min_rivdph=min_rivdph,
             rivzs_name="subelv",
-            **kwargs,
         )
         attrs = dict(_FillValue=-9999, unit="m")
         ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)

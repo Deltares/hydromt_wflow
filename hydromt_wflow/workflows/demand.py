@@ -288,7 +288,7 @@ def allocation_areas(
     ds_like : xr.DataArray
         A grid covering the wflow model domain and the rivers.
 
-        * Required variables: ['wflow_river', 'wflow_subcatch']
+        * Required variables: ['rivmsk', 'basins']
     waterareas : gpd.GeoDataFrame
         Administrative boundaries, e.g. sovereign nations.
     basins : gpd.GeoDataFrame
@@ -322,7 +322,7 @@ def allocation_areas(
     )
     # Mask the wflow subcatch after extrapolation
     subbasins_raster = subbasins_raster.where(
-        ds_like["wflow_subcatch"] != ds_like["wflow_subcatch"].raster.nodata,
+        ds_like["basins"] != ds_like["basins"].raster.nodata,
         subbasins_raster.raster.nodata,
     )
 
@@ -340,9 +340,7 @@ def allocation_areas(
     da_subbasins = ds_like.raster.rasterize(subbasins, col_name="uid", nodata=0)
     # Mask with river cells
     da_subbasins_to_keep = np.unique(
-        da_subbasins.raster.mask_nodata()
-        .where(ds_like["wflow_river"] > 0, np.nan)
-        .values
+        da_subbasins.raster.mask_nodata().where(ds_like["rivmsk"] > 0, np.nan).values
     )
     # Remove the nodata value from the list
     da_subbasins_to_keep = np.int32(
@@ -370,7 +368,7 @@ def allocation_areas(
         method="nearest", extrapolate=True
     )
     allocation_areas = allocation_areas.where(
-        ds_like["wflow_subcatch"] != ds_like["wflow_subcatch"].raster.nodata,
+        ds_like["basins"] != ds_like["basins"].raster.nodata,
         allocation_areas.raster.nodata,
     )
     allocation_areas.name = "allocation_areas"
@@ -637,7 +635,7 @@ def irrigation(
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
-        * Required variables: ['wflow_landuse', 'LAI']
+        * Required variables: ['landuse', 'LAI']
     irrigation_value: List[int]
         Values that indicate irrigation in da_irrigation.
     cropland_class: List[int]
@@ -658,9 +656,9 @@ def irrigation(
         'nonpaddy_irrigation_trigger']
     """
     # Check that the landuse map is available
-    if "wflow_landuse" not in ds_like:
+    if "landuse" not in ds_like:
         raise ValueError("Landuse map is required in ds_like.")
-    landuse = ds_like["wflow_landuse"].copy()
+    landuse = ds_like["landuse"].copy()
 
     # Create the irrigated areas mask
     irrigation_mask = da_irrigation.isin(irrigation_value).astype(float)
@@ -712,7 +710,7 @@ def irrigation_from_vector(
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
-        * Required variables: ['wflow_landuse', 'LAI']
+        * Required variables: ['landuse', 'LAI']
     irrigation_value: List[int]
         Values that indicate irrigation in gdf_irrigation.
     cropland_class: List[int]
