@@ -4,7 +4,6 @@ from logging import Logger, getLogger
 from typing import Any, Dict, Optional, Tuple
 
 import geopandas as gpd
-import numpy as np
 import shapely.geometry as sg
 import xarray as xr
 from affine import Affine
@@ -28,29 +27,29 @@ class ForcingComponent(SpatialModelComponent):
 
     Parameters
     ----------
-    model: Model
+    model : Model
         HydroMT model instance
-    filename: str
+    filename : str
         The path to use for reading and writing of component data by default.
-        By default "grid/grid.nc".
-    region_component: str, optional
+        By default "inmaps/forcing.nc".
+    region_component : str, optional
         The name of the region component to use as reference for
         this component's region. If None, the region will be set to the grid extent.
         Note that the create method only works if the region_component is None.
         For add_data_from_* methods, the other region_component should be a
         reference to another grid component for correct reprojection.
-    region_filename: str
+    region_filename : str
         The path to use for reading and writing of the region data by default.
-        By default "grid/grid_region.geojson".
+        By default "region.geojson".
     """
 
     def __init__(
         self,
         model: "Model",
         *,
-        filename: str = "grid/grid.nc",
+        filename: str = "inmaps/forcing.nc",
         region_component: str | None = None,
-        region_filename: str = "grid/grid_region.geojson",
+        region_filename: str = "region.geojson",
     ):
         # region_component referencing is not possible for grids.
         # The region should be passed via create().
@@ -65,7 +64,7 @@ class ForcingComponent(SpatialModelComponent):
 
     def set(
         self,
-        data: xr.DataArray | xr.Dataset | np.ndarray,
+        data: xr.DataArray | xr.Dataset,
         name: Optional[str] = None,
     ):
         """Add data to grid.
@@ -74,38 +73,31 @@ class ForcingComponent(SpatialModelComponent):
 
         Parameters
         ----------
-        data: xarray.DataArray or xarray.Dataset
+        data : xr.DataArray | xr.Dataset
             new map layer to add to grid
-        name: str, optional
+        name : str, optional
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
         """
         self._initialize_grid()
         assert self._data is not None
 
-        name_required = isinstance(data, np.ndarray) or (
-            isinstance(data, xr.DataArray) and data.name is None
-        )
+        name_required = isinstance(data, xr.DataArray) and data.name is None
         if name is None and name_required:
             raise ValueError(f"Unable to set {type(data).__name__} data without a name")
-        if isinstance(data, np.ndarray):
-            if data.shape != self._data.raster.shape:
-                raise ValueError("Shape of data and grid maps do not match")
-            data = xr.DataArray(dims=self._data.raster.dims, data=data, name=name)
         elif isinstance(data, xr.DataArray):
             if name is not None:
                 data.name = name
             data = data.to_dataset()
         elif not isinstance(data, xr.Dataset):
-            raise ValueError(f"cannot set data of type {type(data).__name__}")
+            raise ValueError(f"Cannot set data of type {type(data).__name__}")
 
         if len(self._data) == 0:  # empty grid
             self._data = data
         else:
             for dvar in data.data_vars:
                 if dvar in self._data:
-                    if self.root.is_reading_mode():
-                        logger.warning(f"Replacing grid map: {dvar}")
+                    logger.warning(f"Replacing grid map: {dvar}")
                 self._data[dvar] = data[dvar]
 
     @hydromt_step
@@ -130,10 +122,10 @@ class ForcingComponent(SpatialModelComponent):
         gdal_compliant : bool, optional
             If True, write grid data in a way that is compatible with GDAL,
             by default False
-        rename_dims: bool, optional
+        rename_dims : bool, optional
             If True and gdal_compliant, rename x_dim and y_dim to standard names
             depending on the CRS (x/y for projected and lat/lon for geographic).
-        force_sn: bool, optional
+        force_sn : bool, optional
             If True and gdal_compliant, forces the dataset to have
             South -> North orientation.
         region_options : dict, optional
@@ -154,7 +146,6 @@ class ForcingComponent(SpatialModelComponent):
                 strategy=NoDataStrategy.WARN,
             )
             return None
-        self.write_region()
         # write_nc requires dict - use dummy 'grid' key
         return _write_nc(
             {"grid": self.data},
