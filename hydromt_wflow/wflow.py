@@ -1058,6 +1058,9 @@ and will soon be removed. '
         else:
             output_names = {v: k for k, v in lulc_vars.items()}
         self._update_naming(output_names)
+        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        if output_names_suffix is not None:
+            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1192,6 +1195,9 @@ and will soon be removed. '
         else:
             output_names = {v: k for k, v in lulc_vars.items()}
         self._update_naming(output_names)
+        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        if output_names_suffix is not None:
+            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         # Read mapping table
@@ -2725,6 +2731,10 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             output_names = {v: k for k, v in lulc_vars.items()}
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
+        # As landuse is not a wflow variable, we update the name manually in self._MAPS
+        if output_names_suffix is not None:
+            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.grid.data_vars:
             raise ValueError(
@@ -4285,6 +4295,7 @@ Run setup_soilmaps first"
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
+        lulcmap_name: str = "wflow_landuse",
         output_names: Dict = {
             "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
             "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
@@ -4344,6 +4355,10 @@ Run setup_soilmaps first"
         lai_threshold: float
             Value of LAI variability to be used to determine the irrigation trigger. By
             default 0.2.
+        lulcmap_name: str
+            Name of the landuse map layer in the wflow model staticmaps. By default
+            'wflow_landuse'. Plese update if your landuse map has a different name
+            (eg 'landuse_globcover').
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -4361,6 +4376,14 @@ Run setup_soilmaps first"
         https://doi.org/10.1029/2018JG004881
         """
         self.logger.info("Preparing irrigation maps.")
+        if lulcmap_name in self.grid:
+            # update the internal mapping
+            self._MAPS["landuse"] = lulcmap_name
+        else:
+            raise ValueError(
+                f"Landuse map {lulcmap_name} not found in the model grid. Please "
+                "provide a valid landuse map name or run setup_lulcmaps."
+            )
 
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_rasterdataset(
