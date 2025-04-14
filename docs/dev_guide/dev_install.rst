@@ -14,38 +14,31 @@ the code folder (where the envs folder and pyproject.toml are located):
     $ git clone https://github.com/Deltares/hydromt_wflow.git
     $ cd hydromt_wflow
 
-The next step is to create an environment yaml.
-This is done by calling the `make_env.py` script from commandline:
-(This requires the presence of the package `tomli` or Python 3.11)
+once you are in the directory you can install the environment using pixi with
 
 .. code-block:: console
 
-    $ python make_env.py full
+    $ pixi install
 
-The 'full' argument guarantees all the necessary tools!
-Now create the environment using conda and activate it:
-
-.. code-block:: console
-
-    $ conda env create -f environment.yml
-    $ conda activate hydromt_wflow
-
-If you wish to make changes in HydroMT-Wflow, you should make an editable install of the plugin.
-This can be done with:
+Afterwards you can run any of the tasks we defined for doing things such as running the test suite:
 
 .. code-block:: console
 
-    $ pip install -e .
+    $ pixi run test
 
-If you encounter issues with the installation of some packages, you might consider cleaning conda to remove unused packages and caches.
-This can be done through the following command from your base environment:
-
-.. code-block:: console
-
-    $ conda clean -a
-
-It may also be advisable to clear pip's cache:
+generating the documentation:
 
 .. code-block:: console
 
-    $ pip cache purge
+    $ pixi run docs-html
+
+Editors like vscode should be able to find pixi environments you make automatically,
+however if you use something else like `vim` or `helix` then you can make sure they run in
+the context of your environment:
+
+.. code-block:: console
+
+    $ pixi run hx .
+
+this will make sure your LSP can find your environment so it can give you proper
+tabcompletion and other warnings if necessary.
