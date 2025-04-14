@@ -53,7 +53,7 @@
     <link rel="prev" title="Examples" href="example_index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0.dev" />
+  <meta name="docsearch:version" content="0.8.1.dev0" />
   </head>
   
   
@@ -444,7 +444,7 @@ you can visit the <a class="reference external" href="https://deltares.github.io
 <p>To build a Wflow model, it is strongly recommended to use the <code class="docutils literal notranslate"><span class="pre">basin</span></code> or <code class="docutils literal notranslate"><span class="pre">subbasin</span></code> when defining your region of interest.
 This ensures that all upstream contributing cells are well taken into account. Using other options might cause your Wflow model
 run crash. If you are sure of what you are doing, you can optionally use the <code class="docutils literal notranslate"><span class="pre">geom</span></code> option and provide an exact shapefile of the
-basin/subbasins you want to derive, that was prepared using the same DEM source that you intend to use in the <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_basemaps()</span></code>
+basin/subbasins you want to derive, that was prepared using the same DEM source that you intend to use in the <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_basemaps.html#hydromt_wflow.WflowModel.setup_basemaps" title="hydromt_wflow.WflowModel.setup_basemaps"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_basemaps()</span></code></a>
 method.</p>
 <blockquote>
 <div><div class="line-block">
@@ -462,8 +462,8 @@ subbasin you want to create. You can use either streamorder <em>strord</em> or u
 <div class="line"><strong>Q</strong>: Can I use a different dataset for precipitation and temperature forcing data?</div>
 </div>
 </div></blockquote>
-<p>Yes, that is one of the reason why the two were separated into two separate methods: <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_precip_forcing()</span></code> and
-<code class="xref py py-func docutils literal notranslate"><span class="pre">setup_temp_pet_forcing()</span></code>, you can just use a different data source for <em>precip_fn</em> and <em>temp_pet_fn</em> and HydroMT
+<p>Yes, that is one of the reason why the two were separated into two separate methods: <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_precip_forcing.html#hydromt_wflow.WflowModel.setup_precip_forcing" title="hydromt_wflow.WflowModel.setup_precip_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_precip_forcing()</span></code></a> and
+<a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_temp_pet_forcing.html#hydromt_wflow.WflowModel.setup_temp_pet_forcing" title="hydromt_wflow.WflowModel.setup_temp_pet_forcing"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_temp_pet_forcing()</span></code></a>, you can just use a different data source for <em>precip_fn</em> and <em>temp_pet_fn</em> and HydroMT
 will do its resampling magic!</p>
 <blockquote>
 <div><div class="line-block">
@@ -509,9 +509,9 @@ where you can specify which TOML file to use using the <em>config_fn</em> argume
 <div class="line"><strong>Q</strong>: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?</div>
 </div>
 </div></blockquote>
-<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <code class="xref py py-func docutils literal notranslate"><span class="pre">read_staticmaps_pcr()</span></code>.
+<p>HydroMT is still able to read the python PCRaster based maps of Wflow with the method <a class="reference internal" href="../_generated/hydromt_wflow.pcrm.read_staticmaps_pcr.html#hydromt_wflow.pcrm.read_staticmaps_pcr" title="hydromt_wflow.pcrm.read_staticmaps_pcr"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_staticmaps_pcr()</span></code></a>.
 So actually just a read and write of your python model will do most of the job :) The intbl are however not taken into account so if
-you have single values intbl, you can use the <code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code> method. For lakes and reservoirs parameters,
+you have single values intbl, you can use the <a class="reference internal" href="../_generated/hydromt_wflow.WflowModel.setup_constant_pars.html#hydromt_wflow.WflowModel.setup_constant_pars" title="hydromt_wflow.WflowModel.setup_constant_pars"><code class="xref py py-func docutils literal notranslate"><span class="pre">setup_constant_pars()</span></code></a> method. For lakes and reservoirs parameters,
 the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating
 reservoir).</p>
 </section>
