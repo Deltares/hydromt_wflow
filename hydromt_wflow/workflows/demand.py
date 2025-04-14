@@ -159,6 +159,9 @@ def domestic(
             ds_m3_model = ds_m3_per_cap_model * popu_scaled
             # Get back to mm
             ds_scaled = ds_m3_model / ds_m3_model.raster.area_grid() / 1000
+            # Reset the nodata attribute
+            for var in ds_scaled.data_vars:
+                ds_scaled[var].raster.set_nodata(ds[var].raster.nodata)
 
     return ds_scaled, popu_scaled
 
