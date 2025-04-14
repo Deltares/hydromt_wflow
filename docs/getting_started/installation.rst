@@ -39,6 +39,7 @@ All of these options will be discussed below but we recommend using pixi, as it 
 robust (and reproducible) option.
 
 .. _user_install_pixi:
+
 Installation using Pixi
 -----------------------
 
@@ -116,6 +117,7 @@ anywhere on your system through the commandline
 
 
 .. _user_install_conda:
+
 Installation using Conda
 ------------------------
 
