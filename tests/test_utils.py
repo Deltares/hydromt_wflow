@@ -14,46 +14,44 @@ def test_grid_from_config(demda):
     # Create config with all options
     config = {
         "input": {
-            "vertical": {
-                "dem": "dem",
+            "dem": "dem",
+            "static": {
                 "slope": "slope",
                 "altitude": {
                     "netcdf": {"variable": {"name": "slope"}},
                     "scale": 10,
                 },
             },
-            "lateral": {
-                "subsurface": {
-                    "ksathorfrac": {"value": 500},
-                    "ksathorfrac2": {
-                        "netcdf": {"variable": {"name": "dem"}},
-                        "scale": 0,
-                        "offset": 500,
-                    },
+            "cyclic": {
+                "ksathorfrac": {"value": 500},
+                "ksathorfrac2": {
+                    "netcdf": {"variable": {"name": "dem"}},
+                    "scale": 0,
+                    "offset": 500,
                 },
             },
         },
     }
 
     # Tests
-    dem = get_grid_from_config("input.vertical.dem", config=config, grid=grid)
+    dem = get_grid_from_config("dem", config=config, grid=grid)
     assert dem.equals(demda)
 
-    slope = get_grid_from_config("input.vertical.slope", config=config, grid=grid)
+    slope = get_grid_from_config("slope", config=config, grid=grid)
     assert slope.equals(grid["slope"])
 
-    altitude = get_grid_from_config("input.vertical.altitude", config=config, grid=grid)
+    altitude = get_grid_from_config("altitude", config=config, grid=grid)
     assert altitude.equals(grid["slope"] * 10)
 
     ksathorfrac = get_grid_from_config(
-        "input.lateral.subsurface.ksathorfrac",
+        "ksathorfrac",
         config=config,
         grid=grid,
     )
     assert np.unique(ksathorfrac.raster.mask_nodata()) == [500]
 
     ksathorfrac2 = get_grid_from_config(
-        "input.lateral.subsurface.ksathorfrac2",
+        "ksathorfrac2",
         config=config,
         grid=grid,
     )

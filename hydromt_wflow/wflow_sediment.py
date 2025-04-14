@@ -15,8 +15,8 @@ from hydromt_wflow.utils import (
 )
 from hydromt_wflow.wflow import WflowModel
 
+from . import workflows
 from .naming import _create_hydromt_wflow_mapping_sediment
-from .workflows import add_planted_forest_to_landuse, landuse, soilgrids_sediment
 
 __all__ = ["WflowSedimentModel"]
 
@@ -52,18 +52,154 @@ class WflowSedimentModel(WflowModel):
             self.config
         )
 
-    def setup_rivers(self, *args, **kwargs):
-        """Copy the functionality of WflowModel.
+    def setup_rivers(
+        self,
+        hydrography_fn: Union[str, xr.Dataset],
+        river_geom_fn: Union[str, gpd.GeoDataFrame] = None,
+        river_upa: float = 30,
+        slope_len: float = 2e3,
+        min_rivlen_ratio: float = 0.0,
+        min_rivwth: float = 30,
+        smooth_len: float = 5e3,
+        output_names: Dict = {
+            "river_location__mask": "wflow_river",
+            "river__length": "wflow_riverlength",
+            "river__width": "wflow_riverwidth",
+            "river__slope": "RiverSlope",
+        },
+    ):
+        """Set all river parameter maps.
 
-        It however removes the river_routing key from the config.
+        The river mask is defined by all cells with a minimum upstream area threshold
+        ``river_upa`` [km2].
+
+        The river length is defined as the distance from the subgrid outlet pixel to
+        the next upstream subgrid outlet pixel. The ``min_rivlen_ratio`` is the minimum
+        global river length to avg. cell resolution ratio and is used as a threshold in
+        window based smoothing of river length.
+
+        The river slope is derived from the subgrid elevation difference between pixels
+        at a half distance ``slope_len`` [m] up-
+        and downstream from the subgrid outlet pixel.
+
+        The river manning roughness coefficient is derived based on reclassification
+        of the streamorder map using a lookup table ``rivman_mapping_fn``.
+
+        The river width is derived from the nearest river segment in ``river_geom_fn``.
+        Data gaps are filled by the nearest valid upstream value and averaged along
+        the flow directions over a length ``smooth_len`` [m]
+
+        Adds model layers:
+
+        * **wflow_river** map: river mask [-]
+        * **wflow_riverlength** map: river length [m]
+        * **wflow_riverwidth** map: river width [m]
+        * **RiverSlope** map: river slope [m/m]
+        * **rivers** geom: river vector based on wflow_river mask
+
+        Parameters
+        ----------
+        hydrography_fn : str, Path, xarray.Dataset
+            Name of RasterDataset source for hydrography data.
+            Must be same as setup_basemaps for consistent results.
+
+            * Required variables: 'flwdir' [LLD or D8 or NEXTXY], 'uparea' [km2],
+              'elevtn'[m+REF]
+            * Optional variables: 'rivwth' [m]
+        river_geom_fn : str, Path, geopandas.GeoDataFrame, optional
+            Name of GeoDataFrame source for river data.
+
+            * Required variables: 'rivwth' [m]
+        river_upa : float, optional
+            Minimum upstream area threshold for the river map [km2]. By default 30.0
+        slope_len : float, optional
+            Length over which the river slope is calculated [km]. By default 2.0
+        min_rivlen_ratio: float, optional
+            Ratio of cell resolution used minimum length threshold in a moving
+            window based smoothing of river length, by default 0.0
+            The river length smoothing is skipped if `min_riverlen_ratio` = 0.
+            For details about the river length smoothing,
+            see :py:meth:`pyflwdir.FlwdirRaster.smooth_rivlen`
+        smooth_len : float, optional
+            Length [m] over which to smooth the output river width and depth,
+            by default 5e3
+        min_rivwth : float, optional
+            Minimum river width [m], by default 30.0
+        output_names : dict, optional
+            Dictionary with output names that will be used in the model netcdf input
+            files. Users should provide the Wflow.jl variable name followed by the name
+            in the netcdf file.
 
         See Also
         --------
-        WflowModel.setup_rivers
+        workflows.river_bathymetry
         """
-        super().setup_rivers(*args, **kwargs)
+        self.logger.info("Preparing river maps.")
+        # update self._MAPS and self._WFLOW_NAMES with user defined output names
+        self._update_naming(output_names)
 
-        self.config["model"].pop("river_routing", None)
+        # Check that river_upa threshold is bigger than the maximum uparea in the grid
+        if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
+            raise ValueError(
+                f"river_upa threshold {river_upa} should be larger than the maximum \
+uparea in the grid {float(self.grid[self._MAPS['uparea']].max())} in order to create \
+river cells."
+            )
+
+        # read data
+        ds_hydro = self.data_catalog.get_rasterdataset(
+            hydrography_fn, geom=self.region, buffer=10
+        )
+        ds_hydro.coords["mask"] = ds_hydro.raster.geometry_mask(self.region)
+
+        # get rivmsk, rivlen, rivslp
+        # read model maps and revert wflow to hydromt map names
+        inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+        ds_riv = workflows.river(
+            ds=ds_hydro,
+            ds_model=self.grid.rename(inv_rename),
+            river_upa=river_upa,
+            slope_len=slope_len,
+            channel_dir="up",
+            min_rivlen_ratio=min_rivlen_ratio,
+            logger=self.logger,
+        )[0]
+
+        ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
+            river_upa=river_upa, slope_len=slope_len, min_rivlen_ratio=min_rivlen_ratio
+        )
+        dvars = ["rivmsk", "rivlen", "rivslp"]
+        rmdict = {k: self._MAPS.get(k, k) for k in dvars}
+        self.set_grid(ds_riv[dvars].rename(rmdict))
+        # update config
+        for dvar in dvars:
+            if dvar == "rivmsk":
+                self._update_config_variable_name(self._MAPS[dvar], data_type=None)
+            else:
+                self._update_config_variable_name(self._MAPS[dvar])
+
+        # get rivwth
+        if river_geom_fn is not None:
+            gdf_riv = self.data_catalog.get_geodataframe(
+                river_geom_fn, geom=self.region
+            )
+            # re-read model data to get river maps
+            inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
+            ds_riv1 = workflows.river_bathymetry(
+                ds_model=self.grid.rename(inv_rename),
+                gdf_riv=gdf_riv,
+                smooth_len=smooth_len,
+                min_rivwth=min_rivwth,
+                logger=self.logger,
+            )
+            # only add river width
+            self.set_grid(ds_riv1["rivwth"], name=self._MAPS["rivwth"])
+            # update config
+            self._update_config_variable_name(self._MAPS["rivwth"])
+
+        self.logger.debug("Adding rivers vector to geoms.")
+        self.geoms.pop("rivers", None)  # remove old rivers if in geoms
+        self.rivers  # add new rivers to geoms
 
     def setup_lakes(
         self,
@@ -350,6 +486,7 @@ class WflowSedimentModel(WflowModel):
             "landuse": None,
             "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
             "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
+            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
         },
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
@@ -379,6 +516,7 @@ class WflowSedimentModel(WflowModel):
             Original source dependent LULC class, resampled using nearest neighbour.
         * **USLE_C** map: Cover management factor from the USLE equation [-]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
+        * **WaterFrac** map: The fraction of water covered area per grid cell [-]
 
         Parameters
         ----------
@@ -435,7 +573,7 @@ class WflowSedimentModel(WflowModel):
             if planted_forest is None:
                 self.logger.warning("No Planted forest data found within domain.")
                 return
-            usle_c = add_planted_forest_to_landuse(
+            usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
                 self.grid,  # TODO should have USLE_C in the grid already
                 planted_forest_c=planted_forest_c,
@@ -456,6 +594,7 @@ class WflowSedimentModel(WflowModel):
             "landuse": None,
             "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
             "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
+            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
         },
         lulc_res: Optional[Union[float, int]] = None,
         all_touched: bool = False,
@@ -489,6 +628,7 @@ class WflowSedimentModel(WflowModel):
             Original source dependent LULC class, resampled using nearest neighbour.
         * **USLE_C** map: Cover management factor from the USLE equation [-]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
+        * **WaterFrac** map: The fraction of water covered area per grid cell [-]
 
         Parameters
         ----------
@@ -564,7 +704,7 @@ class WflowSedimentModel(WflowModel):
             if planted_forest is None:
                 self.logger.warning("No Planted forest data found within domain.")
                 return
-            usle_c = add_planted_forest_to_landuse(
+            usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
                 self.grid,
                 planted_forest_c=planted_forest_c,
@@ -625,7 +765,7 @@ class WflowSedimentModel(WflowModel):
         self.logger.info("Preparing riverbedsed parameter maps.")
         if self._MAPS["strord"] not in self.grid.data_vars:
             raise ValueError(
-                "Streamorder map is not available, please run setup_rivers first."
+                "Streamorder map is not available, please run setup_basemaps first."
             )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
@@ -649,7 +789,7 @@ class WflowSedimentModel(WflowModel):
         strord = strord.where(strord != strord.raster.nodata, nodata)
         strord.raster.set_nodata(nodata)
 
-        ds_riversed = landuse(
+        ds_riversed = workflows.landuse(
             da=strord,
             ds_like=self.grid,
             df=df,
@@ -694,7 +834,7 @@ class WflowSedimentModel(WflowModel):
         # update name
         wflow_var = self._WFLOW_NAMES[self._MAPS["CanopyHeight"]]
         self._update_naming({wflow_var: output_name})
-        self.set_grid(dsout["CanopyHeigt"], name=output_name)
+        self.set_grid(dsout["CanopyHeight"], name=output_name)
         # update config
         self._update_config_variable_name(output_name)
 
@@ -765,7 +905,7 @@ class WflowSedimentModel(WflowModel):
 
         self._update_naming(output_names)
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
-        dsout = soilgrids_sediment(
+        dsout = workflows.soilgrids_sediment(
             dsin,
             self.grid,
             usleK_method=usleK_method,

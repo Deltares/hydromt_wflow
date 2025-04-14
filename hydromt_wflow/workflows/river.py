@@ -222,7 +222,7 @@ def river_bathymetry(
     flwdir_river = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
     rivlen_avg = ds_model["rivlen"].values[riv_mask].mean()
 
-    ## river width and bunkfull discharge
+    ## river width and bankfull discharge
     vars0 = ["rivwth", "rivdph", "qbankfull"]
     # find nearest values from river shape if provided
     # if None assume the data is in ds_model

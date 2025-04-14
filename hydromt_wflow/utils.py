@@ -673,7 +673,7 @@ def convert_to_wflow_v1_sbm(
         The converted config.
     """
     additional_variables = {
-        "vertical.interception": "vegetation_canopy_water__interception_volume_flux",
+        "vertical.interception": "land.interception.variables.interception_rate",
         "vertical.actevap": "land_surface__evapotranspiration_volume_flux",
         "vertical.actinfilt": "soil_water__infiltration_volume_flux",
         "vertical.excesswatersoil": "land.soil.variables.excesswatersoil",
