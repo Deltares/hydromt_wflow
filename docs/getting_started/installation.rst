@@ -4,11 +4,13 @@
 Installation Guide
 ==================
 
+
+
 Prerequisites
 =============
 For more information about the prerequisites for an installation of the HydroMT package
 and related dependencies, please visit the documentation of
-`HydroMT core <https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide>`_
+`HydroMT core <https://deltares.github.io/hydromt/stable/guides/user_guide/installation.html>`_
 
 Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:
 
@@ -28,33 +30,120 @@ we recommend installing it into your *base* environment using:
 Installation
 ============
 
-HydroMT-Wflow is available from pypi and conda-forge.
-We recommend installing using mamba from conda-forge in a new environment.
+There are various ways in which one can install hydrom_wflow in a python environment, the main being:
 
-.. Note::
+- :ref:`Pixi <user_install_pixi>`
+- :ref:`Miniforge/conda <user_install_conda>`
 
-    In the commands below you can exchange `mamba` for `conda`, see
-    `here <https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide>`_
-    for the difference between both.
+All of these options will be discussed below but we recommend using pixi, as it is the fastest and most
+robust (and reproducible) option.
 
-Install HydroMT-Wflow in a new environment
-------------------------------------------
+.. _user_install_pixi:
+Installation using Pixi
+-----------------------
+
 .. Tip::
 
     This is our recommended way of installing HydroMT-Wflow!
+
+You can add HydroMT-Wflow to any python environment that is defined in either a `pyproject.toml` or `pixi.toml` by
+running the command:
+
+.. code-block:: shell
+
+    $ pixi add hydromt_wflow
+
+
+Pixi will then it as a dependency to either your `pyproject.toml` or `pixi.toml` depending on which it can find
+(in that order or precedence).
+
+You can also add the optional dependencies to it like so:
+
+.. code-block:: console
+
+  $ pixi add gwwapi --pypi
+  $ pixi add hydroengine --pypi
+  $ pixi add pcraster --pypi
+
+the `--pypi` in this case is necessary because these dependencies are only available through pypi and not conda-forge
+adding this flag will tell pixi to install them from there.
+
+
+If you do not have a ``pyproject.toml`` yet you can make one by executing the command:
+
+.. code-block:: shell
+
+    $ pixi init --format pyproject
+
+Which will create it for you.
+
+Once you have your new (or existing ``pyproject.toml``) file install the pixi
+environment and activate it with the following commands to be able to start using it:
+
+.. code-block:: shell
+
+    $ pixi install
+    $ pixi shell activate
+
+
+If you did activate the shell like above you should now be able to run any python script like usual:
+
+.. code-block:: shell
+
+  (hydromt-wflow) $ python path/to/script.py
+
+If you did not activate the shell you can still run the script in the environment by running it through pixi:
+
+.. code-block:: shell
+
+  (hydromt-wflow) $ pixi run path/to/script.py
+
+If you have multiple environments defined in your project and wish to use one besides the default environment,
+you can select which environment to use like so:
+
+.. code-block:: shell
+
+  $ pixi -e hydromt_wflow run path/to/script.py
+
+If you intend to only use `hydromt_wflow` via the cli you can also install it globally using pixi like so:
+
+.. code-block:: shell
+
+  $ pixi global install hydromt_wflow
+
+This will install hydromt_wflow in an isolated environment for you and make it available to run from basically
+anywhere on your system through the commandline
+
+
+.. _user_install_conda:
+Installation using Conda
+------------------------
+
+.. warning::
+
+  Due to the changes Anaconda made to their `lisencing agreements in 2024 <https://legal.anaconda.com/policies/en/?name=terms-of-service#anaconda-terms-of-service>`
+  using any packages from the anaconda channel (which is available by default in the main `conda` and `mamba` distributions) may require a paid license.
+  Therefore we highly recommend you only use the free and community maintained `conda-forge` channel. While you can configure existing `conda` / `mamba`
+  instaltions to do this correctly, we recommend that if you do not want to use pixi, that you use a `miniforge<https://github.com/conda-forge/miniforge>` distribution which has this correctly
+  configured by default
 
 You can install HydroMT-Wflow in a new environment called `hydromt-wflow`:
 
 .. code-block:: console
 
-  $ mamba create -n hydromt-wflow -c conda-forge hydromt_wflow
+  $ conda create -n hydromt-wflow -c conda-forge hydromt_wflow
 
-Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:
-HydroMT-Wflow will be installed together with all optional (see above) and a few additional dependencies with:
+Then, activate the environment (as stated by mamba/conda depending on which you are using) to start making use of that environment:
 
 .. code-block:: console
 
   $ conda activate hydromt-wflow
+
+After it has been activated you can install hydromt-wflow into it using this command:
+
+.. code-block:: console
+
+  (hydromt-wflow) $ conda install hydromt_wflow
 
 .. Tip::
 
@@ -66,10 +155,10 @@ HydroMT-Wflow will be installed together with all optional (see above) and a few
 
     Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately (in the activated environment).
 
-.. code-block:: console
+    .. code-block:: console
 
-  $ pip install gwwapi
-  $ pip install hydroengine
+      (hydromt-wflow) $ pip install gwwapi
+      (hydromt-wflow) $ pip install hydroengine
 
 Install HydroMT-Wflow in an existing environment
 ------------------------------------------------
