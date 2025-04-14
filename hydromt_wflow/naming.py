@@ -692,6 +692,10 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v0": "vertical.pathfrac",
         "wflow_v1": "soil~compacted__area_fraction",
     },
+    "WaterFrac": {
+        "wflow_v0": None,
+        "wflow_v1": "land~water-covered__area_fraction",
+    },
     "soil_detachability": {
         "wflow_v0": "vertical.erosk",
         "wflow_v1": "soil_erosion__rainfall_soil_detachability_factor",

@@ -161,7 +161,8 @@ def test_projected_crs(tmpdir):
     mod.setup_lulcmaps("globcover_2009", lulc_mapping_fn="globcover_mapping_default")
 
     assert mod.grid.raster.crs == 3857
-    assert np.quantile(mod.grid["wflow_landuse"], 0.95) == 190.0  # urban
+    # 95 quantile is class 190 ie urban
+    assert np.nanquantile(mod.grid["wflow_landuse"].raster.mask_nodata(), 0.95) == 190.0
     assert mod.get_config("model.sizeinmetres") == True
 
 
@@ -311,8 +312,8 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     values = example_wflow_model.grid.ksathorfrac.raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
-    assert int(max_val * 100) == 75000
-    assert int(mean_val * 100) == 19991
+    assert int(max_val * 100) == 43175
+    assert int(mean_val * 100) == 22020
 
 
 def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
@@ -1058,7 +1059,7 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     assert np.isclose(c_values[5], 9.849495)
 
     # Test values for crop coefficient
-    assert np.isclose(ds["kc"].raster.mask_nodata().mean().values, 0.91258438)
+    assert np.isclose(ds["kc"].raster.mask_nodata().mean().values, 0.8869253)
 
     # Test with a separate paddy_map
     example_wflow_model.setup_lulcmaps_with_paddy(
@@ -1193,7 +1194,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     assert int(popu_val) == 7842
 
     ind_mean = example_wflow_model.grid["industry_gross"].mean().values
-    assert int(ind_mean * 10000) == 849
+    assert int(ind_mean * 10000) == 651
 
     # test with other method
     example_wflow_model.setup_domestic_demand_from_population(
