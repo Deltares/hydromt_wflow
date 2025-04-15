@@ -55,8 +55,7 @@ running the command:
     $ pixi add hydromt_wflow
 
 
-Pixi will then it as a dependency to either your `pyproject.toml` or `pixi.toml` depending on which it can find
-(in that order or precedence).
+Pixi will then add it as a dependency to the pixi project.
 
 You can also add the optional dependencies to it like so:
 
