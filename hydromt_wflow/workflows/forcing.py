@@ -7,28 +7,9 @@ import numpy as np
 import xarray as xr
 from hydromt.workflows.forcing import resample_time
 
-try:
-    import wradlib as wrl
-
-    HAS_WRADLIB = True
-except ImportError:
-    HAS_WRADLIB = False
-
 logger = logging.getLogger(__name__)
 
 __all__ = ["pet", "spatial_interpolation"]
-
-
-interpolation_classes = {
-    "nearest": {"obj": wrl.ipol.Nearest, "args": None},
-    "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
-    "idw": {"obj": wrl.ipol.Idw, "args": ["nnearest", "p"]},
-    "ordinarykriging": {"obj": wrl.ipol.OrdinaryKriging, "args": ["cov", "nnearest"]},
-    "externaldriftkriging": {
-        "obj": wrl.ipol.ExternalDriftKriging,
-        "args": ["cov", "nnearest", "src_drift", "trg_drift", "remove_missing"],
-    },
-}
 
 
 def pet(
@@ -154,10 +135,27 @@ def spatial_interpolation(
     --------
     `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`
     """
-    if not HAS_WRADLIB:
+    try:
+        import wradlib as wrl
+    except ImportError:
         raise ModuleNotFoundError(
             "The wradlib package is required for spatial interpolation."
         )
+
+    # Specify wradlib interpolation classes
+    interpolation_classes = {
+        "nearest": {"obj": wrl.ipol.Nearest, "args": None},
+        "linear": {"obj": wrl.ipol.Linear, "args": ["remove_missing"]},
+        "idw": {"obj": wrl.ipol.Idw, "args": ["nnearest", "p"]},
+        "ordinarykriging": {
+            "obj": wrl.ipol.OrdinaryKriging,
+            "args": ["cov", "nnearest"],
+        },
+        "externaldriftkriging": {
+            "obj": wrl.ipol.ExternalDriftKriging,
+            "args": ["cov", "nnearest", "src_drift", "trg_drift", "remove_missing"],
+        },
+    }
 
     # Reproject forcing data to match the target CRS
     crs = ds_like.raster.crs

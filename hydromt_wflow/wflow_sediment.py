@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import geopandas as gpd
 import numpy as np
@@ -35,7 +35,7 @@ class WflowSedimentModel(WflowModel):
         root: Optional[str] = None,
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
-        data_libs: Union[List, str] = [],
+        data_libs: List | str = [],
         logger=logger,
     ):
         super().__init__(
@@ -61,7 +61,7 @@ class WflowSedimentModel(WflowModel):
 
     def setup_lakes(
         self,
-        lakes_fn: Union[str, Path, gpd.GeoDataFrame] = "hydro_lakes",
+        lakes_fn: str | Path | gpd.GeoDataFrame = "hydro_lakes",
         min_area: float = 1.0,
     ):
         """Generate maps of lake areas and outlets.
@@ -110,8 +110,8 @@ class WflowSedimentModel(WflowModel):
 
     def setup_reservoirs(
         self,
-        reservoirs_fn: Union[str, Path, gpd.GeoDataFrame],
-        timeseries_fn: Union[str, Path, pd.DataFrame] = None,
+        reservoirs_fn: str | Path | gpd.GeoDataFrame,
+        timeseries_fn: str | Path | pd.DataFrame | None = None,
         min_area: float = 1.0,
         **kwargs,
     ):
@@ -245,7 +245,7 @@ class WflowSedimentModel(WflowModel):
 
     def setup_gauges(
         self,
-        gauges_fn: Union[str, Path, gpd.GeoDataFrame],
+        gauges_fn: str | Path | gpd.GeoDataFrame,
         index_col: Optional[str] = None,
         snap_to_river: Optional[bool] = True,
         mask: Optional[np.ndarray] = None,
@@ -302,9 +302,9 @@ class WflowSedimentModel(WflowModel):
 
     def setup_lulcmaps(
         self,
-        lulc_fn: Union[str, Path, xr.DataArray],
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
+        lulc_fn: str | Path | xr.DataArray,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: List = [
             "landuse",
             "Kext",
@@ -401,9 +401,9 @@ class WflowSedimentModel(WflowModel):
 
     def setup_lulcmaps_from_vector(
         self,
-        lulc_fn: Union[str, gpd.GeoDataFrame],
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
+        lulc_fn: str | gpd.GeoDataFrame,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: List = [
             "landuse",
             "Kext",
@@ -412,7 +412,7 @@ class WflowSedimentModel(WflowModel):
             "Swood",
             "USLE_C",
         ],
-        lulc_res: Optional[Union[float, int]] = None,
+        lulc_res: float | int | None = None,
         all_touched: bool = False,
         save_raster_lulc: bool = False,
         planted_forest_c: float = 0.0881,
@@ -524,7 +524,7 @@ class WflowSedimentModel(WflowModel):
 
     def setup_riverbedsed(
         self,
-        bedsed_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
     ):
         """Generate sediments based river bed characteristics maps.
 
@@ -577,7 +577,7 @@ particles characteristics. If None reverts to default values.
 
     def setup_canopymaps(
         self,
-        canopy_fn: Union[str, Path, xr.DataArray],
+        canopy_fn: str | Path | xr.DataArray,
     ):
         """Generate sediments based canopy height maps.
 
