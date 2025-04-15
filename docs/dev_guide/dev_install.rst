@@ -51,4 +51,4 @@ the context of your environment:
     $ pixi run hx .
 
 this will make sure your LSP can find your environment so it can give you proper
-tabcompletion and other warnings if necessary.
+tab completion and other warnings if necessary.

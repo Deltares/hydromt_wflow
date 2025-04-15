@@ -10,7 +10,7 @@ Prerequisites
 =============
 For more information about the prerequisites for an installation of the HydroMT package
 and related dependencies, please visit the documentation of
-`HydroMT core <https://deltares.github.io/hydromt/stable/guides/user_guide/installation.html>`_
+`HydroMT core <https://deltares.github.io/hydromt/latest/guides/user_guide/installation.html>`_
 
 Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:
 
@@ -52,7 +52,7 @@ navigate to this new directory and add ``hydromt_wflow`` as a dependency:
 
 .. code-block:: console
 
-    $ pixi add hydromt_wflow[full] --pypi
+    $ pixi add hydromt_wflow[extra, examples] --pypi
 
 Pixi will then add it as a dependency to the project. The ``[full]`` is to make sure you include all
 of the optional dependencies.
@@ -63,7 +63,10 @@ You can also add the optional dependencies to it like so:
 
   $ pixi add gwwapi --pypi
   $ pixi add hydroengine --pypi
-  $ pixi add pcraster --pypi
+  $ pixi add pcraster
+  $ pixi add --pypi wradlib
+  $ pixi add --pypi pyet
+  $ pixi add gdal
 
 the `--pypi` in this case is necessary because these dependencies are only available through pypi and not conda-forge
 adding this flag will tell pixi to install them from there.
@@ -109,8 +112,8 @@ Installation using Conda
   Due to the changes Anaconda made to their `lisencing agreements in 2024 <https://legal.anaconda.com/policies/en/?name=terms-of-service#anaconda-terms-of-service>`
   using any packages from the anaconda channel (which is available by default in the main `conda` and `mamba` distributions) may require a paid license.
   Therefore we highly recommend you only use the free and community maintained `conda-forge` channel. While you can configure existing `conda` / `mamba`
-  instaltions to do this correctly, we recommend that if you do not want to use pixi, that you use a `miniforge<https://github.com/conda-forge/miniforge>` distribution which has this correctly
-  configured by default
+  installations to do this correctly, we recommend that if you do not want to use pixi, that you use a `miniforge<https://github.com/conda-forge/miniforge>` distribution which has this correctly
+  configured by default.
 
 You can install HydroMT-Wflow in a new environment called `hydromt-wflow`:
 
