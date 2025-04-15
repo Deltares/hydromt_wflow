@@ -12,11 +12,13 @@ from hydromt.model.components import (
 )
 from hydromt.model.steps import hydromt_step
 
+from hydromt_wflow import workflows
 from hydromt_wflow.components import (
     ForcingComponent,
     RegionComponent,
     WflowConfigComponent,
 )
+from hydromt_wflow.utils import vectorize
 
 # Set some global variables
 __all__ = ["WflowModel"]
@@ -104,6 +106,7 @@ class WflowModel(Model):
         )
 
     ## Properties
+    # Components
     @property
     def config(self) -> WflowConfigComponent:
         """Return the configurations component."""
@@ -133,6 +136,12 @@ class WflowModel(Model):
     def staticmaps(self) -> GridComponent:
         """Return the staticmaps component."""
         return self.components["staticmaps"]
+
+    # Other properties
+    @property
+    def basins(self) -> gpd.GeoDataFrame:
+        """Return the basins of the WflowModel."""
+        pass
 
     ## I/O
     @hydromt_step
@@ -190,6 +199,79 @@ class WflowModel(Model):
         geom = gpd.read_file(region)
         self.components["region"].set(geom)
 
-    def setup_basemaps(self):
-        """Set up wflow basemaps."""
-        pass
+    @hydromt_step
+    def setup_basemaps(
+        self,
+        hydrography_fname: Path | str,
+        basin_index_fname: Path | str | None = None,
+        *,
+        res: float | int = 1 / 120,
+        upscale_method: str = "ihu",
+        derive_region: bool = True,
+    ) -> None:
+        """Set up the wflow base maps.
+
+        Parameters
+        ----------
+        hydrography_fname : Path | str
+            _description_
+        basin_index_fname : Path | str | None, optional
+            _description_, by default None
+        res : float | int, optional
+            _description_, by default 1/120
+        upscale_method : str, optional
+            _description_, by default "ihu"
+        derive_region : bool, optional
+            _description_, by default True
+
+        Returns
+        -------
+        None
+        """
+        logger.info("Preparing base hydrography basemaps.")
+        # Get the data from the catalog
+        hydro_data = self.data_catalog.get_rasterdataset(hydrography_fname)
+        basin_index_data = None
+        if basin_index_fname is not None:
+            basin_index_data = self.data_catalog.get_geodataframe(basin_index_fname)
+
+        # First workflow function to sort out the data.
+        hydro_data, geom, xy = workflows.prep_raw_basemaps_data(
+            hydro_data,
+            basin_index_data=basin_index_data,
+            region=self.region,
+            res=res,
+            derive_region=derive_region,
+        )
+
+        # Derive the hydrography maps from the prepped raw input
+        hydro_grid, _ = workflows.hydrography(
+            hydro_data=hydro_data,
+            res=res,
+            xy=xy,
+            upscale_method=upscale_method,
+        )
+
+        # Convert flow direction from d8 to ldd format
+        hydro_grid = workflows.convert_flow_direction(hydro_grid)
+
+        # Derive the topography maps
+        topo_grid = workflows.topography(
+            ds=hydro_data,
+            ds_like=hydro_grid,
+            method="average",
+        )
+
+        # Derive the basins by vectorizing
+        basins_gdf = vectorize(ds=hydro_grid, var="basins")
+
+        # Set the gridded data into the staticmaps component
+        self.staticmaps.set(hydro_grid)
+        self.staticmaps.set(topo_grid)
+
+        # Set the geometries into the staticgeoms component
+        self.staticgeoms.set(geom, name="basins_highres")
+        self.staticgeoms.set(basins_gdf, name="basins")
+
+        # Set the config file
+        self.config.set("input.path_static", self.staticmaps._filename)
