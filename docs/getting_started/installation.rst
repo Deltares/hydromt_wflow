@@ -18,6 +18,8 @@ Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:
 - `pcraster <https://pcraster.geo.uu.nl>`_ (optional)
 - `gwwapi <https://github.com/global-water-watch/gww-api>`_ (optional)
 - `hydroengine <https://github.com/openearth/hydro-engine>`_ (optional)
+- `wraplib <https://github.com/wradlib/wradlib>`_ (optional)
+- `pyet <https://github.com/pyet-org/pyet>`_ (optional)
 
 Installation
 ============
