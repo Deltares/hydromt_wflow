@@ -19,14 +19,6 @@ Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:
 - `gwwapi <https://github.com/global-water-watch/gww-api>`_ (optional)
 - `hydroengine <https://github.com/openearth/hydro-engine>`_ (optional)
 
-If you already have a python & conda installation but do not yet have mamba installed,
-we recommend installing it into your *base* environment using:
-
-.. code-block:: console
-
-  $ conda install mamba -n base -c conda-forge
-
-
 Installation
 ============
 
@@ -47,15 +39,23 @@ Installation using Pixi
 
     This is our recommended way of installing HydroMT-Wflow!
 
-You can add HydroMT-Wflow to any python environment that is defined in either a `pyproject.toml` or `pixi.toml` by
-running the command:
 
-.. code-block:: shell
+If you do not have a ``pyproject.toml`` yet you can make one by executing the command:
 
-    $ pixi add hydromt_wflow
+.. code-block:: console
+
+    $ pixi init --format pyproject myproject
 
 
-Pixi will then add it as a dependency to the pixi project.
+A new folder with a ``pyproject.toml`` called ``myproject`` will be created for you. After this, you can
+navigate to this new directory and add ``hydromt_wflow`` as a dependency:
+
+.. code-block:: console
+
+    $ pixi add hydromt_wflow[full] --pypi
+
+Pixi will then add it as a dependency to the project. The ``[full]`` is to make sure you include all
+of the optional dependencies.
 
 You can also add the optional dependencies to it like so:
 
@@ -68,19 +68,10 @@ You can also add the optional dependencies to it like so:
 the `--pypi` in this case is necessary because these dependencies are only available through pypi and not conda-forge
 adding this flag will tell pixi to install them from there.
 
-
-If you do not have a ``pyproject.toml`` yet you can make one by executing the command:
-
-.. code-block:: shell
-
-    $ pixi init --format pyproject
-
-Which will create it for you.
-
 Once you have your new (or existing ``pyproject.toml``) file install the pixi
 environment and activate it with the following commands to be able to start using it:
 
-.. code-block:: shell
+.. code-block:: console
 
     $ pixi install
     $ pixi shell activate
@@ -88,26 +79,19 @@ environment and activate it with the following commands to be able to start usin
 
 If you did activate the shell like above you should now be able to run any python script like usual:
 
-.. code-block:: shell
+.. code-block:: console
 
   (hydromt-wflow) $ python path/to/script.py
 
 If you did not activate the shell you can still run the script in the environment by running it through pixi:
 
-.. code-block:: shell
+.. code-block:: console
 
   (hydromt-wflow) $ pixi run path/to/script.py
 
-If you have multiple environments defined in your project and wish to use one besides the default environment,
-you can select which environment to use like so:
-
-.. code-block:: shell
-
-  $ pixi -e hydromt_wflow run path/to/script.py
-
 If you intend to only use `hydromt_wflow` via the cli you can also install it globally using pixi like so:
 
-.. code-block:: shell
+.. code-block:: console
 
   $ pixi global install hydromt_wflow
 
@@ -171,7 +155,7 @@ channels the installation may fail.
 
 .. code-block:: console
 
-  $ mamba install -c conda-forge hydromt_wflow -n <environment_name>
+  $ conda install -c conda-forge hydromt_wflow -n <environment_name>
 
 .. Note::
 

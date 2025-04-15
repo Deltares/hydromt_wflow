@@ -32,6 +32,16 @@ generating the documentation:
 
     $ pixi run docs-html
 
+We have several environments to make sure we can test ``hydromt_wflow`` under, for example,
+with all of the different python versions we support. The default environment should have
+everything you need, but if you want to run something (for example in CI) from a specific
+environment you can do so like this:
+
+.. code-block:: console
+
+  $ pixi -e test-full-py311 run path/to/script.py
+
+
 Editors like vscode should be able to find pixi environments you make automatically,
 however if you use something else like `vim` or `helix` then you can make sure they run in
 the context of your environment:
