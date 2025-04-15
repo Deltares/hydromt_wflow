@@ -20,8 +20,10 @@ import os
 import shutil
 import sys
 from distutils.dir_util import copy_tree
-
+from hydromt_wflow.utils import close_all_nc_files
 import hydromt_wflow
+
+
 
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
@@ -285,3 +287,19 @@ nbsphinx_prolog = r"""
             <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/{{ docname|e }}" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
         </div>
 """
+
+nbsphinx_execute = 'always'
+nbsphinx_timeout = 300
+
+
+def post_process_notebook(*args) -> None:
+    close_all_nc_files()
+
+
+def setup(app):
+    """
+    Add a callback to the source-read event to close all open netCDF files
+
+    https://www.sphinx-doc.org/en/master/extdev/event_callbacks.html
+    """
+    app.connect('env-purge-doc', post_process_notebook)
