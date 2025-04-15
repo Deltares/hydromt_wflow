@@ -14,6 +14,7 @@ from hydromt.cli.cli_utils import parse_config
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow.utils import close_all_nc_files
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
@@ -213,3 +214,17 @@ def demda():
     # NOTE epsg 3785 is deprecated https://epsg.io/3785
     da.raster.set_crs(3857)
     return da
+
+
+@pytest.fixture(autouse=True)
+def _ensure_datasets_are_closed():
+    """Fixture to ensure that all opened datasets are closed after each test.
+
+    This is a workaround to ensure that all opened datasets are closed after each test.
+    It is important to close datasets to avoid file locks that make the testbank/docs
+    hang. The fixture is used automatically at the teardown of all tests to ensure that
+    all datasets are closed.
+    """
+    yield
+
+    close_all_nc_files()
