@@ -460,31 +460,27 @@ def _convert_to_wflow_v1(
     logger.info("Converting config general, time and model sections")
     config_out = dict()
 
-    # Start with the general section
-    for key in ["dir_input", "dir_output"]:
-        value = get_config(key, config=config, fallback=None)
-        if value is not None:
-            config_out[key] = value
-
-    # Time section
-    config_out["time"] = {
-        "calendar": get_config(
-            "calendar", config=config, fallback="proleptic_gregorian"
-        ),
-        "starttime": get_config(
-            "starttime", config=config, fallback="2010-02-01T00:00:00"
-        ),
-        "endtime": get_config("endtime", config=config, fallback="2010-02-10T00:00:00"),
-        "time_units": get_config(
-            "time_units", config=config, fallback="days since 1900-01-01 00:00:00"
-        ),
-        "timestepsecs": get_config("timestepsecs", config=config, fallback=86400),
+    # Start with the general section - split into general, time and logging in v1
+    input_section = {
+        "general": ["dir_input", "dir_output", "fews_run"],
+        "time": [
+            "calendar",
+            "starttime",
+            "endtime",
+            "time_units",
+            "timestepsecs",
+        ],
+        "logging": ["loglevel", "path_log", "silent"],
     }
-
-    # Logging
-    config_out["logging"] = {
-        "loglevel": get_config("loglevel", config=config, fallback="info")
-    }
+    for section, options in input_section.items():
+        for key in options:
+            value = get_config(key, config=config, fallback=None)
+            if value is not None:
+                if section == "general":
+                    config_out[key] = value
+                else:
+                    config_out[section] = config_out.get(section, {})
+                    config_out[section][key] = value
 
     # Model section
     config_out["model"] = config["model"]
