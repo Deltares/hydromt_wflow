@@ -155,16 +155,19 @@ After it has been activated you can install hydromt-wflow into it using this com
     `conda env remove -n hydromt-wflow` **or** set a new name for the environment
     by changing `-n <name>` to the name of your new environment.
 
-.. Note::
+After you have installed ``hydromt_wflow`` in your environment you will also need to add
+the optional dependencies to it, if you want to make use of all the functionalities available:
 
-    Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately (in the activated environment).
+.. code-block:: console
 
-    .. code-block:: console
+  (hydromt-wflow) $ pip install gwwapi
+  (hydromt-wflow) $ pip install hydroengine
+  (hydromt-wflow) $ conda install pcraster
+  (hydromt-wflow) $ conda install wradlib
+  (hydromt-wflow) $ conda install pyet
+  (hydromt-wflow) $ conda install gdal
 
-      (hydromt-wflow) $ pip install gwwapi
-      (hydromt-wflow) $ pip install hydroengine
-
-    For a more indepth explanation on the dependencies see :ref:`this section <optional_dependencies>`.
+For a more indepth explanation on the dependencies see :ref:`this section <optional_dependencies>`.
 
 Install HydroMT-Wflow in an existing environment
 ------------------------------------------------
@@ -178,15 +181,24 @@ channels the installation may fail.
 
   $ conda install -c conda-forge hydromt_wflow -n <environment_name>
 
-.. Note::
-
-    Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.
-
 .. code-block:: console
 
   $ conda activate <environment_name>
-  $ pip install gwwapi
-  $ pip install hydroengine
+
+After you have installed ``hydromt_wflow`` in your environment you will also need to add
+the optional dependencies to it, if you want to make use of all the functionalities available:
+
+.. code-block:: console
+
+  (<environment_name>) $ pip install gwwapi
+  (<environment_name>) $ pip install hydroengine
+  (<environment_name>) $ conda install pcraster
+  (<environment_name>) $ conda install wradlib
+  (<environment_name>) $ conda install pyet
+  (<environment_name>) $ conda install gdal
+
+For a more indepth explanation on the dependencies see :ref:`this section <optional_dependencies>`.
+
 
 Developer install
 ==================
