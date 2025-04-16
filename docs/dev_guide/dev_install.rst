@@ -43,7 +43,7 @@ environment you can do so like this:
 
 
 Editors like vscode should be able to find pixi environments you make automatically,
-however if you use something else like `vim` or `helix` then you can make sure they run in
+however if you use something else like ``vim`` or ``helix`` then you can make sure they run in
 the context of your environment:
 
 .. code-block:: console

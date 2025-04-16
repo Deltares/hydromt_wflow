@@ -5,21 +5,24 @@ Installation Guide
 ==================
 
 
+.. _optional_dependencies:
 
-Prerequisites
-=============
-For more information about the prerequisites for an installation of the HydroMT package
-and related dependencies, please visit the documentation of
-`HydroMT core <https://deltares.github.io/hydromt/latest/guides/user_guide/installation.html>`_
+Optional Dependencies
+=====================
 
-Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:
+HydroMT-Wflow has several optional dependencies that need to be installed in your environment to enable specific
+functionalities, though they are not necessary for hydromt-wflow to function as a whole. Due to limitations in the conda-forge
+package specification you will have to install these yourself in addition to hydromt-wflow if you want to use them.
 
-- `toml <https://github.com/uiri/toml>`_
-- `pcraster <https://pcraster.geo.uu.nl>`_ (optional)
-- `gwwapi <https://github.com/global-water-watch/gww-api>`_ (optional)
-- `hydroengine <https://github.com/openearth/hydro-engine>`_ (optional)
-- `wraplib <https://github.com/wradlib/wradlib>`_ (optional)
-- `pyet <https://github.com/pyet-org/pyet>`_ (optional)
+They are:
+- `pcraster <https://pcraster.geo.uu.nl>`_ This one is used for the reading and writing of pcr maps. Note that this one is only available on conda-forge so if you install hydromt-wflow through pypi you will not be able to access this functionality. 
+- `gwwapi <https://github.com/global-water-watch/gww-api>`_ This one is used for providing more resources about reservoirs and how to set them up. This one is only available through pypi at the moment. 
+- `hydroengine <https://github.com/openearth/hydro-engine>`_ Similar to ``gwwapi`` the ``hydroengine`` package gives access to more data sources, and is currently only available through pypi. 
+- `wraplib <https://github.com/wradlib/wradlib>`_ This package provides downloading and processing functionalities of radar weather data. 
+- `pyet <https://github.com/pyet-org/pyet>`_ Provides processing functionalities of evapotranspriation. 
+- `gdal <https://gdal.org/en/stable/>`_ Provides many drivers and GIS transformations.  Only available through conda-forge.
+
+Since some dependencies are only availabe through conda-forge and some only through pypi, you will need a packange manager that can handle both. 
 
 Installation
 ============
@@ -70,8 +73,10 @@ You can also add the optional dependencies to it like so:
   $ pixi add --pypi pyet
   $ pixi add gdal
 
-the `--pypi` in this case is necessary because these dependencies are only available through pypi and not conda-forge
+the ``--pypi`` in this case is necessary because these dependencies are only available through pypi and not conda-forge
 adding this flag will tell pixi to install them from there.
+
+For a more indepth explanation on the dependencies see :ref:`this section <optional_dependencies>`.
 
 Once you have your new (or existing ``pyproject.toml``) file install the pixi
 environment and activate it with the following commands to be able to start using it:
@@ -94,7 +99,7 @@ If you did not activate the shell you can still run the script in the environmen
 
   (hydromt-wflow) $ pixi run path/to/script.py
 
-If you intend to only use `hydromt_wflow` via the cli you can also install it globally using pixi like so:
+If you intend to only use ``hydromt_wflow`` via the cli you can also install it globally using pixi like so:
 
 .. code-block:: console
 
@@ -117,7 +122,7 @@ Installation using Conda
   installations to do this correctly, we recommend that if you do not want to use pixi, that you use a `miniforge<https://github.com/conda-forge/miniforge>` distribution which has this correctly
   configured by default.
 
-You can install HydroMT-Wflow in a new environment called `hydromt-wflow`:
+You can install HydroMT-Wflow in a new environment called ``hydromt-wflow``:
 
 .. code-block:: console
 
@@ -150,11 +155,13 @@ After it has been activated you can install hydromt-wflow into it using this com
       (hydromt-wflow) $ pip install gwwapi
       (hydromt-wflow) $ pip install hydroengine
 
+    For a more indepth explanation on the dependencies see :ref:`this section <optional_dependencies>`.
+
 Install HydroMT-Wflow in an existing environment
 ------------------------------------------------
 
 To install HydroMT-Wflow in an existing environment execute the command below
-where you replace `<environment_name>` with the name of the existing environment.
+where you replace ``<environment_name>`` with the name of the existing environment.
 Note that if some dependencies are not installed from conda-forge but from other
 channels the installation may fail.
 
