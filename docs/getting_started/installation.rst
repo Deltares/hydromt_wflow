@@ -59,10 +59,19 @@ navigate to this new directory and add ``hydromt_wflow`` as a dependency:
 
     $ pixi add hydromt_wflow[extra, examples] --pypi
 
-Pixi will then add it as a dependency to the project. The ``[full]`` is to make sure you include all
-of the optional dependencies.
+Pixi will then add it as a dependency to the project. The ``[extra, examples]`` instruct pixi to also
+include some optional dependencies.
 
-You can also add the optional dependencies to it like so:
+If you don't want these extra dependencies (or need specific versions, or only want some)
+
+You can also add it like so:
+
+.. code-block:: console
+
+    $ pixi add hydromt_wflow
+
+This will install hydromt_wflow from conda-forge without any of the optional dependencies
+which you can then add yourself afterwards as you like:
 
 .. code-block:: console
 
