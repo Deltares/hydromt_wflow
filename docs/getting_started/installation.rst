@@ -57,9 +57,9 @@ navigate to this new directory and add ``hydromt_wflow`` as a dependency:
 
 .. code-block:: console
 
-    $ pixi add hydromt_wflow[extra, examples] --pypi
+    $ pixi add hydromt_wflow[extra] --pypi
 
-Pixi will then add it as a dependency to the project. The ``[extra, examples]`` instruct pixi to also
+Pixi will then add it as a dependency to the project. The ``[extra]`` instruct pixi to also
 include some optional dependencies.
 
 If you don't want these extra dependencies (or need specific versions, or only want some)
