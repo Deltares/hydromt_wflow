@@ -78,8 +78,8 @@ which you can then add yourself afterwards as you like:
   $ pixi add gwwapi --pypi
   $ pixi add hydroengine --pypi
   $ pixi add pcraster
-  $ pixi add --pypi wradlib
-  $ pixi add --pypi pyet
+  $ pixi add wradlib
+  $ pixi add pyet
   $ pixi add gdal
 
 the ``--pypi`` in this case is necessary because these dependencies are only available through pypi and not conda-forge
