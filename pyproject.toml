@@ -260,13 +260,13 @@ python = "3.11.*"
 
 ## Define the environments
 [tool.pixi.environments]
-default         = { features = ["py313", "dev", "docs", "examples", "extra", "test"] }
-docs            = { features = ["docs", "examples", "extra"] }
-full            = { features = ["extra"] }
-slim            = { features = [] }
-test-slim-py313 = { features = ["py313", "test"] }
-test-slim-py312 = { features = ["py312", "test"] }
-test-slim-py311 = { features = ["py311", "test"] }
-test-full-py313 = { features = ["py313", "extra", "test"] }
-test-full-py312 = { features = ["py312", "extra", "test"] }
-test-full-py311 = { features = ["py311", "extra", "test"] }
+default         = { features = ["py313", "dev", "docs", "examples", "extra", "test"], solve-group="py313" }
+docs            = { features = ["py313", "docs", "examples", "extra"], solve-group="py313" }
+full            = { features = ["py313", "extra"], solve-group="py313" }
+slim            = { features = ["py313"], solve-group="py313" }
+test-slim-py313 = { features = ["py313", "test"], solve-group="py313" }
+test-slim-py312 = { features = ["py312", "test"], solve-group="py312" }
+test-slim-py311 = { features = ["py311", "test"], solve-group="py311" }
+test-full-py313 = { features = ["py313", "extra", "test"], solve-group="py313" }
+test-full-py312 = { features = ["py312", "extra", "test"], solve-group="py312" }
+test-full-py311 = { features = ["py311", "extra", "test"], solve-group="py311" }
