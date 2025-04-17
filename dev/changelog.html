@@ -53,7 +53,7 @@
     <link rel="prev" title="Developments" href="dev_guide/intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.8.1.dev0" />
+  <meta name="docsearch:version" content="1.0.0.dev" />
   </head>
   
   
@@ -446,9 +446,6 @@
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>Updated installation guide (#376)</p></li>
-</ul>
 </section>
 <section id="deprecated">
 <h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
@@ -470,13 +467,7 @@
 <section id="id2">
 <h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p>Changed name of <cite>g_tt</cite> parameter to <cite>g_ttm</cite>, to align with the changes in <a class="github reference external" href="https://github.com/Deltares/Wflow.jl/pull/512">Deltares/Wflow.jl#512</a></p></li>
 <li><p><strong>setup_allocation_areas</strong>: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334</p></li>
-<li><p><strong>setup_soilmaps</strong> [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.</p></li>
-<li><p><strong>setup_soilmaps</strong> [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).</p></li>
-<li><p><strong>setup_constant_pars</strong> [sediment]: added additional default values for sediment density and particle diameters.</p></li>
-<li><p><strong>setup_riverbedsed</strong> [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.</p></li>
-<li><p>Grid data is masked to subcatchment on <cite>set_grid</cite> now instead of on <cite>write_grid</cite> (#349)</p></li>
 </ul>
 </section>
 <section id="id3">
