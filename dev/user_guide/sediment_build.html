@@ -540,7 +540,8 @@ to a model component with the same name.</p>
 
 <span class="nt">setup_soilmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">        </span><span class="c1"># source for soilmaps: {soilgrids}</span>
-<span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">           </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">      </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">add_aggregates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">      </span><span class="c1"># if True add small and large aggregates to soil composition</span>
 
 <span class="nt">setup_outlets</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">river_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
@@ -557,6 +558,13 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">eros_spl_EUROSEM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
 <span class="w">  </span><span class="nt">exp_Bagnold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
 <span class="w">  </span><span class="nt">ResTrapEff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">  </span><span class="nt">sediment_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
+<span class="w">  </span><span class="nt">dm_clay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">dm_silt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="nt">dm_sand</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="nt">dm_gravel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">  </span><span class="nt">dm_sagg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">dm_lagg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
 </pre></div>
 </div>
 </section>

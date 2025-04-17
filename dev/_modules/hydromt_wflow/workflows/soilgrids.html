@@ -1198,19 +1198,35 @@
 
 <div class="viewcode-block" id="soilgrids_sediment">
 <a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">soilgrids_sediment</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ds_like</span><span class="p">,</span> <span class="n">usleK_method</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">soilgrids_sediment</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">usleK_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
+    <span class="n">add_aggregates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return soil parameter maps for sediment modelling at model resolution.</span>
 
 <span class="sd">    Based on soil properties from SoilGrids dataset.</span>
+<span class="sd">    Sediment size distribution and addition of small and large aggregates can be</span>
+<span class="sd">    estimated from primary particle size distribution with Foster et al. (1980).</span>
+<span class="sd">    USLE K factor can be computed from the soil data using Renard or EPIC methods.</span>
+<span class="sd">    Calculation of D50 and fraction of fine and very fine sand (fvfs) from</span>
+<span class="sd">    Fooladmand et al, 2006.</span>
 
 <span class="sd">    The following soil parameter maps are calculated:</span>
 
-<span class="sd">    * PercentClay: clay content of the topsoil [%]</span>
-<span class="sd">    * PercentSilt: silt content of the topsoil [%]</span>
-<span class="sd">    * PercentOC: organic carbon in the topsoil [%]</span>
-<span class="sd">    * ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]</span>
-<span class="sd">    * USLE_K: soil erodibility factor from the USLE equation [-]</span>
+<span class="sd">    * fclay_soil: clay content of the topsoil [g/g]</span>
+<span class="sd">    * fsilt_soil: silt content of the topsoil [g/g]</span>
+<span class="sd">    * fsand_soil: sand content of the topsoil [g/g]</span>
+<span class="sd">    * fsagg_soil: small aggregate content of the topsoil [g/g]</span>
+<span class="sd">    * flagg_soil: large aggregate content of the topsoil [g/g]</span>
+<span class="sd">    * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]</span>
+<span class="sd">    * usle_k: soil erodibility factor from the USLE equation [-]</span>
+<span class="sd">    * d50_soil: median sediment diameter of the soil [mm]</span>
+<span class="sd">    * c_govers: Govers factor for overland flow transport capacity [-]</span>
+<span class="sd">    * n_govers: Govers exponent for overland flow transport capacity [-]</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1220,6 +1236,8 @@
 <span class="sd">        Dataset at model resolution.</span>
 <span class="sd">    usleK_method : str</span>
 <span class="sd">        Method to use for calculation of USLE_K {&quot;renard&quot;, &quot;epic&quot;}.</span>
+<span class="sd">    add_aggregates : bool</span>
+<span class="sd">        Add small and large aggregates to the soil properties. Default is True.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1235,16 +1253,8 @@
 
     <span class="c1"># soil properties</span>
     <span class="n">pclay</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;clyppt_sl1&quot;</span><span class="p">]</span>
-    <span class="n">percentclay</span> <span class="o">=</span> <span class="n">pclay</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;PercentClay&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percentclay</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-
     <span class="n">psilt</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sltppt_sl1&quot;</span><span class="p">]</span>
-    <span class="n">percentsilt</span> <span class="o">=</span> <span class="n">psilt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;PercentSilt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percentsilt</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-
     <span class="n">poc</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;oc_sl1&quot;</span><span class="p">]</span>
-    <span class="n">percentoc</span> <span class="o">=</span> <span class="n">poc</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;PercentOC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">percentoc</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># Detachability of the soil</span>
     <span class="n">erosK</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
@@ -1256,7 +1266,7 @@
         <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">erosK</span> <span class="o">=</span> <span class="n">erosK</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;ErosK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">erosK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_detachability&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">erosK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># USLE K parameter</span>
     <span class="k">if</span> <span class="n">usleK_method</span> <span class="o">==</span> <span class="s2">&quot;renard&quot;</span><span class="p">:</span>
@@ -1279,7 +1289,61 @@
             <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="n">usleK</span> <span class="o">=</span> <span class="n">usleK</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;USLE_K&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usleK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;usle_k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usleK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Mean diameter of the soil</span>
+    <span class="n">d50</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+        <span class="n">ptf</span><span class="o">.</span><span class="n">mean_diameter_soil</span><span class="p">,</span>
+        <span class="n">pclay</span><span class="p">,</span>
+        <span class="n">psilt</span><span class="p">,</span>
+        <span class="n">dask</span><span class="o">=</span><span class="s2">&quot;parallelized&quot;</span><span class="p">,</span>
+        <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+        <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;d50_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d50</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Govers factor and exponent for overland flow transport capacity</span>
+    <span class="n">c_govers</span> <span class="o">=</span> <span class="p">((</span><span class="n">d50</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.32</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.6</span><span class="p">)</span>
+    <span class="n">n_govers</span> <span class="o">=</span> <span class="p">((</span><span class="n">d50</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mi">300</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;c_govers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_govers</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+        <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;n_govers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_govers</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+        <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># Sediment size distribution</span>
+    <span class="k">if</span> <span class="n">add_aggregates</span><span class="p">:</span>
+        <span class="n">fclay</span> <span class="o">=</span> <span class="mf">0.20</span> <span class="o">*</span> <span class="n">pclay</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="n">fsilt</span> <span class="o">=</span> <span class="mf">0.13</span> <span class="o">*</span> <span class="n">psilt</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="n">fsand</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pclay</span> <span class="o">/</span> <span class="mi">100</span> <span class="o">-</span> <span class="n">psilt</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">pclay</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span> <span class="o">**</span> <span class="mf">2.4</span>
+        <span class="n">fsagg</span> <span class="o">=</span> <span class="mf">0.28</span> <span class="o">*</span> <span class="p">(</span><span class="n">pclay</span> <span class="o">/</span> <span class="mi">100</span> <span class="o">-</span> <span class="mf">0.25</span><span class="p">)</span> <span class="o">+</span> <span class="mf">0.5</span>
+        <span class="n">fsagg</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pclay</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">,</span> <span class="mf">0.57</span><span class="p">)</span>
+        <span class="n">fsagg</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">pclay</span> <span class="o">&gt;</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pclay</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fclay</span> <span class="o">=</span> <span class="n">pclay</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="n">fsilt</span> <span class="o">=</span> <span class="n">psilt</span> <span class="o">/</span> <span class="mi">100</span>
+        <span class="n">fsagg</span> <span class="o">=</span> <span class="n">fclay</span> <span class="o">*</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Reproject to model resolution</span>
+    <span class="n">fclay</span> <span class="o">=</span> <span class="n">fclay</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fclay_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fclay</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">fsilt</span> <span class="o">=</span> <span class="n">fsilt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsilt_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsilt</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">fsagg</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsagg_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="c1"># Make sure that the sum of the percentages is 100</span>
+    <span class="k">if</span> <span class="n">add_aggregates</span><span class="p">:</span>
+        <span class="n">fsand</span> <span class="o">=</span> <span class="n">fsand</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsand_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsand</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;flagg_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fclay</span> <span class="o">-</span> <span class="n">fsilt</span> <span class="o">-</span> <span class="n">fsand</span> <span class="o">-</span> <span class="n">fsagg</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsand_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fclay</span> <span class="o">-</span> <span class="n">fsilt</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;flagg_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">fclay</span> <span class="o">*</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># for writing pcraster map files a scalar nodata value is required</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="p">:</span>

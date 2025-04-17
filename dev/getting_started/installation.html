@@ -436,13 +436,15 @@
 <p>HydroMT-Wflow has several optional dependencies that need to be installed in your environment to enable specific
 functionalities, though they are not necessary for hydromt-wflow to function as a whole. Due to limitations in the conda-forge
 package specification you will have to install these yourself in addition to hydromt-wflow if you want to use them.</p>
-<p>They are:
-- <a class="reference external" href="https://pcraster.geo.uu.nl">pcraster</a> This one is used for the reading and writing of pcr maps. Note that this one is only available on conda-forge so if you install hydromt-wflow through pypi you will not be able to access this functionality.
-- <a class="reference external" href="https://github.com/global-water-watch/gww-api">gwwapi</a> This one is used for providing more resources about reservoirs and how to set them up. This one is only available through pypi at the moment.
-- <a class="reference external" href="https://github.com/openearth/hydro-engine">hydroengine</a> Similar to <code class="docutils literal notranslate"><span class="pre">gwwapi</span></code> the <code class="docutils literal notranslate"><span class="pre">hydroengine</span></code> package gives access to more data sources, and is currently only available through pypi.
-- <a class="reference external" href="https://github.com/wradlib/wradlib">wradlib</a> This package provides downloading and processing functionalities of radar weather data.
-- <a class="reference external" href="https://github.com/pyet-org/pyet">pyet</a> Provides processing functionalities of evapotranspriation.
-- <a class="reference external" href="https://gdal.org/en/stable/">gdal</a> Provides many drivers and GIS transformations.  Only available through conda-forge.</p>
+<p>They are:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pcraster.geo.uu.nl">pcraster</a> This package is used for the reading and writing of pcr maps, which is the file format used by the old Wflow software (written in Python). It is therefore required when you want to convert Wflow models from the Python version to the Julia version. Note that the pcraster package is only available on conda-forge which works if you install hydromt-wflow using Pixi or Conda. If you install hydromt-wflow through pypi you will not be able to access this functionality.</p></li>
+<li><p><a class="reference external" href="https://github.com/global-water-watch/gww-api">gwwapi</a> This package is used for providing more resources about reservoirs monitored by the Global Water Watch project. This package is only available through pypi at the moment.</p></li>
+<li><p><a class="reference external" href="https://github.com/openearth/hydro-engine">hydroengine</a> Similar to <code class="docutils literal notranslate"><span class="pre">gwwapi</span></code> the <code class="docutils literal notranslate"><span class="pre">hydroengine</span></code> package gives access to more data sources, and is currently only available through pypi.</p></li>
+<li><p><a class="reference external" href="https://github.com/wradlib/wradlib">wradlib</a> Provides downloading and processing functionalities of radar weather data and interpolation functions. Available in both conda-forge and pypi.</p></li>
+<li><p><a class="reference external" href="https://github.com/pyet-org/pyet">pyet</a> Provides processing functionalities of several methods to calculate evapotranspriation. Available in both conda-forge and pypi.</p></li>
+<li><p><a class="reference external" href="https://gdal.org/en/stable/">gdal</a> Provides many drivers and GIS transformations.  Only available through conda-forge.</p></li>
+</ul>
 <p>Since some dependencies are only availabe through conda-forge and some only through pypi, you will need a packange manager that can handle both.</p>
 </section>
 <section id="installation">
@@ -503,7 +505,8 @@ environment and activate it with the following commands to be able to start usin
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>path/to/script.py
 </pre></div>
 </div>
-<p>If you intend to only use <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> via the cli you can also install it globally using pixi like so:</p>
+<p>If you intend to only use <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> via the command line interface (CLI, see also the explanation in
+the <a class="reference external" href="https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html">HydroMT-core docs</a>), then you can also install it globally using pixi like so:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>global<span class="w"> </span>install<span class="w"> </span>hydromt_wflow
 </pre></div>
 </div>

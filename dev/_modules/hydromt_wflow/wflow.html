@@ -439,9 +439,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pyflwdir</span><span class="w"> </span><span class="kn">import</span> <span class="n">core_conversion</span><span class="p">,</span> <span class="n">core_d8</span><span class="p">,</span> <span class="n">core_ldd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">box</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">utils</span><span class="p">,</span> <span class="n">workflows</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hydromt_wflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATADIR</span><span class="p">,</span> <span class="n">mask_raster_from_layer</span><span class="p">,</span> <span class="n">read_csv_results</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">workflows</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.naming</span><span class="w"> </span><span class="kn">import</span> <span class="n">HYDROMT_NAMES</span><span class="p">,</span> <span class="n">WFLOW_NAMES</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">DATADIR</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;WflowModel&quot;</span><span class="p">]</span>
 
@@ -3081,7 +3082,7 @@
 <span class="sd">        * **wflow_glacierareas** map: glacier IDs [-]</span>
 <span class="sd">        * **wflow_glacierfrac** map: area fraction of glacier per cell [-]</span>
 <span class="sd">        * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]</span>
-<span class="sd">        * **G_TT** map: temperature threshold for glacier melt/buildup [°C]</span>
+<span class="sd">        * **G_TTM** map: temperature threshold for glacier melt/buildup [°C]</span>
 <span class="sd">        * **G_Cfmax** map: glacier melting factor [mm/°C*day]</span>
 <span class="sd">        * **G_SIfrac** map: fraction of snowpack on top of glacier converted to ice, \</span>
 <span class="sd">added to glacierstore [-]</span>
@@ -3101,7 +3102,7 @@
             <span class="s2">&quot;input.vertical.glacierstore&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_glacierstore&quot;</span><span class="p">,</span>
             <span class="s2">&quot;input.vertical.glacierfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_glacierfrac&quot;</span><span class="p">,</span>
             <span class="s2">&quot;input.vertical.g_cfmax&quot;</span><span class="p">:</span> <span class="s2">&quot;G_Cfmax&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;input.vertical.g_tt&quot;</span><span class="p">:</span> <span class="s2">&quot;G_TT&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;input.vertical.g_ttm&quot;</span><span class="p">:</span> <span class="s2">&quot;G_TTM&quot;</span><span class="p">,</span>
             <span class="s2">&quot;input.vertical.g_sifrac&quot;</span><span class="p">:</span> <span class="s2">&quot;G_SIfrac&quot;</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="c1"># retrieve data for basin</span>
@@ -5277,11 +5278,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn</span><span class="p">)):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">fn</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Write grid to </span><span class="si">{</span><span class="n">fn</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="c1"># nodata is required for all but boolean fields</span>
-            <span class="k">if</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;bool&quot;</span><span class="p">:</span>
-                <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">v</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+
         <span class="n">ds_out</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span></div>
 
 
@@ -5295,7 +5292,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add data to grid.</span>
 
 <span class="sd">        All layers of grid must have identical spatial coordinates. This is an inherited</span>
-<span class="sd">        method from HydroMT-core&#39;s GridModel.set_grid with some fixes.</span>
+<span class="sd">        method from HydroMT-core&#39;s GridModel.set_grid with some fixes. If basin data is</span>
+<span class="sd">        available the grid will be masked to that upon setting.</span>
 
 <span class="sd">        The first fix is when data with a time axis is being added. Since Wflow.jl</span>
 <span class="sd">        v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as</span>
@@ -5352,6 +5350,7 @@
                 <span class="c1"># Use `_grid` as `grid` cannot be set</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">vars_to_drop</span><span class="p">)</span>
 
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mask_raster_from_layer</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">])</span>
         <span class="c1"># fall back on default set_grid behaviour</span>
         <span class="n">GridModel</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div>
 
@@ -5817,9 +5816,7 @@
             <span class="n">csv_fn</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">csv_fn</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="n">csv_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">csv_fn</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">csv_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">isfile</span><span class="p">(</span><span class="n">csv_fn</span><span class="p">):</span>
-            <span class="n">csv_dict</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">read_csv_results</span><span class="p">(</span>
-                <span class="n">csv_fn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span>
-            <span class="p">)</span>
+            <span class="n">csv_dict</span> <span class="o">=</span> <span class="n">read_csv_results</span><span class="p">(</span><span class="n">csv_fn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">maps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">csv_dict</span><span class="p">:</span>
                 <span class="c1"># Add to results</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">set_results</span><span class="p">(</span><span class="n">csv_dict</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span></div>

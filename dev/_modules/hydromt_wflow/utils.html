@@ -565,6 +565,7 @@
                     <span class="c1"># Filter and reduce full_index based on mask</span>
                     <span class="n">full_index</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span> <span class="o">!=</span> <span class="n">mask</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                     <span class="n">full_index</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
                     <span class="n">mask_index</span> <span class="o">=</span> <span class="n">full_index</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
                     <span class="n">mask_index</span> <span class="o">=</span> <span class="n">mask_index</span><span class="p">[</span><span class="n">mask_index</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
                     <span class="c1"># idx corresponding to the wflow index</span>
@@ -735,6 +736,44 @@
 
     <span class="k">return</span> <span class="n">da</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">mask_raster_from_layer</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">layer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mask the data in the supplied grid based on the value in one of the layers.</span>
+
+<span class="sd">        This for example can be used to mask a grid based on subcatchment data.</span>
+<span class="sd">        All data in the rest of the data variables in the dataset will be set to</span>
+<span class="sd">        the `raster.nodata` value except for boolean variables which will be set to</span>
+<span class="sd">        False. If the supplied grid is not an xarray dataset, or does not contain</span>
+<span class="sd">        the correct layer, it will be returned unaltered.</span>
+
+<span class="sd">        The layer supplied can be either boolean or numeric. Array elements where the</span>
+<span class="sd">        layer is larger than 0 (after type conversion) will be masked.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">        ds_grid (xr.Dataset):</span>
+<span class="sd">            The grid containing both the data that should be masked and a layer that</span>
+<span class="sd">            will be used to determine the mask</span>
+<span class="sd">        layer_name (string):</span>
+<span class="sd">            name of the layer that the grid will be masked to. Values can be boolean or</span>
+<span class="sd">            numeric. Places where this layer is greater than 0 will be masked in the</span>
+<span class="sd">            other data variables</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        xr.Dataset: The grid with all of the data variables masked.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds_grid</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="ow">and</span> <span class="n">layer_name</span> <span class="ow">in</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">layer_name</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_grid</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
+            <span class="c1"># nodata is required for all but boolean fields</span>
+            <span class="k">if</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="s2">&quot;bool&quot;</span><span class="p">:</span>
+                <span class="n">ds_grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ds_grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_grid</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_grid</span>
 </pre></div>
 
                 </article>
