@@ -330,23 +330,6 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
     assert int(mean_val) == 1672
 
 
-def test_soil_mapping(example_wflow_model):
-    # Read soil mapping table
-    soil_mapping = example_wflow_model.data_catalog.get_dataframe(
-        "soil_mapping_default"
-    )
-
-    ds_soil_params = workflows.landuse(
-        example_wflow_model.grid["wflow_soil"],
-        ds_like=example_wflow_model.grid,
-        df=soil_mapping,
-        logger=example_wflow_model.logger,
-    )
-
-    assert "InfiltCapSoil" in ds_soil_params
-    assert int(ds_soil_params["InfiltCapSoil"].mean().values) == 269
-
-
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read LAI data

@@ -1,7 +1,7 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Union
 
 import hydromt
 import numpy as np
@@ -10,7 +10,6 @@ import xarray as xr
 from scipy.optimize import curve_fit
 
 from . import ptf, soilparams
-from .landuse import landuse
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +450,6 @@ def soilgrids(
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
-    soil_mapping: Optional[pd.DataFrame] = None,
     wflow_layers: List[int] = [100, 300, 800],
     logger=logger,
 ):
@@ -501,8 +499,6 @@ index for the wflow_sbm soil layers.
     - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
-    - **InfiltCapPath** : Infiltration capacity of the soil based on soil texture \
-classes (optional).
 
 
     Parameters
@@ -515,10 +511,6 @@ classes (optional).
         PTF to use for calculation KsatVer.
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
-    soil_mapping : pd.DataFrame, optional
-        DataFrame containing soil mapping data based on soil texture. The index column
-        of the table should contain the soil 'texture' classes and the other columns
-        should be the name of the corresponding wflow parameter(s). By default None.
     wflow_layers : list
         List of soil layer depths [cm] for which c is calculated.
 
@@ -685,18 +677,6 @@ classes (optional).
     # np.nan is not a valid value for array with type integer
     ds_out["wflow_soil"] = soil_texture_out
     ds_out["wflow_soil"].raster.set_nodata(0)
-
-    # optional soil mapping
-    if soil_mapping is not None:
-        logger.info("Mapping soil parameters based on soil texture")
-        ds_soil_params = landuse(
-            soil_texture,
-            ds_like=ds_like,
-            df=soil_mapping,
-            logger=logger,
-        )
-        # Add to ds_out
-        ds_out = xr.merge([ds_out, ds_soil_params])
 
     # for writing pcraster map files a scalar nodata value is required
     dtypes = {"wflow_soil": np.int32}
