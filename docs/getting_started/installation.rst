@@ -15,6 +15,7 @@ functionalities, though they are not necessary for hydromt-wflow to function as 
 package specification you will have to install these yourself in addition to hydromt-wflow if you want to use them.
 
 They are:
+
 - `pcraster <https://pcraster.geo.uu.nl>`_ This one is used for the reading and writing of pcr maps. Note that this one is only available on conda-forge so if you install hydromt-wflow through pypi you will not be able to access this functionality.
 - `gwwapi <https://github.com/global-water-watch/gww-api>`_ This one is used for providing more resources about reservoirs and how to set them up. This one is only available through pypi at the moment.
 - `hydroengine <https://github.com/openearth/hydro-engine>`_ Similar to ``gwwapi`` the ``hydroengine`` package gives access to more data sources, and is currently only available through pypi.
