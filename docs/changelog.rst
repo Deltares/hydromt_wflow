@@ -18,6 +18,7 @@ Changed
 
 Fixed
 -----
+- Updated installation guide (#376)
 
 Deprecated
 ----------

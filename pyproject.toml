@@ -164,6 +164,8 @@ docs-html = { cmd = [
   "docs/_build",
   "-W",
 ] }
+doc = { depends-on = ["docs-html"]}
+docs = { depends-on = ["docs-html"]}
 docs-html-rebuild = { depends-on = ["clean-docs", "docs-html"] }
 serve = { cmd = [
   "python",
