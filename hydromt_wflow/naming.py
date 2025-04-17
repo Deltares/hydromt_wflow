@@ -212,7 +212,7 @@ WFLOW_NAMES = {
     },
     "InfiltCapSoil": {  # infiltcap_soil
         "wflow_v0": "vertical.infiltcapsoil",
-        "wflow_v1": "soil~non-compacted_surface_water__infiltration_capacity",
+        "wflow_v1": None,
     },
     "thetaR": {  # theta_r
         "wflow_v0": "vertical.theta_r",

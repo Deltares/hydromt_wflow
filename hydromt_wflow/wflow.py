@@ -2324,7 +2324,6 @@ Using default storage/outflow function parameters."
         self,
         soil_fn: str = "soilgrids",
         ptf_ksatver: str = "brakensiek",
-        soil_mapping_fn: Union[str, Path, pd.DataFrame] = None,
         wflow_thicknesslayers: List[int] = [100, 300, 800],
         output_names: Dict = {
             "soil_water__saturated_volume_fraction": "thetaS",
@@ -2391,7 +2390,6 @@ a map for each of the wflow_sbm soil layers (n in total)
         * **wflow_soil** map: soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
-        * **InfiltCapSoil** map (optional): soil infiltration capacity [mm/day]
 
 
         Parameters
@@ -2408,12 +2406,6 @@ a map for each of the wflow_sbm soil layers (n in total)
             Pedotransfer function (PTF) to use for calculation KsatVer
             (vertical saturated hydraulic conductivity [mm/day]).
             By default 'brakensiek'.
-        soil_mapping_fn : str, Path, pd.DataFrame, optional
-            Data catalog entry, path or pandas.DataFrame containing soil mapping data.
-            A default table *soil_mapping_default* is available to derive the
-            infiltration capacity of the soil. The first column of the table should
-            contain the soil 'texture' classes and the other columns should be the name
-            of the corresponding wflow parameter(s). By default None.
         wflow_thicknesslayers : list of int, optional
             Thickness of soil layers [mm] for wflow_sbm soil model.
             By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
@@ -2427,17 +2419,12 @@ a map for each of the wflow_sbm soil layers (n in total)
         self._update_naming(output_names)
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
-        if soil_mapping_fn is not None:
-            soil_mapping = self.data_catalog.get_dataframe(soil_mapping_fn)
-        else:
-            soil_mapping = None
 
         dsout = workflows.soilgrids(
             ds=dsin,
             ds_like=self.grid,
             ptfKsatVer=ptf_ksatver,
             soil_fn=soil_fn,
-            soil_mapping=soil_mapping,
             wflow_layers=wflow_thicknesslayers,
             logger=self.logger,
         ).reset_coords(drop=True)
@@ -2840,7 +2827,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             for key, value in paddy_waterlevels.items():
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
-            self.set_config("state.land_surface_water~paddy__depth", "h_paddy")
+            self.set_config(
+                "state.variables.land_surface_water~paddy__depth", "h_paddy"
+            )
         else:
             self.logger.info("No paddy fields found, skipping updating soil parameters")
 
