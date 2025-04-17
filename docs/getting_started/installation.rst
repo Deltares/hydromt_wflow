@@ -16,11 +16,11 @@ package specification you will have to install these yourself in addition to hyd
 
 They are:
 
-- `pcraster <https://pcraster.geo.uu.nl>`_ This one is used for the reading and writing of pcr maps. Note that this one is only available on conda-forge so if you install hydromt-wflow through pypi you will not be able to access this functionality.
-- `gwwapi <https://github.com/global-water-watch/gww-api>`_ This one is used for providing more resources about reservoirs and how to set them up. This one is only available through pypi at the moment.
+- `pcraster <https://pcraster.geo.uu.nl>`_ This package is used for the reading and writing of pcr maps, which is the file format used by the old Wflow software (written in Python). It is therefore required when you want to convert Wflow models from the Python version to the Julia version. Note that the pcraster package is only available on conda-forge which works if you install hydromt-wflow using Pixi or Conda. If you install hydromt-wflow through pypi you will not be able to access this functionality.
+- `gwwapi <https://github.com/global-water-watch/gww-api>`_ This package is used for providing more resources about reservoirs monitored by the Global Water Watch project. This package is only available through pypi at the moment.
 - `hydroengine <https://github.com/openearth/hydro-engine>`_ Similar to ``gwwapi`` the ``hydroengine`` package gives access to more data sources, and is currently only available through pypi.
-- `wradlib <https://github.com/wradlib/wradlib>`_ Provides downloading and processing functionalities of radar weather data and interpolation of station data.
-- `pyet <https://github.com/pyet-org/pyet>`_ Provides processing functionalities of evapotranspriation.
+- `wradlib <https://github.com/wradlib/wradlib>`_ Provides downloading and processing functionalities of radar weather data and interpolation functions. Available in both conda-forge and pypi.
+- `pyet <https://github.com/pyet-org/pyet>`_ Provides processing functionalities of several methods to calculate evapotranspriation. Available in both conda-forge and pypi.
 - `gdal <https://gdal.org/en/stable/>`_ Provides many drivers and GIS transformations.  Only available through conda-forge.
 
 Since some dependencies are only availabe through conda-forge and some only through pypi, you will need a packange manager that can handle both.
@@ -109,7 +109,8 @@ If you did not activate the shell you can still run the script in the environmen
 
   (hydromt-wflow) $ pixi run path/to/script.py
 
-If you intend to only use ``hydromt_wflow`` via the command line interface (CLI, see also the explanation on the `HydroMT-core docs <https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html>`_), then you can also install it globally using pixi like so:
+If you intend to only use ``hydromt_wflow`` via the command line interface (CLI, see also the explanation in
+the `HydroMT-core docs <https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html>`_), then you can also install it globally using pixi like so:
 
 .. code-block:: console
 
