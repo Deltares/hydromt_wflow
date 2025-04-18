@@ -128,6 +128,13 @@ def wflow_1dmodel_connection(
         riv1d = gdf_riv.explode(index_parts=True).reset_index(drop=True)
         # clip to basins
         riv1d = riv1d.clip(basin_mask)
+        if any(riv1d.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
+            raise ValueError(
+                "The provided river geometry contains MultiLineString geometries after"
+                "clipping. Consider checking if the provided river geometry crosses the"
+                "boundary of the Wflow model."
+            )
+
         # get the edges of the riv1d
         riv1d_edges = riv1d.geometry.apply(lambda x: Point(x.coords[0]))
         riv1d_edges = pd.concat(
