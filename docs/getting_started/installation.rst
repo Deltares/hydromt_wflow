@@ -110,15 +110,28 @@ If you did not activate the shell you can still run the script in the environmen
   (hydromt-wflow) $ pixi run path/to/script.py
 
 If you intend to only use ``hydromt_wflow`` via the command line interface (CLI, see also the explanation in
-the `HydroMT-core docs <https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html>`_), then you can also install it globally using pixi like so:
+the `HydroMT-core docs <https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html>`_), then you can also install it globally using pixi.
+This will allow you to access HydroMT functionality without having to create a `pyproject.toml` file for your project.
+Building or updating a Wflow model is done by calling `hydromt wflow ...` in the CLI, which means that we need to access `hydromt_wflow` through `hydromt`.
+
+This means that we need to globally install `hydromt` with a `hydromt_wflow` dependency:
 
 .. code-block:: console
 
-  $ pixi global install hydromt_wflow
+  $ pixi global install hydromt --expose hydromt="hydromt" --with hydromt_wflow
 
-This will install hydromt_wflow in an isolated environment for you and make it available to run from basically
-anywhere on your system through the commandline
+This will install hydromt and hydromt_wflow in an isolated environment for you and make it available to run from basically
+anywhere on your system through the commandline. For more information on global tools in pixi, see also the description in the
+`pixi documentation <https://pixi.sh/latest/global_tools/introduction/#basic-usage>`_.
 
+.. Warning::
+
+  The current version of hydromt_wflow is not compatible with hydromt version 1 and later. As a result, we need to restrict the version of hydromt
+  to ensure that the latest version of hydromt_wflow is installed:
+
+  .. code-block:: console
+
+      $ pixi global install hydromt"==0.10.1" --expose hydromt="hydromt" --with hydromt_wflow
 
 .. _user_install_conda:
 
