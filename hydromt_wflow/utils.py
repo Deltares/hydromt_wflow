@@ -3,7 +3,7 @@
 import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import numpy as np
 import xarray as xr

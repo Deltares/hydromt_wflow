@@ -8,7 +8,7 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
 
