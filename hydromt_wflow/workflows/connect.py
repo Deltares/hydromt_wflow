@@ -7,7 +7,7 @@ import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from shapely.geometry import Point
+from shapely.geometry import Point, MultiLineString
 
 logger = logging.getLogger(__name__)
 
