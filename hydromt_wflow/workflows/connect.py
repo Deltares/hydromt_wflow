@@ -7,7 +7,7 @@ import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from shapely.geometry import Point, MultiLineString
+from shapely.geometry import MultiLineString, Point
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ def wflow_1dmodel_connection(
         # clip to basins
         riv1d = riv1d.clip(basin_mask)
         if any(riv1d.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
-            raise ValueError(
+            raise ValueError(
                 "The provided river geometry contains MultiLineString geometries after"
                 "clipping. Consider checking if the provided river geometry crosses the"
                 "boundary of the Wflow model."
