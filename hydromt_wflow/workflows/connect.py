@@ -98,7 +98,7 @@ def wflow_1dmodel_connection(
     # Basin mask
     buffer_cells = 2
     basin_mask = ds_model["basins"].raster.vectorize()
-    basin_mask = basin_mask.buffer(-{buffer_cells} * max(ds_model.raster.res, key=abs))
+    basin_mask = basin_mask.buffer(-buffer_cells * max(ds_model.raster.res, key=abs))
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
