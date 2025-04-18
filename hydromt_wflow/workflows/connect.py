@@ -96,8 +96,9 @@ def wflow_1dmodel_connection(
     # Derive flwdir
     flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
     # Basin mask
+    buffer_cells = 2
     basin_mask = ds_model["basins"].raster.vectorize()
-    basin_mask = basin_mask.buffer(-2 * max(ds_model.raster.res, key=abs))
+    basin_mask = basin_mask.buffer(-{buffer_cells} * max(ds_model.raster.res, key=abs))
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
@@ -132,7 +133,8 @@ def wflow_1dmodel_connection(
             raise ValueError(
                 "The provided river geometry contains MultiLineString geometries after"
                 "clipping. Consider checking if the provided river geometry crosses the"
-                "boundary of the Wflow model."
+                "boundary of the Wflow model and if there is sufficient space between"
+                f"the river and the Wflow model boundary (min. {buffer_cells} cells)."
             )
 
         # get the edges of the riv1d
