@@ -139,9 +139,7 @@ def update_kvfrac(
     # Prepare empty dataarray
     da_kvfrac = raster.full_like(ds_model["c"])
     # Set all values to 1
-    da_kvfrac = da_kvfrac.where(
-        ds_model["wflow_dem"].raster.mask_nodata().isnull(), 1.0
-    )
+    da_kvfrac = da_kvfrac.where(ds_model["elevtn"].raster.mask_nodata().isnull(), 1.0)
 
     # Get the actual depths
     wflow_depths = np.cumsum(wflow_thicknesslayers)
@@ -236,7 +234,7 @@ def ksatver_vegetation(
     # interpolate to fill missing values
     sndppt = sndppt.raster.interpolate_na("rio_idw")
     # mask outside basin
-    sndppt = sndppt.where(ds_like["wflow_subcatch"] > 0)
+    sndppt = sndppt.where(ds_like["basins"] > 0)
 
     # mean annual lai is required (see fig 1 in Bonetti et al. 2021)
     LAI_mean = ds_like["LAI"].mean("time")
@@ -244,7 +242,7 @@ def ksatver_vegetation(
 
     # in this function, Ksatver should be provided in cm/d
     KSatVer_vegetation = get_ks_veg(
-        ds_like["KsatVer"] / 10, sndppt, LAI_mean, alfa, beta
+        ds_like["ksat_vertical"] / 10, sndppt, LAI_mean, alfa, beta
     )
 
     # convert back from cm/d to mm/d

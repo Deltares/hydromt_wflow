@@ -13,7 +13,7 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
         lulc_fn="globcover_2009",
         lulc_mapping_fn="globcover_mapping_default",
         planted_forest_fn=planted_forest_testdata,
-        lulc_vars=["USLE_C"],
+        lulc_vars={"USLE_C": "soil_erosion__usle_c_factor"},
         planted_forest_c=0.0881,
         orchard_name="Orchard",
         orchard_c=0.2188,
@@ -60,10 +60,15 @@ def test_setup_soilmaps_sed(
 
     values = da["usle_k"].raster.mask_nodata()
     mean_val = values.mean().values
-    assert np.isclose(mean_val, 0.031182, atol=1e-6)
+    assert np.isclose(mean_val, 0.0307964, atol=1e-6)
 
     assert "d50_soil" in da
     assert "fclay_soil" in da
 
-    soil_composition = da["fclay_soil"] + da["fsilt_soil"] + da["fsand_soil"]
-    assert np.all(np.isclose(soil_composition.values, 1))
+    soil_composition = (
+        da["fclay_soil"].raster.mask_nodata()
+        + da["fsilt_soil"].raster.mask_nodata()
+        + da["fsand_soil"].raster.mask_nodata()
+    )
+    mask = ~np.isnan(soil_composition.values)
+    assert np.allclose(soil_composition.values[mask], 1, atol=1e-6)

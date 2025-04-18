@@ -1,4 +1,8 @@
 setup_config:
+  output.netcdf_grid.path: output.nc
+  output.netcdf_grid.compressionlevel: 1
+  output.netcdf_grid.variables.soil_erosion__mass_flow_rate: soil_loss
+  output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration: TSS
 
 setup_basemaps:
   res: 0.016666666666666666
@@ -10,8 +14,6 @@ setup_rivers:
   hydrography_fn: merit_hydro
   river_geom_fn: hydro_rivers_lin
   river_upa: 30
-  rivdph_method: powlaw
-  min_rivdph: 1
   min_rivwth: 30
   slope_len: 2000
   smooth_len: 5000
@@ -19,6 +21,7 @@ setup_rivers:
 setup_reservoirs:
   reservoirs_fn: hydro_reservoirs
   min_area: 0.0
+  trapping_default: 1.0
 
 setup_lakes:
   lakes_fn: hydro_lakes
@@ -30,15 +33,13 @@ setup_lulcmaps:
   lulc_fn: globcover_2009
   lulc_mapping_fn: globcover_mapping_default
 
-setup_laimaps:
-  lai_fn: modis_lai
-
 setup_canopymaps:
   canopy_fn: simard
 
 setup_soilmaps:
   soil_fn: soilgrids
   usleK_method: renard
+  add_aggregates: True
 
 setup_outlets:
   river_only: True
@@ -49,9 +50,14 @@ setup_gauges:
   derive_subcatch: False
 
 setup_constant_pars:
-  c_Bagnold: 0.0000175
-  eros_expo: 1.5
-  eros_ov: 0.9
-  eros_spl_EUROSEM: 2.0
-  exp_Bagnold: 1.4
-  ResTrapEff: 1.0
+  land_surface_sediment__particle_density: 2650
+  clay__d50_diameter: 2
+  silt__d50_diameter: 10
+  "sediment_aggregates~small__d50_diameter": 30
+  sand__d50_diameter: 200
+  "sediment_aggregates~large__d50_diameter": 500
+  gravel__d50_diameter: 2000
+  river_water_sediment__bagnold_transport_capacity_coefficient: 0.0000175
+  soil_erosion__answers_overland_flow_factor: 0.9
+  soil_erosion__eurosem_exponent: 2.0
+  river_water_sediment__bagnold_transport_capacity_exponent: 1.4
