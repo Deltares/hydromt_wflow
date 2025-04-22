@@ -5444,9 +5444,54 @@ change name input.path_forcing "
         return gdf
 
     ## WFLOW specific modification (clip for now) methods
+    def clip(
+        self,
+        region: dict,
+        buffer: int = 0,
+        align: Optional[float] = None,
+        crs: int = 4326,
+        inverse_clip: bool = False,
+    ):
+        """Clip all model data and components to the new region.
 
-    def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
+        Parameters
+        ----------
+        region : dict
+            See :meth:`models.wflow.WflowModel.setup_basemaps`
+        buffer : int, optional
+            Buffer around subbasin in number of pixels, by default 0
+        align : float, optional
+            Align bounds of region to raster with resolution <align>, by default None
+        crs: int, optional
+            Default crs of the grid to clip.
+        inverse_clip: bool, optional
+            Flag to perform "inverse clipping": removing an upstream part of the model
+            instead of the subbasin itself, by default False
+
+        """
+        self.clip_grid(
+            region=region,
+            buffer=buffer,
+            align=align,
+            crs=crs,
+            inverse_clip=inverse_clip,
+        )
+        self.clip_forcing()
+        self.clip_states()
+
+        # TODO setup_outlets / setup_lakes / check lake exists in clipped model
+
+    def clip_grid(
+        self,
+        region: dict,
+        buffer: int = 0,
+        align: Optional[float] = None,
+        crs: int = 4326,
+        inverse_clip: bool = False,
+    ):
         """Clip grid to subbasin.
+
+        Should be called before clip_forcing and clip_states.
 
         Parameters
         ----------
@@ -5598,8 +5643,10 @@ change name input.path_forcing "
             if self.get_config("state.lateral.river.lake") is not None:
                 del self.config["state"]["lateral"]["river"]["lake"]
 
-    def clip_forcing(self, crs=4326, **kwargs):
+    def clip_forcing(self):
         """Return clippped forcing for subbasin.
+
+        Should be called after clip_grid.
 
         Returns
         -------
@@ -5614,8 +5661,10 @@ change name input.path_forcing "
             )
             self.set_forcing(ds_forcing)
 
-    def clip_states(self, crs=4326, **kwargs):
+    def clip_states(self):
         """Return clippped states for subbasin.
+
+        Should be called after clip_grid.
 
         Returns
         -------

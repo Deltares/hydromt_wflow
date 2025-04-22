@@ -137,7 +137,9 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
-def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
+def test_model_clip_grid(
+    tmpdir, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+):
     model = "wflow"
 
     # Clip method options
@@ -150,7 +152,63 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     # Clip workflow, based on example model
     example_wflow_model.read()
     example_wflow_model.set_root(destination, mode="w")
-    example_wflow_model.clip_grid(region)
+    example_wflow_model.clip(region=region)
+    example_wflow_model.write()
+    # Check if model is api compliant
+    non_compliant_list = example_wflow_model._test_model_api()
+    assert len(non_compliant_list) == 0
+
+    # Compare with model from examples folder
+    # (need to read it again for proper geoms check)
+    mod1 = WflowModel(root=destination, mode="r")
+    mod1.read()
+    # Read reference clipped model
+    clipped_wflow_model.read()
+    # compare models
+    _compare_wflow_models(clipped_wflow_model, mod1)
+
+
+def test_model_clip_grid_inverse(tmpdir, example_wflow_model: WflowModel):
+    # Clip method options
+    region = {
+        "subbasin": [12.3006, 46.4324],
+        "wflow_streamorder": 4,
+    }
+
+    # Clip workflow, based on example model
+    example_wflow_model.read()
+    # Get number of active pixels from full model
+    n_pixels_full = example_wflow_model.grid["wflow_subcatch"].sum()
+    example_wflow_model.clip(region=region, inverse_clip=True)
+    # Get number of active pixels from inversely clipped model
+    n_pixels_inverse_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+
+    # Do clipping again, but normally
+    example_wflow_model.read()
+    example_wflow_model.clip_grid(region=region, inverse_clip=False)
+    # Get number of active pixels from clipped model
+    n_pixels_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+
+    assert n_pixels_inverse_clipped < n_pixels_full
+    assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
+
+
+def test_model_clip_forcing(
+    tmpdir, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+):
+    model = "wflow"
+
+    # Clip method options
+    destination = str(tmpdir.join(model))
+    region = {
+        "subbasin": [12.3006, 46.4324],
+        "wflow_streamorder": 4,
+    }
+
+    # Clip workflow, based on example model
+    example_wflow_model.read()
+    example_wflow_model.set_root(destination, mode="w")
+    example_wflow_model.clip_grid(region=region)
     example_wflow_model.clip_forcing()
     example_wflow_model.write()
     # Check if model is api compliant
@@ -167,8 +225,13 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-def test_model_inverse_clip(tmpdir, example_wflow_model):
+def test_model_clip_states(
+    tmpdir, example_wflow_model: WflowModel, clipped_wflow_model: WflowModel
+):
+    model = "wflow"
+
     # Clip method options
+    destination = str(tmpdir.join(model))
     region = {
         "subbasin": [12.3006, 46.4324],
         "wflow_streamorder": 4,
@@ -176,20 +239,22 @@ def test_model_inverse_clip(tmpdir, example_wflow_model):
 
     # Clip workflow, based on example model
     example_wflow_model.read()
-    # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.grid["wflow_subcatch"].sum()
-    example_wflow_model.clip_grid(region, inverse_clip=True)
-    # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+    example_wflow_model.set_root(destination, mode="w")
+    example_wflow_model.clip_grid(region=region)
+    example_wflow_model.clip_states()
+    example_wflow_model.write()
+    # Check if model is api compliant
+    non_compliant_list = example_wflow_model._test_model_api()
+    assert len(non_compliant_list) == 0
 
-    # Do clipping again, but normally
-    example_wflow_model.read()
-    example_wflow_model.clip_grid(region, inverse_clip=False)
-    # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
-
-    assert n_pixels_inverse_clipped < n_pixels_full
-    assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
+    # Compare with model from examples folder
+    # (need to read it again for proper geoms check)
+    mod1 = WflowModel(root=destination, mode="r")
+    mod1.read()
+    # Read reference clipped model
+    clipped_wflow_model.read()
+    # compare models
+    _compare_wflow_models(clipped_wflow_model, mod1)
 
 
 def test_model_results(example_wflow_results):
