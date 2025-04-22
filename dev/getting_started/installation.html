@@ -53,7 +53,7 @@
     <link rel="prev" title="Getting started" href="intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.8.1.dev0" />
+  <meta name="docsearch:version" content="1.0.0.dev" />
   </head>
   
   
@@ -431,120 +431,47 @@
                   
   <section id="installation-guide">
 <span id="id1"></span><h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading">#</a></h1>
-<section id="optional-dependencies">
-<span id="id2"></span><h2>Optional Dependencies<a class="headerlink" href="#optional-dependencies" title="Link to this heading">#</a></h2>
-<p>HydroMT-Wflow has several optional dependencies that need to be installed in your environment to enable specific
-functionalities, though they are not necessary for hydromt-wflow to function as a whole. Due to limitations in the conda-forge
-package specification you will have to install these yourself in addition to hydromt-wflow if you want to use them.</p>
-<p>They are:</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<p>For more information about the prerequisites for an installation of the HydroMT package
+and related dependencies, please visit the documentation of
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide">HydroMT core</a></p>
+<p>Compared to HydroMT, HydroMT-Wflow has additional dependencies, namely:</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://pcraster.geo.uu.nl">pcraster</a> This package is used for the reading and writing of pcr maps, which is the file format used by the old Wflow software (written in Python). It is therefore required when you want to convert Wflow models from the Python version to the Julia version. Note that the pcraster package is only available on conda-forge which works if you install hydromt-wflow using Pixi or Conda. If you install hydromt-wflow through pypi you will not be able to access this functionality.</p></li>
-<li><p><a class="reference external" href="https://github.com/global-water-watch/gww-api">gwwapi</a> This package is used for providing more resources about reservoirs monitored by the Global Water Watch project. This package is only available through pypi at the moment.</p></li>
-<li><p><a class="reference external" href="https://github.com/openearth/hydro-engine">hydroengine</a> Similar to <code class="docutils literal notranslate"><span class="pre">gwwapi</span></code> the <code class="docutils literal notranslate"><span class="pre">hydroengine</span></code> package gives access to more data sources, and is currently only available through pypi.</p></li>
-<li><p><a class="reference external" href="https://github.com/wradlib/wradlib">wradlib</a> Provides downloading and processing functionalities of radar weather data and interpolation functions. Available in both conda-forge and pypi.</p></li>
-<li><p><a class="reference external" href="https://github.com/pyet-org/pyet">pyet</a> Provides processing functionalities of several methods to calculate evapotranspriation. Available in both conda-forge and pypi.</p></li>
-<li><p><a class="reference external" href="https://gdal.org/en/stable/">gdal</a> Provides many drivers and GIS transformations.  Only available through conda-forge.</p></li>
+<li><p><a class="reference external" href="https://github.com/uiri/toml">toml</a></p></li>
+<li><p><a class="reference external" href="https://pcraster.geo.uu.nl">pcraster</a> (optional)</p></li>
+<li><p><a class="reference external" href="https://github.com/global-water-watch/gww-api">gwwapi</a> (optional)</p></li>
+<li><p><a class="reference external" href="https://github.com/openearth/hydro-engine">hydroengine</a> (optional)</p></li>
 </ul>
-<p>Since some dependencies are only availabe through conda-forge and some only through pypi, you will need a packange manager that can handle both.</p>
+<p>If you already have a python &amp; conda installation but do not yet have mamba installed,
+we recommend installing it into your <em>base</em> environment using:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>mamba<span class="w"> </span>-n<span class="w"> </span>base<span class="w"> </span>-c<span class="w"> </span>conda-forge
+</pre></div>
+</div>
 </section>
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
-<p>There are various ways in which one can install hydrom_wflow in a python environment, the main being:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="#user-install-pixi"><span class="std std-ref">Pixi</span></a></p></li>
-<li><p><a class="reference internal" href="#user-install-conda"><span class="std std-ref">Miniforge/conda</span></a></p></li>
-</ul>
-<p>All of these options will be discussed below but we recommend using pixi, as it is the fastest and most
-robust (and reproducible) option.</p>
-<section id="installation-using-pixi">
-<span id="user-install-pixi"></span><h3>Installation using Pixi<a class="headerlink" href="#installation-using-pixi" title="Link to this heading">#</a></h3>
+<p>HydroMT-Wflow is available from pypi and conda-forge.
+We recommend installing using mamba from conda-forge in a new environment.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the commands below you can exchange <cite>mamba</cite> for <cite>conda</cite>, see
+<a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/installation.html#installation-guide">here</a>
+for the difference between both.</p>
+</div>
+<section id="install-hydromt-wflow-in-a-new-environment">
+<h3>Install HydroMT-Wflow in a new environment<a class="headerlink" href="#install-hydromt-wflow-in-a-new-environment" title="Link to this heading">#</a></h3>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>This is our recommended way of installing HydroMT-Wflow!</p>
 </div>
-<p>If you do not have a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> yet you can make one by executing the command:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>init<span class="w"> </span>--format<span class="w"> </span>pyproject<span class="w"> </span>myproject
+<p>You can install HydroMT-Wflow in a new environment called <cite>hydromt-wflow</cite>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hydromt-wflow<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow
 </pre></div>
 </div>
-<p>A new folder with a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> called <code class="docutils literal notranslate"><span class="pre">myproject</span></code> will be created for you. After this, you can
-navigate to this new directory and add <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> as a dependency:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydromt_wflow<span class="o">[</span>extra<span class="o">]</span><span class="w"> </span>--pypi
-</pre></div>
-</div>
-<p>Pixi will then add it as a dependency to the project. The <code class="docutils literal notranslate"><span class="pre">[extra]</span></code> instruct pixi to also
-include some optional dependencies.</p>
-<p>If you don’t want these extra dependencies (or need specific versions, or only want some)</p>
-<p>You can also add it like so:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydromt_wflow
-</pre></div>
-</div>
-<p>This will install hydromt_wflow from conda-forge without any of the optional dependencies
-which you can then add yourself afterwards as you like:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>gwwapi<span class="w"> </span>--pypi
-<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydroengine<span class="w"> </span>--pypi
-<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>pcraster
-<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>wradlib
-<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>pyet
-<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>gdal
-</pre></div>
-</div>
-<p>the <code class="docutils literal notranslate"><span class="pre">--pypi</span></code> in this case is necessary because these dependencies are only available through pypi and not conda-forge
-adding this flag will tell pixi to install them from there.</p>
-<p>For a more indepth explanation on the dependencies see <a class="reference internal" href="#optional-dependencies"><span class="std std-ref">this section</span></a>.</p>
-<p>Once you have your new (or existing <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>) file install the pixi
-environment and activate it with the following commands to be able to start using it:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>install
-<span class="gp">$ </span>pixi<span class="w"> </span>shell<span class="w"> </span>activate
-</pre></div>
-</div>
-<p>If you did activate the shell like above you should now be able to run any python script like usual:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>python<span class="w"> </span>path/to/script.py
-</pre></div>
-</div>
-<p>If you did not activate the shell you can still run the script in the environment by running it through pixi:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>path/to/script.py
-</pre></div>
-</div>
-<p>If you intend to only use <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> via the command line interface (CLI, see also the explanation in
-the <a class="reference external" href="https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html">HydroMT-core docs</a>), then you can also install it globally using pixi.
-This will allow you to access HydroMT functionality without having to create a <cite>pyproject.toml</cite> file for your project.
-Building or updating a Wflow model is done by calling <cite>hydromt wflow …</cite> in the CLI, which means that we need to access <cite>hydromt_wflow</cite> through <cite>hydromt</cite>.</p>
-<p>This means that we need to globally install <cite>hydromt</cite> with a <cite>hydromt_wflow</cite> dependency:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>global<span class="w"> </span>install<span class="w"> </span>hydromt<span class="w"> </span>--expose<span class="w"> </span><span class="nv">hydromt</span><span class="o">=</span><span class="s2">&quot;hydromt&quot;</span><span class="w"> </span>--with<span class="w"> </span>hydromt_wflow
-</pre></div>
-</div>
-<p>This will install hydromt and hydromt_wflow in an isolated environment for you and make it available to run from basically
-anywhere on your system through the commandline. For more information on global tools in pixi, see also the description in the
-<a class="reference external" href="https://pixi.sh/latest/global_tools/introduction/#basic-usage">pixi documentation</a>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The current version of hydromt_wflow is not compatible with hydromt version 1 and later. As a result, we need to restrict the version of hydromt
-to ensure that the latest version of hydromt_wflow is installed:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>global<span class="w"> </span>install<span class="w"> </span>hydromt<span class="s2">&quot;==0.10.1&quot;</span><span class="w"> </span>--expose<span class="w"> </span><span class="nv">hydromt</span><span class="o">=</span><span class="s2">&quot;hydromt&quot;</span><span class="w"> </span>--with<span class="w"> </span>hydromt_wflow
-</pre></div>
-</div>
-</div>
-</section>
-<section id="installation-using-conda">
-<span id="user-install-conda"></span><h3>Installation using Conda<a class="headerlink" href="#installation-using-conda" title="Link to this heading">#</a></h3>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Due to the changes Anaconda made to their <cite>lisencing agreements in 2024 &lt;https://legal.anaconda.com/policies/en/?name=terms-of-service#anaconda-terms-of-service&gt;</cite>
-using any packages from the anaconda channel (which is available by default in the main <cite>conda</cite> and <cite>mamba</cite> distributions) may require a paid license.
-Therefore we highly recommend you only use the free and community maintained <cite>conda-forge</cite> channel. While you can configure existing <cite>conda</cite> / <cite>mamba</cite>
-installations to do this correctly, we recommend that if you do not want to use pixi, that you use a <cite>miniforge&lt;https://github.com/conda-forge/miniforge&gt;</cite> distribution which has this correctly
-configured by default.</p>
-</div>
-<p>You can install HydroMT-Wflow in a new environment called <code class="docutils literal notranslate"><span class="pre">hydromt-wflow</span></code>:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hydromt-wflow<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow
-</pre></div>
-</div>
-<p>Then, activate the environment (as stated by mamba/conda depending on which you are using) to start making use of that environment:</p>
+<p>Then, activate the environment (as stated by mamba/conda) to start making use of HydroMT-Wflow:
+HydroMT-Wflow will be installed together with all optional (see above) and a few additional dependencies with:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt-wflow
-</pre></div>
-</div>
-<p>After it has been activated you can install hydromt-wflow into it using this command:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>hydromt_wflow
 </pre></div>
 </div>
 <div class="admonition tip">
@@ -553,41 +480,33 @@ configured by default.</p>
 <cite>conda env remove -n hydromt-wflow</cite> <strong>or</strong> set a new name for the environment
 by changing <cite>-n &lt;name&gt;</cite> to the name of your new environment.</p>
 </div>
-<p>After you have installed <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> in your environment you will also need to add
-the optional dependencies to it, if you want to make use of all the functionalities available:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
-<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
-<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pcraster
-<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>wradlib
-<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pyet
-<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>gdal
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately (in the activated environment).</p>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
 </pre></div>
 </div>
-<p>For a more indepth explanation on the dependencies see <a class="reference internal" href="#optional-dependencies"><span class="std std-ref">this section</span></a>.</p>
 </section>
 <section id="install-hydromt-wflow-in-an-existing-environment">
 <h3>Install HydroMT-Wflow in an existing environment<a class="headerlink" href="#install-hydromt-wflow-in-an-existing-environment" title="Link to this heading">#</a></h3>
 <p>To install HydroMT-Wflow in an existing environment execute the command below
-where you replace <code class="docutils literal notranslate"><span class="pre">&lt;environment_name&gt;</span></code> with the name of the existing environment.
+where you replace <cite>&lt;environment_name&gt;</cite> with the name of the existing environment.
 Note that if some dependencies are not installed from conda-forge but from other
 channels the installation may fail.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow<span class="w"> </span>-n<span class="w"> </span>&lt;environment_name&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mamba<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow<span class="w"> </span>-n<span class="w"> </span>&lt;environment_name&gt;
 </pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please take into account that gwwapi or hydroengine packages are not available from conda and therefore have to be installed from pypi separately.</p>
 </div>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>&lt;environment_name&gt;
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
+<span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
 </pre></div>
 </div>
-<p>After you have installed <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> in your environment you will also need to add
-the optional dependencies to it, if you want to make use of all the functionalities available:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
-<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
-<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pcraster
-<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>wradlib
-<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pyet
-<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>gdal
-</pre></div>
-</div>
-<p>For a more indepth explanation on the dependencies see <a class="reference internal" href="#optional-dependencies"><span class="std std-ref">this section</span></a>.</p>
 </section>
 </section>
 <section id="developer-install">
@@ -643,10 +562,9 @@ the optional dependencies to it, if you want to make use of all the functionalit
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-using-pixi">Installation using Pixi</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-using-conda">Installation using Conda</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-hydromt-wflow-in-a-new-environment">Install HydroMT-Wflow in a new environment</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-hydromt-wflow-in-an-existing-environment">Install HydroMT-Wflow in an existing environment</a></li>
 </ul>
 </li>
