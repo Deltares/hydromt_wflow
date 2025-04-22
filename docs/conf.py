@@ -19,7 +19,7 @@
 import os
 import shutil
 import sys
-from distutils.dir_util import copy_tree
+from pathlib import Path
 
 import hydromt_wflow
 
@@ -50,7 +50,11 @@ version = hydromt_wflow.__version__
 if os.path.isdir("_examples"):
     remove_dir_content("_examples")
 os.makedirs("_examples")
-copy_tree("../examples", "_examples")
+# TODO Replace with the entire directory when v1 is done
+for item in Path(here, "..", "examples").iterdir():
+    if item.suffix == ".ipynb":
+        continue
+    shutil.copy2(item, Path(here, "_examples", item.name))
 
 # -- General configuration ------------------------------------------------
 
