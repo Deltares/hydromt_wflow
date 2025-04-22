@@ -7,7 +7,7 @@ import geopandas as gpd
 import numpy as np
 import pyflwdir
 import xarray as xr
-from hydromt import flw, gis_utils
+from hydromt.gis import _raster_utils, flw
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,6 @@ def hydrography(
     basins_name: str = "basins",
     strord_name: str = "strord",
     ftype: str = "infer",
-    logger=logger,
 ):
     """Return hydrography maps (see list below) and FlwdirRaster object.
 
@@ -144,7 +143,6 @@ parametrization of distributed hydrological models.
             method=upscale_method,
             uparea_name=uparea_name,
             flwdir_name=flwdir_name,
-            logger=logger,
         )
         da_flw.raster.set_crs(ds.raster.crs)
         # make sure x_out and y_out get saved
@@ -245,7 +243,7 @@ parametrization of distributed hydrological models.
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
         ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
-        subare = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
+        subare = _raster_utils._reggrid_area(ys, xs) / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
         ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
     # logging
@@ -283,7 +281,6 @@ def topography(
     elevtn_name: str = "elevtn",
     lndslp_name: str = "lndslp",
     method: str = "average",
-    logger=logger,
 ):
     """Return topography maps (see list below) at model resolution.
 

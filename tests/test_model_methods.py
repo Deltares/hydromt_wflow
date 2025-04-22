@@ -12,14 +12,13 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from hydromt.raster import full_like
-from hydromt.vector import GeoDataset
+from hydromt.gis.raster import full_like
+from hydromt.gis.vector import GeoDataset
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples")
 
 
 def test_setup_basemaps(tmpdir):
@@ -46,7 +45,7 @@ def test_setup_basemaps(tmpdir):
         res=hydrography.raster.res[0],  # no upscaling
     )
 
-    assert mod.grid["wflow_subcatch"].dtype == "int32"
+    assert mod.staticmaps.data["wflow_subcatch"].dtype == "int32"
 
     # Test for too small basins
     region = {"subbasin": [12.572061, 46.601984]}

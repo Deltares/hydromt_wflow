@@ -3,6 +3,8 @@
 import logging
 import platform
 from os.path import abspath, dirname, join
+from pathlib import Path
+from unittest.mock import MagicMock, PropertyMock
 
 import geopandas as gpd
 import numpy as np
@@ -10,46 +12,128 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt.cli.cli_utils import parse_config
+from hydromt.cli._utils import parse_config
+from hydromt.model import ModelRoot
+from pyproj.crs import CRS
+from pytest_mock import MockerFixture
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
+from hydromt_wflow.data import fetch_data
 
 SUBDIR = ""
 if platform.system().lower() != "windows":
     SUBDIR = "linux64"
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 
 
+## Cached data and models
+@pytest.fixture(scope="session")
+def build_data() -> Path:
+    build_dir = fetch_data("artifact-data")
+    assert build_dir.is_dir()
+    assert Path(build_dir, "era5.nc").is_file()
+    return build_dir
+
+
+@pytest.fixture(scope="session")
+def build_data_catalog(build_data) -> Path:
+    p = Path(build_data, "data_catalog.yml")
+    assert p.is_file()
+    return p
+
+
+@pytest.fixture(scope="session")
+def build_unit_data() -> Path:
+    build_dir = fetch_data("build-data")
+    assert build_dir.is_dir()
+    assert Path(build_dir, "region.geojson").is_file()
+    return build_dir
+
+
+@pytest.fixture(scope="session")
+def build_region(build_unit_data) -> Path:
+    p = Path(build_unit_data, "region.geojson")
+    assert p.is_file()
+    return p
+
+
+@pytest.fixture(scope="session")
+def build_region_gdf(build_region) -> gpd.GeoDataFrame:
+    gdf = gpd.read_file(build_region)
+    assert len(gdf) != 0
+    return gdf
+
+
+@pytest.fixture(scope="session")
+def build_region_3857(build_unit_data) -> Path:
+    p = Path(build_unit_data, "region_3857.geojson")
+    assert p.is_file()
+    return p
+
+
+@pytest.fixture(scope="session")
+def build_region_3857_gdf(build_region_3857) -> gpd.GeoDataFrame:
+    gdf = gpd.read_file(build_region_3857)
+    assert len(gdf) != 0
+    return gdf
+
+
+@pytest.fixture(scope="session")
+def cached_models() -> Path:
+    cache_dir = fetch_data("wflow-models")
+    cache_dir = Path(cache_dir, SUBDIR)
+    assert Path(cache_dir, "wflow_piave_subbasin").is_dir()
+    return cache_dir
+
+
+## Mocked objects
 @pytest.fixture
-def example_wflow_model():
+def mock_model(tmp_path, mocker: MockerFixture) -> MagicMock:
+    model = mocker.create_autospec(WflowModel)
+    model.root = mocker.create_autospec(ModelRoot(tmp_path), instance=True)
+    model.root.path.return_value = tmp_path
+    model.data_catalog = mocker.create_autospec(DataCatalog)
+    # Set attributes for practical use
+    type(model).crs = PropertyMock(side_effect=lambda: CRS.from_epsg(4326))
+    type(model).root = PropertyMock(side_effect=lambda: ModelRoot(tmp_path))
+    return model
+
+
+## More custom data structures
+@pytest.fixture
+def box_geometry() -> gpd.GeoDataFrame:
+    geom = gpd.GeoDataFrame(
+        geometry=[box(4.355, 52.035, 4.365, 52.045)],
+        crs=4326,
+    )
+    return geom
+
+
+## Legacy fixtures, Move them above this statement if they should stay
+## Which should become apparent over time. Personally think that quite a few will stay.
+@pytest.fixture
+def example_wflow_model(cached_models, build_data_catalog) -> WflowModel:
     logger = logging.getLogger(__name__)
-    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
+    root = join(cached_models, "wflow_piave_subbasin")
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=build_data_catalog.as_posix(),
         logger=logger,
     )
     return mod
 
 
 @pytest.fixture
-def example_sediment_model():
+def example_sediment_model(cached_models, build_data_catalog) -> WflowSedimentModel:
     logger = logging.getLogger(__name__)
-    root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
+    root = join(cached_models, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=build_data_catalog.as_posix(),
         logger=logger,
     )
     return mod
@@ -97,23 +181,20 @@ def example_inis(wflow_ini, sediment_ini, wflow_simple_ini):
 
 
 @pytest.fixture
-def example_wflow_results():
-    root = join(EXAMPLEDIR, "wflow_piave_subbasin")
-    config_fn = join(EXAMPLEDIR, "wflow_piave_subbasin", "wflow_sbm_results.toml")
+def example_wflow_results(cached_models):
+    root = join(cached_models, "wflow_piave_subbasin")
+    config_fn = join(cached_models, "wflow_piave_subbasin", "wflow_sbm_results.toml")
     mod = WflowModel(root=root, mode="r", config_fn=config_fn)
     return mod
 
 
 @pytest.fixture
-def clipped_wflow_model():
-    root = join(EXAMPLEDIR, "wflow_piave_clip")
+def clipped_wflow_model(cached_models, build_data_catalog):
+    root = join(cached_models, "wflow_piave_clip")
     mod = WflowModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=build_data_catalog.as_posix(),
     )
     return mod
 
