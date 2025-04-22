@@ -53,7 +53,7 @@
     <link rel="prev" title="Roadmap" href="roadmap.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0.dev" />
+  <meta name="docsearch:version" content="0.8.1.dev0" />
   </head>
   
   
@@ -441,32 +441,33 @@ the code folder (where the envs folder and pyproject.toml are located):</p>
 <span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>hydromt_wflow
 </pre></div>
 </div>
-<p>The next step is to create an environment yaml.
-This is done by calling the <cite>make_env.py</cite> script from commandline:
-(This requires the presence of the package <cite>tomli</cite> or Python 3.11)</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>make_env.py<span class="w"> </span>full
+<p>once you are in the directory you can install the environment using pixi with</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>install
 </pre></div>
 </div>
-<p>The ‘full’ argument guarantees all the necessary tools!
-Now create the environment using conda and activate it:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>environment.yml
-<span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt_wflow
+<p>Afterwards you can run any of the tasks we defined for doing things such as running the test suite:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span><span class="nb">test</span>
 </pre></div>
 </div>
-<p>If you wish to make changes in HydroMT-Wflow, you should make an editable install of the plugin.
-This can be done with:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<p>generating the documentation:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>docs-html
 </pre></div>
 </div>
-<p>If you encounter issues with the installation of some packages, you might consider cleaning conda to remove unused packages and caches.
-This can be done through the following command from your base environment:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>clean<span class="w"> </span>-a
+<p>We have several environments to make sure we can test <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> under, for example,
+with all of the different python versions we support. The default environment should have
+everything you need, but if you want to run something (for example in CI) from a specific
+environment you can do so like this:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>-e<span class="w"> </span>test-full-py311<span class="w"> </span>run<span class="w"> </span>path/to/script.py
 </pre></div>
 </div>
-<p>It may also be advisable to clear pip’s cache:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>cache<span class="w"> </span>purge
+<p>Editors like vscode should be able to find pixi environments you make automatically,
+however if you use something else like <code class="docutils literal notranslate"><span class="pre">vim</span></code> or <code class="docutils literal notranslate"><span class="pre">helix</span></code> then you can make sure they run in
+the context of your environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>hx<span class="w"> </span>.
 </pre></div>
 </div>
+<p>this will make sure your LSP can find your environment so it can give you proper
+tab completion and other warnings if necessary.</p>
 </section>
 
 

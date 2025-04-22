@@ -1,0 +1,1150 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Build a Wflow model from scratch &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_examples/build_model';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Updating a model" href="../user_guide/wflow_update.html" />
+    <link rel="prev" title="Building a model" href="../user_guide/wflow_build.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.1.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../user_guide/wflow.html">Working with the Wflow model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/wflow_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../user_guide/wflow_build.html">Building a model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Example: Build Wflow model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_update.html">Updating a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="update_model_landuse.html">Example: Update Wflow model (landuse)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_forcing.html">Example: Update Wflow model (forcing)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_gauges.html">Example: Update Wflow model (gauges)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="update_model_water_demand.html">Example: Update Wflow model with water demand</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connect_to_1d_model.html">Example: Connect Wflow to a 1D river model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/wflow_clip.html">Clipping a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="clip_model.html">Example: Clip Wflow model</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/sediment.html">Working with the Wflow Sediment model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_model_setup.html">Model methods and components</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guide/sediment_build.html">Building a model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="build_sediment.html">Example: Build Wflow Sediment model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_update.html">Updating a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/sediment_clip.html">Clipping a model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/process_analyze.html">Pre and postprocessing and visualization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="prepare_ldd.html">Prepare flow directions and related data from a DEM</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="convert_staticmaps_to_mapstack.html">Example: Convert wflow staticmaps netcdf to raster files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../user_guide/intro.html" class="nav-link">User guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide/wflow.html" class="nav-link">Working with the Wflow model</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../user_guide/wflow_build.html" class="nav-link">Building a model</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Build a Wflow model from scratch</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<div>
+    For an interactive online version click here:
+    <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/build_model.ipynb" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
+</div></div>
+<section id="Build-a-Wflow-model-from-scratch">
+<h1>Build a Wflow model from scratch<a class="headerlink" href="#Build-a-Wflow-model-from-scratch" title="Link to this heading">#</a></h1>
+<p>This notebook demonstrates how to prepare <strong>Wflow</strong> model from scratch using the command line interace (CLI).</p>
+<p>All lines in this notebook which start with <code class="docutils literal notranslate"><span class="pre">!</span></code> are executed from the command line. Within the notebook environment the logging messages are shown after completion. You can also copy these lines and paste these in your shell to get more direct feedback.</p>
+<section id="HydroMT-CLI-build-interface">
+<h2>HydroMT CLI build interface<a class="headerlink" href="#HydroMT-CLI-build-interface" title="Link to this heading">#</a></h2>
+<p>Lets first check if the Wflow model is recognized by HydroMT</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># this should return &quot;wflow, wflow_sediment&quot;</span>
+<span class="c1"># as well as the generic HydroMT models &quot;grid_model, lumped_model, network_model, (mesh_model)&quot;</span>
+<span class="o">!</span>hydromt<span class="w"> </span>--models
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+model plugins:
+ - wflow (hydromt_wflow 0.8.1.dev0)
+ - wflow_sediment (hydromt_wflow 0.8.1.dev0)
+generic models (hydromt 0.10.1):
+ - grid_model
+ - vector_model
+ - network_model
+
+</pre></div></div>
+</div>
+<p>Using the <strong>HydroMT build</strong> API we can setup a complete model from scratch. Let’s get an overview of all the available options:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>hydromt<span class="w"> </span>build<span class="w"> </span>--help
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Usage: hydromt build [OPTIONS] MODEL MODEL_ROOT
+
+  Build models from scratch.
+
+  Example usage: --------------
+
+  To build a wflow model for a subbasin using a point coordinates snapped to
+  cells with upstream area &gt;= 50 km2 hydromt build wflow /path/to/model_root
+  -i /path/to/wflow_config.yml  -r &#34;{&#39;subbasin&#39;: [-7.24, 62.09], &#39;uparea&#39;:
+  50}&#34; -d deltares_data -d /path/to/data_catalog.yml -v
+
+  To build a sfincs model based on a bbox hydromt build sfincs
+  /path/to/model_root  -i /path/to/sfincs_config.yml  -r &#34;{&#39;bbox&#39;:
+  [4.6891,52.9750,4.9576,53.1994]}&#34;  -d /path/to/data_catalog.yml -v
+
+Options:
+  --opt TEXT               Method specific keyword arguments, see the method
+                           documentation of the specific model for more
+                           information about the arguments.
+  -i, --config PATH        Path to hydroMT configuration file, for the model
+                           specific implementation.
+  -r, --region TEXT        Set the region for which to build the model, e.g.
+                           {&#39;subbasin&#39;: [-7.24, 62.09]}
+  -d, --data TEXT          Path to local yaml data catalog file OR name of
+                           predefined data catalog.
+  --dd, --deltares-data    Flag: Shortcut to add the &#34;deltares_data&#34; catalog
+  --fo, --force-overwrite  Flag: If provided overwrite existing model files
+  --cache                  Flag: If provided cache tiled rasterdatasets
+  -v, --verbose            Increase verbosity.
+  -q, --quiet              Decrease verbosity.
+  --help                   Show this message and exit.
+</pre></div></div>
+</div>
+</section>
+<section id="Model-setup-configuration">
+<h2>Model setup configuration<a class="headerlink" href="#Model-setup-configuration" title="Link to this heading">#</a></h2>
+<p>The HydroMT configuration file (YAML) contains the model setup configuration and determines which methods are used to prepare the different components of a Wflow model and in which order and optionally sets non-default arguments for each method. This configuration is passed to HydroMT using <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">&lt;path_to_config_file&gt;</span></code>. We have prepared several example files which are available in the model repository <a class="reference external" href="https://github.com/Deltares/hydromt_wflow/tree/main/examples">examples folder</a> and from the
+<a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_build">docs (building a model)</a>.</p>
+<p>Each header (without indent) (e.g. <code class="docutils literal notranslate"><span class="pre">setup_basemaps:</span></code>) corresponds to a model method. All model methods are explained in the <a class="reference external" href="https://deltares.github.io/hydromt_wflow/latest/user_guide/wflow_model_setup.html">docs (model components)</a>.</p>
+<p>We will load the default wflow build configuration yaml file for inspection:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fn_config</span> <span class="o">=</span> <span class="s2">&quot;wflow_build.yml&quot;</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fn_config</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+setup_config:                 # options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;
+  starttime: 2010-01-01T00:00:00
+  endtime: 2010-03-31T00:00:00
+  timestepsecs: 86400
+  input.path_forcing: inmaps-era5-2010.nc
+
+setup_basemaps:
+  hydrography_fn: merit_hydro   # source hydrography data {merit_hydro, merit_hydro_1k}
+  basin_index_fn: merit_hydro_index # source of basin index corresponding to hydrography_fn
+  upscale_method: ihu           # upscaling method for flow direction data, by default &#39;ihu&#39;
+  res: 0.00833           # build the model at a 30 arc sec (~1km) resolution
+
+setup_rivers:
+  hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
+  river_geom_fn: hydro_rivers_lin # river source data with river width and bankfull discharge
+  river_upa: 30               # minimum upstream area threshold for the river map [km2]
+  rivdph_method: powlaw           # method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}
+  min_rivdph: 1                # minimum river depth [m]
+  min_rivwth: 30               # minimum river width [m]
+  slope_len: 2000             # length over which tp calculate river slope [m]
+  smooth_len: 5000             # length over which to smooth river depth and river width [m]
+  river_routing: kinematic-wave   # {&#39;kinematic-wave&#39;, &#39;local-inertial&#39;}
+
+# setup_floodplains: # if 2D floodplains are required
+#   hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
+#   floodplain_type: 2d #  # If two-dimensional floodplains are required
+#   elevtn_map: wflow_dem  # {&#39;wflow_dem&#39;, &#39;dem_subgrid&#39;}
+
+# setup_floodplains: # if 1D floodplains are required
+#   hydrography_fn: merit_hydro      # source hydrography data, should correspond to hydrography_fn in setup_basemaps
+#   floodplain_type: 1d    # If one-dimensional floodplains are required
+#   flood_depths: # flood depths at which a volume is derived
+#     - 0.5
+#     - 1.0
+#     - 1.5
+#     - 2.0
+#     - 2.5
+#     - 3.0
+#     - 4.0
+#     - 5.0
+
+setup_reservoirs:
+  reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes
+  timeseries_fn: gww           # additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.
+  min_area: 1.0           # minimum lake area to consider [km2]
+
+setup_lakes:
+  lakes_fn: hydro_lakes   # source for lakes based on hydroLAKES: {hydro_lakes}
+  min_area: 10.0          # minimum reservoir area to consider [km2]
+
+setup_glaciers:
+  glaciers_fn: rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}
+  min_area: 1.0           # minimum glacier area to consider [km2]
+
+setup_lulcmaps:
+  lulc_fn : globcover_2009     # source for lulc maps: {globcover, vito, corine}
+  lulc_mapping_fn: globcover_mapping_default  # default mapping for lulc classes
+
+setup_laimaps:
+  lai_fn: modis_lai     # source for LAI: {modis_lai}
+
+setup_soilmaps:
+  soil_fn: soilgrids     # source for soilmaps: {soilgrids}
+  ptf_ksatver: brakensiek    # pedotransfer function to calculate hydraulic conductivity: {brakensiek, cosby}
+
+setup_outlets:
+  river_only: True
+
+setup_gauges:
+  gauges_fn: grdc          # if not None add gaugemap. Either a path or known gauges_fn: {grdc}
+  snap_to_river: True          # if True snaps gauges from source to river
+  derive_subcatch: False         # if True derive subcatch map based on gauges.
+
+setup_precip_forcing:
+  precip_fn: era5          # source for precipitation.
+  precip_clim_fn:          # source for high resolution climatology to correct precipitation if any.
+
+setup_temp_pet_forcing:
+  temp_pet_fn: era5          # source for temperature and potential evapotranspiration.
+  press_correction: True          # if True temperature is corrected with elevation lapse rate.
+  temp_correction: True          # if True pressure is corrected with elevation lapse rate.
+  dem_forcing_fn: era5_orography # source of elevation grid corresponding to temp_pet_fn. Used for lapse rate correction.
+  pet_method: debruin       # method to compute PET: {debruin, makkink}
+  skip_pet: False         # if True, only temperature is prepared.
+
+setup_constant_pars:
+  KsatHorFrac: 100
+  Cfmax: 3.75653
+  cf_soil: 0.038
+  EoverR: 0.11
+  InfiltCapPath: 5
+  InfiltCapSoil: 600
+  MaxLeakage: 0
+  rootdistpar: -500
+  TT: 0
+  TTI: 2
+  TTM: 0
+  WHC: 0.1
+  G_Cfmax: 5.3
+  G_SIfrac: 0.002
+  G_TT: 1.3
+
+</pre></div></div>
+</div>
+</section>
+<section id="Data-for-model-setup">
+<h2>Data for model setup<a class="headerlink" href="#Data-for-model-setup" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">&lt;...&gt;_fn</span></code> arguments correspond to a data source from the <code class="docutils literal notranslate"><span class="pre">DataCatalog</span></code> which is based on a yml-file with references to the data paths/urls and how the data should be read. This file can be provided to hydromt using <code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">&lt;path_to_yml_file&gt;</span></code>.</p>
+<p>By default, the pre-defined <code class="docutils literal notranslate"><span class="pre">artifact_data</span></code> catalog containing some example data for the Piave basin will be downloaded to <code class="docutils literal notranslate"><span class="pre">~/.hydromt_data/</span></code> which is also used for this example. An overview of the available example data is provided <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_existing_cat.html">here</a> This example data is a based on the data which is available from the Deltares p-drive. If you have acces to this drive, a pre-configured catalog file can be loaded using the
+<code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">deltares_data</span></code> pre-defined catalog.</p>
+<p>More background how to write a data catalog yml file can be found in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/data_prepare_cat.html">HydroMT core docs</a></p>
+</section>
+<section id="Setup-complete-Wflow-model">
+<h2>Setup complete Wflow model<a class="headerlink" href="#Setup-complete-Wflow-model" title="Link to this heading">#</a></h2>
+<p>Once we have prepared our data catalog and model build settings file, we are ready to ask HydroMT to build our Wflow model. Building the model can be done from the command line. Down below is an example for the Northern part of the Piave basin in Italy:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># NOTE: copy this line (without !) to your shell for more direct feedback</span>
+<span class="o">!</span>hydromt<span class="w"> </span>build<span class="w"> </span>wflow<span class="w"> </span><span class="s2">&quot;./wflow_test_full&quot;</span><span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;{&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.70, 45.35, 12.95, 46.70]}&quot;</span><span class="w"> </span>-i<span class="w"> </span>wflow_build.yml<span class="w"> </span>-d<span class="w"> </span>artifact_data<span class="w"> </span>-vv
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+2025-04-22 09:19:51,203 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/hydromt.log.
+2025-04-22 09:19:51,203 - build - log - INFO - HydroMT version: 0.10.1
+2025-04-22 09:19:51,203 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full.
+2025-04-22 09:19:51,203 - build - main - INFO - User settings:
+Downloading file &#39;v0.0.9/data_catalog.yml&#39; from &#39;https://raw.githubusercontent.com/Deltares/hydromt/main/data/catalogs/artifact_data/v0.0.9/data_catalog.yml&#39; to &#39;/home/runner/.hydromt_data/artifact_data&#39;.
+2025-04-22 09:19:51,990 - build - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-04-22 09:19:51,990 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+Downloading data from &#39;https://github.com/DirkEilander/hydromt-artifacts/releases/download/v0.0.9/data.tar.gz&#39; to file &#39;/home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar.gz&#39;.
+SHA256 hash of downloaded file: 32de5b95c171628547f303d7f65d53cbb1b9da9af4834717c8efff93fe55aad4
+Use this value as the &#39;known_hash&#39; argument of &#39;pooch.retrieve&#39; to ensure that the file hasn&#39;t changed if it is downloaded again in the future.
+Untarring contents of &#39;/home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar.gz&#39; to &#39;/home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar&#39;
+2025-04-22 09:19:54,483 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.8.1.dev0).
+2025-04-22 09:19:54,483 - build - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-04-22 09:19:54,495 - build - model_api - DEBUG - Setting model config options.
+2025-04-22 09:19:54,496 - build - model_api - DEBUG - Default config read from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/wflow_sbm.toml
+2025-04-22 09:19:54,497 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2025-04-22 09:19:54,497 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2025-04-22 09:19:54,497 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2025-04-22 09:19:54,497 - build - model_api - INFO - setup_basemaps.res: 0.00833
+2025-04-22 09:19:54,497 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2025-04-22 09:19:54,497 - build - wflow - INFO - Preparing base hydrography basemaps.
+2025-04-22 09:19:54,500 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
+2025-04-22 09:19:54,590 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
+2025-04-22 09:19:57,663 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2025-04-22 09:19:57,719 - build - wflow - DEBUG - Adding basins vector to geoms.
+2025-04-22 09:19:57,719 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
+2025-04-22 09:19:57,720 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
+2025-04-22 09:19:57,779 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
+2025-04-22 09:19:57,846 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2025-04-22 09:20:11,679 - build - basemaps - DEBUG - Derive stream order.
+2025-04-22 09:20:11,848 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
+2025-04-22 09:20:11,848 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
+2025-04-22 09:20:12,011 - build - wflow - DEBUG - Adding region vector to geoms.
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.river_geom_fn: hydro_rivers_lin
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.river_upa: 30
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.slope_len: 2000
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.min_rivlen_ratio: 0.0
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.min_rivdph: 1
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.min_rivwth: 30
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.smooth_len: 5000
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.rivman_mapping_fn: roughness_river_mapping_default
+2025-04-22 09:20:12,014 - build - model_api - INFO - setup_rivers.elevtn_map: wflow_dem
+2025-04-22 09:20:12,015 - build - model_api - INFO - setup_rivers.river_routing: kinematic-wave
+2025-04-22 09:20:12,015 - build - model_api - INFO - setup_rivers.connectivity: 8
+2025-04-22 09:20:12,015 - build - wflow - INFO - Preparing river maps.
+2025-04-22 09:20:12,017 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
+2025-04-22 09:20:12,083 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-22 09:20:12,090 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2025-04-22 09:20:12,238 - build - river - DEBUG - Derive river length.
+2025-04-22 09:20:15,367 - build - river - DEBUG - Derive river slope.
+2025-04-22 09:20:15,980 - build - river - DEBUG - Derive rivwth from hydrography dataset.
+2025-04-22 09:20:16,014 - build - dataframe - INFO - Reading roughness_river_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/N_river_mapping.csv
+2025-04-22 09:20:16,020 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
+2025-04-22 09:20:16,025 - build - geodataframe - INFO - Reading hydro_rivers_lin vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rivers_lin2019_v1.gpkg
+2025-04-22 09:20:16,033 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
+2025-04-22 09:20:16,228 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
+2025-04-22 09:20:16,272 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
+2025-04-22 09:20:19,087 - build - wflow - DEBUG - Adding rivers vector to geoms.
+2025-04-22 09:20:19,719 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
+2025-04-22 09:20:19,720 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
+2025-04-22 09:20:19,720 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
+2025-04-22 09:20:19,720 - build - wflow - INFO - Preparing reservoir maps.
+2025-04-22 09:20:19,720 - build - geodataframe - INFO - Reading hydro_reservoirs vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_reservoirs.gpkg
+2025-04-22 09:20:19,737 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2025-04-22 09:20:19,739 - build - geodataframe - DEBUG - Convert units for 5 columns.
+2025-04-22 09:20:19,741 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
+2025-04-22 09:20:19,741 - build - wflow - INFO - Skipping method, as no data has been found
+2025-04-22 09:20:19,741 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
+2025-04-22 09:20:19,741 - build - model_api - INFO - setup_lakes.rating_curve_fns: None
+2025-04-22 09:20:19,741 - build - model_api - INFO - setup_lakes.min_area: 10.0
+2025-04-22 09:20:19,741 - build - model_api - INFO - setup_lakes.add_maxstorage: False
+2025-04-22 09:20:19,741 - build - wflow - INFO - Preparing lake maps.
+2025-04-22 09:20:19,742 - build - geodataframe - INFO - Reading hydro_lakes vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_lakes.gpkg
+2025-04-22 09:20:19,751 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2025-04-22 09:20:19,752 - build - geodataframe - DEBUG - Convert units for 1 columns.
+2025-04-22 09:20:19,753 - build - wflow - WARNING - No lakes of sufficient size found within region! Skipping lake procedures!
+2025-04-22 09:20:19,754 - build - wflow - INFO - Skipping method, as no data has been found
+2025-04-22 09:20:19,754 - build - model_api - INFO - setup_glaciers.glaciers_fn: rgi
+2025-04-22 09:20:19,754 - build - model_api - INFO - setup_glaciers.min_area: 1.0
+2025-04-22 09:20:19,754 - build - wflow - INFO - Preparing glacier maps.
+2025-04-22 09:20:19,754 - build - geodataframe - INFO - Reading rgi vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rgi.gpkg
+2025-04-22 09:20:19,765 - build - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2025-04-22 09:20:19,767 - build - wflow - INFO - 1 glaciers of sufficient size found within region.
+2025-04-22 09:20:19,777 - build - glaciers - DEBUG - Creating vector grid for calculating glacier fraction and storage per grid cell
+2025-04-22 09:20:19,831 - build - glaciers - DEBUG - Setting glacierfrac and store values per glacier.
+2025-04-22 09:20:21,761 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover_2009
+2025-04-22 09:20:21,761 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: globcover_mapping_default
+2025-04-22 09:20:21,761 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;, &#39;kc&#39;, &#39;alpha_h1&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3_high&#39;, &#39;h3_low&#39;, &#39;h4&#39;]
+2025-04-22 09:20:21,761 - build - wflow - INFO - Preparing LULC parameter maps.
+2025-04-22 09:20:21,762 - build - rasterdataset - INFO - Reading globcover_2009 raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/globcover.tif
+2025-04-22 09:20:21,771 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-22 09:20:21,772 - build - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
+2025-04-22 09:20:21,779 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2025-04-22 09:20:21,799 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,817 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,837 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,855 - build - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,874 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,892 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,910 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,929 - build - landuse - INFO - Deriving kc using average resampling (nodata=-999.0).
+2025-04-22 09:20:21,948 - build - landuse - INFO - Deriving alpha_h1 using mode resampling (nodata=-999).
+2025-04-22 09:20:22,006 - build - landuse - INFO - Deriving h1 using average resampling (nodata=-999).
+2025-04-22 09:20:22,027 - build - landuse - INFO - Deriving h2 using average resampling (nodata=-999).
+2025-04-22 09:20:22,050 - build - landuse - INFO - Deriving h3_high using average resampling (nodata=-999).
+2025-04-22 09:20:22,072 - build - landuse - INFO - Deriving h3_low using average resampling (nodata=-999).
+2025-04-22 09:20:22,094 - build - landuse - INFO - Deriving h4 using average resampling (nodata=-999).
+2025-04-22 09:20:22,123 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
+2025-04-22 09:20:22,123 - build - model_api - INFO - setup_laimaps.lulc_fn: None
+2025-04-22 09:20:22,123 - build - model_api - INFO - setup_laimaps.lulc_sampling_method: any
+2025-04-22 09:20:22,123 - build - model_api - INFO - setup_laimaps.lulc_zero_classes: []
+2025-04-22 09:20:22,123 - build - model_api - INFO - setup_laimaps.buffer: 2
+2025-04-22 09:20:22,123 - build - wflow - INFO - Preparing LAI maps.
+2025-04-22 09:20:22,124 - build - rasterdataset - INFO - Reading modis_lai netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/modis_lai.nc
+2025-04-22 09:20:22,811 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-22 09:20:22,813 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2025-04-22 09:20:22,818 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
+2025-04-22 09:20:22,886 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2025-04-22 09:20:22,887 - build - model_api - INFO - setup_soilmaps.ptf_ksatver: brakensiek
+2025-04-22 09:20:22,887 - build - model_api - INFO - setup_soilmaps.soil_mapping_fn: None
+2025-04-22 09:20:22,887 - build - model_api - INFO - setup_soilmaps.wflow_thicknesslayers: [100, 300, 800]
+2025-04-22 09:20:22,887 - build - wflow - INFO - Preparing soil parameter maps.
+2025-04-22 09:20:22,888 - build - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
+2025-04-22 09:20:23,177 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-22 09:20:23,187 - build - rasterdataset - DEBUG - Convert units for 21 variables.
+2025-04-22 09:20:23,394 - build - soilgrids - INFO - calculate and resample thetaS
+2025-04-22 09:20:23,594 - build - soilgrids - INFO - calculate and resample thetaR
+2025-04-22 09:20:23,835 - build - soilgrids - INFO - calculate and resample KsatVer
+2025-04-22 09:20:23,893 - build - soilgrids - INFO - calculate and resample pore size distribution index
+2025-04-22 09:20:24,367 - build - soilgrids - INFO - fit z - log(KsatVer) with numpy linalg regression (y = b*x) -&gt; M_
+2025-04-22 09:20:24,779 - build - soilgrids - INFO - fit zi - Ksat with curve_fit (scipy.optimize) -&gt; M
+2025-04-22 09:20:27,268 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaS
+2025-04-22 09:20:27,370 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaR
+2025-04-22 09:20:27,487 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilThickness
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:27,502 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilMinThickness
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:27,516 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for c
+2025-04-22 09:20:27,524 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer
+2025-04-22 09:20:27,566 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_0.0cm
+2025-04-22 09:20:27,607 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_5.0cm
+2025-04-22 09:20:27,648 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_15.0cm
+2025-04-22 09:20:27,690 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_30.0cm
+2025-04-22 09:20:27,733 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_60.0cm
+2025-04-22 09:20:27,775 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_100.0cm
+2025-04-22 09:20:27,817 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_200.0cm
+2025-04-22 09:20:27,859 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original_
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:27,993 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:28,125 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f_
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:28,260 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:28,390 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:28,520 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f
+No numerical nodata value found, skipping set_nodata
+2025-04-22 09:20:28,837 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for wflow_soil
+2025-04-22 09:20:28,923 - build - model_api - INFO - setup_outlets.river_only: True
+2025-04-22 09:20:28,923 - build - model_api - INFO - setup_outlets.toml_output: csv
+2025-04-22 09:20:28,923 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;Q&#39;]
+2025-04-22 09:20:28,923 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.q_av&#39;]
+2025-04-22 09:20:28,924 - build - wflow - INFO - Gauges locations set based on river outlets.
+2025-04-22 09:20:28,928 - build - wflow - INFO - Gauges map based on catchment river outlets added.
+2025-04-22 09:20:28,928 - build - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;] to csv section of toml.
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.index_col: None
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.snap_to_river: True
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.mask: None
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.snap_uparea: False
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.max_dist: 10000.0
+2025-04-22 09:20:28,928 - build - model_api - INFO - setup_gauges.wdw: 3
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.rel_error: 0.05
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.abs_error: 50.0
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.fillna: False
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.derive_subcatch: False
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.basename: None
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.toml_output: csv
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
+2025-04-22 09:20:28,929 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
+2025-04-22 09:20:28,929 - build - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/grdc.csv
+2025-04-22 09:20:28,934 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
+2025-04-22 09:20:28,934 - build - wflow - INFO - 3 grdc gauge locations found within domain
+2025-04-22 09:20:29,281 - build - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
+2025-04-22 09:20:29,281 - build - model_api - INFO - setup_precip_forcing.precip_fn: era5
+2025-04-22 09:20:29,281 - build - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2025-04-22 09:20:29,281 - build - model_api - INFO - setup_precip_forcing.chunksize: None
+2025-04-22 09:20:29,282 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2025-04-22 09:20:29,292 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
+2025-04-22 09:20:29,293 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
+2025-04-22 09:20:29,300 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-22 09:20:29,301 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.fillna_method: None
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2025-04-22 09:20:29,349 - build - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2025-04-22 09:20:29,350 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2025-04-22 09:20:29,359 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
+2025-04-22 09:20:29,360 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
+2025-04-22 09:20:29,366 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-22 09:20:29,368 - build - rasterdataset - DEBUG - Convert units for 4 variables.
+2025-04-22 09:20:29,392 - build - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5_orography.nc
+2025-04-22 09:20:29,404 - build - rasterdataset - DEBUG - Clip to [11.625, 45.625, 12.875, 46.875] (epsg:4326))
+2025-04-22 09:20:29,405 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.dtype: float32
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.nodata: -999
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.KsatHorFrac: 100
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.Cfmax: 3.75653
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.cf_soil: 0.038
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.EoverR: 0.11
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.InfiltCapPath: 5
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.InfiltCapSoil: 600
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.MaxLeakage: 0
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.rootdistpar: -500
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.TT: 0
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.TTI: 2
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.TTM: 0
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.WHC: 0.1
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.G_Cfmax: 5.3
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.G_SIfrac: 0.002
+2025-04-22 09:20:29,588 - build - model_api - INFO - setup_constant_pars.G_TT: 1.3
+2025-04-22 09:20:29,609 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full
+2025-04-22 09:20:29,636 - build - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/staticmaps.nc
+2025-04-22 09:20:29,827 - build - wflow - INFO - Writing model staticgeom to file.
+2025-04-22 09:20:29,888 - build - wflow - INFO - Write forcing file
+2025-04-22 09:20:29,892 - build - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-15 00:00:00 in the toml.
+2025-04-22 09:20:29,895 - build - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/inmaps-era5-2010.nc
+[########################################] | 100% Completed | 101.95 ms
+2025-04-22 09:20:30,014 - build - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/wflow_sbm.toml
+</pre></div></div>
+</div>
+<p>With this example we build a complete Wflow model including forcing. The example means the following: run <strong>hydromt build</strong> with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wflow</span></code> : i.e. build a Wflow model</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">./wflow_test_full</span></code> : output model folder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-r</span> <span class="pre">&quot;{'subbasin':</span> <span class="pre">[12.2051,</span> <span class="pre">45.8331],</span> <span class="pre">'strord':</span> <span class="pre">4,</span> <span class="pre">'bounds':</span> <span class="pre">[11.70,</span> <span class="pre">45.35,</span> <span class="pre">12.95,</span> <span class="pre">46.70]}&quot;</span></code> : derive a subbasin with its outlet at the given x,y coordinates and within the given bounds [xmin, ymin, xmax, ymax] (WGS84) snapped to a river with minimum stream order (strord) of 4. All <em>REGION</em> options are described in the <a class="reference external" href="https://deltares.github.io/hydromt/latest/user_guide/model_region">docs</a></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">wflow_build.yml</span></code> : setup configuration file including all components to build and their arguments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-d</span> <span class="pre">artifact_data</span></code>: data catalog to use. Here <code class="docutils literal notranslate"><span class="pre">artifact_data</span></code> which contains a global data extract for Northern Italy for demo purposes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-vv</span></code> : give some extra verbosity (2 * v) to display feedback on screen. Now debug messages are provided.</p></li>
+</ul>
+<p>Next we check which files have been created. The model root should contain two netcdf (.nc) files, one for the staticmaps and one for the forcing data, a wflow run configuration (.toml) file. These files are sufficient to run the wflow model. In addition several geometry (.geojson) files are saved in the <em>staticgeoms</em> folder. Finally, the setup process is logged in the hydromt.log file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">root</span> <span class="o">=</span> <span class="s2">&quot;wflow_test_full&quot;</span>
+<span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xml&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot; - </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+wflow_test_full
+ - inmaps-era5-2010.nc
+ - staticmaps.nc
+ - wflow_sbm.toml
+ - hydromt_data.yml
+ - hydromt.log
+wflow_test_full/staticgeoms
+ - rivers.geojson
+ - gauges_grdc.geojson
+ - basins_highres.geojson
+ - glaciers.geojson
+ - region.geojson
+ - basins.geojson
+ - gauges.geojson
+wflow_test_full/run_default
+wflow_test_full/instate
+</pre></div></div>
+</div>
+</section>
+<section id="Visualize-and/or-inspect-model-schematization">
+<h2>Visualize and/or inspect model schematization<a class="headerlink" href="#Visualize-and/or-inspect-model-schematization" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The <strong>wflow plot</strong> example notebook contains scripts to visualize your model</p></li>
+<li><p>The <strong>wflow nc to raster files</strong> example notebook contains scripts to write the nc model files to a netcdf which can be used to inspect (and modify) the model layers in e.g. QGIS.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../user_guide/wflow_build.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Building a model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../user_guide/wflow_update.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Updating a model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#HydroMT-CLI-build-interface">HydroMT CLI build interface</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Model-setup-configuration">Model setup configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Data-for-model-setup">Data for model setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Setup-complete-Wflow-model">Setup complete Wflow model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Visualize-and/or-inspect-model-schematization">Visualize and/or inspect model schematization</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_examples/build_model.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_examples/build_model.ipynb.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
