@@ -1,6 +1,5 @@
 """Some utilities from the Wflow plugin."""
 
-import gc
 from os.path import abspath, dirname, join
 from pathlib import Path
 from typing import Dict, Optional
@@ -319,13 +318,3 @@ def get_grid_from_config(
             da = grid[var_name] * scale + offset
 
     return da
-
-
-def close_all_nc_files():
-    """Use garbage collector to close all instances xr.dataset."""
-    for obj in gc.get_objects():
-        try:
-            if isinstance(obj, xr.Dataset):
-                obj.close()
-        except Exception:
-            pass  # Some datasets may already be closed or not closable
