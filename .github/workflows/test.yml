@@ -2,17 +2,17 @@ name: Test Package
 
 on:
   push:
-    branches: [main]
+    branches: [v1]
     paths:
-      - hydromt_wflow/*
+      - src/hydromt_wflow/*
       - tests/*
       - pixi.lock
       - pyproject.toml
       - .github/workflows/test.yml
   pull_request:
-    branches: [main]
+    branches: [v1]
     paths:
-      - hydromt_wflow/*
+      - src/hydromt_wflow/*
       - tests/*
       - pixi.lock
       - pyproject.toml
@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest"]
-        python-version: ['310', '311']
+        python-version: ['311', '312', '313']
         include:
         - os: ubuntu-latest
           label: linux-64
@@ -52,11 +52,11 @@ jobs:
         uses: prefix-dev/setup-pixi@v0.8.5
         with:
           pixi-version: "v0.45.0"
-          environments: test-full-py${{ matrix.python-version }}
+          environments: test-slim-py${{ matrix.python-version }}
           locked: false
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'v1' }}
 
       - name: Tests
         run: |
-          pixi run -e test-full-py${{ matrix.python-version }} test-cov
+          pixi run -e test-slim-py${{ matrix.python-version }} test-cov
