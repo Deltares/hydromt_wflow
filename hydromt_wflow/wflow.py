@@ -59,7 +59,6 @@ class WflowModel(GridModel):
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
         data_libs: List[str] | str | None = None,
-        wflow_version: str = "1.0.0",
         logger=logger,
         **artifact_keys,
     ):
@@ -3188,9 +3187,9 @@ one variable and variables list is not provided."
         hydromt_wflow.workflows.forcing.spatial_interpolation
         `wradlib.ipol.interpolate <https://docs.wradlib.org/en/latest/ipol.html#wradlib.ipol.interpolate>`
         """
-        starttime = self.get_config("starttime")
-        endtime = self.get_config("endtime")
-        freq = pd.to_timedelta(self.get_config("timestepsecs"), unit="s")
+        starttime = self.get_config("time.starttime")
+        endtime = self.get_config("time.endtime")
+        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
         # Check data type of precip_fn if it is provided through the data catalog

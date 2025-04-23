@@ -8,6 +8,7 @@ from hydromt_wflow import WflowModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
+EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
 
 def test_grid_from_config(demda):
@@ -81,7 +82,7 @@ def test_convert_to_wflow_v1_sbm():
 
 def test_convert_to_wflow_v1_sediment():
     # Initiliaze wflow model
-    root = join(TESTDATADIR, "wflow_v0x", "sediment")
+    root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
     config_fn = "wflow_sediment_v0x.toml"
 
     wflow = WflowSedimentModel(

@@ -38,7 +38,6 @@ class WflowSedimentModel(WflowModel):
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
         data_libs: List | str = [],
-        wflow_version: str = "1.0.0",
         logger=logger,
     ):
         super().__init__(

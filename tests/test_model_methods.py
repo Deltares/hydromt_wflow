@@ -1025,7 +1025,12 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     assert ds.c.shape[0] == len(layers) + 1
     assert ds.kvfrac.shape[0] == len(layers) + 1
     # Assert kvfrac is written to vertical section in config
-    assert example_wflow_model.config["input"]["vertical"]["kvfrac"] == "kvfrac"
+    assert (
+        example_wflow_model.config["input"]["static"][
+            "soil_water__vertical_saturated_hydraulic_conductivity_factor"
+        ]
+        == "kvfrac"
+    )
 
     # Test kvfrac is not 1 at the right layer for a paddy cell
     kvfrac_values = ds.kvfrac.sel(
