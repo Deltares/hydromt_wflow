@@ -12,14 +12,22 @@ These are the unreleased changes.
 
 Added
 -----
+- **upgrade_to_v1_wflow**: convert models for Wflow.jl version < 1.0.0 to Wflow.jl version 1.
+- Allow users to choose the names of each variables in staticmaps.nc files or the same of some of the staticgeoms (eg lakes, reservoirs).
+- **setup_areamap**: if the map is linked to a Wflow variable, the TOML file can now be updated to link the new created map to the right Wflow.jl variable.
 
 Changed
 -------
+- Support for Wflow.jl >= 1.0.0 kernel. The main implication if for the generation of the TOML file. Consequently support for Wflow.jl < 1.0.0 has been dropped (see below).
+- **setup_constant_pars**: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.
+- **setup_lulcmaps** and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl varibale names (dictionnary and not list) to allow for renaming.
+- **setup_output_config_timeseries**, **setup_outlets**, **setup_gauges**: the option to save parameters to netcdf scalar file as been renamed from `netcdf` to `netcdf_scalar` to better match the TOML file structure.
 - Changed name of `g_tt` parameter to `g_ttm`, to align with the changes in https://github.com/Deltares/Wflow.jl/pull/512
 - **setup_soilmaps** [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.
 - **setup_soilmaps** [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).
 - **setup_constant_pars** [sediment]: added additional default values for sediment density and particle diameters.
 - **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.
+- **setup_rivers**, **setup_lakes**, **setup_reservoirs** [sediment]: only create wflow sediment variables and not a mix of sbm and sediment ones.
 - Grid data is masked to subcatchment on `set_grid` now instead of on `write_grid` (#349)
 
 Fixed
@@ -28,6 +36,9 @@ Fixed
 
 Deprecated
 ----------
+- Support for building/updating models for Wflow.jl version < 1.0.0. We encourage you to upgrade your model to the new version using `upgrade_to_v1_wflow` or use an older release of hydromt_wflow if you do not want to upgrade your model.
+- **setup_soilmaps**: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334
+
 
 v0.8.0 (9 April 2025)
 =====================
