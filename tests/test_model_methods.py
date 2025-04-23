@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt.raster import full_like
+from hydromt.vector import GeoDataset
 
 from hydromt_wflow import workflows
 from hydromt_wflow.wflow import WflowModel
@@ -815,6 +816,87 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
 
+def test_setup_precip_from_point_timeseries(
+    example_wflow_model, df_precip_stations, gdf_precip_stations
+):
+    # Interpolation types and the mean value to check the test
+    # first value is for all 8 stations, second for 3 stations inside Piave
+    # Linear interpolation can result in missing values when coverage is too low
+    # such as in the test case (resulting in low value of 155).
+    # Note: start_time and end_time of model are used to slice timeseries
+
+    interp_types = {
+        "nearest": [446, 435],
+        "linear": [459, 155],  # note the low value for linear interpolation
+        "idw": [443, 431],
+        "ordinarykriging": [446, 426],
+        # "externaldriftkriging" requires an additional drift variable,
+    }
+
+    for interp_type, test_val in interp_types.items():
+        example_wflow_model.setup_precip_from_point_timeseries(
+            precip_fn=df_precip_stations,
+            precip_stations_fn=gdf_precip_stations,
+            interp_type=interp_type,
+            buffer=1e6,
+        )
+        # Check forcing and dtype
+        assert "precip" in example_wflow_model.forcing
+        assert example_wflow_model.forcing["precip"].dtype == "float32"
+
+        # Compare computed value with expected value using all stations
+        mean_all = example_wflow_model.forcing["precip"].mean().values
+        assert int(mean_all * 1000) == test_val[0]
+
+        # Do the some but only for the 3 stations inside the basin (buffer = 0)
+        example_wflow_model.setup_precip_from_point_timeseries(
+            precip_fn=df_precip_stations,
+            precip_stations_fn=gdf_precip_stations,
+            interp_type=interp_type,
+            buffer=0,
+        )
+        mean_inside = example_wflow_model.forcing["precip"].mean().values
+        assert int(mean_inside * 1000) == test_val[1]
+
+    # Similar test but for GeoDataset
+    for interp_type, test_val in interp_types.items():
+        geodataset_precip_stations = GeoDataset.from_gdf(
+            gdf=gdf_precip_stations,
+            data_vars={"precip": df_precip_stations},
+            index_dim="index",
+            keep_cols=False,
+            merge_index="gdf",
+        )
+
+        example_wflow_model.setup_precip_from_point_timeseries(
+            precip_fn=geodataset_precip_stations,
+            precip_stations_fn=None,
+            interp_type=interp_type,
+            buffer=1e6,
+        )
+        # Check forcing and dtype
+        assert "precip" in example_wflow_model.forcing
+        assert example_wflow_model.forcing["precip"].dtype == "float32"
+
+        # Compare computed value with expected value using all stations
+        mean_all = example_wflow_model.forcing["precip"].mean().values
+        assert int(mean_all * 1000) == test_val[0]
+
+    # Also include a test for uniform precipitation
+    example_wflow_model.setup_precip_from_point_timeseries(
+        precip_fn=df_precip_stations.iloc[:, 0].to_frame(),
+        precip_stations_fn=None,
+        interp_type="uniform",
+    )
+    # Check if the values per timestep are unique
+    for i, _ in enumerate(example_wflow_model.forcing["precip"].time):
+        unique_values = np.unique(example_wflow_model.forcing["precip"].isel(time=i))
+        assert len(unique_values[~np.isnan(unique_values)]) == 1
+    # Check mean value
+    mean_uniform = example_wflow_model.forcing["precip"].mean().values
+    assert int(mean_uniform * 1000) == 274
+
+
 def test_setup_pet_forcing(example_wflow_model, da_pet):
     example_wflow_model.setup_pet_forcing(
         pet_fn=da_pet,
@@ -947,6 +1029,8 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     assert len(ds.layer) == len(layers) + 1
     assert ds.c.shape[0] == len(layers) + 1
     assert ds.kvfrac.shape[0] == len(layers) + 1
+    # Assert kvfrac is written to vertical section in config
+    assert example_wflow_model.config["input"]["vertical"]["kvfrac"] == "kvfrac"
 
     # Test kvfrac is not 1 at the right layer for a paddy cell
     kvfrac_values = ds.kvfrac.sel(

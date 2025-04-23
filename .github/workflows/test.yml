@@ -1,0 +1,62 @@
+name: Test Package
+
+on:
+  push:
+    branches: [main, wflow-v1]
+    paths:
+      - hydromt_wflow/*
+      - tests/*
+      - pixi.lock
+      - pyproject.toml
+      - .github/workflows/test.yml
+  pull_request:
+    branches: [main, wflow-v1]
+    paths:
+      - hydromt_wflow/*
+      - tests/*
+      - pixi.lock
+      - pyproject.toml
+      - .github/workflows/test.yml
+
+jobs:
+  test:
+    defaults:
+      run:
+        shell: bash -l {0}
+    env:
+      branch_name: ${{ github.head_ref || github.ref_name }}
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+        python-version: ['310', '311']
+        include:
+        - os: ubuntu-latest
+          label: linux-64
+        - os: windows-latest
+          label: win-64
+
+    name: ${{ matrix.label }} - py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ matrix.os }}-${{ matrix.python-version }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pixi env
+        uses: prefix-dev/setup-pixi@v0.8.5
+        with:
+          pixi-version: "v0.45.0"
+          environments: test-full-py${{ matrix.python-version }}
+          locked: false
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Tests
+        run: |
+          pixi run -e test-full-py${{ matrix.python-version }} test-cov
