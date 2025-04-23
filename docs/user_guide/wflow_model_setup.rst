@@ -102,8 +102,8 @@ a specific method see its documentation.
       -  Setup staticmaps from raster to add parameters from direct data.
     * - :py:func:`~WflowModel.setup_cold_states`
       -  Setup wflow cold states based on data in staticmaps.
-	  * - :py:func:`~WflowModel.upgrade_to_v1_wflow`
-      -  Upgrade a model from a Wflow.jl < 1.0.0 to 1.0.0 .
+    * - :py:func:`~WflowModel.upgrade_to_v1_wflow`
+      -  Upgrade a model from a Wflow.jl 0.x to 1.0 .
 
 
 .. _model_components:
