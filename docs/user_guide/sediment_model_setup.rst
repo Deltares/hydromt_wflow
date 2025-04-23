@@ -68,7 +68,7 @@ a specific method see its documentation.
       - Setup constant parameter maps.
     * - :py:func:`~WflowSedimentModel.setup_grid_from_raster`
       -  Setup staticmaps from raster to add parameters from direct data.
-	* - :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow`
+	  * - :py:func:`~WflowSedimentModel.upgrade_to_v1_wflow`
       -  Upgrade a model from a Wflow.jl < 1.0.0 to 1.0.0 .
 
 
