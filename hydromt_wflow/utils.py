@@ -31,7 +31,9 @@ __all__ = [
 ]
 
 
-def read_csv_results(fn: Union[str, Path], config: Dict, maps: xr.Dataset) -> Dict:
+def read_csv_results(
+    fn: Path | str, config: Dict, maps: xr.Dataset
+) -> Dict[str, GeoDataArray]:
     """Read wflow results csv timeseries and parse to dictionary.
 
     Parses the wflow csv results file into different ``hydromt.GeoDataArrays``, one per
@@ -254,11 +256,11 @@ def get_config(
 def get_grid_from_config(
     var_name: str,
     config: Dict = {},
-    grid: xr.Dataset = None,
-    root: Path = None,
+    grid: xr.Dataset | None = None,
+    root: Path | None = None,
     abs_path: Optional[bool] = False,
-    nodata: Union[int, float] = -9999,
-    mask_name: Optional[str] = None,
+    nodata: int | float = -9999,
+    mask_name: str | None = None,
 ) -> xr.DataArray:
     """
     Get actual grid values from config including scale and offset.

@@ -74,6 +74,8 @@ a specific method see its documentation.
       - This method add new variable/column to the netcf/csv output section of the toml based on a selected gauge/area map.
     * - :py:func:`~WflowModel.setup_precip_forcing`
       -  Setup gridded precipitation forcing at model resolution.
+    * - :py:func:`~WflowModel.setup_precip_from_point_timeseries`
+      -  Setup precipitation forcing from station data at model resolution.
     * - :py:func:`~WflowModel.setup_temp_pet_forcing`
       -  Setup gridded temperature and optionally compute reference evapotranspiration forcing at model resolution.
     * - :py:func:`~WflowModel.setup_pet_forcing`

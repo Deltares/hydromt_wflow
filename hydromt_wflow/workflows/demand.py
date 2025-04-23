@@ -1,7 +1,7 @@
 """Workflow for water demand."""
 
 import logging
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -169,8 +169,8 @@ def domestic(
 def domestic_from_population(
     popu: xr.Dataset,
     ds_like: xr.Dataset,
-    gross_per_capita: Union[float, List[float]],
-    net_per_capita: Union[float, List[float]],
+    gross_per_capita: float | List[float],
+    net_per_capita: float | List[float],
 ) -> tuple:
     """Create domestic water demand maps from statitics per capita.
 
@@ -527,7 +527,7 @@ def classify_pixels(
     da_irr: xr.DataArray,
     da_crop_model: xr.DataArray,
     threshold: float,
-    nodata_value: Union[float, int] = -9999,
+    nodata_value: float | int = -9999,
 ):
     """Classifies pixels based on a (fractional) threshold.
 

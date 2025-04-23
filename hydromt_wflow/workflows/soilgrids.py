@@ -1,7 +1,7 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List, Union
+from typing import List
 
 import hydromt
 import numpy as np
@@ -923,7 +923,7 @@ def update_soil_with_paddy(
     soil_fn: str = "soilgrids",
     update_c: bool = True,
     wflow_layers: List[int] = [50, 100, 50, 200, 800],
-    target_conductivity: List[Union[None, int, float]] = [None, None, 5, None, None],
+    target_conductivity: List[None | int | float] = [None, None, 5, None, None],
     logger=logger,
 ):
     """

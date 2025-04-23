@@ -6,7 +6,6 @@ import os
 import tempfile
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -94,15 +93,15 @@ def write_clone(tmpdir, gdal_transform, wkt_projection, shape):
     fn = join(tmpdir, "clone.map")
     # create temp tif file
     fn_temp = join(tmpdir, "clone.tif")
-    TempDataset = driver1.Create(fn_temp, shape[1], shape[0], 1, gdal.GDT_Float32)
-    TempDataset.SetGeoTransform(gdal_transform)
+    temp_dataset = driver1.Create(fn_temp, shape[1], shape[0], 1, gdal.GDT_Float32)
+    temp_dataset.SetGeoTransform(gdal_transform)
     if wkt_projection is not None:
-        TempDataset.SetProjection(wkt_projection)
+        temp_dataset.SetProjection(wkt_projection)
     # TODO set csr
     # copy to pcraster format
-    driver2.CreateCopy(fn, TempDataset, 0)
+    driver2.CreateCopy(fn, temp_dataset, 0)
     # close and cleanup
-    TempDataset = None
+    temp_dataset = None
     return fn
 
 
@@ -189,7 +188,7 @@ def write_map(
 
 
 def read_staticmaps_pcr(
-    root: Union[Path, str], crs: int = 4326, obj: object = None, **kwargs
+    root: Path | str, crs: int = 4326, obj: object = None, **kwargs
 ):
     """
     Read pcraster staticmaps at <root/staticmaps> and parse to xarray.
@@ -258,7 +257,7 @@ def read_staticmaps_pcr(
 
 def write_staticmaps_pcr(
     staticmaps: xr.Dataset,
-    root: Union[Path, str],
+    root: Path | str,
 ):
     """
     Write staticmaps at <root/staticmaps> in PCRaster maps format.

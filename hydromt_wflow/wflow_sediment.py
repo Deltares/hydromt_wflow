@@ -37,7 +37,8 @@ class WflowSedimentModel(WflowModel):
         root: Optional[str] = None,
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
-        data_libs: Union[List, str] = [],
+        data_libs: List | str = [],
+        wflow_version: str = "1.0.0",
         logger=logger,
     ):
         super().__init__(
@@ -203,7 +204,7 @@ river cells."
 
     def setup_lakes(
         self,
-        lakes_fn: Union[str, Path, gpd.GeoDataFrame] = "hydro_lakes",
+        lakes_fn: str | Path | gpd.GeoDataFrame = "hydro_lakes",
         min_area: float = 1.0,
         output_names: Dict = {
             "lake_area__count": "wflow_lakeareas",
@@ -281,7 +282,7 @@ river cells."
 
     def setup_reservoirs(
         self,
-        reservoirs_fn: Union[str, Path, gpd.GeoDataFrame],
+        reservoirs_fn: str | Path | gpd.GeoDataFrame,
         min_area: float = 1.0,
         trapping_default: float = 1.0,
         output_names: Dict = {
@@ -422,7 +423,7 @@ river cells."
 
     def setup_gauges(
         self,
-        gauges_fn: Union[str, Path, gpd.GeoDataFrame],
+        gauges_fn: str | Path | gpd.GeoDataFrame,
         index_col: Optional[str] = None,
         snap_to_river: Optional[bool] = True,
         mask: Optional[np.ndarray] = None,
@@ -479,9 +480,9 @@ river cells."
 
     def setup_lulcmaps(
         self,
-        lulc_fn: Union[str, Path, xr.DataArray],
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
+        lulc_fn: str | Path | xr.DataArray,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
             "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
@@ -587,23 +588,23 @@ river cells."
 
     def setup_lulcmaps_from_vector(
         self,
-        lulc_fn: Union[str, gpd.GeoDataFrame],
-        lulc_mapping_fn: Union[str, Path, pd.DataFrame] = None,
-        planted_forest_fn: Union[str, Path, gpd.GeoDataFrame] = None,
+        lulc_fn: str | gpd.GeoDataFrame,
+        lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
+        planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
             "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
             "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
             "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
         },
-        lulc_res: Optional[Union[float, int]] = None,
+        lulc_res: float | int | None = None,
         all_touched: bool = False,
         buffer: int = 1000,
         save_raster_lulc: bool = False,
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
         orchard_c: float = 0.2188,
-        output_names_suffix: Optional[str] = None,
+        output_names_suffix: str | None = None,
     ):
         """
         Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -718,7 +719,7 @@ river cells."
 
     def setup_riverbedsed(
         self,
-        bedsed_mapping_fn: Union[str, Path, pd.DataFrame] = None,
+        bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         output_names: Dict = {
             "river_bottom-and-bank_sediment__d50_diameter": "D50_River",
             "river_bottom-and-bank_clay__mass_fraction": "ClayF_River",
@@ -803,7 +804,7 @@ river cells."
 
     def setup_canopymaps(
         self,
-        canopy_fn: Union[str, Path, xr.DataArray],
+        canopy_fn: str | Path | xr.DataArray,
         output_name: str = "CanopyHeight",
     ):
         """Generate sediments based canopy height maps.

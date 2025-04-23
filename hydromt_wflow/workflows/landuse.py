@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -91,7 +91,7 @@ def landuse_from_vector(
     ds_like: xr.Dataset,
     df: pd.DataFrame,
     params: Optional[List] = None,
-    lulc_res: Optional[Union[float, int]] = None,
+    lulc_res: float | int | None = None,
     all_touched: bool = False,
     buffer: int = 1000,
     lulc_out: Optional[str] = None,
@@ -319,7 +319,9 @@ def create_lulc_lai_mapping_table(
             lu["lai"] = da_lai
 
             # Stack and remove the nodata values
-            lu = lu.stack(z=("y", "x")).dropna(dim="z", how="all", subset=["landuse"])
+            lu = lu.stack(z=(lu.raster.y_dim, lu.raster.x_dim)).dropna(
+                dim="z", how="all", subset=["landuse"]
+            )
 
             # Count the number of samples
             n_samples = len(lu["z"])
