@@ -8,7 +8,7 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 import geopandas as gpd
 
@@ -55,9 +55,9 @@ class WflowModel(GridModel):
 
     def __init__(
         self,
-        root: Optional[str] = None,
-        mode: Optional[str] = "w",
-        config_fn: Optional[str] = None,
+        root: str | None = None,
+        mode: str | None = "w",
+        config_fn: str | None = None,
         data_libs: List[str] | str | None = None,
         logger=logger,
         **artifact_keys,
@@ -276,6 +276,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
         # update config
+        # skip adding elevtn to config as it will only be used if floodplain 2d are on
+        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_base.rename(rmdict).data_vars, None)
         # Call basins once to set it
         self.basins
@@ -287,6 +289,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         rmdict = {k: self._MAPS.get(k, k) for k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
         # update config
+        # skip adding elevtn to config as it will only be used if floodplain 2d are on
+        rmdict = {k: v for k, v in rmdict.items() if k != "elevtn"}
         self._update_config_variable_name(ds_topo.rename(rmdict).data_vars)
         # set basin geometry
         self.logger.debug("Adding region vector to geoms.")
@@ -562,7 +566,7 @@ Select from {routing_options}.'
         hydrography_fn: str | xr.Dataset,
         floodplain_type: str,
         ### Options for 1D floodplains
-        river_upa: Optional[float] = None,
+        river_upa: float | None = None,
         flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
         ### Options for 2D floodplains
         elevtn_map: str = "wflow_dem",
@@ -728,14 +732,14 @@ setting new flood_depth dimensions"
             name = f"hydrodem{postfix}_D{connectivity}"
             # Check if users wanted a specific name for the hydrodem
             hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
-            lndelv_var = self._WFLOW_NAMES.get(self._MAPS["lndelv"])
+            lndelv_var = self._WFLOW_NAMES.get(self._MAPS["elevtn"])
             # hydrodem is used for two wflow variables
             if hydrodem_var in output_names:
                 name = output_names[hydrodem_var]
             self._update_naming(
                 {
                     hydrodem_var: name,
-                    lndelv_var: name,
+                    lndelv_var: elevtn_map,
                 }
             )
             self.logger.info(f"Preparing {name} map for land routing.")
@@ -753,7 +757,7 @@ setting new flood_depth dimensions"
             self.set_config("input.static.river_bank_water__elevation", name)
             # In this case hydrodem is also used for the ground elevation?
             self.set_config(
-                "input.static.land_surface_water_flow__ground_elevation", name
+                "input.static.land_surface_water_flow__ground_elevation", elevtn_map
             )
 
         # Update config
@@ -868,9 +872,7 @@ setting new flood_depth dimensions"
         min_wth: float = 1.0,
         precip_fn: str | xr.DataArray = "chelsa",
         climate_fn: str | xr.DataArray = "koppen_geiger",
-        output_names: Dict = {
-            "river__width": "wflow_riverwidth",
-        },
+        output_name: str = "wflow_riverwidth",
         **kwargs,
     ):
         """
@@ -919,10 +921,8 @@ setting new flood_depth dimensions"
         climate_fn: str, xarray.DataArray
             Source of long-term climate grid if the predictor is set to 'discharge'.
             By default "koppen_geiger".
-        output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
+        output_name : str
+            The name of the output river__width map.
         """
         self.logger.warning(
             'The "setup_riverwidth" method has been deprecated \
@@ -935,7 +935,8 @@ and will soon be removed. '
             )
 
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
-        self._update_naming(output_names)
+        wflow_var = "river__width"
+        self._update_naming({wflow_var: output_name})
 
         # derive river width
         data = {}
@@ -968,8 +969,8 @@ and will soon be removed. '
             fit=fit,
             **kwargs,
         )
-        self.set_grid(da_rivwth, name=self._MAPS["rivwth"])
-        self._update_config_variable_name(self._MAPS["rivwth"])
+        self.set_grid(da_rivwth, name=output_name)
+        self._update_config_variable_name(output_name)
 
     def setup_lulcmaps(
         self,
@@ -992,7 +993,7 @@ and will soon be removed. '
             "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
             "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
-        output_names_suffix: Optional[str] = None,
+        output_names_suffix: str | None = None,
     ):
         """
         Derive several wflow maps based on landuse-landcover (LULC) data.
@@ -1112,7 +1113,7 @@ and will soon be removed. '
         all_touched: bool = False,
         buffer: int = 1000,
         save_raster_lulc: bool = False,
-        output_names_suffix: Optional[str] = None,
+        output_names_suffix: str | None = None,
     ):
         """
         Derive several wflow maps based on vector landuse-landcover (LULC) data.
@@ -1242,9 +1243,7 @@ and will soon be removed. '
         lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
         buffer: int = 2,
-        output_names: Dict = {
-            "vegetation__leaf-area_index": "LAI",
-        },
+        output_name: str = "LAI",
     ):
         """
         Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].
@@ -1302,14 +1301,13 @@ and will soon be removed. '
             By default empty.
         buffer : int, optional
             Buffer around the region to read the data, by default 2.
-        output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
+        output_name : str
+            Name of the output vegetation__leaf-area_index map. By default "LAI".
         """
         # retrieve data for region
         self.logger.info("Preparing LAI maps.")
-        self._update_naming(output_names)
+        wflow_var = self._WFLOW_NAMES[self._MAPS["LAI"]]
+        self._update_naming({wflow_var: output_name})
         da = self.data_catalog.get_rasterdataset(
             lai_fn, geom=self.region, buffer=buffer
         )
@@ -1348,9 +1346,7 @@ and will soon be removed. '
         self,
         lulc_fn: str | xr.DataArray,
         lai_mapping_fn: str | pd.DataFrame,
-        output_names: Dict = {
-            "vegetation__leaf-area_index": "LAI",
-        },
+        output_name: str = "LAI",
     ):
         """
         Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
@@ -1371,16 +1367,15 @@ and will soon be removed. '
             and LAI values for each month. The columns should be named as the
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
-        output_names : dict, optional
-            Dictionary with output names that will be used in the model netcdf input
-            files. Users should provide the Wflow.jl variable name followed by the name
-            in the netcdf file.
+        output_name : str
+            Name of the output vegetation__leaf-area_index map. By default "LAI".
         """
         self.logger.info(
             "Preparing LAI maps from LULC data using LULC-LAI mapping table."
         )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
-        self._update_naming(output_names)
+        wflow_var = self._WFLOW_NAMES[self._MAPS["LAI"]]
+        self._update_naming({wflow_var: output_name})
 
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
@@ -1405,10 +1400,10 @@ and will soon be removed. '
     def setup_config_output_timeseries(
         self,
         mapname: str,
-        toml_output: Optional[str] = "csv",
-        header: Optional[List[str]] = ["Q"],
-        param: Optional[List[str]] = ["river_water__volume_flow_rate"],
-        reducer: Optional[List[str]] = None,
+        toml_output: str | None = "csv",
+        header: List[str] | None = ["Q"],
+        param: List[str] | None = ["river_water__volume_flow_rate"],
+        reducer: List[str] | None = None,
     ):
         """Set the default gauge map based on basin outlets.
 
@@ -1563,9 +1558,9 @@ skipping adding gauge specific outputs to the toml."
     def setup_gauges(
         self,
         gauges_fn: str | Path | gpd.GeoDataFrame,
-        index_col: Optional[str] = None,
+        index_col: str | None = None,
         snap_to_river: bool = True,
-        mask: Optional[np.ndarray] = None,
+        mask: np.ndarray | None = None,
         snap_uparea: bool = False,
         max_dist: float = 10e3,
         wdw: int = 3,
@@ -1573,7 +1568,7 @@ skipping adding gauge specific outputs to the toml."
         abs_error: float = 50.0,
         fillna: bool = False,
         derive_subcatch: bool = False,
-        basename: Optional[str] = None,
+        basename: str | None = None,
         toml_output: str = "csv",
         gauge_toml_header: List[str] = ["Q", "P"],
         gauge_toml_param: List[str] = [
@@ -2440,7 +2435,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         ksat_fn: str | xr.DataArray,
         variable: str | None = None,
         resampling_method: str = "average",
-        output_name: Optional[str] = None,
+        output_name: str | None = None,
     ):
         """Set KsatHorFrac parameter values from a predetermined map.
 
@@ -2551,7 +2546,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self,
         lulc_fn: str | Path | xr.DataArray,
         paddy_class: int,
-        output_paddy_class: Optional[int] = None,
+        output_paddy_class: int | None = None,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         paddy_fn: str | Path | xr.DataArray | None = None,
         paddy_mapping_fn: str | Path | pd.DataFrame | None = None,
@@ -2583,7 +2578,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         },
         paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
         save_high_resolution_lulc: bool = False,
-        output_names_suffix: Optional[str] = None,
+        output_names_suffix: str | None = None,
     ):
         """Set up landuse maps and parameters including for paddy fields.
 
@@ -2835,7 +2830,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
     def setup_glaciers(
         self,
-        glaciers_fn: Union[str, Path, gpd.GeoDataFrame],
+        glaciers_fn: str | Path | gpd.GeoDataFrame,
         min_area: float = 1.0,
         output_names: Dict = {
             "glacier_surface__area_fraction": "wflow_glacierfrac",
@@ -3309,7 +3304,7 @@ one variable and variables list is not provided."
         fillna_method: str | None = None,
         dem_forcing_fn: str | xr.DataArray | None = None,
         skip_pet: bool = False,
-        chunksize: Optional[int] = None,
+        chunksize: int | None = None,
     ) -> None:
         """Generate gridded temperature and reference evapotranspiration forcing.
 
@@ -3593,18 +3588,18 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         forcing_obs_fn: str | Path | xr.Dataset,
         forcing_cc_hist_fn: str | Path | xr.Dataset | None = None,
         forcing_cc_fut_fn: str | Path | xr.Dataset | None = None,
-        chunksize: Optional[int] = 100,
-        return_period: Optional[list] = [2, 3, 5, 10, 15, 20, 25, 50, 60, 100],
-        Imax: Optional[float] = 2.0,
-        start_hydro_year: Optional[str] = "Sep",
-        start_field_capacity: Optional[str] = "Apr",
-        LAI: Optional[bool] = False,
-        rootzone_storage: Optional[bool] = False,
-        correct_cc_deficit: Optional[bool] = False,
-        time_tuple: Optional[tuple] = None,
-        time_tuple_fut: Optional[tuple] = None,
-        missing_days_threshold: Optional[int] = 330,
-        output_name_rootingdepth: Optional[str] = "RootingDepth_obs_20",
+        chunksize: int | None = 100,
+        return_period: List[int] = [2, 3, 5, 10, 15, 20, 25, 50, 60, 100],
+        Imax: float = 2.0,
+        start_hydro_year: str = "Sep",
+        start_field_capacity: str = "Apr",
+        LAI: bool = False,
+        rootzone_storage: bool = False,
+        correct_cc_deficit: bool = False,
+        time_tuple: tuple | None = None,
+        time_tuple_fut: tuple | None = None,
+        missing_days_threshold: int | None = 330,
+        output_name_rootingdepth: str = "RootingDepth_obs_20",
     ) -> None:
         """
         Set the RootingDepth.
@@ -4954,8 +4949,8 @@ Run setup_soilmaps first"
 
     def write_config(
         self,
-        config_name: Optional[str] = None,
-        config_root: Optional[str] = None,
+        config_name: str | None = None,
+        config_root: str | None = None,
     ):
         """
         Write config to <root/config_fn>.
@@ -4981,47 +4976,6 @@ Run setup_soilmaps first"
             os.makedirs(dirname(fn))
         self.logger.info(f"Writing model config to {fn}")
         self._configwrite(fn)
-
-    def set_config(self, *args):
-        """Update the config dictionary at key(s) with values.
-
-        Parameters
-        ----------
-        args : key(s), value tuple, with minimal length of two
-            keys can given by multiple args: ('key1', 'key2', 'value')
-            or a string with '.' indicating a new level: ('key1.key2', 'value')
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> set_config('a', 99)
-        >> {'a': 99, 'b': {'c': {'d': 2}}}
-
-        >> set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
-        >> {'a': 1, 'b': {'c': {'d': 99}}}
-        """
-        self._initialize_config()
-        if len(args) < 2:
-            raise TypeError("set_config() requires a least one key and one value.")
-        args = list(args)
-        value = args.pop(-1)
-        if len(args) == 1 and "." in args[0]:
-            args = args[0].split(".") + args[1:]
-        # Check for value in args (to add in the same line for wflow TOML)
-        # value_flag = False
-        # if "value" in args:
-        #    args.remove("value")
-        #    value_flag = True
-        branch = self._config
-        for key in args[:-1]:
-            if key not in branch or not isinstance(branch[key], dict):
-                branch[key] = {}
-            branch = branch[key]
-        # if value_flag:
-        #    branch[f'"{args[-1]}".value'] = value  #
-        # else:
-        branch[args[-1]] = value
 
     def read_grid(self, **kwargs):
         """
@@ -5245,7 +5199,7 @@ Run setup_soilmaps first"
     def write_geoms(
         self,
         geoms_fn: str = "staticgeoms",
-        precision: Optional[int] = None,
+        precision: int | None = None,
     ):
         """
         Write geoms in GeoJSON format.
@@ -5775,7 +5729,7 @@ change name input.path_forcing "
                 )
 
     def _update_config_variable_name(
-        self, data_vars: Union[str, List[str]], data_type: Optional[str] = "static"
+        self, data_vars: str | List[str], data_type: str | None = "static"
     ):
         """Update the variable names in the config file.
 

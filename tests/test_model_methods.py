@@ -800,7 +800,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         example_wflow_model.get_config(
             "input.static.land_surface_water_flow__ground_elevation"
         )
-        == f"{mapname}_D4"
+        == elevtn_map
     )
     assert (
         example_wflow_model.grid[f"{mapname}_D4"]

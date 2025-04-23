@@ -3,7 +3,7 @@
 import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict
 
 import numpy as np
 import xarray as xr
@@ -203,7 +203,7 @@ def get_config(
     config: Dict = {},
     fallback=None,
     root: Path = None,
-    abs_path: Optional[bool] = False,
+    abs_path: bool = False,
 ):
     """
     Get a config value at key(s).
@@ -258,7 +258,7 @@ def get_grid_from_config(
     config: Dict = {},
     grid: xr.Dataset | None = None,
     root: Path | None = None,
-    abs_path: Optional[bool] = False,
+    abs_path: bool = False,
     nodata: int | float = -9999,
     mask_name: str | None = None,
 ) -> xr.DataArray:
@@ -362,8 +362,8 @@ def get_grid_from_config(
 
 
 def mask_raster_from_layer(
-    data: Union[xr.Dataset, xr.DataArray], mask: xr.DataArray
-) -> Union[xr.Dataset, xr.DataArray]:
+    data: xr.Dataset | xr.DataArray, mask: xr.DataArray
+) -> xr.Dataset | xr.DataArray:
     """Mask the data in the supplied grid based on the value in one of the layers.
 
         This for example can be used to mask a grid based on subcatchment data.
@@ -416,7 +416,7 @@ def _convert_to_wflow_v1(
     input_options: Dict = {},
     input_variables: list = [],
     additional_variables: Dict = {},
-    logger: Optional[logging.Logger] = logger,
+    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format.
 
@@ -654,7 +654,7 @@ def _convert_to_wflow_v1(
 
 def convert_to_wflow_v1_sbm(
     config: Dict,
-    logger: Optional[logging.Logger] = logger,
+    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format for SBM.
 
@@ -732,7 +732,7 @@ def convert_to_wflow_v1_sbm(
 
 def convert_to_wflow_v1_sediment(
     config: Dict,
-    logger: Optional[logging.Logger] = logger,
+    logger: logging.Logger = logger,
 ) -> Dict:
     """Convert the config to Wflow v1 format for sediment.
 

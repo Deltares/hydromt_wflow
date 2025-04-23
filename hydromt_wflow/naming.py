@@ -7,7 +7,6 @@ from typing import Tuple
 # Eg landuse may be handy to have several maps in one model for scenarios
 HYDROMT_NAMES_DEFAULT = {
     # additional hydromt outputs
-    "elevtn": "wflow_dem",  # meta_dem
     "subelv": "dem_subgrid",  # meta_dem_subgrid
     "uparea": "wflow_uparea",  # meta_upstream_area
     "strord": "wflow_streamorder",  # meta_streamorder
@@ -317,10 +316,10 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
-    "lndelv": {
+    "wflow_dem": {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
-        "hydromt_name": "lndelv",
+        "hydromt_name": "elevtn",
     },
     "Slope": {  # slope
         "wflow_v0": "lateral.land.slope",

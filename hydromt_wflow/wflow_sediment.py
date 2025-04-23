@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List
 
 import geopandas as gpd
 import numpy as np
@@ -34,9 +34,9 @@ class WflowSedimentModel(WflowModel):
 
     def __init__(
         self,
-        root: Optional[str] = None,
-        mode: Optional[str] = "w",
-        config_fn: Optional[str] = None,
+        root: str | None = None,
+        mode: str | None = "w",
+        config_fn: str | None = None,
         data_libs: List | str = [],
         logger=logger,
     ):
@@ -54,8 +54,8 @@ class WflowSedimentModel(WflowModel):
 
     def setup_rivers(
         self,
-        hydrography_fn: Union[str, xr.Dataset],
-        river_geom_fn: Union[str, gpd.GeoDataFrame] = None,
+        hydrography_fn: str | xr.Dataset,
+        river_geom_fn: str | gpd.GeoDataFrame | None = None,
         river_upa: float = 30,
         slope_len: float = 2e3,
         min_rivlen_ratio: float = 0.0,
@@ -423,20 +423,20 @@ river cells."
     def setup_gauges(
         self,
         gauges_fn: str | Path | gpd.GeoDataFrame,
-        index_col: Optional[str] = None,
-        snap_to_river: Optional[bool] = True,
-        mask: Optional[np.ndarray] = None,
-        snap_uparea: Optional[bool] = False,
-        max_dist: Optional[float] = 10e3,
-        wdw: Optional[int] = 3,
-        rel_error: Optional[float] = 0.05,
+        index_col: str | None = None,
+        snap_to_river: bool = True,
+        mask: np.ndarray | None = None,
+        snap_uparea: bool = False,
+        max_dist: float = 10e3,
+        wdw: int = 3,
+        rel_error: float = 0.05,
         abs_error: float = 50.0,
         fillna: bool = False,
-        derive_subcatch: Optional[bool] = False,
-        basename: Optional[str] = None,
-        toml_output: Optional[str] = "csv",
-        gauge_toml_header: Optional[List[str]] = ["Q", "TSS"],
-        gauge_toml_param: Optional[List[str]] = [
+        derive_subcatch: bool = False,
+        basename: str | None = None,
+        toml_output: str | None = "csv",
+        gauge_toml_header: List[str] | None = ["Q", "TSS"],
+        gauge_toml_param: List[str] | None = [
             "river_water__volume_flow_rate",
             "river_water_sediment~suspended__mass_concentration",
         ],
@@ -491,7 +491,7 @@ river cells."
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
         orchard_c: float = 0.2188,
-        output_names_suffix: Optional[str] = None,
+        output_names_suffix: str | None = None,
     ):
         """Derive several wflow maps based on landuse-landcover (LULC) data.
 

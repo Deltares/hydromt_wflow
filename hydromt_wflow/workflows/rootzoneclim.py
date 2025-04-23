@@ -609,7 +609,7 @@ def rootzoneclim(
     rootzone_storage: bool = False,
     correct_cc_deficit: bool = False,
     chunksize: int = 100,
-    missing_days_threshold: int = 330,
+    missing_days_threshold: int | None = 330,
     logger=logger,
 ):
     """
