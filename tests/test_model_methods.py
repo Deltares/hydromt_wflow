@@ -312,8 +312,8 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     values = example_wflow_model.grid.ksathorfrac.raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
-    assert int(max_val * 100) == 43175
-    assert int(mean_val * 100) == 22020
+    assert np.isclose(max_val, 431.75)
+    assert np.isclose(mean_val, 220.206)
 
 
 def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
@@ -1182,7 +1182,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     assert int(popu_val) == 7842
 
     ind_mean = example_wflow_model.grid["industry_gross"].mean().values
-    assert int(ind_mean * 10000) == 651
+    assert np.isclose(ind_mean, 0.065195)
 
     # test with other method
     example_wflow_model.setup_domestic_demand_from_population(

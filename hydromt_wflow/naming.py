@@ -2,61 +2,61 @@
 
 from typing import Tuple
 
-# These names cannot be read from TOML
-# Decide if users should be able to update these or not
-# Eg landuse may be handy to have several maps in one model for scenarios
+# Names that cannot be read from TOML but that HydroMT needs for model building
+# {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
-    # additional hydromt outputs
-    "subelv": "dem_subgrid",  # meta_dem_subgrid
-    "uparea": "wflow_uparea",  # meta_upstream_area
-    "strord": "wflow_streamorder",  # meta_streamorder
-    "landuse": "wflow_landuse",  # meta_landuse
-    "soil_texture": "wflow_soil",  # meta_soil_texture
+    "subelv": "dem_subgrid",
+    "uparea": "wflow_uparea",
+    "strord": "wflow_streamorder",
+    "landuse": "wflow_landuse",
+    "soil_texture": "wflow_soil",
 }
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     # additional hydromt outputs
-    "elevtn": "wflow_dem",  # meta_dem
-    "uparea": "wflow_uparea",  # meta_upstream_area
-    "strord": "wflow_streamorder",  # meta_streamorder
-    "landuse": "wflow_landuse",  # meta_landuse
-    "soil": "wflow_soil",  # meta_soil_texture
+    "elevtn": "wflow_dem",
+    "uparea": "wflow_uparea",
+    "strord": "wflow_streamorder",
+    "landuse": "wflow_landuse",
+    "soil": "wflow_soil",
 }
 
-# names in comment should become the new default names in hydromt_wflow version 1
-# TODO in another PR or after the rest is well tested
+# Link between staticmap names, hydromt name (if any)
+# and Wflow.jl variables for v0x and v1x (if not present, None)
+# {staticmap_name: (wflow_v0, wflow_v1, hydromt_name)} or
+# {staticmap_name: (wflow_v0, wflow_v1)}
 WFLOW_NAMES = {
     # general input
-    "wflow_subcatch": {  # subcatchment
+    "wflow_subcatch": {
         "wflow_v0": "subcatchment",
         "wflow_v1": "subcatchment_location__count",
         "hydromt_name": "basins",
     },
-    "wflow_ldd": {  # local_drain_direction
+    "wflow_ldd": {
         "wflow_v0": "ldd",
         "wflow_v1": "local_drain_direction",
         "hydromt_name": "flwdir",
     },
-    "wflow_lakeareas": {  # lake_areas
+    "wflow_lakeareas": {
         "wflow_v0": "lateral.river.lake.areas",
         "wflow_v1": "lake_area__count",
-        "hydromt_name": "lakeareas",  # lake_areas
+        "hydromt_name": "lakeareas",
     },
-    "wflow_lakelocs": {  # lake_locations
+    "wflow_lakelocs": {
         "wflow_v0": "lateral.river.lake.locs",
         "wflow_v1": "lake_location__count",
-        "hydromt_name": "lakelocs",  # lake_locations
+        "hydromt_name": "lakelocs",
     },
-    "wflow_reservoirareas": {  # reservoir_areas
+    "wflow_reservoirareas": {
         "wflow_v0": "lateral.river.reservoir.areas",
         "wflow_v1": "reservoir_area__count",
-        "hydromt_name": "resareas",  # reservoir_areas
+        "hydromt_name": "resareas",
     },
-    "wflow_reservoirlocs": {  # reservoir_locations
+    "wflow_reservoirlocs": {
         "wflow_v0": "lateral.river.reservoir.locs",
         "wflow_v1": "reservoir_location__count",
-        "hydromt_name": "reslocs",  # reservoir_locations
+        "hydromt_name": "reslocs",
     },
-    "wflow_river": {  # river_mask
+    "wflow_river": {
         "wflow_v0": "river_location",
         "wflow_v1": "river_location__mask",
         "hydromt_name": "rivmsk",
@@ -78,11 +78,11 @@ WFLOW_NAMES = {
         "hydromt_name": "pet",
     },
     # snow
-    "Cfmax": {  # cfmax
+    "Cfmax": {
         "wflow_v0": "vertical.cfmax",
         "wflow_v1": "snowpack__degree-day_coefficient",
     },
-    "TT": {  # tt
+    "TT": {
         "wflow_v0": "vertical.tt",
         "wflow_v1": "atmosphere_air__snowfall_temperature_threshold",
     },
@@ -99,25 +99,25 @@ WFLOW_NAMES = {
         "wflow_v1": "snowpack__liquid_water_holding_capacity",
     },
     # glacier
-    "wflow_glacierfrac": {  # glacier_fraction
+    "wflow_glacierfrac": {
         "wflow_v0": "vertical.glacierfrac",
         "wflow_v1": "glacier_surface__area_fraction",
         "hydromt_name": "glacfracs",
     },
-    "wflow_glacierstore": {  # glacier_storage
+    "wflow_glacierstore": {
         "wflow_v0": "vertical.glacierstore",
         "wflow_v1": "glacier_ice__initial_leq-depth",
         "hydromt_name": "glacstore",
     },
-    "G_TTM": {  # glacier_ttm
+    "G_TTM": {
         "wflow_v0": "vertical.g_ttm",
         "wflow_v1": "glacier_ice__melting_temperature_threshold",
     },
-    "G_Cfmax": {  # glacier_cfmax
+    "G_Cfmax": {
         "wflow_v0": "vertical.g_cfmax",
         "wflow_v1": "glacier_ice__degree-day_coefficient",
     },
-    "G_SIfrac": {  # glacier_sifrac
+    "G_SIfrac": {
         "wflow_v0": "vertical.g_sifrac",
         "wflow_v1": "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction",
     },
@@ -126,30 +126,30 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.e_r",
         "wflow_v1": "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio",  # noqa: E501
     },
-    "Kext": {  # kext
+    "Kext": {
         "wflow_v0": "vertical.kext",
         "wflow_v1": "vegetation_canopy__light-extinction_coefficient",
     },
-    "LAI": {  # lai
+    "LAI": {
         "wflow_v0": "vertical.leaf_area_index",
         "wflow_v1": "vegetation__leaf-area_index",
-        "hydromt_name": "LAI",  # lai
+        "hydromt_name": "LAI",
     },
-    "RootingDepth": {  # root_depth
+    "RootingDepth": {
         "wflow_v0": "vertical.rootingdepth",
         "wflow_v1": "vegetation_root__depth",
     },
-    "Sl": {  # leaf_storage
+    "Sl": {
         "wflow_v0": "vertical.specific_leaf",
         "wflow_v1": "vegetation__specific-leaf_storage",
-        "hydromt_name": "Sl",  # leaf_storage
+        "hydromt_name": "Sl",
     },
-    "Swood": {  # wood_storage
+    "Swood": {
         "wflow_v0": "vertical.storage_wood",
         "wflow_v1": "vegetation_wood_water__storage_capacity",
-        "hydromt_name": "Swood",  # wood_storage
+        "hydromt_name": "Swood",
     },
-    "kc": {  # crop_factor
+    "kc": {
         "wflow_v0": "vertical.kc",
         "wflow_v1": "vegetation__crop_factor",
     },
@@ -187,16 +187,16 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.cf_soil",
         "wflow_v1": "soil_surface_water__infiltration_reduction_parameter",
     },
-    "KsatVer": {  # ksat_vertical
+    "KsatVer": {
         "wflow_v0": "vertical.kv_0",
         "wflow_v1": "soil_surface_water__vertical_saturated_hydraulic_conductivity",
         "hydromt_name": "ksat_vertical",
     },
-    "kvfrac": {  # ksat_vertical_fraction
+    "kvfrac": {
         "wflow_v0": "vertical.kvfrac",
         "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_factor",
     },
-    "ksathorfrac": {  # ksat_horizontal_fraction
+    "ksathorfrac": {
         "wflow_v0": "lateral.subsurface.ksathorfrac",
         "wflow_v1": "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio",  # noqa: E501
     },
@@ -205,29 +205,29 @@ WFLOW_NAMES = {
         "wflow_v1": "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
         "hydromt_name": "f",
     },
-    "InfiltCapPath": {  # infiltcap_path
+    "InfiltCapPath": {
         "wflow_v0": "vertical.infiltcappath",
         "wflow_v1": "soil~compacted_surface_water__infiltration_capacity",
     },
-    "InfiltCapSoil": {  # infiltcap_soil
+    "InfiltCapSoil": {
         "wflow_v0": "vertical.infiltcapsoil",
         "wflow_v1": None,
     },
-    "thetaR": {  # theta_r
+    "thetaR": {
         "wflow_v0": "vertical.theta_r",
         "wflow_v1": "soil_water__residual_volume_fraction",
-        "hydromt_name": "thetaR",  # theta_r
+        "hydromt_name": "thetaR",
     },
-    "thetaS": {  # theta_s
+    "thetaS": {
         "wflow_v0": "vertical.theta_s",
         "wflow_v1": "soil_water__saturated_volume_fraction",
-        "hydromt_name": "thetaS",  # theta_s
+        "hydromt_name": "thetaS",
     },
     "MaxLeakage": {
         "wflow_v0": "vertical.maxleakage",
         "wflow_v1": "soil_water_sat-zone_bottom__max_leakage_volume_flux",
     },
-    "PathFrac": {  # compacted_fraction
+    "PathFrac": {
         "wflow_v0": "vertical.pathfrac",
         "wflow_v1": "soil~compacted__area_fraction",
     },
@@ -235,12 +235,12 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.rootdistpar",
         "wflow_v1": "soil_root~wet__sigmoid_function_shape_parameter",
     },
-    "SoilThickness": {  # soil_thickness
+    "SoilThickness": {
         "wflow_v0": "vertical.soilthickness",
         "wflow_v1": "soil__thickness",
     },
     # land
-    "WaterFrac": {  # water_fraction
+    "WaterFrac": {
         "wflow_v0": "vertical.waterfrac",
         "wflow_v1": "land~water-covered__area_fraction",
     },
@@ -312,7 +312,7 @@ WFLOW_NAMES = {
         "wflow_v1": "land~irrigated-non-paddy__irrigation_trigger_flag",
     },
     # land surface water flow
-    "N": {  # land_n
+    "N": {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
@@ -321,7 +321,7 @@ WFLOW_NAMES = {
         "wflow_v1": "land_surface_water_flow__ground_elevation",
         "hydromt_name": "elevtn",
     },
-    "Slope": {  # slope
+    "Slope": {
         "wflow_v0": "lateral.land.slope",
         "wflow_v1": "land_surface__slope",
         "hydromt_name": "lndslp",
@@ -342,98 +342,98 @@ WFLOW_NAMES = {
         "wflow_v1": "river_water_inflow~external__volume_flow_rate",
         "hydromt_name": "inflow",
     },
-    "RiverDepth": {  # river_depth
+    "RiverDepth": {
         "wflow_v0": "lateral.river.bankfull_depth",
         "wflow_v1": "river_bank_water__depth",
         "hydromt_name": "rivdph",
     },
-    "wflow_riverlength": {  # river_length
+    "wflow_riverlength": {
         "wflow_v0": "lateral.river.length",
         "wflow_v1": "river__length",
         "hydromt_name": "rivlen",
     },
-    "N_River": {  # river_n
+    "N_River": {
         "wflow_v0": "lateral.river.n",
         "wflow_v1": "river_water_flow__manning_n_parameter",
     },
-    "RiverSlope": {  # river_slope
+    "RiverSlope": {
         "wflow_v0": "lateral.river.slope",
         "wflow_v1": "river__slope",
         "hydromt_name": "rivslp",
     },
-    "wflow_riverwidth": {  # river_width
+    "wflow_riverwidth": {
         "wflow_v0": "lateral.river.width",
         "wflow_v1": "river__width",
         "hydromt_name": "rivwth",
     },
     # lakes
-    "LakeArea": {  # lake_area
+    "LakeArea": {
         "wflow_v0": "lateral.river.lake.area",
         "wflow_v1": "lake_surface__area",
         "hydromt_name": "LakeArea",
     },
-    "LakeAvgLevel": {  # lake_waterlevel
+    "LakeAvgLevel": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__initial_elevation",
         "hydromt_name": "LakeAvgLevel",
     },
-    "LakeThreshold": {  # lake_threshold
+    "LakeThreshold": {
         "wflow_v0": "lateral.river.lake.threshold",
         "wflow_v1": "lake_water_flow_threshold-level__elevation",
         "hydromt_name": "LakeThreshold",
     },
-    "Lake_b": {  # lake_b
+    "Lake_b": {
         "wflow_v0": "lateral.river.lake.b",
         "wflow_v1": "lake_water__rating_curve_coefficient",
         "hydromt_name": "Lake_b",
     },
-    "Lake_e": {  # lake_e
+    "Lake_e": {
         "wflow_v0": "lateral.river.lake.e",
         "wflow_v1": "lake_water__rating_curve_exponent",
         "hydromt_name": "Lake_e",
     },
-    "LakeOutflowFunc": {  # lake_rating_curve
+    "LakeOutflowFunc": {
         "wflow_v0": "lateral.river.lake.outflowfunc",
         "wflow_v1": "lake_water__rating_curve_type_count",
         "hydromt_name": "LakeOutflowFunc",
     },
-    "LakeStorFunc": {  # lake_storage_curve
+    "LakeStorFunc": {
         "wflow_v0": "lateral.river.lake.storfunc",
         "wflow_v1": "lake_water__storage_curve_type_count",
         "hydromt_name": "LakeStorFunc",
     },
-    "LinkedLakeLocs": {  # lake_lower_locations
+    "LinkedLakeLocs": {
         "wflow_v0": "lateral.river.lake.linkedlakelocs",
         "wflow_v1": "lake~lower_location__count",
         "hydromt_name": "LinkedLakeLocs",
     },
     # reservoirs
-    "ResSimpleArea": {  # reservoir_area
+    "ResSimpleArea": {
         "wflow_v0": "lateral.river.reservoir.area",
         "wflow_v1": "reservoir_surface__area",
         "hydromt_name": "ResSimpleArea",
     },
-    "ResDemand": {  # reservoir_demand
+    "ResDemand": {
         "wflow_v0": "lateral.river.reservoir.demand",
         "wflow_v1": "reservoir_water_demand~required~downstream__volume_flow_rate",
         "hydromt_name": "ResDemand",
     },
-    "ResMaxRelease": {  # reservoir_max_release
+    "ResMaxRelease": {
         "wflow_v0": "lateral.river.reservoir.maxrelease",
         "wflow_v1": "reservoir_water_release-below-spillway__max_volume_flow_rate",
         "hydromt_name": "ResMaxRelease",
     },
-    "ResMaxVolume": {  # reservoir_max_volume
+    "ResMaxVolume": {
         "wflow_v0": "lateral.river.reservoir.maxvolume",
         "wflow_v1": "reservoir_water__max_volume",
         "hydromt_name": "ResMaxVolume",
     },
-    "ResTargetFullFrac": {  # reservoir_target_full_fraction
+    "ResTargetFullFrac": {
         "wflow_v0": "lateral.river.reservoir.targetfullfrac",
         "wflow_v1": "reservoir_water~full-target__volume_fraction",
         "hydromt_name": "ResTargetFullFrac",
     },
-    "ResTargetMinFrac": {  # reservoir_target_min_fraction
+    "ResTargetMinFrac": {
         "wflow_v0": "lateral.river.reservoir.targetminfrac",
         "wflow_v1": "reservoir_water~min-target__volume_fraction",
         "hydromt_name": "ResTargetMinFrac",
@@ -566,37 +566,37 @@ WFLOW_STATES_NAMES = {
 
 WFLOW_SEDIMENT_NAMES = {
     # general input
-    "wflow_subcatch": {  # subcatchment
+    "wflow_subcatch": {
         "wflow_v0": "subcatchment",
         "wflow_v1": "subcatchment_location__count",
         "hydromt_name": "basins",
     },
-    "wflow_ldd": {  # local_drain_direction
+    "wflow_ldd": {
         "wflow_v0": "ldd",
         "wflow_v1": "local_drain_direction",
         "hydromt_name": "flwdir",
     },
-    "wflow_lakeareas": {  # lake_areas
+    "wflow_lakeareas": {
         "wflow_v0": "vertical.lakeareas",
         "wflow_v1": "lake_area__count",
-        "hydromt_name": "lakeareas",  # lake_areas
+        "hydromt_name": "lakeareas",
     },
-    "wflow_lakelocs": {  # lake_locations
+    "wflow_lakelocs": {
         "wflow_v0": "lateral.river.lakelocs",
         "wflow_v1": "lake_location__count",
-        "hydromt_name": "lakelocs",  # lake_locations
+        "hydromt_name": "lakelocs",
     },
-    "wflow_reservoirareas": {  # reservoir_areas
+    "wflow_reservoirareas": {
         "wflow_v0": "vertical.resareas",
         "wflow_v1": "reservoir_area__count",
-        "hydromt_name": "resareas",  # reservoir_areas
+        "hydromt_name": "resareas",
     },
-    "wflow_reservoirlocs": {  # reservoir_locations
+    "wflow_reservoirlocs": {
         "wflow_v0": "lateral.river.reslocs",
         "wflow_v1": "reservoir_location__count",
-        "hydromt_name": "reslocs",  # reservoir_locations
+        "hydromt_name": "reslocs",
     },
-    "wflow_river": {  # river_mask
+    "wflow_river": {
         "wflow_v0": "river_location",
         "wflow_v1": "river_location__mask",
         "hydromt_name": "rivmsk",
@@ -675,15 +675,15 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v0": "vertical.canopyheight",
         "wflow_v1": "vegetation_canopy__height",
     },
-    "Kext": {  # kext
+    "Kext": {
         "wflow_v0": "vertical.kext",
         "wflow_v1": None,
     },
-    "Sl": {  # leaf_storage
+    "Sl": {
         "wflow_v0": "vertical.specific_leaf",
         "wflow_v1": None,
     },
-    "Swood": {  # wood_storage
+    "Swood": {
         "wflow_v0": "vertical.storage_wood",
         "wflow_v1": None,
     },
@@ -914,7 +914,6 @@ def _create_hydromt_wflow_mapping(
     hydromt_dict: dict,
     model_dict: dict,
     config_dict: dict,
-    wflow_version="wflow_v1",
 ) -> Tuple[dict, dict]:
     """
     Create dictionnaries to convert from hydromt/Wflow names to staticmaps names.
@@ -937,44 +936,40 @@ def _create_hydromt_wflow_mapping(
     config_dict : dict
         Dictionnary of the current model config to update from the default name in
         staticmaps to the actual name in staticmaps.
-    wflow_version : str
-        Version of Wflow to use for the mapping (as defined in ``model_dict``). Default
-        is "wflow_v1".
 
     Returns
     -------
-    mapping : dict
+    mapping_hydromt : dict
         Dictionnary of the mapping from hydromt names to staticmaps names.
+    mapping_wflow : dict
+        Dictionnary of the mapping from staticmaps names to Wflow variable names.
     """
+    wflow_version = "wflow_v1"  # variable version to use for Wflow.jl
+
     # First dictionnary
     mapping_inv = {}  # name_in_staticmaps : name_in_hydromt
     # Second dictionnary
     wflow_names = dict()  # wflow_variable: name_in_staticmaps
     # Instantiate the mapping with default names (ie non wflow variables)
-    for k, v in hydromt_dict.items():
-        mapping_inv[v] = k
+    for hydromt_name, staticmap_name in hydromt_dict.items():
+        mapping_inv[staticmap_name] = hydromt_name
 
     # Go through the wflow variables and add them if hydromt name is not None
-    for k, v in model_dict.items():
-        if isinstance(v, dict):
-            if "hydromt_name" in v:
-                mapping_inv[k] = v.get("hydromt_name")
-            # else use the default staticmap name as the name
-            else:
-                mapping_inv[k] = k
-            if wflow_version in v:
-                wflow_names[v.get(wflow_version)] = k
+    for staticmap_name, staticmap_mapping in model_dict.items():
+        if isinstance(staticmap_mapping, dict):
+            # use hydromt_name if it is available, use default staticmap name otherwise
+            mapping_inv[staticmap_name] = staticmap_mapping.get(
+                "hydromt_name", staticmap_name
+            )
+            if wflow_version in staticmap_mapping:
+                wflow_names[staticmap_mapping.get(wflow_version)] = staticmap_name
 
     # Update with the TOML
     # Check if wflow v0 config then do not update
-    wflow_v0 = False
-    if "starttime" in config_dict:  # first check
-        wflow_v0 = True
-    # second check for safety
-    if "input" in config_dict and "vertical" in config_dict["input"]:
-        wflow_v0 = True
+    # (wflow_v0 only support upgrade function so this step is not needed)
+    is_wflow_v0 = _check_wflow_version(config_dict)
 
-    if "input" in config_dict and not wflow_v0:
+    if "input" in config_dict and not is_wflow_v0:
         variable_types = ["forcing", "cyclic", "static"]
         for var_type in variable_types:
             if var_type not in config_dict["input"]:
@@ -998,13 +993,15 @@ def _create_hydromt_wflow_mapping(
                     wflow_names[var_name] = new_name
 
     # Invert mapping to get hydromt_name: staticmap_name
-    mapping_hydromt = dict()
-    for k, v in mapping_inv.items():
-        mapping_hydromt[v] = k
+    mapping_hydromt = {
+        hydromt_name: staticmap_name
+        for (staticmap_name, hydromt_name) in mapping_inv.items()
+    }
+
     # Get a mapping of staticmap_name: wflow_variable
     mapping_wflow = dict()
-    for k, v in wflow_names.items():
-        mapping_wflow[v] = k
+    for wflow_var, staticmap_name in wflow_names.items():
+        mapping_wflow[staticmap_name] = wflow_var
 
     return mapping_hydromt, mapping_wflow
 
@@ -1029,3 +1026,27 @@ def _create_hydromt_wflow_mapping_sediment(config: dict) -> Tuple[dict, dict]:
     return _create_hydromt_wflow_mapping(
         HYDROMT_NAMES_DEFAULT_SEDIMENT, WFLOW_SEDIMENT_NAMES, config
     )
+
+
+def _check_wflow_version(config_dict: dict) -> bool:
+    """
+    Check if the config is for Wflow v0 or v1.
+
+    Parameters
+    ----------
+    config_dict : dict
+        Dictionary of the current model config.
+
+    Returns
+    -------
+    bool
+        True if the config is for Wflow v0, False otherwise.
+    """
+    _is_wflow_v0 = False
+    if "starttime" in config_dict:  # first check
+        _is_wflow_v0 = True
+    # second check for safety as starttime is not present for fews_run
+    if "input" in config_dict and "vertical" in config_dict["input"]:
+        _is_wflow_v0 = True
+
+    return _is_wflow_v0

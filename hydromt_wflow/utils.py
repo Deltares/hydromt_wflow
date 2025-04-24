@@ -530,6 +530,7 @@ def _convert_to_wflow_v1(
     config_out["input.cyclic"] = {}
     config_out["input.static"] = {}
     for key, variables in wflow_vars.items():
+        print(f"key: {key}, variables: {variables}")
         name = get_config(
             f"input.{variables['wflow_v0']}", config=config, fallback=None
         )

@@ -56,7 +56,7 @@ parameter = "lateral.river.SSconc"
 [input.vertical]
 altitude = "wflow_dem"
 canopyheight = "CanopyHeight"
-erosk = "soil_detachability"
+erosk = "ErosK"
 erosspl = "eros_spl_EUROSEM"
 erosov = "eros_ov"
 h_land = "lwl"
@@ -71,6 +71,8 @@ specific_leaf = "Sl"
 storage_wood = "Swood"
 usleC = "USLE_C"
 usleK = "USLE_K"
+pclay = "PercentClay"
+psilt = "PercentSilt"
 rivcell = "wflow_river"
 resareas = "wflow_reservoirareas"
 lakeareas = "wflow_lakeareas"
@@ -97,12 +99,6 @@ outsand = "outsand"
 outsagg = "outsagg"
 outlagg = "outlagg"
 outgrav = "outgrav"
-
-[input.vertical.pclay]
-scale = 100
-
-[input.vertical.psilt]
-scale = 100
 
 [input.lateral.land]
 slope = "Slope"
@@ -132,9 +128,3 @@ bankfull_depth = "RiverDepth"
 
 [output.lateral.river]
 SSconc = "SSconc"
-
-[input.vertical.pclay.netcdf.variable]
-name = "fclay_soil"
-
-[input.vertical.psilt.netcdf.variable]
-name = "fsilt_soil"

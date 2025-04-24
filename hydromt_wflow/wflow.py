@@ -978,14 +978,14 @@ and will soon be removed. '
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
-            "Kext": "vegetation_canopy__light-extinction_coefficient",  # kext
-            "N": "land_surface_water_flow__manning_n_parameter",  # manning_n
-            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "RootingDepth": "vegetation_root__depth",  # root_depth
-            "Sl": "vegetation__specific-leaf_storage",  # leaf_storage
-            "Swood": "vegetation_wood_water__storage_capacity",  # wood_storage
-            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
-            "kc": "vegetation__crop_factor",  # crop_factor
+            "Kext": "vegetation_canopy__light-extinction_coefficient",
+            "N": "land_surface_water_flow__manning_n_parameter",
+            "PathFrac": "soil~compacted__area_fraction",
+            "RootingDepth": "vegetation_root__depth",
+            "Sl": "vegetation__specific-leaf_storage",
+            "Swood": "vegetation_wood_water__storage_capacity",
+            "WaterFrac": "land~water-covered__area_fraction",
+            "kc": "vegetation__crop_factor",
             "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
             "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
             "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
@@ -1093,15 +1093,15 @@ and will soon be removed. '
         lulc_fn: str | gpd.GeoDataFrame,
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: Dict = {
-            "landuse": None,  # hydromt_landuse
-            "Kext": "vegetation_canopy__light-extinction_coefficient",  # kext
-            "N": "land_surface_water_flow__manning_n_parameter",  # manning_n
-            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "RootingDepth": "vegetation_root__depth",  # root_depth
-            "Sl": "vegetation__specific-leaf_storage",  # leaf_storage
-            "Swood": "vegetation_wood_water__storage_capacity",  # wood_storage
-            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
-            "kc": "vegetation__crop_factor",  # crop_factor
+            "landuse": None,
+            "Kext": "vegetation_canopy__light-extinction_coefficient",
+            "N": "land_surface_water_flow__manning_n_parameter",
+            "PathFrac": "soil~compacted__area_fraction",
+            "RootingDepth": "vegetation_root__depth",
+            "Sl": "vegetation__specific-leaf_storage",
+            "Swood": "vegetation_wood_water__storage_capacity",
+            "WaterFrac": "land~water-covered__area_fraction",
+            "kc": "vegetation__crop_factor",
             "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
             "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
             "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
@@ -2560,15 +2560,15 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             None,
         ],
         lulc_vars: Dict = {
-            "landuse": None,  # hydromt_landuse
-            "Kext": "vegetation_canopy__light-extinction_coefficient",  # kext
-            "N": "land_surface_water_flow__manning_n_parameter",  # manning_n
-            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "RootingDepth": "vegetation_root__depth",  # root_depth
-            "Sl": "vegetation__specific-leaf_storage",  # leaf_storage
-            "Swood": "vegetation_wood_water__storage_capacity",  # wood_storage
-            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
-            "kc": "vegetation__crop_factor",  # crop_factor
+            "landuse": None,
+            "Kext": "vegetation_canopy__light-extinction_coefficient",
+            "N": "land_surface_water_flow__manning_n_parameter",
+            "PathFrac": "soil~compacted__area_fraction",
+            "RootingDepth": "vegetation_root__depth",
+            "Sl": "vegetation__specific-leaf_storage",
+            "Swood": "vegetation_wood_water__storage_capacity",
+            "WaterFrac": "land~water-covered__area_fraction",
+            "kc": "vegetation__crop_factor",
             "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
             "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
             "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
@@ -5750,10 +5750,6 @@ change name input.path_forcing "
                 self.set_config(f"{_prefix}.{wflow_var}", var)
             # else not a wflow variable
             # (spelling mistakes should have been checked in _update_naming)
-            # else:
-            #     self.logger.warning(
-            #         f"Wflow variable {var} does not exist. Check spelling."
-            #     )
 
     ## WFLOW specific data and method
     @property
@@ -5973,7 +5969,6 @@ change name input.path_forcing "
                 del self.config["state"]["variables"][
                     "reservoir_water__instantaneous_volume"
                 ]
-            # TODO: remove in input.static in config
 
         if remove_lake:
             # change lakes = true to false
@@ -5988,7 +5983,6 @@ change name input.path_forcing "
                 del self.config["state"]["variables"][
                     "lake_water_surface__instantaneous_elevation"
                 ]
-            # TODO: remove in input.static in config
 
     def clip_forcing(self, crs=4326, **kwargs):
         """Return clippped forcing for subbasin.
