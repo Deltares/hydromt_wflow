@@ -20,8 +20,9 @@ import os
 import shutil
 import sys
 from distutils.dir_util import copy_tree
-
 import hydromt_wflow
+
+
 
 here = os.path.dirname(__file__)
 sys.path.insert(0, os.path.abspath(os.path.join(here, "..")))
@@ -285,3 +286,6 @@ nbsphinx_prolog = r"""
             <a href="https://mybinder.org/v2/gh/Deltares/hydromt_wflow/main?urlpath=lab/tree/examples/{{ docname|e }}" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
         </div>
 """
+
+nbsphinx_execute = 'always'
+nbsphinx_timeout = 300

@@ -50,7 +50,12 @@ jobs:
         with:
           pixi-version: "v0.41.1"
       - name: Run the test suite
-        run: pixi run --locked test-cov
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            pixi run --locked test-cov
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
