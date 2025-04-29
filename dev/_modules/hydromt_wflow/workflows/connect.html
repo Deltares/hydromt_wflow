@@ -1,0 +1,861 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hydromt_wflow.workflows.connect &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/hydromt_wflow/workflows/connect';</script>
+    <link rel="icon" href="../../../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.8.1.dev0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../../../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../getting_started/intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../../../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.connect</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for hydromt_wflow.workflows.connect</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Workflows to connect a wflow model to a 1D model.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hydromt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shapely.geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">,</span> <span class="n">Point</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;wflow_1dmodel_connection&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="wflow_1dmodel_connection">
+<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html#hydromt_wflow.workflows.wflow_1dmodel_connection">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wflow_1dmodel_connection</span><span class="p">(</span>
+    <span class="n">gdf_riv</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+    <span class="n">ds_model</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">connection_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;subbasin_area&quot;</span><span class="p">,</span>
+    <span class="n">area_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+    <span class="n">add_tributaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">include_river_boundaries</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Connect wflow to a 1D model by deriving linked subcatchs (and tributaries).</span>
+
+<span class="sd">    There are two methods to connect models:</span>
+
+<span class="sd">    - `subbasin_area`:</span>
+<span class="sd">        creates subcatchments linked to the 1d river based on an</span>
+<span class="sd">        area threshold (area_max) for the subbasin size. With this method, if a</span>
+<span class="sd">        tributary is larger than the area_max, it will be connected to the 1d river</span>
+<span class="sd">        directly.</span>
+<span class="sd">    - `nodes`:</span>
+<span class="sd">        subcatchments are derived based on the 1driver nodes (used as gauges</span>
+<span class="sd">        locations). With this method, large tributaries can also be derived separately</span>
+<span class="sd">        using the add_tributaries option and adding a area_max threshold for the</span>
+<span class="sd">        tributaries.</span>
+
+<span class="sd">    If `add_tributary` option is on, you can decide to include or exclude the upstream</span>
+<span class="sd">    boundary of the 1d river as an additional tributary using the</span>
+<span class="sd">    `include_river_boundaries` option.</span>
+
+<span class="sd">    River edges or river nodes are snapped to the closest downstream wflow river</span>
+<span class="sd">    cell using the :py:meth:`hydromt.flw.gauge_map` method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf_riv : gpd.GeoDataFrame</span>
+<span class="sd">        River geometry.</span>
+<span class="sd">    ds_model : xr.Dataset</span>
+<span class="sd">        Model dataset with &#39;flwdir&#39;, &#39;rivmsk&#39;, &#39;rivlen&#39;, &#39;uparea&#39;.</span>
+<span class="sd">    connection_method : str, default subbasin_area</span>
+<span class="sd">        Method to connect wflow to the 1D model. Available methods are</span>
+<span class="sd">        {&#39;subbasin_area&#39;, &#39;nodes&#39;}.</span>
+<span class="sd">    area_max : float, default 10.0</span>
+<span class="sd">        Maximum area [km2] of the subbasins to connect to the 1D model in km2 with</span>
+<span class="sd">        connection_method **subbasin_area** or</span>
+<span class="sd">        **nodes** with add_tributaries set to True.</span>
+<span class="sd">    add_tributaries : bool, default True</span>
+<span class="sd">        If True, derive tributaries for the subbasins larger than area_max. Always True</span>
+<span class="sd">        for **subbasin_area** method.</span>
+<span class="sd">    include_river_boundaries : bool, default True</span>
+<span class="sd">        If True, include the upstream boundary(ies) of the 1d river as an additional</span>
+<span class="sd">        tributary(ies).</span>
+<span class="sd">    logger : logging.Logger, optional</span>
+<span class="sd">        Logger object, by default logger</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to the snapping method</span>
+<span class="sd">        hydromt.flw.gauge_map. See its documentation for more information.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ds_out: xr.Dataset</span>
+<span class="sd">        Dataset with variables &#39;subcatch&#39; for the subbasin map, &#39;subcatch_riv&#39; for the</span>
+<span class="sd">        subbasin map masked with river cells to be able to save river output with wflow</span>
+<span class="sd">        and &#39;gauges&#39; for the tributaries outflow locations (add_tributaries True or</span>
+<span class="sd">        subbasin_area method).</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    hydromt.flw.gauge_map</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Checks</span>
+    <span class="n">dvars_model</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">,</span> <span class="s2">&quot;rivmsk&quot;</span><span class="p">,</span> <span class="s2">&quot;rivlen&quot;</span><span class="p">,</span> <span class="s2">&quot;uparea&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">([</span><span class="n">v</span> <span class="ow">in</span> <span class="n">ds_model</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dvars_model</span><span class="p">]):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One or more variables missing from ds_model: </span><span class="si">{</span><span class="n">dvars_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Reproject</span>
+    <span class="k">if</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">crs</span> <span class="o">!=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">:</span>
+        <span class="n">gdf_riv</span> <span class="o">=</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="c1"># Derive flwdir</span>
+    <span class="n">flwdir</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">])</span>
+    <span class="c1"># Basin mask</span>
+    <span class="n">buffer_cells</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">basin_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+    <span class="n">basin_mask</span> <span class="o">=</span> <span class="n">basin_mask</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="o">-</span><span class="n">buffer_cells</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">res</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">abs</span><span class="p">))</span>
+
+    <span class="c1"># If tributaries or subbasins area method,</span>
+    <span class="c1"># need to derive the tributaries areas first</span>
+    <span class="k">if</span> <span class="n">connection_method</span> <span class="o">==</span> <span class="s2">&quot;subbasin_area&quot;</span> <span class="ow">or</span> <span class="n">add_tributaries</span><span class="p">:</span>
+        <span class="c1"># 0. Check that the max_area is not too small</span>
+        <span class="c1"># Should be bigger than the wflow river threshold</span>
+        <span class="c1"># Get from attrs if available for newer wflow models built with hydromt</span>
+        <span class="n">riv_upa</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;river_upa&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">riv_upa</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Derive from the uparea and rivmsk</span>
+            <span class="n">riv_upa</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="n">riv_upa</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">riv_upa</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">area_max</span> <span class="o">&lt;</span> <span class="n">riv_upa</span><span class="p">:</span>
+            <span class="n">new_area_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">riv_upa</span> <span class="o">/</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.5</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The area_max </span><span class="si">{</span><span class="n">area_max</span><span class="si">}</span><span class="s2"> is smaller than the minimum upstream area of &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;the wflow river </span><span class="si">{</span><span class="n">riv_upa</span><span class="si">}</span><span class="s2"> which means tributaries will &quot;</span>
+                <span class="s2">&quot;not be connected to the wflow river. Changing and setting area_max to &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">new_area_max</span><span class="si">}</span><span class="s2"> km2. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;To keep </span><span class="si">{</span><span class="n">area_max</span><span class="si">}</span><span class="s2"> km2 threshold, please update the wflow model to &quot;</span>
+                <span class="s2">&quot;include more detailed rivers.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">area_max</span> <span class="o">=</span> <span class="n">new_area_max</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Linking 1D river to wflow river&quot;</span><span class="p">)</span>
+        <span class="c1"># 1. Derive the river edges / boundaries</span>
+        <span class="c1"># merge multilinestrings in gdf_riv to linestrings</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">gdf_riv</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">))):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;gdf_riv&#39; contains MultiLineStrings which will be converted into&quot;</span>
+                <span class="s2">&quot;LineStrings.&quot;</span>
+            <span class="p">)</span>
+            <span class="n">gdf_riv</span> <span class="o">=</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># clip to basins</span>
+        <span class="n">riv1d</span> <span class="o">=</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">basin_mask</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">riv1d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">))):</span>
+            <span class="c1"># clipping may result in MultiLineStrings</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;The provided river geometry contains MultiLineString geometries after&quot;</span>
+                <span class="s2">&quot;clipping. Consider checking if the provided river geometry crosses the&quot;</span>
+                <span class="s2">&quot;boundary of the Wflow model and if there is sufficient space between&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;the river and the Wflow model boundary (min. </span><span class="si">{</span><span class="n">buffer_cells</span><span class="si">}</span><span class="s2"> cells).&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># we turn these into LineStrings again using its points</span>
+            <span class="n">riv1d</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">riv1d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+                <span class="k">lambda</span> <span class="n">geom</span><span class="p">:</span> <span class="n">LineString</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">coord</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">geom</span><span class="o">.</span><span class="n">geoms</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">coords</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">MultiLineString</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">geom</span>
+            <span class="p">)</span>
+
+        <span class="c1"># get the edges of the riv1d</span>
+        <span class="n">riv1d_edges</span> <span class="o">=</span> <span class="n">riv1d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">riv1d_edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">riv1d_edges</span><span class="p">,</span> <span class="n">riv1d</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))]</span>
+        <span class="p">)</span>
+        <span class="c1"># find geometry that are unique in riv1d_edges</span>
+        <span class="n">riv1d_edges</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">riv1d_edges</span><span class="p">[</span><span class="o">~</span><span class="n">riv1d_edges</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)],</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">riv1d</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 2. snap edges to wflow river</span>
+        <span class="n">da_edges</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
+            <span class="n">ds_model</span><span class="p">,</span>
+            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">riv1d_edges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">riv1d_edges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="o">*</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">idx_to_xy</span><span class="p">(</span><span class="n">idxs</span><span class="p">))</span>
+        <span class="c1"># if csv contains additional columns, these are also written in the staticgeoms</span>
+        <span class="n">riv1d_edges</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">ids</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="n">geometry</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 3. Derive the subbasins corresponding to the river edges</span>
+        <span class="n">da_edges_subbas</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">basin_map</span><span class="p">(</span>
+            <span class="n">ds_model</span><span class="p">,</span> <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">riv1d_edges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">riv1d_edges</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">da_edges_subbas</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="c1"># convert to gdf</span>
+        <span class="n">gdf_edges_subbas</span> <span class="o">=</span> <span class="n">da_edges_subbas</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+
+        <span class="c1"># 4. Filter which subbasins are the upstream ones (tributaries)</span>
+        <span class="c1"># and which ones are the downstream ones (main river)</span>
+        <span class="c1"># and should be split into subbasins</span>
+        <span class="c1"># First intersect riv1d with gdf_edges_subbas</span>
+        <span class="n">rivmerge</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">riv1d</span><span class="p">,</span> <span class="n">gdf_edges_subbas</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Compute len of river</span>
+        <span class="k">if</span> <span class="n">rivmerge</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">is_geographic</span><span class="p">:</span>
+            <span class="n">rivmerge</span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rivmerge</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span><span class="o">.</span><span class="n">length</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rivmerge</span><span class="p">[</span><span class="s2">&quot;len&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rivmerge</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">length</span>
+        <span class="c1"># Groupby value and sum length</span>
+        <span class="n">rivmerge</span> <span class="o">=</span> <span class="n">rivmerge</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)[</span><span class="s2">&quot;len&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="c1"># Select the subcatch where rivlength is more than 5times rivlen_avg</span>
+        <span class="n">riv_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">rivlen_avg</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">subids</span> <span class="o">=</span> <span class="n">rivmerge</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">rivmerge</span> <span class="o">&gt;</span> <span class="n">rivlen_avg</span> <span class="o">*</span> <span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">subcatch_to_split</span> <span class="o">=</span> <span class="n">gdf_edges_subbas</span><span class="p">[</span><span class="n">gdf_edges_subbas</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">subids</span><span class="p">)]</span>
+        <span class="n">subcatch_to_split</span> <span class="o">=</span> <span class="n">subcatch_to_split</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">da_subcatch_to_split</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+            <span class="n">subcatch_to_split</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;value&quot;</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="c1"># First tributaries are the edges that are not included in the subcatch_to_split</span>
+        <span class="n">gdf_tributaries</span> <span class="o">=</span> <span class="n">riv1d_edges</span><span class="p">[</span><span class="o">~</span><span class="n">riv1d_edges</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">subids</span><span class="p">)]</span>
+
+        <span class="c1"># 5. Derive a mask of gdf_riv in the subcatch_to_split wflow rivers</span>
+        <span class="c1"># compute flw_path to mask out the river included in dfm 1d network</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Get paths</span>
+        <span class="n">flowpaths</span><span class="p">,</span> <span class="n">dists</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">path</span><span class="p">(</span>
+            <span class="n">xy</span><span class="o">=</span><span class="n">xy</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;down&quot;</span>
+        <span class="p">)</span>
+        <span class="n">feats</span> <span class="o">=</span> <span class="n">flwdir</span><span class="o">.</span><span class="n">geofeatures</span><span class="p">(</span><span class="n">flowpaths</span><span class="p">)</span>
+        <span class="n">gdf_paths</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="o">.</span><span class="n">from_features</span><span class="p">(</span><span class="n">feats</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">gdf_paths</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf_paths</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Create a mask with subcatch id in subcatch_to_split and flowpath is nodata</span>
+        <span class="n">da_flwpaths</span> <span class="o">=</span> <span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span><span class="n">gdf_paths</span><span class="p">)</span>
+        <span class="n">da_flwpaths</span> <span class="o">=</span> <span class="n">da_flwpaths</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">da_subcatch_to_split</span> <span class="o">!=</span> <span class="n">da_subcatch_to_split</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+            <span class="n">da_flwpaths</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 6. Derive the tributaries</span>
+        <span class="c1"># Find tributaries</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deriving tributaries&quot;</span><span class="p">)</span>
+        <span class="n">trib_msk</span> <span class="o">=</span> <span class="n">da_subcatch_to_split</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">da_flwpaths</span> <span class="o">==</span> <span class="n">da_flwpaths</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span> <span class="n">da_subcatch_to_split</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+        <span class="p">)</span>
+        <span class="n">trib_msk</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">trib_msk</span> <span class="o">!=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;uparea&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">area_max</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">flwdir</span><span class="o">.</span><span class="n">downstream</span><span class="p">(</span><span class="n">da_flwpaths</span><span class="p">)</span> <span class="o">!=</span> <span class="n">da_flwpaths</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">),</span>
+            <span class="n">trib_msk</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Make sure we vectorize to single cells and not to polygons for adjacent cells</span>
+        <span class="n">trib_msk</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="p">(</span><span class="n">trib_msk</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">x_dim</span><span class="p">))</span>
+        <span class="n">nodata</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+        <span class="n">trib_msk</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">trib_msk</span> <span class="o">!=</span> <span class="n">nodata</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">trib_msk</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">trib_msk</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">trib_msk</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="n">nodata</span><span class="p">)</span>
+        <span class="n">trib_msk</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">reindex_like</span><span class="p">(</span>
+            <span class="n">da_subcatch_to_split</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">nodata</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="n">gdf_trib</span> <span class="o">=</span> <span class="n">trib_msk</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">vectorize</span><span class="p">()</span>
+        <span class="c1"># Test if there gdf_trib is empty</span>
+        <span class="k">if</span> <span class="n">gdf_trib</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No tributaries found&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">include_river_boundaries</span><span class="p">:</span>
+                <span class="n">gdf_tributaries</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gdf_trib</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_trib</span><span class="o">.</span><span class="n">centroid</span>
+
+            <span class="c1"># Merge with gdf_tributary if include_river_boundaries</span>
+            <span class="c1"># else only keep intersecting tributaries</span>
+            <span class="k">if</span> <span class="n">include_river_boundaries</span><span class="p">:</span>
+                <span class="n">gdf_tributaries</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">gdf_tributaries</span><span class="p">,</span> <span class="n">gdf_trib</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gdf_tributaries</span> <span class="o">=</span> <span class="n">gdf_trib</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;value&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf_tributaries</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># 7. Mask the tributaries out of the subatch_to_split map</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="c1"># Derive the tributary basin map</span>
+            <span class="n">da_trib_subbas</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">basin_map</span><span class="p">(</span>
+                <span class="n">ds_model</span><span class="p">,</span>
+                <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir</span><span class="p">,</span>
+                <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="n">da_trib_subbas</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="c1"># Mask tributaries</span>
+            <span class="n">da_flwdir_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">da_subcatch_to_split</span> <span class="o">!=</span> <span class="n">da_subcatch_to_split</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">da_trib_subbas</span> <span class="o">==</span> <span class="n">da_trib_subbas</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">),</span>
+                <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Mask subcatch to split only</span>
+            <span class="n">da_flwdir_mask</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">da_subcatch_to_split</span> <span class="o">!=</span> <span class="n">da_subcatch_to_split</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+                <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">flwdir_mask</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span><span class="n">da_flwdir_mask</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># The mask for deriving subbasins is the whole wflow model</span>
+        <span class="n">flwdir_mask</span> <span class="o">=</span> <span class="n">flwdir</span>
+        <span class="n">gdf_tributaries</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span>
+
+    <span class="c1"># 8. Derive the subbasins</span>
+    <span class="k">if</span> <span class="n">connection_method</span> <span class="o">==</span> <span class="s2">&quot;subbasin_area&quot;</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Deriving lateral subbasins based on&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;subbasin area threshold: </span><span class="si">{</span><span class="n">area_max</span><span class="si">}</span><span class="s2"> km2&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># calculate subbasins with a minimum stream order 7 and its outlets</span>
+        <span class="n">subbas</span><span class="p">,</span> <span class="n">idxs_out</span> <span class="o">=</span> <span class="n">flwdir_mask</span><span class="o">.</span><span class="n">subbasins_area</span><span class="p">(</span><span class="n">area_max</span><span class="p">)</span>
+        <span class="n">da_subbasins</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">subbas</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="n">dims</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+            <span class="n">coords</span><span class="o">=</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">da_subbasins</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">da_subbasins</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Get the nodes from gdf_riv</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Deriving subbasins based on 1D river nodes snapped to wflow river&quot;</span><span class="p">)</span>
+        <span class="c1"># from multiline to line</span>
+        <span class="n">gdf_riv</span> <span class="o">=</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index_parts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Clip to basin</span>
+        <span class="n">gdf_riv</span> <span class="o">=</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">basin_mask</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">bi</span><span class="p">,</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">gdf_riv</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Point</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">bi</span><span class="p">])</span>  <span class="c1"># start</span>
+            <span class="n">nodes</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">Point</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">bi</span><span class="p">])</span>  <span class="c1"># end</span>
+        <span class="n">gdf_nodes</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">nodes</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;river_id&quot;</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">gdf_riv</span><span class="o">.</span><span class="n">crs</span>
+        <span class="p">)</span>
+        <span class="c1"># Drop duplicates geometry</span>
+        <span class="n">gdf_nodes</span> <span class="o">=</span> <span class="n">gdf_nodes</span><span class="p">[</span><span class="o">~</span><span class="n">gdf_nodes</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)]</span>
+        <span class="n">gdf_nodes</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf_nodes</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Snap the nodes to the wflow river</span>
+        <span class="n">da_nodes</span><span class="p">,</span> <span class="n">idxs</span><span class="p">,</span> <span class="n">ids</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">gauge_map</span><span class="p">(</span>
+            <span class="n">ds_model</span><span class="p">,</span>
+            <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">gdf_nodes</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">gdf_nodes</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">),</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir</span><span class="p">,</span>
+            <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Derive subbasins</span>
+        <span class="n">da_subbasins</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">flw</span><span class="o">.</span><span class="n">basin_map</span><span class="p">(</span>
+            <span class="n">ds_model</span><span class="p">,</span>
+            <span class="n">flwdir</span><span class="o">=</span><span class="n">flwdir_mask</span><span class="p">,</span>
+            <span class="n">idxs</span><span class="o">=</span><span class="n">idxs</span><span class="p">,</span>
+            <span class="n">ids</span><span class="o">=</span><span class="n">ids</span><span class="p">,</span>
+            <span class="n">stream</span><span class="o">=</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">da_subbasins</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">ds_model</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+    <span class="n">da_subbasins</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;subcatch&quot;</span>
+    <span class="n">ds_out</span> <span class="o">=</span> <span class="n">da_subbasins</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
+
+    <span class="c1"># Subcatchment map for river cells only (to be able to save river outputs in wflow)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;subcatch_riv&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_subbasins</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivmsk&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">da_subbasins</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Add tributaries</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">gdf_tributaries</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;gauges&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+            <span class="n">gdf_tributaries</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ds_out</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
