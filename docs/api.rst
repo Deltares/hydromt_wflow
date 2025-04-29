@@ -62,6 +62,7 @@ Setup components
    WflowModel.setup_1dmodel_connection
    WflowModel.setup_grid_from_raster
    WflowModel.setup_cold_states
+   WflowModel.upgrade_to_v1_wflow
 
 Attributes
 ----------
@@ -177,6 +178,7 @@ Setup components
    WflowSedimentModel.setup_config_output_timeseries
    WflowSedimentModel.setup_constant_pars
    WflowSedimentModel.setup_grid_from_raster
+   WflowSedimentModel.upgrade_to_v1_wflow
 
 Attributes
 ----------

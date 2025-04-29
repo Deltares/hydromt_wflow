@@ -1,7 +1,7 @@
 """Soilgrid workflows for Wflow plugin."""
 
 import logging
-from typing import List, Optional
+from typing import List
 
 import hydromt
 import numpy as np
@@ -10,7 +10,6 @@ import xarray as xr
 from scipy.optimize import curve_fit
 
 from . import ptf, soilparams
-from .landuse import landuse
 
 logger = logging.getLogger(__name__)
 
@@ -451,7 +450,6 @@ def soilgrids(
     ds_like: xr.Dataset,
     ptfKsatVer: str = "brakensiek",
     soil_fn: str = "soilgrids",
-    soil_mapping: Optional[pd.DataFrame] = None,
     wflow_layers: List[int] = [100, 300, 800],
     logger=logger,
 ):
@@ -501,8 +499,6 @@ index for the wflow_sbm soil layers.
     - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
-    - **InfiltCapPath** : Infiltration capacity of the soil based on soil texture \
-classes (optional).
 
 
     Parameters
@@ -515,10 +511,6 @@ classes (optional).
         PTF to use for calculation KsatVer.
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
-    soil_mapping : pd.DataFrame, optional
-        DataFrame containing soil mapping data based on soil texture. The index column
-        of the table should contain the soil 'texture' classes and the other columns
-        should be the name of the corresponding wflow parameter(s). By default None.
     wflow_layers : list
         List of soil layer depths [cm] for which c is calculated.
 
@@ -686,18 +678,6 @@ classes (optional).
     ds_out["wflow_soil"] = soil_texture_out
     ds_out["wflow_soil"].raster.set_nodata(0)
 
-    # optional soil mapping
-    if soil_mapping is not None:
-        logger.info("Mapping soil parameters based on soil texture")
-        ds_soil_params = landuse(
-            soil_texture,
-            ds_like=ds_like,
-            df=soil_mapping,
-            logger=logger,
-        )
-        # Add to ds_out
-        ds_out = xr.merge([ds_out, ds_soil_params])
-
     # for writing pcraster map files a scalar nodata value is required
     dtypes = {"wflow_soil": np.int32}
     for var in ds_out:
@@ -779,19 +759,35 @@ def soilgrids_brooks_corey(
     return ds_out
 
 
-def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
+def soilgrids_sediment(
+    ds: xr.Dataset,
+    ds_like: xr.Dataset,
+    usleK_method: str = "renard",
+    add_aggregates: bool = True,
+    logger=logger,
+) -> xr.Dataset:
     """
     Return soil parameter maps for sediment modelling at model resolution.
 
     Based on soil properties from SoilGrids dataset.
+    Sediment size distribution and addition of small and large aggregates can be
+    estimated from primary particle size distribution with Foster et al. (1980).
+    USLE K factor can be computed from the soil data using Renard or EPIC methods.
+    Calculation of D50 and fraction of fine and very fine sand (fvfs) from
+    Fooladmand et al, 2006.
 
     The following soil parameter maps are calculated:
 
-    * PercentClay: clay content of the topsoil [%]
-    * PercentSilt: silt content of the topsoil [%]
-    * PercentOC: organic carbon in the topsoil [%]
-    * ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]
-    * USLE_K: soil erodibility factor from the USLE equation [-]
+    * fclay_soil: clay content of the topsoil [g/g]
+    * fsilt_soil: silt content of the topsoil [g/g]
+    * fsand_soil: sand content of the topsoil [g/g]
+    * fsagg_soil: small aggregate content of the topsoil [g/g]
+    * flagg_soil: large aggregate content of the topsoil [g/g]
+    * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
+    * usle_k: soil erodibility factor from the USLE equation [-]
+    * d50_soil: median sediment diameter of the soil [mm]
+    * c_govers: Govers factor for overland flow transport capacity [-]
+    * n_govers: Govers exponent for overland flow transport capacity [-]
 
     Parameters
     ----------
@@ -801,6 +797,8 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         Dataset at model resolution.
     usleK_method : str
         Method to use for calculation of USLE_K {"renard", "epic"}.
+    add_aggregates : bool
+        Add small and large aggregates to the soil properties. Default is True.
 
     Returns
     -------
@@ -816,16 +814,8 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
 
     # soil properties
     pclay = ds["clyppt_sl1"]
-    percentclay = pclay.raster.reproject_like(ds_like, method="average")
-    ds_out["PercentClay"] = percentclay.astype(np.float32)
-
     psilt = ds["sltppt_sl1"]
-    percentsilt = psilt.raster.reproject_like(ds_like, method="average")
-    ds_out["PercentSilt"] = percentsilt.astype(np.float32)
-
     poc = ds["oc_sl1"]
-    percentoc = poc.raster.reproject_like(ds_like, method="average")
-    ds_out["PercentOC"] = percentoc.astype(np.float32)
 
     # Detachability of the soil
     erosK = xr.apply_ufunc(
@@ -837,7 +827,7 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
         keep_attrs=True,
     )
     erosK = erosK.raster.reproject_like(ds_like, method="average")
-    ds_out["ErosK"] = erosK.astype(np.float32)
+    ds_out["soil_detachability"] = erosK.astype(np.float32)
 
     # USLE K parameter
     if usleK_method == "renard":
@@ -860,7 +850,61 @@ def soilgrids_sediment(ds, ds_like, usleK_method, logger=logger):
             keep_attrs=True,
         )
     usleK = usleK.raster.reproject_like(ds_like, method="average")
-    ds_out["USLE_K"] = usleK.astype(np.float32)
+    ds_out["usle_k"] = usleK.astype(np.float32)
+
+    # Mean diameter of the soil
+    d50 = xr.apply_ufunc(
+        ptf.mean_diameter_soil,
+        pclay,
+        psilt,
+        dask="parallelized",
+        output_dtypes=[float],
+        keep_attrs=True,
+    )
+    ds_out["d50_soil"] = d50.raster.reproject_like(ds_like, method="average").astype(
+        np.float32
+    )
+
+    # Govers factor and exponent for overland flow transport capacity
+    c_govers = ((d50 * 1000 + 5) / 0.32) ** (-0.6)
+    n_govers = ((d50 * 1000 + 5) / 300) ** (0.25)
+    ds_out["c_govers"] = c_govers.raster.reproject_like(
+        ds_like, method="average"
+    ).astype(np.float32)
+    ds_out["n_govers"] = n_govers.raster.reproject_like(
+        ds_like, method="average"
+    ).astype(np.float32)
+
+    # Sediment size distribution
+    if add_aggregates:
+        fclay = 0.20 * pclay / 100
+        fsilt = 0.13 * psilt / 100
+        fsand = (1 - pclay / 100 - psilt / 100) * (1 - pclay / 100) ** 2.4
+        fsagg = 0.28 * (pclay / 100 - 0.25) + 0.5
+        fsagg = fsagg.where(pclay < 50, 0.57)
+        fsagg = fsagg.where(pclay > 25, 2 * pclay / 100)
+    else:
+        fclay = pclay / 100
+        fsilt = psilt / 100
+        fsagg = fclay * 0.0
+
+    # Reproject to model resolution
+    fclay = fclay.raster.reproject_like(ds_like, method="average")
+    ds_out["fclay_soil"] = fclay.astype(np.float32)
+    fsilt = fsilt.raster.reproject_like(ds_like, method="average")
+    ds_out["fsilt_soil"] = fsilt.astype(np.float32)
+    fsagg = fsagg.raster.reproject_like(ds_like, method="average")
+    ds_out["fsagg_soil"] = fsagg.astype(np.float32)
+    # Make sure that the sum of the percentages is 100
+    if add_aggregates:
+        fsand = fsand.raster.reproject_like(ds_like, method="average").astype(
+            np.float32
+        )
+        ds_out["fsand_soil"] = fsand
+        ds_out["flagg_soil"] = (1 - fclay - fsilt - fsand - fsagg).astype(np.float32)
+    else:
+        ds_out["fsand_soil"] = (1 - fclay - fsilt).astype(np.float32)
+        ds_out["flagg_soil"] = (fclay * 0.0).astype(np.float32)
 
     # for writing pcraster map files a scalar nodata value is required
     for var in ds_out:
@@ -891,7 +935,7 @@ def update_soil_with_paddy(
         Dataset containing soil properties.
     ds_like : xarray.DataArray
         Dataset at model resolution.
-        Required variables: wflow_subcatch, KsatVer, f
+        Required variables: basins, ksat_vertical, f, elevtn, c
     paddy_mask : xarray.DataArray
         Dataset containing paddy fields mask.
     soil_fn : str
@@ -919,7 +963,7 @@ def update_soil_with_paddy(
     # required correction factor for that layer Values are only set for locations
     # with paddy irrigation, all other cells are set to be equal to 1
     logger.info("Adding kvfrac map")
-    kv0 = ds_like["KsatVer"]
+    kv0 = ds_like["ksat_vertical"]
     f = ds_like["f"]
     kv0_mask = kv0.where(paddy_mask == 1)
     f_mask = f.where(paddy_mask == 1)
@@ -937,13 +981,13 @@ def update_soil_with_paddy(
             logger.debug(f"Interpolate nodata (NaN) values for {var}")
             ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
             ds_out[var] = ds_out[var].where(
-                ~ds_like["wflow_subcatch"].raster.mask_nodata().isnull()
+                ~ds_like["basins"].raster.mask_nodata().isnull()
             )
             ds_out[var] = ds_out[var].fillna(-9999).astype(dtype)
             ds_out[var].raster.set_nodata(np.dtype(dtype).type(-9999))
 
         # temporarily add the dem to the dataset
-        ds_out["wflow_dem"] = ds_like["wflow_dem"]
+        ds_out["elevtn"] = ds_like["elevtn"]
 
     # Compute the kv_frac (should be done after updating c!)
     da_kvfrac = soilparams.update_kvfrac(
@@ -956,7 +1000,7 @@ def update_soil_with_paddy(
     if update_c:
         ds_out["kvfrac"] = da_kvfrac
         # Remove wflow_dem
-        ds_out = ds_out.drop_vars("wflow_dem")
+        ds_out = ds_out.drop_vars("elevtn")
     else:
         ds_out = da_kvfrac.to_dataset(name="kvfrac")
 
