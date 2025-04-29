@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -638,7 +640,7 @@
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.2.dev0)"><em>xarray.Dataset</em></a>) – Dataset containing soil properties.</p></li>
 <li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.
-Required variables: wflow_subcatch, KsatVer, f</p></li>
+Required variables: basins, ksat_vertical, f, elevtn, c</p></li>
 <li><p><strong>paddy_mask</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – Dataset containing paddy fields mask.</p></li>
 <li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – soilgrids version {‘soilgrids’, ‘soilgrids_2020’}</p></li>
 <li><p><strong>update_c</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Update c based on change in wflow_layers.</p></li>

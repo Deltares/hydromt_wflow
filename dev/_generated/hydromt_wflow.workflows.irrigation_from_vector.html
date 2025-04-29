@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -639,7 +641,7 @@
 <li><p><strong>gdf_irrigation</strong> (<em>gpd.GeoDataFrame</em>) – Shapefile with irrigation areas.</p></li>
 <li><p><strong>ds_like</strong> (<em>xr.Dataset</em>) – <p>Dataset at wflow model domain and resolution.</p>
 <ul>
-<li><p>Required variables: [‘wflow_landuse’, ‘LAI’]</p></li>
+<li><p>Required variables: [‘landuse’, ‘LAI’]</p></li>
 </ul>
 </p></li>
 <li><p><strong>irrigation_value</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – Values that indicate irrigation in gdf_irrigation.</p></li>

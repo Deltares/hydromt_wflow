@@ -404,6 +404,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
 </ul>
@@ -497,9 +498,13 @@ in its corresponding section.</p>
 <a class="reference download internal" download="" href="../_downloads/998603dba710c7a5357833971adbd4bb/wflow_sediment_build.yml"><code class="xref download docutils literal notranslate"><span class="pre">.yml</span> <span class="pre">file</span></code></a>. Each section corresponds
 to a model component with the same name.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">setup_config</span><span class="p">:</span><span class="w">                     </span><span class="c1"># options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;</span>
-<span class="w">  </span><span class="nt">starttime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-01-01T00:00:00</span>
-<span class="w">  </span><span class="nt">endtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-03-31T00:00:00</span>
-<span class="w">  </span><span class="nt">timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
+<span class="w">  </span><span class="nt">time.starttime</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2010-02-02T00:00:00&quot;</span>
+<span class="w">  </span><span class="nt">time.endtime</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2010-02-10T00:00:00&quot;</span>
+<span class="w">  </span><span class="nt">time.timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.compressionlevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.soil_erosion__mass_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soil_loss</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TSS</span>
 
 <span class="nt">setup_basemaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
@@ -511,16 +516,14 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data, should correspond to hydrography_fn in setup_basemaps</span>
 <span class="w">  </span><span class="nt">river_geom_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_rivers_lin</span><span class="w"> </span><span class="c1"># river source data with river width and bankfull discharge</span>
 <span class="w">  </span><span class="nt">river_upa</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum upstream area threshold for the river map [km2]</span>
-<span class="w">  </span><span class="nt">rivdph_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">powlaw</span><span class="w">           </span><span class="c1"># method to estimate depth {&#39;powlaw&#39;, &#39;manning&#39;, &#39;gvf&#39;}</span>
-<span class="w">  </span><span class="nt">min_rivdph</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">                </span><span class="c1"># minimum river depth [m]</span>
 <span class="w">  </span><span class="nt">min_rivwth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">               </span><span class="c1"># minimum river width [m]</span>
 <span class="w">  </span><span class="nt">slope_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">             </span><span class="c1"># length over which tp calculate river slope [m]</span>
 <span class="w">  </span><span class="nt">smooth_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5000</span><span class="w">             </span><span class="c1"># length over which to smooth river depth and river width [m]</span>
 
 <span class="nt">setup_reservoirs</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">reservoirs_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_reservoirs</span><span class="w">  </span><span class="c1"># source for reservoirs shape and attributes</span>
-<span class="w">  </span><span class="nt">timeseries_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gww</span><span class="w">           </span><span class="c1"># additionnal source for reservoir are timeseries to compute reservoirs, Either &#39;gww&#39; using gwwapi or &#39;jrc&#39; using hydroengine.</span>
 <span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">           </span><span class="c1"># minimum lake area to consider [km2]</span>
+<span class="w">  </span><span class="nt">trapping_default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">   </span><span class="c1"># default trapping efficiency for reservoirs [0-1]</span>
 
 <span class="nt">setup_lakes</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">lakes_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hydro_lakes</span><span class="w">      </span><span class="c1"># source for lakes based on hydroLAKES: {hydro_lakes}</span>
@@ -532,15 +535,13 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_2009</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
 <span class="w">  </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_mapping_default</span><span class="w">  </span><span class="c1"># default mapping for lulc classes</span>
 
-<span class="nt">setup_laimaps</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">lai_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modis_lai</span><span class="w">        </span><span class="c1"># source for LAI: {modis_lai}</span>
-
 <span class="nt">setup_canopymaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">canopy_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">simard</span><span class="w">           </span><span class="c1"># source for vegetation canopy height: {simard}</span>
 
 <span class="nt">setup_soilmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">        </span><span class="c1"># source for soilmaps: {soilgrids}</span>
-<span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">           </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">      </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">add_aggregates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">      </span><span class="c1"># if True add small and large aggregates to soil composition</span>
 
 <span class="nt">setup_outlets</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">river_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
@@ -551,12 +552,17 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">derive_subcatch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">            </span><span class="c1"># if True derive subcatch map based on gauges.</span>
 
 <span class="nt">setup_constant_pars</span><span class="p">:</span><span class="w">             </span><span class="c1"># constant parameters values</span>
-<span class="w">  </span><span class="nt">c_Bagnold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0000175</span>
-<span class="w">  </span><span class="nt">eros_expo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.5</span>
-<span class="w">  </span><span class="nt">eros_ov</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
-<span class="w">  </span><span class="nt">eros_spl_EUROSEM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
-<span class="w">  </span><span class="nt">exp_Bagnold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
-<span class="w">  </span><span class="nt">ResTrapEff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">  </span><span class="nt">river_water_sediment__bagnold_transport_capacity_coefficient</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0000175</span>
+<span class="w">  </span><span class="nt">river_water_sediment__bagnold_transport_capacity_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
+<span class="w">  </span><span class="nt">soil_erosion__answers_overland_flow_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
+<span class="w">  </span><span class="nt">soil_erosion__eurosem_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
+<span class="w">  </span><span class="nt">land_surface_sediment__particle_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
+<span class="w">  </span><span class="nt">clay__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">silt__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~small__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">sand__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~large__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">  </span><span class="nt">gravel__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
 </pre></div>
 </div>
 </section>
@@ -589,16 +595,27 @@ command line would be:</p>
 <span class="go">hydromt update wflow_sediment path/to/wflow_model_to_extend -o path/to/wflow_sediment_model -i wflow_extend_sediment.yml -d data_sources.yml -vvv</span>
 </pre></div>
 </div>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">setup_config</span><span class="p">:</span><span class="w"> </span><span class="c1"># options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;</span>
-<span class="w">  </span><span class="nt">starttime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-02-02T00:00:00</span>
-<span class="w">  </span><span class="nt">endtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-02-10T00:00:00</span>
-<span class="w">  </span><span class="nt">timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
-<span class="w">  </span><span class="nt">input.path_forcing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inmaps-era5-2010.nc</span>
-<span class="c1">#   model.dolake: True               # uncomment if there are lakes in the wflow model</span>
-<span class="c1">#   model.doreservoir: True          # uncomment if there are reservoirs in the wflow model</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">read_config</span><span class="p">:</span><span class="w"> </span><span class="c1"># read a template config file for wflow sediment to be able to extend from a sbm model</span>
+<span class="w">  </span><span class="nt">config_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data/wflow_sediment.toml</span>
+
+<span class="nt">setup_config</span><span class="p">:</span><span class="w"> </span><span class="c1"># options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;</span>
+<span class="w">  </span><span class="nt">time.starttime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-01-01T00:00:00</span>
+<span class="w">  </span><span class="nt">time.endtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-03-31T00:00:00</span>
+<span class="w">  </span><span class="nt">time.timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.compressionlevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.soil_erosion__mass_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soil_loss</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TSS</span>
 
 <span class="nt">setup_riverbedsed</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">bedsed_mapping_fn</span><span class="p">:</span><span class="w">       </span><span class="c1"># path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used</span>
+
+<span class="c1"># # If you do have data on trapping efficiency, you can re-run setup_reservoirs to add it</span>
+<span class="c1"># Else you can use a default of 1 via setup_constant_pars below</span>
+<span class="c1"># setup_reservoirs:</span>
+<span class="c1">#   reservoirs_fn: hydro_reservoirs  # source for reservoirs shape and attributes</span>
+<span class="c1">#   min_area: 1.0           # minimum lake area to consider [km2]</span>
+<span class="c1">#   trapping_default: 1.0   # default trapping efficiency for reservoirs [0-1]</span>
 
 <span class="nt">setup_lulcmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">lulc_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_2009</span><span class="w">        </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
@@ -610,6 +627,10 @@ command line would be:</p>
 <span class="nt">setup_soilmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">        </span><span class="c1"># source for soilmaps: {soilgrids}</span>
 <span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">           </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">add_aggregates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">      </span><span class="c1"># if True add small and large aggregates to soil composition</span>
+
+<span class="nt">setup_outlets</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">river_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
 
 <span class="nt">setup_gauges</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">gauges_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">grdc</span><span class="w">             </span><span class="c1"># If not None add gaugemap. Either a path or known gauges_fn: {grdc}</span>
@@ -617,12 +638,18 @@ command line would be:</p>
 <span class="w">  </span><span class="nt">derive_subcatch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">            </span><span class="c1"># if True derive subcatch map based on gauges.</span>
 
 <span class="nt">setup_constant_pars</span><span class="p">:</span><span class="w">               </span><span class="c1"># constant parameters values</span>
-<span class="w">  </span><span class="nt">c_Bagnold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0000175</span>
-<span class="w">  </span><span class="nt">eros_expo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.5</span>
-<span class="w">  </span><span class="nt">eros_ov</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
-<span class="w">  </span><span class="nt">eros_spl_EUROSEM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
-<span class="w">  </span><span class="nt">exp_Bagnold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
-<span class="w">  </span><span class="nt">ResTrapEff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">  </span><span class="nt">river_water_sediment__bagnold_transport_capacity_coefficient</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0000175</span>
+<span class="w">  </span><span class="nt">river_water_sediment__bagnold_transport_capacity_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
+<span class="w">  </span><span class="nt">soil_erosion__answers_overland_flow_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
+<span class="w">  </span><span class="nt">soil_erosion__eurosem_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
+<span class="w">  </span><span class="nt">land_surface_sediment__particle_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
+<span class="w">  </span><span class="nt">clay__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">silt__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~small__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">sand__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~large__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">  </span><span class="nt">gravel__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">  </span><span class="s">&quot;reservoir_sediment~bedload__trapping_efficiency_coefficient&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">

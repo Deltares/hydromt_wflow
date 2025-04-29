@@ -405,6 +405,7 @@
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
 </ul>
@@ -582,10 +583,13 @@ Options:
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 setup_config:                 # options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;
-  starttime: 2010-01-01T00:00:00
-  endtime: 2010-03-31T00:00:00
-  timestepsecs: 86400
+  time.starttime: 2010-01-01T00:00:00
+  time.endtime: 2010-03-31T00:00:00
+  time.timestepsecs: 86400
   input.path_forcing: inmaps-era5-2010.nc
+  output.netcdf_grid.path: output.nc
+  output.netcdf_grid.compressionlevel: 1
+  output.netcdf_grid.variables.river_water__volume_flow_rate: q_av
 
 setup_basemaps:
   hydrography_fn: merit_hydro   # source hydrography data {merit_hydro, merit_hydro_1k}
@@ -633,7 +637,7 @@ setup_lakes:
 
 setup_glaciers:
   glaciers_fn: rgi           # source for glaciers based on Randolph Glacier Inventory {rgi}
-  min_area: 1.0           # minimum glacier area to consider [km2]
+  min_area: 0.0           # minimum glacier area to consider [km2]
 
 setup_lulcmaps:
   lulc_fn : globcover_2009     # source for lulc maps: {globcover, vito, corine}
@@ -667,21 +671,20 @@ setup_temp_pet_forcing:
   skip_pet: False         # if True, only temperature is prepared.
 
 setup_constant_pars:
-  KsatHorFrac: 100
-  Cfmax: 3.75653
-  cf_soil: 0.038
-  EoverR: 0.11
-  InfiltCapPath: 5
-  InfiltCapSoil: 600
-  MaxLeakage: 0
-  rootdistpar: -500
-  TT: 0
-  TTI: 2
-  TTM: 0
-  WHC: 0.1
-  G_Cfmax: 5.3
-  G_SIfrac: 0.002
-  G_TT: 1.3
+  &#34;subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio&#34;: 100
+  &#34;snowpack__degree-day_coefficient&#34;: 3.75653
+  &#34;soil_surface_water__infiltration_reduction_parameter&#34;: 0.038
+  &#34;vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio&#34;: 0.11
+  &#34;soil~compacted_surface_water__infiltration_capacity&#34;: 5
+  &#34;soil_water_sat-zone_bottom__max_leakage_volume_flux&#34;: 0
+  &#34;soil_root~wet__sigmoid_function_shape_parameter&#34;: -500
+  &#34;atmosphere_air__snowfall_temperature_threshold&#34;: 0
+  &#34;atmosphere_air__snowfall_temperature_interval&#34;: 2
+  &#34;snowpack__melting_temperature_threshold&#34;: 0
+  &#34;snowpack__liquid_water_holding_capacity&#34;: 0.1
+  &#34;glacier_ice__degree-day_coefficient&#34;: 5.3
+  &#34;glacier_firn_accumulation__snowpack~dry_leq-depth_fraction&#34;: 0.002
+  &#34;glacier_ice__melting_temperature_threshold&#34;: 1.3
 
 </pre></div></div>
 </div>
@@ -710,245 +713,254 @@ setup_constant_pars:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-2025-04-24 15:32:53,823 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/hydromt.log.
-2025-04-24 15:32:53,824 - build - log - INFO - HydroMT version: 0.10.1
-2025-04-24 15:32:53,824 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full.
-2025-04-24 15:32:53,824 - build - main - INFO - User settings:
+2025-04-29 06:11:44,207 - build - log - DEBUG - Writing log messages to new file /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/hydromt.log.
+2025-04-29 06:11:44,207 - build - log - INFO - HydroMT version: 0.10.1
+2025-04-29 06:11:44,207 - build - main - INFO - Building instance of wflow model at /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full.
+2025-04-29 06:11:44,208 - build - main - INFO - User settings:
 Downloading file &#39;v0.0.9/data_catalog.yml&#39; from &#39;https://raw.githubusercontent.com/Deltares/hydromt/main/data/catalogs/artifact_data/v0.0.9/data_catalog.yml&#39; to &#39;/home/runner/.hydromt_data/artifact_data&#39;.
-2025-04-24 15:32:54,251 - build - data_catalog - INFO - Reading data catalog artifact_data latest
-2025-04-24 15:32:54,251 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
+2025-04-29 06:11:44,826 - build - data_catalog - INFO - Reading data catalog artifact_data latest
+2025-04-29 06:11:44,826 - build - data_catalog - INFO - Parsing data catalog from /home/runner/.hydromt_data/artifact_data/v0.0.9/data_catalog.yml
 Downloading data from &#39;https://github.com/DirkEilander/hydromt-artifacts/releases/download/v0.0.9/data.tar.gz&#39; to file &#39;/home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar.gz&#39;.
 SHA256 hash of downloaded file: 32de5b95c171628547f303d7f65d53cbb1b9da9af4834717c8efff93fe55aad4
 Use this value as the &#39;known_hash&#39; argument of &#39;pooch.retrieve&#39; to ensure that the file hasn&#39;t changed if it is downloaded again in the future.
 Untarring contents of &#39;/home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar.gz&#39; to &#39;/home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar&#39;
-2025-04-24 15:32:56,377 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.8.1.dev0).
-2025-04-24 15:32:56,377 - build - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
-2025-04-24 15:32:56,390 - build - model_api - DEBUG - Setting model config options.
-2025-04-24 15:32:56,391 - build - model_api - DEBUG - Default config read from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/wflow_sbm.toml
-2025-04-24 15:32:56,391 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
-2025-04-24 15:32:56,392 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
-2025-04-24 15:32:56,392 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
-2025-04-24 15:32:56,392 - build - model_api - INFO - setup_basemaps.res: 0.00833
-2025-04-24 15:32:56,392 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
-2025-04-24 15:32:56,392 - build - wflow - INFO - Preparing base hydrography basemaps.
-2025-04-24 15:32:56,395 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
-2025-04-24 15:32:56,485 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
-2025-04-24 15:32:59,543 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
-2025-04-24 15:32:59,598 - build - wflow - DEBUG - Adding basins vector to geoms.
-2025-04-24 15:32:59,599 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
-2025-04-24 15:32:59,600 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
-2025-04-24 15:32:59,659 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
-2025-04-24 15:32:59,726 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
-2025-04-24 15:33:13,518 - build - basemaps - DEBUG - Derive stream order.
-2025-04-24 15:33:13,684 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
-2025-04-24 15:33:13,684 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
-2025-04-24 15:33:13,859 - build - wflow - DEBUG - Adding region vector to geoms.
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.river_geom_fn: hydro_rivers_lin
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.river_upa: 30
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.slope_len: 2000
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.min_rivlen_ratio: 0.0
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.min_rivdph: 1
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.min_rivwth: 30
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.smooth_len: 5000
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.rivman_mapping_fn: roughness_river_mapping_default
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.elevtn_map: wflow_dem
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.river_routing: kinematic-wave
-2025-04-24 15:33:13,862 - build - model_api - INFO - setup_rivers.connectivity: 8
-2025-04-24 15:33:13,862 - build - wflow - INFO - Preparing river maps.
-2025-04-24 15:33:13,865 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
-2025-04-24 15:33:13,930 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2025-04-24 15:33:13,937 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
-2025-04-24 15:33:14,079 - build - river - DEBUG - Derive river length.
-2025-04-24 15:33:17,129 - build - river - DEBUG - Derive river slope.
-2025-04-24 15:33:17,732 - build - river - DEBUG - Derive rivwth from hydrography dataset.
-2025-04-24 15:33:17,767 - build - dataframe - INFO - Reading roughness_river_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/N_river_mapping.csv
-2025-04-24 15:33:17,773 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
-2025-04-24 15:33:17,778 - build - geodataframe - INFO - Reading hydro_rivers_lin vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rivers_lin2019_v1.gpkg
-2025-04-24 15:33:17,786 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
-2025-04-24 15:33:17,980 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
-2025-04-24 15:33:18,027 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
-2025-04-24 15:33:20,765 - build - wflow - DEBUG - Adding rivers vector to geoms.
-2025-04-24 15:33:21,374 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
-2025-04-24 15:33:21,374 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
-2025-04-24 15:33:21,374 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
-2025-04-24 15:33:21,374 - build - wflow - INFO - Preparing reservoir maps.
-2025-04-24 15:33:21,374 - build - geodataframe - INFO - Reading hydro_reservoirs vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_reservoirs.gpkg
-2025-04-24 15:33:21,390 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2025-04-24 15:33:21,392 - build - geodataframe - DEBUG - Convert units for 5 columns.
-2025-04-24 15:33:21,393 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
-2025-04-24 15:33:21,393 - build - wflow - INFO - Skipping method, as no data has been found
-2025-04-24 15:33:21,394 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
-2025-04-24 15:33:21,394 - build - model_api - INFO - setup_lakes.rating_curve_fns: None
-2025-04-24 15:33:21,394 - build - model_api - INFO - setup_lakes.min_area: 10.0
-2025-04-24 15:33:21,394 - build - model_api - INFO - setup_lakes.add_maxstorage: False
-2025-04-24 15:33:21,394 - build - wflow - INFO - Preparing lake maps.
-2025-04-24 15:33:21,394 - build - geodataframe - INFO - Reading hydro_lakes vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_lakes.gpkg
-2025-04-24 15:33:21,403 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2025-04-24 15:33:21,404 - build - geodataframe - DEBUG - Convert units for 1 columns.
-2025-04-24 15:33:21,405 - build - wflow - WARNING - No lakes of sufficient size found within region! Skipping lake procedures!
-2025-04-24 15:33:21,405 - build - wflow - INFO - Skipping method, as no data has been found
-2025-04-24 15:33:21,405 - build - model_api - INFO - setup_glaciers.glaciers_fn: rgi
-2025-04-24 15:33:21,406 - build - model_api - INFO - setup_glaciers.min_area: 1.0
-2025-04-24 15:33:21,406 - build - wflow - INFO - Preparing glacier maps.
-2025-04-24 15:33:21,406 - build - geodataframe - INFO - Reading rgi vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rgi.gpkg
-2025-04-24 15:33:21,416 - build - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
-2025-04-24 15:33:21,418 - build - wflow - INFO - 1 glaciers of sufficient size found within region.
-2025-04-24 15:33:21,428 - build - glaciers - DEBUG - Creating vector grid for calculating glacier fraction and storage per grid cell
-2025-04-24 15:33:21,488 - build - glaciers - DEBUG - Setting glacierfrac and store values per glacier.
-2025-04-24 15:33:23,366 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover_2009
-2025-04-24 15:33:23,366 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: globcover_mapping_default
-2025-04-24 15:33:23,366 - build - model_api - INFO - setup_lulcmaps.lulc_vars: [&#39;landuse&#39;, &#39;Kext&#39;, &#39;N&#39;, &#39;PathFrac&#39;, &#39;RootingDepth&#39;, &#39;Sl&#39;, &#39;Swood&#39;, &#39;WaterFrac&#39;, &#39;kc&#39;, &#39;alpha_h1&#39;, &#39;h1&#39;, &#39;h2&#39;, &#39;h3_high&#39;, &#39;h3_low&#39;, &#39;h4&#39;]
-2025-04-24 15:33:23,366 - build - wflow - INFO - Preparing LULC parameter maps.
-2025-04-24 15:33:23,367 - build - rasterdataset - INFO - Reading globcover_2009 raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/globcover.tif
-2025-04-24 15:33:23,376 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2025-04-24 15:33:23,377 - build - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
-2025-04-24 15:33:23,384 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
-2025-04-24 15:33:23,404 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,422 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,441 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,459 - build - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,478 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,496 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,516 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,534 - build - landuse - INFO - Deriving kc using average resampling (nodata=-999.0).
-2025-04-24 15:33:23,553 - build - landuse - INFO - Deriving alpha_h1 using mode resampling (nodata=-999).
-2025-04-24 15:33:23,610 - build - landuse - INFO - Deriving h1 using average resampling (nodata=-999).
-2025-04-24 15:33:23,631 - build - landuse - INFO - Deriving h2 using average resampling (nodata=-999).
-2025-04-24 15:33:23,652 - build - landuse - INFO - Deriving h3_high using average resampling (nodata=-999).
-2025-04-24 15:33:23,674 - build - landuse - INFO - Deriving h3_low using average resampling (nodata=-999).
-2025-04-24 15:33:23,695 - build - landuse - INFO - Deriving h4 using average resampling (nodata=-999).
-2025-04-24 15:33:23,724 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
-2025-04-24 15:33:23,724 - build - model_api - INFO - setup_laimaps.lulc_fn: None
-2025-04-24 15:33:23,724 - build - model_api - INFO - setup_laimaps.lulc_sampling_method: any
-2025-04-24 15:33:23,725 - build - model_api - INFO - setup_laimaps.lulc_zero_classes: []
-2025-04-24 15:33:23,725 - build - model_api - INFO - setup_laimaps.buffer: 2
-2025-04-24 15:33:23,725 - build - wflow - INFO - Preparing LAI maps.
-2025-04-24 15:33:23,725 - build - rasterdataset - INFO - Reading modis_lai netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/modis_lai.nc
-2025-04-24 15:33:24,177 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2025-04-24 15:33:24,179 - build - rasterdataset - DEBUG - Convert units for 1 variables.
-2025-04-24 15:33:24,184 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
-2025-04-24 15:33:24,251 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
-2025-04-24 15:33:24,251 - build - model_api - INFO - setup_soilmaps.ptf_ksatver: brakensiek
-2025-04-24 15:33:24,251 - build - model_api - INFO - setup_soilmaps.soil_mapping_fn: None
-2025-04-24 15:33:24,251 - build - model_api - INFO - setup_soilmaps.wflow_thicknesslayers: [100, 300, 800]
-2025-04-24 15:33:24,251 - build - wflow - INFO - Preparing soil parameter maps.
-2025-04-24 15:33:24,253 - build - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
-2025-04-24 15:33:24,701 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2025-04-24 15:33:24,711 - build - rasterdataset - DEBUG - Convert units for 21 variables.
-2025-04-24 15:33:24,924 - build - soilgrids - INFO - calculate and resample thetaS
-2025-04-24 15:33:25,140 - build - soilgrids - INFO - calculate and resample thetaR
-2025-04-24 15:33:25,390 - build - soilgrids - INFO - calculate and resample KsatVer
-2025-04-24 15:33:25,449 - build - soilgrids - INFO - calculate and resample pore size distribution index
-2025-04-24 15:33:25,908 - build - soilgrids - INFO - fit z - log(KsatVer) with numpy linalg regression (y = b*x) -&gt; M_
-2025-04-24 15:33:26,325 - build - soilgrids - INFO - fit zi - Ksat with curve_fit (scipy.optimize) -&gt; M
-2025-04-24 15:33:28,863 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaS
-2025-04-24 15:33:28,965 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaR
-2025-04-24 15:33:29,084 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilThickness
+2025-04-29 06:11:47,214 - build - model_api - INFO - Initializing wflow model from hydromt_wflow (v0.8.1.dev0).
+2025-04-29 06:11:47,215 - build - data_catalog - INFO - Parsing data catalog from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/parameters_data.yml
+2025-04-29 06:11:47,226 - build - wflow - INFO - Supported Wflow.jl version v1+
+2025-04-29 06:11:47,227 - build - model_api - DEBUG - Default config read from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/wflow_sbm.toml
+2025-04-29 06:11:47,227 - build - model_api - DEBUG - Setting model config options.
+2025-04-29 06:11:47,227 - build - model_api - INFO - setup_basemaps.region: {&#39;subbasin&#39;: [12.2051, 45.8331], &#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7]}
+2025-04-29 06:11:47,227 - build - model_api - INFO - setup_basemaps.hydrography_fn: merit_hydro
+2025-04-29 06:11:47,227 - build - model_api - INFO - setup_basemaps.basin_index_fn: merit_hydro_index
+2025-04-29 06:11:47,227 - build - model_api - INFO - setup_basemaps.res: 0.00833
+2025-04-29 06:11:47,227 - build - model_api - INFO - setup_basemaps.upscale_method: ihu
+2025-04-29 06:11:47,227 - build - model_api - INFO - setup_basemaps.output_names: {&#39;local_drain_direction&#39;: &#39;wflow_ldd&#39;, &#39;subcatchment_location__count&#39;: &#39;wflow_subcatch&#39;, &#39;land_surface__slope&#39;: &#39;Slope&#39;}
+2025-04-29 06:11:47,227 - build - wflow - INFO - Preparing base hydrography basemaps.
+2025-04-29 06:11:47,230 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
+2025-04-29 06:11:47,322 - build - basin_mask - DEBUG - Parsed region (kind=subbasin): {&#39;strord&#39;: 4, &#39;bounds&#39;: [11.7, 45.35, 12.95, 46.7], &#39;xy&#39;: [12.2051, 45.8331]}
+2025-04-29 06:11:50,476 - build - basin_mask - INFO - subbasin bbox: [11.7750, 45.8042, 12.7450, 46.6900]
+2025-04-29 06:11:50,534 - build - wflow - DEBUG - Adding basins vector to geoms.
+2025-04-29 06:11:50,535 - build - basemaps - DEBUG - Mask in dataset assumed to represent subbasins.
+2025-04-29 06:11:50,536 - build - basemaps - DEBUG - (Sub)basin at original resolution has 664756 cells.
+2025-04-29 06:11:50,596 - build - basemaps - DEBUG - Burn subbasin outlet in upstream area data.
+2025-04-29 06:11:50,664 - build - basemaps - INFO - Upscale flow direction data: 10x, ihu method.
+2025-04-29 06:12:04,787 - build - basemaps - DEBUG - Derive stream order.
+2025-04-29 06:12:04,960 - build - basemaps - DEBUG - Map shape: (106, 116); active cells: 6637.
+2025-04-29 06:12:04,960 - build - basemaps - DEBUG - Outlet coordinates (1/1): (12.20750,45.83583).
+2025-04-29 06:12:05,145 - build - wflow - DEBUG - Adding region vector to geoms.
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.hydrography_fn: merit_hydro
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.river_geom_fn: hydro_rivers_lin
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.river_upa: 30
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.rivdph_method: powlaw
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.slope_len: 2000
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.min_rivlen_ratio: 0.0
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.min_rivdph: 1
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.min_rivwth: 30
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.smooth_len: 5000
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.rivman_mapping_fn: roughness_river_mapping_default
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.elevtn_map: wflow_dem
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.river_routing: kinematic-wave
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.connectivity: 8
+2025-04-29 06:12:05,148 - build - model_api - INFO - setup_rivers.output_names: {&#39;river_location__mask&#39;: &#39;wflow_river&#39;, &#39;river__length&#39;: &#39;wflow_riverlength&#39;, &#39;river__width&#39;: &#39;wflow_riverwidth&#39;, &#39;river_bank_water__depth&#39;: &#39;RiverDepth&#39;, &#39;river__slope&#39;: &#39;RiverSlope&#39;, &#39;river_water_flow__manning_n_parameter&#39;: &#39;N_River&#39;, &#39;river_bank_water__elevation&#39;: &#39;hydrodem_avg&#39;}
+2025-04-29 06:12:05,149 - build - wflow - INFO - Preparing river maps.
+2025-04-29 06:12:05,152 - build - rasterdataset - INFO - Reading merit_hydro raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/merit_hydro/{variable}.tif
+2025-04-29 06:12:05,218 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-29 06:12:05,226 - build - river - DEBUG - Set river mask (min uparea: 30 km2) and prepare flow dirs.
+2025-04-29 06:12:05,377 - build - river - DEBUG - Derive river length.
+2025-04-29 06:12:08,488 - build - river - DEBUG - Derive river slope.
+2025-04-29 06:12:09,111 - build - river - DEBUG - Derive rivwth from hydrography dataset.
+2025-04-29 06:12:09,149 - build - dataframe - INFO - Reading roughness_river_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/wflow/N_river_mapping.csv
+2025-04-29 06:12:09,155 - build - landuse - INFO - Deriving N_River using average resampling (nodata=-999.0).
+2025-04-29 06:12:09,162 - build - geodataframe - INFO - Reading hydro_rivers_lin vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rivers_lin2019_v1.gpkg
+2025-04-29 06:12:09,170 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
+2025-04-29 06:12:09,372 - build - river - DEBUG - Derive [&#39;rivwth&#39;, &#39;qbankfull&#39;] from shapefile.
+2025-04-29 06:12:09,417 - build - river - DEBUG - Valid for 381/655 river cells (max dist: 392 m).
+2025-04-29 06:12:12,251 - build - wflow - DEBUG - Adding rivers vector to geoms.
+2025-04-29 06:12:12,896 - build - wflow - DEBUG - Update wflow config model.river_routing=&#34;kinematic-wave&#34;
+2025-04-29 06:12:12,896 - build - model_api - INFO - setup_reservoirs.reservoirs_fn: hydro_reservoirs
+2025-04-29 06:12:12,896 - build - model_api - INFO - setup_reservoirs.timeseries_fn: gww
+2025-04-29 06:12:12,896 - build - model_api - INFO - setup_reservoirs.min_area: 1.0
+2025-04-29 06:12:12,896 - build - model_api - INFO - setup_reservoirs.output_names: {&#39;reservoir_area__count&#39;: &#39;wflow_reservoirareas&#39;, &#39;reservoir_location__count&#39;: &#39;wflow_reservoirlocs&#39;, &#39;reservoir_surface__area&#39;: &#39;ResSimpleArea&#39;, &#39;reservoir_water__max_volume&#39;: &#39;ResMaxVolume&#39;, &#39;reservoir_water~min-target__volume_fraction&#39;: &#39;ResTargetMinFrac&#39;, &#39;reservoir_water~full-target__volume_fraction&#39;: &#39;ResTargetFullFrac&#39;, &#39;reservoir_water_demand~required~downstream__volume_flow_rate&#39;: &#39;ResDemand&#39;, &#39;reservoir_water_release-below-spillway__max_volume_flow_rate&#39;: &#39;ResMaxRelease&#39;}
+2025-04-29 06:12:12,896 - build - model_api - INFO - setup_reservoirs.geom_name: reservoirs
+2025-04-29 06:12:12,896 - build - wflow - INFO - Preparing reservoir maps.
+2025-04-29 06:12:12,896 - build - geodataframe - INFO - Reading hydro_reservoirs vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_reservoirs.gpkg
+2025-04-29 06:12:12,913 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2025-04-29 06:12:12,915 - build - geodataframe - DEBUG - Convert units for 5 columns.
+2025-04-29 06:12:12,917 - build - wflow - WARNING - No reservoirs of sufficient size found within region! Skipping reservoir procedures!
+2025-04-29 06:12:12,917 - build - wflow - INFO - Skipping method, as no data has been found
+2025-04-29 06:12:12,917 - build - model_api - INFO - setup_lakes.lakes_fn: hydro_lakes
+2025-04-29 06:12:12,917 - build - model_api - INFO - setup_lakes.rating_curve_fns: None
+2025-04-29 06:12:12,917 - build - model_api - INFO - setup_lakes.min_area: 10.0
+2025-04-29 06:12:12,917 - build - model_api - INFO - setup_lakes.add_maxstorage: False
+2025-04-29 06:12:12,917 - build - model_api - INFO - setup_lakes.output_names: {&#39;lake_area__count&#39;: &#39;wflow_lakeareas&#39;, &#39;lake_location__count&#39;: &#39;wflow_lakelocs&#39;, &#39;lake_surface__area&#39;: &#39;LakeArea&#39;, &#39;lake_water_surface__initial_elevation&#39;: &#39;LakeAvgLevel&#39;, &#39;lake_water_flow_threshold-level__elevation&#39;: &#39;LakeThreshold&#39;, &#39;lake_water__rating_curve_coefficient&#39;: &#39;Lake_b&#39;, &#39;lake_water__rating_curve_exponent&#39;: &#39;Lake_e&#39;, &#39;lake_water__rating_curve_type_count&#39;: &#39;LakeOutflowFunc&#39;, &#39;lake_water__storage_curve_type_count&#39;: &#39;LakeStorFunc&#39;, &#39;lake~lower_location__count&#39;: &#39;LinkedLakeLocs&#39;}
+2025-04-29 06:12:12,917 - build - model_api - INFO - setup_lakes.geom_name: lakes
+2025-04-29 06:12:12,917 - build - wflow - INFO - Preparing lake maps.
+2025-04-29 06:12:12,918 - build - geodataframe - INFO - Reading hydro_lakes vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/hydro_lakes.gpkg
+2025-04-29 06:12:12,927 - build - geodataframe - DEBUG - Clip contains [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2025-04-29 06:12:12,928 - build - geodataframe - DEBUG - Convert units for 1 columns.
+2025-04-29 06:12:12,929 - build - wflow - WARNING - No lakes of sufficient size found within region! Skipping lake procedures!
+2025-04-29 06:12:12,930 - build - wflow - INFO - Skipping method, as no data has been found
+2025-04-29 06:12:12,930 - build - model_api - INFO - setup_glaciers.glaciers_fn: rgi
+2025-04-29 06:12:12,930 - build - model_api - INFO - setup_glaciers.min_area: 0.0
+2025-04-29 06:12:12,930 - build - model_api - INFO - setup_glaciers.output_names: {&#39;glacier_surface__area_fraction&#39;: &#39;wflow_glacierfrac&#39;, &#39;glacier_ice__initial_leq-depth&#39;: &#39;wflow_glacierstore&#39;}
+2025-04-29 06:12:12,930 - build - model_api - INFO - setup_glaciers.geom_name: glaciers
+2025-04-29 06:12:12,930 - build - wflow - INFO - Preparing glacier maps.
+2025-04-29 06:12:12,930 - build - geodataframe - INFO - Reading rgi vector data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/rgi.gpkg
+2025-04-29 06:12:12,942 - build - geodataframe - DEBUG - Clip intersects [11.775, 45.804, 12.745, 46.690] (EPSG:4326)
+2025-04-29 06:12:12,944 - build - wflow - INFO - 38 glaciers of sufficient size found within region.
+2025-04-29 06:12:12,961 - build - glaciers - DEBUG - Creating vector grid for calculating glacier fraction and storage per grid cell
+2025-04-29 06:12:13,013 - build - glaciers - DEBUG - Setting glacierfrac and store values per glacier.
+2025-04-29 06:12:14,357 - build - model_api - INFO - setup_lulcmaps.lulc_fn: globcover_2009
+2025-04-29 06:12:14,357 - build - model_api - INFO - setup_lulcmaps.lulc_mapping_fn: globcover_mapping_default
+2025-04-29 06:12:14,357 - build - model_api - INFO - setup_lulcmaps.lulc_vars: {&#39;landuse&#39;: None, &#39;Kext&#39;: &#39;vegetation_canopy__light-extinction_coefficient&#39;, &#39;N&#39;: &#39;land_surface_water_flow__manning_n_parameter&#39;, &#39;PathFrac&#39;: &#39;soil~compacted__area_fraction&#39;, &#39;RootingDepth&#39;: &#39;vegetation_root__depth&#39;, &#39;Sl&#39;: &#39;vegetation__specific-leaf_storage&#39;, &#39;Swood&#39;: &#39;vegetation_wood_water__storage_capacity&#39;, &#39;WaterFrac&#39;: &#39;land~water-covered__area_fraction&#39;, &#39;kc&#39;: &#39;vegetation__crop_factor&#39;, &#39;alpha_h1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient&#39;, &#39;h1&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~1&#39;, &#39;h2&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~2&#39;, &#39;h3_high&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~high&#39;, &#39;h3_low&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~3~low&#39;, &#39;h4&#39;: &#39;vegetation_root__feddes_critial_pressure_head_h~4&#39;}
+2025-04-29 06:12:14,357 - build - model_api - INFO - setup_lulcmaps.output_names_suffix: None
+2025-04-29 06:12:14,357 - build - wflow - INFO - Preparing LULC parameter maps.
+2025-04-29 06:12:14,358 - build - rasterdataset - INFO - Reading globcover_2009 raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/globcover.tif
+2025-04-29 06:12:14,368 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-29 06:12:14,369 - build - dataframe - INFO - Reading globcover_mapping_default csv data from /home/runner/work/hydromt_wflow/hydromt_wflow/hydromt_wflow/data/lulc/globcover_mapping.csv
+2025-04-29 06:12:14,377 - build - landuse - INFO - Deriving landuse using nearest resampling (nodata=230).
+2025-04-29 06:12:14,397 - build - landuse - INFO - Deriving Kext using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,416 - build - landuse - INFO - Deriving N using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,435 - build - landuse - INFO - Deriving PathFrac using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,454 - build - landuse - INFO - Deriving RootingDepth using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,474 - build - landuse - INFO - Deriving Sl using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,492 - build - landuse - INFO - Deriving Swood using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,512 - build - landuse - INFO - Deriving WaterFrac using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,531 - build - landuse - INFO - Deriving kc using average resampling (nodata=-999.0).
+2025-04-29 06:12:14,550 - build - landuse - INFO - Deriving alpha_h1 using mode resampling (nodata=-999).
+2025-04-29 06:12:14,609 - build - landuse - INFO - Deriving h1 using average resampling (nodata=-999).
+2025-04-29 06:12:14,631 - build - landuse - INFO - Deriving h2 using average resampling (nodata=-999).
+2025-04-29 06:12:14,653 - build - landuse - INFO - Deriving h3_high using average resampling (nodata=-999).
+2025-04-29 06:12:14,675 - build - landuse - INFO - Deriving h3_low using average resampling (nodata=-999).
+2025-04-29 06:12:14,697 - build - landuse - INFO - Deriving h4 using average resampling (nodata=-999).
+2025-04-29 06:12:14,745 - build - model_api - INFO - setup_laimaps.lai_fn: modis_lai
+2025-04-29 06:12:14,745 - build - model_api - INFO - setup_laimaps.lulc_fn: None
+2025-04-29 06:12:14,745 - build - model_api - INFO - setup_laimaps.lulc_sampling_method: any
+2025-04-29 06:12:14,745 - build - model_api - INFO - setup_laimaps.lulc_zero_classes: []
+2025-04-29 06:12:14,745 - build - model_api - INFO - setup_laimaps.buffer: 2
+2025-04-29 06:12:14,745 - build - model_api - INFO - setup_laimaps.output_name: LAI
+2025-04-29 06:12:14,745 - build - wflow - INFO - Preparing LAI maps.
+2025-04-29 06:12:14,746 - build - rasterdataset - INFO - Reading modis_lai netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/modis_lai.nc
+2025-04-29 06:12:15,300 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-29 06:12:15,302 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2025-04-29 06:12:15,307 - build - landuse - INFO - Deriving LAI using average resampling (nodata=nan).
+2025-04-29 06:12:15,388 - build - model_api - INFO - setup_soilmaps.soil_fn: soilgrids
+2025-04-29 06:12:15,389 - build - model_api - INFO - setup_soilmaps.ptf_ksatver: brakensiek
+2025-04-29 06:12:15,389 - build - model_api - INFO - setup_soilmaps.wflow_thicknesslayers: [100, 300, 800]
+2025-04-29 06:12:15,389 - build - model_api - INFO - setup_soilmaps.output_names: {&#39;soil_water__saturated_volume_fraction&#39;: &#39;thetaS&#39;, &#39;soil_water__residual_volume_fraction&#39;: &#39;thetaR&#39;, &#39;soil_surface_water__vertical_saturated_hydraulic_conductivity&#39;: &#39;KsatVer&#39;, &#39;soil__thickness&#39;: &#39;SoilThickness&#39;, &#39;soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter&#39;: &#39;f&#39;, &#39;soil_layer_water__brooks-corey_exponent&#39;: &#39;c&#39;}
+2025-04-29 06:12:15,389 - build - wflow - INFO - Preparing soil parameter maps.
+2025-04-29 06:12:15,390 - build - rasterdataset - INFO - Reading soilgrids raster data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/soilgrids/{variable}.tif
+2025-04-29 06:12:15,685 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-29 06:12:15,695 - build - rasterdataset - DEBUG - Convert units for 21 variables.
+2025-04-29 06:12:15,908 - build - soilgrids - INFO - calculate and resample thetaS
+2025-04-29 06:12:16,113 - build - soilgrids - INFO - calculate and resample thetaR
+2025-04-29 06:12:16,354 - build - soilgrids - INFO - calculate and resample KsatVer
+2025-04-29 06:12:16,413 - build - soilgrids - INFO - calculate and resample pore size distribution index
+2025-04-29 06:12:17,056 - build - soilgrids - INFO - fit z - log(KsatVer) with numpy linalg regression (y = b*x) -&gt; M_
+2025-04-29 06:12:17,477 - build - soilgrids - INFO - fit zi - Ksat with curve_fit (scipy.optimize) -&gt; M
+2025-04-29 06:12:20,101 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaS
+2025-04-29 06:12:20,201 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for thetaR
+2025-04-29 06:12:20,320 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilThickness
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:29,099 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilMinThickness
+2025-04-29 06:12:20,337 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for SoilMinThickness
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:29,114 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for c
-2025-04-24 15:33:29,122 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer
-2025-04-24 15:33:29,165 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_0.0cm
-2025-04-24 15:33:29,207 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_5.0cm
-2025-04-24 15:33:29,250 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_15.0cm
-2025-04-24 15:33:29,292 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_30.0cm
-2025-04-24 15:33:29,334 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_60.0cm
-2025-04-24 15:33:29,377 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_100.0cm
-2025-04-24 15:33:29,419 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_200.0cm
-2025-04-24 15:33:29,462 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original_
+2025-04-29 06:12:20,352 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for c
+2025-04-29 06:12:20,360 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer
+2025-04-29 06:12:20,404 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_0.0cm
+2025-04-29 06:12:20,448 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_5.0cm
+2025-04-29 06:12:20,491 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_15.0cm
+2025-04-29 06:12:20,534 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_30.0cm
+2025-04-29 06:12:20,578 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_60.0cm
+2025-04-29 06:12:20,622 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_100.0cm
+2025-04-29 06:12:20,666 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for KsatVer_200.0cm
+2025-04-29 06:12:20,709 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original_
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:29,596 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_
+2025-04-29 06:12:20,846 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:29,730 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f_
+2025-04-29 06:12:20,984 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f_
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:29,867 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original
+2025-04-29 06:12:21,124 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M_original
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:29,997 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M
+2025-04-29 06:12:21,259 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for M
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:30,125 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f
+2025-04-29 06:12:21,396 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for f
 No numerical nodata value found, skipping set_nodata
-2025-04-24 15:33:30,259 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for wflow_soil
-2025-04-24 15:33:30,346 - build - model_api - INFO - setup_outlets.river_only: True
-2025-04-24 15:33:30,346 - build - model_api - INFO - setup_outlets.toml_output: csv
-2025-04-24 15:33:30,346 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;Q&#39;]
-2025-04-24 15:33:30,346 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;lateral.river.q_av&#39;]
-2025-04-24 15:33:30,346 - build - wflow - INFO - Gauges locations set based on river outlets.
-2025-04-24 15:33:30,350 - build - wflow - INFO - Gauges map based on catchment river outlets added.
-2025-04-24 15:33:30,351 - build - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;] to csv section of toml.
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.index_col: None
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.snap_to_river: True
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.mask: None
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.snap_uparea: False
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.max_dist: 10000.0
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.wdw: 3
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.rel_error: 0.05
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.abs_error: 50.0
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.fillna: False
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.derive_subcatch: False
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.basename: None
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.toml_output: csv
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
-2025-04-24 15:33:30,351 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;]
-2025-04-24 15:33:30,352 - build - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/grdc.csv
-2025-04-24 15:33:30,356 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
-2025-04-24 15:33:30,357 - build - wflow - INFO - 3 grdc gauge locations found within domain
-2025-04-24 15:33:30,877 - build - wflow - INFO - Adding [&#39;lateral.river.q_av&#39;, &#39;vertical.precipitation&#39;] to csv section of toml.
-2025-04-24 15:33:30,877 - build - model_api - INFO - setup_precip_forcing.precip_fn: era5
-2025-04-24 15:33:30,878 - build - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
-2025-04-24 15:33:30,878 - build - model_api - INFO - setup_precip_forcing.chunksize: None
-2025-04-24 15:33:30,878 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
-2025-04-24 15:33:30,888 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
-2025-04-24 15:33:30,889 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
-2025-04-24 15:33:30,896 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2025-04-24 15:33:30,897 - build - rasterdataset - DEBUG - Convert units for 1 variables.
-2025-04-24 15:33:30,947 - build - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
-2025-04-24 15:33:30,947 - build - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
-2025-04-24 15:33:30,947 - build - model_api - INFO - setup_temp_pet_forcing.press_correction: True
-2025-04-24 15:33:30,947 - build - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.fillna_method: None
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
-2025-04-24 15:33:30,948 - build - model_api - INFO - setup_temp_pet_forcing.chunksize: None
-2025-04-24 15:33:30,948 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
-2025-04-24 15:33:30,958 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
-2025-04-24 15:33:30,958 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
-2025-04-24 15:33:30,965 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
-2025-04-24 15:33:30,967 - build - rasterdataset - DEBUG - Convert units for 4 variables.
-2025-04-24 15:33:30,990 - build - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5_orography.nc
-2025-04-24 15:33:31,001 - build - rasterdataset - DEBUG - Clip to [11.625, 45.625, 12.875, 46.875] (epsg:4326))
-2025-04-24 15:33:31,002 - build - rasterdataset - DEBUG - Convert units for 1 variables.
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.dtype: float32
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.nodata: -999
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.KsatHorFrac: 100
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.Cfmax: 3.75653
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.cf_soil: 0.038
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.EoverR: 0.11
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.InfiltCapPath: 5
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.InfiltCapSoil: 600
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.MaxLeakage: 0
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.rootdistpar: -500
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.TT: 0
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.TTI: 2
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.TTM: 0
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.WHC: 0.1
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.G_Cfmax: 5.3
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.G_SIfrac: 0.002
-2025-04-24 15:33:31,188 - build - model_api - INFO - setup_constant_pars.G_TT: 1.3
-2025-04-24 15:33:31,209 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full
-2025-04-24 15:33:31,237 - build - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/staticmaps.nc
-2025-04-24 15:33:31,428 - build - wflow - INFO - Writing model staticgeom to file.
-2025-04-24 15:33:31,490 - build - wflow - INFO - Write forcing file
-2025-04-24 15:33:31,494 - build - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-15 00:00:00 in the toml.
-2025-04-24 15:33:31,497 - build - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/inmaps-era5-2010.nc
-[########################################] | 100% Completed | 100.49 ms
-2025-04-24 15:33:31,615 - build - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/wflow_sbm.toml
+2025-04-29 06:12:21,535 - build - soilgrids - DEBUG - Interpolate nodata (NaN) values for wflow_soil
+2025-04-29 06:12:21,644 - build - model_api - INFO - setup_outlets.river_only: True
+2025-04-29 06:12:21,645 - build - model_api - INFO - setup_outlets.toml_output: csv
+2025-04-29 06:12:21,645 - build - model_api - INFO - setup_outlets.gauge_toml_header: [&#39;Q&#39;]
+2025-04-29 06:12:21,645 - build - model_api - INFO - setup_outlets.gauge_toml_param: [&#39;river_water__volume_flow_rate&#39;]
+2025-04-29 06:12:21,645 - build - wflow - INFO - Gauges locations set based on river outlets.
+2025-04-29 06:12:21,650 - build - wflow - INFO - Gauges map based on catchment river outlets added.
+2025-04-29 06:12:21,650 - build - wflow - INFO - Adding [&#39;river_water__volume_flow_rate&#39;] to csv section of toml.
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.gauges_fn: grdc
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.index_col: None
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.snap_to_river: True
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.mask: None
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.snap_uparea: False
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.max_dist: 10000.0
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.wdw: 3
+2025-04-29 06:12:21,650 - build - model_api - INFO - setup_gauges.rel_error: 0.05
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.abs_error: 50.0
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.fillna: False
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.derive_subcatch: False
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.basename: None
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.toml_output: csv
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.gauge_toml_header: [&#39;Q&#39;, &#39;P&#39;]
+2025-04-29 06:12:21,651 - build - model_api - INFO - setup_gauges.gauge_toml_param: [&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;]
+2025-04-29 06:12:21,651 - build - geodataframe - INFO - Reading grdc csv data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/grdc.csv
+2025-04-29 06:12:21,656 - build - geodataframe - DEBUG - Clip intersects [11.778, 45.807, 12.745, 46.690] (EPSG:4326)
+2025-04-29 06:12:21,656 - build - wflow - INFO - 3 grdc gauge locations found within domain
+2025-04-29 06:12:22,022 - build - wflow - INFO - Adding [&#39;river_water__volume_flow_rate&#39;, &#39;atmosphere_water__precipitation_volume_flux&#39;] to csv section of toml.
+2025-04-29 06:12:22,022 - build - model_api - INFO - setup_precip_forcing.precip_fn: era5
+2025-04-29 06:12:22,022 - build - model_api - INFO - setup_precip_forcing.precip_clim_fn: None
+2025-04-29 06:12:22,022 - build - model_api - INFO - setup_precip_forcing.chunksize: None
+2025-04-29 06:12:22,023 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2025-04-29 06:12:22,034 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
+2025-04-29 06:12:22,035 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
+2025-04-29 06:12:22,042 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-29 06:12:22,044 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.temp_pet_fn: era5
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.pet_method: debruin
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.press_correction: True
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.temp_correction: True
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.wind_correction: True
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.wind_altitude: 10
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.reproj_method: nearest_index
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.fillna_method: None
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.dem_forcing_fn: era5_orography
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.skip_pet: False
+2025-04-29 06:12:22,095 - build - model_api - INFO - setup_temp_pet_forcing.chunksize: None
+2025-04-29 06:12:22,096 - build - rasterdataset - INFO - Reading era5 netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5.nc
+2025-04-29 06:12:22,106 - build - rasterdataset - DEBUG - Shifting time labels with 86400 sec.
+2025-04-29 06:12:22,107 - build - rasterdataset - DEBUG - Slicing time dim (datetime.datetime(2010, 1, 1, 0, 0), datetime.datetime(2010, 3, 31, 0, 0))
+2025-04-29 06:12:22,114 - build - rasterdataset - DEBUG - Clip to [11.778, 45.807, 12.745, 46.690] (epsg:4326))
+2025-04-29 06:12:22,116 - build - rasterdataset - DEBUG - Convert units for 4 variables.
+2025-04-29 06:12:22,139 - build - rasterdataset - INFO - Reading era5_orography netcdf data from /home/runner/.hydromt_data/artifact_data/v0.0.9/data.tar/era5_orography.nc
+2025-04-29 06:12:22,152 - build - rasterdataset - DEBUG - Clip to [11.625, 45.625, 12.875, 46.875] (epsg:4326))
+2025-04-29 06:12:22,153 - build - rasterdataset - DEBUG - Convert units for 1 variables.
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio: 100
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.snowpack__degree-day_coefficient: 3.75653
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.soil_surface_water__infiltration_reduction_parameter: 0.038
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio: 0.11
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.soil~compacted_surface_water__infiltration_capacity: 5
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.soil_water_sat-zone_bottom__max_leakage_volume_flux: 0
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.soil_root~wet__sigmoid_function_shape_parameter: -500
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.atmosphere_air__snowfall_temperature_threshold: 0
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.atmosphere_air__snowfall_temperature_interval: 2
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.snowpack__melting_temperature_threshold: 0
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.snowpack__liquid_water_holding_capacity: 0.1
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.glacier_ice__degree-day_coefficient: 5.3
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.glacier_firn_accumulation__snowpack~dry_leq-depth_fraction: 0.002
+2025-04-29 06:12:22,343 - build - model_api - INFO - setup_constant_pars.glacier_ice__melting_temperature_threshold: 1.3
+2025-04-29 06:12:22,343 - build - wflow - INFO - Write model data to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full
+2025-04-29 06:12:22,368 - build - wflow - INFO - Write grid to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/staticmaps.nc
+2025-04-29 06:12:22,457 - build - wflow - INFO - Writing model staticgeom to file.
+2025-04-29 06:12:22,545 - build - wflow - INFO - Write forcing file
+2025-04-29 06:12:22,549 - build - wflow - WARNING - Not all dates found in precip_fn changing starttime to 2010-02-02 00:00:00 and endtime to 2010-02-15 00:00:00 in the toml.
+2025-04-29 06:12:22,552 - build - wflow - INFO - Process forcing; saving to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/inmaps-era5-2010.nc
+[########################################] | 100% Completed | 101.63 ms
+2025-04-29 06:12:22,671 - build - wflow - INFO - Writing model config to /home/runner/work/hydromt_wflow/hydromt_wflow/docs/_examples/wflow_test_full/wflow_sbm.toml
 </pre></div></div>
 </div>
 <p>With this example we build a complete Wflow model including forcing. The example means the following: run <strong>hydromt build</strong> with:</p>
@@ -996,8 +1008,6 @@ wflow_test_full/staticgeoms
  - glaciers.geojson
  - gauges_grdc.geojson
  - rivers.geojson
-wflow_test_full/run_default
-wflow_test_full/instate
 </pre></div></div>
 </div>
 </section>

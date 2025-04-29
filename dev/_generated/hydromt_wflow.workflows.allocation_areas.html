@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -640,7 +642,7 @@ the model basins and administrative boundaries.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds_like</strong> (<em>xr.DataArray</em>) – <p>A grid covering the wflow model domain and the rivers.</p>
 <ul>
-<li><p>Required variables: [‘wflow_river’, ‘wflow_subcatch’]</p></li>
+<li><p>Required variables: [‘rivmsk’, ‘basins’]</p></li>
 </ul>
 </p></li>
 <li><p><strong>waterareas</strong> (<em>gpd.GeoDataFrame</em>) – Administrative boundaries, e.g. sovereign nations.</p></li>

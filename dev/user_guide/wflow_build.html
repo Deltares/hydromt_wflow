@@ -404,6 +404,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../_examples/plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_examples/upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
 </ul>
@@ -505,10 +506,13 @@ in its corresponding section.</p>
 <a class="reference download internal" download="" href="../_downloads/91e3b6c950554d08e2fce9e28e2a82f9/wflow_build.yml"><code class="xref download docutils literal notranslate"><span class="pre">.yml</span> <span class="pre">file</span></code></a>. Each section corresponds
 to a model component with the same name.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">setup_config</span><span class="p">:</span><span class="w">                 </span><span class="c1"># options parsed to wflow toml file &lt;section&gt;.&lt;option&gt;</span>
-<span class="w">  </span><span class="nt">starttime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-01-01T00:00:00</span>
-<span class="w">  </span><span class="nt">endtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-03-31T00:00:00</span>
-<span class="w">  </span><span class="nt">timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
+<span class="w">  </span><span class="nt">time.starttime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-01-01T00:00:00</span>
+<span class="w">  </span><span class="nt">time.endtime</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2010-03-31T00:00:00</span>
+<span class="w">  </span><span class="nt">time.timestepsecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
 <span class="w">  </span><span class="nt">input.path_forcing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inmaps-era5-2010.nc</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.compressionlevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water__volume_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">q_av</span>
 
 <span class="nt">setup_basemaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
@@ -556,7 +560,7 @@ to a model component with the same name.</p>
 
 <span class="nt">setup_glaciers</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">glaciers_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgi</span><span class="w">           </span><span class="c1"># source for glaciers based on Randolph Glacier Inventory {rgi}</span>
-<span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">           </span><span class="c1"># minimum glacier area to consider [km2]</span>
+<span class="w">  </span><span class="nt">min_area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span><span class="w">           </span><span class="c1"># minimum glacier area to consider [km2]</span>
 
 <span class="nt">setup_lulcmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">lulc_fn </span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_2009</span><span class="w">     </span><span class="c1"># source for lulc maps: {globcover, vito, corine}</span>
@@ -590,21 +594,20 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">skip_pet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w">         </span><span class="c1"># if True, only temperature is prepared.</span>
 
 <span class="nt">setup_constant_pars</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">KsatHorFrac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
-<span class="w">  </span><span class="nt">Cfmax</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.75653</span>
-<span class="w">  </span><span class="nt">cf_soil</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.038</span>
-<span class="w">  </span><span class="nt">EoverR</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.11</span>
-<span class="w">  </span><span class="nt">InfiltCapPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">  </span><span class="nt">InfiltCapSoil</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600</span>
-<span class="w">  </span><span class="nt">MaxLeakage</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">  </span><span class="nt">rootdistpar</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-500</span>
-<span class="w">  </span><span class="nt">TT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">  </span><span class="nt">TTI</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">  </span><span class="nt">TTM</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-<span class="w">  </span><span class="nt">WHC</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
-<span class="w">  </span><span class="nt">G_Cfmax</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.3</span>
-<span class="w">  </span><span class="nt">G_SIfrac</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.002</span>
-<span class="w">  </span><span class="nt">G_TT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.3</span>
+<span class="w">  </span><span class="s">&quot;subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100</span>
+<span class="w">  </span><span class="s">&quot;snowpack__degree-day_coefficient&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3.75653</span>
+<span class="w">  </span><span class="s">&quot;soil_surface_water__infiltration_reduction_parameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.038</span>
+<span class="w">  </span><span class="s">&quot;vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.11</span>
+<span class="w">  </span><span class="s">&quot;soil~compacted_surface_water__infiltration_capacity&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="s">&quot;soil_water_sat-zone_bottom__max_leakage_volume_flux&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="s">&quot;soil_root~wet__sigmoid_function_shape_parameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-500</span>
+<span class="w">  </span><span class="s">&quot;atmosphere_air__snowfall_temperature_threshold&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="s">&quot;atmosphere_air__snowfall_temperature_interval&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="s">&quot;snowpack__melting_temperature_threshold&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">  </span><span class="s">&quot;snowpack__liquid_water_holding_capacity&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">  </span><span class="s">&quot;glacier_ice__degree-day_coefficient&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.3</span>
+<span class="w">  </span><span class="s">&quot;glacier_firn_accumulation__snowpack~dry_leq-depth_fraction&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.002</span>
+<span class="w">  </span><span class="s">&quot;glacier_ice__melting_temperature_threshold&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.3</span>
 </pre></div>
 </div>
 </section>

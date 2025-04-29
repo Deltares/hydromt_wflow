@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -631,8 +633,10 @@
 <h1>hydromt_wflow.WflowSedimentModel.setup_riverbedsed<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-riverbedsed" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_riverbedsed">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverbedsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedsed_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_riverbedsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_riverbedsed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bedsed_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'river_bottom-and-bank_clay__mass_fraction':</span> <span class="pre">'ClayF_River',</span> <span class="pre">'river_bottom-and-bank_gravel__mass_fraction':</span> <span class="pre">'GravelF_River',</span> <span class="pre">'river_bottom-and-bank_sand__mass_fraction':</span> <span class="pre">'SandF_River',</span> <span class="pre">'river_bottom-and-bank_sediment__d50_diameter':</span> <span class="pre">'D50_River',</span> <span class="pre">'river_bottom-and-bank_silt__mass_fraction':</span> <span class="pre">'SiltF_River',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_a-coefficient':</span> <span class="pre">'a_kodatie',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_b-coefficient':</span> <span class="pre">'b_kodatie',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_c-coefficient':</span> <span class="pre">'c_kodatie',</span> <span class="pre">'river_water_sediment__kodatie_transport_capacity_d-coefficient':</span> <span class="pre">'d_kodatie'}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_riverbedsed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_riverbedsed" title="Link to this definition">#</a></dt>
 <dd><p>Generate sediments based river bed characteristics maps.</p>
+<p>Kodatie transport capacity coefficients can also be derived from such mapping
+table based on the mean sediment diameter of the river bed.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>D50_River</strong> map: median sediment diameter of the river bed [mm]</p></li>
@@ -640,14 +644,26 @@
 <li><p><strong>SiltF_River</strong> map: fraction of silt material in the river bed [-]</p></li>
 <li><p><strong>SandF_River</strong> map: fraction of sand material in the river bed [-]</p></li>
 <li><p><strong>GravelF_River</strong> map: fraction of gravel material in the river bed [-]</p></li>
+<li><p><strong>a_kodatie</strong> map: Kodatie transport capacity coefficient a [-]</p></li>
+<li><p><strong>b_kodatie</strong> map: Kodatie transport capacity coefficient b [-]</p></li>
+<li><p><strong>c_kodatie</strong> map: Kodatie transport capacity coefficient c [-]</p></li>
+<li><p><strong>d_kodatie</strong> map: Kodatie transport capacity coefficient d [-]</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>bedsed_mapping_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – <p>Path to a mapping csv file from streamorder to river bed particles characteristics. If None reverts to default values.</p>
-<ul class="simple">
-<li><p>Required variable: [‘strord’,’D50_River’, ‘ClayF_River’, ‘SiltF_River’, ‘SandF_River’, ‘GravelF_River’]</p></li>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bedsed_mapping_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – <p>Path to a mapping csv file from streamorder to river bed particles
+characteristics. If None reverts to default values.</p>
+<ul>
+<li><p>Required variable: [‘strord’,’D50_River’, ‘ClayF_River’, ‘SiltF_River’,
+‘SandF_River’, ‘GravelF_River’]</p></li>
+<li><p>Optional variable: [‘a_kodatie’, ‘b_kodatie’, ‘c_kodatie’, ‘d_kodatie’]</p></li>
 </ul>
-</p>
+</p></li>
+<li><p><strong>output_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with output names that will be used in the model netcdf input
+files. Users should provide the Wflow.jl variable name followed by the name
+in the netcdf file.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

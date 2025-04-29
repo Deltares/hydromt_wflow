@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -634,7 +636,8 @@
 <span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">set_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.2.dev0)"><span class="pre">Dataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.set_grid" title="Link to this definition">#</a></dt>
 <dd><p>Add data to grid.</p>
 <p>All layers of grid must have identical spatial coordinates. This is an inherited
-method from HydroMT-core’s GridModel.set_grid with some fixes.</p>
+method from HydroMT-core’s GridModel.set_grid with some fixes. If basin data is
+available the grid will be masked to that upon setting.</p>
 <p>The first fix is when data with a time axis is being added. Since Wflow.jl
 v0.7.3, cyclic data at different lengths (12, 365, 366) is supported, as long as
 the dimension name starts with “time”. In this function, a check is done if a

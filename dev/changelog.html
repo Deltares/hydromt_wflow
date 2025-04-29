@@ -440,9 +440,27 @@
 <p>These are the unreleased changes.</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>upgrade_to_v1_wflow</strong>: convert models for Wflow.jl version &lt; 1.0.0 to Wflow.jl version 1.</p></li>
+<li><p>Allow users to choose the names of each variables in staticmaps.nc files or the same of some of the staticgeoms (eg lakes, reservoirs).</p></li>
+<li><p><strong>setup_areamap</strong>: if the map is linked to a Wflow variable, the TOML file can now be updated to link the new created map to the right Wflow.jl variable.</p></li>
+</ul>
 </section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Support for Wflow.jl &gt;= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl &lt; 1.0.0 has been dropped (see below).</p></li>
+<li><p><strong>setup_constant_pars</strong>: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.</p></li>
+<li><p><strong>setup_lulcmaps</strong> and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.</p></li>
+<li><p><strong>setup_output_config_timeseries</strong>, <strong>setup_outlets</strong>, <strong>setup_gauges</strong>: the option to save parameters to netcdf scalar file as been renamed from <cite>netcdf</cite> to <cite>netcdf_scalar</cite> to better match the TOML file structure.</p></li>
+<li><p>Changed name of <cite>g_tt</cite> parameter to <cite>g_ttm</cite>, to align with the changes in <a class="github reference external" href="https://github.com/Deltares/Wflow.jl/pull/512">Deltares/Wflow.jl#512</a></p></li>
+<li><p><strong>setup_soilmaps</strong> [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.</p></li>
+<li><p><strong>setup_soilmaps</strong> [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).</p></li>
+<li><p><strong>setup_constant_pars</strong> [sediment]: added additional default values for sediment density and particle diameters.</p></li>
+<li><p><strong>setup_riverbedsed</strong> [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.</p></li>
+<li><p><strong>setup_rivers</strong>, <strong>setup_lakes</strong>, <strong>setup_reservoirs</strong> [sediment]: only create wflow sediment variables and not a mix of sbm and sediment ones.</p></li>
+<li><p>Grid data is masked to subcatchment on <cite>set_grid</cite> now instead of on <cite>write_grid</cite> (#349)</p></li>
+</ul>
 </section>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
@@ -452,6 +470,10 @@
 </section>
 <section id="deprecated">
 <h3>Deprecated<a class="headerlink" href="#deprecated" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Support for building/updating models for Wflow.jl version &lt; 1.0.0. We encourage you to upgrade your model to the new version using <cite>upgrade_to_v1_wflow</cite> or use an older release of hydromt_wflow if you do not want to upgrade your model.</p></li>
+<li><p><strong>setup_soilmaps</strong>: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334</p></li>
+</ul>
 </section>
 </section>
 <section id="v0-8-0-9-april-2025">
@@ -470,7 +492,13 @@
 <section id="id2">
 <h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <ul class="simple">
+<li><p>Changed name of <cite>g_tt</cite> parameter to <cite>g_ttm</cite>, to align with the changes in <a class="github reference external" href="https://github.com/Deltares/Wflow.jl/pull/512">Deltares/Wflow.jl#512</a></p></li>
 <li><p><strong>setup_allocation_areas</strong>: added a minimum area threshold (50 km2) to filter too small allocation areas. PR #334</p></li>
+<li><p><strong>setup_soilmaps</strong> [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.</p></li>
+<li><p><strong>setup_soilmaps</strong> [sediment]: additional parameters are prepared by the method (e.g. soil mean diameter, Govers transport capacity parameters).</p></li>
+<li><p><strong>setup_constant_pars</strong> [sediment]: added additional default values for sediment density and particle diameters.</p></li>
+<li><p><strong>setup_riverbedsed</strong> [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping.</p></li>
+<li><p>Grid data is masked to subcatchment on <cite>set_grid</cite> now instead of on <cite>write_grid</cite> (#349)</p></li>
 </ul>
 </section>
 <section id="id3">

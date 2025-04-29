@@ -405,6 +405,7 @@
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
 </ul>
@@ -605,7 +606,7 @@
     <span class="n">include_river_boundaries</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">mapname</span><span class="o">=</span><span class="s2">&quot;1dmodel&quot;</span><span class="p">,</span>
     <span class="n">update_toml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;netcdf&quot;</span><span class="p">,</span>
+    <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -615,7 +616,7 @@
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mod</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;netcdf&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mod</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">][</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -628,10 +629,10 @@
 {&#39;path&#39;: &#39;output_scalar.nc&#39;,
  &#39;variable&#39;: [{&#39;name&#39;: &#39;Q&#39;,
    &#39;map&#39;: &#39;gauges_1dmodel&#39;,
-   &#39;parameter&#39;: &#39;lateral.river.q_av&#39;},
+   &#39;parameter&#39;: &#39;river_water__volume_flow_rate&#39;},
   {&#39;name&#39;: &#39;Qlat&#39;,
    &#39;map&#39;: &#39;subcatch_riv_1dmodel&#39;,
-   &#39;parameter&#39;: &#39;lateral.river.inwater&#39;,
+   &#39;parameter&#39;: &#39;river_water_inflow~lateral__volume_flow_rate&#39;,
    &#39;reducer&#39;: &#39;sum&#39;}]}
 </pre></div></div>
 </div>
@@ -725,7 +726,7 @@
     <span class="n">include_river_boundaries</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">mapname</span><span class="o">=</span><span class="s2">&quot;1dmodel&quot;</span><span class="p">,</span>
     <span class="n">update_toml</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;netcdf&quot;</span><span class="p">,</span>
+    <span class="n">toml_output</span><span class="o">=</span><span class="s2">&quot;netcdf_scalar&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>

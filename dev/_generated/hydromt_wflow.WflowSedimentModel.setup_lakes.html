@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -631,33 +633,35 @@
 <h1>hydromt_wflow.WflowSedimentModel.setup_lakes<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-lakes" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_lakes">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_lakes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lakes_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.0.1)"><span class="pre">GeoDataFrame</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hydro_lakes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_lakes" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_lakes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lakes_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.0.1)"><span class="pre">GeoDataFrame</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'hydro_lakes'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'lake_area__count':</span> <span class="pre">'wflow_lakeareas',</span> <span class="pre">'lake_location__count':</span> <span class="pre">'wflow_lakelocs',</span> <span class="pre">'lake_surface__area':</span> <span class="pre">'LakeArea'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'lakes'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_lakes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_lakes" title="Link to this definition">#</a></dt>
 <dd><p>Generate maps of lake areas and outlets.</p>
-<p>Also generates well as parameters with average lake area,
-depth a discharge values.</p>
+<p>Also generates average lake area.</p>
 <p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2] from a database with
-lake geometry, IDs and metadata. Currently, “hydro_lakes” (hydroLakes) is the
-only supported <code class="docutils literal notranslate"><span class="pre">lakes_fn</span></code> data source and
-we use a default minimum area of 1 km2.</p>
+lake geometry, IDs and metadata. Data required are lake ID ‘waterbody_id’,
+average area ‘Area_avg’ [m2].</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_lakeareas</strong> map: lake IDs [-]</p></li>
 <li><p><strong>wflow_lakelocs</strong> map: lake IDs at outlet locations [-]</p></li>
 <li><p><strong>LakeArea</strong> map: lake area [m2]</p></li>
-<li><p><strong>LakeAvgLevel</strong> map: lake average water level [m]</p></li>
-<li><p><strong>LakeAvgOut</strong> map: lake average discharge [m3/s]</p></li>
-<li><p><strong>Lake_b</strong> map: lake rating curve coefficient [-]</p></li>
 <li><p><strong>lakes</strong> geom: polygon with lakes and wflow lake parameters</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lakes_fn</strong> (<em>{'hydro_lakes'}</em>) – <p>Name of data source for lake parameters, see data/data_sources.yml.</p>
+<li><p><strong>lakes_fn</strong> – <p>Name of GeoDataFrame source for lake parameters.</p>
 <ul>
-<li><p>Required variables: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’]</p></li>
+<li><p>Required variables: [‘waterbody_id’, ‘Area_avg’]</p></li>
 </ul>
 </p></li>
 <li><p><strong>min_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum lake area threshold [km2], by default 1.0 km2.</p></li>
+<li><p><strong>output_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with output names that will be used in the model netcdf input
+files. Users should provide the Wflow.jl variable name followed by the name
+in the netcdf file.</p></li>
+<li><p><strong>geom_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the lakes geometry in the staticgeoms folder, by default ‘lakes’
+for lakes.geojson.</p></li>
+<li><p><strong>kwargs</strong> (<em>optional</em>) – Keyword arguments passed to the method
+hydromt.DataCatalog.get_rasterdataset()</p></li>
 </ul>
 </dd>
 </dl>

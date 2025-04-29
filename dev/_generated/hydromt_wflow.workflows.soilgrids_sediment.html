@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -631,16 +633,26 @@
 <h1>hydromt_wflow.workflows.soilgrids_sediment<a class="headerlink" href="#hydromt-wflow-workflows-soilgrids-sediment" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.soilgrids_sediment">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">soilgrids_sediment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usleK_method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids_sediment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids_sediment" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">soilgrids_sediment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usleK_method:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'renard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_aggregates:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.2.dev0)"><span class="pre">Dataset</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids_sediment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids_sediment" title="Link to this definition">#</a></dt>
 <dd><p>Return soil parameter maps for sediment modelling at model resolution.</p>
-<p>Based on soil properties from SoilGrids dataset.</p>
+<p>Based on soil properties from SoilGrids dataset.
+Sediment size distribution and addition of small and large aggregates can be
+estimated from primary particle size distribution with Foster et al. (1980).
+USLE K factor can be computed from the soil data using Renard or EPIC methods.
+Calculation of D50 and fraction of fine and very fine sand (fvfs) from
+Fooladmand et al, 2006.</p>
 <p>The following soil parameter maps are calculated:</p>
 <ul class="simple">
-<li><p>PercentClay: clay content of the topsoil [%]</p></li>
-<li><p>PercentSilt: silt content of the topsoil [%]</p></li>
-<li><p>PercentOC: organic carbon in the topsoil [%]</p></li>
-<li><p>ErosK: mean detachability of the soil (Morgan et al., 1998) [g/J]</p></li>
-<li><p>USLE_K: soil erodibility factor from the USLE equation [-]</p></li>
+<li><p>fclay_soil: clay content of the topsoil [g/g]</p></li>
+<li><p>fsilt_soil: silt content of the topsoil [g/g]</p></li>
+<li><p>fsand_soil: sand content of the topsoil [g/g]</p></li>
+<li><p>fsagg_soil: small aggregate content of the topsoil [g/g]</p></li>
+<li><p>flagg_soil: large aggregate content of the topsoil [g/g]</p></li>
+<li><p>soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]</p></li>
+<li><p>usle_k: soil erodibility factor from the USLE equation [-]</p></li>
+<li><p>d50_soil: median sediment diameter of the soil [mm]</p></li>
+<li><p>c_govers: Govers factor for overland flow transport capacity [-]</p></li>
+<li><p>n_govers: Govers exponent for overland flow transport capacity [-]</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -648,6 +660,7 @@
 <li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.3.2.dev0)"><em>xarray.Dataset</em></a>) – Dataset containing soil properties.</p></li>
 <li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
 <li><p><strong>usleK_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Method to use for calculation of USLE_K {“renard”, “epic”}.</p></li>
+<li><p><strong>add_aggregates</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Add small and large aggregates to the soil properties. Default is True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

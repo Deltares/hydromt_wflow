@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -631,60 +633,40 @@
 <h1>hydromt_wflow.WflowSedimentModel.setup_reservoirs<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-reservoirs" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_reservoirs">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_reservoirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoirs_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.0.1)"><span class="pre">GeoDataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeseries_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_reservoirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_reservoirs" title="Link to this definition">#</a></dt>
-<dd><p>Generate maps of lake areas and outlets.</p>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_reservoirs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reservoirs_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.0.1)"><span class="pre">GeoDataFrame</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trapping_default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'reservoir_area__count':</span> <span class="pre">'wflow_reservoirareas',</span> <span class="pre">'reservoir_location__count':</span> <span class="pre">'wflow_reservoirlocs',</span> <span class="pre">'reservoir_sediment~bedload__trapping_efficiency_coefficient':</span> <span class="pre">'ResTrapEff',</span> <span class="pre">'reservoir_surface__area':</span> <span class="pre">'ResSimpleArea'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geom_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'reservoirs'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_reservoirs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_reservoirs" title="Link to this definition">#</a></dt>
+<dd><p>Generate maps of reservoir areas and outlets.</p>
 <p>Also generates well as parameters with average reservoir area,
-demand, min and max target storage capacities and discharge capacity values.</p>
+and trapping efficiency for large particles.</p>
 <p>The data is generated from features with <code class="docutils literal notranslate"><span class="pre">min_area</span></code> [km2] (default is 1 km2)
 from a database with reservoir geometry, IDs and metadata.</p>
-<p>Data requirements for direct use (ie wflow parameters are data already present in reservoirs_fn)
-are reservoir ID ‘waterbody_id’, area ‘ResSimpleArea’ [m2],
-maximum volume ‘ResMaxVolume’ [m3], the targeted minimum and maximum fraction of
-water volume in the reservoir ‘ResTargetMinFrac’ and ‘ResTargetMaxFrac’ [-],
-the average water demand ResDemand [m3/s] and the maximum release of
-the reservoir before spilling ‘ResMaxRelease’ [m3/s].</p>
-<p>In case the wflow parameters are not directly available they can be computed by
-HydroMT based on time series of reservoir surface water area.
-These time series can be retrieved from either the hydroengine or the gwwapi,
-based on the Hylak_id the reservoir, found in the GrandD database.</p>
-<p>The required variables for computation of the parameters with time series data
-are reservoir ID ‘waterbody_id’, reservoir ID in the HydroLAKES database
-‘Hylak_id’, average volume ‘Vol_avg’ [m3], average depth ‘Depth_avg’ [m],
-average discharge ‘Dis_avg’ [m3/s] and dam height ‘Dam_height’ [m].
-To compute parameters without using time series data, the required variables in
-reservoirs_fn are reservoir ID ‘waterbody_id’, average area ‘Area_avg’ [m2],
-average volume ‘Vol_avg’ [m3], average depth ‘Depth_avg’ [m], average discharge
-‘Dis_avg’ [m3/s] and dam height ‘Dam_height’ [m] and
-minimum / normal / maximum storage capacity of the dam ‘Capacity_min’,
-‘Capacity_norm’, ‘Capacity_max’ [m3].</p>
 <p>Adds model layers:</p>
 <ul class="simple">
 <li><p><strong>wflow_reservoirareas</strong> map: reservoir IDs [-]</p></li>
 <li><p><strong>wflow_reservoirlocs</strong> map: reservoir IDs at outlet locations [-]</p></li>
 <li><p><strong>ResSimpleArea</strong> map: reservoir area [m2]</p></li>
-<li><p><strong>ResMaxVolume</strong> map: reservoir max volume [m3]</p></li>
-<li><p><strong>ResTargetMinFrac</strong> map: reservoir target min frac [m3/m3]</p></li>
-<li><p><strong>ResTargetFullFrac</strong> map: reservoir target full frac [m3/m3]</p></li>
-<li><p><strong>ResDemand</strong> map: reservoir demand flow [m3/s]</p></li>
-<li><p><strong>ResMaxRelease</strong> map: reservoir max release flow [m3/s]</p></li>
-<li><p><strong>reservoirs</strong> geom: polygon with reservoirs and wflow reservoir parameters</p></li>
+<li><p><strong>ResTrapEff</strong> map: reservoir trapping efficiency coefficient [-]</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>reservoirs_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – <p>Name of data source for reservoir parameters, see data/data_sources.yml.</p>
 <ul>
-<li><p>Required variables for direct use: [‘waterbody_id’, ‘ResSimpleArea’, ‘ResMaxVolume’, ‘ResTargetMinFrac’, ‘ResTargetFullFrac’, ‘ResDemand’, ‘ResMaxRelease’]</p></li>
-<li><p>Required variables for computation with timeseries_fn: [‘waterbody_id’, ‘Hylak_id’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Dam_height’]</p></li>
-<li><p>Required variables for computation without timeseries_fn: [‘waterbody_id’, ‘Area_avg’, ‘Vol_avg’, ‘Depth_avg’, ‘Dis_avg’, ‘Capacity_max’, ‘Capacity_norm’, ‘Capacity_min’, ‘Dam_height’]</p></li>
+<li><p>Required variables: [‘waterbody_id’, ‘Area_avg’]</p></li>
+<li><p>Optional variables: [‘ResTrapEff’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>timeseries_fn</strong> (<em>str {'gww'</em><em>, </em><em>'hydroengine'</em><em>, </em><em>'none'}</em><em>, </em><em>optional</em>) – Download and use time series of reservoir surface water area to calculate
-and overwrite the reservoir volume/areas of the data source.
-Timeseries are either downloaded from Global Water Watch ‘gww’
-(using gwwapi package) or JRC ‘jrc’ (using hydroengine package).
-By default None.</p></li>
 <li><p><strong>min_area</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Minimum reservoir area threshold [km2], by default 1.0 km2.</p></li>
+<li><p><strong>trapping_default</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – Default trapping efficiency coefficient for large particles [between 0 and
+1], by default 1 to trap 100% of large particles (sand to gravel) for
+example for gravity dam. For the others the natural deposition in
+waterbodies from Camp is used.</p></li>
+<li><p><strong>output_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with output names that will be used in the model netcdf input
+files. Users should provide the Wflow.jl variable name followed by the name
+in the netcdf file.</p></li>
+<li><p><strong>geom_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the reservoirs geometry in the staticgeoms folder, by default
+“reservoirs” for reservoirs.geojson.</p></li>
+<li><p><strong>kwargs</strong> (<em>optional</em>) – Keyword arguments passed to the method
+hydromt.DataCatalog.get_rasterdataset()</p></li>
 </ul>
 </dd>
 </dl>

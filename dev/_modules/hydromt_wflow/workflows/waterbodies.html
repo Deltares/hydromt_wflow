@@ -765,7 +765,6 @@
     <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">])):</span>
         <span class="c1"># Initialise values</span>
-        <span class="c1"># import pdb; pdb.set_trace()</span>
         <span class="n">dam_height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Dam_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">max_level</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;Depth_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
         <span class="n">max_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">([</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resarea&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
@@ -915,6 +914,18 @@
             <span class="n">df_EO</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;capmax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
             <span class="o">/</span> <span class="n">df_out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">df_out</span><span class="p">[</span><span class="s2">&quot;resfullfrac&quot;</span><span class="p">]),</span> <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="p">)</span>
+
+    <span class="c1"># rename to wflow naming convention</span>
+    <span class="n">tbls</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;resarea&quot;</span><span class="p">:</span> <span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resdemand&quot;</span><span class="p">:</span> <span class="s2">&quot;ResDemand&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resfullfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTargetFullFrac&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resminfrac&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTargetMinFrac&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resmaxrelease&quot;</span><span class="p">:</span> <span class="s2">&quot;ResMaxRelease&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resmaxvolume&quot;</span><span class="p">:</span> <span class="s2">&quot;ResMaxVolume&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;resid&quot;</span><span class="p">:</span> <span class="s2">&quot;expr1&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">df_out</span> <span class="o">=</span> <span class="n">df_out</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">tbls</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">df_out</span><span class="p">,</span> <span class="n">df_plot</span><span class="p">,</span> <span class="n">df_ts</span></div>
 

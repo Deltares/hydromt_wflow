@@ -405,6 +405,7 @@
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_staticmaps.html">Example: Plot Wflow staticmaps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_forcing.html">Example: Plot Wflow forcing data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plot_wflow_results.html">Example: Plot Wflow results data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="upgrade_to_wflow_v1.html">Example: Upgrade to Wflow.jl version 1</a></li>
 </ul>
 </details></li>
 </ul>
@@ -520,7 +521,7 @@ Coordinates:
   * time                  (time) int32 48B 1 2 3 4 5 6 7 8 9 10 11 12
   * layer                 (layer) int32 16B 0 1 2 3
     spatial_ref           int32 4B 0
-Data variables: (12/92)
+Data variables: (12/77)
     x_out                 (latitude, longitude) float64 25kB nan nan ... nan nan
     y_out                 (latitude, longitude) float64 25kB nan nan ... nan nan
     idx_out               (latitude, longitude) int32 12kB -1 -1 -1 ... -1 -1 -1
@@ -528,12 +529,12 @@ Data variables: (12/92)
     wflow_subcatch        (latitude, longitude) int32 12kB 0 0 0 0 0 ... 0 0 0 0
     wflow_uparea          (latitude, longitude) float32 12kB -9.999e+03 ... -...
     ...                    ...
-    TTI                   (latitude, longitude) float32 12kB -999.0 ... -999.0
-    TTM                   (latitude, longitude) float32 12kB -999.0 ... -999.0
-    WHC                   (latitude, longitude) float32 12kB -999.0 ... -999.0
-    G_Cfmax               (latitude, longitude) float32 12kB -999.0 ... -999.0
-    G_SIfrac              (latitude, longitude) float32 12kB -999.0 ... -999.0
-    G_TT                  (latitude, longitude) float32 12kB -999.0 ... -999.0
+    M_original            (latitude, longitude) float32 12kB -9.999e+03 ... -...
+    M                     (latitude, longitude) float32 12kB -9.999e+03 ... -...
+    f                     (latitude, longitude) float32 12kB -9.999e+03 ... -...
+    wflow_soil            (latitude, longitude) int32 12kB -9999 -9999 ... -9999
+    wflow_gauges          (latitude, longitude) int32 12kB 0 0 0 0 0 ... 0 0 0 0
+    wflow_gauges_grdc     (latitude, longitude) int32 12kB 0 0 0 0 0 ... 0 0 0 0
 </pre></div></div>
 </div>
 </section>

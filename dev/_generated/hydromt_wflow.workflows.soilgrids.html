@@ -402,6 +402,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_1dmodel_connection.html">hydromt_wflow.WflowModel.setup_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_grid_from_raster.html">hydromt_wflow.WflowModel.setup_grid_from_raster</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.setup_cold_states.html">hydromt_wflow.WflowModel.setup_cold_states</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowModel.region.html">hydromt_wflow.WflowModel.region</a></li>
@@ -477,6 +478,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries.html">hydromt_wflow.WflowSedimentModel.setup_config_output_timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_constant_pars.html">hydromt_wflow.WflowSedimentModel.setup_constant_pars</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.setup_grid_from_raster.html">hydromt_wflow.WflowSedimentModel.setup_grid_from_raster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow.html">hydromt_wflow.WflowSedimentModel.upgrade_to_v1_wflow</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.region.html">hydromt_wflow.WflowSedimentModel.region</a></li>
@@ -631,7 +633,7 @@
 <h1>hydromt_wflow.workflows.soilgrids<a class="headerlink" href="#hydromt-wflow-workflows-soilgrids" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.soilgrids">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">soilgrids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ptfKsatVer:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'brakensiek',</span> <span class="pre">soil_fn:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'soilgrids',</span> <span class="pre">soil_mapping:</span> <span class="pre">~pandas.core.frame.DataFrame</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">wflow_layers:</span> <span class="pre">~typing.List[int]</span> <span class="pre">=</span> <span class="pre">[100,</span> <span class="pre">300,</span> <span class="pre">800],</span> <span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">soilgrids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ds_like:</span> <span class="pre">~xarray.core.dataset.Dataset,</span> <span class="pre">ptfKsatVer:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'brakensiek',</span> <span class="pre">soil_fn:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'soilgrids',</span> <span class="pre">wflow_layers:</span> <span class="pre">~typing.List[int]</span> <span class="pre">=</span> <span class="pre">[100,</span> <span class="pre">300,</span> <span class="pre">800],</span> <span class="pre">logger=&lt;Logger</span> <span class="pre">hydromt_wflow.workflows.soilgrids</span> <span class="pre">(WARNING)&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilgrids.html#soilgrids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.soilgrids" title="Link to this definition">#</a></dt>
 <dd><p>Return soil parameter maps at model resolution.</p>
 <p>Based on soil properties from SoilGrids datasets.
 Both soilgrids 2017 and 2020 are supported. Soilgrids 2017 provides soil properties
@@ -665,7 +667,6 @@ to derive the infiltration capacity of the soil.</p>
 <li><p><strong>c_</strong> map: Brooks Corey coefficients [-] based on pore size distribution index for the wflow_sbm soil layers.</p></li>
 <li><p><strong>KsatVer_[z]cm</strong> : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
 <li><p><strong>wflow_soil</strong> : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</p></li>
-<li><p><strong>InfiltCapPath</strong> : Infiltration capacity of the soil based on soil texture classes (optional).</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -674,9 +675,6 @@ to derive the infiltration capacity of the soil.</p>
 <li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.3.2.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
 <li><p><strong>ptfKsatVer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – PTF to use for calculation KsatVer.</p></li>
 <li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – soilgrids version {‘soilgrids’, ‘soilgrids_2020’}</p></li>
-<li><p><strong>soil_mapping</strong> (<em>pd.DataFrame</em><em>, </em><em>optional</em>) – DataFrame containing soil mapping data based on soil texture. The index column
-of the table should contain the soil ‘texture’ classes and the other columns
-should be the name of the corresponding wflow parameter(s). By default None.</p></li>
 <li><p><strong>wflow_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List of soil layer depths [cm] for which c is calculated.</p></li>
 </ul>
 </dd>

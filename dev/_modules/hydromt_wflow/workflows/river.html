@@ -595,7 +595,6 @@
     <span class="n">min_rivdph</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get river width and bankfull discharge.</span>
 
@@ -639,7 +638,7 @@
     <span class="n">flwdir_river</span> <span class="o">=</span> <span class="n">flw</span><span class="o">.</span><span class="n">flwdir_from_da</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;flwdir&quot;</span><span class="p">],</span> <span class="n">mask</span><span class="o">=</span><span class="n">riv_mask</span><span class="p">)</span>
     <span class="n">rivlen_avg</span> <span class="o">=</span> <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivlen&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">riv_mask</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
-    <span class="c1">## river width and bunkfull discharge</span>
+    <span class="c1">## river width and bankfull discharge</span>
     <span class="n">vars0</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;rivwth&quot;</span><span class="p">,</span> <span class="s2">&quot;rivdph&quot;</span><span class="p">,</span> <span class="s2">&quot;qbankfull&quot;</span><span class="p">]</span>
     <span class="c1"># find nearest values from river shape if provided</span>
     <span class="c1"># if None assume the data is in ds_model</span>
@@ -718,7 +717,6 @@
             <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
             <span class="n">min_rivdph</span><span class="o">=</span><span class="n">min_rivdph</span><span class="p">,</span>
             <span class="n">rivzs_name</span><span class="o">=</span><span class="s2">&quot;subelv&quot;</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">_FillValue</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">)</span>
         <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;rivdph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">rivdph</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">9999</span><span class="p">)</span>

@@ -553,9 +553,7 @@
     <span class="c1"># Prepare empty dataarray</span>
     <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">raster</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
     <span class="c1"># Set all values to 1</span>
-    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-        <span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;wflow_dem&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mf">1.0</span>
-    <span class="p">)</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">)</span>
 
     <span class="c1"># Get the actual depths</span>
     <span class="n">wflow_depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">wflow_thicknesslayers</span><span class="p">)</span>
@@ -652,7 +650,7 @@
     <span class="c1"># interpolate to fill missing values</span>
     <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">&quot;rio_idw&quot;</span><span class="p">)</span>
     <span class="c1"># mask outside basin</span>
-    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;wflow_subcatch&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">sndppt</span> <span class="o">=</span> <span class="n">sndppt</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;basins&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># mean annual lai is required (see fig 1 in Bonetti et al. 2021)</span>
     <span class="n">LAI_mean</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;LAI&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
@@ -660,7 +658,7 @@
 
     <span class="c1"># in this function, Ksatver should be provided in cm/d</span>
     <span class="n">KSatVer_vegetation</span> <span class="o">=</span> <span class="n">get_ks_veg</span><span class="p">(</span>
-        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;KsatVer&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI_mean</span><span class="p">,</span> <span class="n">alfa</span><span class="p">,</span> <span class="n">beta</span>
+        <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;ksat_vertical&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI_mean</span><span class="p">,</span> <span class="n">alfa</span><span class="p">,</span> <span class="n">beta</span>
     <span class="p">)</span>
 
     <span class="c1"># convert back from cm/d to mm/d</span>
