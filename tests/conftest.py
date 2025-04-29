@@ -1,6 +1,5 @@
 """add global fixtures."""
 
-import logging
 import platform
 from os.path import abspath, dirname, join
 
@@ -10,7 +9,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from hydromt import DataCatalog
-from hydromt.cli.cli_utils import parse_config
+from hydromt.cli._utils import parse_config
 from shapely.geometry import Point, box
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
@@ -25,7 +24,6 @@ EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
 
 @pytest.fixture
 def example_wflow_model():
-    logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_piave_subbasin")
     mod = WflowModel(
         root=root,
@@ -34,14 +32,12 @@ def example_wflow_model():
             "artifact_data",
             "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
         ],
-        logger=logger,
     )
     return mod
 
 
 @pytest.fixture
 def example_sediment_model():
-    logger = logging.getLogger(__name__)
     root = join(EXAMPLEDIR, "wflow_sediment_piave_subbasin")
     mod = WflowSedimentModel(
         root=root,
@@ -50,7 +46,6 @@ def example_sediment_model():
             "artifact_data",
             "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
         ],
-        logger=logger,
     )
     return mod
 

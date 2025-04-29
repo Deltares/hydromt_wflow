@@ -8,11 +8,10 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
+from hydromt import hydromt_step
 
 from hydromt_wflow.wflow import WflowModel
 
-from .naming import HYDROMT_NAMES
-from .utils import DATADIR
 from .workflows import add_planted_forest_to_landuse, landuse, soilgrids_sediment
 
 __all__ = ["WflowSedimentModel"]
@@ -23,12 +22,9 @@ logger = logging.getLogger(__name__)
 class WflowSedimentModel(WflowModel):
     """The wflow sediment model class, a subclass of WflowModel."""
 
-    _NAME = "wflow_sediment"
+    name = "wflow_sediment"
     _CONF = "wflow_sediment.toml"
-    _DATADIR = DATADIR
     _GEOMS = {}
-    _MAPS = HYDROMT_NAMES
-    _FOLDERS = WflowModel._FOLDERS
 
     def __init__(
         self,
@@ -36,16 +32,15 @@ class WflowSedimentModel(WflowModel):
         mode: Optional[str] = "w",
         config_fn: Optional[str] = None,
         data_libs: List | str = [],
-        logger=logger,
     ):
         super().__init__(
             root=root,
             mode=mode,
             config_fn=config_fn,
             data_libs=data_libs,
-            logger=logger,
         )
 
+    @hydromt_step
     def setup_rivers(self, *args, **kwargs):
         """Copy the functionality of WflowModel.
 
@@ -59,6 +54,7 @@ class WflowSedimentModel(WflowModel):
 
         self.config["model"].pop("river_routing", None)
 
+    @hydromt_step
     def setup_lakes(
         self,
         lakes_fn: str | Path | gpd.GeoDataFrame = "hydro_lakes",
@@ -108,6 +104,7 @@ class WflowSedimentModel(WflowModel):
             if self.get_config("input.lateral.river.lake") is not None:
                 del self.config["input"]["lateral"]["river"]["lake"]
 
+    @hydromt_step
     def setup_reservoirs(
         self,
         reservoirs_fn: str | Path | gpd.GeoDataFrame,
@@ -202,6 +199,7 @@ class WflowSedimentModel(WflowModel):
             if self.get_config("input.lateral.river.reservoir") is not None:
                 del self.config["input"]["lateral"]["river"]["reservoir"]
 
+    @hydromt_step
     def setup_outlets(
         self,
         river_only: bool = True,
@@ -243,6 +241,7 @@ class WflowSedimentModel(WflowModel):
             gauge_toml_param=gauge_toml_param,
         )
 
+    @hydromt_step
     def setup_gauges(
         self,
         gauges_fn: str | Path | gpd.GeoDataFrame,
@@ -300,6 +299,7 @@ class WflowSedimentModel(WflowModel):
             **kwargs,
         )
 
+    @hydromt_step
     def setup_lulcmaps(
         self,
         lulc_fn: str | Path | xr.DataArray,
@@ -385,7 +385,7 @@ class WflowSedimentModel(WflowModel):
                 handle_nodata="IGNORE",
             )
             if planted_forest is None:
-                self.logger.warning("No Planted forest data found within domain.")
+                logger.warning("No Planted forest data found within domain.")
                 return
             usle_c = add_planted_forest_to_landuse(
                 planted_forest,
@@ -393,12 +393,13 @@ class WflowSedimentModel(WflowModel):
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
-                logger=self.logger,
+                logger=logger,
             )
 
             # Add to grid
             self.set_grid(usle_c)
 
+    @hydromt_step
     def setup_lulcmaps_from_vector(
         self,
         lulc_fn: str | gpd.GeoDataFrame,
@@ -508,7 +509,7 @@ class WflowSedimentModel(WflowModel):
                 handle_nodata="IGNORE",
             )
             if planted_forest is None:
-                self.logger.warning("No Planted forest data found within domain.")
+                logger.warning("No Planted forest data found within domain.")
                 return
             usle_c = add_planted_forest_to_landuse(
                 planted_forest,
@@ -516,12 +517,13 @@ class WflowSedimentModel(WflowModel):
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
-                logger=self.logger,
+                logger=logger,
             )
 
             # Add to grid
             self.set_grid(usle_c)
 
+    @hydromt_step
     def setup_riverbedsed(
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
@@ -546,7 +548,7 @@ particles characteristics. If None reverts to default values.
 ['strord','D50_River', 'ClayF_River', 'SiltF_River', 'SandF_River', 'GravelF_River']
 
         """
-        self.logger.info("Preparing riverbedsed parameter maps.")
+        logger.info("Preparing riverbedsed parameter maps.")
         # Make D50_River map from csv file with mapping between streamorder and
         # D50_River value
         if bedsed_mapping_fn is None:
@@ -570,11 +572,12 @@ particles characteristics. If None reverts to default values.
             da=strord,
             ds_like=self.grid,
             df=df,
-            logger=self.logger,
+            logger=logger,
         )
 
         self.set_grid(ds_riversed)
 
+    @hydromt_step
     def setup_canopymaps(
         self,
         canopy_fn: str | Path | xr.DataArray,
@@ -590,11 +593,11 @@ particles characteristics. If None reverts to default values.
         canopy_fn :
             Canopy height data source (DataArray).
         """
-        self.logger.info("Preparing canopy height map.")
+        logger.info("Preparing canopy height map.")
 
         # Canopy height
         if canopy_fn not in ["simard"]:
-            self.logger.warning(
+            logger.warning(
                 f"Invalid source '{canopy_fn}', skipping setup canopy map for sediment."
             )
             return
@@ -609,6 +612,7 @@ particles characteristics. If None reverts to default values.
         dsout["CanopyHeight"].raster.set_nodata(-9999.0)
         self.set_grid(dsout)
 
+    @hydromt_step
     def setup_soilmaps(
         self,
         soil_fn: str = "soilgrids",
@@ -634,11 +638,11 @@ particles characteristics. If None reverts to default values.
         usleK_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
         """
-        self.logger.info("Preparing soil parameter maps.")
+        logger.info("Preparing soil parameter maps.")
 
         # Soil related maps
         if soil_fn not in ["soilgrids"]:
-            self.logger.warning(
+            logger.warning(
                 f"Invalid source '{soil_fn}', skipping setup_soilmaps for sediment."
             )
             return
@@ -648,6 +652,6 @@ particles characteristics. If None reverts to default values.
             dsin,
             self.grid,
             usleK_method,
-            logger=self.logger,
+            logger=logger,
         )
         self.set_grid(dsout)

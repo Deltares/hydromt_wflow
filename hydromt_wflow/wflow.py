@@ -8,7 +8,7 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import geopandas as gpd
 
@@ -22,9 +22,14 @@ import shapely
 import toml
 import xarray as xr
 from dask.diagnostics import ProgressBar
-from hydromt import flw
-from hydromt.models.model_grid import GridModel
-from hydromt.nodata import NoDataStrategy
+from hydromt import hydromt_step
+from hydromt._typing.error import NoDataStrategy
+from hydromt.gis import flw
+from hydromt.model import Model
+from hydromt.model.processes.basin_mask import get_basin_geometry
+from hydromt.model.processes.region import (
+    _parse_region_value,
+)
 from pyflwdir import core_conversion, core_d8, core_ldd
 from shapely.geometry import box
 
@@ -33,63 +38,88 @@ from .naming import HYDROMT_NAMES, WFLOW_NAMES
 from .utils import DATADIR
 
 __all__ = ["WflowModel"]
-
+__hydromt_eps__ = ["WflowModel"]  # core entrypoints
 logger = logging.getLogger(__name__)
 
 
-class WflowModel(GridModel):
-    """Wflow model class."""
+class WflowModel(Model):
+    """Read or Write a wflow model.
 
-    _NAME = "wflow"
-    _CONF = "wflow_sbm.toml"
-    _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
+    Parameters
+    ----------
+    root : str, optional
+        Model root, by default None
+    mode : {'r','r+','w'}, optional
+        read/append/write mode, by default "w"
+    data_libs : list[str] | str, optional
+        List of data catalog configuration files, by default None
+    **catalog_keys:
+        Additional keyword arguments to be passed down to the DataCatalog.
+    """
+
+    name: str = "wflow_model"
+
+    _MODEL_VERSION = None
+    # TODO supported model version should be filled by the plugins
+    # e.g. _MODEL_VERSION = ">=1.0, <1.1
+
     _DATADIR = DATADIR
-    _GEOMS = {}
     _MAPS = HYDROMT_NAMES
-    _FOLDERS = [
-        "instate",
-        "run_default",
-    ]
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
         self,
         root: Optional[str] = None,
-        mode: Optional[str] = "w",
-        config_fn: Optional[str] = None,
-        data_libs: List[str] | str | None = None,
-        logger=logger,
-        **artifact_keys,
+        config_fname: Path | str = "wflow_sbm.toml",
+        mode: str = "r",
+        data_libs: Optional[Union[list[str], str]] = None,
+        **catalog_keys,
     ):
-        if data_libs is None:
-            data_libs = []
-        for lib, version in artifact_keys.items():
-            logger.warning(
-                "Adding a predefined data catalog as key-word argument is deprecated, "
-                f"add the catalog as '{lib}={version}'"
-                " to the data_libs list instead."
-            )
-            if not version:  # False or None
-                continue
-            elif isinstance(version, str):
-                lib += f"={version}"
-            data_libs = [lib] + data_libs
-
         super().__init__(
-            root=root,
+            root,
+            components={},
             mode=mode,
-            config_fn=config_fn,
+            region_component="region",
             data_libs=data_libs,
-            logger=logger,
+            **catalog_keys,
         )
 
-        # wflow specific
-        self._intbl = dict()
-        self._tables = dict()
+        # wflow specific (also legacy)
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
 
+        ## Setup components
+        # self.add_component(
+        #     "config",
+        #     WflowConfigComponent(model=self, filename=config_fname),
+        # )
+        # ...
+
     # COMPONENTS
+    @hydromt_step
+    def setup_region(
+        self,
+        region: Path | str,
+    ) -> None:
+        """Set the region of the wflow model.
+
+        Parameters
+        ----------
+        region : Path | str
+            Path to the region vector file.
+
+        Returns
+        -------
+            None
+        """
+        region = Path(region)
+        logger.info(f"Setting region from '{region.as_posix()}'")
+        if not region.is_file():
+            raise FileNotFoundError(region.as_posix())
+        geom = gpd.read_file(region)
+        self.components["region"].set(geom)
+
+    @hydromt_step
     def setup_basemaps(
         self,
         region: Dict,
@@ -194,7 +224,7 @@ class WflowModel(GridModel):
         workflows.hydrography
         workflows.topography
         """
-        self.logger.info("Preparing base hydrography basemaps.")
+        logger.info("Preparing base hydrography basemaps.")
         # retrieve global data (lazy!)
         ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
 
@@ -214,18 +244,25 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
                 )
 
         # get basin geometry and clip data
-        kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
+        # TODO this is pretty bad, but it has to do until parse_region_basin also
+        # returns the pits.
+        kind = next(iter(region))
+        region_kwargs = _parse_region_value(
+            region.pop(kind),
+            data_catalog=self.data_catalog,
+        )
+        region_kwargs.update(region)
+
         xy = None
         if kind in ["basin", "subbasin", "outlet"]:
             if basin_index_fn is not None:
-                bas_index = self.data_catalog[basin_index_fn]
+                bas_index = self.data_catalog.get_source(basin_index_fn)
             else:
                 bas_index = None
-            geom, xy = hydromt.workflows.get_basin_geometry(
+            geom, xy = get_basin_geometry(
                 ds=ds_org,
                 kind=kind,
                 basin_index=bas_index,
-                logger=self.logger,
                 **region,
             )
         elif "bbox" in region:
@@ -241,7 +278,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         # Set the basins geometry
         ds_org = ds_org.raster.clip_geom(geom, align=res, buffer=10)
         ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
-        self.logger.debug("Adding basins vector to geoms.")
+        logger.debug("Adding basins vector to geoms.")
 
         # Set name based on scale_factor
         if scale_ratio != 1:
@@ -253,7 +290,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             res=res,
             xy=xy,
             upscale_method=upscale_method,
-            logger=self.logger,
+            logger=logger,
         )
         # Convert flow direction from d8 to ldd format
         flwdir_data = ds_base["flwdir"].values.astype(np.uint8)  # force dtype
@@ -279,19 +316,20 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         # setup topography maps
         ds_topo = workflows.topography(
-            ds=ds_org, ds_like=self.grid, method="average", logger=self.logger
+            ds=ds_org, ds_like=self.grid, method="average", logger=logger
         )
         ds_topo["lndslp"] = np.maximum(ds_topo["lndslp"], 0.0)
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_topo.data_vars}
         self.set_grid(ds_topo.rename(rmdict))
         # set basin geometry
-        self.logger.debug("Adding region vector to geoms.")
+        logger.debug("Adding region vector to geoms.")
         self.set_geoms(self.region, name="region")
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
             self.set_config("model.sizeinmetres", True)
 
+    @hydromt_step
     def setup_rivers(
         self,
         hydrography_fn: str | xr.Dataset,
@@ -407,7 +445,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         pyflwdir.FlwdirRaster.river_depth
         setup_floodplains
         """
-        self.logger.info("Preparing river maps.")
+        logger.info("Preparing river maps.")
 
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
         if river_upa > float(self.grid[self._MAPS["uparea"]].max()):
@@ -444,7 +482,7 @@ Select from {routing_options}.'
             slope_len=slope_len,
             channel_dir="up",
             min_rivlen_ratio=min_rivlen_ratio,
-            logger=self.logger,
+            logger=logger,
         )[0]
 
         ds_riv["rivmsk"] = ds_riv["rivmsk"].assign_attrs(
@@ -471,7 +509,7 @@ Select from {routing_options}.'
             da=strord,
             ds_like=self.grid,
             df=df,
-            logger=self.logger,
+            logger=logger,
         )
         self.set_grid(ds_nriver)
 
@@ -491,7 +529,7 @@ Select from {routing_options}.'
                 smooth_len=smooth_len,
                 min_rivdph=min_rivdph,
                 min_rivwth=min_rivwth,
-                logger=self.logger,
+                logger=logger,
                 **kwargs,
             )
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_riv1.data_vars}
@@ -499,7 +537,7 @@ Select from {routing_options}.'
             # update config
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
 
-        self.logger.debug("Adding rivers vector to geoms.")
+        logger.debug("Adding rivers vector to geoms.")
         self.geoms.pop("rivers", None)  # remove old rivers if in geoms
         self.rivers  # add new rivers to geoms
 
@@ -517,14 +555,12 @@ Select from {routing_options}.'
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                logger=self.logger,
+                logger=logger,
             ).rename(name)
             self.set_grid(ds_out)
 
             # update toml model.river_routing
-            self.logger.debug(
-                f'Update wflow config model.river_routing="{river_routing}"'
-            )
+            logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
             self.set_config("model.river_routing", river_routing)
 
             self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
@@ -532,6 +568,7 @@ Select from {routing_options}.'
         else:
             self.set_config("model.river_routing", river_routing)
 
+    @hydromt_step
     def setup_floodplains(
         self,
         hydrography_fn: str | xr.Dataset,
@@ -626,10 +663,10 @@ local inertial river routing"
             land_routing = "kinematic-wave"
 
             if not hasattr(pyflwdir.FlwdirRaster, "ucat_volume"):
-                self.logger.warning("This method requires pyflwdir >= 0.5.6")
+                logger.warning("This method requires pyflwdir >= 0.5.6")
                 return
 
-            self.logger.info("Preparing 1D river floodplain_volume map.")
+            logger.info("Preparing 1D river floodplain_volume map.")
 
             # read data
             ds_hydro = self.data_catalog.get_rasterdataset(
@@ -652,7 +689,7 @@ be inferred from the grid attributes"
                     f"Value specified for river_upa ({river_upa}) is different from \
 the value found in the grid ({new_river_upa})"
                 )
-            self.logger.debug(f"Using river_upa value value of: {new_river_upa}")
+            logger.debug(f"Using river_upa value value of: {new_river_upa}")
 
             # get river floodplain volume
             inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid}
@@ -661,13 +698,13 @@ the value found in the grid ({new_river_upa})"
                 ds_model=self.grid.rename(inv_rename),
                 river_upa=new_river_upa,
                 flood_depths=flood_depths,
-                logger=self.logger,
+                logger=logger,
             )
 
             # check if the layer already exists, since overwriting with different
             # flood_depth values is not working properly if this is the case
             if "floodplain_volume" in self.grid:
-                self.logger.warning(
+                logger.warning(
                     "Layer `floodplain_volume` already in grid, removing layer \
 and `flood_depth` dimension to ensure correctly \
 setting new flood_depth dimensions"
@@ -688,9 +725,9 @@ setting new flood_depth dimensions"
             )
             name = f"hydrodem{postfix}"
 
-            self.logger.info(f"Preparing {name} map for land routing.")
+            logger.info(f"Preparing {name} map for land routing.")
             name = f"hydrodem{postfix}_D{connectivity}"
-            self.logger.info(f"Preparing {name} map for land routing.")
+            logger.info(f"Preparing {name} map for land routing.")
             ds_out = flw.dem_adjust(
                 da_flwdir=self.grid[self._MAPS["flwdir"]],
                 da_elevtn=self.grid[elevtn_map],
@@ -698,15 +735,15 @@ setting new flood_depth dimensions"
                 flwdir=self.flwdir,
                 connectivity=connectivity,
                 river_d8=True,
-                logger=self.logger,
+                logger=logger,
             ).rename(name)
 
             self.set_grid(ds_out)
 
         # Update config
-        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
+        logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
         self.set_config("model.floodplain_1d", floodplain_1d)
-        self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
+        logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
 
         if floodplain_type == "1d":
@@ -745,6 +782,7 @@ setting new flood_depth dimensions"
             if self.get_config("output.lateral.land.q") is not None:
                 self.config["output"]["lateral"]["land"].pop("q", None)
 
+    @hydromt_step
     def setup_riverwidth(
         self,
         predictor: str = "discharge",
@@ -802,7 +840,7 @@ setting new flood_depth dimensions"
             Source of long-term climate grid if the predictor is set to 'discharge'.
             By default "koppen_geiger".
         """
-        self.logger.warning(
+        logger.warning(
             'The "setup_riverwidth" method has been deprecated \
 and will soon be removed. '
             'You can now use the "setup_river" method for all river parameters.'
@@ -840,13 +878,14 @@ to run setup_river method first.'
             predictor=predictor,
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
-            logger=self.logger,
+            logger=logger,
             fit=fit,
             **kwargs,
         )
 
         self.set_grid(da_rivwth, name=self._MAPS["rivwth"])
 
+    @hydromt_step
     def setup_lulcmaps(
         self,
         lulc_fn: str | xr.DataArray,
@@ -920,7 +959,7 @@ to run setup_river method first.'
             By default ["landuse","Kext","N","PathFrac","RootingDepth","Sl","Swood",
             "WaterFrac"]
         """
-        self.logger.info("Preparing LULC parameter maps.")
+        logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
             lulc_mapping_fn = f"{lulc_fn}_mapping_default"
 
@@ -938,7 +977,7 @@ to run setup_river method first.'
             ds_like=self.grid,
             df=df_map,
             params=lulc_vars,
-            logger=self.logger,
+            logger=logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
@@ -948,6 +987,7 @@ to run setup_river method first.'
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
                 self.set_config(WFLOW_NAMES[name], name)
 
+    @hydromt_step
     def setup_lulcmaps_from_vector(
         self,
         lulc_fn: str | gpd.GeoDataFrame,
@@ -1042,7 +1082,7 @@ to run setup_river method first.'
         --------
         workflows.landuse_from_vector
         """
-        self.logger.info("Preparing LULC parameter maps.")
+        logger.info("Preparing LULC parameter maps.")
         # Read mapping table
         if lulc_mapping_fn is None:
             lulc_mapping_fn = f"{lulc_fn}_mapping_default"
@@ -1072,7 +1112,7 @@ to run setup_river method first.'
             all_touched=all_touched,
             buffer=buffer,
             lulc_out=lulc_out,
-            logger=self.logger,
+            logger=logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lulc_maps.data_vars}
         self.set_grid(ds_lulc_maps.rename(rmdict))
@@ -1082,6 +1122,7 @@ to run setup_river method first.'
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
                 self.set_config(WFLOW_NAMES[name], name)
 
+    @hydromt_step
     def setup_laimaps(
         self,
         lai_fn: str | xr.DataArray,
@@ -1148,12 +1189,12 @@ to run setup_river method first.'
             Buffer around the region to read the data, by default 2.
         """
         # retrieve data for region
-        self.logger.info("Preparing LAI maps.")
+        logger.info("Preparing LAI maps.")
         da = self.data_catalog.get_rasterdataset(
             lai_fn, geom=self.region, buffer=buffer
         )
         if lulc_fn is not None:
-            self.logger.info("Preparing LULC-LAI mapping table.")
+            logger.info("Preparing LULC-LAI mapping table.")
             da_lulc = self.data_catalog.get_rasterdataset(
                 lulc_fn, geom=self.region, buffer=buffer
             )
@@ -1163,7 +1204,7 @@ to run setup_river method first.'
                 da_lai=da.copy(),
                 sampling_method=lulc_sampling_method,
                 lulc_zero_classes=lulc_zero_classes,
-                logger=self.logger,
+                logger=logger,
             )
             # Save to csv
             if isinstance(lulc_fn, str) and not isfile(lulc_fn):
@@ -1176,12 +1217,13 @@ to run setup_river method first.'
         da_lai = workflows.lai(
             da=da,
             ds_like=self.grid,
-            logger=self.logger,
+            logger=logger,
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
         self.set_grid(da_lai.rename(rmdict), name="LAI")
 
+    @hydromt_step
     def setup_laimaps_from_lulc_mapping(
         self,
         lulc_fn: str | xr.DataArray,
@@ -1207,9 +1249,7 @@ to run setup_river method first.'
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
         """
-        self.logger.info(
-            "Preparing LAI maps from LULC data using LULC-LAI mapping table."
-        )
+        logger.info("Preparing LAI maps from LULC data using LULC-LAI mapping table.")
 
         # read landuse map to DataArray
         da = self.data_catalog.get_rasterdataset(
@@ -1224,11 +1264,12 @@ to run setup_river method first.'
             da=da,
             ds_like=self.grid,
             df=df_lai_mapping,
-            logger=self.logger,
+            logger=logger,
         )
         # Add to grid
         self.set_grid(da_lai, name="LAI")
 
+    @hydromt_step
     def setup_config_output_timeseries(
         self,
         mapname: str,
@@ -1266,7 +1307,7 @@ to run setup_river method first.'
         """
         # # Add new outputcsv section in the config
         if toml_output == "csv" or toml_output == "netcdf":
-            self.logger.info(f"Adding {param} to {toml_output} section of toml.")
+            logger.info(f"Adding {param} to {toml_output} section of toml.")
             # Add map to the input section of config
             basename = (
                 mapname
@@ -1304,11 +1345,12 @@ to run setup_river method first.'
                 if gauge_toml_dict not in self.config[toml_output][var_name]:
                     self.config[toml_output][var_name].append(gauge_toml_dict)
         else:
-            self.logger.info(
+            logger.info(
                 f"toml_output set to {toml_output}, \
 skipping adding gauge specific outputs to the toml."
             )
 
+    @hydromt_step
     def setup_outlets(
         self,
         river_only=True,
@@ -1349,7 +1391,7 @@ skipping adding gauge specific outputs to the toml."
         # fix in set_geoms / set_geoms method
         self.geoms
 
-        self.logger.info("Gauges locations set based on river outlets.")
+        logger.info("Gauges locations set based on river outlets.")
         idxs_out = self.flwdir.idxs_pit
         # Only keep river outlets for gauges
         if river_only:
@@ -1366,7 +1408,7 @@ skipping adding gauge specific outputs to the toml."
             idxs=idxs_out,
             ids=ids,
             flwdir=self.flwdir,
-            logger=self.logger,
+            logger=logger,
         )
         self.set_grid(da_out, name=self._MAPS["gauges"])
         points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs_out))
@@ -1375,7 +1417,7 @@ skipping adding gauge specific outputs to the toml."
         )
         gdf["fid"] = ids_out.astype(np.int32)
         self.set_geoms(gdf, name="gauges")
-        self.logger.info("Gauges map based on catchment river outlets added.")
+        logger.info("Gauges map based on catchment river outlets added.")
 
         self.setup_config_output_timeseries(
             mapname="wflow_gauges",
@@ -1384,6 +1426,7 @@ skipping adding gauge specific outputs to the toml."
             param=gauge_toml_param,
         )
 
+    @hydromt_step
     def setup_gauges(
         self,
         gauges_fn: str | Path | gpd.GeoDataFrame,
@@ -1562,11 +1605,11 @@ gauge locations [-] (if derive_subcatch)
 
         # Check if there is data found
         if gdf_gauges is None:
-            self.logger.info("Skipping method, as no data has been found")
+            logger.info("Skipping method, as no data has been found")
             return
 
         # Create the gauges map
-        self.logger.info(
+        logger.info(
             f"{gdf_gauges.index.size} {basename} gauge locations found within domain"
         )
 
@@ -1583,7 +1626,7 @@ gauge locations [-] (if derive_subcatch)
         if index_col is not None and index_col in gdf_gauges.columns:
             gdf_gauges = gdf_gauges.set_index(index_col)
         if np.any(gdf_gauges.index == 0):
-            self.logger.warning("Gauge ID 0 is not allowed, setting to 1")
+            logger.warning("Gauge ID 0 is not allowed, setting to 1")
             gdf_gauges.index = gdf_gauges.index.values + 1
         ids = gdf_gauges.index.values
 
@@ -1603,7 +1646,7 @@ gauge locations [-] (if derive_subcatch)
                 rel_error=rel_error,
                 abs_error=abs_error,
                 fillna=fillna,
-                logger=self.logger,
+                logger=logger,
             )
         else:
             # Derive gauge map
@@ -1614,7 +1657,7 @@ gauge locations [-] (if derive_subcatch)
                 stream=mask,
                 flwdir=self.flwdir,
                 max_dist=max_dist,
-                logger=self.logger,
+                logger=logger,
             )
             # Filter gauges that could not be snapped to rivers
             if snap_to_river:
@@ -1626,7 +1669,7 @@ gauge locations [-] (if derive_subcatch)
 
         # Check if there are gauges left
         if ids.size == 0:
-            self.logger.warning(
+            logger.warning(
                 "No gauges found within domain after snapping, skipping method."
             )
             return
@@ -1670,6 +1713,7 @@ gauge locations [-] (if derive_subcatch)
             gdf_basins = self.grid[mapname].raster.vectorize()
             self.set_geoms(gdf_basins, name=mapname.replace("wflow_", ""))
 
+    @hydromt_step
     def setup_areamap(
         self,
         area_fn: str | gpd.GeoDataFrame,
@@ -1692,12 +1736,12 @@ gauge locations [-] (if derive_subcatch)
             Nodata value to use when rasterizing. Should match the dtype of `col2raster`
             . By default -1.
         """
-        self.logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
+        logger.info(f"Preparing '{col2raster}' map from '{area_fn}'.")
         gdf_org = self.data_catalog.get_geodataframe(
             area_fn, geom=self.basins, dst_crs=self.crs
         )
         if gdf_org.empty:
-            self.logger.warning(
+            logger.warning(
                 f"No shapes of {area_fn} found within region, skipping areamap."
             )
             return
@@ -1710,6 +1754,7 @@ gauge locations [-] (if derive_subcatch)
             )
         self.set_grid(da_area.rename(col2raster))
 
+    @hydromt_step
     def setup_lakes(
         self,
         lakes_fn: str | Path | gpd.GeoDataFrame,
@@ -1788,7 +1833,7 @@ gauge locations [-] (if derive_subcatch)
             lakes_fn, "lake", min_area, **kwargs
         )
         if ds_lakes is None:
-            self.logger.info("Skipping method, as no data has been found")
+            logger.info("Skipping method, as no data has been found")
             return
         rmdict = {k: v for k, v in self._MAPS.items() if k in ds_lakes.data_vars}
         ds_lakes = ds_lakes.rename(rmdict)
@@ -1803,7 +1848,7 @@ gauge locations [-] (if derive_subcatch)
                 try:
                     fns_ids.append(int(fn.split("_")[-1].split(".")[0]))
                 except Exception:
-                    self.logger.warning(
+                    logger.warning(
                         f"Could not parse integer lake index from \
 rating curve fn {fn}. Skipping."
                     )
@@ -1818,19 +1863,19 @@ rating curve fn {fn}. Skipping."
                     rating_fn = rating_curve_fns[i]
                     # Read data
                     if isfile(rating_fn) or rating_fn in self.data_catalog:
-                        self.logger.info(
+                        logger.info(
                             f"Preparing lake rating curve data from {rating_fn}"
                         )
                         df_rate = self.data_catalog.get_dataframe(rating_fn)
                         # Add to dict
                         rating_dict[id] = df_rate
                 else:
-                    self.logger.warning(
+                    logger.warning(
                         f"Rating curve file not found for lake with id {id}. \
 Using default storage/outflow function parameters."
                     )
         else:
-            self.logger.info(
+            logger.info(
                 "No rating curve data provided. \
 Using default storage/outflow function parameters."
             )
@@ -1869,6 +1914,7 @@ Using default storage/outflow function parameters."
         for option in lakes_toml:
             self.set_config(option, lakes_toml[option])
 
+    @hydromt_step
     def setup_reservoirs(
         self,
         reservoirs_fn: str | gpd.GeoDataFrame,
@@ -1981,7 +2027,7 @@ Using default storage/outflow function parameters."
 
         # Skip method if no data is returned
         if ds_res is None:
-            self.logger.info("Skipping method, as no data has been found")
+            logger.info("Skipping method, as no data has been found")
             return
 
         # Continue method if data has been found
@@ -2010,7 +2056,7 @@ Using default storage/outflow function parameters."
                 reservoir_accuracy,
                 reservoir_timeseries,
             ) = workflows.reservoirattrs(
-                gdf=gdf_org, timeseries_fn=timeseries_fn, logger=self.logger
+                gdf=gdf_org, timeseries_fn=timeseries_fn, logger=logger
             )
             intbl_reservoirs = intbl_reservoirs.rename(columns=tbls)
 
@@ -2054,7 +2100,7 @@ Using default storage/outflow function parameters."
         See specific methods for more info about the arguments.
         """
         # retrieve data for basin
-        self.logger.info(f"Preparing {wb_type} maps.")
+        logger.info(f"Preparing {wb_type} maps.")
         if "predicate" not in kwargs:
             kwargs.update(predicate="contains")
         gdf_org = self.data_catalog.get_geodataframe(
@@ -2073,7 +2119,7 @@ Using default storage/outflow function parameters."
             min_area_m2 = min_area * 1e6
             gdf_org = gdf_org[gdf_org.Area_avg >= min_area_m2]
         else:
-            self.logger.warning(
+            logger.warning(
                 f"{wb_type}'s database has no area attribute. "
                 f"All {wb_type}s will be considered."
             )
@@ -2081,13 +2127,11 @@ Using default storage/outflow function parameters."
         nb_wb = gdf_org.geometry.size
         ds_waterbody = None
         if nb_wb > 0:
-            self.logger.info(
-                f"{nb_wb} {wb_type}(s) of sufficient size found within region."
-            )
+            logger.info(f"{nb_wb} {wb_type}(s) of sufficient size found within region.")
             # add waterbody maps
             uparea_name = self._MAPS["uparea"]
             if uparea_name not in self.grid.data_vars:
-                self.logger.warning(
+                logger.warning(
                     f"Upstream area map for {wb_type} outlet setup not found. "
                     "Database coordinates used instead"
                 )
@@ -2097,14 +2141,14 @@ Using default storage/outflow function parameters."
                 ds_like=self.grid,
                 wb_type=wb_type,
                 uparea_name=uparea_name,
-                logger=self.logger,
+                logger=logger,
             )
             # update/replace xout and yout in gdf_org from gdf_wateroutlet:
             gdf_org["xout"] = gdf_wateroutlet["xout"]
             gdf_org["yout"] = gdf_wateroutlet["yout"]
 
         else:
-            self.logger.warning(
+            logger.warning(
                 f"No {wb_type}s of sufficient size found within region! "
                 f"Skipping {wb_type} procedures!"
             )
@@ -2113,6 +2157,7 @@ Using default storage/outflow function parameters."
         # you need grid to know the grid
         return gdf_org, ds_waterbody
 
+    @hydromt_step
     def setup_soilmaps(
         self,
         soil_fn: str = "soilgrids",
@@ -2204,7 +2249,7 @@ a map for each of the wflow_sbm soil layers (n in total)
             By default [100, 300, 800] for layers at depths 100, 400, 1200 and >1200 mm.
             Used only for Brooks Corey coefficients.
         """
-        self.logger.info("Preparing soil parameter maps.")
+        logger.info("Preparing soil parameter maps.")
         # TODO add variables list with required variable names
         dsin = self.data_catalog.get_rasterdataset(soil_fn, geom=self.region, buffer=2)
         if soil_mapping_fn is not None:
@@ -2219,13 +2264,14 @@ a map for each of the wflow_sbm soil layers (n in total)
             soil_fn=soil_fn,
             soil_mapping=soil_mapping,
             wflow_layers=wflow_thicknesslayers,
-            logger=self.logger,
+            logger=logger,
         ).reset_coords(drop=True)
         self.set_grid(dsout)
 
         # Update the toml file
         self.set_config("model.thicknesslayers", wflow_thicknesslayers)
 
+    @hydromt_step
     def setup_ksathorfrac(
         self,
         ksat_fn: str | xr.DataArray,
@@ -2248,7 +2294,7 @@ or created by a third party/ individual.
         resampling_method : str, optional
             The resampling method when up- or downscaled, by default "average"
         """
-        self.logger.info("Preparing KsatHorFrac parameter map.")
+        logger.info("Preparing KsatHorFrac parameter map.")
 
         dain = self.data_catalog.get_rasterdataset(
             ksat_fn,
@@ -2286,6 +2332,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.set_grid(daout, name=lname)
         self.set_config("input.lateral.subsurface.ksathorfrac", lname)
 
+    @hydromt_step
     def setup_ksatver_vegetation(
         self,
         soil_fn: str = "soilgrids",
@@ -2317,7 +2364,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         beta : float, optional
             Shape parameter. The default is 5 when using LAI.
         """
-        self.logger.info("Modifying ksatver based on vegetation characteristics")
+        logger.info("Modifying ksatver based on vegetation characteristics")
 
         # open soil dataset to get sand percentage
         sndppt = self.data_catalog.get_rasterdataset(
@@ -2339,6 +2386,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # update config file
         self.set_config("input.vertical.kv_0", map_name)
 
+    @hydromt_step
     def setup_lulcmaps_with_paddy(
         self,
         lulc_fn: str | Path | xr.DataArray,
@@ -2484,7 +2532,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
         """
-        self.logger.info("Preparing LULC parameter maps including paddies.")
+        logger.info("Preparing LULC parameter maps including paddies.")
         # Check if soil data is available
         if "KsatVer" not in self.grid.data_vars:
             raise ValueError(
@@ -2541,7 +2589,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             ds_like=self.grid,
             df=df_mapping,
             params=lulc_vars,
-            logger=self.logger,
+            logger=logger,
         )
         rmdict = {k: v for k, v in self._MAPS.items() if k in landuse_maps.data_vars}
         self.set_grid(landuse_maps.rename(rmdict))
@@ -2551,12 +2599,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         wflow_paddy = landuse_maps["landuse"] == output_paddy_class
         if wflow_paddy.any():
             if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
-                self.logger.info(
+                logger.info(
                     "same thickness already present, skipping updating `c` parameter"
                 )
                 update_c = False
             else:
-                self.logger.info(
+                logger.info(
                     "Different thicknesslayers requested, updating `c` parameter"
                 )
                 update_c = True
@@ -2573,7 +2621,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 update_c=update_c,
                 wflow_layers=wflow_thicknesslayers,
                 target_conductivity=target_conductivity,
-                logger=self.logger,
+                logger=logger,
             )
             self.set_grid(soil_maps["kvfrac"], name="kvfrac")
             self.set_config("input.vertical.kvfrac", "kvfrac")
@@ -2586,13 +2634,14 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             # Update the states
             self.set_config("state.vertical.paddy.h", "h_paddy")
         else:
-            self.logger.info("No paddy fields found, skipping updating soil parameters")
+            logger.info("No paddy fields found, skipping updating soil parameters")
 
         # Add entries to the config
         for name in landuse_maps.data_vars:
             if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
                 self.set_config(WFLOW_NAMES[name], name)
 
+    @hydromt_step
     def setup_glaciers(self, glaciers_fn="rgi", min_area=1):
         """
         Generate maps of glacier areas, area fraction and volume fraction.
@@ -2636,7 +2685,7 @@ added to glacierstore [-]
             "input.vertical.g_sifrac": "G_SIfrac",
         }
         # retrieve data for basin
-        self.logger.info("Preparing glacier maps.")
+        logger.info("Preparing glacier maps.")
         gdf_org = self.data_catalog.get_geodataframe(
             glaciers_fn,
             geom=self.basins_highres,
@@ -2645,7 +2694,7 @@ added to glacierstore [-]
         )
         # Check if there are glaciers found
         if gdf_org is None:
-            self.logger.info("Skipping method, as no data has been found")
+            logger.info("Skipping method, as no data has been found")
             return
 
         # skip small size glacier
@@ -2655,16 +2704,14 @@ added to glacierstore [-]
         nb_glac = gdf_org.geometry.size
         ds_glac = None
         if nb_glac > 0:
-            self.logger.info(
-                f"{nb_glac} glaciers of sufficient size found within region."
-            )
+            logger.info(f"{nb_glac} glaciers of sufficient size found within region.")
             # add glacier maps
             ds_glac = workflows.glaciermaps(
                 gdf=gdf_org,
                 ds_like=self.grid,
                 id_column="simple_id",
                 elevtn_name=self._MAPS["elevtn"],
-                logger=self.logger,
+                logger=logger,
             )
 
             rmdict = {k: v for k, v in self._MAPS.items() if k in ds_glac.data_vars}
@@ -2675,11 +2722,12 @@ added to glacierstore [-]
             for option in glac_toml:
                 self.set_config(option, glac_toml[option])
         else:
-            self.logger.warning(
+            logger.warning(
                 "No glaciers of sufficient size found within region!"
                 "Skipping glacier procedures!"
             )
 
+    @hydromt_step
     def setup_constant_pars(
         self, dtype: str = "float32", nodata: int | float = -999, **kwargs
     ):
@@ -2709,6 +2757,7 @@ added to glacierstore [-]
             da_param = da_param.rename(key)
             self.set_grid(da_param)
 
+    @hydromt_step
     def setup_grid_from_raster(
         self,
         raster_fn: str | xr.Dataset,
@@ -2753,7 +2802,7 @@ added to glacierstore [-]
         list
             Names of added model staticmap layers.
         """
-        self.logger.info(f"Preparing grid data from raster source {raster_fn}")
+        logger.info(f"Preparing grid data from raster source {raster_fn}")
         # Read raster data and select variables
         ds = self.data_catalog.get_rasterdataset(
             raster_fn,
@@ -2772,9 +2821,7 @@ added to glacierstore [-]
 
         # Update config
         if wflow_variables is not None:
-            self.logger.info(
-                f"Updating the config for wflow_variables: {wflow_variables}"
-            )
+            logger.info(f"Updating the config for wflow_variables: {wflow_variables}")
             if variables is None:
                 if len(ds_out.data_vars) == 1:
                     variables = list(ds_out.data_vars.keys())
@@ -2794,6 +2841,7 @@ one variable and variables list is not provided."
                 for i in range(len(variables)):
                     self.set_config(wflow_variables[i], variables[i])
 
+    @hydromt_step
     def setup_precip_forcing(
         self,
         precip_fn: str | xr.DataArray,
@@ -2860,7 +2908,7 @@ one variable and variables list is not provided."
             clim=clim,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
-            logger=self.logger,
+            logger=logger,
             **kwargs,
         )
 
@@ -2870,6 +2918,7 @@ one variable and variables list is not provided."
             precip_out.attrs.update({"precip_clim_fn": precip_clim_fn})
         self.set_forcing(precip_out.where(mask), name="precip")
 
+    @hydromt_step
     def setup_precip_from_point_timeseries(
         self,
         precip_fn: str | pd.DataFrame | xr.Dataset,
@@ -2981,9 +3030,7 @@ one variable and variables list is not provided."
                         Data source ({precip_fn}) should contain
                         a single timeseries, not {df_precip.shape[1]}."""
                     )
-                self.logger.info(
-                    "Uniform interpolation is applied using method 'nearest'."
-                )
+                logger.info("Uniform interpolation is applied using method 'nearest'.")
             elif precip_stations_fn is None:
                 raise ValueError(
                     "Using a DataFrame as precipitation source requires that station "
@@ -3023,7 +3070,7 @@ one variable and variables list is not provided."
             interp_type=interp_type,
             ds_like=self.grid,
             mask_name=self._MAPS["basins"],
-            logger=self.logger,
+            logger=logger,
             **kwargs,
         )
 
@@ -3034,7 +3081,7 @@ one variable and variables list is not provided."
             clim=None,
             freq=freq,
             resample_kwargs=dict(label="right", closed="right"),
-            logger=self.logger,
+            logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
@@ -3046,6 +3093,7 @@ one variable and variables list is not provided."
         gdf_stations = da_precip.vector.to_gdf().to_crs(self.crs)
         self.set_geoms(gdf_stations, name="stations_precipitation")
 
+    @hydromt_step
     def setup_temp_pet_forcing(
         self,
         temp_pet_fn: str | xr.Dataset,
@@ -3203,7 +3251,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             dem_model=self.grid[self._MAPS["elevtn"]],
             dem_forcing=dem_forcing,
             lapse_correction=temp_correction,
-            logger=self.logger,
+            logger=logger,
             freq=None,  # resample time after pet workflow
             **kwargs,
         )
@@ -3216,7 +3264,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 dem_model=self.grid[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
-                logger=self.logger,
+                logger=logger,
                 freq=None,  # resample time after pet workflow
                 **kwargs,
             )
@@ -3227,7 +3275,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 dem_model=self.grid[self._MAPS["elevtn"]],
                 dem_forcing=dem_forcing,
                 lapse_correction=temp_correction,
-                logger=self.logger,
+                logger=logger,
                 freq=None,  # resample time after pet workflow
                 **kwargs,
             )
@@ -3247,7 +3295,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
                 reproj_method=reproj_method,
                 freq=freq,
                 resample_kwargs=dict(label="right", closed="right"),
-                logger=self.logger,
+                logger=logger,
                 **kwargs,
             )
             # Update meta attributes with setup opt
@@ -3270,7 +3318,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             label="right",
             closed="right",
             conserve_mass=False,
-            logger=self.logger,
+            logger=logger,
         )
         # Update meta attributes with setup opt (used for default naming later)
         opt_attr = {
@@ -3286,6 +3334,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             )
         self.set_forcing(temp_out.where(mask), name="temp")
 
+    @hydromt_step
     def setup_pet_forcing(
         self,
         pet_fn: str | xr.DataArray,
@@ -3311,7 +3360,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             large/small catchments. By default None.
 
         """
-        self.logger.info("Preparing potential evapotranspiration forcing maps.")
+        logger.info("Preparing potential evapotranspiration forcing maps.")
 
         starttime = self.get_config("starttime")
         endtime = self.get_config("endtime")
@@ -3332,13 +3381,14 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
             freq=freq,
             mask_name=self._MAPS["basins"],
             chunksize=chunksize,
-            logger=self.logger,
+            logger=logger,
         )
 
         # Update meta attributes (used for default output filename later)
         pet_out.attrs.update({"pet_fn": pet_fn})
         self.set_forcing(pet_out, name="pet")
 
+    @hydromt_step
     def setup_rootzoneclim(
         self,
         run_fn: str | Path | xr.Dataset,
@@ -3475,7 +3525,7 @@ different return periods RP. Only if rootzone_storage is set to True!
             which requires to have RP 20 in the list provided for \
 the return_period argument.
         """
-        self.logger.info("Preparing climate based root zone storage parameter maps.")
+        logger.info("Preparing climate based root zone storage parameter maps.")
         # Open the data sets
         ds_obs = self.data_catalog.get_rasterdataset(
             forcing_obs_fn,
@@ -3513,20 +3563,20 @@ the return_period argument.
         if dsrun.time[-1] > ds_obs.time[-1]:
             dsrun = dsrun.sel(time=slice(None, ds_obs.time[-1]))
         if len(dsrun.time) == 0:
-            self.logger.error(
+            logger.error(
                 "No overlapping period between the meteo and observed streamflow data"
             )
 
         # check if setup_soilmaps and setup_laimaps were run if LAI =True and
         # if rooting_depth = True"
         if (LAI == True) and ("LAI" not in self.grid):
-            self.logger.error(
+            logger.error(
                 "LAI variable not found in grid. \
 Set LAI to False or run setup_laimaps first"
             )
 
         if ("thetaR" not in self.grid) or ("thetaS" not in self.grid):
-            self.logger.error(
+            logger.error(
                 "thetaS or thetaR variables not found in grid. \
 Run setup_soilmaps first"
             )
@@ -3548,7 +3598,7 @@ Run setup_soilmaps first"
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
             missing_days_threshold=missing_days_threshold,
-            logger=self.logger,
+            logger=logger,
         )
 
         # set nodata value outside basin
@@ -3561,6 +3611,7 @@ Run setup_soilmaps first"
         # update config
         self.set_config("input.vertical.rootingdepth", update_toml_rootingdepth)
 
+    @hydromt_step
     def setup_1dmodel_connection(
         self,
         river1d_fn: str | Path | gpd.GeoDataFrame,
@@ -3666,7 +3717,7 @@ Run setup_soilmaps first"
             area_max=area_max,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
-            logger=self.logger,
+            logger=logger,
             **kwargs,
         )
 
@@ -3687,7 +3738,7 @@ Run setup_soilmaps first"
                 == self.grid[self._MAPS["rivmsk"]].raster.nodata
             ).any():
                 river_upa = self.grid[self._MAPS["rivmsk"]].attrs.get("river_upa", "")
-                self.logger.warning(
+                logger.warning(
                     "Not all tributary gauges are on the river network and river "
                     "discharge cannot be saved. You should use a higher threshold "
                     f"for the subbasin area than {area_max} to match better the "
@@ -3731,6 +3782,7 @@ Run setup_soilmaps first"
                 reducer=["sum"],
             )
 
+    @hydromt_step
     def setup_allocation_areas(
         self,
         waterareas_fn: str | gpd.GeoDataFrame,
@@ -3766,7 +3818,7 @@ Run setup_soilmaps first"
         minimum_area : float
             Minimum area of the subbasins to keep in km2. Default is 50 km2.
         """
-        self.logger.info("Preparing water demand allocation map.")
+        logger.info("Preparing water demand allocation map.")
 
         # Read the data
         waterareas = self.data_catalog.get_geodataframe(
@@ -3790,6 +3842,7 @@ Run setup_soilmaps first"
         # Add alloc to geoms
         self.set_geoms(gdf_alloc, name="allocation_areas")
 
+    @hydromt_step
     def setup_allocation_surfacewaterfrac(
         self,
         gwfrac_fn: str | xr.DataArray,
@@ -3843,7 +3896,7 @@ Run setup_soilmaps first"
             for areas with groundwater bodies can increase. If False, gwfrac will be
             used as is. By default True.
         """
-        self.logger.info("Preparing surface water fraction map.")
+        logger.info("Preparing surface water fraction map.")
         # Load the data
         gwfrac_raw = self.data_catalog.get_rasterdataset(
             gwfrac_fn,
@@ -3869,9 +3922,9 @@ Run setup_soilmaps first"
 
         # check whether to use the models own allocation areas
         if waterareas_fn is None:
-            self.logger.info("Using wflow model allocation areas.")
+            logger.info("Using wflow model allocation areas.")
             if "allocation_areas" not in self.grid:
-                self.logger.error(
+                logger.error(
                     "No allocation areas found. Run setup_allocation_areas first "
                     "or provide a waterareas_fn."
                 )
@@ -3904,6 +3957,7 @@ Run setup_soilmaps first"
         # Set the dataarray to the wflow grid
         self.set_grid(w_frac, name="frac_sw_used")
 
+    @hydromt_step
     def setup_domestic_demand(
         self,
         domestic_fn: str | xr.Dataset,
@@ -3947,7 +4001,7 @@ Run setup_soilmaps first"
             The original resolution of the domestic dataset, by default None to skip
             upscaling before downsampling with population.
         """
-        self.logger.info("Preparing domestic demand maps.")
+        logger.info("Preparing domestic demand maps.")
         # Set flag for cyclic data
         _cyclic = False
 
@@ -3974,7 +4028,7 @@ Run setup_soilmaps first"
                 _cyclic = True
                 domestic_raw["time"] = domestic_raw.time.astype("int32")
             else:
-                self.logger.error(
+                logger.error(
                     "The provided domestic demand data is cyclic but the time "
                     "dimension does not match the expected length of 12, 365 or 366."
                 )
@@ -4016,6 +4070,7 @@ Run setup_soilmaps first"
                     f"vertical.domestic.demand_{demand_type}"
                 )
 
+    @hydromt_step
     def setup_domestic_demand_from_population(
         self,
         population_fn: str | xr.Dataset,
@@ -4047,7 +4102,7 @@ Run setup_soilmaps first"
             list with 12 values for monthly data or 365/366 values for daily data. If
             not provided, the gross demand will be used as net demand.
         """
-        self.logger.info("Preparing domestic demand maps based on population.")
+        logger.info("Preparing domestic demand maps based on population.")
 
         # Set flag for cyclic data
         _cyclic = False
@@ -4063,7 +4118,7 @@ Run setup_soilmaps first"
             )
         if domestic_net_per_capita is None:
             domestic_net_per_capita = domestic_gross_per_capita
-            self.logger.info("Net domestic demand not provided, using gross demand.")
+            logger.info("Net domestic demand not provided, using gross demand.")
 
         # Get population data
         popu = self.data_catalog.get_rasterdataset(
@@ -4101,6 +4156,7 @@ Run setup_soilmaps first"
                     f"vertical.domestic.demand_{demand_type}"
                 )
 
+    @hydromt_step
     def setup_other_demand(
         self,
         demand_fn: str | Dict[str, Dict[str, Any]] | xr.Dataset,
@@ -4144,7 +4200,7 @@ Run setup_soilmaps first"
         resampling_method : str, optional
             Resampling method for the demand maps, by default "average"
         """
-        self.logger.info(f"Preparing water demand maps for {variables}.")
+        logger.info(f"Preparing water demand maps for {variables}.")
         # Set flag for cyclic data
         _cyclic = False
 
@@ -4161,7 +4217,7 @@ Run setup_soilmaps first"
                 _cyclic = True
                 demand_raw["time"] = demand_raw.time.astype("int32")
             else:
-                self.logger.error(
+                logger.error(
                     "The provided demand data is cyclic but the time dimension does "
                     "not match the expected length of 12, 365 or 366."
                 )
@@ -4194,6 +4250,7 @@ Run setup_soilmaps first"
                     f"vertical.{sname}.demand_{suffix}",
                 )
 
+    @hydromt_step
     def setup_irrigation(
         self,
         irrigated_area_fn: str | Path | xr.DataArray,
@@ -4265,7 +4322,7 @@ Run setup_soilmaps first"
         growing season. Journal of Geophysical Research: Biogeosciences, 124, 3569–3587.
         https://doi.org/10.1029/2018JG004881
         """
-        self.logger.info("Preparing irrigation maps.")
+        logger.info("Preparing irrigation maps.")
 
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_rasterdataset(
@@ -4281,7 +4338,7 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
-            logger=self.logger,
+            logger=logger,
         )
 
         # Check if paddy and non paddy are present
@@ -4333,6 +4390,7 @@ Run setup_soilmaps first"
         else:
             self.set_config("model.water_demand.nonpaddy", False)
 
+    @hydromt_step
     def setup_irrigation_from_vector(
         self,
         irrigated_area_fn: str | Path | gpd.GeoDataFrame,
@@ -4400,7 +4458,7 @@ Run setup_soilmaps first"
         growing season. Journal of Geophysical Research: Biogeosciences, 124, 3569–3587.
         https://doi.org/10.1029/2018JG004881
         """
-        self.logger.info("Preparing irrigation maps.")
+        logger.info("Preparing irrigation maps.")
 
         # Extract irrigated area dataset
         irrigated_area = self.data_catalog.get_geodataframe(
@@ -4413,7 +4471,7 @@ Run setup_soilmaps first"
 
         # Check if the geodataframe is empty
         if irrigated_area is None or irrigated_area.empty:
-            self.logger.info("No irrigated areas found in the provided geodataframe.")
+            logger.info("No irrigated areas found in the provided geodataframe.")
             return
 
         # Get irrigation areas for paddy, non paddy and irrigation trigger
@@ -4424,7 +4482,7 @@ Run setup_soilmaps first"
             paddy_class=paddy_class,
             area_threshold=area_threshold,
             lai_threshold=lai_threshold,
-            logger=self.logger,
+            logger=logger,
         )
 
         # Check if paddy and non paddy are present
@@ -4476,6 +4534,7 @@ Run setup_soilmaps first"
         else:
             self.set_config("model.water_demand.nonpaddy", False)
 
+    @hydromt_step
     def setup_cold_states(
         self,
         timestamp: str = None,
@@ -4543,72 +4602,40 @@ Run setup_soilmaps first"
         for option in states_config:
             self.set_config(option, states_config[option])
 
+    # Properties
+    # @property
+    # def config(self) -> ConfigComponent:
+    #     """Return the configurations component."""
+    #     return self.components["config"]
+
+    # @property
+    # def grid(self) -> GridComponent:
+    #     """Return the configurations component."""
+    #     return self.components["grid"]
+    # ...
+
     # I/O
+    @hydromt_step
     def read(
         self,
     ):
         """Read the complete model schematization and configuration from file."""
-        self.read_config()
-        self.read_grid()
-        self.read_geoms()
-        self.read_forcing()
-        self.read_intbl()
-        self.read_tables()
-        self.read_states()
-        self.logger.info("Model read")
+        super().read(self)
+        logger.info("Model read")
 
+    @hydromt_step
     def write(
         self,
-        config_fn: str | None = None,
-        grid_fn: Path | str = "staticmaps.nc",
-        geoms_fn: Path | str = "staticgeoms",
-        forcing_fn: Path | str | None = None,
-        states_fn: Path | str | None = None,
     ):
         """
         Write the complete model schematization and configuration to file.
 
-        From this function, the output filenames/folder of the different components can
-        be set. If not set, the default filenames/folder are used.
-        To change more advanced settings, use the specific write methods directly.
-
-        Parameters
-        ----------
-        config_fn : str, optional
-            Name of the config file, relative to model root. By default None.
-        grid_fn : str, optional
-            Name of the grid file, relative to model root/dir_input. By default
-            'staticmaps.nc'.
-        geoms_fn : str, optional
-            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By
-            default 'staticgeoms'.
-        forcing_fn : str, optional
-            Name of the forcing file relative to model root/dir_input. By default None
-            to use the name as defined in the model config file.
-        states_fn : str, optional
-            Name of the states file relative to model root/dir_input. By default None
-            to use the name as defined in the model config file.
+        The current model root is used to write the model.
         """
-        self.logger.info(f"Write model data to {self.root}")
-        # if in r, r+ mode, only write updated components
-        if not self._write:
-            self.logger.warning("Cannot write in read-only mode")
-            return
-        self.write_data_catalog()
-        _ = self.config  # try to read default if not yet set
-        if self._grid:
-            self.write_grid(fn_out=grid_fn)
-        if self._geoms:
-            self.write_geoms(geoms_fn=geoms_fn)
-        if self._forcing:
-            self.write_forcing(fn_out=forcing_fn)
-        if self._tables:
-            self.write_tables()
-        if self._states:
-            self.write_states(fn_out=states_fn)
-        # Write the config last as variables can get set in other write methods
-        self.write_config(config_name=config_fn)
+        logger.info(f"Writing model to {self.root}")
+        Model.write(self)
 
+    @hydromt_step
     def write_config(
         self,
         config_name: Optional[str] = None,
@@ -4636,9 +4663,10 @@ Run setup_soilmaps first"
         # Create the folder if it does not exist
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
-        self.logger.info(f"Writing model config to {fn}")
+        logger.info(f"Writing model config to {fn}")
         self._configwrite(fn)
 
+    @hydromt_step
     def read_grid(self, **kwargs):
         """
         Read wflow static input and add to ``grid``.
@@ -4664,13 +4692,13 @@ Run setup_soilmaps first"
                 input_dir,
                 self.get_config("input.path_static", fallback=fn_default),
             )
-            self.logger.info(f"Input directory found {input_dir}")
+            logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
             # start fresh in read-only mode
             self._grid = xr.Dataset()
         if fn is not None and isfile(fn):
-            self.logger.info(f"Read grid from {fn}")
+            logger.info(f"Read grid from {fn}")
             # FIXME: we need a smarter (lazy) solution for big models which also
             # works when overwriting / appending data in the same source!
             ds = xr.load_dataset(
@@ -4681,6 +4709,7 @@ Run setup_soilmaps first"
                 ds = ds.raster.flipud()
             self.set_grid(ds)
 
+    @hydromt_step
     def write_grid(
         self,
         fn_out: Path | str | None = None,
@@ -4743,7 +4772,7 @@ Run setup_soilmaps first"
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
-        self.logger.info(f"Write grid to {fn}")
+        logger.info(f"Write grid to {fn}")
         mask = ds_out[self._MAPS["basins"]] > 0
         for v in ds_out.data_vars:
             # nodata is required for all but boolean fields
@@ -4751,6 +4780,7 @@ Run setup_soilmaps first"
                 ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
         ds_out.to_netcdf(fn, encoding=encoding)
 
+    @hydromt_step
     def set_grid(
         self,
         data: xr.DataArray | xr.Dataset | np.ndarray,
@@ -4809,7 +4839,7 @@ Run setup_soilmaps first"
                     var for var in self.grid.variables if "layer" in self.grid[var].dims
                 ]
                 # Drop variables
-                self.logger.info(
+                logger.info(
                     "Dropping these variables, as they depend on the layer "
                     f"dimension: {vars_to_drop}"
                 )
@@ -4817,8 +4847,9 @@ Run setup_soilmaps first"
                 self._grid = self.grid.drop_vars(vars_to_drop)
 
         # fall back on default set_grid behaviour
-        GridModel.set_grid(self, data, name)
+        Model.set_grid(self, data, name)
 
+    @hydromt_step
     def read_geoms(
         self,
         geoms_fn: str = "staticgeoms",
@@ -4845,12 +4876,13 @@ Run setup_soilmaps first"
 
         fns = glob.glob(join(dir_mod, "*.geojson"))
         if len(fns) > 1:
-            self.logger.info("Reading model staticgeom files.")
+            logger.info("Reading model staticgeom files.")
         for fn in fns:
             name = basename(fn).split(".")[0]
             if name != "region":
                 self.set_geoms(gpd.read_file(fn), name=name)
 
+    @hydromt_step
     def write_geoms(
         self,
         geoms_fn: str = "staticgeoms",
@@ -4876,7 +4908,7 @@ Run setup_soilmaps first"
         if not self._write:
             raise IOError("Model opened in read-only mode")
         if self.geoms:
-            self.logger.info("Writing model staticgeom to file.")
+            logger.info("Writing model staticgeom to file.")
             # Set projection to 1 decimal if projected crs
             _precision = precision
             if precision is None:
@@ -4907,6 +4939,7 @@ Run setup_soilmaps first"
                 fn_out = join(geoms_dir, f"{name}.geojson")
                 gdf.to_file(fn_out, driver="GeoJSON")
 
+    @hydromt_step
     def read_forcing(self):
         """
         Read forcing.
@@ -4933,18 +4966,18 @@ Run setup_soilmaps first"
                     fallback=fn_default,
                 ),
             )
-            self.logger.info(f"Input directory found {input_dir}")
+            logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
             # start fresh in read-only mode
             self._forcing = dict()
         if fn is not None and isfile(fn):
-            self.logger.info(f"Read forcing from {fn}")
+            logger.info(f"Read forcing from {fn}")
             with xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all") as ds:
                 for v in ds.data_vars:
                     self.set_forcing(ds[v])
         elif "*" in str(fn):
-            self.logger.info(f"Read multiple forcing files using {fn}")
+            logger.info(f"Read multiple forcing files using {fn}")
             fns = list(fn.parent.glob(fn.name))
             if len(fns) == 0:
                 raise IOError(f"No forcing files found using {fn}")
@@ -4952,6 +4985,7 @@ Run setup_soilmaps first"
                 for v in ds.data_vars:
                     self.set_forcing(ds[v])
 
+    @hydromt_step
     def write_forcing(
         self,
         fn_out=None,
@@ -4994,7 +5028,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
         if not self._write:
             raise IOError("Model opened in read-only mode")
         if self.forcing:
-            self.logger.info("Write forcing file")
+            logger.info("Write forcing file")
 
             # Get default forcing name from forcing attrs
             yr0 = pd.to_datetime(self.get_config("starttime")).year
@@ -5009,9 +5043,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     if "*" in basename(fn_name):
                         # get rid of * in case model had multiple forcing files and
                         # write to single nc file.
-                        self.logger.warning(
-                            "Writing multiple forcing files to one file"
-                        )
+                        logger.warning("Writing multiple forcing files to one file")
                         fn_name = join(
                             dirname(fn_name), basename(fn_name).replace("*", "")
                         )
@@ -5025,7 +5057,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
 
                 # get default filename if file exists
                 if fn_out is None or isfile(fn_out):
-                    self.logger.warning(
+                    logger.warning(
                         "Netcdf forcing file from input.path_forcing in the TOML  "
                         "already exists, using default name."
                     )
@@ -5057,7 +5089,7 @@ see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offs
                     else:
                         fn_default_path = join(self.root, fn_default)
                     if isfile(fn_default_path):
-                        self.logger.warning(
+                        logger.warning(
                             "Netcdf default forcing file already exists, \
 skipping write_forcing. "
                             "To overwrite netcdf forcing file: \
@@ -5090,7 +5122,7 @@ change name input.path_forcing "
             ds.raster.set_crs(self.crs)
             # Send warning, and update config with new start and end time
             if correct_times:
-                self.logger.warning(
+                logger.warning(
                     f"Not all dates found in precip_fn changing starttime to \
 {start} and endtime to {end} in the toml."
                 )
@@ -5131,7 +5163,7 @@ change name input.path_forcing "
                 # the dask.compute method
                 forcing_list.append([fn_out, ds])
             else:
-                self.logger.info(f"Writing several forcing with freq {freq_out}")
+                logger.info(f"Writing several forcing with freq {freq_out}")
                 # For several forcing files add common units attributes to time
                 encoding["time"] = {"_FillValue": None, "units": time_units}
                 # Updating path forcing in config
@@ -5145,7 +5177,7 @@ change name input.path_forcing "
                     forcing_list.append([fn_out_gr, ds_gr])
 
             for fn_out_gr, ds_gr in forcing_list:
-                self.logger.info(f"Process forcing; saving to {fn_out_gr}")
+                logger.info(f"Process forcing; saving to {fn_out_gr}")
                 delayed_obj = ds_gr.to_netcdf(
                     fn_out_gr, encoding=encoding, mode="w", compute=False
                 )
@@ -5161,6 +5193,7 @@ change name input.path_forcing "
             # visualize([prof, cprof, rprof],
             # file_path=r'c:\Users\eilan_dk\work\profile2.html')
 
+    @hydromt_step
     def read_states(self):
         """Read states at <root/instate/> and parse to dict of xr.DataArray."""
         fn_default = join("instate", "instates.nc")
@@ -5174,25 +5207,26 @@ change name input.path_forcing "
                 input_dir,
                 self.get_config("state.path_input", fallback=fn_default),
             )
-            self.logger.info(f"Input directory found {input_dir}")
+            logger.info(f"Input directory found {input_dir}")
 
         if not self._write:
             # start fresh in read-only mode
             self._states = dict()
 
         if fn is not None and isfile(fn):
-            self.logger.info(f"Read states from {fn}")
+            logger.info(f"Read states from {fn}")
             with xr.open_dataset(fn, mask_and_scale=False) as ds:
                 for v in ds.data_vars:
                     self.set_states(ds[v])
 
+    @hydromt_step
     def write_states(self, fn_out: str | Path | None = None):
         """Write states at <root/instate/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
 
         if self.states:
-            self.logger.info("Writing states file")
+            logger.info("Writing states file")
 
             # get output filename and if needed update and re-write the config
             if fn_out is not None:
@@ -5225,6 +5259,7 @@ change name input.path_forcing "
             # write states
             ds.to_netcdf(fn_out, mode="w")
 
+    @hydromt_step
     def read_results(self):
         """Read results at <root/?/> and parse to dict of xr.DataArray/xr.Dataset."""
         if not self._write:
@@ -5239,7 +5274,7 @@ change name input.path_forcing "
         nc_fn = self.get_config("output.path", abs_path=True)
         nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
-            self.logger.info(f"Read results from {nc_fn}")
+            logger.info(f"Read results from {nc_fn}")
             with xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all") as ds:
                 # TODO ? align coords names and values of results nc with grid
                 self.set_results(ds, name="output")
@@ -5250,7 +5285,7 @@ change name input.path_forcing "
             ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
         )
         if ncs_fn is not None and isfile(ncs_fn):
-            self.logger.info(f"Read results from {ncs_fn}")
+            logger.info(f"Read results from {ncs_fn}")
             with xr.open_dataset(ncs_fn, chunks={"time": 30}) as ds:
                 self.set_results(ds, name="netcdf")
 
@@ -5267,21 +5302,23 @@ change name input.path_forcing "
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
 
+    @hydromt_step
     def write_results(self):
         """Write results at <root/?/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
         # raise NotImplementedError()
 
+    @hydromt_step
     def read_intbl(self, **kwargs):
         """Read and intbl files at <root/intbl> and parse to xarray."""
         if not self._write:
             self._intbl = dict()  # start fresh in read-only mode
         if not self._read:
-            self.logger.info("Reading default intbl files.")
+            logger.info("Reading default intbl files.")
             fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
         else:
-            self.logger.info("Reading model intbl files.")
+            logger.info("Reading model intbl files.")
             fns = glob.glob(join(self.root, "intbl", "*.tbl"))
         if len(fns) > 0:
             for fn in fns:
@@ -5293,16 +5330,18 @@ change name input.path_forcing "
                 ]  # rename columns
                 self.set_intbl(tbl, name=name)
 
+    @hydromt_step
     def write_intbl(self):
         """Write intbl at <root/intbl> in PCRaster table format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
         if self.intbl:
-            self.logger.info("Writing intbl files.")
+            logger.info("Writing intbl files.")
             for name in self.intbl:
                 fn_out = join(self.root, "intbl", f"{name}.tbl")
                 self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
 
+    @hydromt_step
     def set_intbl(self, df, name):
         """Add intbl <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
@@ -5311,15 +5350,16 @@ change name input.path_forcing "
             if not self._write:
                 raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
             elif self._read:
-                self.logger.warning(f"Overwriting intbl: {name}")
+                logger.warning(f"Overwriting intbl: {name}")
         self._intbl[name] = df
 
+    @hydromt_step
     def read_tables(self, **kwargs):
         """Read table files at <root> and parse to dict of dataframes."""
         if not self._write:
             self._tables = dict()  # start fresh in read-only mode
 
-        self.logger.info("Reading model table files.")
+        logger.info("Reading model table files.")
         fns = glob.glob(join(self.root, "*.csv"))
         if len(fns) > 0:
             for fn in fns:
@@ -5327,16 +5367,18 @@ change name input.path_forcing "
                 tbl = pd.read_csv(fn, float_precision="round_trip")
                 self.set_tables(tbl, name=name)
 
+    @hydromt_step
     def write_tables(self):
         """Write tables at <root>."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
         if self.tables:
-            self.logger.info("Writing table files.")
+            logger.info("Writing table files.")
             for name in self.tables:
                 fn_out = join(self.root, f"{name}.csv")
                 self.tables[name].to_csv(fn_out, sep=",", index=False, header=True)
 
+    @hydromt_step
     def set_tables(self, df, name):
         """Add table <pandas.DataFrame> to model."""
         if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
@@ -5345,7 +5387,7 @@ change name input.path_forcing "
             if not self._write:
                 raise IOError(f"Cannot overwrite table {name} in read-only mode")
             elif self._read:
-                self.logger.warning(f"Overwriting table: {name}")
+                logger.warning(f"Overwriting table: {name}")
         self._tables[name] = df
 
     def _configread(self, fn):
@@ -5405,7 +5447,7 @@ change name input.path_forcing "
             )
             self.set_geoms(gdf, name="basins")
         else:
-            self.logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
+            logger.warning(f"Basin map {self._MAPS['basins']} not found in grid.")
             gdf = None
         return gdf
 
@@ -5438,7 +5480,7 @@ change name input.path_forcing "
                 gdf.crs = pyproj.CRS.from_user_input(self.crs)
                 self.set_geoms(gdf, name="rivers")
         else:
-            self.logger.warning("No river cells detected in the selected basin.")
+            logger.warning("No river cells detected in the selected basin.")
             gdf = None
         return gdf
 
@@ -5469,7 +5511,7 @@ change name input.path_forcing "
         basins_name = self._MAPS["basins"]
         flwdir_name = self._MAPS["flwdir"]
 
-        kind, region = hydromt.workflows.parse_region(region, logger=self.logger)
+        kind, region = hydromt.workflows.parse_region(region, logger=logger)
         # translate basin and outlet kinds to geom
         geom = region.get("geom", None)
         bbox = region.get("bbox", None)
@@ -5477,9 +5519,9 @@ change name input.path_forcing "
             # supply bbox to avoid getting basin bounds first when clipping subbasins
             if kind == "subbasin" and bbox is None:
                 region.update(bbox=self.bounds)
-            geom, _ = hydromt.workflows.get_basin_geometry(
+            geom, _ = get_basin_geometry(
                 ds=self.grid,
-                logger=self.logger,
+                logger=logger,
                 kind=kind,
                 basins_name=basins_name,
                 flwdir_name=flwdir_name,
@@ -5607,7 +5649,7 @@ change name input.path_forcing "
 
         """
         if len(self.forcing) > 0:
-            self.logger.info("Clipping NetCDF forcing..")
+            logger.info("Clipping NetCDF forcing..")
             ds_forcing = xr.merge(self.forcing.values()).raster.clip_bbox(
                 self.grid.raster.bounds
             )
@@ -5622,7 +5664,7 @@ change name input.path_forcing "
             Clipped states.
         """
         if len(self.states) > 0:
-            self.logger.info("Clipping NetCDF states..")
+            logger.info("Clipping NetCDF states..")
             ds_states = xr.merge(self.states.values()).raster.clip_bbox(
                 self.grid.raster.bounds
             )

@@ -1,10 +1,14 @@
 """Tests for the utils module."""
 
 import numpy as np
+import pytest
 
 from hydromt_wflow.utils import get_grid_from_config
 
 
+@pytest.mark.skip(
+    reason="Skip test until required hydromt-core v1 component(s) are implemented"
+)
 def test_grid_from_config(demda):
     # Create a couple of variables in grid
     grid = demda.to_dataset(name="dem")

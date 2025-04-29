@@ -7,7 +7,8 @@ import geopandas as gpd
 import numpy as np
 import pyflwdir
 import xarray as xr
-from hydromt import flw, gis_utils
+from hydromt.gis import flw
+from hydromt.gis._raster_utils import _reggrid_area
 
 logger = logging.getLogger(__name__)
 
@@ -245,7 +246,7 @@ parametrization of distributed hydrological models.
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
         ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
-        subare = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
+        subare = _reggrid_area(ys, xs) / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
         ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
     # logging

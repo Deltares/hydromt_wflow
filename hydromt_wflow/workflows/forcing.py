@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 import xarray as xr
-from hydromt.workflows.forcing import resample_time
+from hydromt.model.processes.meteo import resample_time
 
 logger = logging.getLogger(__name__)
 

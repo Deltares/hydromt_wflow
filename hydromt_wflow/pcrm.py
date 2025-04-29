@@ -12,7 +12,7 @@ import pandas as pd
 import pcraster as pcr
 import rasterio
 import xarray as xr
-from hydromt.io import open_mfraster
+from hydromt._io import _open_mfraster
 from pyflwdir import core_conversion, core_d8, core_ldd
 from pyproj import CRS
 
@@ -206,7 +206,7 @@ def read_staticmaps_pcr(
         Wflow model object to set the grid and crs based on the read staticmaps, by
         default None.
     kwargs
-        Additional keyword arguments are passed to open_mfraster.
+        Additional keyword arguments are passed to _open_mfraster.
 
     Returns
     -------
@@ -220,11 +220,11 @@ def read_staticmaps_pcr(
     if len(fns) == 0:
         logger.warning(f"No staticmaps found at {fn}")
         return
-    _staticmaps = open_mfraster(fns, **kwargs)
+    _staticmaps = _open_mfraster(fns, **kwargs)
 
     path = join(root, "staticmaps", "clim", "LAI*")
     if len(glob.glob(path)) > 0:
-        ds_lai = open_mfraster(
+        ds_lai = _open_mfraster(
             path, concat=True, concat_dim="time", logger=logger, **kwargs
         )
         lai_key = list(ds_lai.data_vars)[0]

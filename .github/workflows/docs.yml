@@ -4,7 +4,7 @@ name: Build Documentation
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, feat/migration-hydromt-core-v1]
     paths:
       - docs/*
       - examples/*
@@ -12,7 +12,7 @@ on:
       - pyproject.toml
       - .github/workflows/docs.yml
   pull_request:
-    branches: [main]
+    branches: [main, feat/migration-hydromt-core-v1]
     paths:
       - docs/*
       - examples/*
@@ -52,7 +52,7 @@ jobs:
           environments: docs
           locked: false
           cache: true
-          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          cache-write: ${{ github.event_name == 'push' && {{ github.ref_name == 'feat/migration-hydromt-core-v1' || github.ref_name == 'feat/migration-hydromt-core-v1' }} }}
 
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}

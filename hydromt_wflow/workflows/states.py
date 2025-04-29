@@ -5,8 +5,8 @@ from typing import Dict, Tuple
 import numpy as np
 import pandas as pd
 import xarray as xr
-from hydromt.raster import full_like
-from hydromt.workflows.grid import grid_from_constant
+from hydromt.gis import full_like
+from hydromt.model.processes.grid import grid_from_constant
 
 from ..utils import get_grid_from_config
 
