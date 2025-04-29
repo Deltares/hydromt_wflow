@@ -672,27 +672,27 @@ def convert_to_wflow_v1_sbm(
         The converted config.
     """
     additional_variables = {
-        "vertical.interception": "land.interception.variables.interception_rate",
+        "vertical.interception": "vegetation_canopy_water__interception_volume_flux",
         "vertical.actevap": "land_surface__evapotranspiration_volume_flux",
         "vertical.actinfilt": "soil_water__infiltration_volume_flux",
-        "vertical.excesswatersoil": "land.soil.variables.excesswatersoil",
-        "vertical.excesswaterpath": "land.soil.variables.excesswaterpath",
-        "vertical.exfiltustore": "land.soil.variables.exfiltustore",
+        "vertical.excesswatersoil": "soil~compacted_surface_water__excess_volume_flux",
+        "vertical.excesswaterpath": "soil~non-compacted_surface_water__excess_volume_flux",  # noqa: E501
+        "vertical.exfiltustore": "soil_surface_water_unsat-zone__exfiltration_volume_flux",  # noqa: E501
         "vertical.exfiltsatwater": "land.soil.variables.exfiltsatwater",
         "vertical.recharge": "soil_water_sat-zone_top__net_recharge_volume_flux",
         "vertical.vwc_percroot": "soil_water_root-zone__volume_percentage",
         "lateral.land.q_av": "land_surface_water__volume_flow_rate",
         "lateral.land.h_av": "land_surface_water__depth",
-        "lateral.land.to_river": "routing.overland_flow.variables.to_river",
+        "lateral.land.to_river": "land_surface_water~to-river__volume_flow_rate",
         "lateral.subsurface.to_river": "subsurface_water~to-river__volume_flow_rate",
         "lateral.river.q_av": "river_water__volume_flow_rate",
         "lateral.river.h_av": "river_water__depth",
-        "lateral.river.volume": "routing.river_flow.variables.storage",
+        "lateral.river.volume": "river_water__instantaneous_volume",
         "lateral.river.inwater": "river_water_inflow~lateral__volume_flow_rate",
-        "lateral.river.floodplain.volume": "routing.river_flow.floodplain.variables.storage",  # noqa: E501
+        "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
         "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
         "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa: E501
-        "lateral.river.lake.storage": "routing.river_flow.boundary_conditions.lake.variables.storage",  # noqa: E501
+        "lateral.river.lake.storage": "lake_water__instantaneous_volume",
         "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
     }
 

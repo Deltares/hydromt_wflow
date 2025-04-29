@@ -20,7 +20,7 @@ Changed
 -------
 - Support for Wflow.jl >= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl < 1.0.0 has been dropped (see below).
 - **setup_constant_pars**: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.
-- **setup_lulcmaps** and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl varibale names (dictionnary and not list) to allow for renaming.
+- **setup_lulcmaps** and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.
 - **setup_output_config_timeseries**, **setup_outlets**, **setup_gauges**: the option to save parameters to netcdf scalar file as been renamed from `netcdf` to `netcdf_scalar` to better match the TOML file structure.
 - Changed name of `g_tt` parameter to `g_ttm`, to align with the changes in https://github.com/Deltares/Wflow.jl/pull/512
 - **setup_soilmaps** [sediment]: add small and large aggregates to soil composition (additional to clay/silt/sand). Composition is now in fraction and not percentage.
