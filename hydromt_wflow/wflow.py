@@ -30,7 +30,7 @@ from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
 )
-from naming import WFLOW_NAMES, _create_hydromt_wflow_mapping_sbm
+from naming import _create_hydromt_wflow_mapping_sbm
 from shapely.geometry import box
 
 from hydromt_wflow.utils import (
@@ -603,13 +603,6 @@ Select from {routing_options}.'
 
             # update toml model.river_routing
             self._update_config_variable_name(name)
-            logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
-            self.set_config("model.river_routing", river_routing)
-
-            self.set_config("input.lateral.river.bankfull_depth", self._MAPS["rivdph"])
-            self.set_config("input.lateral.river.bankfull_elevation", name)
-        else:
-            self.set_config("model.river_routing", river_routing)
 
     @hydromt_step
     def setup_floodplains(
@@ -2892,11 +2885,6 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         else:
             logger.info("No paddy fields found, skipping updating soil parameters")
 
-        # Add entries to the config
-        for name in landuse_maps.data_vars:
-            if name in WFLOW_NAMES and WFLOW_NAMES[name] is not None:
-                self.set_config(WFLOW_NAMES[name], name)
-
     @hydromt_step
     def setup_glaciers(
         self,
@@ -4993,7 +4981,7 @@ Run setup_soilmaps first"
         The current model root is used to write the model.
         """
         logger.info(f"Writing model to {self.root}")
-        Model.write(self)
+        super().write(self)
 
     @hydromt_step
     def write_config(
@@ -5132,12 +5120,7 @@ Run setup_soilmaps first"
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
-        logger.info(f"Write grid to {fn}")
-        mask = ds_out[self._MAPS["basins"]] > 0
-        for v in ds_out.data_vars:
-            # nodata is required for all but boolean fields
-            if ds_out[v].dtype != "bool":
-                ds_out[v] = ds_out[v].where(mask, ds_out[v].raster.nodata)
+
         ds_out.to_netcdf(fn, encoding=encoding)
 
     @hydromt_step
@@ -5217,7 +5200,7 @@ Run setup_soilmaps first"
         elif self._MAPS["basins"] in data:
             data = mask_raster_from_layer(data, data[self._MAPS["basins"]])
         # fall back on default set_grid behaviour
-        Model.set_grid(self, data, name)
+        super().set_grid(self, data, name)
 
     @hydromt_step
     def read_geoms(

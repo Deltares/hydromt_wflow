@@ -17,7 +17,6 @@ from hydromt_wflow.wflow import WflowModel
 
 from . import workflows
 from .naming import (
-    HYDROMT_NAMES_DEFAULT_SEDIMENT,
     _create_hydromt_wflow_mapping_sediment,
 )
 
@@ -32,7 +31,6 @@ class WflowSedimentModel(WflowModel):
     name = "wflow_sediment"
     _CONF = "wflow_sediment.toml"
     _GEOMS = {}
-    _MAPS = HYDROMT_NAMES_DEFAULT_SEDIMENT
 
     def __init__(
         self,
@@ -827,12 +825,6 @@ river cells."
         logger.info("Preparing canopy height map.")
 
         # Canopy height
-        if canopy_fn not in ["simard"]:
-            logger.warning(
-                f"Invalid source '{canopy_fn}', skipping setup canopy map for sediment."
-            )
-            return
-
         dsin = self.data_catalog.get_rasterdataset(
             canopy_fn, geom=self.region, buffer=2
         )
