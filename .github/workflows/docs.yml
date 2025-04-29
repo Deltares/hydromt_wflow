@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup pixi env
-        uses: prefix-dev/setup-pixi@v0.8.5
+        uses: prefix-dev/setup-pixi@v0.8.8
         with:
           pixi-version: "v0.45.0"
           environments: docs
@@ -56,14 +56,21 @@ jobs:
 
       - name: Generate dummy docs
         if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          pixi run -e docs docs-dummy
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: pixi run -e docs docs-dummy
 
       - name: Generate docs
         if: ${{ github.event_name != 'pull_request' && !github.event.act }}
-        run: |
-          pixi run -e docs docs-html
-          echo "DOC_VERSION=$(pixi run --locked -e docs python -c 'from hydromt_wflow import __version__ as v; print("dev" if "dev" in v else "v"+v.replace(".dev",""))')" >> $GITHUB_ENV
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            pixi run -e docs docs-html
+            echo "DOC_VERSION=$(pixi run --locked -e docs python -c 'from hydromt_wflow import __version__ as v; print("dev" if "dev" in v else "v"+v.replace(".dev",""))')" >> $GITHUB_ENV
 
       - name: Upload to GitHub Pages
         if: ${{ github.event_name != 'pull_request'}}

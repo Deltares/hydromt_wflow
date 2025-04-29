@@ -5011,10 +5011,9 @@ Run setup_soilmaps first"
             self.logger.info(f"Read grid from {fn}")
             # FIXME: we need a smarter (lazy) solution for big models which also
             # works when overwriting / appending data in the same source!
-            ds = xr.open_dataset(
+            ds = xr.load_dataset(
                 fn, mask_and_scale=False, decode_coords="all", **kwargs
-            ).load()
-            ds.close()
+            )
             # make sure internally maps are always North -> South oriented
             if ds.raster.res[1] > 0:
                 ds = ds.raster.flipud()
@@ -5285,17 +5284,17 @@ Run setup_soilmaps first"
             self._forcing = dict()
         if fn is not None and isfile(fn):
             self.logger.info(f"Read forcing from {fn}")
-            ds = xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all")
-            for v in ds.data_vars:
-                self.set_forcing(ds[v])
+            with xr.open_dataset(fn, chunks={"time": 30}, decode_coords="all") as ds:
+                for v in ds.data_vars:
+                    self.set_forcing(ds[v])
         elif "*" in str(fn):
             self.logger.info(f"Read multiple forcing files using {fn}")
             fns = list(fn.parent.glob(fn.name))
             if len(fns) == 0:
                 raise IOError(f"No forcing files found using {fn}")
-            ds = xr.open_mfdataset(fns, chunks={"time": 30}, decode_coords="all")
-            for v in ds.data_vars:
-                self.set_forcing(ds[v])
+            with xr.open_mfdataset(fns, chunks={"time": 30}, decode_coords="all") as ds:
+                for v in ds.data_vars:
+                    self.set_forcing(ds[v])
 
     def write_forcing(
         self,
@@ -5527,9 +5526,9 @@ change name input.path_forcing "
 
         if fn is not None and isfile(fn):
             self.logger.info(f"Read states from {fn}")
-            ds = xr.open_dataset(fn, mask_and_scale=False)
-            for v in ds.data_vars:
-                self.set_states(ds[v])
+            with xr.open_dataset(fn, mask_and_scale=False) as ds:
+                for v in ds.data_vars:
+                    self.set_states(ds[v])
 
     def write_states(self, fn_out: str | Path | None = None):
         """Write states at <root/instate/> in model ready format."""
@@ -5585,9 +5584,9 @@ change name input.path_forcing "
         nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
         if nc_fn is not None and isfile(nc_fn):
             self.logger.info(f"Read results from {nc_fn}")
-            ds = xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all")
-            # TODO ? align coords names and values of results nc with grid
-            self.set_results(ds, name="netcdf_grid")
+            with xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all") as ds:
+                # TODO ? align coords names and values of results nc with grid
+                self.set_results(ds, name="netcdf_grid")
 
         # Read scalar netcdf (netcdf section)
         ncs_fn = self.get_config("output.netcdf_scalar.path", abs_path=True)
@@ -5596,8 +5595,8 @@ change name input.path_forcing "
         )
         if ncs_fn is not None and isfile(ncs_fn):
             self.logger.info(f"Read results from {ncs_fn}")
-            ds = xr.open_dataset(ncs_fn, chunks={"time": 30})
-            self.set_results(ds, name="netcdf_scalar")
+            with xr.open_dataset(ncs_fn, chunks={"time": 30}) as ds:
+                self.set_results(ds, name="netcdf_scalar")
 
         # Read csv timeseries (csv section)
         csv_fn = self.get_config("output.csv.path", abs_path=True)
