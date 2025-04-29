@@ -1,9 +1,15 @@
 """Tests for the utils module."""
 
+from os.path import abspath, dirname, join
+
 import numpy as np
 import pytest
 
+from hydromt_wflow import WflowModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
+
+TESTDATADIR = join(dirname(abspath(__file__)), "data")
+EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
 
 @pytest.mark.skip(
@@ -18,47 +24,86 @@ def test_grid_from_config(demda):
     # Create config with all options
     config = {
         "input": {
-            "vertical": {
-                "dem": "dem",
+            "dem": "dem",
+            "static": {
                 "slope": "slope",
                 "altitude": {
                     "netcdf": {"variable": {"name": "slope"}},
                     "scale": 10,
                 },
             },
-            "lateral": {
-                "subsurface": {
-                    "ksathorfrac": {"value": 500},
-                    "ksathorfrac2": {
-                        "netcdf": {"variable": {"name": "dem"}},
-                        "scale": 0,
-                        "offset": 500,
-                    },
+            "cyclic": {
+                "ksathorfrac": {"value": 500},
+                "ksathorfrac2": {
+                    "netcdf": {"variable": {"name": "dem"}},
+                    "scale": 0,
+                    "offset": 500,
                 },
             },
         },
     }
 
     # Tests
-    dem = get_grid_from_config("input.vertical.dem", config=config, grid=grid)
+    dem = get_grid_from_config("dem", config=config, grid=grid)
     assert dem.equals(demda)
 
-    slope = get_grid_from_config("input.vertical.slope", config=config, grid=grid)
+    slope = get_grid_from_config("slope", config=config, grid=grid)
     assert slope.equals(grid["slope"])
 
-    altitude = get_grid_from_config("input.vertical.altitude", config=config, grid=grid)
+    altitude = get_grid_from_config("altitude", config=config, grid=grid)
     assert altitude.equals(grid["slope"] * 10)
 
     ksathorfrac = get_grid_from_config(
-        "input.lateral.subsurface.ksathorfrac",
+        "ksathorfrac",
         config=config,
         grid=grid,
     )
     assert np.unique(ksathorfrac.raster.mask_nodata()) == [500]
 
     ksathorfrac2 = get_grid_from_config(
-        "input.lateral.subsurface.ksathorfrac2",
+        "ksathorfrac2",
         config=config,
         grid=grid,
     )
     assert ksathorfrac2.equals(ksathorfrac)
+
+
+def test_convert_to_wflow_v1_sbm():
+    # Initiliaze wflow model
+    root = join(TESTDATADIR, "wflow_v0x", "sbm")
+    config_fn = "wflow_sbm_v0x.toml"
+
+    wflow = WflowModel(root, config_fn=config_fn, mode="r")
+    # Convert to v1
+    wflow.upgrade_to_v1_wflow()
+
+    # Check with a test config
+    config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sbm", "wflow_sbm_v1.toml")
+    wflow_v1 = WflowModel(root, config_fn=config_fn_v1, mode="r")
+
+    assert wflow.config == wflow_v1.config, "Config files are not equal"
+
+
+def test_convert_to_wflow_v1_sediment():
+    # Initiliaze wflow model
+    root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
+    config_fn = "wflow_sediment_v0x.toml"
+
+    wflow = WflowSedimentModel(
+        root, config_fn=config_fn, data_libs=["artifact_data"], mode="r"
+    )
+    # Convert to v1
+    wflow.upgrade_to_v1_wflow(
+        soil_fn="soilgrids",
+    )
+
+    # Check with a test config
+    config_fn_v1 = join(TESTDATADIR, "wflow_v0x", "sediment", "wflow_sediment_v1.toml")
+    wflow_v1 = WflowSedimentModel(root, config_fn=config_fn_v1, mode="r")
+
+    assert wflow.config == wflow_v1.config, "Config files are not equal"
+
+    # Checks on extra data in staticmaps
+    assert "fsagg_soil" in wflow.grid
+    assert "c_govers" in wflow.grid
+    assert "a_kodatie" in wflow.grid

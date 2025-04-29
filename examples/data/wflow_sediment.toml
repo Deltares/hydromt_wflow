@@ -1,0 +1,73 @@
+dir_output = "run_default"
+
+[time]
+calendar = "proleptic_gregorian"
+starttime = "2010-02-01T00:00:00"
+endtime = "2010-02-10T00:00:00"
+time_units = "days since 1900-01-01 00:00:00"
+timestepsecs = 86400
+
+[logging]
+loglevel = "info"
+
+[model]
+type = "sediment"
+reinit = true
+run_river_model = true
+rainfall_erosion = "answers"
+overland_flow_erosion = "answers"
+land_transport = "yalinpart"
+river_transport = "bagnold"
+reservoirs = true
+lakes = true
+
+[state]
+path_input = "instate/instates.nc"
+path_output = "outstate/outstates.nc"
+
+[input]
+path_forcing = "output_grid_sbm.nc"
+path_static = "staticmaps.nc"
+local_drain_direction = "wflow_ldd"
+subcatchment_location__count = "wflow_subcatch"
+river_location__mask = "wflow_river"
+reservoir_area__count = "wflow_reservoirareas"
+reservoir_location__count = "wflow_reservoirlocs"
+lake_area__count = "wflow_lakeareas"
+lake_location__count = "wflow_lakelocs"
+
+[state.variables]
+river_water_clay__mass = "clayload"
+river_bed_clay__mass = "claystore"
+river_water_gravel__mass = "gravload"
+river_bed_gravel__mass = "gravstore"
+"river_water_aggregates~large__mass" = "laggload"
+"river_bed_aggregates~large__mass" = "laggstore"
+river_water_clay__mass_flow_rate = "outclay"
+river_water_gravel__mass_flow_rate = "outgrav"
+"river_water_aggregates~large__mass_flow_rate" = "outlagg"
+"river_water_aggregates~small__mass_flow_rate" = "outsagg"
+river_water_sand__mass_flow_rate = "outsand"
+river_water_silt__mass_flow_rate = "outsilt"
+"river_water_aggregates~small__mass" = "saggload"
+"river_bed_aggregates~small__mass" = "saggstore"
+river_water_sand__mass = "sandload"
+river_bed_sand__mass = "sandstore"
+river_water_silt__mass = "siltload"
+river_bed_silt__mass = "siltstore"
+
+[input.forcing]
+atmosphere_water__precipitation_volume_flux = "precip"
+vegetation_canopy_water__interception_volume_flux = "interception"
+land_surface_water__depth = "h_land"
+land_surface_water__volume_flow_rate = "q_land"
+river_water__depth = "h_river"
+river_water__volume_flow_rate = "q_river"
+
+[input.static]
+land_surface__slope = "Slope"
+river__length = "wflow_riverlength"
+river__slope = "RiverSlope"
+river__width = "wflow_riverwidth"
+reservoir_surface__area = "ResSimpleArea"
+lake_surface__area = "LakeArea"

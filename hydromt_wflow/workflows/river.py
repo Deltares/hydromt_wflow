@@ -183,7 +183,6 @@ def river_bathymetry(
     min_rivdph: float = 1.0,
     min_rivwth: float = 30.0,
     logger=logger,
-    **kwargs,
 ) -> xr.Dataset:
     """Get river width and bankfull discharge.
 
@@ -227,7 +226,7 @@ def river_bathymetry(
     flwdir_river = flw.flwdir_from_da(ds_model["flwdir"], mask=riv_mask)
     rivlen_avg = ds_model["rivlen"].values[riv_mask].mean()
 
-    ## river width and bunkfull discharge
+    ## river width and bankfull discharge
     vars0 = ["rivwth", "rivdph", "qbankfull"]
     # find nearest values from river shape if provided
     # if None assume the data is in ds_model
@@ -306,7 +305,6 @@ def river_bathymetry(
             method=method,
             min_rivdph=min_rivdph,
             rivzs_name="subelv",
-            **kwargs,
         )
         attrs = dict(_FillValue=-9999, unit="m")
         ds_model["rivdph"] = xr.Variable(dims, rivdph, attrs=attrs).fillna(-9999)

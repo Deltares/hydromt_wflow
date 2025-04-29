@@ -1,6 +1,7 @@
 setup_config:
-  output.lateral.land.q: "q_land"
-  output.lateral.land.h: "h_land"
+  output.netcdf_grid.path: output.nc
+  output.netcdf_grid.compressionlevel: 1
+  output.netcdf_grid.variables.river_water__volume_flow_rate: q_av
 
 setup_basemaps:
   res: 0.016666666666666666
@@ -50,21 +51,20 @@ setup_gauges:
   derive_subcatch: False
 
 setup_constant_pars:
-  KsatHorFrac: 100
-  Cfmax: 3.75653
-  cf_soil: 0.038
-  EoverR: 0.11
-  InfiltCapPath: 5
-  InfiltCapSoil: 600
-  MaxLeakage: 0
-  rootdistpar: -500
-  TT: 0
-  TTI: 2
-  TTM: 0
-  WHC: 0.1
-  G_Cfmax: 5.3
-  G_SIfrac: 0.002
-  G_TT: 1.3
+  "subsurface_water__horizontal-to-vertical_saturated_hydraulic_conductivity_ratio": 100
+  "snowpack__degree-day_coefficient": 3.75653
+  "soil_surface_water__infiltration_reduction_parameter": 0.038
+  "vegetation_canopy_water__mean_evaporation-to-mean_precipitation_ratio": 0.11
+  "soil~compacted_surface_water__infiltration_capacity": 5
+  "soil_water_sat-zone_bottom__max_leakage_volume_flux": 0
+  "soil_root~wet__sigmoid_function_shape_parameter": -500
+  "atmosphere_air__snowfall_temperature_threshold": 0
+  "atmosphere_air__snowfall_temperature_interval": 2
+  "snowpack__melting_temperature_threshold": 0
+  "snowpack__liquid_water_holding_capacity": 0.1
+  "glacier_ice__degree-day_coefficient": 5.3
+  "glacier_firn_accumulation__snowpack~dry_leq-depth_fraction": 0.002
+  "glacier_ice__melting_temperature_threshold": 1.3
 
 setup_precip_forcing:
   precip_fn: era5

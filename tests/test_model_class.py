@@ -57,9 +57,11 @@ def _compare_wflow_models(mod0, mod1):
                     else f"{map1.dtype} instead of {map0.dtype}"
                 )
                 # Check on nodata
+                # hilariously np.nan == np.nan returns False, hence the additional check
                 err = (
                     err
                     if map0.raster.nodata == map1.raster.nodata
+                    or (np.isnan(map0.raster.nodata) and np.isnan(map1.raster.nodata))
                     else f"nodata {map1.raster.nodata} instead of \
 {map0.raster.nodata}; {err}"
                 )
@@ -69,7 +71,7 @@ def _compare_wflow_models(mod0, mod1):
                     # xy = map0.raster.idx_to_xy(np.where(notclose.ravel())[0])
                     # yxs = ", ".join([f"({y:.6f}, {x:.6f})" for x, y in zip(*xy)])
                     diff = (map0.values - map1.values)[notclose].mean()
-                    err = f"diff ({ncells:d} cells): {diff:.4f}; {err}"
+                    err = f"mean diff ({ncells:d} cells): {diff:.4f}; {err}"
                 invalid_maps[name] = err
     # invalid_map_str = ", ".join(invalid_maps)
     # assert (
@@ -212,14 +214,14 @@ def test_model_inverse_clip(tmpdir, example_wflow_model):
 )
 def test_model_results(example_wflow_results):
     # Tests on results
-    # Number of dict keys = 1 for output + 1 for netcdf + nb of csv.column
+    # Number of dict keys = 1 for netcdf_grid + 1 for netcdf_scalar + nb of csv.column
     assert len(example_wflow_results.results) == (
-        2 + len(example_wflow_results.get_config("csv.column"))
+        2 + len(example_wflow_results.get_config("output.csv.column"))
     )
 
     # Check that the output and netcdf xr.Dataset are present
-    assert "output" in example_wflow_results.results
-    assert isinstance(example_wflow_results.results["netcdf"], xr.Dataset)
+    assert "netcdf_grid" in example_wflow_results.results
+    assert isinstance(example_wflow_results.results["netcdf_scalar"], xr.Dataset)
 
     # Checks for the csv columns
     # Q for gauges_grdc

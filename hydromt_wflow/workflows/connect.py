@@ -7,7 +7,7 @@ import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
-from shapely.geometry import Point
+from shapely.geometry import LineString, MultiLineString, Point
 
 logger = logging.getLogger(__name__)
 
@@ -96,8 +96,9 @@ def wflow_1dmodel_connection(
     # Derive flwdir
     flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
     # Basin mask
+    buffer_cells = 2
     basin_mask = ds_model["basins"].raster.vectorize()
-    basin_mask = basin_mask.buffer(-2 * max(ds_model.raster.res, key=abs))
+    basin_mask = basin_mask.buffer(-buffer_cells * max(ds_model.raster.res, key=abs))
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
@@ -125,9 +126,31 @@ def wflow_1dmodel_connection(
         logger.info("Linking 1D river to wflow river")
         # 1. Derive the river edges / boundaries
         # merge multilinestrings in gdf_riv to linestrings
-        riv1d = gdf_riv.explode(index_parts=True).reset_index(drop=True)
+        if any(gdf_riv.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
+            logger.debug(
+                "'gdf_riv' contains MultiLineStrings which will be converted into"
+                "LineStrings."
+            )
+            gdf_riv = gdf_riv.explode(index_parts=True).reset_index(drop=True)
         # clip to basins
-        riv1d = riv1d.clip(basin_mask)
+        riv1d = gdf_riv.clip(basin_mask)
+        if any(riv1d.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
+            # clipping may result in MultiLineStrings
+            logger.warning(
+                "The provided river geometry contains MultiLineString geometries after"
+                "clipping. Consider checking if the provided river geometry crosses the"
+                "boundary of the Wflow model and if there is sufficient space between"
+                f"the river and the Wflow model boundary (min. {buffer_cells} cells)."
+            )
+            # we turn these into LineStrings again using its points
+            riv1d["geometry"] = riv1d.geometry.apply(
+                lambda geom: LineString(
+                    [coord for line in geom.geoms for coord in line.coords]
+                )
+                if isinstance(geom, MultiLineString)
+                else geom
+            )
+
         # get the edges of the riv1d
         riv1d_edges = riv1d.geometry.apply(lambda x: Point(x.coords[0]))
         riv1d_edges = pd.concat(

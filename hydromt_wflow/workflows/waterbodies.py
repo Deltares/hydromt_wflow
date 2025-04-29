@@ -349,7 +349,6 @@ please use one of [gww, jrc] or None."
     gdf = gdf.fillna(value=np.nan)
     for i in range(len(gdf["waterbody_id"])):
         # Initialise values
-        # import pdb; pdb.set_trace()
         dam_height = np.nanmax([gdf["Dam_height"].iloc[i], 0.0])
         max_level = np.nanmax([gdf["Depth_avg"].iloc[i], 0.0])
         max_area = np.nanmax([df_out["resarea"].iloc[i], 0.0])
@@ -499,6 +498,18 @@ please use one of [gww, jrc] or None."
             df_EO.loc[pd.isna(df_out["resfullfrac"]), "capmax"].values
             / df_out.loc[pd.isna(df_out["resfullfrac"]), "resmaxvolume"].values
         )
+
+    # rename to wflow naming convention
+    tbls = {
+        "resarea": "ResSimpleArea",
+        "resdemand": "ResDemand",
+        "resfullfrac": "ResTargetFullFrac",
+        "resminfrac": "ResTargetMinFrac",
+        "resmaxrelease": "ResMaxRelease",
+        "resmaxvolume": "ResMaxVolume",
+        "resid": "expr1",
+    }
+    df_out = df_out.rename(columns=tbls)
 
     return df_out, df_plot, df_ts
 
