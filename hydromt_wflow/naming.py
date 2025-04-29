@@ -947,12 +947,12 @@ def _create_hydromt_wflow_mapping(
     wflow_version = "wflow_v1"  # variable version to use for Wflow.jl
 
     # First dictionnary
-    mapping_inv = {}  # name_in_staticmaps : name_in_hydromt
+    # name_in_staticmaps : name_in_hydromt
+    # Instantiate the mapping with default names (ie non wflow variables)
+    mapping_inv = {v: k for k, v in hydromt_dict.items()}
+
     # Second dictionnary
     wflow_names = dict()  # wflow_variable: name_in_staticmaps
-    # Instantiate the mapping with default names (ie non wflow variables)
-    for hydromt_name, staticmap_name in hydromt_dict.items():
-        mapping_inv[staticmap_name] = hydromt_name
 
     # Go through the wflow variables and add them if hydromt name is not None
     for staticmap_name, staticmap_mapping in model_dict.items():
@@ -999,9 +999,9 @@ def _create_hydromt_wflow_mapping(
     }
 
     # Get a mapping of staticmap_name: wflow_variable
-    mapping_wflow = dict()
-    for wflow_var, staticmap_name in wflow_names.items():
-        mapping_wflow[staticmap_name] = wflow_var
+    mapping_wflow = {
+        staticmap_name: wflow_var for wflow_var, staticmap_name in wflow_names.items()
+    }
 
     return mapping_hydromt, mapping_wflow
 

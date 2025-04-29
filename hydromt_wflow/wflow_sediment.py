@@ -367,7 +367,7 @@ river cells."
         # Lake settings in the toml to update
         self.set_config("model.reservoirs", True)
         for dvar in ds_res.data_vars:
-            if dvar == "resareas" or dvar == "reslocs":
+            if dvar in ["resareas", "reslocs"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])

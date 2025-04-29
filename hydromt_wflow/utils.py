@@ -451,11 +451,20 @@ def _convert_to_wflow_v1(
     WFLOW_CONVERSION.update(additional_variables)
 
     # Logging function for the other non supported variables
-    def warn_str(wflow_var, output_type):
+    def _warn_str(wflow_var, output_type):
         logger.warning(
             f"Output variable {wflow_var} not supported for the conversion. "
             f"Skipping from {output_type} output."
         )
+
+    # Update function for the output.netcdf_grid
+    def _update_output_netcdf_grid(wflow_var, var_name):
+        if wflow_var in WFLOW_CONVERSION.keys():
+            config_out["output.netcdf_grid.variables"][WFLOW_CONVERSION[wflow_var]] = (
+                var_name
+            )
+        else:
+            _warn_str(var_name, "netcdf_grid")
 
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
@@ -562,59 +571,34 @@ def _convert_to_wflow_v1(
         for key, value in config["output"].items():
             if key in ["path", "compressionlevel"]:
                 continue
-            else:
-                # vertical
-                if key == "vertical":
-                    for var, var_name in value.items():
-                        wflow_var = f"vertical.{var}"
-                        if wflow_var in WFLOW_CONVERSION.keys():
-                            config_out["output.netcdf_grid.variables"][
-                                WFLOW_CONVERSION[wflow_var]
-                            ] = var_name
+
+            # vertical
+            if key == "vertical":
+                for var, var_name in value.items():
+                    wflow_var = f"vertical.{var}"
+                    _update_output_netcdf_grid(wflow_var, var_name)
+            # lateral
+            elif key == "lateral":
+                # land
+                if "land" in value.keys():
+                    for var, var_name in value["land"].items():
+                        wflow_var = f"lateral.land.{var}"
+                        _update_output_netcdf_grid(wflow_var, var_name)
+                # subsurface
+                if "subsurface" in value.keys():
+                    for var, var_name in value["subsurface"].items():
+                        wflow_var = f"lateral.subsurface.{var}"
+                        _update_output_netcdf_grid(wflow_var, var_name)
+                # river (do not support reservoir and lake outputs)
+                if "river" in value.keys():
+                    for var, var_name in value["river"].items():
+                        if var in ["reservoir", "floodplain", "lake"]:
+                            for var2, var_name2 in value["river"][var].items():
+                                wflow_var = f"lateral.river.{var}.{var2}"
+                                _update_output_netcdf_grid(wflow_var, var_name2)
                         else:
-                            warn_str(wflow_var, "netcdf_grid")
-                # lateral
-                elif key == "lateral":
-                    # land
-                    if "land" in value.keys():
-                        for var, var_name in value["land"].items():
-                            wflow_var = f"lateral.land.{var}"
-                            if wflow_var in WFLOW_CONVERSION.keys():
-                                config_out["output.netcdf_grid.variables"][
-                                    WFLOW_CONVERSION[wflow_var]
-                                ] = var_name
-                            else:
-                                warn_str(wflow_var, "netcdf_grid")
-                    # subsurface
-                    if "subsurface" in value.keys():
-                        for var, var_name in value["subsurface"].items():
-                            wflow_var = f"lateral.subsurface.{var}"
-                            if wflow_var in WFLOW_CONVERSION.keys():
-                                config_out["output.netcdf_grid.variables"][
-                                    WFLOW_CONVERSION[wflow_var]
-                                ] = var_name
-                            else:
-                                warn_str(wflow_var, "netcdf_grid")
-                    # river (do not support reservoir and lake outputs)
-                    if "river" in value.keys():
-                        for var, var_name in value["river"].items():
-                            if var in ["reservoir", "floodplain", "lake"]:
-                                for var2, var_name2 in value["river"][var].items():
-                                    wflow_var = f"lateral.river.{var}.{var2}"
-                                    if wflow_var in WFLOW_CONVERSION.keys():
-                                        config_out["output.netcdf_grid.variables"][
-                                            WFLOW_CONVERSION[wflow_var]
-                                        ] = var_name2
-                                    else:
-                                        warn_str(wflow_var, "netcdf_grid")
-                            else:
-                                wflow_var = f"lateral.river.{var}"
-                                if wflow_var in WFLOW_CONVERSION.keys():
-                                    config_out["output.netcdf_grid.variables"][
-                                        WFLOW_CONVERSION[wflow_var]
-                                    ] = var_name
-                                else:
-                                    warn_str(wflow_var, "netcdf_grid")
+                            wflow_var = f"lateral.river.{var}"
+                            _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
     if get_config("netcdf", config=config, fallback=None) is not None:
@@ -632,7 +616,7 @@ def _convert_to_wflow_v1(
                     nc_scalar["map"] = input_options[nc_scalar["map"]]
                 config_out["output.netcdf_scalar.variable"].append(nc_scalar)
             else:
-                warn_str(nc_scalar["parameter"], "netcdf_scalar")
+                _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
     if get_config("csv", config=config, fallback=None) is not None:
@@ -644,11 +628,11 @@ def _convert_to_wflow_v1(
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
-                if "map" in csv_var and csv_var["map"] in input_options.keys():
+                if csv_var.get("map", None) in input_options.keys():
                     csv_var["map"] = input_options[csv_var["map"]]
                 config_out["output.csv.column"].append(csv_var)
             else:
-                warn_str(csv_var["parameter"], "csv")
+                _warn_str(csv_var["parameter"], "csv")
 
     return config_out
 
