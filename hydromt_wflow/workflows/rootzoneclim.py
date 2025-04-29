@@ -609,7 +609,7 @@ def rootzoneclim(
     rootzone_storage: bool = False,
     correct_cc_deficit: bool = False,
     chunksize: int = 100,
-    missing_days_threshold: int = 330,
+    missing_days_threshold: int | None = 330,
     logger=logger,
 ):
     """
@@ -739,7 +739,7 @@ def rootzoneclim(
             flwdir,
             ids=ids[i],
             xy=(x[i], y[i]),
-            stream=ds_like["wflow_river"],
+            stream=ds_like["rivmsk"],
         )[0]
         ds_basin_single.name = int(dsrun.index.values[i])
         ds_basin_single.raster.set_crs(ds_like.raster.crs)
@@ -750,8 +750,8 @@ def rootzoneclim(
 
     # Add the catchment area to gdf_basins and sort in a descending order
     # make sure to also snap to river when retrieving areas
-    idxs_gauges = flwdir.snap(xy=(x, y), mask=ds_like["wflow_river"].values)[0]
-    areas_uparea = ds_like["wflow_uparea"].values.flat[idxs_gauges]
+    idxs_gauges = flwdir.snap(xy=(x, y), mask=ds_like["rivmsk"].values)[0]
+    areas_uparea = ds_like["uparea"].values.flat[idxs_gauges]
     df_areas = pd.DataFrame(index=ids, data=areas_uparea * 1e6, columns=["area"])
     gdf_basins = pd.concat([gdf_basins, df_areas], axis=1)
     gdf_basins = gdf_basins.sort_values(by="area", ascending=False)
@@ -921,7 +921,7 @@ def rootzoneclim(
         flwdir,
         ids=ids,
         xy=(x, y),
-        stream=ds_like["wflow_river"],
+        stream=ds_like["rivmsk"],
     )[0]
     ds_basins_all.raster.set_crs(ds_like.raster.crs)
     gdf_basins_all = ds_basins_all.raster.vectorize()
