@@ -2,7 +2,7 @@ name: Test Package
 
 on:
   push:
-    branches: [main, wflow-v1]
+    branches: [main]
     paths:
       - hydromt_wflow/*
       - tests/*
@@ -10,7 +10,7 @@ on:
       - pyproject.toml
       - .github/workflows/test.yml
   pull_request:
-    branches: [main, wflow-v1]
+    branches: [main]
     paths:
       - hydromt_wflow/*
       - tests/*
