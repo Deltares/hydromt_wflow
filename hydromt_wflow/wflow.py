@@ -6076,7 +6076,7 @@ change name input.path_forcing "
             fallback value if key(s) not found in config, by default None.
         abs_path: bool, optional
             If True return the absolute path relative to the model root,
-            by deafult False.
+            by default False.
             NOTE: this assumes the config is located in model root!
 
         Returns
