@@ -5730,9 +5730,15 @@ change name input.path_forcing "
         else:
             keys = args
 
-        reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], self._config)[keys[-1]] = (
-            value
-        )
+        reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], self._config)
+
+        # the double walk is necessary because of a bug in tomlkit
+        # (see https://github.com/python-poetry/tomlkit/issues/410)
+        branch = self._config
+        for key in keys[:-1]:
+            branch = branch[key]
+
+        branch[keys[-1]] = value
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
