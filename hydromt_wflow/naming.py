@@ -13,7 +13,7 @@ HYDROMT_NAMES_DEFAULT = {
 }
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     # additional hydromt outputs
-    "elevtn": "wflow_dem",
+    "elevtn": "land_elevation",
     "uparea": "wflow_uparea",
     "strord": "wflow_streamorder",
     "landuse": "meta_landuse",
@@ -316,7 +316,7 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
-    "wflow_dem": {
+    "land_elevation": {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
         "hydromt_name": "elevtn",

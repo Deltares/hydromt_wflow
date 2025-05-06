@@ -167,7 +167,7 @@ class WflowModel(GridModel):
         * **wflow_subcatch** map: basin ID map [-]
         * **wflow_uparea** map: upstream area [km2]
         * **wflow_streamorder** map: Strahler stream order [-]
-        * **wflow_dem** map: average elevation [m+REF]
+        * **land_elevation** map: average elevation [m+REF]
         * **dem_subgrid** map: subgrid outlet elevation [m+REF]
         * **Slope** map: average land surface slope [m/m]
         * **basins** geom: basins boundary vector
@@ -314,7 +314,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         rivman_mapping_fn: str
         | Path
         | pd.DataFrame = "roughness_river_mapping_default",
-        elevtn_map: str = "wflow_dem",
+        elevtn_map: str = "land_elevation",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
         output_names: Dict = {
@@ -357,7 +357,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         :py:meth:`hydromt.workflows.river_depth`.
 
         If ``river_routing`` is set to "local-inertial", the bankfull elevation map
-        can be conditioned based on the average cell elevation ("wflow_dem")
+        can be conditioned based on the average cell elevation ("land_elevation")
         or subgrid outlet pixel elevation ("dem_subgrid").
         The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with
@@ -414,7 +414,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
             Name of the elevation map in the current WflowModel.grid.
-            By default "wflow_dem"
+            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -537,7 +537,7 @@ Select from {routing_options}.'
         self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+            postfix = {"land_elevation": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
             name = f"hydrodem{postfix}"
@@ -569,7 +569,7 @@ Select from {routing_options}.'
         river_upa: float | None = None,
         flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
         ### Options for 2D floodplains
-        elevtn_map: str = "wflow_dem",
+        elevtn_map: str = "land_elevation",
         connectivity: int = 4,
         output_names: Dict = {
             "floodplain_water__sum_of_volume-per-depth": "floodplain_volume",
@@ -595,7 +595,7 @@ Select from {routing_options}.'
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation
-        ("wflow_dem") or subgrid outlet pixel elevation ("dem_subgrid").
+        ("land_elevation") or subgrid outlet pixel elevation ("dem_subgrid").
         Note that the subgrid elevation will likely overestimate
         the floodplain storage capacity.
 
@@ -630,9 +630,9 @@ Select from {routing_options}.'
             (1D floodplains) flood depths at which a volume is derived.
             By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
-        elevtn_map: {"wflow_dem", "dem_subgrid"}
+        elevtn_map: {"land_elevation", "dem_subgrid"}
             (2D floodplains) Name of staticmap to hydrologically condition.
-            By default "wflow_dem"
+            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -726,7 +726,7 @@ setting new flood_depth dimensions"
             if elevtn_map not in self.grid:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
 
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
+            postfix = {"land_elevation": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
             name = f"hydrodem{postfix}_D{connectivity}"
@@ -3312,7 +3312,7 @@ one variable and variables list is not provided."
         downscaled to model resolution using the elevation lapse rate. For better
         accuracy, you can provide the elevation grid of the climate data in
         `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
-        is used ('wflow_dem').
+        is used ('land_elevation').
 
         To compute PET (`skip_pet` is False), several methods are available. Before
         computation, both the temperature and pressure can be downscaled. Wind speed
