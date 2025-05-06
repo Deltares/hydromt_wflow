@@ -10,15 +10,15 @@ import pandas as pd
 import xarray as xr
 from hydromt import hydromt_step
 
+from hydromt_wflow.naming import (
+    _create_hydromt_wflow_mapping_sediment,
+)
 from hydromt_wflow.utils import (
     convert_to_wflow_v1_sediment,
 )
 from hydromt_wflow.wflow import WflowModel
 
 from . import workflows
-from .naming import (
-    _create_hydromt_wflow_mapping_sediment,
-)
 
 __all__ = ["WflowSedimentModel"]
 
@@ -28,22 +28,23 @@ logger = logging.getLogger(__name__)
 class WflowSedimentModel(WflowModel):
     """The wflow sediment model class, a subclass of WflowModel."""
 
-    name = "wflow_sediment"
-    _CONF = "wflow_sediment.toml"
+    name: str = "wflow_sediment"
     _GEOMS = {}
 
     def __init__(
         self,
         root: str | None = None,
-        mode: str | None = "w",
         config_fn: str | None = None,
+        mode: str | None = "w",
         data_libs: List | str = [],
+        **catalog_keys,
     ):
         super().__init__(
             root=root,
-            mode=mode,
             config_fn=config_fn,
+            mode=mode,
             data_libs=data_libs,
+            **catalog_keys,
         )
         # Update compared to wflow sbm
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sediment(
@@ -911,15 +912,15 @@ river cells."
         dsout = workflows.soilgrids_sediment(
             dsin,
             self.grid,
-            usleK_method,
-            logger=logger,
             usleK_method=usleK_method,
             add_aggregates=add_aggregates,
+            logger=logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
         self.set_grid(dsout)
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
+    @hydromt_step
     def upgrade_to_v1_wflow(
         self,
         soil_fn: str = "soilgrids",

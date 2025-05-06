@@ -8,12 +8,12 @@ import logging
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List
 
 import geopandas as gpd
-import hydromt
 
 # from dask.distributed import LocalCluster, Client, performance_report
+import hydromt
 import numpy as np
 import pandas as pd
 import pyflwdir
@@ -30,9 +30,8 @@ from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
 )
-from naming import _create_hydromt_wflow_mapping_sbm
-from shapely.geometry import box
 
+from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
     DATADIR,
     convert_to_wflow_v1_sbm,
@@ -62,35 +61,39 @@ class WflowModel(Model):
         Additional keyword arguments to be passed down to the DataCatalog.
     """
 
-    name: str = "wflow_model"
+    name: str = "wflow"
 
     _MODEL_VERSION = None
     # TODO supported model version should be filled by the plugins
     # e.g. _MODEL_VERSION = ">=1.0, <1.1
 
-    _FOLDERS = []
     _GEOMS = {}
     _DATADIR = DATADIR
+    _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
         self,
-        root: Optional[str] = None,
-        config_fname: Path | str = "wflow_sbm.toml",
+        root: str | None = None,
+        config_fn: Path | str = "wflow_sbm.toml",
         mode: str = "r",
-        data_libs: Optional[Union[list[str], str]] = None,
+        data_libs: list[str] | str | None = None,
         **catalog_keys,
     ):
+        # Define components when they are implemented
+        # This is when config_fn should be able to be passed to ConfigComponent later
+        components = {}
+
         super().__init__(
             root,
-            components={},
+            components=components,
             mode=mode,
-            region_component="region",
+            region_component="grid",  # change when GridComponent is implemented
             data_libs=data_libs,
             **catalog_keys,
         )
 
-        # wflow specific (also legacy)
+        # wflow specific
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
 
@@ -99,37 +102,7 @@ class WflowModel(Model):
         # hydromt mapping and wflow variable names
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(self.config)
 
-        ## Setup components
-        # self.add_component(
-        #     "config",
-        #     WflowConfigComponent(model=self, filename=config_fname),
-        # )
-        # ...
-
-    # COMPONENTS
-    @hydromt_step
-    def setup_region(
-        self,
-        region: Path | str,
-    ) -> None:
-        """Set the region of the wflow model.
-
-        Parameters
-        ----------
-        region : Path | str
-            Path to the region vector file.
-
-        Returns
-        -------
-            None
-        """
-        region = Path(region)
-        logger.info(f"Setting region from '{region.as_posix()}'")
-        if not region.is_file():
-            raise FileNotFoundError(region.as_posix())
-        geom = gpd.read_file(region)
-        self.components["region"].set(geom)
-
+    # SETUP METHODS
     @hydromt_step
     def setup_basemaps(
         self,
@@ -266,17 +239,16 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
                 )
 
         # get basin geometry and clip data
-        # TODO this is pretty bad, but it has to do until parse_region_basin also
-        # returns the pits.
         kind = next(iter(region))
-        region_kwargs = _parse_region_value(
-            region.pop(kind),
-            data_catalog=self.data_catalog,
-        )
-        region_kwargs.update(region)
-
         xy = None
-        if kind in ["basin", "subbasin", "outlet"]:
+        if kind in ["basin", "subbasin"]:
+            # parse_region_basin does not return xy, only geom...
+            # should be fixed in core
+            region_kwargs = _parse_region_value(
+                region.pop(kind),
+                data_catalog=self.data_catalog,
+            )
+            region_kwargs.update(region)
             if basin_index_fn is not None:
                 bas_index = self.data_catalog.get_source(basin_index_fn)
             else:
@@ -287,13 +259,24 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
                 basin_index=bas_index,
                 **region,
             )
-        elif "bbox" in region:
-            bbox = region.get("bbox")
-            geom = gpd.GeoDataFrame(geometry=[box(*bbox)], crs=4326)
-        elif "geom" in region:
-            geom = region.get("geom")
+        elif kind == "bbox":
+            logger.warning(
+                "Kind 'bbox' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = hydromt.processes.region.parse_region_bbox(region)
+        elif kind == "geom":
+            logger.warning(
+                "Kind 'geom' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = hydromt.processes.region.parse_region_geom(region)
         else:
-            raise ValueError(f"wflow region argument not understood: {region}")
+            raise ValueError(
+                f"wflow region kind not understood or supported: {kind}. "
+                "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+            )
+
         if geom is not None and geom.crs is None:
             raise ValueError("wflow region geometry has no CRS")
 
@@ -773,9 +756,7 @@ setting new flood_depth dimensions"
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
-
             name = f"hydrodem{postfix}_D{connectivity}"
-            logger.info(f"Preparing {name} map for land routing.")
             # Check if users wanted a specific name for the hydrodem
             hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
             lndelv_var = self._WFLOW_NAMES.get(self._MAPS["elevtn"])
@@ -4937,6 +4918,7 @@ Run setup_soilmaps first"
         for option in states_config:
             self.set_config(option, states_config[option])
 
+    @hydromt_step
     def upgrade_to_v1_wflow(self):
         """
         Upgrade the model to wflow v1 format.
@@ -4950,38 +4932,60 @@ Run setup_soilmaps first"
         for option in config_out:
             self.set_config(option, config_out[option])
 
-    # Properties
-    # @property
-    # def config(self) -> ConfigComponent:
-    #     """Return the configurations component."""
-    #     return self.components["config"]
-
-    # @property
-    # def grid(self) -> GridComponent:
-    #     """Return the configurations component."""
-    #     return self.components["grid"]
-    # ...
-
     # I/O
-    @hydromt_step
-    def read(
-        self,
-    ):
-        """Read the complete model schematization and configuration from file."""
-        super().read(self)
-        logger.info("Model read")
 
     @hydromt_step
     def write(
         self,
+        config_fn: str | None = None,
+        grid_fn: Path | str = "staticmaps.nc",
+        geoms_fn: Path | str = "staticgeoms",
+        forcing_fn: Path | str | None = None,
+        states_fn: Path | str | None = None,
     ):
         """
         Write the complete model schematization and configuration to file.
 
-        The current model root is used to write the model.
+        From this function, the output filenames/folder of the different components can
+        be set. If not set, the default filenames/folder are used.
+        To change more advanced settings, use the specific write methods directly.
+
+        Parameters
+        ----------
+        config_fn : str, optional
+            Name of the config file, relative to model root. By default None.
+        grid_fn : str, optional
+            Name of the grid file, relative to model root/dir_input. By default
+            'staticmaps.nc'.
+        geoms_fn : str, optional
+            Name of the geoms folder relative to grid_fn (ie model root/dir_input). By
+            default 'staticgeoms'.
+        forcing_fn : str, optional
+            Name of the forcing file relative to model root/dir_input. By default None
+            to use the name as defined in the model config file.
+        states_fn : str, optional
+            Name of the states file relative to model root/dir_input. By default None
+            to use the name as defined in the model config file.
         """
-        logger.info(f"Writing model to {self.root}")
-        super().write(self)
+        self.logger.info(f"Write model data to {self.root}")
+        # if in r, r+ mode, only write updated components
+        if not self._write:
+            self.logger.warning("Cannot write in read-only mode")
+            return
+        self.write_data_catalog()
+        _ = self.config  # try to read default if not yet set
+        if self._grid:
+            self.write_grid(fn_out=grid_fn)
+        if self._geoms:
+            self.write_geoms(geoms_fn=geoms_fn)
+        if self._forcing:
+            self.write_forcing(fn_out=forcing_fn)
+        if self._tables:
+            self.write_tables()
+        if self._states:
+            self.write_states(fn_out=states_fn)
+        # Write the config last as variables can get set in other write methods
+        self.write_config(config_name=config_fn)
 
     @hydromt_step
     def write_config(
@@ -5120,6 +5124,7 @@ Run setup_soilmaps first"
         # Check if all sub-folders in fn exists and if not create them
         if not isdir(dirname(fn)):
             os.makedirs(dirname(fn))
+        logger.info(f"Write grid to {fn}")
 
         ds_out.to_netcdf(fn, encoding=encoding)
 
@@ -5505,9 +5510,8 @@ change name input.path_forcing "
                 encoding[v] = {"_FillValue": None}
 
             # Check if all sub-folders in fn_out exists and if not create them
-            path = Path(fn_out)
-            if not path.parent.exists():
-                path.parent.mkdir(parents=True)
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
 
             forcing_list = []
 
@@ -5567,7 +5571,7 @@ change name input.path_forcing "
             # start fresh in read-only mode
             self._states = dict()
 
-        if fn is not None and Path.isfile(fn):
+        if fn is not None and isfile(fn):
             logger.info(f"Read states from {fn}")
             with xr.open_dataset(fn, mask_and_scale=False) as ds:
                 for v in ds.data_vars:
@@ -5607,9 +5611,8 @@ change name input.path_forcing "
             ds["time"].attrs.pop("_FillValue", None)
 
             # Check if all sub-folders in fn_out exists and if not create them
-            path = Path(fn_out)
-            if not path.parent.exists():
-                path.parent.mkdir(parents=True)
+            if not isdir(dirname(fn_out)):
+                os.makedirs(dirname(fn_out))
 
             # write states
             ds.to_netcdf(fn_out, mode="w")
@@ -5628,7 +5631,7 @@ change name input.path_forcing "
         # Read gridded netcdf (output section)
         nc_fn = self.get_config("output.netcdf_grid.path", abs_path=True)
         nc_fn = nc_fn.parent / output_dir / nc_fn.name if nc_fn is not None else nc_fn
-        if nc_fn is not None and Path.isfile(nc_fn):
+        if nc_fn is not None and isfile(nc_fn):
             logger.info(f"Read results from {nc_fn}")
             with xr.open_dataset(nc_fn, chunks={"time": 30}, decode_coords="all") as ds:
                 # TODO ? align coords names and values of results nc with grid
@@ -5639,7 +5642,7 @@ change name input.path_forcing "
         ncs_fn = (
             ncs_fn.parent / output_dir / ncs_fn.name if ncs_fn is not None else ncs_fn
         )
-        if ncs_fn is not None and Path.isfile(ncs_fn):
+        if ncs_fn is not None and isfile(ncs_fn):
             logger.info(f"Read results from {ncs_fn}")
             with xr.open_dataset(ncs_fn, chunks={"time": 30}) as ds:
                 self.set_results(ds, name="netcdf_scalar")
@@ -5649,7 +5652,7 @@ change name input.path_forcing "
         csv_fn = (
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
-        if csv_fn is not None and Path.is_file(csv_fn):
+        if csv_fn is not None and isfile(csv_fn):
             csv_dict = read_csv_results(csv_fn, config=self.config, maps=self.grid)
             for key in csv_dict:
                 # Add to results
@@ -5675,7 +5678,7 @@ change name input.path_forcing "
             fns = glob.glob(join(self.root, "intbl", "*.tbl"))
         if len(fns) > 0:
             for fn in fns:
-                name = Path(fn).with_suffix("").name
+                name = basename(fn).split(".")[0]
                 tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
                 tbl.columns = [
                     f"expr{i + 1}" if i + 1 < len(tbl.columns) else "value"
@@ -5716,7 +5719,7 @@ change name input.path_forcing "
         fns = glob.glob(join(self.root, "*.csv"))
         if len(fns) > 0:
             for fn in fns:
-                name = Path(fn).with_suffix("").name
+                name = basename(fn).split(".")[0]
                 tbl = pd.read_csv(fn, float_precision="round_trip")
                 self.set_tables(tbl, name=name)
 
@@ -5887,6 +5890,7 @@ change name input.path_forcing "
 
     ## WFLOW specific modification (clip for now) methods
 
+    @hydromt_step
     def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
         """Clip grid to subbasin.
 
@@ -5914,35 +5918,53 @@ change name input.path_forcing "
 
         kind, region = hydromt.workflows.parse_region(region, logger=logger)
         # translate basin and outlet kinds to geom
-        geom = region.get("geom", None)
-        bbox = region.get("bbox", None)
-        if kind in ["basin", "outlet", "subbasin"]:
-            # supply bbox to avoid getting basin bounds first when clipping subbasins
-            if kind == "subbasin" and bbox is None:
-                region.update(bbox=self.bounds)
+        # get basin geometry and clip data
+        kind = next(iter(region))
+        if kind in ["basin", "subbasin"]:
+            # parse_region_basin does not return xy, only geom...
+            # should be fixed in core
+            region_kwargs = _parse_region_value(
+                region.pop(kind),
+                data_catalog=self.data_catalog,
+            )
+            region_kwargs.update(region)
             geom, _ = get_basin_geometry(
                 ds=self.grid,
-                logger=logger,
                 kind=kind,
                 basins_name=basins_name,
                 flwdir_name=flwdir_name,
                 **region,
             )
+        elif kind == "bbox":
+            logger.warning(
+                "Kind 'bbox' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = hydromt.processes.region.parse_region_bbox(region)
+        elif kind == "geom":
+            logger.warning(
+                "Kind 'geom' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = hydromt.processes.region.parse_region_geom(region)
+        else:
+            raise ValueError(
+                f"wflow region kind not understood or supported: {kind}. "
+                "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+            )
+
         # Remove upstream part from model
         if inverse_clip:
             geom = self.basins.overlay(geom, how="difference")
         # clip based on subbasin args, geom or bbox
-        if geom is not None:
-            ds_grid = self.grid.raster.clip_geom(geom, align=align, buffer=buffer)
-            ds_grid.coords["mask"] = ds_grid.raster.geometry_mask(geom)
-            ds_grid[basins_name] = ds_grid[basins_name].where(
-                ds_grid.coords["mask"], self.grid[basins_name].raster.nodata
-            )
-            ds_grid[basins_name].attrs.update(
-                _FillValue=self.grid[basins_name].raster.nodata
-            )
-        elif bbox is not None:
-            ds_grid = self.grid.raster.clip_bbox(bbox, align=align, buffer=buffer)
+        ds_grid = self.grid.raster.clip_geom(geom, align=align, buffer=buffer)
+        ds_grid.coords["mask"] = ds_grid.raster.geometry_mask(geom)
+        ds_grid[basins_name] = ds_grid[basins_name].where(
+            ds_grid.coords["mask"], self.grid[basins_name].raster.nodata
+        )
+        ds_grid[basins_name].attrs.update(
+            _FillValue=self.grid[basins_name].raster.nodata
+        )
 
         # Update flwdir grid and geoms
         if self.crs is None and crs is not None:
@@ -6034,7 +6056,8 @@ change name input.path_forcing "
                     "lake_water_surface__instantaneous_elevation"
                 ]
 
-    def clip_forcing(self, crs=4326, **kwargs):
+    @hydromt_step
+    def clip_forcing(self):
         """Return clippped forcing for subbasin.
 
         Returns
@@ -6050,7 +6073,8 @@ change name input.path_forcing "
             )
             self.set_forcing(ds_forcing)
 
-    def clip_states(self, crs=4326, **kwargs):
+    @hydromt_step
+    def clip_states(self):
         """Return clippped states for subbasin.
 
         Returns

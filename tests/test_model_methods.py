@@ -353,26 +353,6 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
 @pytest.mark.skip(
     reason="Skip test until required hydromt-core v1 component(s) are implemented"
 )
-def test_soil_mapping(example_wflow_model):
-    # Read soil mapping table
-    soil_mapping = example_wflow_model.data_catalog.get_dataframe(
-        "soil_mapping_default"
-    )
-
-    ds_soil_params = workflows.landuse(
-        example_wflow_model.grid["wflow_soil"],
-        ds_like=example_wflow_model.grid,
-        df=soil_mapping,
-        logger=example_wflow_model.logger,
-    )
-
-    assert "InfiltCapSoil" in ds_soil_params
-    assert int(ds_soil_params["InfiltCapSoil"].mean().values) == 269
-
-
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read LAI data
@@ -1057,25 +1037,6 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         assert (
             clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
         )
-
-
-@pytest.mark.skip(
-    reason="Skip test until required hydromt-core v1 component(s) are implemented"
-)
-def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
-    example_sediment_model.setup_lulcmaps(
-        lulc_fn="globcover_2009",
-        lulc_mapping_fn="globcover_mapping_default",
-        planted_forest_fn=planted_forest_testdata,
-        lulc_vars=["USLE_C"],
-        planted_forest_c=0.0881,
-        orchard_name="Orchard",
-        orchard_c=0.2188,
-    )
-    da = example_sediment_model.grid["USLE_C"].raster.sample(
-        planted_forest_testdata.geometry.centroid
-    )
-    assert np.all(da.values == np.array([0.0881, 0.2188]))
 
 
 @pytest.mark.skip(
