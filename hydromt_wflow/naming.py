@@ -6,7 +6,7 @@ from typing import Tuple
 # {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
     "subelv": "meta_subgrid_elevation",
-    "uparea": "wflow_uparea",
+    "uparea": "meta_upstream_area",
     "strord": "meta_streamorder",
     "landuse": "meta_landuse",
     "soil_texture": "meta_soil_texture",
@@ -14,7 +14,7 @@ HYDROMT_NAMES_DEFAULT = {
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     # additional hydromt outputs
     "elevtn": "land_elevation",
-    "uparea": "wflow_uparea",
+    "uparea": "meta_upstream_area",
     "strord": "meta_streamorder",
     "landuse": "meta_landuse",
     "soil": "meta_soil_texture",

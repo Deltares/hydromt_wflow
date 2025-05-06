@@ -165,7 +165,7 @@ class WflowModel(GridModel):
 
         * **wflow_ldd** map: flow direction in LDD format [-]
         * **wflow_subcatch** map: basin ID map [-]
-        * **wflow_uparea** map: upstream area [km2]
+        * **meta_upstream_area** map: upstream area [km2]
         * **meta_streamorder** map: Strahler stream order [-]
         * **land_elevation** map: average elevation [m+REF]
         * **meta_subgrid_elevation** map: subgrid outlet elevation [m+REF]
