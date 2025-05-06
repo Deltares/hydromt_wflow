@@ -1060,7 +1060,7 @@ and will soon be removed. '
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1197,7 +1197,7 @@ and will soon be removed. '
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         # Read mapping table
@@ -2715,7 +2715,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.grid.data_vars:
@@ -4456,7 +4456,7 @@ Run setup_soilmaps first"
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
-        lulcmap_name: str = "wflow_landuse",
+        lulcmap_name: str = "meta_landuse",
         output_names: Dict = {
             "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
             "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
@@ -4518,7 +4518,7 @@ Run setup_soilmaps first"
             default 0.2.
         lulcmap_name: str
             Name of the landuse map layer in the wflow model staticmaps. By default
-            'wflow_landuse'. Plese update if your landuse map has a different name
+            'meta_landuse'. Please update if your landuse map has a different name
             (eg 'landuse_globcover').
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input

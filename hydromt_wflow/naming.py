@@ -8,7 +8,7 @@ HYDROMT_NAMES_DEFAULT = {
     "subelv": "dem_subgrid",
     "uparea": "wflow_uparea",
     "strord": "wflow_streamorder",
-    "landuse": "wflow_landuse",
+    "landuse": "meta_landuse",
     "soil_texture": "wflow_soil",
 }
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
@@ -16,7 +16,7 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     "elevtn": "wflow_dem",
     "uparea": "wflow_uparea",
     "strord": "wflow_streamorder",
-    "landuse": "wflow_landuse",
+    "landuse": "meta_landuse",
     "soil": "wflow_soil",
 }
 
