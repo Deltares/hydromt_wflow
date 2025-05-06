@@ -303,8 +303,6 @@ Input/Output methods
    :toctree: _generated
 
    read_csv_results
-   pcrm.read_staticmaps_pcr
-   pcrm.write_staticmaps_pcr
 
 Utility methods
 ---------------
