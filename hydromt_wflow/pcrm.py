@@ -29,7 +29,7 @@ __all__ = [
 PCR_VS_MAP = {
     "wflow_ldd": "ldd",
     "wflow_river": "bool",
-    "wflow_streamorder": "ordinal",
+    "meta_streamorder": "ordinal",
     "wflow_gauges": "nominal",  # to avoid large memory usage in pcraster.aguila
     "wflow_subcatch": "nominal",  # idem.
     "meta_landuse": "nominal",
