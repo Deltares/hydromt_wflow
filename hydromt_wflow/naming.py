@@ -5,7 +5,7 @@ from typing import Tuple
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
-    "subelv": "dem_subgrid",
+    "subelv": "meta_subgrid_elevation",
     "uparea": "wflow_uparea",
     "strord": "wflow_streamorder",
     "landuse": "meta_landuse",

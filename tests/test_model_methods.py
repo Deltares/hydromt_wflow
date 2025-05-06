@@ -637,7 +637,7 @@ def test_setup_gauges(example_wflow_model):
     assert np.all(ds_samp["wflow_river"].values == 1)
 
 
-@pytest.mark.parametrize("elevtn_map", ["land_elevation", "dem_subgrid"])
+@pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -653,9 +653,10 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         output_names={},
     )
 
-    mapname = {"land_elevation": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
-        elevtn_map
-    ]
+    mapname = {
+        "land_elevation": "hydrodem_avg",
+        "meta_subgrid_elevation": "hydrometa_subgrid_elevation",
+    }[elevtn_map]
 
     assert mapname in example_wflow_model.grid
     assert example_wflow_model.get_config("model.river_routing") == "local-inertial"
@@ -718,7 +719,7 @@ def test_setup_rivers_depth(tmpdir):
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="dem_subgrid",
+        elevtn_map="meta_subgrid_elevation",
     )
 
     # RiverDepth iteslf doesn't matter here, this assertion
@@ -765,7 +766,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     )
 
 
-@pytest.mark.parametrize("elevtn_map", ["land_elevation", "dem_subgrid"])
+@pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -785,9 +786,10 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         hydrography_fn="merit_hydro", floodplain_type="2d", elevtn_map=elevtn_map
     )
 
-    mapname = {"land_elevation": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
-        elevtn_map
-    ]
+    mapname = {
+        "land_elevation": "hydrodem_avg",
+        "meta_subgrid_elevation": "hydrodem_subgrid",
+    }[elevtn_map]
 
     assert f"{mapname}_D4" in example_wflow_model.grid
     assert example_wflow_model.get_config("model.floodplain_1d") == False
