@@ -69,7 +69,6 @@ class WflowModel(Model):
 
     _GEOMS = {}
     _DATADIR = DATADIR
-    _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
 
     def __init__(
@@ -5916,7 +5915,6 @@ change name input.path_forcing "
         basins_name = self._MAPS["basins"]
         flwdir_name = self._MAPS["flwdir"]
 
-        kind, region = hydromt.workflows.parse_region(region, logger=logger)
         # translate basin and outlet kinds to geom
         # get basin geometry and clip data
         kind = next(iter(region))

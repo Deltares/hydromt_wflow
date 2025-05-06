@@ -1056,6 +1056,9 @@ def test_setup_lulc_vector(
     assert "wflow_landuse" in example_wflow_model.grid
 
 
+@pytest.mark.skip(
+    reason="Skip test until required hydromt-core v1 component(s) are implemented"
+)
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()

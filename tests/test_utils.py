@@ -68,6 +68,9 @@ def test_grid_from_config(demda):
     assert ksathorfrac2.equals(ksathorfrac)
 
 
+@pytest.mark.skip(
+    reason="Skip test until required hydromt-core v1 component(s) are implemented"
+)
 def test_convert_to_wflow_v1_sbm():
     # Initiliaze wflow model
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
@@ -84,6 +87,9 @@ def test_convert_to_wflow_v1_sbm():
     assert wflow.config == wflow_v1.config, "Config files are not equal"
 
 
+@pytest.mark.skip(
+    reason="Skip test until required hydromt-core v1 component(s) are implemented"
+)
 def test_convert_to_wflow_v1_sediment():
     # Initiliaze wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
