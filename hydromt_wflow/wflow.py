@@ -5723,12 +5723,12 @@ change name input.path_forcing "
         self._initialize_config()
         if len(args) < 2:
             raise TypeError("set_config() requires a least one key and one value.")
+        if not all([isinstance(part, str) for part in args[:-1]]):
+            raise TypeError("All but last argument for set_config must be str")
+
         args = list(args)
         value = args.pop(-1)
-        if isinstance(args[0], str):
-            keys = args[0].split(".")
-        else:
-            keys = args
+        keys = reduce(lambda acc, arg: [*acc, *arg.split(".")], args, [])
 
         reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], self._config)
 
