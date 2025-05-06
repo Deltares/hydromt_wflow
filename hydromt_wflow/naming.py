@@ -9,7 +9,7 @@ HYDROMT_NAMES_DEFAULT = {
     "uparea": "wflow_uparea",
     "strord": "wflow_streamorder",
     "landuse": "meta_landuse",
-    "soil_texture": "wflow_soil",
+    "soil_texture": "meta_soil_texture",
 }
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     # additional hydromt outputs
@@ -17,7 +17,7 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     "uparea": "wflow_uparea",
     "strord": "wflow_streamorder",
     "landuse": "meta_landuse",
-    "soil": "wflow_soil",
+    "soil": "meta_soil_texture",
 }
 
 # Link between staticmap names, hydromt name (if any)

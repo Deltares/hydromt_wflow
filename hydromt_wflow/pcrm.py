@@ -33,7 +33,7 @@ PCR_VS_MAP = {
     "wflow_gauges": "nominal",  # to avoid large memory usage in pcraster.aguila
     "wflow_subcatch": "nominal",  # idem.
     "meta_landuse": "nominal",
-    "wflow_soil": "nominal",
+    "meta_soil_texture": "nominal",
     "wflow_reservoirareas": "nominal",
     "wflow_reservoirlocs": "nominal",
     "wflow_lakeareas": "nominal",

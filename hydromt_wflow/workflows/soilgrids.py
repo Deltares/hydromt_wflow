@@ -496,7 +496,8 @@ soil depth
 index for the wflow_sbm soil layers.
     - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \
 [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
+    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt, sand
+    mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
 
@@ -675,11 +676,11 @@ index for the wflow_sbm soil layers.
 
     soil_texture_out = soil_texture.raster.reproject_like(ds_like, method="mode")
     # np.nan is not a valid value for array with type integer
-    ds_out["wflow_soil"] = soil_texture_out
-    ds_out["wflow_soil"].raster.set_nodata(0)
+    ds_out["meta_soil_texture"] = soil_texture_out
+    ds_out["meta_soil_texture"].raster.set_nodata(0)
 
     # for writing pcraster map files a scalar nodata value is required
-    dtypes = {"wflow_soil": np.int32}
+    dtypes = {"meta_soil_texture": np.int32}
     for var in ds_out:
         dtype = dtypes.get(var, np.float32)
         logger.debug(f"Interpolate nodata (NaN) values for {var}")

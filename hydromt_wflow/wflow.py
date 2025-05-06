@@ -2382,7 +2382,7 @@ KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` ar
 a map for each of the wflow_sbm soil layers (n in total)
         * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
 [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **wflow_soil** map: soil texture based on USDA soil texture triangle \
+        * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
