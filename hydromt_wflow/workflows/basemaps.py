@@ -42,7 +42,7 @@ def hydrography(
     upscaled and river length and slope are based on subgrid flow paths and
     the following maps are added:
 
-    - subare : contributing area to each subgrid outlet pixel \
+    - meta_subgrid_area : contributing area to each subgrid outlet pixel \
 (unit catchment area) [km2]
     - subelv : elevation at subgrid outlet pixel [m+REF]
 
@@ -184,12 +184,14 @@ parametrization of distributed hydrological models.
         outidx = np.where(
             ds_out["mask"], da_flw.coords["idx_out"].values, flwdir_out._mv
         )
-        subare = flwdir.ucat_area(outidx, unit="km2")[1]
-        uparea = flwdir_out.accuflux(subare)
+        subgrid_area = flwdir.ucat_area(outidx, unit="km2")[1]
+        uparea = flwdir_out.accuflux(subgrid_area)
         attrs = dict(_FillValue=-9999, unit="km2")
         ds_out[uparea_name] = xr.Variable(dims, uparea, attrs=attrs).astype(np.float32)
         # NOTE: subgrid cella area is currently not used in wflow
-        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
+        ds_out["meta_subgrid_area"] = xr.Variable(
+            dims, subgrid_area, attrs=attrs
+        ).astype(np.float32)
         if "elevtn" in ds:
             subelv = ds["elevtn"].values.flat[outidx]
             subelv = np.where(outidx >= 0, subelv, -9999)
@@ -246,9 +248,11 @@ parametrization of distributed hydrological models.
         # cell area
         # NOTE: subgrid cella area is currently not used in wflow
         ys, xs = ds.raster.ycoords.values, ds.raster.xcoords.values
-        subare = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
+        subgrid_area = gis_utils.reggrid_area(ys, xs) / 1e6  # km2
         attrs = dict(_FillValue=-9999, unit="km2")
-        ds_out["subare"] = xr.Variable(dims, subare, attrs=attrs).astype(np.float32)
+        ds_out["meta_subgrid_area"] = xr.Variable(
+            dims, subgrid_area, attrs=attrs
+        ).astype(np.float32)
     # logging
     npits = flwdir_out.idxs_pit.size
     xy_pit = flwdir_out.xy(flwdir_out.idxs_pit[:5])
