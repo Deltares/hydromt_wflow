@@ -168,7 +168,7 @@ class WflowModel(GridModel):
         * **wflow_uparea** map: upstream area [km2]
         * **wflow_streamorder** map: Strahler stream order [-]
         * **land_elevation** map: average elevation [m+REF]
-        * **dem_subgrid** map: subgrid outlet elevation [m+REF]
+        * **meta_subgrid_elevation** map: subgrid outlet elevation [m+REF]
         * **Slope** map: average land surface slope [m/m]
         * **basins** geom: basins boundary vector
         * **region** geom: region boundary vector
@@ -358,7 +358,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         If ``river_routing`` is set to "local-inertial", the bankfull elevation map
         can be conditioned based on the average cell elevation ("land_elevation")
-        or subgrid outlet pixel elevation ("dem_subgrid").
+        or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with
         local-inertial land routing (see :py:meth:`setup_floodplains`)
@@ -537,9 +537,10 @@ Select from {routing_options}.'
         self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
-            postfix = {"land_elevation": "_avg", "dem_subgrid": "_subgrid"}.get(
-                elevtn_map, ""
-            )
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
             name = f"hydrodem{postfix}"
             # Check if users wanted a specific name for the hydrodem
             hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
@@ -595,7 +596,7 @@ Select from {routing_options}.'
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation
-        ("land_elevation") or subgrid outlet pixel elevation ("dem_subgrid").
+        ("land_elevation") or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         Note that the subgrid elevation will likely overestimate
         the floodplain storage capacity.
 
@@ -630,7 +631,7 @@ Select from {routing_options}.'
             (1D floodplains) flood depths at which a volume is derived.
             By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
-        elevtn_map: {"land_elevation", "dem_subgrid"}
+        elevtn_map: {"land_elevation", "meta_subgrid_elevation"}
             (2D floodplains) Name of staticmap to hydrologically condition.
             By default "land_elevation"
         output_names : dict, optional
@@ -726,9 +727,10 @@ setting new flood_depth dimensions"
             if elevtn_map not in self.grid:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
 
-            postfix = {"land_elevation": "_avg", "dem_subgrid": "_subgrid"}.get(
-                elevtn_map, ""
-            )
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
             name = f"hydrodem{postfix}_D{connectivity}"
             # Check if users wanted a specific name for the hydrodem
             hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
