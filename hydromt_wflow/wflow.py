@@ -163,7 +163,7 @@ class WflowModel(GridModel):
 
         * **wflow_ldd** map: flow direction in LDD format [-]
         * **wflow_subcatch** map: basin ID map [-]
-        * **wflow_uparea** map: upstream area [km2]
+        * **meta_upstream_area** map: upstream area [km2]
         * **meta_streamorder** map: Strahler stream order [-]
         * **land_elevation** map: average elevation [m+REF]
         * **meta_subgrid_elevation** map: subgrid outlet elevation [m+REF]
@@ -2365,15 +2365,6 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
         * **KsatVer** map: vertical saturated hydraulic conductivity at \
 soil surface [mm/day]
         * **SoilThickness** map: soil thickness [mm]
-        * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
-        * **M** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth (fitted with curve_fit (scipy.optimize)), bounds of M are \
-    checked
-        * **M_** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` are \
-    checked
-        * **M_original** map: M without checking bounds
-        * **M_original_** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
