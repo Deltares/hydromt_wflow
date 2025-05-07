@@ -30,6 +30,15 @@ path_output = "outstate/outstates.nc"
 path_forcing = "inmaps.nc"
 path_static  = "staticmaps.nc"
 
+[input.static]
+"soil~compacted_surface_water__infiltration_capacity".value = 5
+soil_water_sat-zone_bottom__max_leakage_volume_flux.value   = 0
+"soil_root~wet__sigmoid_function_shape_parameter".value     = -500
+
+[input.forcing]
+netcdf.name = "blah.nc"
+scale       = 100
+
 [state.variables]
 vegetation_canopy_water__depth                     = "canopystorage"
 soil_water_sat-zone__depth                         = "satwaterdepth"
@@ -42,12 +51,3 @@ land_surface_water__instantaneous_depth            = "h_land"
 subsurface_water__volume_flow_rate                 = "ssf"
 river_water__instantaneous_volume_flow_rate        = "q_river"
 river_water__instantaneous_depth                   = "h_river"
-
-[input.vertical]
-khorfrac.value = 100
-kverfrac.value = 200
-
-[input.static]
-"soil~compacted_surface_water__infiltration_capacity".value = 5
-soil_water_sat-zone_bottom__max_leakage_volume_flux.value   = 0
-"soil_root~wet__sigmoid_function_shape_parameter".value     = -500

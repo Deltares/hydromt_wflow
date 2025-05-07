@@ -231,7 +231,7 @@ def _get_key_values_to_move(
 
 
 def _update_config_dict_with_value_keys(
-    keys_values_to_move: List[tuple[str, str]], data: dict[str, str]
+    keys_values_to_move: List[tuple[str, Any]], data: dict[str, str]
 ):
     for parent, value in keys_values_to_move:
         parents, parent = parent.rsplit(".", maxsplit=1)

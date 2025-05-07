@@ -5730,15 +5730,34 @@ change name input.path_forcing "
         value = args.pop(-1)
         keys = reduce(lambda acc, arg: [*acc, *arg.split(".")], args, [])
 
-        reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], self._config)
+        if keys[0] not in self._config:
+            self._config.append(tomlkit.key(keys), value)
+            return
+
+        current = self._config[keys[0]]
+
+        for idx in range(1, len(keys)):
+            if not current.is_super_table():
+                remaining_key = tomlkit.key(keys[idx:])
+                current.update({remaining_key: value})
+                break
+            else:
+                current = current[keys[idx]]
 
         # the double walk is necessary because of a bug in tomlkit
         # (see https://github.com/python-poetry/tomlkit/issues/410)
-        branch = self._config
-        for key in keys[:-1]:
-            branch = branch[key]
+        # branch = self._config
+        # for key in keys[:-1]:
+        #     branch = branch[key]
 
-        branch[keys[-1]] = value
+        # branch[keys[-1]] = value
+
+        # if keys[-1] == "value":
+        #     branch._is_super_table = False
+
+        # grouped = _handle_key_dot_value_config_items(self._config)
+
+        # self._config = grouped
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
