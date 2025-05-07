@@ -1,26 +1,26 @@
 dir_output = "run_default"
 
 [time]
-calendar     = "proleptic_gregorian"
-starttime    = "2010-02-01T00:00:00"
-endtime      = "2010-02-10T00:00:00"
-time_units   = "days since 1900-01-01 00:00:00"
+calendar = "proleptic_gregorian"
+starttime = "2010-02-01T00:00:00"
+endtime = "2010-02-10T00:00:00"
+time_units = "days since 1900-01-01 00:00:00"
 timestepsecs = 86400
 
 [logging]
 loglevel = "info"
 
 [model]
-type                         = "sbm"
+type = "sbm"
 gravitational_snow_transport = true
-snow                         = true
-reinit                       = true
-reservoirs                   = false
-lakes                        = false
-glacier                      = false
-kin_wave_iteration           = true
-kw_river_tstep               = 900
-kw_land_tstep                = 3600
+snow = true
+reinit = true
+reservoirs = false
+lakes = false
+glacier = false
+kin_wave_iteration = true
+kw_river_tstep = 900
+kw_land_tstep = 3600
 
 [state]
 path_input  = "instate/instates.nc"
@@ -31,23 +31,27 @@ path_forcing = "inmaps.nc"
 path_static  = "staticmaps.nc"
 
 [input.static]
-"soil~compacted_surface_water__infiltration_capacity".value = 5
-soil_water_sat-zone_bottom__max_leakage_volume_flux.value   = 0
-"soil_root~wet__sigmoid_function_shape_parameter".value     = -500
+"staticsoil~compacted_surface_water__infiltration_capacity".value = 5
+"soil_root~wet__sigmoid_function_shape_parameter".value = -500
+soil_water_sat-zone_bottom__max_leakage_volume_flux.value = 0
 
 [input.forcing]
 netcdf.name = "blah.nc"
-scale       = 100
+scale = 1
+
+[input.vertical]
+khorfrac.value = 100
+kverfract.value = 200
 
 [state.variables]
-vegetation_canopy_water__depth                     = "canopystorage"
-soil_water_sat-zone__depth                         = "satwaterdepth"
-soil_layer_water_unsat-zone__depth                 = "ustorelayerdepth"
-soil_surface__temperature                          = "tsoil"
-"snowpack~dry__leq-depth"                          = "snow"
-"snowpack~liquid__depth"                           = "snowwater"
+vegetation_canopy_water__depth = "canopystorage"
+soil_water_sat-zone__depth = "satwaterdepth"
+soil_layer_water_unsat-zone__depth = "ustorelayerdepth"
+soil_surface__temperature = "tsoil"
+"snowpack~dry__leq-depth" = "snow"
+"snowpack~liquid__depth" = "snowwater"
 land_surface_water__instantaneous_volume_flow_rate = "q_land"
-land_surface_water__instantaneous_depth            = "h_land"
-subsurface_water__volume_flow_rate                 = "ssf"
-river_water__instantaneous_volume_flow_rate        = "q_river"
-river_water__instantaneous_depth                   = "h_river"
+land_surface_water__instantaneous_depth = "h_land"
+subsurface_water__volume_flow_rate = "ssf"
+river_water__instantaneous_volume_flow_rate = "q_river"
+river_water__instantaneous_depth = "h_river"
