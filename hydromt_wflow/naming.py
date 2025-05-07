@@ -17,12 +17,11 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
 HYDROMT_NAMES_COMMON = {
     "uparea": "meta_upstream_area",
     "strord": "meta_streamorder",
-    "landuse": "meta_landuse",
 }
 
 STATIC_MAPS_NAME_MAPPING = {
     "subare": "meta_subgrid_area",
-    "wflow_landuse": "meta_landuse",
+    "landuse": "meta_landuse",
     "wflow_soil": "meta_soil_texture",
     "wflow_dem": "land_elevation",
     "wflow_subgrid": "meta_subgrid_elevation",
