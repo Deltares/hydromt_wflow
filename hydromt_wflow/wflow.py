@@ -6003,8 +6003,8 @@ change name input.path_forcing "
                     self._MAPS["LakeStorFunc"],
                     self._MAPS["LakeOutflowFunc"],
                     self._MAPS["LakeArea"],
-                    self._MAPS["lake_initial_depth"],
-                    "meta_lake_mean_outflow",  # this is a hydromt meta map
+                    self._MAPS["LakeAvgLevel"],
+                    "LakeAvgOut",  # this is a hydromt meta map
                     self._MAPS["LakeThreshold"],
                     self._MAPS["Lake_b"],
                     self._MAPS["Lake_e"],
