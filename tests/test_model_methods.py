@@ -637,7 +637,7 @@ def test_setup_gauges(example_wflow_model):
     assert np.all(ds_samp["wflow_river"].values == 1)
 
 
-@pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
+@pytest.mark.parametrize("elevtn_map", ["land_elevation", "dem_subgrid"])
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -653,7 +653,7 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         output_names={},
     )
 
-    mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
+    mapname = {"land_elevation": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
         elevtn_map
     ]
 
@@ -702,7 +702,7 @@ def test_setup_rivers_depth(tmpdir):
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="wflow_dem",
+        elevtn_map="land_elevation",
     )
 
     assert "RiverDepth" in mod.grid
@@ -740,7 +740,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="wflow_dem",
+        elevtn_map="land_elevation",
     )
 
     example_wflow_model.setup_floodplains(
@@ -765,7 +765,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     )
 
 
-@pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
+@pytest.mark.parametrize("elevtn_map", ["land_elevation", "dem_subgrid"])
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -777,7 +777,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="wflow_dem",
+        elevtn_map="land_elevation",
         output_names={},
     )
 
@@ -785,7 +785,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         hydrography_fn="merit_hydro", floodplain_type="2d", elevtn_map=elevtn_map
     )
 
-    mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
+    mapname = {"land_elevation": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
         elevtn_map
     ]
 
