@@ -67,7 +67,7 @@ def test_grid_from_config(demda):
 
 
 def test_convert_to_wflow_v1_sbm():
-    # Initiliaze wflow model
+    # Initialize wflow model
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
@@ -83,7 +83,7 @@ def test_convert_to_wflow_v1_sbm():
 
 
 def test_convert_to_wflow_v1_sediment():
-    # Initiliaze wflow model
+    # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
     config_fn = "wflow_sediment_v0x.toml"
 

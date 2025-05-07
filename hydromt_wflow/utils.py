@@ -1,12 +1,12 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from functools import reduce
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 import numpy as np
+import tomlkit
 import xarray as xr
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
@@ -199,111 +199,50 @@ of the config.
     return csv_dict
 
 
-def _update_nested_dict(key: str, value: Any, data: dict) -> None:
-    keys = key.split(".")
-    values_dict = reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], data)[
-        keys[-1]
-    ].copy()
-    for k, v in values_dict.items():
-        if ".value" in k:
-            value.update({k: v})
-    reduce(lambda d, k: d.setdefault(k, {}), keys[:-1], data)[keys[-1]] = value
-
-
-def _get_key_values_to_move(
-    d: Dict[str, Any],
-    parent_key: str = "",
-    keys_to_move: List[tuple[str, str]] | None = None,
-) -> List[tuple[str, str]] | None:
-    if keys_to_move is None:
-        keys_to_move = []
-
-    if isinstance(d, dict):
-        for key, value in d.items():
-            if key == "value":
-                keys_to_move.append((parent_key, value))
-            elif isinstance(value, dict):
-                _get_key_values_to_move(
-                    value, parent_key + "." + key if parent_key else key, keys_to_move
-                )
-
-    return keys_to_move
-
-
-def _update_config_dict_with_value_keys(
-    keys_values_to_move: List[tuple[str, Any]], data: dict[str, str]
-):
-    for parent, value in keys_values_to_move:
-        parents, parent = parent.rsplit(".", maxsplit=1)
-        value_to_set = {parent + ".value": value}
-        _update_nested_dict(key=parents, value=value_to_set, data=data)
-
-
-def _handle_key_dot_value_config_items(data_dict: dict) -> dict:
-    """Handle config parameters that are written as 'key.value'.
-
-    This function checks if there are any keys in the dictionary that are named value
-    and sets those key values a level higher in the nested dictionary. For instance,
-    the following dictionary:
-    {"input":
-        "vertical": {
-            "ksathorfrac": {
-                "value": 100
-                }
-            }
-        }
-    will become:
-    {"input":
-        "vertical": {
-            "ksathorfrac.value": 100
-            }
-        }
-
-
-    """
-    keys_values_to_move = _get_key_values_to_move(data_dict)
-    _update_config_dict_with_value_keys(
-        keys_values_to_move=keys_values_to_move, data=data_dict
-    )
-    return data_dict
-
-
 def get_config(
     *args,
-    config: Dict[str, Any] = {},
-    fallback: Any | None = None,
+    config: tomlkit.TOMLDocument,
     root: Path | None = None,
+    fallback: Any | None = None,
     abs_path: bool = False,
 ):
     """
-    Get a config value at key(s).
-
-    See Also
-    --------
-    hydromt.Model.get_config
+    Get a config value at key.
 
     Parameters
     ----------
-    args : tuple or string
+    args : tuple, str
         keys can given by multiple args: ('key1', 'key2')
         or a string with '.' indicating a new level: ('key1.key2')
-    config : dict, optional
-        config dict to get the values from.
-    fallback: any, optional
+    fallback: Any, optional
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
         If True return the absolute path relative to the model root,
         by default False.
+        NOTE: this assumes the config is located in model root!
 
     Returns
     -------
-    value : any type
+    value : Any
         dictionary value
+
+    Examples
+    --------
+    >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+    >> get_config('a')
+    >> 1
+
+    >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+    >> 2
+
+    >> get_config('b.c') # # identical to get_config('b','c')
+    >> {'d': 2}
     """
     args = list(args)
     if len(args) == 1 and "." in args[0]:
         args = args[0].split(".") + args[1:]
-    branch = config.copy()  # reads config at first call
+    branch = config  # reads config at first call
     for key in args[:-1]:
         branch = branch.get(key, {})
         if not isinstance(branch, dict):
@@ -313,12 +252,14 @@ def get_config(
     if abs_path and isinstance(value, str):
         value = Path(value)
         if not value.is_absolute():
-            if root is None:
-                raise ValueError(
-                    "root path is required to get absolute path from relative path"
-                )
             value = Path(abspath(join(root, value)))
-    return value
+
+    if isinstance(value, tomlkit.items.Item):
+        return value.unwrap()
+    elif value is None:
+        return fallback
+    else:
+        return value
 
 
 def get_grid_from_config(

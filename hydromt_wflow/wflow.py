@@ -29,6 +29,7 @@ from shapely.geometry import box
 from hydromt_wflow.utils import (
     DATADIR,
     convert_to_wflow_v1_sbm,
+    get_config,
     mask_raster_from_layer,
     read_csv_results,
 )
@@ -4877,7 +4878,7 @@ Run setup_soilmaps first"
         This function should be followed by write_config() to write the upgraded file.
         """
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        self._config = dict()
+        self._config = tomlkit.TOMLDocument()
         for option in config_out:
             self.set_config(option, config_out[option])
 
@@ -6107,10 +6108,10 @@ change name input.path_forcing "
         >> get_config('b.c') # # identical to get_config('b','c')
         >> {'d': 2}
         """
-        item = super().get_config(*args, abs_path=abs_path)
-        if isinstance(item, tomlkit.items.Item):
-            return item.unwrap()
-        elif item is None:
-            return fallback
-        else:
-            return item
+        return get_config(
+            *args,
+            config=self.config,
+            fallback=fallback,
+            abs_path=abs_path,
+            root=self.root,
+        )
