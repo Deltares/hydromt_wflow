@@ -607,9 +607,9 @@ index for the wflow_sbm soil layers.
 
     for i, sl in enumerate(kv_sl["sl"]):
         kv = kv_sl.sel(sl=sl)
-        ds_out["KsatVer_" + str(soildepth_cm_midpoint[i]) + "cm"] = kv.astype(
-            np.float32
-        )
+        ds_out[
+            f"meta_{soil_fn}_ksat_vertical_" + str(soildepth_cm_midpoint[i]) + "cm"
+        ] = kv.astype(np.float32)
 
     kv = kv_sl / kv_sl.sel(sl=1)
     logger.info("fit z - log(KsatVer) with numpy linalg regression (y = b*x) -> M_")
