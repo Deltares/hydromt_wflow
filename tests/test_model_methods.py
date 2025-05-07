@@ -162,7 +162,7 @@ def test_projected_crs(tmpdir):
 
     assert mod.grid.raster.crs == 3857
     # 95 quantile is class 190 ie urban
-    assert (mod.grid["wflow_landuse"] == 190).count().values == 338
+    assert (mod.grid["meta_landuse"] == 190).count().values == 338
     assert mod.get_config("model.sizeinmetres") == True
 
 
@@ -994,7 +994,7 @@ def test_setup_lulc_vector(
         lulc_res=0.0025,
         save_raster_lulc=False,
     )
-    assert "wflow_landuse" in example_wflow_model.grid
+    assert "meta_landuse" in example_wflow_model.grid
 
 
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
@@ -1054,8 +1054,8 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
         lulc_fn="globcover_2009",
         paddy_class=11,
         output_paddy_class=12,
-        paddy_fn=ds["wflow_landuse"].where(
-            ds["wflow_landuse"] == 11, ds["wflow_landuse"].raster.nodata
+        paddy_fn=ds["meta_landuse"].where(
+            ds["meta_landuse"] == 11, ds["meta_landuse"].raster.nodata
         ),
         lulc_mapping_fn="globcover_mapping_default",
         wflow_thicknesslayers=layers,
@@ -1063,7 +1063,7 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
 
     ds2 = example_wflow_model.grid.copy()
 
-    assert np.any(ds2["wflow_landuse"] == 12)
+    assert np.any(ds2["meta_landuse"] == 12)
 
 
 def test_setup_allocation_areas(example_wflow_model, tmpdir):
