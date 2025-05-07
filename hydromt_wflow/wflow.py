@@ -1909,7 +1909,7 @@ gauge locations [-] (if derive_subcatch)
             "lake_area__count": "wflow_lakeareas",
             "lake_location__count": "wflow_lakelocs",
             "lake_surface__area": "LakeArea",
-            "lake_water_surface__initial_elevation": "LakeAvgLevel",
+            "lake_water_surface__initial_elevation": "lake_initial_depth",
             "lake_water_flow_threshold-level__elevation": "LakeThreshold",
             "lake_water__rating_curve_coefficient": "Lake_b",
             "lake_water__rating_curve_exponent": "Lake_e",
@@ -1943,9 +1943,9 @@ gauge locations [-] (if derive_subcatch)
         * **wflow_lakeareas** map: lake IDs [-]
         * **wflow_lakelocs** map: lake IDs at outlet locations [-]
         * **LakeArea** map: lake area [m2]
-        * **LakeAvgLevel** map: lake average water level [m]
+        * **lake_initial_depth** map: lake average water level [m]
         * **LakeThreshold** map: lake outflow threshold water level [m]
-        * **LakeAvgOut** map: lake average discharge [m3/s]
+        * **meta_lake_mean_outflow** map: lake average discharge [m3/s]
         * **Lake_b** map: lake rating curve coefficient [-]
         * **Lake_e** map: lake rating curve exponent [-]
         * **LakeOutflowFunc** map: option to compute rating curve [-]
@@ -6003,8 +6003,8 @@ change name input.path_forcing "
                     self._MAPS["LakeStorFunc"],
                     self._MAPS["LakeOutflowFunc"],
                     self._MAPS["LakeArea"],
-                    self._MAPS["LakeAvgLevel"],
-                    "LakeAvgOut",  # this is a hydromt meta map
+                    self._MAPS["lake_initial_depth"],
+                    "meta_lake_mean_outflow",  # this is a hydromt meta map
                     self._MAPS["LakeThreshold"],
                     self._MAPS["Lake_b"],
                     self._MAPS["Lake_e"],
