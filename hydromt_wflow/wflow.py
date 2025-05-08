@@ -5735,15 +5735,26 @@ change name input.path_forcing "
             self._config.append(tomlkit.key(keys), value)
             return
 
-        current = self._config[keys[0]]
+        if len(keys) == 1:
+            self._config.update({keys[0]: value})
+            return
 
-        for idx in range(1, len(keys)):
-            if keys[idx] not in current:
+        current = self._config
+        for idx in range(0, len(keys)):
+            if idx != len(keys) - 1:
                 remaining_key = tomlkit.key(keys[idx:])
-                current.update({remaining_key: value})
+            else:
+                remaining_key = keys[idx]
+            if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
                 break
             else:
                 current = current[keys[idx]]
+
+        if remaining_key in current:
+            _ = current.pop(remaining_key)
+
+        current.append(remaining_key, value)
+        # current.update({remaining_key: value})
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
