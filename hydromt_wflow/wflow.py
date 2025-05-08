@@ -5109,6 +5109,9 @@ Run setup_soilmaps first"
             Name of new map layer, this is used to overwrite the name of a DataArray and
             ignored if data is a Dataset
         """
+        if "idx_out" in data.coords:
+            data = data.rename({"idx_out": "meta_subgrid_outlet_idx"})
+
         if "time" in data.dims:
             # Raise error if the dimension does not have a supported length
             if len(data.time) not in [12, 365, 366]:
