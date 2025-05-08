@@ -247,3 +247,19 @@ test-slim-py311 = { features = ["py311", "test"] }
 test-slim-py310 = { features = ["py310", "test"] }
 test-full-py311 = { features = ["py311", "extra", "test"] }
 test-full-py310 = { features = ["py310", "extra", "test"] }
+
+[tool.pixi.feature.examples.tasks]
+create-model-full = { cmd = [
+  "hydromt", "build", "wflow", "./wflow_test_full", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_build.yml", "-d", "artifact_data", "-vv"
+], cwd = "examples" }
+create-model-sediment = { cmd = [
+  "hydromt", "build", "wflow_sediment", "./wflow_test_sediment", "-r", "{'subbasin': [12.2051, 45.8331], 'strord': 4, 'bounds': [11.70, 45.35, 12.95, 46.70]}", "-i", "wflow_sediment_build.yml", "-d", "artifact_data", "-vv"
+], cwd = "examples" }
+create-model-clipped = { cmd = [
+  "hydromt", "clip", "wflow", "wflow_piave_subbasin", "./wflow_test_clip", "{'subbasin': [12.3006, 46.4324], 'wflow_streamorder': 4}", "-vv"
+], cwd = "examples" }
+create-models = {depends-on = [
+  "create-model-full",
+  "create-model-sediment",
+  "create-model-clipped",
+]}
