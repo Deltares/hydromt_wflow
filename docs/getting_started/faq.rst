@@ -72,8 +72,7 @@ Others
 
  | **Q**: Can I convert my old Wflow python model to the new Wflow Julia version with HydroMT ?
 
-HydroMT is still able to read the python PCRaster based maps of Wflow with the method :py:func:`~pcrm.read_staticmaps_pcr`.
-So actually just a read and write of your python model will do most of the job :) The intbl are however not taken into account so if
-you have single values intbl, you can use the :py:func:`~WflowModel.setup_constant_pars` method. For lakes and reservoirs parameters,
+HydroMT is still able to read the python PCRaster based maps of Wflow with the method :py:func:`~WflowModel.setup_grid_from_raster`. See this example: `convert_staticmaps_to_mapstack.ipynb <../_examples/convert_staticmaps_to_mapstack.ipynb>`_.
+So actually just a read and write of your python model will do most of the job :) For lakes and reservoirs parameters,
 the best is to use a shapefile of yours lakes and reservoirs with the right columns for each parameters (see previous question on updating
 reservoir).
