@@ -5753,7 +5753,7 @@ change name input.path_forcing "
         if remaining_key in current:
             _ = current.pop(remaining_key)
 
-        current.append(remaining_key, value)
+        current[remaining_key] = value
         # current.update({remaining_key: value})
 
     def _update_naming(self, rename_dict: dict):
