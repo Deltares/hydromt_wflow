@@ -28,7 +28,6 @@ STATIC_MAPS_NAME_MAPPING = {
     "dem_subgrid": "meta_subgrid_elevation",
     "x_out": "meta_subgrid_outlet_x",
     "y_out": "meta_subgrid_outlet_y",
-    "idx_out": "meta_subgrid_outlet_idx",
     "LakeAvgOut": "meta_lake_mean_outflow",
     "wflow_glacierareas": "meta_glacier_area_id",
     "population": "meta_population",
