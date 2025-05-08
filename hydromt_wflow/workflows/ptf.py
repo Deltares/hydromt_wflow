@@ -471,3 +471,55 @@ def mean_diameter_soil(clay, silt):
     d50 = d50 / 1000  # [mm]
 
     return d50
+
+
+def air_entry_pressure(clay, silt, porosity):
+    """
+    Determine air entry pressure for soils with 5-60% clay and 5-70% sand.
+
+    Based on:
+      Rawls, W.J., and D.L. Brakensiek. 1985. Prediction of soil water
+      properties for hydrologic modeling. p. 293-299. In E.B. Jones and
+      T.J.Ward (ed.) Proc. Symp.Watershed Management in the Eighties,
+      Denver, CO. 30 Apr.-1 May 1985. Am. Soc. Civil Eng., New York mapping
+
+    Parameters
+    ----------
+    clay: float
+        clay percentage [%].
+    silt: float
+        silt percentage [%].
+    porosity: float
+        porosity of the soil [-].
+
+    Returns
+    -------
+    air_entry_pressure : float
+        based on equation from Rawls & Brakensiek (1985).
+    
+    """
+    sand = 100 - (clay + silt)
+
+    air_entry_pressure = np.where(
+        np.logical_and(
+            np.logical_and(clay > 5.0, clay < 60), np.logical_and(sand > 5, sand < 70)
+        ),
+        -np.exp(
+            5.3396738
+            + 0.1845038 * clay
+            - 2.48394546 * porosity
+            - 0.00213853 * (clay**2)
+            - 0.04356349 * sand * porosity
+            - 0.61745089 * clay * porosity
+            + 0.00143598 * (sand**2) * (porosity**2)
+            - 0.00855375 * (clay**2) * (porosity**2)
+            - 0.00001282 * (sand**2) * clay
+            + 0.00895359 * (clay**2) * porosity
+            - 0.00072472 * (sand**2) * porosity
+            + 0.0000054 * (clay**2) * sand
+            + 0.50028060 * (porosity**2) * clay
+        ),
+        np.nan,
+    )
+
+    return air_entry_pressure
