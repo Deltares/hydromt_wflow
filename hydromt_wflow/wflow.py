@@ -2053,7 +2053,8 @@ Using default storage/outflow function parameters."
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        self.set_grid(ds_lakes.rename(rmdict))
+        ds_lakes = ds_lakes.rename(rmdict)
+        self.set_grid(ds_lakes)
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_lakes, name=geom_name)
         # add the tables
