@@ -392,7 +392,7 @@ WFLOW_NAMES = {
         "wflow_v1": "lake_surface__area",
         "hydromt_name": "LakeArea",
     },
-    "lake_initial_depth": {
+    "LakeAvgLevel": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__initial_elevation",
         "hydromt_name": "LakeAvgLevel",
