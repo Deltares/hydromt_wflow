@@ -6,20 +6,19 @@ import codecs
 import glob
 import logging
 import os
+from functools import reduce
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
 from typing import Any, Dict, List
 
 import geopandas as gpd
-
-# from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
 import numpy as np
 import pandas as pd
 import pyflwdir
 import pyproj
 import shapely
-import toml
+import tomlkit
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import flw
@@ -30,6 +29,7 @@ from shapely.geometry import box
 from hydromt_wflow.utils import (
     DATADIR,
     convert_to_wflow_v1_sbm,
+    get_config,
     mask_raster_from_layer,
     read_csv_results,
 )
@@ -3184,7 +3184,8 @@ one variable and variables list is not provided."
         """
         starttime = self.get_config("time.starttime")
         endtime = self.get_config("time.endtime")
-        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+        timestep = self.get_config("time.timestepsecs")
+        freq = pd.to_timedelta(timestep, unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
         # Check data type of precip_fn if it is provided through the data catalog
@@ -4876,8 +4877,9 @@ Run setup_soilmaps first"
         The other components stay the same.
         This function should be followed by write_config() to write the upgraded file.
         """
+        self.read()
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        self._config = dict()
+        self._config = tomlkit.TOMLDocument()
         for option in config_out:
             self.set_config(option, config_out[option])
 
@@ -5613,7 +5615,6 @@ change name input.path_forcing "
         """Write results at <root/?/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
 
     def read_intbl(self, **kwargs):
         """Read and intbl files at <root/intbl> and parse to xarray."""
@@ -5692,12 +5693,69 @@ change name input.path_forcing "
 
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
-            fdict = toml.load(f)
+            fdict = tomlkit.load(f)
+
         return fdict
 
     def _configwrite(self, fn):
         with codecs.open(fn, "w", encoding="utf-8") as f:
-            toml.dump(self.config, f)
+            tomlkit.dump(self.config, f)
+
+    def set_config(self, *args):
+        """
+        Update the config dictionary at key(s) with values.
+
+        Parameters
+        ----------
+        args : str, tuple
+            if tuple, minimal length of two
+            keys can given by multiple args: ('key1', 'key2', 'value')
+            or a string with '.' indicating a new level: ('key1.key2', 'value')
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> set_config('a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+        >> set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+        """
+        self._initialize_config()
+        if len(args) < 2:
+            raise TypeError("set_config() requires a least one key and one value.")
+        if not all([isinstance(part, str) for part in args[:-1]]):
+            raise TypeError("All but last argument for set_config must be str")
+
+        args = list(args)
+        value = args.pop(-1)
+        keys = reduce(lambda acc, arg: [*acc, *arg.split(".")], args, [])
+
+        if keys[0] not in self._config:
+            self._config.append(tomlkit.key(keys), value)
+            return
+
+        if len(keys) == 1:
+            self._config.update({keys[0]: value})
+            return
+
+        current = self._config
+        for idx in range(0, len(keys)):
+            if idx != len(keys) - 1:
+                remaining_key = tomlkit.key(keys[idx:])
+            else:
+                remaining_key = keys[idx]
+            if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
+                break
+            else:
+                current = current[keys[idx]]
+
+        if remaining_key in current:
+            _ = current.pop(remaining_key)
+
+        current[remaining_key] = value
+        # current.update({remaining_key: value})
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
@@ -5742,6 +5800,8 @@ change name input.path_forcing "
         data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
         _prefix = f"input.{data_type}" if data_type is not None else "input"
         for var in data_vars:
+            # if var == "Slope":
+            #     breakpoint()
             if var in self._WFLOW_NAMES:
                 # Get the name from the Wflow variable name
                 wflow_var = self._WFLOW_NAMES[var]
@@ -5835,7 +5895,6 @@ change name input.path_forcing "
         return gdf
 
     ## WFLOW specific modification (clip for now) methods
-
     def clip_grid(self, region, buffer=0, align=None, crs=4326, inverse_clip=False):
         """Clip grid to subbasin.
 
@@ -6022,3 +6081,49 @@ change name input.path_forcing "
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
+
+    def get_config(
+        self,
+        *args,
+        fallback: Any = None,
+        abs_path: bool = False,
+    ) -> str | None:
+        """Get a config value at key.
+
+        Parameters
+        ----------
+        args : tuple, str
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: Any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+            NOTE: this assumes the config is located in model root!
+
+        Returns
+        -------
+        value : Any
+            dictionary value
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> get_config('a')
+        >> 1
+
+        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+        >> 2
+
+        >> get_config('b.c') # # identical to get_config('b','c')
+        >> {'d': 2}
+        """
+        return get_config(
+            *args,
+            config=self.config,
+            fallback=fallback,
+            abs_path=abs_path,
+            root=self.root,
+        )
