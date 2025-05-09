@@ -496,7 +496,7 @@ def air_entry_pressure(clay, silt, porosity):
     -------
     air_entry_pressure : float
         based on equation from Rawls & Brakensiek (1985).
-    
+
     """
     sand = 100 - (clay + silt)
 
