@@ -4,7 +4,7 @@ from os.path import abspath, dirname, join
 from pathlib import Path
 
 import numpy as np
-from tomlkit import load
+from tomlkit import dump, load
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
@@ -149,6 +149,12 @@ def test_config_toml_grouping(tmpdir):
     with open(TESTDATADIR / "grouped_model_config.toml") as file:
         expected_config = load(file)
 
+    with open("expected.toml", "w") as file:
+        dump(expected_config, file)
+
+    with open("actual.toml", "w") as file:
+        dump(written_config, file)
+
     assert written_config == expected_config
 
 
@@ -156,11 +162,11 @@ def test_config_toml_overwrite(tmpdir):
     dummy_model = WflowModel(root=tmpdir, mode="w")
     dummy_model.read_config()
     dummy_model.set_config(
-        "input.vertical.khorfrac.value",
+        "input.forcing.khorfrac.value",
         100,
     )
     dummy_model.set_config(
-        "input.vertical.khorfrac.value",
+        "input.forcing.khorfrac.value",
         200,
     )
-    assert dummy_model.get_config("input.vertical.khorfrac.value") == 200
+    assert dummy_model.get_config("input.forcing.khorfrac.value") == 200

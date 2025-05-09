@@ -4877,6 +4877,7 @@ Run setup_soilmaps first"
         The other components stay the same.
         This function should be followed by write_config() to write the upgraded file.
         """
+        self.read()
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
         self._config = tomlkit.TOMLDocument()
         for option in config_out:
