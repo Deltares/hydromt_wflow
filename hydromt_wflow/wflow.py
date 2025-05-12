@@ -5740,30 +5740,37 @@ change name input.path_forcing "
             for key, inner_value in value.items():
                 self.set_config(*keys, key, inner_value)
 
+        # if the first key is not present
+        # we can just set the entire thing straight
         if keys[0] not in self._config:
             self._config.append(tomlkit.key(keys), value)
             return
 
+        # If there is only one key we also just set that directly as
+        # a string key instead of the dotted variant
         if len(keys) == 1:
             self._config.update({keys[0]: value})
             return
 
         current = self._config
-        for idx in range(0, len(keys)):
+        for idx in range(len(keys)):
             if idx != len(keys) - 1:
                 remaining_key = tomlkit.key(keys[idx:])
             else:
                 remaining_key = keys[idx]
+
             if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
                 break
-            else:
-                current = current[keys[idx]]
 
+            current = current[keys[idx]]
+
+        # tomlkit's update function doesn't work properly
+        # so instead of updating we take the key out if it is in there
+        # and readd it afterwards
         if remaining_key in current:
             _ = current.pop(remaining_key)
 
         current[remaining_key] = value
-        # current.update({remaining_key: value})
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
