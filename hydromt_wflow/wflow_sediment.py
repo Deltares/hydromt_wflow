@@ -935,6 +935,7 @@ river cells."
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
         """
+        self.read()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
         self._config = TOMLDocument()
         for option in config_out:

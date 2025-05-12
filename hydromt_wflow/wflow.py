@@ -5732,6 +5732,14 @@ change name input.path_forcing "
         value = args.pop(-1)
         keys = reduce(lambda acc, arg: [*acc, *arg.split(".")], args, [])
 
+        # if we try to set dictionaries as values directly tomlkit will messup the
+        # key bookkeeping, resulting in invalid toml, so instead
+        # if we see a mapping, we go over it recursively
+        # and manually add all of it's keys, which does work for some reason
+        if isinstance(value, (dict, tomlkit.items.Table)):
+            for key, inner_value in value.items():
+                self.set_config(*keys, key, inner_value)
+
         if keys[0] not in self._config:
             self._config.append(tomlkit.key(keys), value)
             return
@@ -5800,8 +5808,6 @@ change name input.path_forcing "
         data_vars = [data_vars] if isinstance(data_vars, str) else data_vars
         _prefix = f"input.{data_type}" if data_type is not None else "input"
         for var in data_vars:
-            # if var == "Slope":
-            #     breakpoint()
             if var in self._WFLOW_NAMES:
                 # Get the name from the Wflow variable name
                 wflow_var = self._WFLOW_NAMES[var]
