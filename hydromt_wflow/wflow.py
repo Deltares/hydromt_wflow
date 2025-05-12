@@ -5703,24 +5703,73 @@ change name input.path_forcing "
 
     def set_config(self, *args):
         """
-        Update the config dictionary at key(s) with values.
+        Update the config toml at key(s) with values.
+
+        This function is made to maintain the structure of your toml file.
+        When adding keys it will look for the most specific header present in
+        the toml file and add it under that.
+
+        meaning that if you have a config toml that is empty and you run
+        ``wflow_model.set_config("input.forcing.scale", 1)``
+
+        it will result in the following file:
+
+        .. code-block:: toml
+
+            input.forcing.scale = 1
+
+
+        however if your toml file looks like this before:
+
+        .. code-block:: toml
+
+            [input.forcing]
+
+        (i.e. you have a header in there that has no keys)
+
+        then after the insertion it will look like this:
+
+        .. code-block:: toml
+
+            [input.forcing]
+            scale = 1
+
+
+        .. warning::
+
+            Due to limitations of the underlying library it is currently not possible to
+            create new headers (i.e. groups like ``input.forcing`` in the example above)
+            programmatically, and they will need to be added to the default config
+            toml document
+
+
+        .. warning::
+
+            Even though the underlying config object behaves like a dictionary, it is
+            not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
+            error scan easily be introduced if this structure is modified by hand.
+            Therefore we strongly discourage users from manually modying it, and
+            instead ask them to use this ``set_config`` function to avoid problems.
 
         Parameters
         ----------
-        args : str, tuple
-            if tuple, minimal length of two
+        args : str, tuple, list
+            if tuple or list, minimal length of two
             keys can given by multiple args: ('key1', 'key2', 'value')
             or a string with '.' indicating a new level: ('key1.key2', 'value')
 
         Examples
         --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+        .. code-block:: ipython
 
-        >> set_config('a', 99)
-        >> {'a': 99, 'b': {'c': {'d': 2}}}
+            >> self.config
+            >> {'a': 1, 'b': {'c': {'d': 2}}}
 
-        >> set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
-        >> {'a': 1, 'b': {'c': {'d': 99}}}
+            >> self.set_config('a', 99)
+            >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+            >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+            >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
         self._initialize_config()
         if len(args) < 2:
