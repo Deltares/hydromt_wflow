@@ -114,6 +114,8 @@ Changed
 -------
 - Individual methods like write_forcing will not longer write the config file if config settings get updated. Always call write_config as the last write method. PR #286
 - More uniform handling of the date typing when reading/writing dates from the wflow toml files. PR #286
+- ``Wflow._config`` is no longer a dictionary but a ``tomlkit.TOMLDocument`` to ensure structure of existing toml files are preserved upon write.
+  Due to this change we discourage users from modifying the config structure by hand, and instead rely on ``Wflow.set_config`` to avoid issues. (#387)
 
 Fixed
 -----
