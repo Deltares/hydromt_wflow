@@ -916,11 +916,11 @@ def _create_hydromt_wflow_mapping(
     config_dict: dict,
 ) -> Tuple[dict, dict]:
     """
-    Create dictionnaries to convert from hydromt/Wflow names to staticmaps names.
+    Create dictionaries to convert from hydromt/Wflow names to staticmaps names.
 
-    The first dictionnary will be used to rename from hydromt convention
+    The first dictionary will be used to rename from hydromt convention
     name into name in staticmaps/forcing.
-    The second dictionnary will be used to link the right name
+    The second dictionary will be used to link the right name
     in staticmaps/forcing files to the right Wflow.jl variables in the toml file.
 
     Parameters
@@ -934,24 +934,24 @@ def _create_hydromt_wflow_mapping(
         the wflow variable names to be able to update the default names based on the
         config.
     config_dict : dict
-        Dictionnary of the current model config to update from the default name in
+        Dictionary of the current model config to update from the default name in
         staticmaps to the actual name in staticmaps.
 
     Returns
     -------
     mapping_hydromt : dict
-        Dictionnary of the mapping from hydromt names to staticmaps names.
+        Dictionary of the mapping from hydromt names to staticmaps names.
     mapping_wflow : dict
-        Dictionnary of the mapping from staticmaps names to Wflow variable names.
+        Dictionary of the mapping from staticmaps names to Wflow variable names.
     """
     wflow_version = "wflow_v1"  # variable version to use for Wflow.jl
 
-    # First dictionnary
+    # First dictionary
     # name_in_staticmaps : name_in_hydromt
     # Instantiate the mapping with default names (ie non wflow variables)
     mapping_inv = {v: k for k, v in hydromt_dict.items()}
 
-    # Second dictionnary
+    # Second dictionary
     wflow_names = dict()  # wflow_variable: name_in_staticmaps
 
     # Go through the wflow variables and add them if hydromt name is not None
