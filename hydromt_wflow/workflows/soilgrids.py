@@ -499,6 +499,7 @@ index for the wflow_sbm soil layers.
     - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
+    - **hb** :  air entry pressure of soil (Brooks-Corey) [cm]
 
 
     Parameters
@@ -556,8 +557,10 @@ index for the wflow_sbm soil layers.
         thetas = average_soillayers_block(thetas_sl, ds["soilthickness"])
     else:
         thetas = average_soillayers(thetas_sl, ds["soilthickness"])
-    thetas = thetas.raster.reproject_like(ds_like, method="average")
-    ds_out["thetaS"] = thetas.astype(np.float32)
+
+    # preserve thetas in original projection for computing hb
+    thetas_out = thetas.raster.reproject_like(ds_like, method="average")
+    ds_out["thetaS"] = thetas_out.astype(np.float32)
 
     logger.info("calculate and resample thetaR")
     thetar_sl = xr.apply_ufunc(
@@ -624,11 +627,11 @@ index for the wflow_sbm soil layers.
         keep_attrs=True,
     )
 
-    M_ = (thetas - thetar) / (-popt_0_)
+    M_ = (thetas_out - thetar) / (-popt_0_)
     ds_out["M_original_"] = M_.astype(np.float32)
     M_ = constrain_M(M_, popt_0_, M_minmax)
     ds_out["M_"] = M_.astype(np.float32)
-    ds_out["f_"] = ((thetas - thetar) / M_).astype(np.float32)
+    ds_out["f_"] = ((thetas_out - thetar) / M_).astype(np.float32)
 
     logger.info("fit zi - Ksat with curve_fit (scipy.optimize) -> M")
     popt_0 = xr.apply_ufunc(
@@ -642,11 +645,11 @@ index for the wflow_sbm soil layers.
         keep_attrs=True,
     )
 
-    M = (thetas - thetar) / (popt_0)
+    M = (thetas_out - thetar) / (popt_0)
     ds_out["M_original"] = M.astype(np.float32)
     M = constrain_M(M, popt_0, M_minmax)
     ds_out["M"] = M.astype(np.float32)
-    ds_out["f"] = ((thetas - thetar) / M).astype(np.float32)
+    ds_out["f"] = ((thetas_out - thetar) / M).astype(np.float32)
 
     # wflow soil map is based on USDA soil classification
     # soilmap = ds["tax_usda"].raster.interpolate_na()
@@ -677,6 +680,20 @@ index for the wflow_sbm soil layers.
     # np.nan is not a valid value for array with type integer
     ds_out["wflow_soil"] = soil_texture_out
     ds_out["wflow_soil"].raster.set_nodata(0)
+
+    # calc air entry pressure
+    hb = xr.apply_ufunc(
+        ptf.air_entry_pressure,
+        clay_av,
+        silt_av,
+        thetas,
+        dask="parallelized",
+        output_dtypes=[float],
+        keep_attrs=True,
+    )
+
+    hb = hb.raster.reproject_like(ds_like, method="average")
+    ds_out["hb"] = hb.astype(np.float32)
 
     # for writing pcraster map files a scalar nodata value is required
     dtypes = {"wflow_soil": np.int32}
