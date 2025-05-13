@@ -678,6 +678,14 @@ index for the wflow_sbm soil layers.
     ds_out["wflow_soil"] = soil_texture_out
     ds_out["wflow_soil"].raster.set_nodata(0)
 
+    dtypes = {"wflow_soil": np.int32}
+    for var in ds_out:
+        dtype = dtypes.get(var, np.float32)
+        logger.debug(f"Interpolate nodata (NaN) values for {var}")
+        ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+        ds_out[var] = ds_out[var].fillna(nodata).astype(dtype)
+        ds_out[var].raster.set_nodata(np.dtype(dtype).type(nodata))
+
     return ds_out
 
 
@@ -896,6 +904,12 @@ def soilgrids_sediment(
     else:
         ds_out["fsand_soil"] = (1 - fclay - fsilt).astype(np.float32)
         ds_out["flagg_soil"] = (fclay * 0.0).astype(np.float32)
+
+    for var in ds_out:
+        ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
+        logger.info(f"Interpolate NAN values for {var}")
+        ds_out[var] = ds_out[var].fillna(nodata)
+        ds_out[var].raster.set_nodata(nodata)
 
     return ds_out
 
