@@ -6,7 +6,6 @@ import codecs
 import glob
 import logging
 import os
-from functools import reduce
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
 from typing import Any, Dict, List
@@ -5779,7 +5778,7 @@ change name input.path_forcing "
 
         args = list(args)
         value = args.pop(-1)
-        keys = reduce(lambda acc, arg: [*acc, *arg.split(".")], args, [])
+        keys = [part for arg in args for part in arg.split(".")]
 
         # if we try to set dictionaries as values directly tomlkit will mess up the
         # key bookkeeping, resulting in invalid toml, so instead
