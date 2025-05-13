@@ -5785,7 +5785,7 @@ change name input.path_forcing "
         # key bookkeeping, resulting in invalid toml, so instead
         # if we see a mapping, we go over it recursively
         # and manually add all of its keys, because of cloning issues.
-        if isinstance(value, (dict, tomlkit.items.Table)):
+        if isinstance(value, (dict, tomlkit.items.AbstractTable)):
             for key, inner_value in value.items():
                 self.set_config(*keys, key, inner_value)
 
