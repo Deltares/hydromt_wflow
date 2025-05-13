@@ -228,15 +228,15 @@ def get_config(
 
     Examples
     --------
-    >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+    >> config = {'a': 1, 'b': {'c': {'d': 2}}
 
-    >> get_config('a')
+    >> get_config('a', config)
     >> 1
 
-    >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+    >> get_config('b', 'c', 'd', config) # identical to get_config('b.c.d')
     >> 2
 
-    >> get_config('b.c') # # identical to get_config('b','c')
+    >> get_config('b.c', config) # # identical to get_config('b','c')
     >> {'d': 2}
     """
     args = list(args)
