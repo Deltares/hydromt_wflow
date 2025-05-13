@@ -5781,10 +5781,10 @@ change name input.path_forcing "
         value = args.pop(-1)
         keys = reduce(lambda acc, arg: [*acc, *arg.split(".")], args, [])
 
-        # if we try to set dictionaries as values directly tomlkit will messup the
+        # if we try to set dictionaries as values directly tomlkit will mess up the
         # key bookkeeping, resulting in invalid toml, so instead
         # if we see a mapping, we go over it recursively
-        # and manually add all of it's keys, which does work for some reason
+        # and manually add all of its keys, because of cloning issues.
         if isinstance(value, (dict, tomlkit.items.Table)):
             for key, inner_value in value.items():
                 self.set_config(*keys, key, inner_value)
