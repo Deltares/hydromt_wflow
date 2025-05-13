@@ -144,8 +144,8 @@ class WflowModel(GridModel):
         at 3 arcsec resolution).
         Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
         Users can also supply their own elevation and flow direction data
-        in any CRS and not only EPSG:4326. Both arcgis D8 and pcraster LDD
-        conventions are supported (see also `PyFlwDir documentation
+        in any CRS and not only EPSG:4326. The ArcGIS D8 convention is supported
+        (see also `PyFlwDir documentation
         <https://deltares.github.io/pyflwdir/latest/_examples/flwdir.html>`).
 
         Note that in order to define the region, using points or bounding box,
