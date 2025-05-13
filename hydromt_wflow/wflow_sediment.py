@@ -8,6 +8,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import xarray as xr
+from tomlkit import TOMLDocument
 from hydromt import hydromt_step
 
 from hydromt_wflow.naming import (
@@ -939,8 +940,9 @@ river cells."
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
         """
+        self.read()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=logger)
-        self._config = dict()
+        self._config = TOMLDocument()
         for option in config_out:
             self.set_config(option, config_out[option])
 

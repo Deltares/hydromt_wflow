@@ -1,15 +1,17 @@
 """Tests for the utils module."""
 
 from os.path import abspath, dirname, join
+from pathlib import Path
 
 import numpy as np
 import pytest
+from tomlkit import load
 
 from hydromt_wflow import WflowModel, WflowSedimentModel
 from hydromt_wflow.utils import get_grid_from_config
 
-TESTDATADIR = join(dirname(abspath(__file__)), "data")
-EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
+TESTDATADIR = Path(dirname(abspath(__file__)), "data")
+EXAMPLEDIR = Path(dirname(abspath(__file__)), "..", "examples", "data")
 
 
 @pytest.mark.skip(
@@ -72,7 +74,7 @@ def test_grid_from_config(demda):
     reason="Skip test until required hydromt-core v1 component(s) are implemented"
 )
 def test_convert_to_wflow_v1_sbm():
-    # Initiliaze wflow model
+    # Initialize wflow model
     root = join(TESTDATADIR, "wflow_v0x", "sbm")
     config_fn = "wflow_sbm_v0x.toml"
 
@@ -91,7 +93,7 @@ def test_convert_to_wflow_v1_sbm():
     reason="Skip test until required hydromt-core v1 component(s) are implemented"
 )
 def test_convert_to_wflow_v1_sediment():
-    # Initiliaze wflow model
+    # Initialize wflow model
     root = join(EXAMPLEDIR, "wflow_upgrade", "sediment")
     config_fn = "wflow_sediment_v0x.toml"
 
@@ -113,3 +115,62 @@ def test_convert_to_wflow_v1_sediment():
     assert "fsagg_soil" in wflow.grid
     assert "c_govers" in wflow.grid
     assert "a_kodatie" in wflow.grid
+
+
+def test_config_toml_grouping(tmpdir):
+    dummy_model = WflowModel(root=tmpdir, mode="w")
+    dummy_model.read_config()
+
+    dummy_model.set_config(
+        "input",
+        "forcing",
+        "netcdf.name",
+        "blah.nc",
+    )
+    dummy_model.set_config(
+        "input",
+        "forcing",
+        "scale",
+        1,
+    )
+    dummy_model.set_config(
+        "input",
+        "static",
+        "staticsoil~compacted_surface_water__infiltration_capacity",
+        "value",
+        5,
+    )
+    dummy_model.set_config(
+        "input",
+        "static",
+        "soil_root~wet__sigmoid_function_shape_parameter",
+        "value",
+        -500,
+    )
+    dummy_model.set_config(
+        "input.static.soil_water_sat-zone_bottom__max_leakage_volume_flux.value", 0
+    )
+
+    dummy_model.write()
+
+    with open(tmpdir / "wflow_sbm.toml", "r") as file:
+        written_config = load(file)
+
+    with open(TESTDATADIR / "grouped_model_config.toml") as file:
+        expected_config = load(file)
+
+    assert written_config == expected_config
+
+
+def test_config_toml_overwrite(tmpdir):
+    dummy_model = WflowModel(root=tmpdir, mode="w")
+    dummy_model.read_config()
+    dummy_model.set_config(
+        "input.forcing.khorfrac.value",
+        100,
+    )
+    dummy_model.set_config(
+        "input.forcing.khorfrac.value",
+        200,
+    )
+    assert dummy_model.get_config("input.forcing.khorfrac.value") == 200

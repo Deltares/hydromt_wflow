@@ -31,8 +31,13 @@ path_forcing = "inmaps.nc"
 path_static  = "staticmaps.nc"
 
 [input.static]
+"staticsoil~compacted_surface_water__infiltration_capacity".value = 5
+"soil_root~wet__sigmoid_function_shape_parameter".value           = -500
+soil_water_sat-zone_bottom__max_leakage_volume_flux.value         = 0
 
 [input.forcing]
+netcdf.name = "blah.nc"
+scale       = 1
 
 [state.variables]
 vegetation_canopy_water__depth                     = "canopystorage"
