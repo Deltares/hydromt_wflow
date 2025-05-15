@@ -142,12 +142,12 @@ WFLOW_NAMES = {
     "Sl": {
         "wflow_v0": "vertical.specific_leaf",
         "wflow_v1": "vegetation__specific-leaf_storage",
-        "hydromt_name": "Sl",
+        "hydromt_name": "vegetation_leaf_storage",
     },
     "Swood": {
         "wflow_v0": "vertical.storage_wood",
         "wflow_v1": "vegetation_wood_water__storage_capacity",
-        "hydromt_name": "Swood",
+        "hydromt_name": "vegetation_wood_storage",
     },
     "kc": {
         "wflow_v0": "vertical.kc",
@@ -181,7 +181,7 @@ WFLOW_NAMES = {
     "c": {
         "wflow_v0": "vertical.c",
         "wflow_v1": "soil_layer_water__brooks-corey_exponent",
-        "hydromt_name": "c",
+        "hydromt_name": "soil_brooks_corey_c",
     },
     "cf_soil": {
         "wflow_v0": "vertical.cf_soil",

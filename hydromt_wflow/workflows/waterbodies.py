@@ -28,7 +28,7 @@ def waterbodymaps(
 
     The following waterbody maps are calculated:
 
-    - resareas/lakeareas : waterbody areas mask [ID]
+    - resareas/lake_area_id : waterbody areas mask [ID]
     - reslocs/lakelocs : waterbody outlets [ID]
 
     Parameters
@@ -118,7 +118,7 @@ def waterbodymaps(
     ds_out["resareas"] = ds_out["resareas"].astype("float32")
 
     if wb_type == "lake":
-        ds_out = ds_out.rename({"resareas": "lakeareas", "reslocs": "lakelocs"})
+        ds_out = ds_out.rename({"resareas": "lake_area_id", "reslocs": "lakelocs"})
 
     return ds_out, outgdf
 

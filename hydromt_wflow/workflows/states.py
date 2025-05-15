@@ -17,8 +17,8 @@ def prepare_cold_states(
     ds_like: xr.Dataset,
     config: dict,
     timestamp: str = None,
-    mask_name_land: str = "wflow_subcatch",
-    mask_name_river: str = "wflow_river",
+    mask_name_land: str = "subcatchment",
+    mask_name_river: str = "river_mask",
 ) -> Tuple[xr.Dataset, Dict[str, str]]:
     """
     Prepare cold states for Wflow.
@@ -62,9 +62,10 @@ def prepare_cold_states(
         Dataset containing the staticmaps grid and variables to prepare some of the
         states.
 
-        * Required variables: wflow_subcatch, wflow_river
+        * Required variables: subcatchment, river_mask
 
-        * Other required variables (exact name from the wflow config): c, soilthickness,
+        * Other required variables (exact name from the wflow config):
+            soil_brooks_corey_c, soilthickness,
             theta_s, theta_r, kv_0, f, slope, ksathorfrac
 
         * Optional variables (exact name from the wflow config): reservoir.locs,
@@ -77,10 +78,10 @@ def prepare_cold_states(
         from the config.
     mask_name_land : str, optional
         Name of the land mask variable in the ds_like dataset. By default
-        wflow_subcatch.
+        subcatchment.
     mask_name_river : str, optional
         Name of the river mask variable in the ds_like dataset. By default
-        wflow_river.
+        river_mask.
 
     Returns
     -------
@@ -155,13 +156,13 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # ustorelayerdepth (zero per layer)
-    # layers are based on c parameter
-    c = get_grid_from_config(
+    # layers are based on soil_brooks_corey_c parameter
+    soil_brooks_corey_c = get_grid_from_config(
         "soil_layer_water__brooks-corey_exponent",
         config=config,
         grid=ds_like,
     )
-    usld = full_like(c, nodata=nodata)
+    usld = full_like(soil_brooks_corey_c, nodata=nodata)
     for sl in usld["layer"]:
         usld.loc[dict(layer=sl)] = xr.where(ds_like[mask_name_land], 0.0, nodata)
     ds_out["ustorelayerdepth"] = usld

@@ -374,7 +374,7 @@ def allocation_areas(
         ds_like["basins"] != ds_like["basins"].raster.nodata,
         allocation_areas.raster.nodata,
     )
-    allocation_areas.name = "allocation_areas"
+    allocation_areas.name = "demand_allocation_area_id"
 
     # Create the equivalent geodataframe
     allocation_areas_gdf = allocation_areas.raster.vectorize()
@@ -638,7 +638,7 @@ def irrigation(
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
-        * Required variables: ['landuse', 'LAI']
+        * Required variables: ['landuse', 'vegetation_leaf_area_index']
     irrigation_value: List[int]
         Values that indicate irrigation in da_irrigation.
     cropland_class: List[int]
@@ -681,9 +681,9 @@ def irrigation(
 
     # Calculate irrigation trigger based on LAI
     logger.info("Calculating irrigation trigger.")
-    if "LAI" not in ds_like:
-        raise ValueError("LAI map is required in ds_like.")
-    lai = ds_like["LAI"].copy()
+    if "vegetation_leaf_area_index" not in ds_like:
+        raise ValueError("vegetation_leaf_area_index map is required in ds_like.")
+    lai = ds_like["vegetation_leaf_area_index"].copy()
     trigger = calc_lai_threshold(lai, lai_threshold)
 
     # Mask trigger with paddy and nonpaddy
@@ -713,7 +713,7 @@ def irrigation_from_vector(
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
-        * Required variables: ['landuse', 'LAI']
+        * Required variables: ['landuse', 'vegetation_leaf_area_index']
     irrigation_value: List[int]
         Values that indicate irrigation in gdf_irrigation.
     cropland_class: List[int]

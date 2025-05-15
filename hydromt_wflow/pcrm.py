@@ -31,13 +31,13 @@ PCR_VS_MAP = {
     "wflow_river": "bool",
     "wflow_streamorder": "ordinal",
     "wflow_gauges": "nominal",  # to avoid large memory usage in pcraster.aguila
-    "wflow_subcatch": "nominal",  # idem.
+    "subcatchment": "nominal",  # idem.
     "wflow_landuse": "nominal",
     "wflow_soil": "nominal",
-    "wflow_reservoirareas": "nominal",
-    "wflow_reservoirlocs": "nominal",
-    "wflow_lakeareas": "nominal",
-    "wflow_lakelocs": "nominal",
+    "reservoir_area_id": "nominal",
+    "reservoir_outlet_id": "nominal",
+    "lake_area_id": "nominal",
+    "lake_outlet_id": "nominal",
     "wflow_glacierareas": "nominal",
 }
 
@@ -222,13 +222,13 @@ def read_staticmaps_pcr(
         return
     _staticmaps = open_mfraster(fns, **kwargs)
 
-    path = join(root, "staticmaps", "clim", "LAI*")
+    path = join(root, "staticmaps", "clim", "vegetation_leaf_area_index*")
     if len(glob.glob(path)) > 0:
         ds_lai = open_mfraster(
             path, concat=True, concat_dim="time", logger=logger, **kwargs
         )
         lai_key = list(ds_lai.data_vars)[0]
-        _staticmaps["LAI"] = ds_lai[lai_key]
+        _staticmaps["vegetation_leaf_area_index"] = ds_lai[lai_key]
 
     # reorganize c_0 etc maps
     da_c = []
@@ -276,8 +276,10 @@ def write_staticmaps_pcr(
     profile_kwargs = {}
     mask = True
     ds_out = staticmaps
-    if "LAI" in ds_out.data_vars:
-        ds_out = ds_out.rename_vars({"LAI": "clim/LAI"})
+    if "vegetation_leaf_area_index" in ds_out.data_vars:
+        ds_out = ds_out.rename_vars(
+            {"vegetation_leaf_area_index": "clim/vegetation_leaf_area_index"}
+        )
     if "c" in ds_out.data_vars:
         for layer in ds_out["layer"]:
             ds_out[f"c_{layer.item():d}"] = ds_out["c"].sel(layer=layer)

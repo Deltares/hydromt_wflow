@@ -26,8 +26,12 @@ __all__ = [
 ]
 
 
-RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
-DTYPES = {"landuse": np.int16, "alpha_h1": np.int16}
+RESAMPLING = {
+    "landuse": "nearest",
+    "lai": "average",
+    "vegetation_feddes_alpha_h1": "mode",
+}
+DTYPES = {"landuse": np.int16, "vegetation_feddes_alpha_h1": np.int16}
 
 
 def landuse(
@@ -183,7 +187,7 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     """Return climatology of Leaf Area Index (LAI).
 
     The following topography maps are calculated:
-    - LAI
+    - vegetation_leaf_area_index
 
     Parameters
     ----------
@@ -197,8 +201,8 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     da_out : xarray.DataArray
         Dataset containing resampled LAI maps
     """
-    if isinstance(da, xr.Dataset) and "LAI" in da:
-        da = da["LAI"]
+    if isinstance(da, xr.Dataset) and "vegetation_leaf_area_index" in da:
+        da = da["vegetation_leaf_area_index"]
     elif not isinstance(da, xr.DataArray):
         raise ValueError("lai method requires a DataArray or Dataset with LAI array")
     method = RESAMPLING.get(da.name, "average")
@@ -397,7 +401,7 @@ def lai_from_lulc_mapping(
         logger=logger,
     )
     # Re-organise the dataset to have a time dimension
-    da_lai = ds_lai.to_array(dim="time", name="LAI")
+    da_lai = ds_lai.to_array(dim="time", name="vegetation_leaf_area_index")
 
     return da_lai
 
