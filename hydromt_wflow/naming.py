@@ -305,7 +305,7 @@ WFLOW_NAMES = {
     },
     "nonpaddy_irrigation_areas": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-non-paddy_area__number",
+        "wflow_v1": "land~irrigated-non-paddy_area__count",
     },
     "nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",

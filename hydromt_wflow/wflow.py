@@ -4459,7 +4459,7 @@ Run setup_soilmaps first"
         lulcmap_name: str = "wflow_landuse",
         output_names: Dict = {
             "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -4637,7 +4637,7 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
         output_names: Dict = {
             "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
         },
