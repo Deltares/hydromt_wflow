@@ -84,7 +84,6 @@ class WflowModel(GridModel):
         )
 
         # wflow specific
-        self._intbl = dict()
         self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
@@ -144,8 +143,8 @@ class WflowModel(GridModel):
         at 3 arcsec resolution).
         Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
         Users can also supply their own elevation and flow direction data
-        in any CRS and not only EPSG:4326. Both arcgis D8 and pcraster LDD
-        conventions are supported (see also `PyFlwDir documentation
+        in any CRS and not only EPSG:4326. The ArcGIS D8 convention is supported
+        (see also `PyFlwDir documentation
         <https://deltares.github.io/pyflwdir/latest/_examples/flwdir.html>`).
 
         Note that in order to define the region, using points or bounding box,
@@ -4891,7 +4890,6 @@ Run setup_soilmaps first"
         self.read_grid()
         self.read_geoms()
         self.read_forcing()
-        self.read_intbl()
         self.read_tables()
         self.read_states()
         self.logger.info("Model read")
@@ -4985,12 +4983,6 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
-
-        For reading old PCRaster maps, see the pcrm submodule.
-
-        See Also
-        --------
-        pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
         fn = self.get_config(
@@ -5615,47 +5607,6 @@ change name input.path_forcing "
         if not self._write:
             raise IOError("Model opened in read-only mode")
 
-    def read_intbl(self, **kwargs):
-        """Read and intbl files at <root/intbl> and parse to xarray."""
-        if not self._write:
-            self._intbl = dict()  # start fresh in read-only mode
-        if not self._read:
-            self.logger.info("Reading default intbl files.")
-            fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
-        else:
-            self.logger.info("Reading model intbl files.")
-            fns = glob.glob(join(self.root, "intbl", "*.tbl"))
-        if len(fns) > 0:
-            for fn in fns:
-                name = basename(fn).split(".")[0]
-                tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
-                tbl.columns = [
-                    f"expr{i + 1}" if i + 1 < len(tbl.columns) else "value"
-                    for i in range(len(tbl.columns))
-                ]  # rename columns
-                self.set_intbl(tbl, name=name)
-
-    def write_intbl(self):
-        """Write intbl at <root/intbl> in PCRaster table format."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.intbl:
-            self.logger.info("Writing intbl files.")
-            for name in self.intbl:
-                fn_out = join(self.root, "intbl", f"{name}.tbl")
-                self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
-
-    def set_intbl(self, df, name):
-        """Add intbl <pandas.DataFrame> to model."""
-        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
-            raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if name in self._intbl:
-            if not self._write:
-                raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
-            elif self._read:
-                self.logger.warning(f"Overwriting intbl: {name}")
-        self._intbl[name] = df
-
     def read_tables(self, **kwargs):
         """Read table files at <root> and parse to dict of dataframes."""
         if not self._write:
@@ -5872,13 +5823,6 @@ change name input.path_forcing "
             # (spelling mistakes should have been checked in _update_naming)
 
     ## WFLOW specific data and method
-    @property
-    def intbl(self):
-        """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
-        if not self._intbl:
-            self.read_intbl()
-        return self._intbl
-
     @property
     # Move to core Model API ?
     def tables(self):
