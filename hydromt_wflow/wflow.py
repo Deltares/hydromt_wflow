@@ -5787,6 +5787,7 @@ change name input.path_forcing "
         if isinstance(value, (dict, tomlkit.items.AbstractTable)):
             for key, inner_value in value.items():
                 self.set_config(*keys, key, inner_value)
+            return
 
         # if the first key is not present
         # we can just set the entire thing straight
