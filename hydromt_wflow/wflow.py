@@ -151,8 +151,8 @@ class WflowModel(Model):
         at 3 arcsec resolution).
         Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
         Users can also supply their own elevation and flow direction data
-        in any CRS and not only EPSG:4326. Both arcgis D8 and pcraster LDD
-        conventions are supported (see also `PyFlwDir documentation
+        in any CRS and not only EPSG:4326. The ArcGIS D8 convention is supported
+        (see also `PyFlwDir documentation
         <https://deltares.github.io/pyflwdir/latest/_examples/flwdir.html>`).
 
         Note that in order to define the region, using points or bounding box,
@@ -5026,12 +5026,6 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
-
-        For reading old PCRaster maps, see the pcrm submodule.
-
-        See Also
-        --------
-        pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
         fn = self.get_config(
@@ -5925,13 +5919,6 @@ change name input.path_forcing "
             # (spelling mistakes should have been checked in _update_naming)
 
     ## WFLOW specific data and method
-    @property
-    def intbl(self):
-        """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
-        if not self._intbl:
-            self.read_intbl()
-        return self._intbl
-
     @property
     # Move to core Model API ?
     def tables(self):
