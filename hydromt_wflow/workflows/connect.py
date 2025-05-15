@@ -22,10 +22,10 @@ def wflow_1dmodel_connection(
     ds_model: xr.Dataset,
     connection_method: str = "subbasin_area",
     area_max: float = 30.0,
-    add_tributaries: bool = True,
-    include_river_boundaries: bool = True,
     basin_buffer_cells: int = 0,
     geom_snapping_tolerance: float = 0.0,
+    add_tributaries: bool = True,
+    include_river_boundaries: bool = True,
     logger=logger,
     **kwargs,
 ) -> xr.Dataset:
@@ -65,18 +65,18 @@ def wflow_1dmodel_connection(
         Maximum area [km2] of the subbasins to connect to the 1D model in km2 with
         connection_method **subbasin_area** or
         **nodes** with add_tributaries set to True.
+    basin_buffer_cells : int, default 0
+        Number of cells to use when clipping the river geometry to the basin extent.
+        This can be used to not include river geometries near the basin border.
+    geom_snapping_tolerance : float, default 0.0
+        Distance used to determine whether to snap parts of the river geometry that
+        are close to each other.
     add_tributaries : bool, default True
         If True, derive tributaries for the subbasins larger than area_max. Always True
         for **subbasin_area** method.
     include_river_boundaries : bool, default True
         If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
-    basin_buffer_cells : int, default 0
-        Number of cells to use when clipping the river geometry to the basin extent.
-        This can be used to prevent including river geometries near the basin border.
-    geom_snapping_tolerance : float, default -.0
-        Distance used to determine whether to snap parts of the river geometry that
-        are close to each other.
     logger : logging.Logger, optional
         Logger object, by default logger
     **kwargs
