@@ -163,7 +163,7 @@ def test_projected_crs(tmpdir):
     assert mod.grid.raster.crs == 3857
     # 95 quantile is class 190 ie urban
     assert (mod.grid["wflow_landuse"] == 190).count().values == 338
-    assert mod.get_config("model.sizeinmetres") == True
+    assert mod.get_config("model.cell_length_in_meter__flag") == True
 
 
 def test_setup_lake(tmpdir, example_wflow_model):

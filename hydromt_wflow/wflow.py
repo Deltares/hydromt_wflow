@@ -103,8 +103,8 @@ class WflowModel(GridModel):
         res: float | int = 1 / 120.0,
         upscale_method: str = "ihu",
         output_names: Dict = {
-            "local_drain_direction": "wflow_ldd",
-            "subcatchment_location__count": "wflow_subcatch",
+            "basin__local_drain_direction": "wflow_ldd",
+            "subbasin_location__count": "wflow_subcatch",
             "land_surface__slope": "Slope",
         },
     ):
@@ -297,7 +297,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
-            self.set_config("model.sizeinmetres", True)
+            self.set_config("model.cell_length_in_meter__flag", True)
 
     def setup_rivers(
         self,
@@ -4019,7 +4019,7 @@ Run setup_soilmaps first"
 
         """
         self.logger.info("Preparing water demand allocation map.")
-        self._update_naming({"land_water_allocation_area__number": output_name})
+        self._update_naming({"land_water_allocation_area__count": output_name})
         # Read the data
         waterareas = self.data_catalog.get_geodataframe(
             waterareas_fn,
@@ -4037,7 +4037,7 @@ Run setup_soilmaps first"
         )
         self.set_grid(da_alloc, name=output_name)
         # Update the config
-        self.set_config("input.static.land_water_allocation_area__number", output_name)
+        self.set_config("input.static.land_water_allocation_area__count", output_name)
         # Add alloc to geoms
         self.set_geoms(gdf_alloc, name=output_name)
 
@@ -4458,7 +4458,7 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
         lulcmap_name: str = "wflow_landuse",
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
+            "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
             "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
@@ -4636,7 +4636,7 @@ Run setup_soilmaps first"
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
+            "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
             "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501

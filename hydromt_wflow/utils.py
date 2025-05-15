@@ -13,6 +13,7 @@ from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 
 from .naming import (
+    WFLOW_MODEL_OPTIONS,
     WFLOW_NAMES,
     WFLOW_SEDIMENT_NAMES,
     WFLOW_SEDIMENT_STATES_NAMES,
@@ -125,7 +126,7 @@ of the config.
                     # Indices are created before ordering for compatibility with
                     # raster.idx_to_xy
                     full_index = maps[
-                        f"{config['input'].get('subcatchment_location__count')}"
+                        f"{config['input'].get('subbasin_location__count')}"
                     ].copy()
                     res_x, res_y = full_index.raster.res
                     if res_y < 0:
@@ -159,7 +160,7 @@ of the config.
                     # Else all the rest should be for the whole subcatchment
                     else:
                         mask = maps[
-                            f"{config['input'].get('subcatchment_location__count')}"
+                            f"{config['input'].get('subbasin_location__count')}"
                         ].copy()
                     # Rearrange the mask
                     res_x, res_y = mask.raster.res
@@ -692,16 +693,11 @@ def convert_to_wflow_v1_sbm(
         "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
     }
 
-    # Options in model section that were renamed
-    model_options = {
-        "masswasting": "gravitational_snow_transport",
-    }
-
     # Options in input section that were renamed
     input_options = {
-        "ldd": "local_drain_direction",
+        "ldd": "basin__local_drain_direction",
         "river_location": "river_location__mask",
-        "subcatchment": "subcatchment_location__count",
+        "subcatchment": "subbasin_location__count",
     }
 
     # variables that were moved to input rather than input.static
@@ -717,7 +713,7 @@ def convert_to_wflow_v1_sbm(
         config=config,
         wflow_vars=WFLOW_NAMES,
         states_vars=WFLOW_STATES_NAMES,
-        model_options=model_options,
+        model_options=WFLOW_MODEL_OPTIONS,
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
@@ -769,9 +765,9 @@ def convert_to_wflow_v1_sediment(
 
     # Options in input section that were renamed
     input_options = {
-        "ldd": "local_drain_direction",
+        "ldd": "basin__local_drain_direction",
         "river_location": "river_location__mask",
-        "subcatchment": "subcatchment_location__count",
+        "subcatchment": "subbasin_location__count",
     }
 
     # variables that were moved to input rather than input.static

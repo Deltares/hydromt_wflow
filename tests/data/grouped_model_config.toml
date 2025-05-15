@@ -12,15 +12,15 @@ loglevel = "info"
 
 [model]
 type                         = "sbm"
-gravitational_snow_transport = true
+snow_gravitional_transport__flag = true
 snow                         = true
 reinit                       = true
 reservoirs                   = false
 lakes                        = false
 glacier                      = false
 kin_wave_iteration           = true
-kw_river_tstep               = 900
-kw_land_tstep                = 3600
+river_kinematic_wave__time_step               = 900
+land_kinematic_wave__time_step                = 3600
 
 [state]
 path_input  = "instate/instates.nc"

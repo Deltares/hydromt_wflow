@@ -289,7 +289,7 @@ river cells."
             "reservoir_area__count": "wflow_reservoirareas",
             "reservoir_location__count": "wflow_reservoirlocs",
             "reservoir_surface__area": "ResSimpleArea",
-            "reservoir_sediment~bedload__trapping_efficiency_coefficient": "ResTrapEff",
+            "reservoir_water_sediment~bedload__trapping_efficiency": "ResTrapEff",
         },
         geom_name: str = "reservoirs",
         **kwargs,
@@ -721,7 +721,7 @@ river cells."
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         output_names: Dict = {
-            "river_bottom-and-bank_sediment__d50_diameter": "D50_River",
+            "river_bottom-and-bank_sediment__median_diameter": "D50_River",
             "river_bottom-and-bank_clay__mass_fraction": "ClayF_River",
             "river_bottom-and-bank_silt__mass_fraction": "SiltF_River",
             "river_bottom-and-bank_sand__mass_fraction": "SandF_River",
@@ -852,7 +852,7 @@ river cells."
             "soil_aggregates~large__mass_fraction": "flagg_soil",
             "soil_erosion__rainfall_soil_detachability_factor": "soil_detachability",
             "soil_erosion__usle_k_factor": "usle_k",
-            "land_surface_sediment__d50_diameter": "d50_soil",
+            "land_surface_sediment__median_diameter": "d50_soil",
             "land_surface_water_sediment__govers_transport_capacity_coefficient": "c_govers",  # noqa: E501
             "land_surface_water_sediment__govers_transport_capacity_exponent": "n_govers",  # noqa: E501
         },
