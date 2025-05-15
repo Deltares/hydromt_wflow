@@ -7,7 +7,9 @@ import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from scipy.ndimage import binary_erosion
 from shapely.geometry import LineString, MultiLineString, Point
+from shapely.ops import linemerge, snap, unary_union
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +24,8 @@ def wflow_1dmodel_connection(
     area_max: float = 30.0,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
+    basin_buffer_cells: int = 0,
+    geom_snapping_tolerance: float = 0.0,
     logger=logger,
     **kwargs,
 ) -> xr.Dataset:
@@ -67,6 +71,12 @@ def wflow_1dmodel_connection(
     include_river_boundaries : bool, default True
         If True, include the upstream boundary(ies) of the 1d river as an additional
         tributary(ies).
+    basin_buffer_cells : int, default 0
+        Number of cells to use when clipping the river geometry to the basin extent.
+        This can be used to prevent including river geometries near the basin border.
+    geom_snapping_tolerance : float, default -.0
+        Distance used to determine whether to snap parts of the river geometry that
+        are close to each other.
     logger : logging.Logger, optional
         Logger object, by default logger
     **kwargs
@@ -96,9 +106,24 @@ def wflow_1dmodel_connection(
     # Derive flwdir
     flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
     # Basin mask
-    buffer_cells = 2
-    basin_mask = ds_model["basins"].raster.vectorize()
-    basin_mask = basin_mask.buffer(-buffer_cells * max(ds_model.raster.res, key=abs))
+    if basin_buffer_cells > 0:
+        # Retain raster shape using binary erosion
+        basin_mask_values = binary_erosion(
+            input=ds_model["basins"].values,
+            structure=np.ones((3, 3)),
+            iterations=basin_buffer_cells,
+        ).astype(ds_model["basins"].dtype)
+
+        # Replace values with shrinked mask
+        basin_mask = ds_model["basins"].copy()
+        basin_mask.values = basin_mask_values
+        if np.sum(basin_mask_values) == 0:
+            raise ValueError(
+                f"Basin mask is empty after buffering with {basin_buffer_cells} cells. "
+                "Consider using a smaller value for 'basin_buffer_cells'."
+            )
+    else:
+        basin_mask = ds_model["basins"]
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
@@ -125,31 +150,40 @@ def wflow_1dmodel_connection(
 
         logger.info("Linking 1D river to wflow river")
         # 1. Derive the river edges / boundaries
-        # merge multilinestrings in gdf_riv to linestrings
-        if any(gdf_riv.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
+        riv1d = gdf_riv.clip(basin_mask.raster.vectorize())
+
+        # decompose MultiLineStrings into LineStrings
+        lines = []
+        for geom in riv1d.geometry:
+            if geom.geom_type == "MultiLineString":
+                lines.extend(list(geom))
+            elif geom.geom_type == "LineString":
+                lines.append(geom)
+
+        # snap lines to each other
+        if geom_snapping_tolerance > 0:
+            snapped_lines = [
+                snap(line, unary_union(lines), geom_snapping_tolerance)
+                for line in lines
+            ]
             logger.debug(
-                "'gdf_riv' contains MultiLineStrings which will be converted into"
-                "LineStrings."
+                "Snapping river segments using geom_snapping_tolerance = %s. "
+                "River geometry went from %d to %d segments.",
+                geom_snapping_tolerance,
+                len(lines),
+                len(snapped_lines),
             )
-            gdf_riv = gdf_riv.explode(index_parts=True).reset_index(drop=True)
-        # clip to basins
-        riv1d = gdf_riv.clip(basin_mask)
-        if any(riv1d.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
-            # clipping may result in MultiLineStrings
-            logger.warning(
-                "The provided river geometry contains MultiLineString geometries after"
-                "clipping. Consider checking if the provided river geometry crosses the"
-                "boundary of the Wflow model and if there is sufficient space between"
-                f"the river and the Wflow model boundary (min. {buffer_cells} cells)."
-            )
-            # we turn these into LineStrings again using its points
-            riv1d["geometry"] = riv1d.geometry.apply(
-                lambda geom: LineString(
-                    [coord for line in geom.geoms for coord in line.coords]
-                )
-                if isinstance(geom, MultiLineString)
-                else geom
-            )
+            lines = snapped_lines
+
+        # ensure that river segments are connected where possible
+        merged = linemerge(unary_union(lines))
+
+        # make 'merged' always a list of LineStrings
+        if isinstance(merged, LineString):
+            merged = [merged]
+        elif isinstance(merged, MultiLineString):
+            merged = list(merged.geoms)
+        riv1d = gpd.GeoDataFrame(geometry=merged, crs=riv1d.crs)
 
         # get the edges of the riv1d
         riv1d_edges = riv1d.geometry.apply(lambda x: Point(x.coords[0]))
@@ -326,7 +360,7 @@ def wflow_1dmodel_connection(
         # from multiline to line
         gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
         # Clip to basin
-        gdf_riv = gdf_riv.clip(basin_mask)
+        gdf_riv = gdf_riv.clip(basin_mask.raster.vectorize())
         nodes = []
         for bi, branch in gdf_riv.iterrows():
             nodes.append([Point(branch.geometry.coords[0]), bi])  # start
