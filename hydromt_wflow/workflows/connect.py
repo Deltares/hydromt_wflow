@@ -156,7 +156,7 @@ def wflow_1dmodel_connection(
         lines = []
         for geom in riv1d.geometry:
             if geom.geom_type == "MultiLineString":
-                lines.extend(list(geom))
+                lines.extend(list(geom.geoms))
             elif geom.geom_type == "LineString":
                 lines.append(geom)
 
