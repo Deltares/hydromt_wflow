@@ -4265,7 +4265,7 @@ Run setup_soilmaps first"
             self.set_grid(pop, name="population")  # meta_population
 
         # Update toml
-        self.set_config("model.water_demand.domestic", True)
+        self.set_config("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -4349,7 +4349,7 @@ Run setup_soilmaps first"
             self.set_grid(popu_scaled, name="population")  # meta_population
 
         # Update toml
-        self.set_config("model.water_demand.domestic", True)
+        self.set_config("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -4440,11 +4440,11 @@ Run setup_soilmaps first"
 
         # Update the settings toml
         if "dom_gross" in demand.data_vars:
-            self.set_config("model.water_demand.domestic", True)
+            self.set_config("model.water_demand.domestic__flag", True)
         if "ind_gross" in demand.data_vars:
-            self.set_config("model.water_demand.industry", True)
+            self.set_config("model.water_demand.industry__flag", True)
         if "lsk_gross" in demand.data_vars:
-            self.set_config("model.water_demand.livestock", True)
+            self.set_config("model.water_demand.livestock__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(demand.rename(rmdict).data_vars, data_type)
 
@@ -4584,7 +4584,7 @@ Run setup_soilmaps first"
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
-            self.set_config("model.water_demand.paddy", True)
+            self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
                 "static",
@@ -4595,7 +4595,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.set_config("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
@@ -4611,7 +4611,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
@@ -4626,7 +4626,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.set_config("model.water_demand.nonpaddy__flag", False)
 
     def setup_irrigation_from_vector(
         self,
@@ -4755,7 +4755,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.paddy", True)
+            self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
                 "static",
@@ -4766,7 +4766,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.set_config("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
@@ -4782,7 +4782,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
@@ -4797,7 +4797,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.set_config("model.water_demand.nonpaddy__flag", False)
 
     def setup_cold_states(
         self,

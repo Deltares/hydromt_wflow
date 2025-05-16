@@ -306,7 +306,7 @@ def prepare_cold_states(
         states_config["state.variables.glacier_ice__leq-depth"] = "glacierstore"
 
     # paddy
-    if config["model"].get("water_demand.paddy", False):
+    if config["model"].get("water_demand.paddy__flag", False):
         h_paddy = grid_from_constant(
             ds_like,
             value=0.0,

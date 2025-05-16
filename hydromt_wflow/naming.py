@@ -55,7 +55,11 @@ WFLOW_MODEL_OPTIONS = {
     "run_river_model": "run_river_model__flag",
     "soilinfreduction": "soil_infiltration_reduction__flag",
     "transfermethod": "topog_sbm_transfer__flag",
-    "water_demand.domestic": "domestic__flag",
+    "water_demand.domestic": "water_demand.domestic__flag",
+    "water_demand.industry": "water_demand.industry__flag",
+    "water_demand.livestock": "water_demand.livestock__flag",
+    "water_demand.paddy": "water_demand.paddy__flag",
+    "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
 }
 
 # Link between staticmap names, hydromt name (if any)
