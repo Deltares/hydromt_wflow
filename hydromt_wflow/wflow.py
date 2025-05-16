@@ -84,7 +84,6 @@ class WflowModel(GridModel):
         )
 
         # wflow specific
-        self._intbl = dict()
         self._tables = dict()
         self._flwdir = None
         self.data_catalog.from_yml(self._CATALOGS)
@@ -144,8 +143,8 @@ class WflowModel(GridModel):
         at 3 arcsec resolution).
         Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
         Users can also supply their own elevation and flow direction data
-        in any CRS and not only EPSG:4326. Both arcgis D8 and pcraster LDD
-        conventions are supported (see also `PyFlwDir documentation
+        in any CRS and not only EPSG:4326. The ArcGIS D8 convention is supported
+        (see also `PyFlwDir documentation
         <https://deltares.github.io/pyflwdir/latest/_examples/flwdir.html>`).
 
         Note that in order to define the region, using points or bounding box,
@@ -2575,7 +2574,11 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
             "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
-        paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
+        paddy_waterlevels: Dict = {
+            "demand_paddy_h_min": 20,
+            "demand_paddy_h_opt": 50,
+            "demand_paddy_h_max ": 80,
+        },
         save_high_resolution_lulc: bool = False,
         output_names_suffix: str | None = None,
     ):
@@ -2603,7 +2606,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         The different values for the minimum/optimal/maximum water levels for paddy
         fields will be added as constant values in the toml file, through the
-        ``vertical.paddy.h_min.value = 20`` interface.
+        ``vertical.paddy.demand_paddy_h_min.value = 20`` interface.
 
         Adds model layers:
 
@@ -2628,9 +2631,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
           reduced (Feddes) [cm]
         * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
           (Feddes) [cm]
-        * **h_min** map: Minimum required water depth for paddy fields [mm]
-        * **h_opt** map: Optimal water depth for paddy fields [mm]
-        * **h_max** map: Maximum water depth for paddy fields [mm]
+        * **demand_paddy_h_min** map: Minimum required water depth for paddy fields [mm]
+        * **demand_paddy_h_opt** map: Optimal water depth for paddy fields [mm]
+        * **demand_paddy_h_max** map: Maximum water depth for paddy fields [mm]
         * **kvfrac**: Map with a multiplication factor for the vertical conductivity [-]
 
         Updates model layers:
@@ -2682,7 +2685,8 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             Wflow.jl variables.
         paddy_waterlevels : dict
             Dictionary with the minimum, optimal and maximum water levels for paddy
-            fields [mm]. By default {"h_min": 20, "h_opt": 50, "h_max": 80}
+            fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,
+              "demand_paddy_h_max": 80}
         save_high_resolution_lulc : bool
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
@@ -2691,7 +2695,8 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameters
-            kvfrac, h_min, h_opt and h_max but not the c parameter.
+            kvfrac, demand_paddy_h_min, demand_paddy_h_opt and demand_paddy_h_max but
+            not the c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         if output_names_suffix is not None:
@@ -2700,7 +2705,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
             }
             # Add the other parameters
-            for var in ["kvfrac", "h_min", "h_opt", "h_max"]:
+            for var in [
+                "kvfrac",
+                "demand_paddy_h_min",
+                "demand_paddy_h_opt",
+                "demand_paddy_h_max",
+            ]:
                 output_names[self._WFLOW_NAMES[self._MAPS[var]]] = (
                     f"{var}_{output_names_suffix}"
                 )
@@ -4049,7 +4059,7 @@ Run setup_soilmaps first"
         ncfrac_fn: str | xr.DataArray | None = None,
         interpolate_nodata: bool = False,
         mask_and_scale_gwfrac: bool = True,
-        output_name: str = "frac_sw_used",
+        output_name: str = "demand_surface_water_ratio",
     ):
         """Create the fraction of water allocated from surface water.
 
@@ -4066,7 +4076,8 @@ Run setup_soilmaps first"
 
         Adds model layer:
 
-        * **frac_sw_used**: fraction of water allocated from surface water [0-1]
+        * **demand_surface_water_ratio**: fraction of water allocated from surface water
+          [0-1]
 
         Parameters
         ----------
@@ -4086,7 +4097,8 @@ Run setup_soilmaps first"
             `gwfrac_fn`. If not provided, we assume no non-conventional sources are
             used.
         interpolate_nodata : bool, optional
-            If True, nodata values in the resulting frac_sw_used map will be linearly
+            If True, nodata values in the resulting demand_surface_water_ratio map will
+            be linearly
             interpolated. Else a default value of 1 will be used for nodata values
             (default).
         mask_and_scale_gwfrac : bool, optional
@@ -4096,7 +4108,7 @@ Run setup_soilmaps first"
             used as is. By default True.
         output_name : str, optional
             Name of the fraction of surface water used map to be saved in the wflow
-            model staticmaps file. Default is 'frac_sw_used'.
+            model staticmaps file. Default is 'demand_surface_water_ratio'.
         """
         self.logger.info("Preparing surface water fraction map.")
         # Load the data
@@ -4164,8 +4176,8 @@ Run setup_soilmaps first"
         population_fn: str | xr.Dataset | None = None,
         domestic_fn_original_res: float | None = None,
         output_names: Dict = {
-            "land~domestic__gross_water_demand_volume_flux": "domestic_gross",
-            "land~domestic__net_water_demand_volume_flux": "domestic_net",
+            "land~domestic__gross_water_demand_volume_flux": "demand_domestic_gross",
+            "land~domestic__net_water_demand_volume_flux": "demand_domestic_net",
         },
     ):
         """
@@ -4184,8 +4196,8 @@ Run setup_soilmaps first"
 
         Adds model layer:
 
-        * **domestic_gross**: gross domestic water demand [mm/day]
-        * **domestic_net**: net domestic water demand [mm/day]
+        * **demand_domestic_gross**: gross domestic water demand [mm/day]
+        * **demand_domestic_net**: net domestic water demand [mm/day]
 
         Parameters
         ----------
@@ -4275,8 +4287,8 @@ Run setup_soilmaps first"
         domestic_gross_per_capita: float | List[float],
         domestic_net_per_capita: float | List[float] | None = None,
         output_names: Dict = {
-            "land~domestic__gross_water_demand_volume_flux": "domestic_gross",
-            "land~domestic__net_water_demand_volume_flux": "domestic_net",
+            "land~domestic__gross_water_demand_volume_flux": "demand_domestic_gross",
+            "land~domestic__net_water_demand_volume_flux": "demand_domestic_net",
         },
     ):
         """
@@ -4288,8 +4300,8 @@ Run setup_soilmaps first"
 
         Adds model layer:
 
-        * **domestic_gross**: gross domestic water demand [mm/day]
-        * **domestic_net**: net domestic water demand [mm/day]
+        * **demand_domestic_gross**: gross domestic water demand [mm/day]
+        * **demand_domestic_net**: net domestic water demand [mm/day]
 
         Parameters
         ----------
@@ -4359,10 +4371,10 @@ Run setup_soilmaps first"
         variables: list = ["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
         resampling_method: str = "average",
         output_names: Dict = {
-            "land~industry__gross_water_demand_volume_flux": "industry_gross",
-            "land~industry__net_water_demand_volume_flux": "industry_net",
-            "land~livestock__gross_water_demand_volume_flux": "livestock_gross",
-            "land~livestock__net_water_demand_volume_flux": "livestock_net",
+            "land~industry__gross_water_demand_volume_flux": "demand_industry_gross",
+            "land~industry__net_water_demand_volume_flux": "demand_industry_net",
+            "land~livestock__gross_water_demand_volume_flux": "demand_livestock_gross",
+            "land~livestock__net_water_demand_volume_flux": "demand_livestock_net",
         },
     ):
         """Create water demand maps from other sources (e.g. industry, livestock).
@@ -4458,10 +4470,10 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
         lulcmap_name: str = "wflow_landuse",
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
-            "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
-            "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
+            "land~irrigated-paddy_area__number": "demand_paddy_irrigated_mask",
+            "land~irrigated-non-paddy_area__number": "demand_nonpaddy_irrigated_mask",
+            "land~irrigated-paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
+            "land~irrigated-non-paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
     ):
         """
@@ -4491,12 +4503,12 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
-        * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
-        * **paddy_irrigation_trigger**: Map with monthly values, indicating whether
-          irrigation is allowed (1) or not (0) [-] for paddy areas
-        * **nonpaddy_irrigation_trigger**: Map with monthly values, indicating whether
-          irrigation is allowed (1) or not (0) [-] for non-paddy areas
+        * **demand_nonpaddy_irrigated_mask**: Irrigated (non-paddy) mask [-]
+        * **demand_paddy_irrigated_mask**: Irrigated (paddy) mask [-]
+        * **demand_paddy_irrigation_trigger**: Map with monthly values, indicating
+          whether irrigation is allowed (1) or not (0) [-] for paddy areas
+        * **demand_paddy_irrigation_trigger**: Map with monthly values, indicating
+          whether irrigation is allowed (1) or not (0) [-] for non-paddy areas
 
         Parameters
         ----------
@@ -4567,8 +4579,8 @@ Run setup_soilmaps first"
         # Check if paddy and non paddy are present
         cyclic_lai = len(self.grid[self._MAPS["LAI"]].dims) > 2
         if (
-            "paddy_irrigation_areas" in ds_irrigation.data_vars
-            and ds_irrigation["paddy_irrigation_areas"]
+            "demand_paddy_irrigated_mask" in ds_irrigation.data_vars
+            and ds_irrigation["demand_paddy_irrigated_mask"]
             .raster.mask_nodata()
             .sum()
             .values
@@ -4580,25 +4592,32 @@ Run setup_soilmaps first"
             }
             self._update_naming(paddy_names)
             ds_paddy = ds_irrigation[
-                ["paddy_irrigation_areas", "paddy_irrigation_trigger"]
+                ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
             self.set_config("model.water_demand.paddy", True)
             self._update_config_variable_name(
-                self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
+                self._MAPS.get(
+                    "demand_paddy_irrigated_mask", "demand_paddy_irrigated_mask"
+                ),
                 "static",
             )
             data_type = "cyclic" if cyclic_lai else "static"
             self._update_config_variable_name(
-                self._MAPS.get("paddy_irrigation_trigger", "paddy_irrigation_trigger"),
+                self._MAPS.get(
+                    "demand_paddy_irrigation_trigger", "demand_paddy_irrigation_trigger"
+                ),
                 data_type,
             )
         else:
             self.set_config("model.water_demand.paddy", False)
 
         if (
-            ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
+            ds_irrigation["demand_nonpaddy_irrigated_mask"]
+            .raster.mask_nodata()
+            .sum()
+            .values
             != 0
         ):
             nonpaddy_names = {
@@ -4606,7 +4625,7 @@ Run setup_soilmaps first"
             }
             self._update_naming(nonpaddy_names)
             ds_nonpaddy = ds_irrigation[
-                ["nonpaddy_irrigation_areas", "nonpaddy_irrigation_trigger"]
+                ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
@@ -4614,14 +4633,15 @@ Run setup_soilmaps first"
             self.set_config("model.water_demand.nonpaddy", True)
             self._update_config_variable_name(
                 self._MAPS.get(
-                    "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
+                    "demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigated_mask"
                 ),
                 "static",
             )
             data_type = "cyclic" if cyclic_lai else "static"
             self._update_config_variable_name(
                 self._MAPS.get(
-                    "nonpaddy_irrigation_trigger", "nonpaddy_irrigation_trigger"
+                    "demand_nonpaddy_irrigation_trigger",
+                    "demand_nonpaddy_irrigation_trigger",
                 ),
                 data_type,
             )
@@ -4636,10 +4656,10 @@ Run setup_soilmaps first"
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
-            "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
-            "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
+            "land~irrigated-paddy_area__number": "demand_paddy_irrigated_mask",
+            "land~irrigated-non-paddy_area__number": "demand_nonpaddy_irrigated_mask",
+            "land~irrigated-paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
+            "land~irrigated-non-paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
     ):
         """
@@ -4669,8 +4689,8 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **paddy_irrigation_areas**: Irrigated (paddy) mask [-]
-        * **nonpaddy_irrigation_areas**: Irrigated (non-paddy) mask [-]
+        * **demand_paddy_irrigated_mask**: Irrigated (paddy) mask [-]
+        * **demand_nonpaddy_irrigated_mask**: Irrigated (non-paddy) mask [-]
         * **paddy_irrigation_trigger**: Map with monthly values, indicating whether
           irrigation is allowed (1) or not (0) [-] for paddy areas
         * **nonpaddy_irrigation_trigger**: Map with monthly values, indicating whether
@@ -4738,8 +4758,8 @@ Run setup_soilmaps first"
         # Check if paddy and non paddy are present
         cyclic_lai = len(self.grid[self._MAPS["LAI"]].dims) > 2
         if (
-            "paddy_irrigation_areas" in ds_irrigation.data_vars
-            and ds_irrigation["paddy_irrigation_areas"]
+            "demand_paddy_irrigated_mask" in ds_irrigation.data_vars
+            and ds_irrigation["demand_paddy_irrigated_mask"]
             .raster.mask_nodata()
             .sum()
             .values
@@ -4750,26 +4770,33 @@ Run setup_soilmaps first"
             }
             self._update_naming(paddy_names)
             ds_paddy = ds_irrigation[
-                ["paddy_irrigation_areas", "paddy_irrigation_trigger"]
+                ["demand_paddy_irrigated_mask", "demand_paddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
             # Update the config
             self.set_config("model.water_demand.paddy", True)
             self._update_config_variable_name(
-                self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
+                self._MAPS.get(
+                    "demand_paddy_irrigated_mask", "demand_paddy_irrigated_mask"
+                ),
                 "static",
             )
             data_type = "cyclic" if cyclic_lai else "static"
             self._update_config_variable_name(
-                self._MAPS.get("paddy_irrigation_trigger", "paddy_irrigation_trigger"),
+                self._MAPS.get(
+                    "demand_paddy_irrigation_trigger", "demand_paddy_irrigation_trigger"
+                ),
                 data_type,
             )
         else:
             self.set_config("model.water_demand.paddy", False)
 
         if (
-            ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
+            ds_irrigation["demand_nonpaddy_irrigated_mask"]
+            .raster.mask_nodata()
+            .sum()
+            .values
             != 0
         ):
             nonpaddy_names = {
@@ -4777,7 +4804,7 @@ Run setup_soilmaps first"
             }
             self._update_naming(nonpaddy_names)
             ds_nonpaddy = ds_irrigation[
-                ["nonpaddy_irrigation_areas", "nonpaddy_irrigation_trigger"]
+                ["demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigation_trigger"]
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
@@ -4785,14 +4812,15 @@ Run setup_soilmaps first"
             self.set_config("model.water_demand.nonpaddy", True)
             self._update_config_variable_name(
                 self._MAPS.get(
-                    "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
+                    "demand_nonpaddy_irrigated_mask", "demand_nonpaddy_irrigated_mask"
                 ),
                 "static",
             )
             data_type = "cyclic" if cyclic_lai else "static"
             self._update_config_variable_name(
                 self._MAPS.get(
-                    "nonpaddy_irrigation_trigger", "nonpaddy_irrigation_trigger"
+                    "demand_nonpaddy_irrigation_trigger",
+                    "demand_nonpaddy_irrigation_trigger",
                 ),
                 data_type,
             )
@@ -4877,8 +4905,14 @@ Run setup_soilmaps first"
         This function should be followed by write_config() to write the upgraded file.
         """
         self.read()
+
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        self._config = tomlkit.TOMLDocument()
+        # tomlkit loads errors on this file so we have to do it in two steps
+        with open(DATADIR / "default_config_headers.toml", "r") as file:
+            default_header_str = file.read()
+
+        self._config = tomlkit.parse(default_header_str)
+
         for option in config_out:
             self.set_config(option, config_out[option])
 
@@ -4891,7 +4925,6 @@ Run setup_soilmaps first"
         self.read_grid()
         self.read_geoms()
         self.read_forcing()
-        self.read_intbl()
         self.read_tables()
         self.read_states()
         self.logger.info("Model read")
@@ -4985,12 +5018,6 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
-
-        For reading old PCRaster maps, see the pcrm submodule.
-
-        See Also
-        --------
-        pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
         fn = self.get_config(
@@ -5615,47 +5642,6 @@ change name input.path_forcing "
         if not self._write:
             raise IOError("Model opened in read-only mode")
 
-    def read_intbl(self, **kwargs):
-        """Read and intbl files at <root/intbl> and parse to xarray."""
-        if not self._write:
-            self._intbl = dict()  # start fresh in read-only mode
-        if not self._read:
-            self.logger.info("Reading default intbl files.")
-            fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
-        else:
-            self.logger.info("Reading model intbl files.")
-            fns = glob.glob(join(self.root, "intbl", "*.tbl"))
-        if len(fns) > 0:
-            for fn in fns:
-                name = basename(fn).split(".")[0]
-                tbl = pd.read_csv(fn, delim_whitespace=True, header=None)
-                tbl.columns = [
-                    f"expr{i + 1}" if i + 1 < len(tbl.columns) else "value"
-                    for i in range(len(tbl.columns))
-                ]  # rename columns
-                self.set_intbl(tbl, name=name)
-
-    def write_intbl(self):
-        """Write intbl at <root/intbl> in PCRaster table format."""
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        if self.intbl:
-            self.logger.info("Writing intbl files.")
-            for name in self.intbl:
-                fn_out = join(self.root, "intbl", f"{name}.tbl")
-                self.intbl[name].to_csv(fn_out, sep=" ", index=False, header=False)
-
-    def set_intbl(self, df, name):
-        """Add intbl <pandas.DataFrame> to model."""
-        if not (isinstance(df, pd.DataFrame) or isinstance(df, pd.Series)):
-            raise ValueError("df type not recognized, should be pandas.DataFrame.")
-        if name in self._intbl:
-            if not self._write:
-                raise IOError(f"Cannot overwrite intbl {name} in read-only mode")
-            elif self._read:
-                self.logger.warning(f"Overwriting intbl: {name}")
-        self._intbl[name] = df
-
     def read_tables(self, **kwargs):
         """Read table files at <root> and parse to dict of dataframes."""
         if not self._write:
@@ -5787,6 +5773,7 @@ change name input.path_forcing "
         if isinstance(value, (dict, tomlkit.items.AbstractTable)):
             for key, inner_value in value.items():
                 self.set_config(*keys, key, inner_value)
+            return
 
         # if the first key is not present
         # we can just set the entire thing straight
@@ -5872,13 +5859,6 @@ change name input.path_forcing "
             # (spelling mistakes should have been checked in _update_naming)
 
     ## WFLOW specific data and method
-    @property
-    def intbl(self):
-        """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
-        if not self._intbl:
-            self.read_intbl()
-        return self._intbl
-
     @property
     # Move to core Model API ?
     def tables(self):
