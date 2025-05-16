@@ -507,7 +507,12 @@ def _convert_to_wflow_v1(
     config_out["model"] = config["model"]
     for opt_old, opt_new in model_options.items():
         if opt_old in config_out["model"].keys():
-            config_out["model"][opt_new] = config_out["model"].pop(opt_old)
+            item = config_out["model"].pop(opt_old)
+            if isinstance(opt_new, (list, tuple)):
+                for elem in opt_new:
+                    config_out["model"][elem] = item
+                continue
+            config_out["model"][opt_new] = item
 
     # State
     logger.info("Converting config state section")
