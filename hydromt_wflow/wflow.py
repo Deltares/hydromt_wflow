@@ -4877,8 +4877,14 @@ Run setup_soilmaps first"
         This function should be followed by write_config() to write the upgraded file.
         """
         self.read()
+
         config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
-        self._config = tomlkit.TOMLDocument()
+        # tomlkit loads errors on this file so we have to do it in two steps
+        with open(DATADIR / "default_config_headers.toml", "r") as file:
+            default_header_str = file.read()
+
+        self._config = tomlkit.parse(default_header_str)
+
         for option in config_out:
             self.set_config(option, config_out[option])
 
