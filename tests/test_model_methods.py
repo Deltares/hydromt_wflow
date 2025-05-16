@@ -653,9 +653,10 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
         output_names={},
     )
 
-    mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
-        elevtn_map
-    ]
+    mapname = {
+        "wflow_dem": "river_bank_elevation_avg",
+        "dem_subgrid": "river_bank_elevation_subgrid",
+    }[elevtn_map]
 
     assert mapname in example_wflow_model.grid
     assert example_wflow_model.get_config("model.river_routing") == "local-inertial"
@@ -705,7 +706,7 @@ def test_setup_rivers_depth(tmpdir):
         elevtn_map="wflow_dem",
     )
 
-    assert "RiverDepth" in mod.grid
+    assert "river_depth" in mod.grid
 
     # Try using gvf method
     mod.setup_rivers(
@@ -724,7 +725,7 @@ def test_setup_rivers_depth(tmpdir):
     # RiverDepth iteslf doesn't matter here, this assertion
     # is just to check the method ran without errors
     # as this will error if something went wrong in the process
-    assert "RiverDepth" in mod.grid
+    assert "river_depth" in mod.grid
 
 
 def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
@@ -785,9 +786,10 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         hydrography_fn="merit_hydro", floodplain_type="2d", elevtn_map=elevtn_map
     )
 
-    mapname = {"wflow_dem": "hydrodem_avg", "dem_subgrid": "hydrodem_subgrid"}[
-        elevtn_map
-    ]
+    mapname = {
+        "wflow_dem": "river_bank_elevation_avg",
+        "dem_subgrid": "river_bank_elevation_subgrid",
+    }[elevtn_map]
 
     assert f"{mapname}_D4" in example_wflow_model.grid
     assert example_wflow_model.get_config("model.floodplain_1d") == False

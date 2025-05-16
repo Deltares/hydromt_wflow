@@ -96,18 +96,18 @@ h = "h_land"
 h_av = "h_av_land"
 
 [input.lateral.river]
-length = "wflow_riverlength"
-n = "N_River"
-slope = "RiverSlope"
-width = "wflow_riverwidth"
-bankfull_depth = "RiverDepth"
+length = "river_length"
+n = "river_manning_n"
+slope = "river_slope"
+width = "river_width"
+bankfull_depth = "river_depth"
 
 [input.lateral.subsurface]
 ksathorfrac = "KsatHorFrac"
 
 [input.lateral.land]
-n = "N"
-slope = "Slope"
+n = "land_manning_n"
+slope = "land_slope"
 
 [state.lateral.river.reservoir]
 volume = "volume_reservoir"

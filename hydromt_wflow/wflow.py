@@ -105,7 +105,7 @@ class WflowModel(GridModel):
         output_names: Dict = {
             "local_drain_direction": "wflow_ldd",
             "subcatchment_location__count": "wflow_subcatch",
-            "land_surface__slope": "Slope",
+            "land_surface__slope": "land_slope",
         },
     ):
         """
@@ -168,7 +168,7 @@ class WflowModel(GridModel):
         * **wflow_streamorder** map: Strahler stream order [-]
         * **wflow_dem** map: average elevation [m+REF]
         * **dem_subgrid** map: subgrid outlet elevation [m+REF]
-        * **Slope** map: average land surface slope [m/m]
+        * **land_slope** map: average land surface slope [m/m]
         * **basins** geom: basins boundary vector
         * **region** geom: region boundary vector
 
@@ -318,12 +318,12 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         connectivity: int = 8,
         output_names: Dict = {
             "river_location__mask": "wflow_river",
-            "river__length": "wflow_riverlength",
-            "river__width": "wflow_riverwidth",
-            "river_bank_water__depth": "RiverDepth",
-            "river__slope": "RiverSlope",
-            "river_water_flow__manning_n_parameter": "N_River",
-            "river_bank_water__elevation": "hydrodem_avg",
+            "river__length": "river_length",
+            "river__width": "river_width",
+            "river_bank_water__depth": "river_depth",
+            "river__slope": "river_slope",
+            "river_water_flow__manning_n_parameter": "river_manning_n",
+            "river_bank_water__elevation": "river_bank_elevation",
         },
     ):
         """
@@ -368,13 +368,13 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
-        * **wflow_riverlength** map: river length [m]
-        * **wflow_riverwidth** map: river width [m]
-        * **RiverDepth** map: bankfull river depth [m]
-        * **RiverSlope** map: river slope [m/m]
-        * **N_River** map: Manning coefficient for river cells [s.m^1/3]
+        * **river_length** map: river length [m]
+        * **river_width** map: river width [m]
+        * **river_depth** map: bankfull river depth [m]
+        * **river_slope** map: river slope [m/m]
+        * **river_manning_n** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
+        * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
 
         Parameters
         ----------
@@ -482,11 +482,11 @@ Select from {routing_options}.'
                 self._update_config_variable_name(self._MAPS[dvar])
 
         # TODO make separate workflows.river_manning  method
-        # Make N_River map from csv file with mapping
-        # between streamorder and N_River value
+        # Make river_manning_n map from csv file with mapping
+        # between streamorder and river_manning_n value
         strord = self.grid[self._MAPS["strord"]].copy()
         df = self.data_catalog.get_dataframe(rivman_mapping_fn)
-        # max streamorder value above which values get the same N_River value
+        # max streamorder value above which values get the same river_manning_n value
         max_str = df.index[-2]
         nodata = df.index[-1]
         # if streamorder value larger than max_str, assign last value
@@ -539,9 +539,9 @@ Select from {routing_options}.'
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
-            name = f"hydrodem{postfix}"
-            # Check if users wanted a specific name for the hydrodem
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            name = f"river_bank_elevation{postfix}"
+            # Check if users wanted a specific name for the river_bank_elevation
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["river_bank_elevation"])
             if hydrodem_var in output_names:
                 name = output_names[hydrodem_var]
             self._update_naming({hydrodem_var: name})
@@ -572,7 +572,7 @@ Select from {routing_options}.'
         connectivity: int = 4,
         output_names: Dict = {
             "floodplain_water__sum_of_volume-per-depth": "floodplain_volume",
-            "hydrodem": "hydrodem_avg_D4",
+            "river_bank_elevation": "river_bank_elevation_avg_D4",
         },
     ):
         """
@@ -589,7 +589,7 @@ Select from {routing_options}.'
         :py:meth:`setup_rivers` method.
 
         If ``floodplain_type`` is set to "2d", this component adds
-        a hydrologically conditioned elevation (hydrodem) map for
+        a hydrologically conditioned elevation (river_bank_elevation) map for
         land routing (local-inertial). For this options, landcells need to be
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
@@ -608,8 +608,8 @@ Select from {routing_options}.'
 
         * **floodplain_volume** map: map with floodplain volumes, has flood depth as \
             third dimension [m3] (for 1D floodplains)
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D \
-            floodplains)
+        * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
+          (for 2D floodplains)
 
         Parameters
         ----------
@@ -728,11 +728,11 @@ setting new flood_depth dimensions"
             postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
                 elevtn_map, ""
             )
-            name = f"hydrodem{postfix}_D{connectivity}"
-            # Check if users wanted a specific name for the hydrodem
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            name = f"river_bank_elevation{postfix}_D{connectivity}"
+            # Check if users wanted a specific name for the river_bank_elevation
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["river_bank_elevation"])
             lndelv_var = self._WFLOW_NAMES.get(self._MAPS["elevtn"])
-            # hydrodem is used for two wflow variables
+            # river_bank_elevation is used for two wflow variables
             if hydrodem_var in output_names:
                 name = output_names[hydrodem_var]
             self._update_naming(
@@ -754,7 +754,7 @@ setting new flood_depth dimensions"
             self.set_grid(ds_out)
             # Update the bankfull elevation map
             self.set_config("input.static.river_bank_water__elevation", name)
-            # In this case hydrodem is also used for the ground elevation?
+            # In this case river_bank_elevation is also used for the ground elevation?
             self.set_config(
                 "input.static.land_surface_water_flow__ground_elevation", elevtn_map
             )
@@ -871,7 +871,7 @@ setting new flood_depth dimensions"
         min_wth: float = 1.0,
         precip_fn: str | xr.DataArray = "chelsa",
         climate_fn: str | xr.DataArray = "koppen_geiger",
-        output_name: str = "wflow_riverwidth",
+        output_name: str = "river_width",
         **kwargs,
     ):
         """
@@ -889,7 +889,7 @@ setting new flood_depth dimensions"
         multiple linear regression with precipitation and upstream area
         per climate zone.
 
-        * **wflow_riverwidth** map: river width [m]
+        * **river_width** map: river width [m]
 
         Parameters
         ----------
@@ -978,7 +978,7 @@ and will soon be removed. '
         lulc_vars: Dict = {
             "landuse": None,
             "Kext": "vegetation_canopy__light-extinction_coefficient",
-            "N": "land_surface_water_flow__manning_n_parameter",
+            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
             "PathFrac": "soil~compacted__area_fraction",
             "RootingDepth": "vegetation_root__depth",
             "Sl": "vegetation__specific-leaf_storage",
@@ -1094,7 +1094,7 @@ and will soon be removed. '
         lulc_vars: Dict = {
             "landuse": None,
             "Kext": "vegetation_canopy__light-extinction_coefficient",
-            "N": "land_surface_water_flow__manning_n_parameter",
+            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
             "PathFrac": "soil~compacted__area_fraction",
             "RootingDepth": "vegetation_root__depth",
             "Sl": "vegetation__specific-leaf_storage",
@@ -2561,7 +2561,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         lulc_vars: Dict = {
             "landuse": None,
             "Kext": "vegetation_canopy__light-extinction_coefficient",
-            "N": "land_surface_water_flow__manning_n_parameter",
+            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
             "PathFrac": "soil~compacted__area_fraction",
             "RootingDepth": "vegetation_root__depth",
             "Sl": "vegetation__specific-leaf_storage",

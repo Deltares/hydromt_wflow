@@ -324,7 +324,7 @@ WFLOW_NAMES = {
     "Slope": {
         "wflow_v0": "lateral.land.slope",
         "wflow_v1": "land_surface__slope",
-        "hydromt_name": "lndslp",
+        "hydromt_name": "land_slope",
     },
     # river
     "floodplain_volume": {
@@ -335,7 +335,7 @@ WFLOW_NAMES = {
     "hydrodem": {
         "wflow_v0": "lateral.river.bankfull_elevation",
         "wflow_v1": "river_bank_water__elevation",
-        "hydromt_name": "hydrodem",
+        "hydromt_name": "river_bank_elevation",
     },
     "inflow": {
         "wflow_v0": "lateral.river.inflow",
@@ -345,12 +345,12 @@ WFLOW_NAMES = {
     "RiverDepth": {
         "wflow_v0": "lateral.river.bankfull_depth",
         "wflow_v1": "river_bank_water__depth",
-        "hydromt_name": "rivdph",
+        "hydromt_name": "river_depth",
     },
     "wflow_riverlength": {
         "wflow_v0": "lateral.river.length",
         "wflow_v1": "river__length",
-        "hydromt_name": "rivlen",
+        "hydromt_name": "river_length",
     },
     "N_River": {
         "wflow_v0": "lateral.river.n",
@@ -359,12 +359,12 @@ WFLOW_NAMES = {
     "RiverSlope": {
         "wflow_v0": "lateral.river.slope",
         "wflow_v1": "river__slope",
-        "hydromt_name": "rivslp",
+        "hydromt_name": "river_slope",
     },
     "wflow_riverwidth": {
         "wflow_v0": "lateral.river.width",
         "wflow_v1": "river__width",
-        "hydromt_name": "rivwth",
+        "hydromt_name": "river_width",
     },
     # lakes
     "LakeArea": {
@@ -632,23 +632,23 @@ WFLOW_SEDIMENT_NAMES = {
     "Slope": {
         "wflow_v0": "lateral.land.slope",
         "wflow_v1": "land_surface__slope",
-        "hydromt_name": "lndslp",
+        "hydromt_name": "land_slope",
     },
     # river properties
     "wflow_riverlength": {
         "wflow_v0": "lateral.river.length",
         "wflow_v1": "river__length",
-        "hydromt_name": "rivlen",
+        "hydromt_name": "river_length",
     },
     "RiverSlope": {
         "wflow_v0": "lateral.river.slope",
         "wflow_v1": "river__slope",
-        "hydromt_name": "rivslp",
+        "hydromt_name": "river_slope",
     },
     "wflow_riverwidth": {
         "wflow_v0": "lateral.river.width",
         "wflow_v1": "river__width",
-        "hydromt_name": "rivwth",
+        "hydromt_name": "river_width",
     },
     # waterbodies
     "ResSimpleArea": {
