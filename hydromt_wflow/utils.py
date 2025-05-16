@@ -3,9 +3,10 @@
 import logging
 from os.path import abspath, dirname, join
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 import numpy as np
+import tomlkit
 import xarray as xr
 from hydromt.io import open_timeseries_from_table
 from hydromt.vector import GeoDataArray
@@ -200,42 +201,48 @@ of the config.
 
 def get_config(
     *args,
-    config: Dict = {},
-    fallback=None,
-    root: Path = None,
+    config: tomlkit.TOMLDocument,
+    root: Path | None = None,
+    fallback: Any | None = None,
     abs_path: bool = False,
 ):
     """
-    Get a config value at key(s).
-
-    Copy of hydromt.Model.get_config method to parse config outside of Model functions.
-
-    See Also
-    --------
-    hydromt.Model.get_config
+    Get a config value at key.
 
     Parameters
     ----------
-    args : tuple or string
+    args : tuple, str
         keys can given by multiple args: ('key1', 'key2')
         or a string with '.' indicating a new level: ('key1.key2')
-    config : dict, optional
-        config dict to get the values from.
-    fallback: any, optional
+    fallback: Any, optional
         fallback value if key(s) not found in config, by default None.
     abs_path: bool, optional
         If True return the absolute path relative to the model root,
         by default False.
+        NOTE: this assumes the config is located in model root!
 
     Returns
     -------
-    value : any type
+    value : Any
         dictionary value
+
+    Examples
+    --------
+    >> config = {'a': 1, 'b': {'c': {'d': 2}}
+
+    >> get_config('a', config)
+    >> 1
+
+    >> get_config('b', 'c', 'd', config) # identical to get_config('b.c.d')
+    >> 2
+
+    >> get_config('b.c', config) # # identical to get_config('b','c')
+    >> {'d': 2}
     """
     args = list(args)
     if len(args) == 1 and "." in args[0]:
         args = args[0].split(".") + args[1:]
-    branch = config.copy()  # reads config at first call
+    branch = config  # reads config at first call
     for key in args[:-1]:
         branch = branch.get(key, {})
         if not isinstance(branch, dict):
@@ -245,12 +252,14 @@ def get_config(
     if abs_path and isinstance(value, str):
         value = Path(value)
         if not value.is_absolute():
-            if root is None:
-                raise ValueError(
-                    "root path is required to get absolute path from relative path"
-                )
             value = Path(abspath(join(root, value)))
-    return value
+
+    if isinstance(value, tomlkit.items.Item):
+        return value.unwrap()
+    elif value is None:
+        return fallback
+    else:
+        return value
 
 
 def get_grid_from_config(
@@ -409,7 +418,7 @@ def mask_raster_from_layer(
 
 
 def _convert_to_wflow_v1(
-    config: Dict,
+    config: tomlkit.TOMLDocument,
     wflow_vars: Dict,
     states_vars: Dict,
     model_options: Dict = {},
@@ -425,7 +434,7 @@ def _convert_to_wflow_v1(
     config: dict
         The config to convert.
     wflow_vars: dict
-        The Wflow varibales dict to use for the conversion between versions.
+        The Wflow variables dict to use for the conversion between versions.
         Either WFLOW_NAMES or WFLOW_SEDIMENT_NAMES.
     states_vars: dict
         The Wflow states variables dict to use for the conversion between versions.
@@ -460,16 +469,16 @@ def _convert_to_wflow_v1(
     # Update function for the output.netcdf_grid
     def _update_output_netcdf_grid(wflow_var, var_name):
         if wflow_var in WFLOW_CONVERSION.keys():
-            config_out["output.netcdf_grid.variables"][WFLOW_CONVERSION[wflow_var]] = (
-                var_name
-            )
+            config_out["output"]["netcdf_grid"]["variables"][
+                WFLOW_CONVERSION[wflow_var]
+            ] = var_name
         else:
             _warn_str(var_name, "netcdf_grid")
 
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
     logger.info("Converting config general, time and model sections")
-    config_out = dict()
+    config_out = tomlkit.TOMLDocument()
 
     # Start with the general section - split into general, time and logging in v1
     input_section = {
@@ -510,13 +519,13 @@ def _convert_to_wflow_v1(
         ),
     }
     # Go through the states variables
-    config_out["state.variables"] = {}
+    config_out["state"]["variables"] = {}
     for key, variables in states_vars.items():
         name = get_config(
             f"state.{variables['wflow_v0']}", config=config, fallback=None
         )
         if name is not None and variables["wflow_v1"] is not None:
-            config_out["state.variables"][variables["wflow_v1"]] = name
+            config_out["state"]["variables"][variables["wflow_v1"]] = name
 
     # Input section
     logger.info("Converting config input section")
@@ -535,9 +544,9 @@ def _convert_to_wflow_v1(
             config_out["input"][key] = name
 
     # Go through the input variables
-    config_out["input.forcing"] = {}
-    config_out["input.cyclic"] = {}
-    config_out["input.static"] = {}
+    config_out["input"]["forcing"] = {}
+    config_out["input"]["cyclic"] = {}
+    config_out["input"]["static"] = {}
     for key, variables in wflow_vars.items():
         print(f"key: {key}, variables: {variables}")
         name = get_config(
@@ -552,22 +561,23 @@ def _convert_to_wflow_v1(
             elif variables["wflow_v0"] in input_variables:
                 config_out["input"][variables["wflow_v1"]] = name
             elif variables["wflow_v0"] in forcing_variables:
-                config_out["input.forcing"][variables["wflow_v1"]] = name
+                config_out["input"]["forcing"][variables["wflow_v1"]] = name
             elif variables["wflow_v0"] in cyclic_variables:
-                config_out["input.cyclic"][variables["wflow_v1"]] = name
+                config_out["input"]["cyclic"][variables["wflow_v1"]] = name
             else:
-                config_out["input.static"][variables["wflow_v1"]] = name
+                config_out["input"]["static"][variables["wflow_v1"]] = name
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
     if get_config("output", config=config, fallback=None) is not None:
-        config_out["output.netcdf_grid"] = {
+        config_out["output"] = {}
+        config_out["output"]["netcdf_grid"] = {
             "path": get_config("output.path", config=config, fallback="output.nc"),
             "compressionlevel": get_config(
                 "output.compressionlevel", config=config, fallback=1
             ),
         }
-        config_out["output.netcdf_grid.variables"] = {}
+        config_out["output"]["netcdf_grid"]["variables"] = {}
         for key, value in config["output"].items():
             if key in ["path", "compressionlevel"]:
                 continue
@@ -602,35 +612,37 @@ def _convert_to_wflow_v1(
 
     # Output netcdf_scalar section
     if get_config("netcdf", config=config, fallback=None) is not None:
-        config_out["output.netcdf_scalar"] = {
+        config_out["output"]["netcdf_scalar"] = {
             "path": get_config(
                 "netcdf.path", config=config, fallback="output_scalar.nc"
             ),
         }
-        config_out["output.netcdf_scalar.variable"] = []
+        config_out["output"]["netcdf_scalar"]["variable"] = []
         nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
         for nc_scalar in nc_scalar_vars:
             if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
                 if "map" in nc_scalar and nc_scalar["map"] in input_options.keys():
                     nc_scalar["map"] = input_options[nc_scalar["map"]]
-                config_out["output.netcdf_scalar.variable"].append(nc_scalar)
+                config_out["output"]["netcdf_scalar"]["variable"].append(nc_scalar)
             else:
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
     if get_config("csv", config=config, fallback=None) is not None:
-        config_out["output.csv"] = {
-            "path": get_config("csv.path", config=config, fallback="output.csv"),
-        }
-        config_out["output.csv.column"] = []
+        config_out["output"]["csv"] = {}
+
+        config_out["output"]["csv"]["path"] = get_config(
+            "csv.path", config=config, fallback="output.csv"
+        )
+        config_out["output"]["csv"]["column"] = []
         csv_vars = get_config("csv.column", config=config, fallback=[])
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
                 if csv_var.get("map", None) in input_options.keys():
                     csv_var["map"] = input_options[csv_var["map"]]
-                config_out["output.csv.column"].append(csv_var)
+                config_out["output"]["csv"]["column"].append(csv_var)
             else:
                 _warn_str(csv_var["parameter"], "csv")
 
