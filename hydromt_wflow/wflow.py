@@ -3813,6 +3813,7 @@ Run setup_soilmaps first"
         area_max: float = 30.0,
         basin_buffer_cells: int = 0,
         geom_snapping_tolerance: float = 0.0,
+        min_stream_order: int = 2,
         add_tributaries: bool = True,
         include_river_boundaries: bool = True,
         mapname: str = "1dmodel",
@@ -3874,6 +3875,9 @@ Run setup_soilmaps first"
         geom_snapping_tolerance : float, default 0.0
             Distance used to determine whether to snap parts of the river geometry that
             are close to each other.
+        min_stream_order: int, default 2
+            Minimum stream order of the river cells to connect to the 1D model. Includes
+            all river cells when set to 1.
         add_tributaries : bool, default True
             If True, derive tributaries for the subbasins larger than area_max. Always
             True for **subbasin_area** method.
@@ -3920,6 +3924,7 @@ Run setup_soilmaps first"
             area_max=area_max,
             basin_buffer_cells=basin_buffer_cells,
             geom_snapping_tolerance=geom_snapping_tolerance,
+            min_stream_order=min_stream_order,
             add_tributaries=add_tributaries,
             include_river_boundaries=include_river_boundaries,
             logger=self.logger,
