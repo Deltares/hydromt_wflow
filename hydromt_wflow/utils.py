@@ -476,6 +476,15 @@ def _convert_to_wflow_v1(
         else:
             _warn_str(var_name, "netcdf_grid")
 
+    # Solve the var name
+    def _solve_var_name(var: str | dict, path: str, add: list):
+        if isinstance(var, str):
+            add_str = "." + ".".join(add) if add else ""
+            yield (var, path + add_str)
+            return
+        for key, item in var.items():
+            yield from _solve_var_name(item, path, add + [key])
+
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
     logger.info("Converting config general, time and model sections")
@@ -588,33 +597,8 @@ def _convert_to_wflow_v1(
             if key in ["path", "compressionlevel"]:
                 continue
 
-            # vertical
-            if key == "vertical":
-                for var, var_name in value.items():
-                    wflow_var = f"vertical.{var}"
-                    _update_output_netcdf_grid(wflow_var, var_name)
-            # lateral
-            elif key == "lateral":
-                # land
-                if "land" in value.keys():
-                    for var, var_name in value["land"].items():
-                        wflow_var = f"lateral.land.{var}"
-                        _update_output_netcdf_grid(wflow_var, var_name)
-                # subsurface
-                if "subsurface" in value.keys():
-                    for var, var_name in value["subsurface"].items():
-                        wflow_var = f"lateral.subsurface.{var}"
-                        _update_output_netcdf_grid(wflow_var, var_name)
-                # river (do not support reservoir and lake outputs)
-                if "river" in value.keys():
-                    for var, var_name in value["river"].items():
-                        if var in ["reservoir", "floodplain", "lake"]:
-                            for var2, var_name2 in value["river"][var].items():
-                                wflow_var = f"lateral.river.{var}.{var2}"
-                                _update_output_netcdf_grid(wflow_var, var_name2)
-                        else:
-                            wflow_var = f"lateral.river.{var}"
-                            _update_output_netcdf_grid(wflow_var, var_name)
+            for var_name, wflow_var in _solve_var_name(value, key, []):
+                _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
     if get_config("netcdf", config=config, fallback=None) is not None:
@@ -678,8 +662,8 @@ def convert_to_wflow_v1_sbm(
         "vertical.actevap": "land_surface__evapotranspiration_volume_flux",
         "vertical.actinfilt": "soil_water__infiltration_volume_flux",
         "vertical.excesswatersoil": "soil~compacted_surface_water__excess_volume_flux",
-        "vertical.excesswaterpath": "soil~non-compacted_surface_water__excess_volume_flux",  # noqa: E501
-        "vertical.exfiltustore": "soil_surface_water_unsat-zone__exfiltration_volume_flux",  # noqa: E501
+        "vertical.excesswaterpath": "soil~non-compacted_surface_water__excess_volume_flux",  # noqa : E501
+        "vertical.exfiltustore": "soil_surface_water_unsat-zone__exfiltration_volume_flux",  # noqa : E501
         "vertical.exfiltsatwater": "land.soil.variables.exfiltsatwater",
         "vertical.recharge": "soil_water_sat-zone_top__net_recharge_volume_flux",
         "vertical.vwc_percroot": "soil_water_root-zone__volume_percentage",
@@ -687,13 +671,17 @@ def convert_to_wflow_v1_sbm(
         "lateral.land.h_av": "land_surface_water__depth",
         "lateral.land.to_river": "land_surface_water~to-river__volume_flow_rate",
         "lateral.subsurface.to_river": "subsurface_water~to-river__volume_flow_rate",
+        "lateral.subsurface.drain.flux": "land_drain_water~to-subsurface__volume_flow_rate",  # noqa : E501
+        "lateral.subsurface.flow.aquifer.head": "subsurface_water__hydraulic_head",
+        "lateral.subsurface.river.flux": "river_water~to-subsurface__volume_flow_rate",
+        "lateral.subsurface.recharge.rate": "subsurface_water_sat-zone_top__net_recharge_volume_flow_rate",  # noqa : E501
         "lateral.river.q_av": "river_water__volume_flow_rate",
         "lateral.river.h_av": "river_water__depth",
         "lateral.river.volume": "river_water__instantaneous_volume",
         "lateral.river.inwater": "river_water_inflow~lateral__volume_flow_rate",
         "lateral.river.floodplain.volume": "floodplain_water__instantaneous_volume",
         "lateral.river.reservoir.volume": "reservoir_water__instantaneous_volume",
-        "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa: E501
+        "lateral.river.reservoir.totaloutflow": "reservoir_water~outgoing__volume_flow_rate",  # noqa : E501
         "lateral.river.lake.storage": "lake_water__instantaneous_volume",
         "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
     }
@@ -703,6 +691,7 @@ def convert_to_wflow_v1_sbm(
         "ldd": "basin__local_drain_direction",
         "river_location": "river_location__mask",
         "subcatchment": "subbasin_location__count",
+        "altitude": "land_surface__elevation",
     }
 
     # variables that were moved to input rather than input.static

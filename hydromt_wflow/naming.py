@@ -485,6 +485,10 @@ WFLOW_NAMES = {
         "hydromt_name": "ResTargetMinFrac",
     },
     # gwf
+    "altitude": {
+        "wflow_v0": "altitude",
+        "wflow_v1": "land_surface__elevation",
+    },
     "constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
         "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
@@ -516,6 +520,18 @@ WFLOW_NAMES = {
     "gwf_f": {
         "wflow_v0": "lateral.subsurface.gwf_f",
         "wflow_v1": "subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
+    },
+    "drain": {
+        "wflow_v0": "lateral.subsurface.drain",
+        "wflow_v1": "land_drain_location__mask",
+    },
+    "drain_conductance": {
+        "wflow_v0": "lateral.subsurface.drain_conductance",
+        "wflow_v1": "land_drain__conductance",
+    },
+    "drain_elevation": {
+        "wflow_v0": "lateral.subsurface.drain_elevation",
+        "wflow_v1": "land_drain__elevation",
     },
 }
 
@@ -804,7 +820,7 @@ WFLOW_SEDIMENT_NAMES = {
     # river transport
     "sediment_density_river": {
         "wflow_v0": "lateral.river.rhos",
-        "wflow_v1": "river_water_sediment__particle_density",
+        "wflow_v1": "sediment__particle_density",
     },
     "D50_Engelund": {
         "wflow_v0": "lateral.river.d50engelund",
