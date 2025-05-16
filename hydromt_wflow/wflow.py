@@ -2428,7 +2428,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         self.set_grid(dsout.rename(rmdict))
 
         # Update the toml file
-        self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+        self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     def setup_ksathorfrac(
@@ -2785,7 +2785,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Get paddy pixels at model resolution
         wflow_paddy = landuse_maps["landuse"] == output_paddy_class
         if wflow_paddy.any():
-            if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
+            if self.get_config("model.soil_layer__thickness") == len(
+                wflow_thicknesslayers
+            ):
                 self.logger.info(
                     "same thickness already present, skipping updating `c` parameter"
                 )
@@ -2818,7 +2820,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             if "c" in soil_maps:
                 self.set_grid(soil_maps["c"], name=self._MAPS["c"])
                 self._update_config_variable_name(self._MAPS["c"])
-                self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+                self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)

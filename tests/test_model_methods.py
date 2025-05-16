@@ -1019,7 +1019,7 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     assert "kc" in ds
     assert "c" in ds
     # Assert layers are updated
-    assert example_wflow_model.config["model"]["thicknesslayers"] == layers
+    assert example_wflow_model.config["model"]["soil_layer__thickness"] == layers
     # Adding +1 to the layers to also represent the last layer
     assert len(ds.layer) == len(layers) + 1
     assert ds.c.shape[0] == len(layers) + 1
