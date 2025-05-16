@@ -757,7 +757,7 @@ def convert_to_wflow_v1_sediment(
     model_options = {
         "runrivermodel": "run_river_model__flag",
         "doreservoir": "reservoir__flag",
-        "dolake": "lakes",
+        "dolake": "lake__flag",
         "rainerosmethod": "rainfall_erosion",
         "landtransportmethod": "land_transport",
         "rivtransportmethod": "river_transport",

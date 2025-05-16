@@ -269,7 +269,7 @@ def prepare_cold_states(
         states_config["state.variables.volume_reservoir"] = "volume_reservoir"
 
     # lake
-    if config["model"].get("lakes", False):
+    if config["model"].get("lake__flag", False):
         ll = get_grid_from_config(
             "lake_water_surface__initial_elevation",
             config=config,

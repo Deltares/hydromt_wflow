@@ -273,7 +273,7 @@ river cells."
         self.set_geoms(gdf_lakes.rename({"Area_avg": "LakeArea"}), name=geom_name)
 
         # Lake settings in the toml to update
-        self.set_config("model.lakes", True)
+        self.set_config("model.lake__flag", True)
         for dvar in ds_lakes.data_vars:
             if dvar == "lakeareas" or dvar == "lakelocs":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)

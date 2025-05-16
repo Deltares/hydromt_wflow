@@ -2062,7 +2062,7 @@ Using default storage/outflow function parameters."
             self.set_tables(v, name=k)
 
         # Lake settings in the toml to update
-        self.set_config("model.lakes", True)
+        self.set_config("model.lake__flag", True)
         self.set_config(
             "state.variables.lake_water_surface__instantaneous_elevation",
             "waterlevel_lake",
@@ -6092,8 +6092,8 @@ change name input.path_forcing "
                 ]
 
         if remove_lake:
-            # change lakes = true to false
-            self.set_config("model.lakes", False)
+            # change lake__flag = true to false
+            self.set_config("model.lake__flag", False)
             # remove states
             if (
                 self.get_config(
