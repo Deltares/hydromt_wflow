@@ -39,6 +39,10 @@ Deprecated
 - Support for building/updating models for Wflow.jl version < 1.0.0. We encourage you to upgrade your model to the new version using `upgrade_to_v1_wflow` or use an older release of hydromt_wflow if you do not want to upgrade your model.  PR #364
 - **setup_soilmaps**: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334
 
+Removed
+----------
+Dropped support for `pcraster` and removed deprecated **pcrm** module. PR #408
+
 
 v0.8.0 (9 April 2025)
 =====================
