@@ -7,7 +7,10 @@ import hydromt
 import numpy as np
 import pandas as pd
 import xarray as xr
+from scipy.ndimage import binary_erosion
+from shapely import union_all
 from shapely.geometry import LineString, MultiLineString, Point
+from shapely.ops import linemerge, snap
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +23,9 @@ def wflow_1dmodel_connection(
     ds_model: xr.Dataset,
     connection_method: str = "subbasin_area",
     area_max: float = 30.0,
+    basin_buffer_cells: int = 0,
+    geom_snapping_tolerance: float = 0.0,
+    min_stream_order: int = 1,
     add_tributaries: bool = True,
     include_river_boundaries: bool = True,
     logger=logger,
@@ -61,6 +67,15 @@ def wflow_1dmodel_connection(
         Maximum area [km2] of the subbasins to connect to the 1D model in km2 with
         connection_method **subbasin_area** or
         **nodes** with add_tributaries set to True.
+    basin_buffer_cells : int, default 0
+        Number of cells to use when clipping the river geometry to the basin extent.
+        This can be used to not include river geometries near the basin border.
+    geom_snapping_tolerance : float, default 0.0
+        Distance used to determine whether to snap parts of the river geometry that
+        are close to each other.
+    min_stream_order: int, default 2
+        Minimum stream order of the river cells to connect to the 1D model. Includes
+        all river cells when set to 1.
     add_tributaries : bool, default True
         If True, derive tributaries for the subbasins larger than area_max. Always True
         for **subbasin_area** method.
@@ -96,9 +111,24 @@ def wflow_1dmodel_connection(
     # Derive flwdir
     flwdir = hydromt.flw.flwdir_from_da(ds_model["flwdir"])
     # Basin mask
-    buffer_cells = 2
-    basin_mask = ds_model["basins"].raster.vectorize()
-    basin_mask = basin_mask.buffer(-buffer_cells * max(ds_model.raster.res, key=abs))
+    if basin_buffer_cells > 0:
+        # Retain raster shape using binary erosion
+        basin_mask_values = binary_erosion(
+            input=ds_model["basins"].values,
+            structure=np.ones((3, 3)),
+            iterations=basin_buffer_cells,
+        ).astype(ds_model["basins"].dtype)
+
+        # Replace values with shrinked mask
+        basin_mask = ds_model["basins"].copy()
+        basin_mask.values = basin_mask_values
+        if np.sum(basin_mask_values) == 0:
+            raise ValueError(
+                f"Basin mask is empty after buffering with {basin_buffer_cells} cells. "
+                "Consider using a smaller value for 'basin_buffer_cells'."
+            )
+    else:
+        basin_mask = ds_model["basins"]
 
     # If tributaries or subbasins area method,
     # need to derive the tributaries areas first
@@ -124,33 +154,75 @@ def wflow_1dmodel_connection(
             area_max = new_area_max
 
         logger.info("Linking 1D river to wflow river")
-        # 1. Derive the river edges / boundaries
-        # merge multilinestrings in gdf_riv to linestrings
-        if any(gdf_riv.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
-            logger.debug(
-                "'gdf_riv' contains MultiLineStrings which will be converted into"
-                "LineStrings."
-            )
-            gdf_riv = gdf_riv.explode(index_parts=True).reset_index(drop=True)
-        # clip to basins
-        riv1d = gdf_riv.clip(basin_mask)
-        if any(riv1d.geometry.apply(lambda geom: isinstance(geom, MultiLineString))):
-            # clipping may result in MultiLineStrings
+
+        # 0. Preprocess the river geometry
+        # clip by basin and check for MultiLineStrings
+        riv1d = gdf_riv.clip(basin_mask.raster.vectorize())
+        if (riv1d.geom_type == "MultiLineString").any():
             logger.warning(
-                "The provided river geometry contains MultiLineString geometries after"
-                "clipping. Consider checking if the provided river geometry crosses the"
-                "boundary of the Wflow model and if there is sufficient space between"
-                f"the river and the Wflow model boundary (min. {buffer_cells} cells)."
-            )
-            # we turn these into LineStrings again using its points
-            riv1d["geometry"] = riv1d.geometry.apply(
-                lambda geom: LineString(
-                    [coord for line in geom.geoms for coord in line.coords]
-                )
-                if isinstance(geom, MultiLineString)
-                else geom
+                "The river geometry contains one or more MultiLineStrings after"
+                "clipping by the basin extent. Consider increasing 'basin_buffer_cells'"
+                "(currently %d cells).",
+                basin_buffer_cells,
             )
 
+        # decompose MultiLineStrings into LineStrings
+        logger.debug("Preprocessing 'gdf_riv'")
+        lines = []
+        for geom in riv1d.geometry:
+            if geom.geom_type == "MultiLineString":
+                lines.extend(list(geom.geoms))
+            elif geom.geom_type == "LineString":
+                lines.append(geom)
+
+        # snap lines to each other
+        if geom_snapping_tolerance > 0:
+            snapped_lines = [
+                snap(line, union_all(lines), geom_snapping_tolerance) for line in lines
+            ]
+            logger.debug(
+                "Snapping river segments using geom_snapping_tolerance = %s. "
+                "River geometry went from %d to %d segments.",
+                geom_snapping_tolerance,
+                len(lines),
+                len(snapped_lines),
+            )
+            lines = snapped_lines
+
+        # ensure that river segments are connected where possible
+        # and merge overlapping river segments
+        merged_lines = linemerge(union_all(lines))
+
+        # make 'lines' always a list of LineStrings
+        if isinstance(merged_lines, LineString):
+            merged_lines = [merged_lines]
+        elif isinstance(merged_lines, MultiLineString):
+            merged_lines = list(merged_lines.geoms)
+
+        # project river segments onto model grid and filter by stream order
+        rivmsk = ds_model["rivmsk"].values != 0
+        target_gdf = gpd.GeoDataFrame.from_features(
+            flwdir.streams(mask=rivmsk, strord=flwdir.stream_order(mask=rivmsk))
+        )
+        target_gdf = target_gdf[target_gdf["strord"] >= min_stream_order]
+        target_geom = union_all(target_gdf.geometry)
+
+        projected_lines = []
+        for line in merged_lines:
+            projected_coords = [
+                target_geom.interpolate(target_geom.project(Point(x, y)))
+                for x, y in line.coords
+            ]
+            projected_lines.append(LineString(projected_coords))
+
+        riv1d = gpd.GeoDataFrame(geometry=projected_lines, crs=riv1d.crs)
+        if riv1d.empty:
+            raise ValueError(
+                "No river segments remaining in 'gdf_riv' after preprocessing. "
+                "Consider using less strict requirements or check 'gdf_riv'."
+            )
+
+        # 1. Derive the river edges / boundaries
         # get the edges of the riv1d
         riv1d_edges = riv1d.geometry.apply(lambda x: Point(x.coords[0]))
         riv1d_edges = pd.concat(
@@ -326,7 +398,7 @@ def wflow_1dmodel_connection(
         # from multiline to line
         gdf_riv = gdf_riv.explode(ignore_index=True, index_parts=False)
         # Clip to basin
-        gdf_riv = gdf_riv.clip(basin_mask)
+        gdf_riv = gdf_riv.clip(basin_mask.raster.vectorize())
         nodes = []
         for bi, branch in gdf_riv.iterrows():
             nodes.append([Point(branch.geometry.coords[0]), bi])  # start
@@ -355,6 +427,16 @@ def wflow_1dmodel_connection(
             stream=ds_model["rivmsk"].values,
         )
         da_subbasins.raster.set_crs(ds_model.raster.crs)
+
+    # Check if the output is not covering the entire model domain
+    valid_subbasins = (da_subbasins != da_subbasins.raster.nodata).sum()
+    valid_basinmask = (ds_model["flwdir"] != ds_model["flwdir"].raster.nodata).sum()
+
+    if valid_subbasins >= valid_basinmask:
+        raise ValueError(
+            "The entire model domain is assigned to subbasins. "
+            "Try setting other parameter values or modifying 'gdf_riv'."
+        )
 
     da_subbasins.name = "subcatch"
     ds_out = da_subbasins.to_dataset()
