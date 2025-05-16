@@ -223,7 +223,7 @@ def prepare_cold_states(
     # River
     zeromap_riv = ["q_river", "h_river", "h_av_river"]
     # 1D floodplain
-    if config["model"].get("floodplain_1d", False):
+    if config["model"].get("floodplain_1d__flag", False):
         zeromap_riv.extend(["q_floodplain", "h_floodplain"])
         states_config[
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"

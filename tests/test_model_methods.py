@@ -751,7 +751,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     )
 
     assert "floodplain_volume" in example_wflow_model.grid
-    assert example_wflow_model.get_config("model.floodplain_1d") == True
+    assert example_wflow_model.get_config("model.floodplain_1d__flag") == True
     assert example_wflow_model.get_config("model.land_routing") == "kinematic-wave"
     assert (
         example_wflow_model.get_config(
@@ -790,7 +790,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     ]
 
     assert f"{mapname}_D4" in example_wflow_model.grid
-    assert example_wflow_model.get_config("model.floodplain_1d") == False
+    assert example_wflow_model.get_config("model.floodplain_1d__flag") == False
     assert example_wflow_model.get_config("model.land_routing") == "local-inertial"
     assert (
         example_wflow_model.get_config("input.static.river_bank_water__elevation")

@@ -760,8 +760,10 @@ setting new flood_depth dimensions"
             )
 
         # Update config
-        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
-        self.set_config("model.floodplain_1d", floodplain_1d)
+        self.logger.debug(
+            f'Update wflow config model.floodplain_1d__flag="{floodplain_1d}"',
+        )
+        self.set_config("model.floodplain_1d__flag", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
 

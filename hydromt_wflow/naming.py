@@ -34,7 +34,6 @@ WFLOW_MODEL_OPTIONS = {
     "min_streamorder_land": "land_streamorder__min_count",
     "min_streamorder_river": "river_streamorder__min_count",
     "drains": "drain__flag",
-    "constanthead": "constanthead__flag",
     "kin_wave_iteration": "kinematic_wave__adaptive_time_step_flag",
     "kw_land_tstep": "land_kinematic_wave__time_step",
     "kw_river_tstep": "river_kinematic_wave__time_step",
@@ -52,7 +51,7 @@ WFLOW_MODEL_OPTIONS = {
     ],
     "floodplain_1d": "floodplain_1d__flag",
     "inertial_flow_theta": "land_local_inertial_flow__theta_coefficient",
-    "run_river_model": "run_river_model__flag",
+    "runrivermodel": "run_river_model__flag",
     "soilinfreduction": "soil_infiltration_reduction__flag",
     "transfermethod": "topog_sbm_transfer__flag",
     "water_demand.domestic": "water_demand.domestic__flag",
@@ -60,6 +59,7 @@ WFLOW_MODEL_OPTIONS = {
     "water_demand.livestock": "water_demand.livestock__flag",
     "water_demand.paddy": "water_demand.paddy__flag",
     "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
+    "constanthead": "constanthead__flag",
 }
 
 # Link between staticmap names, hydromt name (if any)
