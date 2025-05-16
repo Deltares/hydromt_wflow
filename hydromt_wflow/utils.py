@@ -21,7 +21,7 @@ from .naming import (
 
 logger = logging.getLogger(__name__)
 
-DATADIR = join(dirname(abspath(__file__)), "data")
+DATADIR = Path(join(dirname(abspath(__file__)), "data"))
 
 __all__ = [
     "read_csv_results",
