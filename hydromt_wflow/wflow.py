@@ -2911,7 +2911,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.set_grid(ds_glac.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
-        self.set_config("model.glacier", True)
+        self.set_config("model.glacier__flag", True)
         self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)

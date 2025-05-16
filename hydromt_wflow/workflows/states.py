@@ -284,7 +284,7 @@ def prepare_cold_states(
         )
 
     # glacier
-    if config["model"].get("glacier", False):
+    if config["model"].get("glacier__flag", False):
         gs_vn = get_grid_from_config(
             "glacier_ice__initial_leq-depth",
             config=config,
