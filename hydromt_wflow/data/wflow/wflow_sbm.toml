@@ -11,16 +11,16 @@ timestepsecs = 86400
 loglevel = "info"
 
 [model]
-type                         = "sbm"
-snow_gravitional_transport__flag = true
-snow                         = true
-reinit                       = true
-reservoirs                   = false
-lakes                        = false
-glacier                      = false
-kinematic_wave__adaptive_time_step_flag           = true
-river_kinematic_wave__time_step               = 900
-land_kinematic_wave__time_step                = 3600
+type                                    = "sbm"
+snow_gravitional_transport__flag        = true
+snow                                    = true
+reinit                                  = true
+reservoir__flag                        = false
+lakes                                   = false
+glacier                                 = false
+kinematic_wave__adaptive_time_step_flag = true
+river_kinematic_wave__time_step         = 900
+land_kinematic_wave__time_step          = 3600
 
 [state]
 path_input  = "instate/instates.nc"

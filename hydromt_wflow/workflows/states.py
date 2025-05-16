@@ -245,7 +245,7 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # reservoir
-    if config["model"].get("reservoirs", False):
+    if config["model"].get("reservoir__flag", False):
         tff = get_grid_from_config(
             "reservoir_water~full-target__volume_fraction",
             config=config,

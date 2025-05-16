@@ -366,7 +366,7 @@ river cells."
         self.set_geoms(gdf_res.rename({"Area_avg": "ResSimpleArea"}), name=geom_name)
 
         # Lake settings in the toml to update
-        self.set_config("model.reservoirs", True)
+        self.set_config("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
             if dvar in ["resareas", "reslocs"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)

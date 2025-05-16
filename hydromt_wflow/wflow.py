@@ -2246,7 +2246,7 @@ Using default storage/outflow function parameters."
             )
 
         # update toml
-        self.set_config("model.reservoirs", True)
+        self.set_config("model.reservoir__flag", True)
         self.set_config(
             "state.variables.reservoir_water__instantaneous_volume", "volume_reservoir"
         )
@@ -6080,8 +6080,8 @@ change name input.path_forcing "
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
         if remove_reservoir:
-            # change reservoirs = true to false
-            self.set_config("model.reservoirs", False)
+            # change reservoir__flag = true to false
+            self.set_config("model.reservoir__flag", False)
             # remove states
             if (
                 self.get_config("state.variables.reservoir_water__instantaneous_volume")

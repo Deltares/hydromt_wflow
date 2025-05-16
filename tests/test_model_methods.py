@@ -974,7 +974,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         reservoirs_fn="hydro_reservoirs",
         min_area=0.0,
     )
-    assert clipped_wflow_model.config["model"]["reservoirs"] == False
+    assert clipped_wflow_model.config["model"]["reservoir__flag"] == False
     # Get names for two reservoir layers
     for mapname in ["resareas", "reslocs"]:
         # Check if layers are indeed not present in the model

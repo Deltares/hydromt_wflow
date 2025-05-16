@@ -756,7 +756,7 @@ def convert_to_wflow_v1_sediment(
     # Options in model section that were renamed
     model_options = {
         "runrivermodel": "run_river_model__flag",
-        "doreservoir": "reservoirs",
+        "doreservoir": "reservoir__flag",
         "dolake": "lakes",
         "rainerosmethod": "rainfall_erosion",
         "landtransportmethod": "land_transport",
