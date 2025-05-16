@@ -4865,7 +4865,7 @@ Run setup_soilmaps first"
         self.set_states(states)
 
         # Update config to read the states
-        self.set_config("model.reinit", False)
+        self.set_config("model.cold_start__flag", False)
         # Update states variables names in config
         for option in states_config:
             self.set_config(option, states_config[option])
