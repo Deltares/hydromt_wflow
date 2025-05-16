@@ -20,6 +20,48 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     "soil": "wflow_soil",
 }
 
+# Link between the new and the old model option flags
+WFLOW_MODEL_OPTIONS = {
+    "reinit": "cold_start__flag",
+    "sizeinmetres": "cell_length_in_meter__flag",
+    "reservoirs": "reservoir__flag",
+    "lakes": "lake__flag",
+    "snow": "snow__flag",
+    "glacier": "glacier__flag",
+    "pits": "pit__flag",
+    "masswasting": "snow_gravitional_transport__flag",
+    "thicknesslayers": "soil_layer__thickness",
+    "min_streamorder_land": "land_streamorder__min_count",
+    "min_streamorder_river": "river_streamorder__min_count",
+    "drains": "drain__flag",
+    "kin_wave_iteration": "kinematic_wave__adaptive_time_step_flag",
+    "kw_land_tstep": "land_kinematic_wave__time_step",
+    "kw_river_tstep": "river_kinematic_wave__time_step",
+    "inertial_flow_alpha": [
+        "river_local_inertial_flow__alpha_coefficient",
+        "land_local_inertial_flow__alpha_coefficient",
+    ],
+    "h_thresh": [
+        "river_water_flow_threshold__depth",
+        "land_surface_water_flow_threshold__depth",
+    ],
+    "froude_limit": [
+        "river_water_flow__froude_limit_flag",
+        "land_surface_water_flow__froude_limit_flag",
+    ],
+    "floodplain_1d": "floodplain_1d__flag",
+    "inertial_flow_theta": "land_local_inertial_flow__theta_coefficient",
+    "runrivermodel": "run_river_model__flag",
+    "soilinfreduction": "soil_infiltration_reduction__flag",
+    "transfermethod": "topog_sbm_transfer__flag",
+    "water_demand.domestic": "water_demand.domestic__flag",
+    "water_demand.industry": "water_demand.industry__flag",
+    "water_demand.livestock": "water_demand.livestock__flag",
+    "water_demand.paddy": "water_demand.paddy__flag",
+    "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
+    "constanthead": "constanthead__flag",
+}
+
 # Link between staticmap names, hydromt name (if any)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
 # {staticmap_name: (wflow_v0, wflow_v1, hydromt_name)} or
@@ -28,12 +70,12 @@ WFLOW_NAMES = {
     # general input
     "wflow_subcatch": {
         "wflow_v0": "subcatchment",
-        "wflow_v1": "subcatchment_location__count",
+        "wflow_v1": "subbasin_location__count",
         "hydromt_name": "basins",
     },
     "wflow_ldd": {
         "wflow_v0": "ldd",
-        "wflow_v1": "local_drain_direction",
+        "wflow_v1": "basin__local_drain_direction",
         "hydromt_name": "flwdir",
     },
     "wflow_lakeareas": {
@@ -246,7 +288,7 @@ WFLOW_NAMES = {
     },
     "allocation_areas": {
         "wflow_v0": "vertical.allocation.areas",
-        "wflow_v1": "land_water_allocation_area__number",
+        "wflow_v1": "land_water_allocation_area__count",
         "hydromt_name": "allocation_areas",
     },
     "frac_sw_used": {
@@ -297,7 +339,7 @@ WFLOW_NAMES = {
     },
     "paddy_irrigation_areas": {
         "wflow_v0": "vertical.paddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-paddy_area__number",
+        "wflow_v1": "land~irrigated-paddy_area__count",
     },
     "paddy_irrigation_trigger": {
         "wflow_v0": "vertical.paddy.irrigation_trigger",
@@ -305,7 +347,7 @@ WFLOW_NAMES = {
     },
     "nonpaddy_irrigation_areas": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
-        "wflow_v1": "land~irrigated-non-paddy_area__number",
+        "wflow_v1": "land~irrigated-non-paddy_area__count",
     },
     "nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",
@@ -320,6 +362,10 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
         "hydromt_name": "elevtn",
+    },
+    "wflow_pits": {
+        "wflow_v0": "pits",
+        "wflow_v1": "basin_pit_location__mask ",
     },
     "Slope": {
         "wflow_v0": "lateral.land.slope",
@@ -439,6 +485,10 @@ WFLOW_NAMES = {
         "hydromt_name": "ResTargetMinFrac",
     },
     # gwf
+    "altitude": {
+        "wflow_v0": "altitude",
+        "wflow_v1": "land_surface__elevation",
+    },
     "constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
         "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
@@ -470,6 +520,18 @@ WFLOW_NAMES = {
     "gwf_f": {
         "wflow_v0": "lateral.subsurface.gwf_f",
         "wflow_v1": "subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
+    },
+    "drain": {
+        "wflow_v0": "lateral.subsurface.drain",
+        "wflow_v1": "land_drain_location__mask",
+    },
+    "drain_conductance": {
+        "wflow_v0": "lateral.subsurface.drain_conductance",
+        "wflow_v1": "land_drain__conductance",
+    },
+    "drain_elevation": {
+        "wflow_v0": "lateral.subsurface.drain_elevation",
+        "wflow_v1": "land_drain__elevation",
     },
 }
 
@@ -568,12 +630,12 @@ WFLOW_SEDIMENT_NAMES = {
     # general input
     "wflow_subcatch": {
         "wflow_v0": "subcatchment",
-        "wflow_v1": "subcatchment_location__count",
+        "wflow_v1": "subbasin_location__count",
         "hydromt_name": "basins",
     },
     "wflow_ldd": {
         "wflow_v0": "ldd",
-        "wflow_v1": "local_drain_direction",
+        "wflow_v1": "basin__local_drain_direction",
         "hydromt_name": "flwdir",
     },
     "wflow_lakeareas": {
@@ -663,7 +725,7 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "ResTrapEff": {
         "wflow_v0": "lateral.river.restrapeff",
-        "wflow_v1": "reservoir_sediment~bedload__trapping_efficiency_coefficient",
+        "wflow_v1": "reservoir_water_sediment~bedload__trapping_efficiency",
         "hydromt_name": "ResTrapEff",
     },
     # soil erosion
@@ -741,7 +803,7 @@ WFLOW_SEDIMENT_NAMES = {
     # land transport
     "sediment_density_land": {
         "wflow_v0": "vertical.rhos",
-        "wflow_v1": "land_surface_sediment__particle_density",
+        "wflow_v1": "sediment__particle_density",
     },
     "c_govers": {
         "wflow_v0": None,
@@ -753,12 +815,12 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "d50_soil": {
         "wflow_v0": None,
-        "wflow_v1": "land_surface_sediment__d50_diameter",
+        "wflow_v1": "land_surface_sediment__median_diameter",
     },
     # river transport
     "sediment_density_river": {
         "wflow_v0": "lateral.river.rhos",
-        "wflow_v1": "river_water_sediment__particle_density",
+        "wflow_v1": "sediment__particle_density",
     },
     "D50_Engelund": {
         "wflow_v0": "lateral.river.d50engelund",
@@ -790,7 +852,7 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "D50_River": {
         "wflow_v0": "lateral.river.d50",
-        "wflow_v1": "river_bottom-and-bank_sediment__d50_diameter",
+        "wflow_v1": "river_bottom-and-bank_sediment__median_diameter",
     },
     "ClayF_River": {
         "wflow_v0": "lateral.river.fclayriv",
@@ -810,27 +872,27 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "dm_clay": {
         "wflow_v0": None,
-        "wflow_v1": "clay__d50_diameter",
+        "wflow_v1": "clay__mean_diameter",
     },
     "dm_silt": {
         "wflow_v0": None,
-        "wflow_v1": "silt__d50_diameter",
+        "wflow_v1": "silt__mean_diameter",
     },
     "dm_sand": {
         "wflow_v0": None,
-        "wflow_v1": "sand__d50_diameter",
+        "wflow_v1": "sand__mean_diameter",
     },
     "dm_sagg": {
         "wflow_v0": None,
-        "wflow_v1": "sediment_aggregates~small__d50_diameter",
+        "wflow_v1": "sediment_aggregates~small__mean_diameter",
     },
     "dm_lagg": {
         "wflow_v0": None,
-        "wflow_v1": "sediment_aggregates~large__d50_diameter",
+        "wflow_v1": "sediment_aggregates~large__mean_diameter",
     },
     "dm_gravel": {
         "wflow_v0": None,
-        "wflow_v1": "gravel__d50_diameter",
+        "wflow_v1": "gravel__mean_diameter",
     },
 }
 

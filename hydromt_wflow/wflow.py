@@ -103,8 +103,8 @@ class WflowModel(GridModel):
         res: float | int = 1 / 120.0,
         upscale_method: str = "ihu",
         output_names: Dict = {
-            "local_drain_direction": "wflow_ldd",
-            "subcatchment_location__count": "wflow_subcatch",
+            "basin__local_drain_direction": "wflow_ldd",
+            "subbasin_location__count": "wflow_subcatch",
             "land_surface__slope": "Slope",
         },
     ):
@@ -297,7 +297,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
-            self.set_config("model.sizeinmetres", True)
+            self.set_config("model.cell_length_in_meter__flag", True)
 
     def setup_rivers(
         self,
@@ -760,8 +760,10 @@ setting new flood_depth dimensions"
             )
 
         # Update config
-        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
-        self.set_config("model.floodplain_1d", floodplain_1d)
+        self.logger.debug(
+            f'Update wflow config model.floodplain_1d__flag="{floodplain_1d}"',
+        )
+        self.set_config("model.floodplain_1d__flag", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
 
@@ -2060,7 +2062,7 @@ Using default storage/outflow function parameters."
             self.set_tables(v, name=k)
 
         # Lake settings in the toml to update
-        self.set_config("model.lakes", True)
+        self.set_config("model.lake__flag", True)
         self.set_config(
             "state.variables.lake_water_surface__instantaneous_elevation",
             "waterlevel_lake",
@@ -2244,7 +2246,7 @@ Using default storage/outflow function parameters."
             )
 
         # update toml
-        self.set_config("model.reservoirs", True)
+        self.set_config("model.reservoir__flag", True)
         self.set_config(
             "state.variables.reservoir_water__instantaneous_volume", "volume_reservoir"
         )
@@ -2426,7 +2428,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         self.set_grid(dsout.rename(rmdict))
 
         # Update the toml file
-        self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+        self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     def setup_ksathorfrac(
@@ -2783,7 +2785,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Get paddy pixels at model resolution
         wflow_paddy = landuse_maps["landuse"] == output_paddy_class
         if wflow_paddy.any():
-            if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
+            if self.get_config("model.soil_layer__thickness") == len(
+                wflow_thicknesslayers
+            ):
                 self.logger.info(
                     "same thickness already present, skipping updating `c` parameter"
                 )
@@ -2816,7 +2820,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             if "c" in soil_maps:
                 self.set_grid(soil_maps["c"], name=self._MAPS["c"])
                 self._update_config_variable_name(self._MAPS["c"])
-                self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+                self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
@@ -2909,7 +2913,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.set_grid(ds_glac.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
-        self.set_config("model.glacier", True)
+        self.set_config("model.glacier__flag", True)
         self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)
@@ -4019,7 +4023,7 @@ Run setup_soilmaps first"
 
         """
         self.logger.info("Preparing water demand allocation map.")
-        self._update_naming({"land_water_allocation_area__number": output_name})
+        self._update_naming({"land_water_allocation_area__count": output_name})
         # Read the data
         waterareas = self.data_catalog.get_geodataframe(
             waterareas_fn,
@@ -4037,7 +4041,7 @@ Run setup_soilmaps first"
         )
         self.set_grid(da_alloc, name=output_name)
         # Update the config
-        self.set_config("input.static.land_water_allocation_area__number", output_name)
+        self.set_config("input.static.land_water_allocation_area__count", output_name)
         # Add alloc to geoms
         self.set_geoms(gdf_alloc, name=output_name)
 
@@ -4265,7 +4269,7 @@ Run setup_soilmaps first"
             self.set_grid(pop, name="population")  # meta_population
 
         # Update toml
-        self.set_config("model.water_demand.domestic", True)
+        self.set_config("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -4349,7 +4353,7 @@ Run setup_soilmaps first"
             self.set_grid(popu_scaled, name="population")  # meta_population
 
         # Update toml
-        self.set_config("model.water_demand.domestic", True)
+        self.set_config("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -4440,11 +4444,11 @@ Run setup_soilmaps first"
 
         # Update the settings toml
         if "dom_gross" in demand.data_vars:
-            self.set_config("model.water_demand.domestic", True)
+            self.set_config("model.water_demand.domestic__flag", True)
         if "ind_gross" in demand.data_vars:
-            self.set_config("model.water_demand.industry", True)
+            self.set_config("model.water_demand.industry__flag", True)
         if "lsk_gross" in demand.data_vars:
-            self.set_config("model.water_demand.livestock", True)
+            self.set_config("model.water_demand.livestock__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(demand.rename(rmdict).data_vars, data_type)
 
@@ -4458,8 +4462,8 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
         lulcmap_name: str = "wflow_landuse",
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -4584,7 +4588,7 @@ Run setup_soilmaps first"
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
-            self.set_config("model.water_demand.paddy", True)
+            self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
                 "static",
@@ -4595,7 +4599,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.set_config("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
@@ -4611,7 +4615,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
@@ -4626,7 +4630,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.set_config("model.water_demand.nonpaddy__flag", False)
 
     def setup_irrigation_from_vector(
         self,
@@ -4636,8 +4640,8 @@ Run setup_soilmaps first"
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -4755,7 +4759,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.paddy", True)
+            self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
                 "static",
@@ -4766,7 +4770,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.set_config("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
@@ -4782,7 +4786,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
@@ -4797,7 +4801,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.set_config("model.water_demand.nonpaddy__flag", False)
 
     def setup_cold_states(
         self,
@@ -4863,7 +4867,7 @@ Run setup_soilmaps first"
         self.set_states(states)
 
         # Update config to read the states
-        self.set_config("model.reinit", False)
+        self.set_config("model.cold_start__flag", False)
         # Update states variables names in config
         for option in states_config:
             self.set_config(option, states_config[option])
@@ -6078,8 +6082,8 @@ change name input.path_forcing "
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
         if remove_reservoir:
-            # change reservoirs = true to false
-            self.set_config("model.reservoirs", False)
+            # change reservoir__flag = true to false
+            self.set_config("model.reservoir__flag", False)
             # remove states
             if (
                 self.get_config("state.variables.reservoir_water__instantaneous_volume")
@@ -6090,8 +6094,8 @@ change name input.path_forcing "
                 ]
 
         if remove_lake:
-            # change lakes = true to false
-            self.set_config("model.lakes", False)
+            # change lake__flag = true to false
+            self.set_config("model.lake__flag", False)
             # remove states
             if (
                 self.get_config(

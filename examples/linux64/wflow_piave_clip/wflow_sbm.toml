@@ -12,17 +12,17 @@ loglevel = "info"
 
 [model]
 type = "sbm"
-gravitational_snow_transport = true
-snow = true
-reinit = true
-reservoirs = false
-lakes = false
-glacier = true
-kin_wave_iteration = true
-kw_river_tstep = 900
-kw_land_tstep = 3600
+snow_gravitional_transport__flag = true
+snow__flag = true
+cold_start__flag = true
+reservoir__flag = false
+lake__flag = false
+glacier__flag = true
+kinematic_wave__adaptive_time_step_flag = true
+river_kinematic_wave__time_step = 900
+land_kinematic_wave__time_step = 3600
 river_routing = "kinematic-wave"
-thicknesslayers = [ 100, 300, 800,]
+soil_layer__thickness = [ 100, 300, 800,]
 
 [state]
 path_input = "instate/instates.nc"
@@ -31,8 +31,8 @@ path_output = "outstate/outstates.nc"
 [input]
 path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
-local_drain_direction = "wflow_ldd"
-subcatchment_location__count = "wflow_subcatch"
+basin__local_drain_direction = "wflow_ldd"
+subbasin_location__count = "wflow_subcatch"
 river_location__mask = "wflow_river"
 reservoir_area__count = "wflow_reservoirareas"
 reservoir_location__count = "wflow_reservoirlocs"
