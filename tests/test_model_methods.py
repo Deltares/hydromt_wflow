@@ -1118,9 +1118,12 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "frac_sw_used" in example_wflow_model.grid
+    assert "demand_surface_water_ratio" in example_wflow_model.grid
     assert np.isclose(
-        example_wflow_model.grid["frac_sw_used"].raster.mask_nodata().mean().values,
+        example_wflow_model.grid["demand_surface_water_ratio"]
+        .raster.mask_nodata()
+        .mean()
+        .values,
         0.9411998,
     )
 
@@ -1137,9 +1140,12 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "frac_sw_used" in example_wflow_model.grid
+    assert "demand_surface_water_ratio" in example_wflow_model.grid
     assert np.isclose(
-        example_wflow_model.grid["frac_sw_used"].raster.mask_nodata().mean().values,
+        example_wflow_model.grid["demand_surface_water_ratio"]
+        .raster.mask_nodata()
+        .mean()
+        .values,
         0.9865037,
     )
 
@@ -1166,12 +1172,12 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "domestic_gross" in example_wflow_model.grid
+    assert "demand_domestic_gross" in example_wflow_model.grid
     assert "population" in example_wflow_model.grid
 
     # Assert some values
     dom_gross_vals = (
-        example_wflow_model.grid["domestic_gross"]
+        example_wflow_model.grid["demand_domestic_gross"]
         .isel(latitude=32, longitude=26)
         .values
     )
@@ -1181,7 +1187,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
     assert int(popu_val) == 7842
 
-    ind_mean = example_wflow_model.grid["industry_gross"].mean().values
+    ind_mean = example_wflow_model.grid["demand_industry_gross"].mean().values
     assert np.isclose(ind_mean, 0.065195)
 
     # test with other method
@@ -1192,12 +1198,12 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
 
     # Assert entries
-    assert "domestic_gross" in example_wflow_model.grid
+    assert "demand_domestic_gross" in example_wflow_model.grid
     assert "population" in example_wflow_model.grid
 
     # Assert some values
     dom_gross_vals = (
-        example_wflow_model.grid["domestic_gross"]
+        example_wflow_model.grid["demand_domestic_gross"]
         .isel(latitude=32, longitude=26)
         .values
     )
@@ -1243,8 +1249,8 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
             0.26,
         ],
     )
-    assert "time" in example_wflow_model.grid["domestic_gross"].dims
-    assert "time" in example_wflow_model.grid["domestic_net"].dims
+    assert "time" in example_wflow_model.grid["demand_domestic_gross"].dims
+    assert "time" in example_wflow_model.grid["demand_domestic_net"].dims
 
 
 def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
@@ -1266,19 +1272,23 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     ds = example_wflow_model.grid
 
     # Assert entries
-    assert "paddy_irrigation_areas" not in ds
-    assert "nonpaddy_irrigation_areas" in ds
-    assert "nonpaddy_irrigation_trigger" in ds
+    assert "demand_paddy_irrigated_mask" not in ds
+    assert "demand_nonpaddy_irrigated_mask" in ds
+    assert "demand_nonpaddy_irrigation_trigger" in ds
 
     # Assert the irrigation_trigger map has the same shape as LAI
-    assert ds["nonpaddy_irrigation_trigger"].shape[0] == ds["LAI"].shape[0]
+    assert ds["demand_nonpaddy_irrigation_trigger"].shape[0] == ds["LAI"].shape[0]
 
     # There is no paddy in this region
-    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 5
+    assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 5
     # Check if more irrigation is allowed during summer than winter
     assert (
-        ds["nonpaddy_irrigation_trigger"].raster.mask_nodata().sel(time=2).sum().values
-        < ds["nonpaddy_irrigation_trigger"]
+        ds["demand_nonpaddy_irrigation_trigger"]
+        .raster.mask_nodata()
+        .sel(time=2)
+        .sum()
+        .values
+        < ds["demand_nonpaddy_irrigation_trigger"]
         .raster.mask_nodata()
         .sel(time=8)
         .sum()
@@ -1300,11 +1310,11 @@ def test_setup_irrigation_nopaddy(example_wflow_model, tmpdir, globcover_gdf):
     ds = example_wflow_model.grid
 
     # Assert entries
-    assert "paddy_irrigation_areas" not in ds
-    assert "nonpaddy_irrigation_areas" in ds
-    assert "nonpaddy_irrigation_trigger" in ds
+    assert "demand_paddy_irrigated_mask" not in ds
+    assert "demand_nonpaddy_irrigated_mask" in ds
+    assert "demand_nonpaddy_irrigation_trigger" in ds
 
-    assert ds["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values == 8
+    assert ds["demand_nonpaddy_irrigated_mask"].raster.mask_nodata().sum().values == 8
 
 
 def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
@@ -1339,8 +1349,8 @@ def test_setup_irrigation_withpaddy(example_wflow_model, tmpdir):
     ds = example_wflow_model.grid
 
     # Assert entries
-    assert "paddy_irrigation_areas" in ds
-    assert "paddy_irrigation_trigger" in ds
+    assert "demand_paddy_irrigated_mask" in ds
+    assert "demand_paddy_irrigation_trigger" in ds
 
 
 def test_setup_cold_states(example_wflow_model, tmpdir):
