@@ -773,7 +773,7 @@ setting new flood_depth dimensions"
                 "state.floodplain_water__instantaneous_depth", "h_floodplain"
             )
             self.set_config(
-                "state.land_surface_water__instantaneous_volume_flow_rate", "q_land"
+                "state.land_surface_water__instantaneous_volume_flow_rate", "land_q"
             )
             # Remove local-inertial land states
             if (
@@ -4820,13 +4820,13 @@ Run setup_soilmaps first"
         * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
         * **snowwater**: liquid water content in the snow pack [mm]
         * **canopystorage**: canopy storage [mm]
-        * **q_river**: river discharge [m3/s]
-        * **h_river**: river water level [m]
+        * **river_q**: river discharge [m3/s]
+        * **river_h**: river water level [m]
         * **h_av_river**: river average water level [m]
         * **ssf**: subsurface flow [m3/d]
-        * **h_land**: land water level [m]
+        * **land_h**: land water level [m]
         * **h_av_land**: land average water level[m]
-        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+        * **land_q** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local-inertial [m3/s]
 
         If lakes, also adds:

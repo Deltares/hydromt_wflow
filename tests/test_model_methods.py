@@ -1348,7 +1348,7 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
     example_wflow_model.setup_cold_states()
     states = example_wflow_model.states.copy()
 
-    assert "q_land" in example_wflow_model.states
+    assert "land_q" in example_wflow_model.states
     assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
     assert np.isclose(
         example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,

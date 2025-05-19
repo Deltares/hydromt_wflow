@@ -31,13 +31,13 @@ def prepare_cold_states(
     * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
     * **snowwater**: liquid water content in the snow pack [mm]
     * **canopystorage**: canopy storage [mm]
-    * **q_river**: river discharge [m3/s]
-    * **h_river**: river water level [m]
+    * **river_qr**: river discharge [m3/s]
+    * **river_h**: river water level [m]
     * **h_av_river**: river average water level [m]
     * **ssf**: subsurface flow [m3/d]
-    * **h_land**: land water level [m]
+    * **land_h**: land water level [m]
     * **h_av_land**: land average water level[m]
-    * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+    * **land_q** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
       overland flow in x/y directions for local-inertial [m3/s]
 
     If lakes, also adds:
@@ -117,13 +117,13 @@ def prepare_cold_states(
         "state.variables.snowpack~liquid__depth": "snowwater",
         "state.variables.vegetation_canopy_water__depth": "canopystorage",
         "state.variables.subsurface_water__volume_flow_rate": "ssf",
-        "state.variables.land_surface_water__instantaneous_depth": "h_land",
-        "state.variables.river_water__instantaneous_volume_flow_rate": "q_river",
-        "state.variables.river_water__instantaneous_depth": "h_river",
+        "state.variables.land_surface_water__instantaneous_depth": "land_h",
+        "state.variables.river_water__instantaneous_volume_flow_rate": "river_q",
+        "state.variables.river_water__instantaneous_depth": "river_h",
     }
 
     # Map with constant values or zeros for basin
-    zeromap = ["tsoil", "snow", "snowwater", "canopystorage", "h_land", "h_av_land"]
+    zeromap = ["tsoil", "snow", "snowwater", "canopystorage", "land_h", "h_av_land"]
     land_routing = config["model"].get("land_routing", "kinematic-wave")
     if land_routing == "local-inertial":
         zeromap.extend(["qx_land", "qy_land"])
@@ -134,10 +134,10 @@ def prepare_cold_states(
             "state.variables.land_surface_water__y_component_of_instantaneous_volume_flow_rate"
         ] = "qy_land"
     else:
-        zeromap.extend(["q_land"])
+        zeromap.extend(["land_q"])
         states_config[
             "state.variables.land_surface_water__instantaneous_volume_flow_rate"
-        ] = "q_land"
+        ] = "land_q"
 
     for var in zeromap:
         if var == "tsoil":
@@ -221,7 +221,7 @@ def prepare_cold_states(
     ds_out["ssf"] = ssf
 
     # River
-    zeromap_riv = ["q_river", "h_river", "h_av_river"]
+    zeromap_riv = ["river_q", "river_h", "h_av_river"]
     # 1D floodplain
     if config["model"].get("floodplain_1d", False):
         zeromap_riv.extend(["q_floodplain", "h_floodplain"])
