@@ -170,7 +170,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
     lakes = example_wflow_model.geoms["lakes"]
     lake_id = lakes["waterbody_id"].iloc[0]
-    area = lakes["LakeArea"].iloc[0]
+    area = lakes["lake_area"].iloc[0]
     dis = lakes["LakeAvgOut"].iloc[0]
     lvl = lakes["LakeAvgLevel"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
@@ -209,8 +209,8 @@ def test_setup_lake(tmpdir, example_wflow_model):
 
     assert f"lake_sh_{lake_id}" in example_wflow_model.tables
     assert f"lake_hq_{lake_id}" in example_wflow_model.tables
-    assert 2 in np.unique(example_wflow_model.grid["LakeStorFunc"].values)
-    assert 1 in np.unique(example_wflow_model.grid["LakeOutflowFunc"].values)
+    assert 2 in np.unique(example_wflow_model.grid["lake_storage_curve"].values)
+    assert 1 in np.unique(example_wflow_model.grid["lake_rating_curve"].values)
     assert (
         "LakeMaxStorage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
@@ -249,12 +249,12 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
 
     # Check if all parameter maps are available
     required = [
-        "ResDemand",
-        "ResMaxRelease",
-        "ResMaxVolume",
-        "ResSimpleArea",
-        "ResTargetFullFrac",
-        "ResTargetMinFrac",
+        "reservoir_demand",
+        "reservoir_max_release",
+        "reservoir_max_volume",
+        "reservoir_area",
+        "reservoir_target_full_fraction",
+        "reservoir_target_min_fraction",
     ]
     assert all(
         x == True for x in [k in example_wflow_model.grid.keys() for k in required]

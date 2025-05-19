@@ -370,7 +370,7 @@ WFLOW_NAMES = {
     "LakeArea": {
         "wflow_v0": "lateral.river.lake.area",
         "wflow_v1": "lake_surface__area",
-        "hydromt_name": "LakeArea",
+        "hydromt_name": "lake_area",
     },
     "LakeAvgLevel": {
         "wflow_v0": "lateral.river.lake.waterlevel",
@@ -380,63 +380,63 @@ WFLOW_NAMES = {
     "LakeThreshold": {
         "wflow_v0": "lateral.river.lake.threshold",
         "wflow_v1": "lake_water_flow_threshold-level__elevation",
-        "hydromt_name": "LakeThreshold",
+        "hydromt_name": "lake_outflow_threshold",
     },
     "Lake_b": {
         "wflow_v0": "lateral.river.lake.b",
         "wflow_v1": "lake_water__rating_curve_coefficient",
-        "hydromt_name": "Lake_b",
+        "hydromt_name": "lake_b",
     },
     "Lake_e": {
         "wflow_v0": "lateral.river.lake.e",
         "wflow_v1": "lake_water__rating_curve_exponent",
-        "hydromt_name": "Lake_e",
+        "hydromt_name": "lake_e",
     },
     "LakeOutflowFunc": {
         "wflow_v0": "lateral.river.lake.outflowfunc",
         "wflow_v1": "lake_water__rating_curve_type_count",
-        "hydromt_name": "LakeOutflowFunc",
+        "hydromt_name": "lake_rating_curve",
     },
     "LakeStorFunc": {
         "wflow_v0": "lateral.river.lake.storfunc",
         "wflow_v1": "lake_water__storage_curve_type_count",
-        "hydromt_name": "LakeStorFunc",
+        "hydromt_name": "lake_storage_curve",
     },
     "LinkedLakeLocs": {
         "wflow_v0": "lateral.river.lake.linkedlakelocs",
         "wflow_v1": "lake~lower_location__count",
-        "hydromt_name": "LinkedLakeLocs",
+        "hydromt_name": "lake_lower_id",
     },
     # reservoirs
     "ResSimpleArea": {
         "wflow_v0": "lateral.river.reservoir.area",
         "wflow_v1": "reservoir_surface__area",
-        "hydromt_name": "ResSimpleArea",
+        "hydromt_name": "reservoir_area",
     },
     "ResDemand": {
         "wflow_v0": "lateral.river.reservoir.demand",
         "wflow_v1": "reservoir_water_demand~required~downstream__volume_flow_rate",
-        "hydromt_name": "ResDemand",
+        "hydromt_name": "reservoir_demand",
     },
     "ResMaxRelease": {
         "wflow_v0": "lateral.river.reservoir.maxrelease",
         "wflow_v1": "reservoir_water_release-below-spillway__max_volume_flow_rate",
-        "hydromt_name": "ResMaxRelease",
+        "hydromt_name": "reservoir_max_release",
     },
     "ResMaxVolume": {
         "wflow_v0": "lateral.river.reservoir.maxvolume",
         "wflow_v1": "reservoir_water__max_volume",
-        "hydromt_name": "ResMaxVolume",
+        "hydromt_name": "reservoir_max_volume",
     },
     "ResTargetFullFrac": {
         "wflow_v0": "lateral.river.reservoir.targetfullfrac",
         "wflow_v1": "reservoir_water~full-target__volume_fraction",
-        "hydromt_name": "ResTargetFullFrac",
+        "hydromt_name": "reservoir_target_full_fraction",
     },
     "ResTargetMinFrac": {
         "wflow_v0": "lateral.river.reservoir.targetminfrac",
         "wflow_v1": "reservoir_water~min-target__volume_fraction",
-        "hydromt_name": "ResTargetMinFrac",
+        "hydromt_name": "reservoir_target_min_fraction",
     },
     # gwf
     "constant_head": {
@@ -654,12 +654,12 @@ WFLOW_SEDIMENT_NAMES = {
     "ResSimpleArea": {
         "wflow_v0": "lateral.river.resarea",
         "wflow_v1": "reservoir_surface__area",
-        "hydromt_name": "ResSimpleArea",
+        "hydromt_name": "reservoir_area",
     },
     "LakeArea": {
         "wflow_v0": "lateral.river.lakearea",
         "wflow_v1": "lake_surface__area",
-        "hydromt_name": "LakeArea",
+        "hydromt_name": "lake_area",
     },
     "ResTrapEff": {
         "wflow_v0": "lateral.river.restrapeff",

@@ -1907,14 +1907,14 @@ gauge locations [-] (if derive_subcatch)
         output_names: Dict = {
             "lake_area__count": "wflow_lakeareas",
             "lake_location__count": "wflow_lakelocs",
-            "lake_surface__area": "LakeArea",
+            "lake_surface__area": "lake_area",
             "lake_water_surface__initial_elevation": "LakeAvgLevel",
-            "lake_water_flow_threshold-level__elevation": "LakeThreshold",
-            "lake_water__rating_curve_coefficient": "Lake_b",
-            "lake_water__rating_curve_exponent": "Lake_e",
-            "lake_water__rating_curve_type_count": "LakeOutflowFunc",
-            "lake_water__storage_curve_type_count": "LakeStorFunc",
-            "lake~lower_location__count": "LinkedLakeLocs",
+            "lake_water_flow_threshold-level__elevation": "lake_outflow_threshold",
+            "lake_water__rating_curve_coefficient": "lake_b",
+            "lake_water__rating_curve_exponent": "lake_e",
+            "lake_water__rating_curve_type_count": "lake_rating_curve",
+            "lake_water__storage_curve_type_count": "lake_storage_curve",
+            "lake~lower_location__count": "lake_lower_id",
         },
         geom_name: str = "lakes",
         **kwargs,
@@ -1930,7 +1930,7 @@ gauge locations [-] (if derive_subcatch)
 
         If rating curve data is available for storage and discharge they can be prepared
         via ``rating_curve_fns`` (see below for syntax and requirements).
-        Else the parameters 'Lake_b' and 'Lake_e' will be used for discharge and
+        Else the parameters 'lake_b' and 'lake_e' will be used for discharge and
         for storage a rectangular profile lake is assumed.
         See Wflow documentation for more information.
 
@@ -1941,15 +1941,15 @@ gauge locations [-] (if derive_subcatch)
 
         * **wflow_lakeareas** map: lake IDs [-]
         * **wflow_lakelocs** map: lake IDs at outlet locations [-]
-        * **LakeArea** map: lake area [m2]
+        * **lake_area** map: lake area [m2]
         * **LakeAvgLevel** map: lake average water level [m]
-        * **LakeThreshold** map: lake outflow threshold water level [m]
+        * **lake_outflow_threshold** map: lake outflow threshold water level [m]
         * **LakeAvgOut** map: lake average discharge [m3/s]
-        * **Lake_b** map: lake rating curve coefficient [-]
-        * **Lake_e** map: lake rating curve exponent [-]
-        * **LakeOutflowFunc** map: option to compute rating curve [-]
-        * **LakeStorFunc** map: option to compute storage curve [-]
-        * **LinkedLakeLocs** map: optional, lower linked lake locations [-]
+        * **lake_b** map: lake rating curve coefficient [-]
+        * **lake_e** map: lake rating curve exponent [-]
+        * **lake_rating_curve** map: option to compute rating curve [-]
+        * **lake_storage_curve** map: option to compute storage curve [-]
+        * **lake_lower_id** map: optional, lower linked lake locations [-]
         * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
@@ -1959,9 +1959,9 @@ gauge locations [-] (if derive_subcatch)
             Name of GeoDataFrame source for lake parameters.
 
             * Required variables for direct use: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'Lake_b' [-], \
-'Lake_e' [-], 'LakeOutflowFunc' [-], 'LakeStorFunc' [-], 'LakeThreshold' [m], \
-'LinkedLakeLocs' [-]
+'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'lake_b' [-], \
+'lake_e' [-], 'lake_rating_curve' [-], 'lake_storage_curve' [-], \
+'lake_outflow_threshold' [m], 'lake_lower_id' [-]
 
             * Required variables for parameter estimation: \
 'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
@@ -2080,12 +2080,12 @@ Using default storage/outflow function parameters."
         output_names: Dict = {
             "reservoir_area__count": "wflow_reservoirareas",
             "reservoir_location__count": "wflow_reservoirlocs",
-            "reservoir_surface__area": "ResSimpleArea",
-            "reservoir_water__max_volume": "ResMaxVolume",
-            "reservoir_water~min-target__volume_fraction": "ResTargetMinFrac",
-            "reservoir_water~full-target__volume_fraction": "ResTargetFullFrac",
-            "reservoir_water_demand~required~downstream__volume_flow_rate": "ResDemand",
-            "reservoir_water_release-below-spillway__max_volume_flow_rate": "ResMaxRelease",  # noqa: E501
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_water__max_volume": "reservoir_max_volume",
+            "reservoir_water~min-target__volume_fraction": "reservoir_target_min_fraction",  # noqa: E501
+            "reservoir_water~full-target__volume_fraction": "reservoir_target_full_fraction",  # noqa: E501
+            "reservoir_water_demand~required~downstream__volume_flow_rate": "reservoir_demand",  # noqa: E501
+            "reservoir_water_release-below-spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
         },
         geom_name: str = "reservoirs",
         **kwargs,
@@ -2099,11 +2099,12 @@ Using default storage/outflow function parameters."
         from a database with reservoir geometry, IDs and metadata.
 
         Data requirements for direct use (i.e. wflow parameters are data already present
-        in reservoirs_fn) are reservoir ID 'waterbody_id', area 'ResSimpleArea' [m2],
-        maximum volume 'ResMaxVolume' [m3], the targeted minimum and maximum fraction of
-        water volume in the reservoir 'ResTargetMinFrac' and 'ResTargetMaxFrac' [-],
-        the average water demand ResDemand [m3/s] and the maximum release of
-        the reservoir before spilling 'ResMaxRelease' [m3/s].
+        in reservoirs_fn) are reservoir ID 'waterbody_id', area 'reservoir_area' [m2],
+        maximum volume 'reservoir_max_volume' [m3], the targeted minimum and maximum
+        fraction of water volume in the reservoir 'reservoir_target_min_fraction' and
+        'ResTargetMaxFrac' [-], the average water demand reservoir_demand [m3/s] and
+        the maximum release of the reservoir before spilling
+        'reservoir_max_release' [m3/s].
 
         In case the wflow parameters are not directly available they can be computed by
         HydroMT based on time series of reservoir surface water area.
@@ -2125,12 +2126,12 @@ Using default storage/outflow function parameters."
 
         * **wflow_reservoirareas** map: reservoir IDs [-]
         * **wflow_reservoirlocs** map: reservoir IDs at outlet locations [-]
-        * **ResSimpleArea** map: reservoir area [m2]
-        * **ResMaxVolume** map: reservoir max volume [m3]
-        * **ResTargetMinFrac** map: reservoir target min frac [m3/m3]
-        * **ResTargetFullFrac** map: reservoir target full frac [m3/m3]
-        * **ResDemand** map: reservoir demand flow [m3/s]
-        * **ResMaxRelease** map: reservoir max release flow [m3/s]
+        * **reservoir_area** map: reservoir area [m2]
+        * **reservoir_max_volume** map: reservoir max volume [m3]
+        * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
+        * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
+        * **reservoir_demand** map: reservoir demand flow [m3/s]
+        * **reservoir_max_release** map: reservoir max release flow [m3/s]
         * **reservoirs** geom: polygon with reservoirs and wflow reservoir parameters
 
         Parameters
@@ -2139,8 +2140,9 @@ Using default storage/outflow function parameters."
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
             * Required variables for direct use: \
-'waterbody_id' [-], 'ResSimpleArea' [m2], 'ResMaxVolume' [m3], 'ResTargetMinFrac' \
-[m3/m3], 'ResTargetFullFrac' [m3/m3], 'ResDemand' [m3/s], 'ResMaxRelease' [m3/s]
+'waterbody_id' [-], 'reservoir_area' [m2], 'reservoir_max_volume' [m3], \
+'reservoir_target_min_fraction' [m3/m3], 'reservoir_target_full_fraction' [m3/m3], \
+'reservoir_demand' [m3/s], 'reservoir_max_release' [m3/s]
 
             * Required variables for computation with timeseries_fn: \
 'waterbody_id' [-], 'Hylak_id' [-], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' [m3/s], \
@@ -2189,12 +2191,12 @@ Using default storage/outflow function parameters."
         # if present use directly
         resattributes = [
             "waterbody_id",
-            "ResSimpleArea",
-            "ResMaxVolume",
-            "ResTargetMinFrac",
-            "ResTargetFullFrac",
-            "ResDemand",
-            "ResMaxRelease",
+            "reservoir_area",
+            "reservoir_max_volume",
+            "reservoir_target_min_fraction",
+            "reservoir_target_full_fraction",
+            "reservoir_demand",
+            "reservoir_max_release",
         ]
         if np.all(np.isin(resattributes, gdf_org.columns)):
             intbl_reservoirs = gdf_org[resattributes]
@@ -6038,12 +6040,12 @@ change name input.path_forcing "
                 remove_maps = [
                     self._MAPS["resareas"],
                     self._MAPS["reslocs"],
-                    self._MAPS["ResSimpleArea"],
-                    self._MAPS["ResDemand"],
-                    self._MAPS["ResTargetFullFrac"],
-                    self._MAPS["ResTargetMinFrac"],
-                    self._MAPS["ResMaxRelease"],
-                    self._MAPS["ResMaxVolume"],
+                    self._MAPS["reservoir_area"],
+                    self._MAPS["reservoir_demand"],
+                    self._MAPS["reservoir_target_full_fraction"],
+                    self._MAPS["reservoir_target_min_fraction"],
+                    self._MAPS["reservoir_max_release"],
+                    self._MAPS["reservoir_max_volume"],
                 ]
                 self._grid = self.grid.drop_vars(remove_maps)
 
@@ -6055,15 +6057,15 @@ change name input.path_forcing "
                 remove_maps = [
                     self._MAPS["lakeareas"],
                     self._MAPS["lakelocs"],
-                    self._MAPS["LinkedLakeLocs"],
-                    self._MAPS["LakeStorFunc"],
-                    self._MAPS["LakeOutflowFunc"],
-                    self._MAPS["LakeArea"],
+                    self._MAPS["lake_lower_id"],
+                    self._MAPS["lake_storage_curve"],
+                    self._MAPS["lake_rating_curve"],
+                    self._MAPS["lake_area"],
                     self._MAPS["LakeAvgLevel"],
                     "LakeAvgOut",  # this is a hydromt meta map
-                    self._MAPS["LakeThreshold"],
-                    self._MAPS["Lake_b"],
-                    self._MAPS["Lake_e"],
+                    self._MAPS["lake_outflow_threshold"],
+                    self._MAPS["lake_b"],
+                    self._MAPS["lake_e"],
                 ]
                 self._grid = self.grid.drop_vars(remove_maps)
 

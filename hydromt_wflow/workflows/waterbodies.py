@@ -501,12 +501,12 @@ please use one of [gww, jrc] or None."
 
     # rename to wflow naming convention
     tbls = {
-        "resarea": "ResSimpleArea",
-        "resdemand": "ResDemand",
-        "resfullfrac": "ResTargetFullFrac",
-        "resminfrac": "ResTargetMinFrac",
-        "resmaxrelease": "ResMaxRelease",
-        "resmaxvolume": "ResMaxVolume",
+        "resarea": "reservoir_area",
+        "resdemand": "reservoir_demand",
+        "resfullfrac": "reservoir_target_full_fraction",
+        "resminfrac": "reservoir_target_min_fraction",
+        "resmaxrelease": "reservoir_max_release",
+        "resmaxvolume": "reservoir_max_volume",
         "resid": "expr1",
     }
     df_out = df_out.rename(columns=tbls)
@@ -529,15 +529,15 @@ def lakeattrs(
     The following reservoir attributes are calculated:
 
     - waterbody_id : waterbody id
-    - LakeArea : lake area [m2]
+    - lake_area : lake area [m2]
     - LakeAvgLevel: lake average level [m]
     - LakeAvgOut: lake average outflow [m3/s]
-    - Lake_b: lake rating curve coefficient [-]
-    - Lake_e: lake rating curve exponent [-]
-    - LakeStorFunc: option to compute storage curve [-]
-    - LakeOutflowFunc: option to compute rating curve [-]
-    - LakeThreshold: minimum threshold for lake outflow [m]
-    - LinkedLakeLocs: id of linked lake location if any
+    - lake_b: lake rating curve coefficient [-]
+    - lake_e: lake rating curve exponent [-]
+    - lake_storage_curve: option to compute storage curve [-]
+    - lake_rating_curve: option to compute rating curve [-]
+    - lake_outflow_threshold: minimum threshold for lake outflow [m]
+    - lake_lower_id: id of linked lake location if any
     - LakeMaxStorage: maximum storage [m3] (optional)
 
     Parameters
@@ -563,7 +563,7 @@ def lakeattrs(
     # rename to param values
     gdf = gdf.rename(
         columns={
-            "Area_avg": "LakeArea",
+            "Area_avg": "lake_area",
             "Depth_avg": "LakeAvgLevel",
             "Dis_avg": "LakeAvgOut",
         }
@@ -581,18 +581,18 @@ skip adding LakeMaxStorage map."
     # Minimum value for LakeAvgOut
     LakeAvgOut = gdf["LakeAvgOut"].copy()
     gdf["LakeAvgOut"] = np.maximum(gdf["LakeAvgOut"], 0.01)
-    if "Lake_b" not in gdf.columns:
-        gdf["Lake_b"] = gdf["LakeAvgOut"].values / (gdf["LakeAvgLevel"].values) ** (2)
-    if "Lake_e" not in gdf.columns:
-        gdf["Lake_e"] = 2
-    if "LakeThreshold" not in gdf.columns:
-        gdf["LakeThreshold"] = 0.0
-    if "LinkedLakeLocs" not in gdf.columns:
-        gdf["LinkedLakeLocs"] = 0
-    if "LakeStorFunc" not in gdf.columns:
-        gdf["LakeStorFunc"] = 1
-    if "LakeOutflowFunc" not in gdf.columns:
-        gdf["LakeOutflowFunc"] = 3
+    if "lake_b" not in gdf.columns:
+        gdf["lake_b"] = gdf["LakeAvgOut"].values / (gdf["LakeAvgLevel"].values) ** (2)
+    if "lake_e" not in gdf.columns:
+        gdf["lake_e"] = 2
+    if "lake_outflow_threshold" not in gdf.columns:
+        gdf["lake_outflow_threshold"] = 0.0
+    if "lake_lower_id" not in gdf.columns:
+        gdf["lake_lower_id"] = 0
+    if "lake_storage_curve" not in gdf.columns:
+        gdf["lake_storage_curve"] = 1
+    if "lake_rating_curve" not in gdf.columns:
+        gdf["lake_rating_curve"] = 3
 
     # Check if some LakeAvgOut values have been replaced
     if not np.all(LakeAvgOut == gdf["LakeAvgOut"]):
@@ -610,10 +610,10 @@ a minimum value of 0.01m3/s"
             if id in rating_dict.keys():
                 df_rate = rating_dict[id]
                 # Prepare the right tables for wflow
-                # Update LakeStor and LakeOutflowFunc
+                # Update LakeStor and lake_rating_curve
                 # Storage
                 if "volume" in df_rate.columns:
-                    gdf.loc[gdf["waterbody_id"] == id, "LakeStorFunc"] = 2
+                    gdf.loc[gdf["waterbody_id"] == id, "lake_storage_curve"] = 2
                     df_stor = df_rate[["elevtn", "volume"]].dropna(
                         subset=["elevtn", "volume"]
                     )
@@ -626,7 +626,7 @@ a minimum value of 0.01m3/s"
                     )
                 # Rating
                 if "discharge" in df_rate.columns:
-                    gdf.loc[gdf["waterbody_id"] == id, "LakeOutflowFunc"] = 1
+                    gdf.loc[gdf["waterbody_id"] == id, "lake_rating_curve"] = 1
                     df_rate = df_rate[["elevtn", "discharge"]].dropna(
                         subset=["elevtn", "discharge"]
                     )
@@ -649,15 +649,15 @@ Using default Modified Puls Approach"
     # Create raster of lake params
     lake_params = [
         "waterbody_id",
-        "LakeArea",
+        "lake_area",
         "LakeAvgLevel",
         "LakeAvgOut",
-        "Lake_b",
-        "Lake_e",
-        "LakeStorFunc",
-        "LakeOutflowFunc",
-        "LakeThreshold",
-        "LinkedLakeLocs",
+        "lake_b",
+        "lake_e",
+        "lake_storage_curve",
+        "lake_rating_curve",
+        "lake_outflow_threshold",
+        "lake_lower_id",
     ]
     if "LakeMaxStorage" in gdf.columns:
         lake_params.append("LakeMaxStorage")
