@@ -25,13 +25,7 @@ from hydromt.models.model_grid import GridModel
 from hydromt.nodata import NoDataStrategy
 from shapely.geometry import box
 
-from hydromt_wflow.utils import (
-    DATADIR,
-    convert_to_wflow_v1_sbm,
-    get_config,
-    mask_raster_from_layer,
-    read_csv_results,
-)
+import hydromt_wflow.utils as utils
 
 from . import workflows
 from .naming import _create_hydromt_wflow_mapping_sbm
@@ -47,7 +41,7 @@ class WflowModel(GridModel):
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
     _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
-    _DATADIR = DATADIR
+    _DATADIR = utils.DATADIR
     _GEOMS = {}
     _FOLDERS = []
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
@@ -4881,7 +4875,7 @@ Run setup_soilmaps first"
         This function should be followed by write_config() to write the upgraded file.
         """
         self.read()
-        config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
+        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=self.logger)
         self._config = tomlkit.TOMLDocument()
         for option in config_out:
             self.set_config(option, config_out[option])
@@ -5162,9 +5156,9 @@ Run setup_soilmaps first"
             if name is not None:
                 self.logger.warning(f"Layer {name} will not be masked with basins.")
         elif self._MAPS["basins"] in self.grid:
-            data = mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
+            data = utils.mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
         elif self._MAPS["basins"] in data:
-            data = mask_raster_from_layer(data, data[self._MAPS["basins"]])
+            data = utils.mask_raster_from_layer(data, data[self._MAPS["basins"]])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
 
@@ -5609,7 +5603,9 @@ change name input.path_forcing "
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
         if csv_fn is not None and isfile(csv_fn):
-            csv_dict = read_csv_results(csv_fn, config=self.config, maps=self.grid)
+            csv_dict = utils.read_csv_results(
+                csv_fn, config=self.config, maps=self.grid
+            )
             for key in csv_dict:
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
@@ -5625,7 +5621,7 @@ change name input.path_forcing "
             self._intbl = dict()  # start fresh in read-only mode
         if not self._read:
             self.logger.info("Reading default intbl files.")
-            fns = glob.glob(join(DATADIR, "wflow", "intbl", "*.tbl"))
+            fns = glob.glob(join(utils.DATADIR, "wflow", "intbl", "*.tbl"))
         else:
             self.logger.info("Reading model intbl files.")
             fns = glob.glob(join(self.root, "intbl", "*.tbl"))
@@ -5704,6 +5700,52 @@ change name input.path_forcing "
         with codecs.open(fn, "w", encoding="utf-8") as f:
             tomlkit.dump(self.config, f)
 
+    def get_config(
+        self,
+        *args,
+        fallback: Any = None,
+        abs_path: bool = False,
+    ) -> str | None:
+        """Get a config value at key.
+
+        Parameters
+        ----------
+        args : tuple, str
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: Any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+            NOTE: this assumes the config is located in model root!
+
+        Returns
+        -------
+        value : Any
+            dictionary value
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> get_config('a')
+        >> 1
+
+        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+        >> 2
+
+        >> get_config('b.c') # # identical to get_config('b','c')
+        >> {'d': 2}
+        """
+        return utils.get_config(
+            self.config,
+            *args,
+            fallback=fallback,
+            abs_path=abs_path,
+            root=self.root,
+        )
+
     def set_config(self, *args):
         """
         Update the config toml at key(s) with values.
@@ -5775,54 +5817,10 @@ change name input.path_forcing "
             >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
         self._initialize_config()
-        if len(args) < 2:
-            raise TypeError("set_config() requires a least one key and one value.")
-        if not all([isinstance(part, str) for part in args[:-1]]):
-            raise TypeError("All but last argument for set_config must be str")
-
-        args = list(args)
-        value = args.pop(-1)
-        keys = [part for arg in args for part in arg.split(".")]
-
-        # if we try to set dictionaries as values directly tomlkit will mess up the
-        # key bookkeeping, resulting in invalid toml, so instead
-        # if we see a mapping, we go over it recursively
-        # and manually add all of its keys, because of cloning issues.
-        if isinstance(value, (dict, tomlkit.items.AbstractTable)):
-            for key, inner_value in value.items():
-                self.set_config(*keys, key, inner_value)
-
-        # if the first key is not present
-        # we can just set the entire thing straight
-        if keys[0] not in self._config:
-            self._config.append(tomlkit.key(keys), value)
-            return
-
-        # If there is only one key we also just set that directly as
-        # a string key instead of the dotted variant
-        if len(keys) == 1:
-            self._config.update({keys[0]: value})
-            return
-
-        current = self._config
-        for idx in range(len(keys)):
-            if idx != len(keys) - 1:
-                remaining_key = tomlkit.key(keys[idx:])
-            else:
-                remaining_key = keys[idx]
-
-            if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
-                break
-
-            current = current[keys[idx]]
-
-        # tomlkit's update function doesn't work properly
-        # so instead of updating we take the key out if it is in there
-        # and readd it afterwards
-        if remaining_key in current:
-            _ = current.pop(remaining_key)
-
-        current[remaining_key] = value
+        utils.set_config(
+            self._config,
+            *args,
+        )
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
@@ -6146,49 +6144,3 @@ change name input.path_forcing "
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
-
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
-
-        Parameters
-        ----------
-        args : tuple, str
-            keys can given by multiple args: ('key1', 'key2')
-            or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
-            fallback value if key(s) not found in config, by default None.
-        abs_path: bool, optional
-            If True return the absolute path relative to the model root,
-            by default False.
-            NOTE: this assumes the config is located in model root!
-
-        Returns
-        -------
-        value : Any
-            dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
-        """
-        return get_config(
-            *args,
-            config=self.config,
-            fallback=fallback,
-            abs_path=abs_path,
-            root=self.root,
-        )

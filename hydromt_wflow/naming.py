@@ -20,6 +20,11 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     "soil": "wflow_soil",
 }
 
+# Wflow entries that cross main headers (i.e. [input, state, model, output])
+WFLOW_CROSS_OPTIONS = {
+    "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
+}
+
 # Link between the new and the old model option flags
 WFLOW_MODEL_OPTIONS = {
     "reinit": "cold_start__flag",
@@ -492,10 +497,6 @@ WFLOW_NAMES = {
     "constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
         "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
-    },
-    "conductivity_profile": {
-        "wflow_v0": "lateral.subsurface.conductivity_profile",
-        "wflow_v1": "conductivity_profile",
     },
     "kh_surface": {
         "wflow_v0": "lateral.subsurface.conductivity",

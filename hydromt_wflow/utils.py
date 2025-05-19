@@ -13,6 +13,7 @@ from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 
 from .naming import (
+    WFLOW_CROSS_OPTIONS,
     WFLOW_MODEL_OPTIONS,
     WFLOW_NAMES,
     WFLOW_SEDIMENT_NAMES,
@@ -25,11 +26,12 @@ logger = logging.getLogger(__name__)
 DATADIR = join(dirname(abspath(__file__)), "data")
 
 __all__ = [
-    "read_csv_results",
-    "get_config",
-    "get_grid_from_config",
     "convert_to_wflow_v1_sbm",
     "convert_to_wflow_v1_sediment",
+    "get_config",
+    "get_grid_from_config",
+    "read_csv_results",
+    "set_config",
 ]
 
 
@@ -201,8 +203,8 @@ of the config.
 
 
 def get_config(
-    *args,
     config: tomlkit.TOMLDocument,
+    *args,
     root: Path | None = None,
     fallback: Any | None = None,
     abs_path: bool = False,
@@ -231,13 +233,13 @@ def get_config(
     --------
     >> config = {'a': 1, 'b': {'c': {'d': 2}}
 
-    >> get_config('a', config)
+    >> get_config(config, 'a')
     >> 1
 
-    >> get_config('b', 'c', 'd', config) # identical to get_config('b.c.d')
+    >> get_config(config, 'b', 'c', 'd') # identical to get_config('b.c.d')
     >> 2
 
-    >> get_config('b.c', config) # # identical to get_config('b','c')
+    >> get_config(config, 'b.c') # # identical to get_config('b','c')
     >> {'d': 2}
     """
     args = list(args)
@@ -261,6 +263,128 @@ def get_config(
         return fallback
     else:
         return value
+
+
+def set_config(config: tomlkit.TOMLDocument, *args):
+    """
+    Update the config toml at key(s) with values.
+
+    This function is made to maintain the structure of your toml file.
+    When adding keys it will look for the most specific header present in
+    the toml file and add it under that.
+
+    meaning that if you have a config toml that is empty and you run
+    ``wflow_model.set_config("input.forcing.scale", 1)``
+
+    it will result in the following file:
+
+    .. code-block:: toml
+
+        input.forcing.scale = 1
+
+
+    however if your toml file looks like this before:
+
+    .. code-block:: toml
+
+        [input.forcing]
+
+    (i.e. you have a header in there that has no keys)
+
+    then after the insertion it will look like this:
+
+    .. code-block:: toml
+
+        [input.forcing]
+        scale = 1
+
+
+    .. warning::
+
+        Due to limitations of the underlying library it is currently not possible to
+        create new headers (i.e. groups like ``input.forcing`` in the example above)
+        programmatically, and they will need to be added to the default config
+        toml document
+
+
+    .. warning::
+
+        Even though the underlying config object behaves like a dictionary, it is
+        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
+        error scan easily be introduced if this structure is modified by hand.
+        Therefore we strongly discourage users from manually modying it, and
+        instead ask them to use this ``set_config`` function to avoid problems.
+
+    Parameters
+    ----------
+    config : tomlkit.TOMLDocument
+        The config settings in TOMLDocument object.
+    args : str, tuple, list
+        if tuple or list, minimal length of two
+        keys can given by multiple args: ('key1', 'key2', 'value')
+        or a string with '.' indicating a new level: ('key1.key2', 'value')
+
+    Examples
+    --------
+    .. code-block:: ipython
+
+        >> self.config
+        >> {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> self.set_config('a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+        >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+    """
+    if len(args) < 2:
+        raise TypeError("set_config() requires a least one key and one value.")
+    if not all([isinstance(part, str) for part in args[:-1]]):
+        raise TypeError("All but last argument for set_config must be str")
+
+    args = list(args)
+    value = args.pop(-1)
+    keys = [part for arg in args for part in arg.split(".")]
+
+    # if we try to set dictionaries as values directly tomlkit will mess up the
+    # key bookkeeping, resulting in invalid toml, so instead
+    # if we see a mapping, we go over it recursively
+    # and manually add all of its keys, because of cloning issues.
+    if isinstance(value, (dict, tomlkit.items.AbstractTable)):
+        for key, inner_value in value.items():
+            set_config(config, *keys, key, inner_value)
+
+    # if the first key is not present
+    # we can just set the entire thing straight
+    if keys[0] not in config:
+        config.append(tomlkit.key(keys), value)
+        return
+
+    # If there is only one key we also just set that directly as
+    # a string key instead of the dotted variant
+    if len(keys) == 1:
+        config.update({keys[0]: value})
+        return
+
+    current = config
+    for idx in range(len(keys)):
+        if idx != len(keys) - 1:
+            remaining_key = tomlkit.key(keys[idx:])
+        else:
+            remaining_key = keys[idx]
+
+        if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
+            break
+
+        current = current[keys[idx]]
+
+    # tomlkit's update function doesn't work properly
+    # so instead of updating we take the key out if it is in there
+    # and readd it afterwards
+    if remaining_key in current:
+        _ = current.pop(remaining_key)
+
+    current[remaining_key] = value
 
 
 def get_grid_from_config(
@@ -309,8 +433,8 @@ def get_grid_from_config(
     # get config value
     # try with input only
     var = get_config(
+        config,
         f"input.{var_name}",
-        config=config,
         fallback=None,
         root=root,
         abs_path=abs_path,
@@ -318,8 +442,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.static
         var = get_config(
+            config,
             f"input.static.{var_name}",
-            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -330,8 +454,8 @@ def get_grid_from_config(
     if var is None:
         # try with input.cyclic
         var = get_config(
+            config,
             f"input.cyclic.{var_name}",
-            config=config,
             fallback=None,
             root=root,
             abs_path=abs_path,
@@ -360,7 +484,7 @@ def get_grid_from_config(
 
         # else scale and offset
         else:
-            var_name = get_config("netcdf.variable.name", config=var)
+            var_name = get_config(var, "netcdf.variable.name")
             scale = var.get("scale", 1.0)
             offset = var.get("offset", 0.0)
             # apply scale and offset
@@ -423,6 +547,7 @@ def _convert_to_wflow_v1(
     wflow_vars: Dict,
     states_vars: Dict,
     model_options: Dict = {},
+    cross_options: Dict = {},  # TODO we shouldnt pass mutables as defaults
     input_options: Dict = {},
     input_variables: list = [],
     additional_variables: Dict = {},
@@ -478,9 +603,10 @@ def _convert_to_wflow_v1(
 
     # Solve the var name
     def _solve_var_name(var: str | dict, path: str, add: list):
-        if isinstance(var, str):
-            add_str = "." + ".".join(add) if add else ""
-            yield (var, path + add_str)
+        if not isinstance(var, dict):
+            sep = "." if path else ""
+            add_str = ".".join(add) if add else ""
+            yield (var, path + sep + add_str)
             return
         for key, item in var.items():
             yield from _solve_var_name(item, path, add + [key])
@@ -504,41 +630,51 @@ def _convert_to_wflow_v1(
     }
     for section, options in input_section.items():
         for key in options:
-            value = get_config(key, config=config, fallback=None)
+            value = get_config(config, key, fallback=None)
             if value is not None:
                 if section == "general":
+                    # TODO this is bad, but conversion functionality will change
+                    # in the future, so it will do for now
+                    if key == "fews_run":
+                        key = "fews_run__flag"
                     config_out[key] = value
                 else:
                     config_out[section] = config_out.get(section, {})
                     config_out[section][key] = value
 
     # Model section
-    config_out["model"] = config["model"]
-    for opt_old, opt_new in model_options.items():
-        if opt_old in config_out["model"].keys():
-            item = config_out["model"].pop(opt_old)
-            if isinstance(opt_new, (list, tuple)):
-                for elem in opt_new:
-                    config_out["model"][elem] = item
-                continue
-            config_out["model"][opt_new] = item
+    config_out["model"] = {}
+    for value, config_var in _solve_var_name(config["model"], "", []):
+        if config_var not in model_options:
+            continue
+        new_config_var = model_options[config_var]
+        if isinstance(new_config_var, (list, tuple)):
+            for elem in new_config_var:
+                set_config(config_out, f"model.{elem}", value)
+            continue
+        set_config(config_out, f"model.{new_config_var}", value)
+
+    # Cross options
+    for opt_old, opt_new in cross_options.items():
+        value = get_config(config, opt_old)
+        if value is None:
+            continue
+        set_config(config_out, opt_new, value)
 
     # State
     logger.info("Converting config state section")
     config_out["state"] = {
         "path_input": get_config(
-            "state.path_input", config=config, fallback="instate/instates.nc"
+            config, "state.path_input", fallback="instate/instates.nc"
         ),
         "path_output": get_config(
-            "state.path_output", config=config, fallback="outstate/outstates.nc"
+            config, "state.path_output", fallback="outstate/outstates.nc"
         ),
     }
     # Go through the states variables
     config_out["state"]["variables"] = {}
     for key, variables in states_vars.items():
-        name = get_config(
-            f"state.{variables['wflow_v0']}", config=config, fallback=None
-        )
+        name = get_config(config, f"state.{variables['wflow_v0']}", fallback=None)
         if name is not None and variables["wflow_v1"] is not None:
             config_out["state"]["variables"][variables["wflow_v1"]] = name
 
@@ -564,12 +700,10 @@ def _convert_to_wflow_v1(
     config_out["input"]["static"] = {}
     for key, variables in wflow_vars.items():
         print(f"key: {key}, variables: {variables}")
-        name = get_config(
-            f"input.{variables['wflow_v0']}", config=config, fallback=None
-        )
+        name = get_config(config, f"input.{variables['wflow_v0']}", fallback=None)
         if variables["wflow_v0"] == "vertical.g_ttm" and name is None:
             # this change is probably too recent for most models
-            name = get_config("input.vertical.g_tt", config=config, fallback=None)
+            name = get_config(config, "input.vertical.g_tt", fallback=None)
         if name is not None and variables["wflow_v1"] is not None:
             if variables["wflow_v0"] in input_options.keys():
                 continue
@@ -584,12 +718,12 @@ def _convert_to_wflow_v1(
 
     # Output netcdf_grid section
     logger.info("Converting config output sections")
-    if get_config("output", config=config, fallback=None) is not None:
+    if get_config(config, "output", fallback=None) is not None:
         config_out["output"] = {}
         config_out["output"]["netcdf_grid"] = {
-            "path": get_config("output.path", config=config, fallback="output.nc"),
+            "path": get_config(config, "output.path", fallback="output.nc"),
             "compressionlevel": get_config(
-                "output.compressionlevel", config=config, fallback=1
+                config, "output.compressionlevel", fallback=1
             ),
         }
         config_out["output"]["netcdf_grid"]["variables"] = {}
@@ -601,14 +735,12 @@ def _convert_to_wflow_v1(
                 _update_output_netcdf_grid(wflow_var, var_name)
 
     # Output netcdf_scalar section
-    if get_config("netcdf", config=config, fallback=None) is not None:
+    if get_config(config, "netcdf", fallback=None) is not None:
         config_out["output"]["netcdf_scalar"] = {
-            "path": get_config(
-                "netcdf.path", config=config, fallback="output_scalar.nc"
-            ),
+            "path": get_config(config, "netcdf.path", fallback="output_scalar.nc"),
         }
         config_out["output"]["netcdf_scalar"]["variable"] = []
-        nc_scalar_vars = get_config("netcdf.variable", config=config, fallback=[])
+        nc_scalar_vars = get_config(config, "netcdf.variable", fallback=[])
         for nc_scalar in nc_scalar_vars:
             if nc_scalar["parameter"] in WFLOW_CONVERSION.keys():
                 nc_scalar["parameter"] = WFLOW_CONVERSION[nc_scalar["parameter"]]
@@ -619,14 +751,14 @@ def _convert_to_wflow_v1(
                 _warn_str(nc_scalar["parameter"], "netcdf_scalar")
 
     # Output csv section
-    if get_config("csv", config=config, fallback=None) is not None:
+    if get_config(config, "csv", fallback=None) is not None:
         config_out["output"]["csv"] = {}
 
         config_out["output"]["csv"]["path"] = get_config(
-            "csv.path", config=config, fallback="output.csv"
+            config, "csv.path", fallback="output.csv"
         )
         config_out["output"]["csv"]["column"] = []
-        csv_vars = get_config("csv.column", config=config, fallback=[])
+        csv_vars = get_config(config, "csv.column", fallback=[])
         for csv_var in csv_vars:
             if csv_var["parameter"] in WFLOW_CONVERSION.keys():
                 csv_var["parameter"] = WFLOW_CONVERSION[csv_var["parameter"]]
@@ -700,7 +832,6 @@ def convert_to_wflow_v1_sbm(
         "lateral.river.lake.locs",
         "lateral.river.reservoir.areas",
         "lateral.river.reservoir.locs",
-        "lateral.subsurface.conductivity_profile",
     ]
 
     config_out = _convert_to_wflow_v1(
@@ -708,6 +839,7 @@ def convert_to_wflow_v1_sbm(
         wflow_vars=WFLOW_NAMES,
         states_vars=WFLOW_STATES_NAMES,
         model_options=WFLOW_MODEL_OPTIONS,
+        cross_options=WFLOW_CROSS_OPTIONS,
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
