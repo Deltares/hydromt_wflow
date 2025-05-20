@@ -22,9 +22,9 @@ def glaciermaps(
 
     The following glacier maps are calculated:
 
-    - wflow_glacierareas: glacier IDs [ID]
-    - wflow_glacierfrac: area fraction of glacier per cell [-]
-    - wflow_glacierstore: storage (volume) of glacier per cell [mm]
+    - glacareas: glacier IDs [ID]
+    - glacfrac: area fraction of glacier per cell [-]
+    - glacstore: storage (volume) of glacier per cell [mm]
 
     Parameters
     ----------
