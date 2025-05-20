@@ -170,7 +170,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
     # Create dummy lake rating curves
     lakes = example_wflow_model.geoms["lakes"]
     lake_id = lakes["waterbody_id"].iloc[0]
-    area = lakes["LakeArea"].iloc[0]
+    area = lakes["lake_area"].iloc[0]
     dis = lakes["LakeAvgOut"].iloc[0]
     lvl = lakes["LakeAvgLevel"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
@@ -209,10 +209,10 @@ def test_setup_lake(tmpdir, example_wflow_model):
 
     assert f"lake_sh_{lake_id}" in example_wflow_model.tables
     assert f"lake_hq_{lake_id}" in example_wflow_model.tables
-    assert 2 in np.unique(example_wflow_model.grid["LakeStorFunc"].values)
-    assert 1 in np.unique(example_wflow_model.grid["LakeOutflowFunc"].values)
+    assert 2 in np.unique(example_wflow_model.grid["lake_storage_curve"].values)
+    assert 1 in np.unique(example_wflow_model.grid["lake_rating_curve"].values)
     assert (
-        "LakeMaxStorage" not in example_wflow_model.grid
+        "meta_lake_max_storage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
@@ -249,12 +249,12 @@ def test_setup_reservoirs(source, tmpdir, example_wflow_model):
 
     # Check if all parameter maps are available
     required = [
-        "ResDemand",
-        "ResMaxRelease",
-        "ResMaxVolume",
-        "ResSimpleArea",
-        "ResTargetFullFrac",
-        "ResTargetMinFrac",
+        "reservoir_demand",
+        "reservoir_max_release",
+        "reservoir_max_volume",
+        "reservoir_area",
+        "reservoir_target_full_fraction",
+        "reservoir_target_min_fraction",
     ]
     assert all(
         x == True for x in [k in example_wflow_model.grid.keys() for k in required]
@@ -656,8 +656,8 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
     mapname = {
-        "land_elevation": "hydrodem_avg",
-        "meta_subgrid_elevation": "hydrodem_subgrid",
+        "land_elevation": "river_bank_elevation_avg",
+        "meta_subgrid_elevation": "river_bank_elevation_subgrid",
     }[elevtn_map]
 
     assert mapname in example_wflow_model.grid
@@ -708,7 +708,7 @@ def test_setup_rivers_depth(tmpdir):
         elevtn_map="land_elevation",
     )
 
-    assert "RiverDepth" in mod.grid
+    assert "river_depth" in mod.grid
 
     # Try using gvf method
     mod.setup_rivers(
@@ -727,7 +727,7 @@ def test_setup_rivers_depth(tmpdir):
     # RiverDepth iteslf doesn't matter here, this assertion
     # is just to check the method ran without errors
     # as this will error if something went wrong in the process
-    assert "RiverDepth" in mod.grid
+    assert "river_depth" in mod.grid
 
 
 def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
@@ -789,8 +789,8 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
     mapname = {
-        "land_elevation": "hydrodem_avg",
-        "meta_subgrid_elevation": "hydrodem_subgrid",
+        "land_elevation": "river_bank_elevation_avg",
+        "meta_subgrid_elevation": "river_bank_elevation_subgrid",
     }[elevtn_map]
 
     assert f"{mapname}_D4" in example_wflow_model.grid
