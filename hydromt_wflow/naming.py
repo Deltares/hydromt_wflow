@@ -834,75 +834,75 @@ WFLOW_SEDIMENT_NAMES = {
 }
 
 WFLOW_SEDIMENT_STATES_NAMES = {
-    "clayload": {
+    "river_clay_load": {
         "wflow_v0": "lateral.river.clayload",
         "wflow_v1": "river_water_clay__mass",
     },
-    "claystore": {
+    "river_bed_clay_store": {
         "wflow_v0": "lateral.river.claystore",
         "wflow_v1": "river_bed_clay__mass",
     },
-    "outclay": {
+    "river_clay_flux": {
         "wflow_v0": "lateral.river.outclay",
         "wflow_v1": "river_water_clay__mass_flow_rate",
     },
-    "gravload": {
+    "river_gravel_load": {
         "wflow_v0": "lateral.river.gravload",
         "wflow_v1": "river_water_gravel__mass",
     },
-    "gravstore": {
+    "river_bed_gravel_store": {
         "wflow_v0": "lateral.river.gravstore",
         "wflow_v1": "river_bed_gravel__mass",
     },
-    "outgrav": {
+    "river_gravel_flux": {
         "wflow_v0": "lateral.river.outgrav",
         "wflow_v1": "river_water_gravel__mass_flow_rate",
     },
-    "laggload": {
+    "river_lagg_load": {
         "wflow_v0": "lateral.river.laggload",
         "wflow_v1": "river_water_aggregates~large__mass",
     },
-    "laggstore": {
+    "river_bed_lagg_store": {
         "wflow_v0": "lateral.river.laggstore",
         "wflow_v1": "river_bed_aggregates~large__mass",
     },
-    "outlagg": {
+    "river_lagg_flux": {
         "wflow_v0": "lateral.river.outlagg",
         "wflow_v1": "river_water_aggregates~large__mass_flow_rate",
     },
-    "saggload": {
+    "river_sagg_load": {
         "wflow_v0": "lateral.river.saggload",
         "wflow_v1": "river_water_aggregates~small__mass",
     },
-    "saggstore": {
+    "river_bed_sagg_store": {
         "wflow_v0": "lateral.river.saggstore",
         "wflow_v1": "river_bed_aggregates~small__mass",
     },
-    "outsagg": {
+    "river_sagg_flux": {
         "wflow_v0": "lateral.river.outsagg",
         "wflow_v1": "river_water_aggregates~small__mass_flow_rate",
     },
-    "sandload": {
+    "river_sand_load": {
         "wflow_v0": "lateral.river.sandload",
         "wflow_v1": "river_water_sand__mass",
     },
-    "sandstore": {
+    "river_bed_sand_store": {
         "wflow_v0": "lateral.river.sandstore",
         "wflow_v1": "river_bed_sand__mass",
     },
-    "outsand": {
+    "river_sand_flux": {
         "wflow_v0": "lateral.river.outsand",
         "wflow_v1": "river_water_sand__mass_flow_rate",
     },
-    "siltload": {
+    "river_silt_load": {
         "wflow_v0": "lateral.river.siltload",
         "wflow_v1": "river_water_silt__mass",
     },
-    "siltstore": {
+    "river_bed_silt_store": {
         "wflow_v0": "lateral.river.siltstore",
         "wflow_v1": "river_bed_silt__mass",
     },
-    "outsilt": {
+    "river_silt_flux": {
         "wflow_v0": "lateral.river.outsilt",
         "wflow_v1": "river_water_silt__mass_flow_rate",
     },
