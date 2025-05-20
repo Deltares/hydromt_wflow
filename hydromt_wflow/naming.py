@@ -473,47 +473,47 @@ WFLOW_NAMES = {
 }
 
 WFLOW_STATES_NAMES = {
-    "canopystorage": {
+    "vegetation_water_depth": {
         "wflow_v0": "vertical.canopystorage",
         "wflow_v1": "vegetation_canopy_water__depth",
     },
-    "satwaterdepth": {
+    "soil_saturated_depth": {
         "wflow_v0": "vertical.satwaterdepth",
         "wflow_v1": "soil_water_sat-zone__depth",
     },
-    "ustorelayerdepth": {
+    "soil_unsaturated_depth": {
         "wflow_v0": "vertical.ustorelayerdepth",
         "wflow_v1": "soil_layer_water_unsat-zone__depth",
     },
-    "tsoil": {
+    "soil_temp": {
         "wflow_v0": "vertical.tsoil",
         "wflow_v1": "soil_surface__temperature",
     },
-    "snow": {
+    "snow_leq_depth": {
         "wflow_v0": "vertical.snow",
         "wflow_v1": "snowpack~dry__leq-depth",
     },
-    "snowwater": {
+    "snow_water_depth": {
         "wflow_v0": "vertical.snowwater",
         "wflow_v1": "snowpack~liquid__depth",
     },
-    "glacierstore": {
+    "glacier_leq_depth": {
         "wflow_v0": "vertical.glacierstore",
         "wflow_v1": "glacier_ice__leq-depth",
     },
-    "q_land": {
+    "land_instantaneous_q": {
         "wflow_v0": "lateral.land.q",
         "wflow_v1": "land_surface_water__instantaneous_volume_flow_rate",
     },
-    "qx_land": {
+    "land_instantaneous_qx": {
         "wflow_v0": "lateral.land.qx",
         "wflow_v1": "land_surface_water__x_component_of_instantaneous_volume_flow_rate",
     },
-    "qy_land": {
+    "land_instantaneous_qy": {
         "wflow_v0": "lateral.land.qy",
         "wflow_v1": "land_surface_water__y_component_of_instantaneous_volume_flow_rate",
     },
-    "h_land": {
+    "land_instantaneous_h": {
         "wflow_v0": "lateral.land.h",
         "wflow_v1": "land_surface_water__instantaneous_depth",
     },
@@ -521,19 +521,19 @@ WFLOW_STATES_NAMES = {
         "wflow_v0": "lateral.land.h_av",
         "wflow_v1": None,
     },
-    "head": {
+    "groundwater_head": {
         "wflow_v0": "lateral.subsurface.flow.aquifer.head",
         "wflow_v1": "subsurface_water__hydraulic_head",
     },
-    "ssf": {
+    "subsurface_q": {
         "wflow_v0": "lateral.subsurface.ssf",
         "wflow_v1": "subsurface_water__volume_flow_rate",
     },
-    "q_river": {
+    "river_instantaneous_q": {
         "wflow_v0": "lateral.river.q",
         "wflow_v1": "river_water__instantaneous_volume_flow_rate",
     },
-    "h_river": {
+    "river_instantaneous_h": {
         "wflow_v0": "lateral.river.h",
         "wflow_v1": "river_water__instantaneous_depth",
     },
@@ -541,23 +541,23 @@ WFLOW_STATES_NAMES = {
         "wflow_v0": "lateral.river.h_av",
         "wflow_v1": None,
     },
-    "q_floodplain": {
+    "floodplain_instantaneous_q": {
         "wflow_v0": "lateral.river.floodplain.q",
         "wflow_v1": "floodplain_water__instantaneous_volume_flow_rate",
     },
-    "h_floodplain": {
+    "floodplain_instantaneous_h": {
         "wflow_v0": "lateral.river.floodplain.h",
         "wflow_v1": "floodplain_water__instantaneous_depth",
     },
-    "waterlevel_lake": {
+    "lake_instantaneous_water_level": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__instantaneous_elevation",
     },
-    "volume_reservoir": {
+    "reservoir_instantaneous_volume": {
         "wflow_v0": "lateral.river.reservoir.volume",
         "wflow_v1": "reservoir_water__instantaneous_volume",
     },
-    "h_paddy": {
+    "demand_paddy_h": {
         "wflow_v0": "vertical.paddy.h",
         "wflow_v1": "land_surface_water~paddy__depth",
     },

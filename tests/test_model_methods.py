@@ -1348,14 +1348,18 @@ def test_setup_cold_states(example_wflow_model, tmpdir):
     example_wflow_model.setup_cold_states()
     states = example_wflow_model.states.copy()
 
-    assert "q_land" in example_wflow_model.states
-    assert "layer" in example_wflow_model.states["ustorelayerdepth"].dims
+    assert "land_instantaneous_q" in example_wflow_model.states
+    assert "layer" in example_wflow_model.states["soil_unsaturated_depth"].dims
     assert np.isclose(
-        example_wflow_model.states["satwaterdepth"].raster.mask_nodata().mean().values,
+        example_wflow_model.states["soil_saturated_depth"]
+        .raster.mask_nodata()
+        .mean()
+        .values,
         648.43677,
     )
     assert np.isclose(
-        example_wflow_model.states["ssf"].raster.mask_nodata().mean().values, 67.45569
+        example_wflow_model.states["subsurface_q"].raster.mask_nodata().mean().values,
+        67.45569,
     )
 
     # test write

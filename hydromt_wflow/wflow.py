@@ -767,13 +767,16 @@ setting new flood_depth dimensions"
         if floodplain_type == "1d":
             # Add states
             self.set_config(
-                "state.floodplain_water__instantaneous_volume_flow_rate", "q_floodplain"
+                "state.floodplain_water__instantaneous_volume_flow_rate",
+                "floodplain_instantaneous_q",
             )
             self.set_config(
-                "state.floodplain_water__instantaneous_depth", "h_floodplain"
+                "state.floodplain_water__instantaneous_depth",
+                "floodplain_instantaneous_h",
             )
             self.set_config(
-                "state.land_surface_water__instantaneous_volume_flow_rate", "q_land"
+                "state.land_surface_water__instantaneous_volume_flow_rate",
+                "land_instantaneous_q",
             )
             # Remove local-inertial land states
             if (
@@ -821,11 +824,11 @@ setting new flood_depth dimensions"
             # Add local-inertial land routing states
             self.set_config(
                 "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                "qx_land",
+                "land_instantaneous_qx",
             )
             self.set_config(
                 "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                "qy_land",
+                "land_instantaneous_qy",
             )
             # Remove kinematic-wave and 1d floodplain states
             if (
@@ -2062,7 +2065,7 @@ Using default storage/outflow function parameters."
         self.set_config("model.lakes", True)
         self.set_config(
             "state.variables.lake_water_surface__instantaneous_elevation",
-            "waterlevel_lake",
+            "lake_instantaneous_water_level",
         )
 
         for dvar in ds_lakes.data_vars:
@@ -2245,7 +2248,8 @@ Using default storage/outflow function parameters."
         # update toml
         self.set_config("model.reservoirs", True)
         self.set_config(
-            "state.variables.reservoir_water__instantaneous_volume", "volume_reservoir"
+            "state.variables.reservoir_water__instantaneous_volume",
+            "reservoir_instantaneous_volume",
         )
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
@@ -2821,7 +2825,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
             self.set_config(
-                "state.variables.land_surface_water~paddy__depth", "h_paddy"
+                "state.variables.land_surface_water~paddy__depth", "demand_paddy_h"
             )
         else:
             self.logger.info("No paddy fields found, skipping updating soil parameters")
@@ -2909,7 +2913,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
         self.set_config("model.glacier", True)
-        self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
+        self.set_config("state.variables.glacier_ice__leq-depth", "glacier_leq_depth")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)
 
@@ -4814,36 +4818,38 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **satwaterdepth**: saturated store [mm]
-        * **snow**: snow storage [mm]
-        * **tsoil**: top soil temperature [°C]
-        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
-        * **snowwater**: liquid water content in the snow pack [mm]
-        * **canopystorage**: canopy storage [mm]
-        * **q_river**: river discharge [m3/s]
-        * **h_river**: river water level [m]
+        * **soil_saturated_depth**: saturated store [mm]
+        * **snow_leq_depth**: snow storage [mm]
+        * **soil_temp**: top soil temperature [°C]
+        * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
+          layer [mm]
+        * **snow_water_depth**: liquid water content in the snow pack [mm]
+        * **vegetation_water_depth**: canopy storage [mm]
+        * **river_instantaneous_q**: river discharge [m3/s]
+        * **river_instantaneous_h**: river water level [m]
         * **h_av_river**: river average water level [m]
-        * **ssf**: subsurface flow [m3/d]
-        * **h_land**: land water level [m]
+        * **subsurface_q**: subsurface flow [m3/d]
+        * **land_instantaneous_h**: land water level [m]
         * **h_av_land**: land average water level[m]
-        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+        * **land_instantaneous_q** or **land_instantaneous_qx**+
+          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local-inertial [m3/s]
 
         If lakes, also adds:
 
-        * **waterlevel_lake**: lake water level [m]
+        * **lake_instantaneous_water_level**: lake water level [m]
 
         If reservoirs, also adds:
 
-        * **volume_reservoir**: reservoir volume [m3]
+        * **reservoir_instantaneous_volume**: reservoir volume [m3]
 
         If glaciers, also adds:
 
-        * **glacierstore**: water within the glacier [mm]
+        * **glacier_leq_depth**: water within the glacier [mm]
 
         If paddy, also adds:
 
-        * **h_paddy**: water on the paddy fields [mm]
+        * **demand_paddy_h**: water on the paddy fields [mm]
 
         Parameters
         ----------
@@ -6086,11 +6092,11 @@ change name input.path_forcing "
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
             if self._MAPS["resareas"] not in self.grid:
-                if "volume_reservoir" in ds_states:
-                    remove_maps.extend(["volume_reservoir"])
+                if "reservoir_instantaneous_volume" in ds_states:
+                    remove_maps.extend(["reservoir_instantaneous_volume"])
             if self._MAPS["lakeareas"] not in self.grid:
-                if "waterlevel_lake" in ds_states:
-                    remove_maps.extend(["waterlevel_lake"])
+                if "lake_instantaneous_water_level" in ds_states:
+                    remove_maps.extend(["lake_instantaneous_water_level"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
 
