@@ -212,7 +212,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
     assert 2 in np.unique(example_wflow_model.grid["lake_storage_curve"].values)
     assert 1 in np.unique(example_wflow_model.grid["lake_rating_curve"].values)
     assert (
-        "lake_max_storage" not in example_wflow_model.grid
+        "meta_lake_max_storage" not in example_wflow_model.grid
     )  # no Vol_max column in hydro_lakes
 
     # Write and read back
