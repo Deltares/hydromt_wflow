@@ -133,12 +133,12 @@ using gwwapi and 2. JRC (Peker, 2016) using hydroengine.
 
     The following reservoir attributes are calculated:
 
-    - resmaxvolume : reservoir maximum volume [m3]
-    - resarea : reservoir area [m2]
-    - resdemand : reservoir demand flow [m3/s]
-    - resmaxrelease : reservoir maximum release flow [m3/s]
-    - resfullfrac : reservoir targeted full volume fraction [m3/m3]
-    - resminfrac : reservoir targeted minimum volume fraction [m3/m3]
+    - reservoir_max_volume : reservoir maximum volume [m3]
+    - reservoir_area : reservoir area [m2]
+    - reservoir_demand : reservoir demand flow [m3/s]
+    - reservoir_max_release : reservoir maximum release flow [m3/s]
+    - reservoir_target_full_fraction : reservoir targeted full volume fraction [m3/m3]
+    - reservoir_target_min_fraction : reservoir targeted minimum volume fraction [m3/m3]
 
     Parameters
     ----------
@@ -538,7 +538,7 @@ def lakeattrs(
     - lake_rating_curve: option to compute rating curve [-]
     - lake_outflow_threshold: minimum threshold for lake outflow [m]
     - lake_lower_id: id of linked lake location if any
-    - LakeMaxStorage: maximum storage [m3] (optional)
+    - meta_lake_max_storage: maximum storage [m3] (optional)
 
     Parameters
     ----------
@@ -572,11 +572,11 @@ def lakeattrs(
     # natural lake and not controlled
     if add_maxstorage:
         if "Vol_max" in gdf.columns:
-            gdf = gdf.rename(columns={"Vol_max": "LakeMaxStorage"})
+            gdf = gdf.rename(columns={"Vol_max": "meta_lake_max_storage"})
         else:
             logger.warning(
                 "No maximum storage 'Vol_max' column found, \
-skip adding LakeMaxStorage map."
+skip adding meta_lake_max_storage map."
             )
     # Minimum value for LakeAvgOut
     LakeAvgOut = gdf["meta_lake_mean_outflow"].copy()
@@ -661,8 +661,8 @@ Using default Modified Puls Approach"
         "lake_outflow_threshold",
         "lake_lower_id",
     ]
-    if "LakeMaxStorage" in gdf.columns:
-        lake_params.append("LakeMaxStorage")
+    if "meta_lake_max_storage" in gdf.columns:
+        lake_params.append("meta_lake_max_storage")
 
     gdf_org_points = gp.GeoDataFrame(
         gdf[lake_params],

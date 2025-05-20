@@ -96,18 +96,18 @@ h = "h_land"
 h_av = "h_av_land"
 
 [input.lateral.river]
-length = "river_length"
-n = "river_manning_n"
-slope = "river_slope"
-width = "river_width"
-bankfull_depth = "river_depth"
+length = "wflow_riverlength"
+n = "N_River"
+slope = "RiverSlope"
+width = "wflow_riverwidth"
+bankfull_depth = "RiverDepth"
 
 [input.lateral.subsurface]
 ksathorfrac = "KsatHorFrac"
 
 [input.lateral.land]
-n = "land_manning_n"
-slope = "land_slope"
+n = "N"
+slope = "Slope"
 
 [state.lateral.river.reservoir]
 volume = "volume_reservoir"
@@ -116,25 +116,25 @@ volume = "volume_reservoir"
 waterlevel = "waterlevel_lake"
 
 [input.lateral.river.reservoir]
-area = "reservoir_area"
+area = "ResSimpleArea"
 areas = "wflow_reservoirareas"
-demand = "reservoir_demand"
+demand = "ResDemand"
 locs = "wflow_reservoirlocs"
-maxrelease = "reservoir_max_release"
-maxvolume = "reservoir_max_volume"
-targetfullfrac = "reservoir_target_full_fraction"
-targetminfrac = "reservoir_target_min_fraction"
+maxrelease = "ResMaxRelease"
+maxvolume = "ResMaxVolume"
+targetfullfrac = "ResTargetFullFrac"
+targetminfrac = "ResTargetMinFrac"
 
 [input.lateral.river.lake]
-area = "lake_area"
+area = "LakeArea"
 areas = "wflow_lakeareas"
-b = "lake_b"
-e = "lake_e"
+b = "Lake_b"
+e = "Lake_e"
 locs = "wflow_lakelocs"
-outflowfunc = "lake_rating_curve"
-storfunc = "lake_storage_curve"
-threshold = "lake_outflow_threshold"
-linkedlakelocs = "lake_lower_id"
+outflowfunc = "LakeOutflowFunc"
+storfunc = "LakeStorFunc"
+threshold = "LakeThreshold"
+linkedlakelocs = "LinkedLakeLocs"
 waterlevel = "LakeAvgLevel"
 
 [output]

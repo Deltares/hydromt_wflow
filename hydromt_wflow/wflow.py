@@ -1019,7 +1019,7 @@ and will soon be removed. '
         * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **land_manning_n** map: Manning Roughness [-]
         * **kc** map: Crop coefficient [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
           (0 or 1) [-]
@@ -1138,7 +1138,7 @@ and will soon be removed. '
         * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **land_manning_n** map: Manning Roughness [-]
         * **kc** map: Crop coefficient [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
           (0 or 1) [-]
@@ -2106,9 +2106,9 @@ Using default storage/outflow function parameters."
         in reservoirs_fn) are reservoir ID 'waterbody_id', area 'reservoir_area' [m2],
         maximum volume 'reservoir_max_volume' [m3], the targeted minimum and maximum
         fraction of water volume in the reservoir 'reservoir_target_min_fraction' and
-        'ResTargetMaxFrac' [-], the average water demand reservoir_demand [m3/s] and
-        the maximum release of the reservoir before spilling
-        'reservoir_max_release' [m3/s].
+        'reservoir_target_full_fraction' [-], the average water demand
+        'reservoir_demand' [m3/s] and the maximum release of the reservoir before
+        spilling 'reservoir_max_release' [m3/s].
 
         In case the wflow parameters are not directly available they can be computed by
         HydroMT based on time series of reservoir surface water area.
@@ -2612,7 +2612,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **land_manning_n** map: Manning Roughness [-]
         * **kc** map: Crop coefficient [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
           (0 or 1) [-]
