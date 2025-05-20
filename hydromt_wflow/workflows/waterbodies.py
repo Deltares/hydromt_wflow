@@ -530,8 +530,8 @@ def lakeattrs(
 
     - waterbody_id : waterbody id
     - LakeArea : lake area [m2]
-    - LakeAvgLevel: lake average level [m]
-    - LakeAvgOut: lake average outflow [m3/s]
+    - lake_initial_depth: lake average level or initial depth (cold state) [m]
+    - meta_lake_mean_outflow: lake average outflow [m3/s]
     - Lake_b: lake rating curve coefficient [-]
     - Lake_e: lake rating curve exponent [-]
     - LakeStorFunc: option to compute storage curve [-]
@@ -564,8 +564,8 @@ def lakeattrs(
     gdf = gdf.rename(
         columns={
             "Area_avg": "LakeArea",
-            "Depth_avg": "LakeAvgLevel",
-            "Dis_avg": "LakeAvgOut",
+            "Depth_avg": "lake_initial_depth",
+            "Dis_avg": "meta_lake_mean_outflow",
         }
     )
     # Add maximum volume / no filling of NaNs as assumes then
@@ -578,11 +578,13 @@ def lakeattrs(
                 "No maximum storage 'Vol_max' column found, \
 skip adding LakeMaxStorage map."
             )
-    # Minimum value for LakeAvgOut
-    LakeAvgOut = gdf["LakeAvgOut"].copy()
-    gdf["LakeAvgOut"] = np.maximum(gdf["LakeAvgOut"], 0.01)
+    # Minimum value for meta_lake_mean_outflow
+    LakeAvgOut = gdf["meta_lake_mean_outflow"].copy()
+    gdf["meta_lake_mean_outflow"] = np.maximum(gdf["meta_lake_mean_outflow"], 0.01)
     if "Lake_b" not in gdf.columns:
-        gdf["Lake_b"] = gdf["LakeAvgOut"].values / (gdf["LakeAvgLevel"].values) ** (2)
+        gdf["Lake_b"] = gdf["meta_lake_mean_outflow"].values / (
+            gdf["lake_initial_depth"].values
+        ) ** (2)
     if "Lake_e" not in gdf.columns:
         gdf["Lake_e"] = 2
     if "LakeThreshold" not in gdf.columns:
@@ -595,9 +597,9 @@ skip adding LakeMaxStorage map."
         gdf["LakeOutflowFunc"] = 3
 
     # Check if some LakeAvgOut values have been replaced
-    if not np.all(LakeAvgOut == gdf["LakeAvgOut"]):
+    if not np.all(LakeAvgOut == gdf["meta_lake_mean_outflow"]):
         logger.warning(
-            "Some values of LakeAvgOut have been replaced by \
+            "Some values of meta_lake_mean_outflow have been replaced by \
 a minimum value of 0.01m3/s"
         )
 
@@ -650,8 +652,8 @@ Using default Modified Puls Approach"
     lake_params = [
         "waterbody_id",
         "LakeArea",
-        "LakeAvgLevel",
-        "LakeAvgOut",
+        "lake_initial_depth",
+        "meta_lake_mean_outflow",
         "Lake_b",
         "Lake_e",
         "LakeStorFunc",

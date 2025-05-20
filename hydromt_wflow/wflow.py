@@ -271,6 +271,9 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             logger=self.logger,
         )
         # Rename and add to grid
+        # rename idx_out coords
+        if "idx_out" in ds_base:
+            ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
         # update config
@@ -2053,8 +2056,7 @@ Using default storage/outflow function parameters."
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
-        ds_lakes = ds_lakes.rename(rmdict)
-        self.set_grid(ds_lakes)
+        self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
         self.set_geoms(gdf_lakes, name=geom_name)
         # add the tables
@@ -2372,8 +2374,9 @@ soil surface [mm/day]
 (fitted with numpy linalg regression), bounds are checked
         * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
-        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
-[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
+            [mm/day] at soil depths [z] of ``soil_fn`` data
+            [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
         * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
@@ -2842,7 +2845,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         Adds model layers:
 
-        * **wflow_glacierareas** map: glacier IDs [-]
+        * **meta_glacier_area_id** map: glacier IDs [-]
         * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
 
@@ -4255,7 +4258,7 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="population")  # meta_population
+            self.set_grid(pop, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic", True)
@@ -4339,7 +4342,7 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="population")  # meta_population
+            self.set_grid(popu_scaled, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic", True)
@@ -5110,9 +5113,6 @@ Run setup_soilmaps first"
             Name of new map layer, this is used to overwrite the name of a DataArray and
             ignored if data is a Dataset
         """
-        if "idx_out" in data.coords:
-            data = data.rename({"idx_out": "meta_subgrid_outlet_idx"})
-
         if "time" in data.dims:
             # Raise error if the dimension does not have a supported length
             if len(data.time) not in [12, 365, 366]:

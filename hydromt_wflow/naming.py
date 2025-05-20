@@ -5,40 +5,26 @@ from typing import Tuple
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
-    "subelv": "meta_subgrid_elevation",
-    "soil_texture": "meta_soil_texture",
+    "glacareas": "meta_glacier_area_id",
 }
+
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
-    # additional hydromt outputs
     "elevtn": "land_elevation",
-    "soil": "meta_soil_texture",
 }
 
 HYDROMT_NAMES_COMMON = {
+    "subelv": "meta_subgrid_elevation",
     "uparea": "meta_upstream_area",
-    "strord": "meta_streamorder",
-}
-
-STATIC_MAPS_NAME_MAPPING = {
     "subare": "meta_subgrid_area",
-    "landuse": "meta_landuse",
-    "wflow_soil": "meta_soil_texture",
-    "wflow_dem": "land_elevation",
-    "wflow_subgrid": "meta_subgrid_elevation",
-    "dem_subgrid": "meta_subgrid_elevation",
+    "strord": "meta_streamorder",
     "x_out": "meta_subgrid_outlet_x",
     "y_out": "meta_subgrid_outlet_y",
-    "LakeAvgOut": "meta_lake_mean_outflow",
-    "wflow_glacierareas": "meta_glacier_area_id",
-    "population": "meta_population",
-    "LakeAvgLevel": "lake_initial_depth",
-    "wflow_glacierstore": "glacier_initial_leq_depth",
+    "landuse": "meta_landuse",
+    "soil_texture": "meta_soil_texture",
 }
 
 HYDROMT_NAMES_DEFAULT.update(HYDROMT_NAMES_COMMON)
-HYDROMT_NAMES_DEFAULT.update(STATIC_MAPS_NAME_MAPPING)
 HYDROMT_NAMES_DEFAULT_SEDIMENT.update(HYDROMT_NAMES_COMMON)
-HYDROMT_NAMES_DEFAULT_SEDIMENT.update(STATIC_MAPS_NAME_MAPPING)
 
 # Link between staticmap names, hydromt name (if any)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
@@ -392,10 +378,10 @@ WFLOW_NAMES = {
         "wflow_v1": "lake_surface__area",
         "hydromt_name": "LakeArea",
     },
-    "LakeAvgLevel": {
+    "lake_initial_depth": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__initial_elevation",
-        "hydromt_name": "LakeAvgLevel",
+        "hydromt_name": "lake_initial_depth",
     },
     "LakeThreshold": {
         "wflow_v0": "lateral.river.lake.threshold",

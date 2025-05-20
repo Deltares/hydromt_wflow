@@ -479,23 +479,14 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
     - **thetaR** : average residual water content [m3/m3]
     - **KsatVer** : vertical saturated hydraulic conductivity at soil surface [mm/day]
     - **SoilThickness** : soil thickness [mm]
-    - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)
-    - **M** : model parameter [mm] that controls exponential decline of KsatVer with \
-soil depth
-      (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked
-    - **M_** : model parameter [mm] that controls exponential decline of KsatVer with \
-soil depth
-      (fitted with numpy linalg regression), bounds of **M_** are checked
-    - **M_original** : **M** without checking bounds
-    - **M_original_** : **M_** without checking bounds
     - **f** : scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
     - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]
       (fitted with numpy linalg regression), bounds are checked
     - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
 index for the wflow_sbm soil layers.
-    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \
-[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+    - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \
+[z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
     - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
     sand mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
