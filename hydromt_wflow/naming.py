@@ -255,65 +255,65 @@ WFLOW_NAMES = {
         "wflow_v1": "land_water_allocation_area__number",
         "hydromt_name": "allocation_areas",
     },
-    "frac_sw_used": {
+    "demand_surface_water_ratio": {
         "wflow_v0": "vertical.allocation.frac_sw_used",
         "wflow_v1": "land_surface_water__withdrawal_fraction",
     },
-    "domestic_gross": {
+    "demand_domestic_gross": {
         "wflow_v0": "vertical.domestic.demand_gross",
         "wflow_v1": "land~domestic__gross_water_demand_volume_flux",
-        "hydromt_name": "demand_domestic_grosss",
+        "hydromt_name": "domestic_gross",
     },
-    "domestic_net": {
+    "demand_domestic_net": {
         "wflow_v0": "vertical.domestic.demand_net",
         "wflow_v1": "land~domestic__net_water_demand_volume_flux",
-        "hydromt_name": "demand_domestic_net",
+        "hydromt_name": "domestic_net",
     },
-    "industry_gross": {
+    "demand_industry_gross": {
         "wflow_v0": "vertical.industry.demand_gross",
         "wflow_v1": "land~industry__gross_water_demand_volume_flux",
-        "hydromt_name": "demand_industry_gross",
+        "hydromt_name": "industry_gross",
     },
-    "industry_net": {
+    "demand_industry_net": {
         "wflow_v0": "vertical.industry.demand_net",
         "wflow_v1": "land~industry__net_water_demand_volume_flux",
-        "hydromt_name": "demand_industry_net",
+        "hydromt_name": "industry_net",
     },
-    "livestock_gross": {
+    "demand_livestock_gross": {
         "wflow_v0": "vertical.livestock.demand_gross",
         "wflow_v1": "land~livestock__gross_water_demand_volume_flux",
-        "hydromt_name": "demand_livestock_gross",
+        "hydromt_name": "livestock_gross",
     },
-    "livestock_net": {
+    "demand_livestock_net": {
         "wflow_v0": "vertical.livestock.demand_net",
         "wflow_v1": "land~livestock__net_water_demand_volume_flux",
-        "hydromt_name": "demand_livestock_net",
+        "hydromt_name": "livestock_net",
     },
-    "h_min": {
+    "demand_paddy_h_min": {
         "wflow_v0": "vertical.paddy.h_min",
         "wflow_v1": "land~irrigated-paddy__min_depth",
     },
-    "h_opt": {
+    "demand_paddy_h_opt": {
         "wflow_v0": "vertical.paddy.h_opt",
         "wflow_v1": "land~irrigated-paddy__optimal_depth",
     },
-    "h_max": {
+    "demand_paddy_h_max": {
         "wflow_v0": "vertical.paddy.h_max",
         "wflow_v1": "land~irrigated-paddy__max_depth",
     },
-    "paddy_irrigation_areas": {
+    "demand_paddy_irrigated_mask": {
         "wflow_v0": "vertical.paddy.irrigation_areas",
         "wflow_v1": "land~irrigated-paddy_area__number",
     },
-    "paddy_irrigation_trigger": {
+    "demand_paddy_irrigation_trigger": {
         "wflow_v0": "vertical.paddy.irrigation_trigger",
         "wflow_v1": "land~irrigated-paddy__irrigation_trigger_flag",
     },
-    "nonpaddy_irrigation_areas": {
+    "demand_nonpaddy_irrigated_mask": {
         "wflow_v0": "vertical.nonpaddy.irrigation_areas",
         "wflow_v1": "land~irrigated-non-paddy_area__number",
     },
-    "nonpaddy_irrigation_trigger": {
+    "demand_nonpaddy_irrigation_trigger": {
         "wflow_v0": "vertical.nonpaddy.irrigation_trigger",
         "wflow_v1": "land~irrigated-non-paddy__irrigation_trigger_flag",
     },
