@@ -733,6 +733,10 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v0": "vertical.erosov",
         "wflow_v1": "soil_erosion__answers_overland_flow_factor",
     },
+    "erosion_answers_rain_factor": {
+        "wflow_v0": None,
+        "wflow_v1": "soil_erosion__answers_rainfall_factor",
+    },
     # soil particles
     "fclay_soil": {
         "wflow_v0": None,
