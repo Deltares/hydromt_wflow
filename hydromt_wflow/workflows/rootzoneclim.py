@@ -230,7 +230,7 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
         # Loop through the time steps and determine the variables per time step.
         for i in range(0, nr_time_steps):
             if intercep_vars_sub is not None:
-                # TODO: for now assumed that LAI contains monthly data,
+                # TODO: assumption vegetation_leaf_area_index contains monthly data,
                 # change this for future
                 month = pd.to_datetime(ds_sub.time[i].values).month
                 Imax = intercep_vars_sub["Imax"].sel(time=month)
@@ -605,7 +605,7 @@ def rootzoneclim(
     Imax: float = 2.0,
     start_hydro_year: str = "Sep",
     start_field_capacity: str = "Apr",
-    LAI: bool = False,
+    vegetation_leaf_area_index: bool = False,
     rootzone_storage: bool = False,
     correct_cc_deficit: bool = False,
     chunksize: int = 100,
@@ -674,8 +674,8 @@ def rootzoneclim(
     rootzone_storage : bool
         Boolean to indicate whether the rootzone storage maps
         should be stored in the staticmaps or not. The default is False.
-    LAI : bool
-        Determine whether the LAI will be used to determine Imax.
+    vegetation_leaf_area_index : bool
+        Determine whether the vegetation_leaf_area_index will be used to determine Imax.
         Requires to have run setup_laimaps.
         The default is False.
     chunksize : int
@@ -713,9 +713,11 @@ def rootzoneclim(
         start_hydro_year, start_field_capacity, dsrun, ds_obs, ds_cc_hist, ds_cc_fut
     )
 
-    # If LAI = True, create a new xr dataset containing the interception pars
-    if LAI == True:
-        intercep_vars = ds_like.LAI.to_dataset(name="vegetation_leaf_area_index")
+    if vegetation_leaf_area_index == True:
+        # Create a new xr dataset containing the interception pars
+        intercep_vars = ds_like.vegetation_leaf_area_index.to_dataset(
+            name="vegetation_leaf_area_index"
+        )
         intercep_vars["vegetation_wood_storage"] = ds_like["vegetation_wood_storage"]
         intercep_vars["vegetation_leaf_storage"] = ds_like["vegetation_leaf_storage"]
 
@@ -786,10 +788,10 @@ def rootzoneclim(
         ds_sub = xr.concat([ds_sub_obs], pd.Index(["obs"], name="forcing_type"))
 
     # Also get the zonal statistics of the intercep_vars
-    if LAI == True:
+    if vegetation_leaf_area_index == True:
         intercep_vars_sub = intercep_vars.raster.zonal_stats(gdf_basins, stats=["mean"])
         intercep_vars_sub = intercep_vars_sub.compute()
-        # Determine the Imax for every time step in the LAI data
+        # Determine the Imax for every time step in the vegetation_leaf_area_index data
         intercep_vars_sub["Imax"] = (
             intercep_vars_sub["Swood_mean"]
             + intercep_vars_sub["LAI_mean"] * intercep_vars_sub["Sl_mean"]
@@ -987,7 +989,8 @@ def rootzoneclim(
             # Store the vegetation_root_depth in ds_out
             ds_out[f"vegetation_root_depth_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim),
-                out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values),
+                out_raster
+                / (ds_like["soil_theta_s"].values - ds_like["soil_theta_r"].values),
             )
 
     return ds_out, gdf_basins_all

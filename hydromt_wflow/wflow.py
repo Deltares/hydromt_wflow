@@ -1028,14 +1028,14 @@ and will soon be removed. '
         * **vegetation_crop_factor** map:
             Crop coefficient [-]
         * **vegetation_feddes_alpha_h1** map:
-            Root water uptake reduction at soil water pressure head h1
-            (0 or 1) [-]
+            Root water uptake reduction at soil water pressure head
+            vegetation_feddes_h1 (0 or 1) [-]
         * **vegetation_feddes_h1** map:
-            Soil water pressure head h1 at which root water uptake is reduced
-            (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h1 at which root water
+            uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h2** map:
-            Soil water pressure head h2 at which root water uptake is reduced
-            (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h2 at which root water
+            uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h3_high** map:
             Soil water pressure head h3 at which root water uptake is
             reduced (Feddes) [cm]
@@ -1043,8 +1043,8 @@ and will soon be removed. '
             Soil water pressure head h3 at which root water uptake is
             reduced (Feddes) [cm]
         * **vegetation_feddes_h4** map:
-            Soil water pressure head h4 at which root water uptake is reduced
-            (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h4 at which root water
+            uptake is reduced (Feddes) [cm]
 
 
         Parameters
@@ -1161,14 +1161,14 @@ and will soon be removed. '
         * **vegetation_crop_factor** map:
             Crop coefficient [-]
         * **vegetation_feddes_alpha_h1** map:
-            Root water uptake reduction at soil water pressure head h1
-            (0 or 1) [-]
+            Root water uptake reduction at soil water pressure head
+            vegetation_feddes_h1 (0 or 1) [-]
         * **vegetation_feddes_h1** map:
-            Soil water pressure head h1 at which root water uptake is reduced
-            (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h1 at which root water
+            uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h2** map:
-            Soil water pressure head h2 at which root water uptake is reduced
-            (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h2 at which root water
+            uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h3_high** map:
             Soil water pressure head h3 at which root water uptake is
           reduced (Feddes) [cm]
@@ -1176,8 +1176,8 @@ and will soon be removed. '
             Soil water pressure head h3 at which root water uptake is
           reduced (Feddes) [cm]
         * **vegetation_feddes_h4** map:
-            Soil water pressure head h4 at which root water uptake is reduced
-            (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h4 at which root water
+            uptake is reduced (Feddes) [cm]
 
         Parameters
         ----------
@@ -1296,23 +1296,25 @@ and will soon be removed. '
         Parameters
         ----------
         lai_fn : str, xarray.DataArray
-            Name of RasterDataset source for LAI parameters, see data/data_sources.yml.
+            Name of RasterDataset source for vegetation_leaf_area_index parameters,
+            see data/data_sources.yml.
 
             * Required variables: 'vegetation_leaf_area_index' [-]
 
             * Required dimensions: 'time' = [1,2,3,...,12] (months)
         lulc_fn : str, xarray.DataArray, optional
             Name of RasterDataset source for landuse-landcover data.
-            If provided, the LAI values are mapped to landuse classes and will be saved
-            to a csv file.
+            If provided, the vegetation_leaf_area_index values are mapped to landuse
+            classes and will be saved to a csv file.
         lulc_sampling_method : str, optional
-            Resampling method for the LULC data to the LAI resolution. Two methods are
-            supported:
+            Resampling method for the LULC data to the vegetation_leaf_area_index
+            resolution. Two methods are supported:
 
             * 'any' (default): if any cell of the desired landuse class is present in
-              the resampling window (even just one), it will be used to derive LAI
-              values. This method is less exact but will provide LAI values for all
-              landuse classes for the high resolution landuse map.
+              the resampling window (even just one), it will be used to derive
+              vegetation_leaf_area_index values. This method is less exact but will
+              provide vegetation_leaf_area_index values for all landuse classes for
+              the high resolution landuse map.
             * 'mode': the most frequent value in the resampling window is
               used. This method is less precise as for cells with a lot of different
               landuse classes, the most frequent value might still be only a small
@@ -1321,8 +1323,8 @@ and will soon be removed. '
               the original high resolution one.
             * 'q3': only cells with the most frequent value (mode) and that cover 75%
               (q3) of the resampling window will be used. This method is more exact but
-              for small basins, you may have less or no samples to derive LAI values
-              for some classes.
+              for small basins, you may have less or no samples to derive
+              vegetation_leaf_area_index values for some classes.
         lulc_zero_classes : list, optional
             List of landuse classes that should have zero for leaf area index values
             for example waterbodies, open ocean etc. For very high resolution landuse
@@ -1335,14 +1337,14 @@ and will soon be removed. '
             By default "vegetation_leaf_area_index".
         """
         # retrieve data for region
-        self.logger.info("Preparing LAI maps.")
+        self.logger.info("Preparing vegetation_leaf_area_index maps.")
         wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_leaf_area_index"]]
         self._update_naming({wflow_var: output_name})
         da = self.data_catalog.get_rasterdataset(
             lai_fn, geom=self.region, buffer=buffer
         )
         if lulc_fn is not None:
-            self.logger.info("Preparing LULC-LAI mapping table.")
+            self.logger.info("Preparing LULC-vegetation_leaf_area_index mapping table.")
             da_lulc = self.data_catalog.get_rasterdataset(
                 lulc_fn, geom=self.region, buffer=buffer
             )
@@ -1361,7 +1363,7 @@ and will soon be removed. '
                 df_fn = "lai_per_lulc.csv"
             df_lai_mapping.to_csv(join(self.root, df_fn))
 
-        # Resample LAI data to wflow model resolution
+        # Resample vegetation_leaf_area_index data to wflow model resolution
         da_lai = workflows.lai(
             da=da,
             ds_like=self.grid,
@@ -1383,7 +1385,10 @@ and will soon be removed. '
         output_name: str = "vegetation_leaf_area_index",
     ):
         """
-        Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
+        Derive cyclic vegetation_leaf_area_index maps.
+
+        To derive the maps, a LULC data source and a LULC-vegetation_leaf_area_index
+        mapping table are used.
 
         Adds model layers:
 
@@ -1397,8 +1402,9 @@ and will soon be removed. '
             Name of RasterDataset source for landuse-landcover data.
         lai_mapping_fn : str, pd.DataFrame
             Path to a mapping csv file from landuse in source name to
-            LAI values. The csv file should contain rows with landuse classes
-            and LAI values for each month. The columns should be named as the
+            vegetation_leaf_area_index values. The csv file should
+            contain rows with landuse classes and vegetation_leaf_area_index
+            values for each month.  The columns should be named as the
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
         output_name : str
@@ -1406,7 +1412,8 @@ and will soon be removed. '
             By default "vegetation_leaf_area_index".
         """
         self.logger.info(
-            "Preparing LAI maps from LULC data using LULC-LAI mapping table."
+            "Preparing vegetation_leaf_area_index maps from LULC data using \
+            LULC-vegetation_leaf_area_index mapping table."
         )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_leaf_area_index"]]
@@ -1420,7 +1427,7 @@ and will soon be removed. '
             lai_mapping_fn,
             driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
         )
-        # process landuse with LULC-LAI mapping table
+        # process landuse with LULC-vegetation_leaf_area_index mapping table
         da_lai = workflows.lai_from_lulc_mapping(
             da=da,
             ds_like=self.grid,
@@ -2358,10 +2365,10 @@ Using default storage/outflow function parameters."
         ptf_ksatver: str = "brakensiek",
         wflow_thicknesslayers: List[int] = [100, 300, 800],
         output_names: Dict = {
-            "soil_water__saturated_volume_fraction": "thetaS",
-            "soil_water__residual_volume_fraction": "thetaR",
+            "soil_water__saturated_volume_fraction": "soil_theta_s",
+            "soil_water__residual_volume_fraction": "soil_theta_r",
             "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical ",  # noqa: E501
-            "soil__thickness": "SoilThickness",
+            "soil__thickness": "soil_thickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "f",  # noqa: E501
             "soil_layer_water__brooks-corey_exponent": "soil_brooks_corey_c",
         },
@@ -2397,29 +2404,42 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
 
         The following maps are added to grid:
 
-        * **thetaS** map: average saturated soil water content [m3/m3]
-        * **thetaR** map: average residual water content [m3/m3]
-        * **soil_ksat_vertical ** map: vertical saturated hydraulic conductivity at \
-soil surface [mm/day]
-        * **SoilThickness** map: soil thickness [mm]
-        * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
-        * **M** map: model parameter [mm] that controls exponential decline of \
-soil_ksat_vertical  with soil depth (fitted with curve_fit (scipy.optimize)), \
+        * **soil_theta_s** map:
+            average saturated soil water content [m3/m3]
+        * **soil_theta_r** map:
+            average residual water content [m3/m3]
+        * **soil_ksat_vertical ** map:
+            vertical saturated hydraulic conductivity at soil surface [mm/day]
+        * **soil_thickness** map:
+            soil thickness [mm]
+        * **SoilMinThickness** map:
+            minimum soil thickness [mm] (equal to soil_thickness)
+        * **M** map:
+            model parameter [mm] that controls exponential decline of \
+soil_ksat_vertical with soil depth (fitted with curve_fit (scipy.optimize)), \
 bounds of M are checked
-        * **M_** map: model parameter [mm] that controls exponential decline of \
-soil_ksat_vertical  with soil depth (fitted with numpy linalg regression), \
+        * **M_** map:
+            model parameter [mm] that controls exponential decline of \
+soil_ksat_vertical with soil depth (fitted with numpy linalg regression), \
 bounds of `M_` are checked
-        * **M_original** map: M without checking bounds
-        * **M_original_** map: `M_` without checking bounds
-        * **f** map: scaling parameter controlling the decline of soil_ksat_vertical \
+        * **M_original** map:
+            M without checking bounds
+        * **M_original_** map:
+            `M_` without checking bounds
+        * **f** map:
+            scaling parameter controlling the decline of soil_ksat_vertical \
 [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **f_** map: scaling parameter controlling the decline of soil_ksat_vertical \
+        * **f_** map:
+            scaling parameter controlling the decline of soil_ksat_vertical \
 [mm-1] (fitted with numpy linalg regression), bounds are checked
-        * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
+        * **c_n** map:
+            Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
-        * **KsatVer_[z]cm** map: soil_ksat_vertical  [mm/day] at soil depths [z] of
+        * **KsatVer_[z]cm** map:
+            soil_ksat_vertical  [mm/day] at soil depths [z] of
         SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **wflow_soil** map: soil texture based on USDA soil texture triangle \
+        * **wflow_soil** map:
+            soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
@@ -2485,8 +2505,9 @@ or created by a third party/ individual.
         ksat_fn : str, xr.DataArray
             The identifier of the KsatHorFrac dataset in the data catalog.
         variable : str, optional
-            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
-``ksat_fn`` contains several variables. By default None.
+            The variable name for the subsurface_ksat_horizontal_ratio map to
+            use in ``ksat_fn`` in case ``ksat_fn`` contains several variables.
+            By default None.
         resampling_method : str, optional
             The resampling method when up- or downscaled, by default "average"
         output_name : str, optional
@@ -2506,12 +2527,13 @@ or created by a third party/ individual.
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
             raise ValueError(
-                "The ksathorfrac data contains several variables. \
-Select the variable to use for ksathorfrac using 'variable' argument."
+                "The subsurface_ksat_horizontal_ratio data contains several variables. \
+Select the variable to use for subsurface_ksat_horizontal_ratio \
+using 'variable' argument."
             )
 
-        # Create scaled ksathorfrac map
-        daout = workflows.ksathorfrac(
+        # Create scaled subsurface_ksat_horizontal_ratio map
+        daout = workflows.subsurface_ksat_horizontal_ratio(
             dain,
             ds_like=self.grid,
             resampling_method=resampling_method,
@@ -2520,7 +2542,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             daout.name = output_name
         self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout, name=self._MAPS["ksathorfrac"])
+        self.set_grid(daout, name=self._MAPS["subsurface_ksat_horizontal_ratio"])
         self._update_config_variable_name(daout.name)
 
     def setup_ksatver_vegetation(
@@ -2551,9 +2573,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             Should contain info for the sand percentage of the upper layer
             * Required variable: 'sndppt_sl1' [%]
         alfa : float, optional
-            Shape parameter. The default is 4.5 when using LAI.
+            Shape parameter. The default is 4.5 when using vegetation_leaf_area_index.
         beta : float, optional
-            Shape parameter. The default is 5 when using LAI.
+            Shape parameter. The default is 5 when using vegetation_leaf_area_index.
         output_name : dict, optional
             Name of the output map. By default 'KsatVer_vegetation'.
         """  # noqa: E501
@@ -2633,11 +2655,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         the model can be updated to new depths, such that we can allow a thin layer with
         limited vertical conductivity. These updated layers means that the
         ``soil_brooks_corey_c`` parameter needs to be calculated again. Next, the
-        kvfrac layer corrects the vertical conductivity (by multiplying) such that the
-        bottom of the layer corresponds to the ``target_conductivity`` for that layer.
-        This currently assumes the wflow models to have an exponential declining
-        vertical conductivity (using the ``f`` parameter). If no target_conductivity is
-        specified for a layer (``None``), the kvfrac value is set to 1.
+        soil_ksat_vertical_factor layer corrects the vertical conductivity
+        (by multiplying) such that the bottom of the layer corresponds to the
+        ``target_conductivity`` for that layer. This currently assumes the wflow models
+        to have an exponential declining vertical conductivity (using the ``f``
+        parameter). If no target_conductivity is specified for a layer (``None``),
+        the soil_ksat_vertical_factor value is set to 1.
 
         The different values for the minimum/optimal/maximum water levels for paddy
         fields will be added as constant values in the toml file, through the
@@ -2665,14 +2688,14 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         * **vegetation_crop_factor** map:
             Crop coefficient [-]
         * **vegetation_feddes_alpha_h1** map:
-            Root water uptake reduction at soil water pressure head h1
+            Root water uptake reduction at soil water pressure head vegetation_feddes_h1
           (0 or 1) [-]
         * **vegetation_feddes_h1** map:
-            Soil water pressure head h1 at which root water uptake is reduced
-          (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h1 at which root water uptake
+            is reduced (Feddes) [cm]
         * **vegetation_feddes_h2** map:
-            Soil water pressure head h2 at which root water uptake is reduced
-          (Feddes) [cm]
+            Soil water pressure head vegetation_feddes_h2 at which root water uptake
+            is reduced (Feddes) [cm]
         * **vegetation_feddes_h3_high** map:
             Soil water pressure head h3 at which root water uptake is reduced (Feddes)
             [cm]
@@ -2680,15 +2703,15 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             Soil water pressure head h3 at which root water uptake is
           reduced (Feddes) [cm]
         * **vegetation_feddes_h4** map:
-            Soil water pressure head h4 at which root water uptake is reduced (Feddes)
-            [cm]
+            Soil water pressure head vegetation_feddes_h4 at which root water uptake
+            is reduced (Feddes) [cm]
         * **h_min** map:
             Minimum required water depth for paddy fields [mm]
         * **h_opt** map:
             Optimal water depth for paddy fields [mm]
         * **h_max** map:
             Maximum water depth for paddy fields [mm]
-        * **kvfrac**:
+        * **soil_ksat_vertical_factor**:
             Map with a multiplication factor for the vertical conductivity [-]
 
         Updates model layers:
@@ -2750,7 +2773,8 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameters
-            kvfrac, h_min, h_opt and h_max but not the soil_brooks_corey_c parameter.
+            soil_ksat_vertical_factor, h_min, h_opt and h_max but not the
+            soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         if output_names_suffix is not None:
@@ -2759,12 +2783,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
             }
             # Add the other parameters
-            for var in ["kvfrac", "h_min", "h_opt", "h_max"]:
+            for var in ["soil_ksat_vertical_factor", "h_min", "h_opt", "h_max"]:
                 output_names[self._WFLOW_NAMES[self._MAPS[var]]] = (
                     f"{var}_{output_names_suffix}"
                 )
                 # for paddy also update the dictionnary
-                if var != "kvfrac":
+                if var != "soil_ksat_vertical_factor":
                     value = paddy_waterlevels.pop(var)
                     paddy_waterlevels[f"{var}_{output_names_suffix}"] = value
         else:
@@ -2858,7 +2882,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             soil = self.data_catalog.get_rasterdataset(
                 soil_fn, geom=self.region, buffer=2
             )
-            # update soil parameters soil_brooks_corey_c and kvfrac
+            # update soil parameters soil_brooks_corey_c and soil_ksat_vertical_factor
             inv_rename = {
                 v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
             }
@@ -2872,8 +2896,11 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 target_conductivity=target_conductivity,
                 logger=self.logger,
             )
-            self.set_grid(soil_maps["kvfrac"], name=self._MAPS["kvfrac"])
-            self._update_config_variable_name(self._MAPS["kvfrac"])
+            self.set_grid(
+                soil_maps["soil_ksat_vertical_factor"],
+                name=self._MAPS["soil_ksat_vertical_factor"],
+            )
+            self._update_config_variable_name(self._MAPS["soil_ksat_vertical_factor"])
             if "soil_brooks_corey_c" in soil_maps:
                 self.set_grid(
                     soil_maps["soil_brooks_corey_c"],
@@ -2896,7 +2923,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         glaciers_fn: str | Path | gpd.GeoDataFrame,
         min_area: float = 1.0,
         output_names: Dict = {
-            "glacier_surface__area_fraction": "wflow_glacierfrac",
+            "glacier_surface__area_fraction": "glacier_fraction",
             "glacier_ice__initial_leq-depth": "wflow_glacierstore",
         },
         geom_name: str = "glaciers",
@@ -2914,7 +2941,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         Adds model layers:
 
         * **wflow_glacierareas** map: glacier IDs [-]
-        * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
+        * **glacier_fraction** map: area fraction of glacier per cell [-]
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
 
         Parameters
@@ -3656,7 +3683,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         Imax: float = 2.0,
         start_hydro_year: str = "Sep",
         start_field_capacity: str = "Apr",
-        LAI: bool = False,
+        vegetation_leaf_area_index: bool = False,
         rootzone_storage: bool = False,
         correct_cc_deficit: bool = False,
         time_tuple: tuple | None = None,
@@ -3692,10 +3719,11 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         it may be useful to run this method as an update step in the setting-up of
         the hydrological model, once the forcing files have already been derived.
         In addition the setup_soilmaps method is also required to calculate
-        the vegetation_root_depth (rootzone_storage / (thetaS-thetaR)).
-        The setup_laimaps method is also required if LAI is set to True
-        (interception capacity estimated from LAI maps, instead of providing
-        a default maximum interception capacity).
+        the vegetation_root_depth (rootzone_storage / (soil_theta_s-soil_theta_r)).
+        The setup_laimaps method is also required if vegetation_leaf_area_index is
+        set to True (interception capacity estimated from
+        vegetation_leaf_area_index maps, instead of providing a default maximum
+        interception capacity).
 
         References
         ----------
@@ -3711,7 +3739,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] \
 estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different \
 return periods RP. The translation to vegetation_root_depth is done by dividing \
-the rootzone_storage by (thetaS - thetaR).
+the rootzone_storage by (soil_theta_s - soil_theta_r).
         * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
 storage capacity [mm of water] for each catchment estimated before filling \
 the missing with data from downstream catchments.
@@ -3754,9 +3782,9 @@ different return periods RP. Only if rootzone_storage is set to True!
             The end of the wet season / commencement of dry season. This is the
             moment when the soil is at field capacity, i.e. there is no storage
             deficit yet. The default is 'Apr'.
-        LAI : bool, optional
-            Determine whether the LAI will be used to determine Imax. The
-            default is False.
+        vegetation_leaf_area_index : bool, optional
+            Determine whether the vegetation_leaf_area_index will be used to
+            determine Imax. The default is False.
             If set to True, requires to have run setup_laimaps.
         rootzone_storage : bool, optional
             Determines whether the rootzone storage maps
@@ -3823,21 +3851,21 @@ the return_period argument.
                 "No overlapping period between the meteo and observed streamflow data"
             )
 
-        # check if setup_soilmaps and setup_laimaps were run if LAI =True and
-        # if rooting_depth = True"
-        if (LAI == True) and (
+        # check if setup_soilmaps and setup_laimaps were run when:
+        # if vegetation_leaf_area_index == True and rooting_depth == True
+        if (vegetation_leaf_area_index == True) and (
             self._MAPS["vegetation_leaf_area_index"] not in self.grid
         ):
             self.logger.error(
-                "LAI variable not found in grid. \
-Set LAI to False or run setup_laimaps first"
+                "vegetation_leaf_area_index variable not found in grid. \
+Set vegetation_leaf_area_index to False or run setup_laimaps first"
             )
 
-        if (self._MAPS["thetaR"] not in self.grid) or (
-            self._MAPS["thetaS"] not in self.grid
+        if (self._MAPS["soil_theta_r"] not in self.grid) or (
+            self._MAPS["soil_theta_s"] not in self.grid
         ):
             self.logger.error(
-                "thetaS or thetaR variables not found in grid. \
+                "soil_theta_s or soil_theta_r variables not found in grid. \
 Run setup_soilmaps first"
             )
 
@@ -3854,7 +3882,7 @@ Run setup_soilmaps first"
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
-            LAI=LAI,
+            vegetation_leaf_area_index=vegetation_leaf_area_index,
             rootzone_storage=rootzone_storage,
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
@@ -3915,7 +3943,7 @@ Run setup_soilmaps first"
 
         * **subcatchment_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model.
-        * **wflow_subcatch_riv_{mapname}** map/geom:  connection subbasins between
+        * **subcatchment_riv_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model for river cells only.
         * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries
           flowing into the 1D model.
@@ -3940,7 +3968,7 @@ Run setup_soilmaps first"
             additional tributary(ies).
         mapname : str, default 1dmodel
             Name of the map to save the subcatchments and tributaries in the wflow model
-            staticmaps and geoms (wflow_subcatch_{mapname}).
+            staticmaps and geoms (subcatchment_{mapname}).
         update_toml : bool, default True
             If True, updates the wflow configuration file to save the required outputs
             for the 1D model.
@@ -4547,12 +4575,13 @@ Run setup_soilmaps first"
 
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
-        expected to occur. This is done based on the Leaf Area Index (LAI), that is
-        already present in the wflow model configuration. We follow the procedure
-        described by Peano et al. (2019). They describe a threshold value based on the
-        LAI variability to determine the growing season. This threshold is defined as
-        20% (default value) of the LAI variability, but can be adjusted via the
-        ``lai_threshold`` argument.
+        expected to occur. This is done based on the Leaf Area Index
+        (vegetation_leaf_area_index), that is already present in the wflow model
+        configuration. We follow the procedure described by Peano et al. (2019).
+        They describe a threshold value based on the vegetation_leaf_area_index
+        variability to determine the growing season. This threshold is defined as
+        20% (default value) of the vegetation_leaf_area_index variability, but can
+        be adjusted via the ``lai_threshold`` argument.
 
         Adds model layers:
 
@@ -4579,8 +4608,8 @@ Run setup_soilmaps first"
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
         lai_threshold: float
-            Value of LAI variability to be used to determine the irrigation trigger. By
-            default 0.2.
+            Value of vegetation_leaf_area_index variability to be used to determine the
+            irrigation trigger. By default 0.2.
         lulcmap_name: str
             Name of the landuse map layer in the wflow model staticmaps. By default
             'wflow_landuse'. Plese update if your landuse map has a different name
@@ -4725,12 +4754,13 @@ Run setup_soilmaps first"
 
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
-        expected to occur. This is done based on the Leaf Area Index (LAI), that is
-        already present in the wflow model configuration. We follow the procedure
-        described by Peano et al. (2019). They describe a threshold value based on the
-        LAI variability to determine the growing season. This threshold is defined as
-        20% (default value) of the LAI variability, but can be adjusted via the
-        ``lai_threshold`` argument.
+        expected to occur. This is done based on the Leaf Area Index
+        (vegetation_leaf_area_index), that is already present in the wflow model
+        configuration. We follow the procedure described by Peano et al. (2019).
+        They describe a threshold value based on the vegetation_leaf_area_index
+        variability to determine the growing season. This threshold is defined as
+        20% (default value) of the vegetation_leaf_area_index variability, but can
+        be adjusted via the ``lai_threshold`` argument.
 
         Adds model layers:
 
@@ -4754,8 +4784,8 @@ Run setup_soilmaps first"
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
         lai_threshold: float
-            Value of LAI variability to be used to determine the irrigation trigger. By
-            default 0.2.
+            Value of vegetation_leaf_area_index variability to be used to determine the
+            irrigation trigger. By default 0.2.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name

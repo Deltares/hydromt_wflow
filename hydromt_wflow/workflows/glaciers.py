@@ -23,7 +23,7 @@ def glaciermaps(
     The following glacier maps are calculated:
 
     - wflow_glacierareas: glacier IDs [ID]
-    - wflow_glacierfrac: area fraction of glacier per cell [-]
+    - glacier_fraction: area fraction of glacier per cell [-]
     - wflow_glacierstore: storage (volume) of glacier per cell [mm]
 
     Parameters
@@ -141,8 +141,8 @@ storage per grid cell"
 
 def glacierattrs(
     gdf,
-    TT=1.3,
-    Cfmax=5.3,
+    snow_tt=1.3,
+    snow_degree_day_coefficient=5.3,
     SIfrac=0.002,
     id_column="simple_id",
     logger=logger,
@@ -160,9 +160,9 @@ glacier storage [-]
     ----------
     gdf : geopandas.GeoDataFrame
         GeoDataFrame containing glacier geometries and attributes.
-    TT : float, optional
+    snow_tt : float, optional
         Default value for glacier temperature threshold.
-    Cfmax : float, optional
+    snow_degree_day_coefficient : float, optional
         Default value for glacier melting factor.
     SIfrac : float, optional
         Default value for fraction of snowpack converted into ice and added to \
@@ -189,8 +189,8 @@ glacier storage.
     )
     df_out["glacId"] = gdf[id_column].values
     # Fill in other attributes
-    df_out["glacTempThresh"] = list(np.full(len(gdf.index), TT))
-    df_out["glacCfmax"] = list(np.full(len(gdf.index), Cfmax))
+    df_out["glacTempThresh"] = list(np.full(len(gdf.index), snow_tt))
+    df_out["glacCfmax"] = list(np.full(len(gdf.index), snow_degree_day_coefficient))
     df_out["glacSIfrac"] = list(np.full(len(gdf.index), SIfrac))
 
     return df_out

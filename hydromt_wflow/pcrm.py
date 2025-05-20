@@ -27,8 +27,8 @@ __all__ = [
 # specify pcraster map types
 # NOTE non scalar (float) data types only
 PCR_VS_MAP = {
-    "wflow_ldd": "ldd",
-    "wflow_river": "bool",
+    "local_drain_direction": "ldd",
+    "river_mask": "bool",
     "wflow_streamorder": "ordinal",
     "wflow_gauges": "nominal",  # to avoid large memory usage in pcraster.aguila
     "subcatchment": "nominal",  # idem.

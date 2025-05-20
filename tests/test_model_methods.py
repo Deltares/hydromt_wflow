@@ -298,7 +298,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     for x, y in product(*[range(item) for item in da.shape]):
         data[x, y] = 750 - ((x + y) ** 0.4 * 114.07373)
     da.values = data
-    da.name = "ksathorfrac"
+    da.name = "subsurface_ksat_horizontal_ratio"
     # Set the output directory
     destination = str(tmpdir.join(model))
     example_wflow_model.set_root(destination, mode="w")
@@ -309,7 +309,9 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     )
 
     # Check values
-    values = example_wflow_model.grid.ksathorfrac.raster.mask_nodata()
+    values = (
+        example_wflow_model.grid.subsurface_ksat_horizontal_ratio.raster.mask_nodata()
+    )
     max_val = values.max().values
     mean_val = values.mean().values
     assert np.isclose(max_val, 431.75)
@@ -332,7 +334,7 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
 
 def test_setup_lai(tmpdir, example_wflow_model):
     # Use vito and MODIS lai data for testing
-    # Read LAI data
+    # Read vegetation_leaf_area_index data
     da_lai = example_wflow_model.data_catalog.get_rasterdataset(
         "modis_lai", geom=example_wflow_model.region, buffer=2
     )
@@ -373,7 +375,7 @@ def test_setup_lai(tmpdir, example_wflow_model):
     assert int(df_lai_mode.loc[20].samples) == 59
     assert int(df_lai_q3.loc[20].samples) == 4
 
-    # Try to use the mapping tables to setup the LAI
+    # Try to use the mapping tables to setup the vegetation_leaf_area_index
     example_wflow_model.setup_laimaps_from_lulc_mapping(
         lulc_fn="vito_2015",
         lai_mapping_fn=df_lai_any,
@@ -490,13 +492,13 @@ def test_setup_rootzoneclim(example_wflow_model):
         "rootzone_storage_cc_fut_2"
     ] == pytest.approx(80.89081789601374, abs=0.5)
 
-    # change settings for LAI and correct_cc_deficit
+    # change settings for vegetation_leaf_area_index and correct_cc_deficit
     example_wflow_model.setup_rootzoneclim(
         run_fn=ds_run,
         forcing_obs_fn=ds,
         forcing_cc_hist_fn=ds_cc_hist,
         forcing_cc_fut_fn=ds_cc_fut,
-        LAI=True,
+        vegetation_leaf_area_index=True,
         start_hydro_year="Oct",
         start_field_capacity="Apr",
         time_tuple=("2005-01-01", "2015-12-31"),
@@ -1015,7 +1017,7 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     # Set to shorter name to improve readability of tests
     ds = example_wflow_model.grid.copy()
 
-    assert "kvfrac" in ds
+    assert "soil_ksat_vertical_factor" in ds
     assert "vegetation_crop_factor" in ds
     assert "soil_brooks_corey_c" in ds
     # Assert layers are updated
@@ -1023,17 +1025,17 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     # Adding +1 to the layers to also represent the last layer
     assert len(ds.layer) == len(layers) + 1
     assert ds.soil_brooks_corey_c.shape[0] == len(layers) + 1
-    assert ds.kvfrac.shape[0] == len(layers) + 1
-    # Assert kvfrac is written to vertical section in config
+    assert ds.soil_ksat_vertical_factor.shape[0] == len(layers) + 1
+    # Assert soil_ksat_vertical_factor is written to vertical section in config
     assert (
         example_wflow_model.config["input"]["static"][
             "soil_water__vertical_saturated_hydraulic_conductivity_factor"
         ]
-        == "kvfrac"
+        == "soil_ksat_vertical_factor"
     )
 
-    # Test kvfrac is not 1 at the right layer for a paddy cell
-    kvfrac_values = ds.kvfrac.sel(
+    # Test soil_ksat_vertical_factor is not 1 at the right layer for a paddy cell
+    kvfrac_values = ds.soil_ksat_vertical_factor.sel(
         latitude=45.89, longitude=12.10, method="nearest"
     ).values
     assert kvfrac_values[0] == 1.0

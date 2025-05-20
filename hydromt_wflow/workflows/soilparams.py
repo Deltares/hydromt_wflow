@@ -5,12 +5,12 @@ import xarray as xr
 from hydromt import raster
 
 __all__ = [
-    "ksathorfrac",
+    "subsurface_ksat_horizontal_ratio",
     "ksatver_vegetation",
 ]
 
 
-def ksathorfrac(
+def subsurface_ksat_horizontal_ratio(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     resampling_method: str,
@@ -83,7 +83,7 @@ def calc_kv_at_depth(depth, kv_0, f):
 
 
 def calc_kvfrac(kv_depth, target):
-    """Calculate the kvfrac.
+    """Calculate the soil_ksat_vertical_factor.
 
     Based on the kv value at a certain depth and the target value.
 
@@ -96,22 +96,23 @@ def calc_kvfrac(kv_depth, target):
 
     Returns
     -------
-    kvfrac:
+    soil_ksat_vertical_factor:
         The value which kv_depths needs to be multiplied with to reach the target value
     """
-    kvfrac = target / kv_depth
-    return kvfrac
+    soil_ksat_vertical_factor = target / kv_depth
+    return soil_ksat_vertical_factor
 
 
 def update_kvfrac(
     ds_model, kv0_mask, f_mask, wflow_thicknesslayers, target_conductivity
 ):
     """
-    Calculate kvfrac values for each layer.
+    Calculate soil_ksat_vertical_factor values for each layer.
 
     Done such that the bottom of the layer equals to the target_conductivity.
     Calculation assumes exponentially declining vertical conductivities, based on the f
-    parameter. If no target_conductivity is specified, kvfrac is set to be equal to 1.
+    parameter. If no target_conductivity is specified, soil_ksat_vertical_factor is set
+    to be equal to 1.
 
     Parameters
     ----------
@@ -130,7 +131,7 @@ def update_kvfrac(
     Returns
     -------
     da_kvfrac
-        Maps for each layer with the required kvfrac value
+        Maps for each layer with the required soil_ksat_vertical_factor value
     """
     # Convert to np.array
     wflow_thicknesslayers = np.array(wflow_thicknesslayers)
@@ -143,7 +144,7 @@ def update_kvfrac(
 
     # Get the actual depths
     wflow_depths = np.cumsum(wflow_thicknesslayers)
-    # Find the index of the layers where a kvfrac should be set
+    # Find the index of the layers where a soil_ksat_vertical_factor should be set
     idx = target_conductivity.nonzero()[0]
 
     # Loop through the target_conductivity values
@@ -155,20 +156,22 @@ def update_kvfrac(
             kv_depth = calc_kv_at_depth(depth=depth, kv_0=kv0_mask, f=f_mask)
             paddy_values = calc_kvfrac(kv_depth=kv_depth, target=target)
             # Set the values in the correct places
-            kvfrac = xr.where(
+            soil_ksat_vertical_factor = xr.where(
                 paddy_values.raster.mask_nodata().isnull(),
                 da_kvfrac.loc[dict(layer=idx)],
                 paddy_values,
             )
-            kvfrac = kvfrac.fillna(-9999)
-            kvfrac.raster.set_nodata(-9999)
+            soil_ksat_vertical_factor = soil_ksat_vertical_factor.fillna(-9999)
+            soil_ksat_vertical_factor.raster.set_nodata(-9999)
             # Update layer in dataarray
-            da_kvfrac.loc[dict(layer=idx)] = kvfrac
+            da_kvfrac.loc[dict(layer=idx)] = soil_ksat_vertical_factor
 
     return da_kvfrac
 
 
-def get_ks_veg(soil_ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
+def get_ks_veg(
+    soil_ksat_vertical, sndppt, vegetation_leaf_area_index, alfa=4.5, beta=5
+):
     """
     Based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
 
@@ -178,12 +181,12 @@ def get_ks_veg(soil_ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
         saturated hydraulic conductivity from PTF based on soil properties [cm/d].
     sndppt : [xr.DataSet, float]
         percentage sand [%].
-    LAI : [xr.DataSet, float]
+    vegetation_leaf_area_index : [xr.DataSet, float]
         Mean annual leaf area index [-].
     alfa : float, optional
-        Shape parameter. The default is 4.5 when using LAI.
+        Shape parameter. The default is 4.5 when using vegetation_leaf_area_index.
     beta : float, optional
-        Shape parameter. The default is 5 when using LAI.
+        Shape parameter. The default is 5 when using vegetation_leaf_area_index.
 
     Returns
     -------
@@ -193,8 +196,11 @@ def get_ks_veg(soil_ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
     """
     # get the saturated hydraulic conductivity with fully developed vegetation.
     ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(soil_ksat_vertical))
-    # get the saturated hydraulic conductivity based on soil and vegetation mean LAI
-    ks = ksmax - (ksmax - soil_ksat_vertical) / (1 + (LAI / alfa) ** beta)
+    # get the saturated hydraulic conductivity based on soil and
+    # vegetation mean vegetation_leaf_area_index
+    ks = ksmax - (ksmax - soil_ksat_vertical) / (
+        1 + (vegetation_leaf_area_index / alfa) ** beta
+    )
     return ks
 
 

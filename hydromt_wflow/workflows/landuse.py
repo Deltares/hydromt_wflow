@@ -184,7 +184,7 @@ def landuse_from_vector(
 
 
 def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
-    """Return climatology of Leaf Area Index (LAI).
+    """Return climatology of Leaf Area Index (vegetation_leaf_area_index).
 
     The following topography maps are calculated:
     - vegetation_leaf_area_index
@@ -192,26 +192,28 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     Parameters
     ----------
     da : xarray.DataArray or xarray.Dataset
-        DataArray or Dataset with LAI array containing LAI values.
+        vegetation_leaf_area_index array containing vegetation_leaf_area_index values.
     ds_like : xarray.DataArray
         Dataset at model resolution.
 
     Returns
     -------
     da_out : xarray.DataArray
-        Dataset containing resampled LAI maps
+        Dataset containing resampled vegetation_leaf_area_index maps
     """
     if isinstance(da, xr.Dataset) and "vegetation_leaf_area_index" in da:
         da = da["vegetation_leaf_area_index"]
     elif not isinstance(da, xr.DataArray):
-        raise ValueError("lai method requires a DataArray or Dataset with LAI array")
+        raise ValueError(
+            "lai method requires a DataArray or Dataset with vegetation_leaf_area_index array"  # noqa: E501
+        )
     method = RESAMPLING.get(da.name, "average")
     nodata = da.raster.nodata
     logger.info(f"Deriving {da.name} using {method} resampling (nodata={nodata}).")
     da = da.astype(np.float32)
-    da = da.where(da.values != nodata).fillna(
-        0.0
-    )  # Assuming missing values correspond to bare soil, urban and snow (LAI=0.0)
+    # Assuming missing values correspond to:
+    # bare soil, urban and snow (vegetation_leaf_area_index=0.0)
+    da = da.where(da.values != nodata).fillna(0.0)
     da_out = da.raster.reproject_like(ds_like, method=method)
     da_out.attrs.update(_FillValue=nodata)
     return da_out
@@ -225,22 +227,23 @@ def create_lulc_lai_mapping_table(
     logger=logger,
 ) -> pd.DataFrame:
     """
-    Derive LAI values per landuse class.
+    Derive vegetation_leaf_area_index values per landuse class.
 
     Parameters
     ----------
     da_lulc : xr.DataArray
         Landuse map.
     da_lai : xr.DataArray
-        Cyclic LAI map.
+        Cyclic vegetation_leaf_area_index map.
     sampling_method : str, optional
-        Resampling method for the LULC data to the LAI resolution. Two methods are
-        supported:
+        Resampling method for the LULC data to vegetation_leaf_area_index resolution.
+        Two methods are supported:
 
         * 'any' (default): if any cell of the desired landuse class is present in the
-            resampling window (even just one), it will be used to derive LAI values.
-            This method is less exact but will provide LAI values for all landuse
-            classes for the high resolution landuse map.
+            resampling window (even just one), it will be used to derive
+            vegetation_leaf_area_index values.
+            This method is less exact but will provide vegetation_leaf_area_index values
+            for all landuse classes for the high resolution landuse map.
         * 'mode': the most frequent value in the resampling window is
             used. This method is less precise as for cells with a lot of different
             landuse classes, the most frequent value might still be only a small
@@ -249,8 +252,8 @@ def create_lulc_lai_mapping_table(
             the original high resolution one.
         * 'q3': only cells with the most frequent value (mode) and that cover 75%
             (q3) of the resampling window will be used. This method is more exact but
-            for small basins, you may have less or no samples to derive LAI values
-            for some classes.
+            for small basins, you may have less or no samples to derive
+            vegetation_leaf_area_index values for some classes.
     lulc_zero_classes : list of int, optional
         List of landuse classes that should have zero for leaf area index values
         for example waterbodies, open ocean etc. For very high resolution landuse
@@ -260,8 +263,9 @@ def create_lulc_lai_mapping_table(
     Returns
     -------
     df_lai_mapping : pd.DataFrame
-        Mapping table with LAI values per landuse class. One column for each month and
-        one line per landuse class. The number of samples used to derive the mapping
+        Mapping table with vegetation_leaf_area_index values per landuse class.
+        One column for each month and one line per landuse class.
+        The number of samples used to derive the mapping
         values is also added to a `samples` column in the dataframe.
     """
     # check the method values
@@ -284,7 +288,7 @@ def create_lulc_lai_mapping_table(
     df_lai_mapping = None
 
     if sampling_method != "any":
-        # The data can already be resampled to the LAI resolution
+        # The data can already be resampled to the vegetation_leaf_area_index resolution
         da_lulc_mode = da_lulc.raster.reproject_like(da_lai, method="mode")
         if sampling_method == "q3":
             # Filter mode cells that cover less than 75% of the resampling window
@@ -315,7 +319,7 @@ def create_lulc_lai_mapping_table(
             lu = lu.raster.mask_nodata()
 
             if sampling_method == "any":
-                # Resample only now the landuse data to the LAI resolution
+                # Resample the landuse data to the vegetation_leaf_area_index resolution
                 lu = lu.raster.reproject_like(da_lai, method="mode")
 
             # Add lai
@@ -371,7 +375,7 @@ def lai_from_lulc_mapping(
     logger=logger,
 ) -> xr.Dataset:
     """
-    Derive LAI values from a landuse map and a mapping table.
+    Derive vegetation_leaf_area_index values from a landuse map and a mapping table.
 
     Parameters
     ----------
@@ -380,19 +384,19 @@ def lai_from_lulc_mapping(
     ds_like : xr.Dataset
         Dataset at model resolution.
     df : pd.DataFrame
-        Mapping table with LAI values per landuse class. One column for each month and
-        one line per landuse class.
+        Mapping table with vegetation_leaf_area_index values per landuse class.
+        One column for each month and one line per landuse class.
     logger : logging.Logger, optional
         Logger object.
 
     Returns
     -------
     ds_lai : xr.Dataset
-        Dataset with LAI values for each month.
+        Dataset with vegetation_leaf_area_index values for each month.
     """
     months = np.arange(1, 13)
     df.columns = [int(col) if str(col).isdigit() else col for col in df.columns]
-    # Map the monthly LAI values to the landuse map
+    # Map the monthly vegetation_leaf_area_index values to the landuse map
     ds_lai = landuse(
         da=da,
         ds_like=ds_like,

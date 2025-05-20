@@ -66,7 +66,7 @@ def prepare_cold_states(
 
         * Other required variables (exact name from the wflow config):
             soil_brooks_corey_c, soilthickness,
-            theta_s, theta_r, kv_0, f, slope, ksathorfrac
+            theta_s, theta_r, kv_0, f, slope, subsurface_ksat_horizontal_ratio
 
         * Optional variables (exact name from the wflow config): reservoir.locs,
             glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,
