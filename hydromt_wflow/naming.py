@@ -20,53 +20,6 @@ HYDROMT_NAMES_DEFAULT_SEDIMENT = {
     "soil": "wflow_soil",
 }
 
-# Wflow entries that cross main headers (i.e. [input, state, model, output])
-WFLOW_CROSS_OPTIONS = {
-    "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
-}
-
-# Link between the new and the old model option flags
-WFLOW_MODEL_OPTIONS = {
-    "reinit": "cold_start__flag",
-    "sizeinmetres": "cell_length_in_meter__flag",
-    "reservoirs": "reservoir__flag",
-    "lakes": "lake__flag",
-    "snow": "snow__flag",
-    "glacier": "glacier__flag",
-    "pits": "pit__flag",
-    "masswasting": "snow_gravitional_transport__flag",
-    "thicknesslayers": "soil_layer__thickness",
-    "min_streamorder_land": "land_streamorder__min_count",
-    "min_streamorder_river": "river_streamorder__min_count",
-    "drains": "drain__flag",
-    "kin_wave_iteration": "kinematic_wave__adaptive_time_step_flag",
-    "kw_land_tstep": "land_kinematic_wave__time_step",
-    "kw_river_tstep": "river_kinematic_wave__time_step",
-    "inertial_flow_alpha": [
-        "river_local_inertial_flow__alpha_coefficient",
-        "land_local_inertial_flow__alpha_coefficient",
-    ],
-    "h_thresh": [
-        "river_water_flow_threshold__depth",
-        "land_surface_water_flow_threshold__depth",
-    ],
-    "froude_limit": [
-        "river_water_flow__froude_limit_flag",
-        "land_surface_water_flow__froude_limit_flag",
-    ],
-    "floodplain_1d": "floodplain_1d__flag",
-    "inertial_flow_theta": "land_local_inertial_flow__theta_coefficient",
-    "runrivermodel": "run_river_model__flag",
-    "soilinfreduction": "soil_infiltration_reduction__flag",
-    "transfermethod": "topog_sbm_transfer__flag",
-    "water_demand.domestic": "water_demand.domestic__flag",
-    "water_demand.industry": "water_demand.industry__flag",
-    "water_demand.livestock": "water_demand.livestock__flag",
-    "water_demand.paddy": "water_demand.paddy__flag",
-    "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
-    "constanthead": "constanthead__flag",
-}
-
 # Link between staticmap names, hydromt name (if any)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
 # {staticmap_name: (wflow_v0, wflow_v1, hydromt_name)} or
@@ -107,6 +60,10 @@ WFLOW_NAMES = {
         "wflow_v0": "river_location",
         "wflow_v1": "river_location__mask",
         "hydromt_name": "rivmsk",
+    },
+    "pits": {
+        "wflow_v0": "pits",
+        "wflow_v1": "basin_pit_location__mask ",
     },
     # atmosphere / forcing
     "precip": {
@@ -367,10 +324,6 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
         "hydromt_name": "elevtn",
-    },
-    "wflow_pits": {
-        "wflow_v0": "pits",
-        "wflow_v1": "basin_pit_location__mask ",
     },
     "Slope": {
         "wflow_v0": "lateral.land.slope",

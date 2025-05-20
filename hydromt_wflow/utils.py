@@ -13,8 +13,6 @@ from hydromt.vector import GeoDataArray
 from hydromt.workflows.grid import grid_from_constant
 
 from .naming import (
-    WFLOW_CROSS_OPTIONS,
-    WFLOW_MODEL_OPTIONS,
     WFLOW_NAMES,
     WFLOW_SEDIMENT_NAMES,
     WFLOW_SEDIMENT_STATES_NAMES,
@@ -633,8 +631,7 @@ def _convert_to_wflow_v1(
             value = get_config(config, key, fallback=None)
             if value is not None:
                 if section == "general":
-                    # TODO this is bad, but conversion functionality will change
-                    # in the future, so it will do for now
+                    # only fews_run was renamed in general options
                     if key == "fews_run":
                         key = "fews_run__flag"
                     config_out[key] = value
@@ -818,12 +815,52 @@ def convert_to_wflow_v1_sbm(
         "lateral.river.lake.totaloutflow": "lake_water~outgoing__volume_flow_rate",
     }
 
+    # Options in model section that were renamed
+    model_options = {
+        "reinit": "cold_start__flag",
+        "sizeinmetres": "cell_length_in_meter__flag",
+        "reservoirs": "reservoir__flag",
+        "lakes": "lake__flag",
+        "snow": "snow__flag",
+        "glacier": "glacier__flag",
+        "pits": "pit__flag",
+        "masswasting": "snow_gravitional_transport__flag",
+        "thicknesslayers": "soil_layer__thickness",
+        "min_streamorder_land": "land_streamorder__min_count",
+        "min_streamorder_river": "river_streamorder__min_count",
+        "drains": "drain__flag",
+        "kin_wave_iteration": "kinematic_wave__adaptive_time_step_flag",
+        "kw_land_tstep": "land_kinematic_wave__time_step",
+        "kw_river_tstep": "river_kinematic_wave__time_step",
+        "inertial_flow_alpha": [
+            "river_local_inertial_flow__alpha_coefficient",
+            "land_local_inertial_flow__alpha_coefficient",
+        ],
+        "h_thresh": [
+            "river_water_flow_threshold__depth",
+            "land_surface_water_flow_threshold__depth",
+        ],
+        "froude_limit": [
+            "river_water_flow__froude_limit_flag",
+            "land_surface_water_flow__froude_limit_flag",
+        ],
+        "floodplain_1d": "floodplain_1d__flag",
+        "inertial_flow_theta": "land_local_inertial_flow__theta_coefficient",
+        "soilinfreduction": "soil_infiltration_reduction__flag",
+        "transfermethod": "topog_sbm_transfer__flag",
+        "water_demand.domestic": "water_demand.domestic__flag",
+        "water_demand.industry": "water_demand.industry__flag",
+        "water_demand.livestock": "water_demand.livestock__flag",
+        "water_demand.paddy": "water_demand.paddy__flag",
+        "water_demand.nonpaddy": "water_demand.nonpaddy__flag",
+        "constanthead": "constanthead__flag",
+    }
+
     # Options in input section that were renamed
     input_options = {
         "ldd": "basin__local_drain_direction",
         "river_location": "river_location__mask",
         "subcatchment": "subbasin_location__count",
-        "altitude": "land_surface__elevation",
     }
 
     # variables that were moved to input rather than input.static
@@ -834,12 +871,17 @@ def convert_to_wflow_v1_sbm(
         "lateral.river.reservoir.locs",
     ]
 
+    # Wflow entries that cross main headers (i.e. [input, state, model, output])
+    cross_options = {
+        "input.lateral.subsurface.conductivity_profile": "model.conductivity_profile",
+    }
+
     config_out = _convert_to_wflow_v1(
         config=config,
         wflow_vars=WFLOW_NAMES,
         states_vars=WFLOW_STATES_NAMES,
-        model_options=WFLOW_MODEL_OPTIONS,
-        cross_options=WFLOW_CROSS_OPTIONS,
+        model_options=model_options,
+        cross_options=cross_options,
         input_options=input_options,
         input_variables=input_variables,
         additional_variables=additional_variables,
@@ -881,6 +923,8 @@ def convert_to_wflow_v1_sediment(
 
     # Options in model section that were renamed
     model_options = {
+        "reinit": "cold_start__flag",
+        "sizeinmetres": "cell_length_in_meter__flag",
         "runrivermodel": "run_river_model__flag",
         "doreservoir": "reservoir__flag",
         "dolake": "lake__flag",
