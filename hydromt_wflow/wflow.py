@@ -163,10 +163,10 @@ class WflowModel(GridModel):
 
         * **wflow_ldd** map: flow direction in LDD format [-]
         * **wflow_subcatch** map: basin ID map [-]
-        * **wflow_uparea** map: upstream area [km2]
-        * **wflow_streamorder** map: Strahler stream order [-]
-        * **wflow_dem** map: average elevation [m+REF]
-        * **dem_subgrid** map: subgrid outlet elevation [m+REF]
+        * **meta_upstream_area** map: upstream area [km2]
+        * **meta_streamorder** map: Strahler stream order [-]
+        * **land_elevation** map: average elevation [m+REF]
+        * **meta_subgrid_elevation** map: subgrid outlet elevation [m+REF]
         * **Slope** map: average land surface slope [m/m]
         * **basins** geom: basins boundary vector
         * **region** geom: region boundary vector
@@ -271,6 +271,9 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             logger=self.logger,
         )
         # Rename and add to grid
+        # rename idx_out coords
+        if "idx_out" in ds_base:
+            ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
         # update config
@@ -312,7 +315,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         rivman_mapping_fn: str
         | Path
         | pd.DataFrame = "roughness_river_mapping_default",
-        elevtn_map: str = "wflow_dem",
+        elevtn_map: str = "land_elevation",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
         output_names: Dict = {
@@ -355,8 +358,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         :py:meth:`hydromt.workflows.river_depth`.
 
         If ``river_routing`` is set to "local-inertial", the bankfull elevation map
-        can be conditioned based on the average cell elevation ("wflow_dem")
-        or subgrid outlet pixel elevation ("dem_subgrid").
+        can be conditioned based on the average cell elevation ("land_elevation")
+        or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with
         local-inertial land routing (see :py:meth:`setup_floodplains`)
@@ -412,7 +415,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
             Name of the elevation map in the current WflowModel.grid.
-            By default "wflow_dem"
+            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -535,9 +538,10 @@ Select from {routing_options}.'
         self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
-                elevtn_map, ""
-            )
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
             name = f"hydrodem{postfix}"
             # Check if users wanted a specific name for the hydrodem
             hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
@@ -567,7 +571,7 @@ Select from {routing_options}.'
         river_upa: float | None = None,
         flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
         ### Options for 2D floodplains
-        elevtn_map: str = "wflow_dem",
+        elevtn_map: str = "land_elevation",
         connectivity: int = 4,
         output_names: Dict = {
             "floodplain_water__sum_of_volume-per-depth": "floodplain_volume",
@@ -593,7 +597,7 @@ Select from {routing_options}.'
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation
-        ("wflow_dem") or subgrid outlet pixel elevation ("dem_subgrid").
+        ("land_elevation") or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         Note that the subgrid elevation will likely overestimate
         the floodplain storage capacity.
 
@@ -628,9 +632,9 @@ Select from {routing_options}.'
             (1D floodplains) flood depths at which a volume is derived.
             By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
-        elevtn_map: {"wflow_dem", "dem_subgrid"}
+        elevtn_map: {"land_elevation", "meta_subgrid_elevation"}
             (2D floodplains) Name of staticmap to hydrologically condition.
-            By default "wflow_dem"
+            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -724,9 +728,10 @@ setting new flood_depth dimensions"
             if elevtn_map not in self.grid:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
 
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
-                elevtn_map, ""
-            )
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
             name = f"hydrodem{postfix}_D{connectivity}"
             # Check if users wanted a specific name for the hydrodem
             hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
@@ -1058,7 +1063,7 @@ and will soon be removed. '
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1195,7 +1200,7 @@ and will soon be removed. '
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         # Read mapping table
@@ -1907,7 +1912,7 @@ gauge locations [-] (if derive_subcatch)
             "lake_area__count": "wflow_lakeareas",
             "lake_location__count": "wflow_lakelocs",
             "lake_surface__area": "LakeArea",
-            "lake_water_surface__initial_elevation": "LakeAvgLevel",
+            "lake_water_surface__initial_elevation": "lake_initial_depth",
             "lake_water_flow_threshold-level__elevation": "LakeThreshold",
             "lake_water__rating_curve_coefficient": "Lake_b",
             "lake_water__rating_curve_exponent": "Lake_e",
@@ -1941,9 +1946,9 @@ gauge locations [-] (if derive_subcatch)
         * **wflow_lakeareas** map: lake IDs [-]
         * **wflow_lakelocs** map: lake IDs at outlet locations [-]
         * **LakeArea** map: lake area [m2]
-        * **LakeAvgLevel** map: lake average water level [m]
+        * **lake_initial_depth** map: lake average water level [m]
         * **LakeThreshold** map: lake outflow threshold water level [m]
-        * **LakeAvgOut** map: lake average discharge [m3/s]
+        * **meta_lake_mean_outflow** map: lake average discharge [m3/s]
         * **Lake_b** map: lake rating curve coefficient [-]
         * **Lake_e** map: lake rating curve exponent [-]
         * **LakeOutflowFunc** map: option to compute rating curve [-]
@@ -2363,24 +2368,16 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
         * **KsatVer** map: vertical saturated hydraulic conductivity at \
 soil surface [mm/day]
         * **SoilThickness** map: soil thickness [mm]
-        * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
-        * **M** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth (fitted with curve_fit (scipy.optimize)), bounds of M are \
-    checked
-        * **M_** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` are \
-    checked
-        * **M_original** map: M without checking bounds
-        * **M_original_** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
         * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
-        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
-[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **wflow_soil** map: soil texture based on USDA soil texture triangle \
+        * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
+            [mm/day] at soil depths [z] of ``soil_fn`` data
+            [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
@@ -2713,7 +2710,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.grid.data_vars:
@@ -2832,7 +2829,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         min_area: float = 1.0,
         output_names: Dict = {
             "glacier_surface__area_fraction": "wflow_glacierfrac",
-            "glacier_ice__initial_leq-depth": "wflow_glacierstore",
+            "glacier_ice__initial_leq-depth": "glacier_initial_leq_depth",
         },
         geom_name: str = "glaciers",
     ):
@@ -2848,7 +2845,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         Adds model layers:
 
-        * **wflow_glacierareas** map: glacier IDs [-]
+        * **meta_glacier_area_id** map: glacier IDs [-]
         * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
 
@@ -3311,7 +3308,7 @@ one variable and variables list is not provided."
         downscaled to model resolution using the elevation lapse rate. For better
         accuracy, you can provide the elevation grid of the climate data in
         `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
-        is used ('wflow_dem').
+        is used ('land_elevation').
 
         To compute PET (`skip_pet` is False), several methods are available. Before
         computation, both the temperature and pressure can be downscaled. Wind speed
@@ -4261,7 +4258,7 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="population")  # meta_population
+            self.set_grid(pop, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic", True)
@@ -4345,7 +4342,7 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="population")  # meta_population
+            self.set_grid(popu_scaled, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic", True)
@@ -4455,7 +4452,7 @@ Run setup_soilmaps first"
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
-        lulcmap_name: str = "wflow_landuse",
+        lulcmap_name: str = "meta_landuse",
         output_names: Dict = {
             "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
             "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
@@ -4517,7 +4514,7 @@ Run setup_soilmaps first"
             default 0.2.
         lulcmap_name: str
             Name of the landuse map layer in the wflow model staticmaps. By default
-            'wflow_landuse'. Plese update if your landuse map has a different name
+            'meta_landuse'. Please update if your landuse map has a different name
             (eg 'landuse_globcover').
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
@@ -6010,8 +6007,8 @@ change name input.path_forcing "
                     self._MAPS["LakeStorFunc"],
                     self._MAPS["LakeOutflowFunc"],
                     self._MAPS["LakeArea"],
-                    self._MAPS["LakeAvgLevel"],
-                    "LakeAvgOut",  # this is a hydromt meta map
+                    self._MAPS["lake_initial_depth"],
+                    "meta_lake_mean_outflow",  # this is a hydromt meta map
                     self._MAPS["LakeThreshold"],
                     self._MAPS["Lake_b"],
                     self._MAPS["Lake_e"],

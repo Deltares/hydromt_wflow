@@ -5,20 +5,26 @@ from typing import Tuple
 # Names that cannot be read from TOML but that HydroMT needs for model building
 # {hydromt_name: staticmap_name}
 HYDROMT_NAMES_DEFAULT = {
-    "subelv": "dem_subgrid",
-    "uparea": "wflow_uparea",
-    "strord": "wflow_streamorder",
-    "landuse": "wflow_landuse",
-    "soil_texture": "wflow_soil",
+    "glacareas": "meta_glacier_area_id",
 }
+
 HYDROMT_NAMES_DEFAULT_SEDIMENT = {
-    # additional hydromt outputs
-    "elevtn": "wflow_dem",
-    "uparea": "wflow_uparea",
-    "strord": "wflow_streamorder",
-    "landuse": "wflow_landuse",
-    "soil": "wflow_soil",
+    "elevtn": "land_elevation",
 }
+
+HYDROMT_NAMES_COMMON = {
+    "subelv": "meta_subgrid_elevation",
+    "uparea": "meta_upstream_area",
+    "subare": "meta_subgrid_area",
+    "strord": "meta_streamorder",
+    "x_out": "meta_subgrid_outlet_x",
+    "y_out": "meta_subgrid_outlet_y",
+    "landuse": "meta_landuse",
+    "soil_texture": "meta_soil_texture",
+}
+
+HYDROMT_NAMES_DEFAULT.update(HYDROMT_NAMES_COMMON)
+HYDROMT_NAMES_DEFAULT_SEDIMENT.update(HYDROMT_NAMES_COMMON)
 
 # Link between staticmap names, hydromt name (if any)
 # and Wflow.jl variables for v0x and v1x (if not present, None)
@@ -104,7 +110,7 @@ WFLOW_NAMES = {
         "wflow_v1": "glacier_surface__area_fraction",
         "hydromt_name": "glacfracs",
     },
-    "wflow_glacierstore": {
+    "glacier_initial_leq_depth": {
         "wflow_v0": "vertical.glacierstore",
         "wflow_v1": "glacier_ice__initial_leq-depth",
         "hydromt_name": "glacstore",
@@ -316,7 +322,7 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.land.n",
         "wflow_v1": "land_surface_water_flow__manning_n_parameter",
     },
-    "wflow_dem": {
+    "land_elevation": {
         "wflow_v0": "lateral.land.elevation",
         "wflow_v1": "land_surface_water_flow__ground_elevation",
         "hydromt_name": "elevtn",
@@ -372,10 +378,10 @@ WFLOW_NAMES = {
         "wflow_v1": "lake_surface__area",
         "hydromt_name": "LakeArea",
     },
-    "LakeAvgLevel": {
+    "lake_initial_depth": {
         "wflow_v0": "lateral.river.lake.waterlevel",
         "wflow_v1": "lake_water_surface__initial_elevation",
-        "hydromt_name": "LakeAvgLevel",
+        "hydromt_name": "lake_initial_depth",
     },
     "LakeThreshold": {
         "wflow_v0": "lateral.river.lake.threshold",
