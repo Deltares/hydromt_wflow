@@ -32,6 +32,7 @@ Changed
 
 Fixed
 -----
+- Error when not output header is present in the v0.x toml to be converted
 - Updated installation guide (#376)
 
 Deprecated
