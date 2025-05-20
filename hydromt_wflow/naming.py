@@ -337,10 +337,9 @@ WFLOW_NAMES = {
         "wflow_v1": "river_bank_water__elevation",
         "hydromt_name": "hydrodem",
     },
-    "inflow": {
+    "river_inflow": {
         "wflow_v0": "lateral.river.inflow",
         "wflow_v1": "river_water_inflow~external__volume_flow_rate",
-        "hydromt_name": "inflow",
     },
     "RiverDepth": {
         "wflow_v0": "lateral.river.bankfull_depth",
@@ -439,7 +438,7 @@ WFLOW_NAMES = {
         "hydromt_name": "ResTargetMinFrac",
     },
     # gwf
-    "constant_head": {
+    "groundwater_constant_head": {
         "wflow_v0": "lateral.subsurface.constant_head",
         "wflow_v1": "model_boundary_condition~constant_hydraulic_head",
     },
@@ -447,27 +446,27 @@ WFLOW_NAMES = {
         "wflow_v0": "lateral.subsurface.conductivity_profile",
         "wflow_v1": "conductivity_profile",
     },
-    "kh_surface": {
+    "groundwater_ksat_horizontal": {
         "wflow_v0": "lateral.subsurface.conductivity",
         "wflow_v1": "subsurface_surface_water__horizontal_saturated_hydraulic_conductivity",  # noqa: E501
     },
-    "zb_river": {
+    "river_bed_elevation": {
         "wflow_v0": "lateral.subsurface.river_bottom",
         "wflow_v1": "river_bottom__elevation",
     },
-    "riverbed_cond_infilt": {
+    "river_bed_exfiltration_conductance": {
         "wflow_v0": "lateral.subsurface.infiltration_conductance",
         "wflow_v1": "river_water__infiltration_conductance",
     },
-    "riverbed_cond_exfil": {
+    "river_bed_infiltration_conductance": {
         "wflow_v0": "lateral.subsurface.exfiltration_conductance",
         "wflow_v1": "river_water__exfiltration_conductance",
     },
-    "specific_yield": {
+    "groundwater_specific_yield": {
         "wflow_v0": "lateral.subsurface.specific_yield",
         "wflow_v1": "subsurface_water__specific_yield",
     },
-    "gwf_f": {
+    "groundwater_f": {
         "wflow_v0": "lateral.subsurface.gwf_f",
         "wflow_v1": "subsurface__horizontal_saturated_hydraulic_conductivity_scale_parameter",  # noqa: E501
     },
