@@ -64,9 +64,9 @@ class WflowSedimentModel(WflowModel):
         smooth_len: float = 5e3,
         output_names: Dict = {
             "river_location__mask": "wflow_river",
-            "river__length": "wflow_riverlength",
-            "river__width": "wflow_riverwidth",
-            "river__slope": "RiverSlope",
+            "river__length": "river_length",
+            "river__width": "river_width",
+            "river__slope": "river_slope",
         },
     ):
         """Set all river parameter maps.
@@ -93,9 +93,9 @@ class WflowSedimentModel(WflowModel):
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
-        * **wflow_riverlength** map: river length [m]
-        * **wflow_riverwidth** map: river width [m]
-        * **RiverSlope** map: river slope [m/m]
+        * **river_length** map: river length [m]
+        * **river_width** map: river width [m]
+        * **river_slope** map: river slope [m/m]
         * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
@@ -209,7 +209,7 @@ river cells."
         output_names: Dict = {
             "lake_area__count": "wflow_lakeareas",
             "lake_location__count": "wflow_lakelocs",
-            "lake_surface__area": "LakeArea",
+            "lake_surface__area": "lake_area",
         },
         geom_name: str = "lakes",
         **kwargs,
@@ -226,7 +226,7 @@ river cells."
 
         * **wflow_lakeareas** map: lake IDs [-]
         * **wflow_lakelocs** map: lake IDs at outlet locations [-]
-        * **LakeArea** map: lake area [m2]
+        * **lake_area** map: lake area [m2]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
         Parameters
@@ -262,7 +262,7 @@ river cells."
             gdf_lakes[["waterbody_id", "Area_avg"]],
             geometry=gpd.points_from_xy(gdf_lakes.xout, gdf_lakes.yout),
         )
-        ds_lakes["LakeArea"] = self.grid.raster.rasterize(
+        ds_lakes["lake_area"] = self.grid.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
 
@@ -270,7 +270,7 @@ river cells."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
         self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes.rename({"Area_avg": "LakeArea"}), name=geom_name)
+        self.set_geoms(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
 
         # Lake settings in the toml to update
         self.set_config("model.lakes", True)
@@ -288,8 +288,8 @@ river cells."
         output_names: Dict = {
             "reservoir_area__count": "wflow_reservoirareas",
             "reservoir_location__count": "wflow_reservoirlocs",
-            "reservoir_surface__area": "ResSimpleArea",
-            "reservoir_sediment~bedload__trapping_efficiency_coefficient": "ResTrapEff",
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_sediment~bedload__trapping_efficiency_coefficient": "reservoir_trapping_efficiency",  # noqa: E501
         },
         geom_name: str = "reservoirs",
         **kwargs,
@@ -306,8 +306,9 @@ river cells."
 
         * **wflow_reservoirareas** map: reservoir IDs [-]
         * **wflow_reservoirlocs** map: reservoir IDs at outlet locations [-]
-        * **ResSimpleArea** map: reservoir area [m2]
-        * **ResTrapEff** map: reservoir trapping efficiency coefficient [-]
+        * **reservoir_area** map: reservoir area [m2]
+        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency
+         coefficient [-]
 
         Parameters
         ----------
@@ -316,7 +317,7 @@ river cells."
 
             * Required variables: ['waterbody_id', 'Area_avg']
 
-            * Optional variables: ['ResTrapEff']
+            * Optional variables: ['reservoir_trapping_efficiency']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         trapping_default : float, optional
@@ -345,25 +346,28 @@ river cells."
         self._update_naming(output_names)
 
         # Add default trapping efficiency coefficient if not in data source
-        if "ResTrapEff" not in gdf_res.columns:
-            gdf_res["ResTrapEff"] = trapping_default
+        if "reservoir_trapping_efficiency" not in gdf_res.columns:
+            gdf_res["reservoir_trapping_efficiency"] = trapping_default
         # add reservoirs parameters to grid
         gdf_points = gpd.GeoDataFrame(
-            gdf_res[["waterbody_id", "Area_avg", "ResTrapEff"]],
+            gdf_res[["waterbody_id", "Area_avg", "reservoir_trapping_efficiency"]],
             geometry=gpd.points_from_xy(gdf_res.xout, gdf_res.yout),
         )
-        ds_res["ResSimpleArea"] = self.grid.raster.rasterize(
+        ds_res["reservoir_area"] = self.grid.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
-        ds_res["ResTrapEff"] = self.grid.raster.rasterize(
-            gdf_points, col_name="ResTrapEff", dtype="float32", nodata=-999
+        ds_res["reservoir_trapping_efficiency"] = self.grid.raster.rasterize(
+            gdf_points,
+            col_name="reservoir_trapping_efficiency",
+            dtype="float32",
+            nodata=-999,
         )
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "ResSimpleArea"}), name=geom_name)
+        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
         # Lake settings in the toml to update
         self.set_config("model.reservoirs", True)
