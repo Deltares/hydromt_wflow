@@ -4827,10 +4827,8 @@ Run setup_soilmaps first"
         * **vegetation_water_depth**: canopy storage [mm]
         * **river_instantaneous_q**: river discharge [m3/s]
         * **river_instantaneous_h**: river water level [m]
-        * **h_av_river**: river average water level [m]
         * **subsurface_q**: subsurface flow [m3/d]
         * **land_instantaneous_h**: land water level [m]
-        * **h_av_land**: land average water level[m]
         * **land_instantaneous_q** or **land_instantaneous_qx**+
           **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local-inertial [m3/s]
@@ -6092,11 +6090,19 @@ change name input.path_forcing "
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
             if self._MAPS["resareas"] not in self.grid:
-                if "reservoir_instantaneous_volume" in ds_states:
-                    remove_maps.extend(["reservoir_instantaneous_volume"])
+                state_name = self.get_config(
+                    "state.variables.reservoir_water__instantaneous_volume",
+                    fallback="reservoir_instantaneous_volume",
+                )
+                if state_name in ds_states:
+                    remove_maps.extend([state_name])
             if self._MAPS["lakeareas"] not in self.grid:
-                if "lake_instantaneous_water_level" in ds_states:
-                    remove_maps.extend(["lake_instantaneous_water_level"])
+                state_name = self.get_config(
+                    "state.variables.lake_water_surface__instantaneous_elevation",
+                    fallback="lake_instantaneous_water_level",
+                )
+                if state_name in ds_states:
+                    remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
 
