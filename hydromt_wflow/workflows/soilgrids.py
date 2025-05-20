@@ -764,14 +764,14 @@ def soilgrids_sediment(
 
     The following soil parameter maps are calculated:
 
-    * fclay_soil: clay content of the topsoil [g/g]
-    * fsilt_soil: silt content of the topsoil [g/g]
-    * fsand_soil: sand content of the topsoil [g/g]
-    * fsagg_soil: small aggregate content of the topsoil [g/g]
-    * flagg_soil: large aggregate content of the topsoil [g/g]
+    * soil_clay_fraction: clay content of the topsoil [g/g]
+    * soil_silt_fraction: silt content of the topsoil [g/g]
+    * soil_sand_fraction: sand content of the topsoil [g/g]
+    * soil_sagg_fraction: small aggregate content of the topsoil [g/g]
+    * soil_lagg_fraction: large aggregate content of the topsoil [g/g]
     * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
-    * usle_k: soil erodibility factor from the USLE equation [-]
-    * d50_soil: median sediment diameter of the soil [mm]
+    * erosion_usle_k: soil erodibility factor from the USLE equation [-]
+    * soil_sediment_d50: median sediment diameter of the soil [mm]
     * c_govers: Govers factor for overland flow transport capacity [-]
     * n_govers: Govers exponent for overland flow transport capacity [-]
 
@@ -813,7 +813,7 @@ def soilgrids_sediment(
         keep_attrs=True,
     )
     erosK = erosK.raster.reproject_like(ds_like, method="average")
-    ds_out["soil_detachability"] = erosK.astype(np.float32)
+    ds_out["erosion_soil_detachability"] = erosK.astype(np.float32)
 
     # USLE K parameter
     if usleK_method == "renard":
@@ -836,7 +836,7 @@ def soilgrids_sediment(
             keep_attrs=True,
         )
     usleK = usleK.raster.reproject_like(ds_like, method="average")
-    ds_out["usle_k"] = usleK.astype(np.float32)
+    ds_out["erosion_usle_k"] = usleK.astype(np.float32)
 
     # Mean diameter of the soil
     d50 = xr.apply_ufunc(
@@ -847,9 +847,9 @@ def soilgrids_sediment(
         output_dtypes=[float],
         keep_attrs=True,
     )
-    ds_out["d50_soil"] = d50.raster.reproject_like(ds_like, method="average").astype(
-        np.float32
-    )
+    ds_out["soil_sediment_d50"] = d50.raster.reproject_like(
+        ds_like, method="average"
+    ).astype(np.float32)
 
     # Govers factor and exponent for overland flow transport capacity
     c_govers = ((d50 * 1000 + 5) / 0.32) ** (-0.6)
@@ -876,21 +876,23 @@ def soilgrids_sediment(
 
     # Reproject to model resolution
     fclay = fclay.raster.reproject_like(ds_like, method="average")
-    ds_out["fclay_soil"] = fclay.astype(np.float32)
+    ds_out["soil_clay_fraction"] = fclay.astype(np.float32)
     fsilt = fsilt.raster.reproject_like(ds_like, method="average")
-    ds_out["fsilt_soil"] = fsilt.astype(np.float32)
+    ds_out["soil_silt_fraction"] = fsilt.astype(np.float32)
     fsagg = fsagg.raster.reproject_like(ds_like, method="average")
-    ds_out["fsagg_soil"] = fsagg.astype(np.float32)
+    ds_out["soil_sagg_fraction"] = fsagg.astype(np.float32)
     # Make sure that the sum of the percentages is 100
     if add_aggregates:
         fsand = fsand.raster.reproject_like(ds_like, method="average").astype(
             np.float32
         )
-        ds_out["fsand_soil"] = fsand
-        ds_out["flagg_soil"] = (1 - fclay - fsilt - fsand - fsagg).astype(np.float32)
+        ds_out["soil_sand_fraction"] = fsand
+        ds_out["soil_lagg_fraction"] = (1 - fclay - fsilt - fsand - fsagg).astype(
+            np.float32
+        )
     else:
-        ds_out["fsand_soil"] = (1 - fclay - fsilt).astype(np.float32)
-        ds_out["flagg_soil"] = (fclay * 0.0).astype(np.float32)
+        ds_out["soil_sand_fraction"] = (1 - fclay - fsilt).astype(np.float32)
+        ds_out["soil_lagg_fraction"] = (fclay * 0.0).astype(np.float32)
 
     for var in ds_out:
         ds_out[var] = ds_out[var].raster.interpolate_na("nearest")

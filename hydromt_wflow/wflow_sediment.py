@@ -490,7 +490,7 @@ river cells."
         lulc_vars: Dict = {
             "landuse": None,
             "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
+            "erosion_usle_c ": "soil_erosion__usle_c_factor",  # usle_c
             "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
         },
         planted_forest_c: float = 0.0881,
@@ -519,7 +519,7 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **USLE_C** map: Cover management factor from the USLE equation [-]
+        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of water covered area per grid cell [-]
 
@@ -549,8 +549,8 @@ river cells."
         output_names_suffix : str, optional
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
-            variables in lulc_vars will be renamed to "landuse_vito", "USLE_C_vito",
-            etc.
+            variables in lulc_vars will be renamed to "landuse_vito",
+            "erosion_usle_c _vito", etc.
 
         See Also
         --------
@@ -566,7 +566,7 @@ river cells."
         )
 
         # If available, improve USLE C map with planted forest data
-        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+        if "erosion_usle_c " in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -580,7 +580,7 @@ river cells."
                 return
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid,  # TODO should have USLE_C in the grid already
+                self.grid,  # TODO should have erosion_usle_c in the grid already
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -598,7 +598,7 @@ river cells."
         lulc_vars: Dict = {
             "landuse": None,
             "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
+            "erosion_usle_c ": "soil_erosion__usle_c_factor",  # usle_c
             "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
         },
         lulc_res: float | int | None = None,
@@ -631,7 +631,7 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **USLE_C** map: Cover management factor from the USLE equation [-]
+        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of water covered area per grid cell [-]
 
@@ -652,7 +652,7 @@ river cells."
             * Optional variable: ["forest_type"]
         lulc_vars : dict
             List of landuse parameters to prepare.
-            By default ["landuse","Kext","Sl","Swood","USLE_C","PathFrac"]
+            By default ["landuse","Kext","Sl","Swood","erosion_usle_c","PathFrac"]
         lulc_vars : Dict
             Dictionnary of landuse parameters to prepare. The names are the
             the columns of the mapping file and the values are the corresponding
@@ -676,8 +676,8 @@ river cells."
         output_names_suffix : str, optional
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
-            variables in lulc_vars will be renamed to "landuse_vito", "USLE_C_vito",
-            etc.
+            variables in lulc_vars will be renamed to "landuse_vito",
+            "erosion_usle_c_vito", etc.
 
         See Also
         --------
@@ -697,7 +697,7 @@ river cells."
         )
 
         # If available, improve USLE C map with planted forest data
-        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+        if "erosion_usle_c" in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -809,20 +809,20 @@ river cells."
     def setup_canopymaps(
         self,
         canopy_fn: str | Path | xr.DataArray,
-        output_name: str = "CanopyHeight",
+        output_name: str = "vegetation_height",
     ):
         """Generate sediments based canopy height maps.
 
         Adds model layers:
 
-        * **CanopyHeight** map: height of the vegetation canopy [m]
+        * **vegetation_height** map: height of the vegetation canopy [m]
 
         Parameters
         ----------
         canopy_fn :
             Canopy height data source (DataArray).
         output_name : dict, optional
-            Name of the output map. By default 'CanopyHeight'.
+            Name of the output map. By default 'vegetation_height'.
         """
         self.logger.info("Preparing canopy height map.")
 
@@ -832,14 +832,14 @@ river cells."
         )
         dsout = xr.Dataset(coords=self.grid.raster.coords)
         ds_out = dsin.raster.reproject_like(self.grid, method="average")
-        dsout["CanopyHeight"] = ds_out.astype(np.float32)
-        dsout["CanopyHeight"] = dsout["CanopyHeight"].fillna(-9999.0)
-        dsout["CanopyHeight"].raster.set_nodata(-9999.0)
+        dsout["vegetation_height"] = ds_out.astype(np.float32)
+        dsout["vegetation_height"] = dsout["vegetation_height"].fillna(-9999.0)
+        dsout["vegetation_height"].raster.set_nodata(-9999.0)
 
         # update name
-        wflow_var = self._WFLOW_NAMES[self._MAPS["CanopyHeight"]]
+        wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_height"]]
         self._update_naming({wflow_var: output_name})
-        self.set_grid(dsout["CanopyHeight"], name=output_name)
+        self.set_grid(dsout["vegetation_height"], name=output_name)
         # update config
         self._update_config_variable_name(output_name)
 
@@ -849,14 +849,14 @@ river cells."
         usleK_method: str = "renard",
         add_aggregates: bool = True,
         output_names: Dict = {
-            "soil_clay__mass_fraction": "fclay_soil",
-            "soil_silt__mass_fraction": "fsilt_soil",
-            "soil_sand__mass_fraction": "fsand_soil",
-            "soil_aggregates~small__mass_fraction": "fsagg_soil",
-            "soil_aggregates~large__mass_fraction": "flagg_soil",
-            "soil_erosion__rainfall_soil_detachability_factor": "soil_detachability",
-            "soil_erosion__usle_k_factor": "usle_k",
-            "land_surface_sediment__d50_diameter": "d50_soil",
+            "soil_clay__mass_fraction": "soil_clay_fraction",
+            "soil_silt__mass_fraction": "soil_silt_fraction",
+            "soil_sand__mass_fraction": "soil_sand_fraction",
+            "soil_aggregates~small__mass_fraction": "soil_sagg_fraction",
+            "soil_aggregates~large__mass_fraction": "soil_lagg_fraction",
+            "soil_erosion__rainfall_soil_detachability_factor": "erosion_soil_detachability",  # noqa: E501
+            "soil_erosion__usle_k_factor": "erosion_usle_k",
+            "land_surface_sediment__d50_diameter": "soil_sediment_d50",
             "land_surface_water_sediment__govers_transport_capacity_coefficient": "c_govers",  # noqa: E501
             "land_surface_water_sediment__govers_transport_capacity_exponent": "n_govers",  # noqa: E501
         },
@@ -871,15 +871,15 @@ river cells."
 
         Adds model layers:
 
-        * **fclay_soil**: clay content of the topsoil [g/g]
-        * **fsilt_soil**: silt content of the topsoil [g/g]
-        * **fsand_soil**: sand content of the topsoil [g/g]
-        * **fsagg_soil**: small aggregate content of the topsoil [g/g]
-        * **flagg_soil**: large aggregate content of the topsoil [g/g]
+        * **soil_clay_fraction**: clay content of the topsoil [g/g]
+        * **soil_silt_fraction**: silt content of the topsoil [g/g]
+        * **soil_sand_fraction**: sand content of the topsoil [g/g]
+        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
+        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
         * **soil_detachability** map: mean detachability of the soil (Morgan et al.,
           1998) [g/J]
-        * **usle_k** map: soil erodibility factor from the USLE equation [-]
-        * **d50_soil** map: median sediment diameter of the soil [mm]
+        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
+        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
         * **c_govers** map: Govers factor for overland flow transport capacity [-]
         * **n_govers** map: Govers exponent for overland flow transport capacity [-]
 
