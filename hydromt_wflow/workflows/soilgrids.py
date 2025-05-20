@@ -772,8 +772,8 @@ def soilgrids_sediment(
     * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
     * erosion_usle_k: soil erodibility factor from the USLE equation [-]
     * soil_sediment_d50: median sediment diameter of the soil [mm]
-    * c_govers: Govers factor for overland flow transport capacity [-]
-    * n_govers: Govers exponent for overland flow transport capacity [-]
+    * land_govers_c: Govers factor for overland flow transport capacity [-]
+    * land_govers_n: Govers exponent for overland flow transport capacity [-]
 
     Parameters
     ----------
@@ -854,10 +854,10 @@ def soilgrids_sediment(
     # Govers factor and exponent for overland flow transport capacity
     c_govers = ((d50 * 1000 + 5) / 0.32) ** (-0.6)
     n_govers = ((d50 * 1000 + 5) / 300) ** (0.25)
-    ds_out["c_govers"] = c_govers.raster.reproject_like(
+    ds_out["land_govers_c"] = c_govers.raster.reproject_like(
         ds_like, method="average"
     ).astype(np.float32)
-    ds_out["n_govers"] = n_govers.raster.reproject_like(
+    ds_out["land_govers_n"] = n_govers.raster.reproject_like(
         ds_like, method="average"
     ).astype(np.float32)
 

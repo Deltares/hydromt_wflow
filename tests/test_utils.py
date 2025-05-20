@@ -103,8 +103,8 @@ def test_convert_to_wflow_v1_sediment():
 
     # Checks on extra data in staticmaps
     assert "soil_sagg_fraction" in wflow.grid
-    assert "c_govers" in wflow.grid
-    assert "a_kodatie" in wflow.grid
+    assert "land_govers_c" in wflow.grid
+    assert "river_kodatie_a" in wflow.grid
 
 
 def test_config_toml_grouping(tmpdir):

@@ -749,11 +749,11 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v0": "vertical.rhos",
         "wflow_v1": "land_surface_sediment__particle_density",
     },
-    "c_govers": {
+    "land_govers_c": {
         "wflow_v0": None,
         "wflow_v1": "land_surface_water_sediment__govers_transport_capacity_coefficient",  # noqa: E501
     },
-    "n_govers": {
+    "land_govers_n": {
         "wflow_v0": None,
         "wflow_v1": "land_surface_water_sediment__govers_transport_capacity_exponent",
     },
@@ -766,51 +766,51 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v0": "lateral.river.rhos",
         "wflow_v1": "river_water_sediment__particle_density",
     },
-    "D50_Engelund": {
+    "river_sediment_d50": {
         "wflow_v0": "lateral.river.d50engelund",
         "wflow_v1": "river_sediment__d50_diameter",
     },
-    "c_Bagnold": {
+    "river_bagnold_c": {
         "wflow_v0": "lateral.river.cbagnold",
         "wflow_v1": "river_water_sediment__bagnold_transport_capacity_coefficient",
     },
-    "exp_Bagnold": {
+    "river_bagnold_exp": {
         "wflow_v0": "lateral.river.ebagnold",
         "wflow_v1": "river_water_sediment__bagnold_transport_capacity_exponent",
     },
-    "a_kodatie": {
+    "river_kodatie_a": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_a-coefficient",
     },
-    "b_kodatie": {
+    "river_kodatie_b": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_b-coefficient",
     },
-    "c_kodatie": {
+    "river_kodatie_c": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_c-coefficient",
     },
-    "d_kodatie": {
+    "river_kodatie_d": {
         "wflow_v0": None,
         "wflow_v1": "river_water_sediment__kodatie_transport_capacity_d-coefficient",
     },
-    "D50_River": {
+    "river_bed_sediment_d50": {
         "wflow_v0": "lateral.river.d50",
         "wflow_v1": "river_bottom-and-bank_sediment__d50_diameter",
     },
-    "ClayF_River": {
+    "river_bed_clay_fraction": {
         "wflow_v0": "lateral.river.fclayriv",
         "wflow_v1": "river_bottom-and-bank_clay__mass_fraction",
     },
-    "SiltF_River": {
+    "river_bed_silt_fraction": {
         "wflow_v0": "lateral.river.fsiltriv",
         "wflow_v1": "river_bottom-and-bank_silt__mass_fraction",
     },
-    "SandF_River": {
+    "river_bed_sand_fraction": {
         "wflow_v0": "lateral.river.fsandriv",
         "wflow_v1": "river_bottom-and-bank_sand__mass_fraction",
     },
-    "GravelF_River": {
+    "river_bed_gravel_fraction": {
         "wflow_v0": "lateral.river.fgravelriv",
         "wflow_v1": "river_bottom-and-bank_gravel__mass_fraction",
     },
