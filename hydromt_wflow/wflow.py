@@ -1402,7 +1402,7 @@ and will soon be removed. '
         self,
         mapname: str,
         toml_output: str | None = "csv",
-        header: List[str] | None = ["Q"],
+        header: List[str] | None = ["river_q"],
         param: List[str] | None = ["river_water__volume_flow_rate"],
         reducer: List[str] | None = None,
     ):
@@ -1425,12 +1425,12 @@ and will soon be removed. '
         header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate).
+            By default saves river_q (for river_water__volume_flow_rate).
         param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the
             names in gauge_toml_header. By default saves river_water__volume_flow_rate
-            (for Q).
+            (for river_q).
         reducer: list, optional
             If map is an area rather than a point location, provides the reducer
             for the parameters to save. By default None.
@@ -1484,7 +1484,7 @@ skipping adding gauge specific outputs to the toml."
         self,
         river_only: bool = True,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["Q"],
+        gauge_toml_header: List[str] = ["river_q"],
         gauge_toml_param: List[str] = ["river_water__volume_flow_rate"],
     ):
         """Set the default gauge map based on basin outlets.
@@ -1511,11 +1511,11 @@ skipping adding gauge specific outputs to the toml."
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate).
+            By default saves river_q (for river_water__volume_flow_rate).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water__volume_flow_rate (for Q).
+            By default saves river_water__volume_flow_rate (for river_q).
         """
         # read existing geoms; important to get the right basin when updating
         # fix in set_geoms / set_geoms method
@@ -1571,7 +1571,7 @@ skipping adding gauge specific outputs to the toml."
         derive_subcatch: bool = False,
         basename: str | None = None,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["Q", "P"],
+        gauge_toml_header: List[str] = ["river_q", "precip"],
         gauge_toml_param: List[str] = [
             "river_water__volume_flow_rate",
             "atmosphere_water__precipitation_volume_flux",
@@ -1669,13 +1669,13 @@ gauge locations [-] (if derive_subcatch)
         gauge_toml_header : list, optional
             Save specific model parameters in csv section.
             This option defines the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate) and
-            P (for "atmosphere_water__precipitation_volume_flux").
+            By default saves river_q (for river_water__volume_flow_rate) and
+            precip (for "atmosphere_water__precipitation_volume_flux").
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water__volume_flow_rate (for Q) and
-            "atmosphere_water__precipitation_volume_flux" (for P).
+            By default saves river_water__volume_flow_rate (for river_q) and
+            "atmosphere_water__precipitation_volume_flux" (for precip).
         kwargs : dict, optional
             Additional keyword arguments to pass to the get_data method ie
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.

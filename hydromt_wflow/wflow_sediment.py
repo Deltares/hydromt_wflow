@@ -377,7 +377,7 @@ river cells."
         self,
         river_only: bool = True,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["TSS"],
+        gauge_toml_header: List[str] = ["suspended_solids"],
         gauge_toml_param: List[str] = [
             "river_water_sediment~suspended__mass_concentration",
         ],
@@ -406,13 +406,13 @@ river cells."
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves TSS (for
+            By default saves suspended_solids (for
             river_water_sediment~suspended__mass_concentration).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
             By default saves river_water_sediment~suspended__mass_concentration (for
-            TSS).
+            suspended_solids).
         """
         super().setup_outlets(
             river_only=river_only,
@@ -436,7 +436,7 @@ river cells."
         derive_subcatch: bool = False,
         basename: str | None = None,
         toml_output: str | None = "csv",
-        gauge_toml_header: List[str] | None = ["Q", "TSS"],
+        gauge_toml_header: List[str] | None = ["river_q", "suspended_solids"],
         gauge_toml_param: List[str] | None = [
             "river_water__volume_flow_rate",
             "river_water_sediment~suspended__mass_concentration",
@@ -450,7 +450,7 @@ river cells."
 
         The only differences are the default values for the arguments:
 
-        - ``gauge_toml_header`` defaults to ["Q", "TSS"]
+        - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
         - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
             "river_water_sediment~suspended__mass_concentration"]
 
