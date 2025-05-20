@@ -162,7 +162,7 @@ def test_projected_crs(tmpdir):
 
     assert mod.grid.raster.crs == 3857
     # 95 quantile is class 190 ie urban
-    assert (mod.grid["wflow_landuse"] == 190).count().values == 338
+    assert (mod.grid["meta_landuse"] == 190).count().values == 338
     assert mod.get_config("model.sizeinmetres") == True
 
 
@@ -548,11 +548,13 @@ def test_setup_gauges(example_wflow_model):
         rel_error=0.05,
     )
     gdf = example_wflow_model.geoms["gauges_grdc_uparea"]
-    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
-        gdf, wdw=0
-    )
+    ds_samp = example_wflow_model.grid[
+        ["wflow_river", "meta_upstream_area"]
+    ].raster.sample(gdf, wdw=0)
     # assert np.all(ds_samp["wflow_river"].values == 1)
-    assert np.allclose(ds_samp["wflow_uparea"].values, gdf["uparea"].values, rtol=0.05)
+    assert np.allclose(
+        ds_samp["meta_upstream_area"].values, gdf["uparea"].values, rtol=0.05
+    )
 
     # 2. Test with/without snapping to mask
     stations_fn = join(TESTDATADIR, "test_stations.csv")
@@ -610,9 +612,9 @@ def test_setup_gauges(example_wflow_model):
     # Two gauges have uparea values and fillna is True
     assert gdf_no_snap_fillna.index.size == 3
     # Not all gauges are in the river as snap_to_river is False
-    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
-        gdf_no_snap_fillna, wdw=0
-    )
+    ds_samp = example_wflow_model.grid[
+        ["wflow_river", "meta_upstream_area"]
+    ].raster.sample(gdf_no_snap_fillna, wdw=0)
     assert not np.all(ds_samp["wflow_river"].values == 1)
 
     example_wflow_model.setup_gauges(
@@ -631,13 +633,13 @@ def test_setup_gauges(example_wflow_model):
     # (the one with NaN for upstream area would have ended in the river if fillna=True)
     assert gdf_snap.index.size == 1
     # Check that they are all in the river
-    ds_samp = example_wflow_model.grid[["wflow_river", "wflow_uparea"]].raster.sample(
-        gdf_snap, wdw=0
-    )
+    ds_samp = example_wflow_model.grid[
+        ["wflow_river", "meta_upstream_area"]
+    ].raster.sample(gdf_snap, wdw=0)
     assert np.all(ds_samp["wflow_river"].values == 1)
 
 
-@pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
+@pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -654,8 +656,8 @@ def test_setup_rivers(elevtn_map, floodplain1d_testdata, example_wflow_model):
     )
 
     mapname = {
-        "wflow_dem": "river_bank_elevation_avg",
-        "dem_subgrid": "river_bank_elevation_subgrid",
+        "land_elevation": "river_bank_elevation_avg",
+        "meta_subgrid_elevation": "river_bank_elevation_subgrid",
     }[elevtn_map]
 
     assert mapname in example_wflow_model.grid
@@ -703,7 +705,7 @@ def test_setup_rivers_depth(tmpdir):
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="wflow_dem",
+        elevtn_map="land_elevation",
     )
 
     assert "river_depth" in mod.grid
@@ -719,7 +721,7 @@ def test_setup_rivers_depth(tmpdir):
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="dem_subgrid",
+        elevtn_map="meta_subgrid_elevation",
     )
 
     # RiverDepth iteslf doesn't matter here, this assertion
@@ -741,7 +743,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="wflow_dem",
+        elevtn_map="land_elevation",
     )
 
     example_wflow_model.setup_floodplains(
@@ -766,7 +768,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     )
 
 
-@pytest.mark.parametrize("elevtn_map", ["wflow_dem", "dem_subgrid"])
+@pytest.mark.parametrize("elevtn_map", ["land_elevation", "meta_subgrid_elevation"])
 def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_testdata):
     example_wflow_model.setup_rivers(
         hydrography_fn="merit_hydro",
@@ -778,7 +780,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
         slope_len=2000,
         smooth_len=5000,
         river_routing="local-inertial",
-        elevtn_map="wflow_dem",
+        elevtn_map="land_elevation",
         output_names={},
     )
 
@@ -787,8 +789,8 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     )
 
     mapname = {
-        "wflow_dem": "river_bank_elevation_avg",
-        "dem_subgrid": "river_bank_elevation_subgrid",
+        "land_elevation": "river_bank_elevation_avg",
+        "meta_subgrid_elevation": "river_bank_elevation_subgrid",
     }[elevtn_map]
 
     assert f"{mapname}_D4" in example_wflow_model.grid
@@ -996,7 +998,7 @@ def test_setup_lulc_vector(
         lulc_res=0.0025,
         save_raster_lulc=False,
     )
-    assert "wflow_landuse" in example_wflow_model.grid
+    assert "meta_landuse" in example_wflow_model.grid
 
 
 def test_setup_lulc_paddy(example_wflow_model, tmpdir):
@@ -1056,8 +1058,8 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
         lulc_fn="globcover_2009",
         paddy_class=11,
         output_paddy_class=12,
-        paddy_fn=ds["wflow_landuse"].where(
-            ds["wflow_landuse"] == 11, ds["wflow_landuse"].raster.nodata
+        paddy_fn=ds["meta_landuse"].where(
+            ds["meta_landuse"] == 11, ds["meta_landuse"].raster.nodata
         ),
         lulc_mapping_fn="globcover_mapping_default",
         wflow_thicknesslayers=layers,
@@ -1065,7 +1067,7 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
 
     ds2 = example_wflow_model.grid.copy()
 
-    assert np.any(ds2["wflow_landuse"] == 12)
+    assert np.any(ds2["meta_landuse"] == 12)
 
 
 def test_setup_allocation_areas(example_wflow_model, tmpdir):
