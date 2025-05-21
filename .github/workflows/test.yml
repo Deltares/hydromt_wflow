@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest"]
-        python-version: ['310', '311']
+        python-version: ['311', '312', '313']
         include:
         - os: ubuntu-latest
           label: linux-64
@@ -51,11 +51,11 @@ jobs:
       - name: Setup pixi env
         uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: "v0.45.0"
+          pixi-version: "v0.47.0"
           environments: test-full-py${{ matrix.python-version }}
           locked: false
           cache: true
-          cache-write: ${{ github.event_name == 'push' && {{ github.ref_name == 'main' || github.ref_name == 'feat/migration-hydromt-core-v1' }} }}
+          cache-write: ${{ github.event_name == 'push' && ( github.ref_name == 'main' || github.ref_name == 'feat/migration-hydromt-core-v1' ) }}
 
       - name: Tests
         uses: nick-fields/retry@v3
