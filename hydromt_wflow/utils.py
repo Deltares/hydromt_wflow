@@ -540,6 +540,29 @@ def mask_raster_from_layer(
     return data
 
 
+def _solve_var_name(var: str | dict, path: str, add: list):
+    """Solve the config file into individual entries.
+
+    Every entry is the entire path ("river.lateral.< something >") plus its value.
+
+    Parameters
+    ----------
+    var : str | dict,
+        Either the direct settings entry or a dictionary containing nested settings.
+    path : str,
+        Prepend the entries with the value (e.g. "lateral" or "lateral.river")
+    add : list
+        Usually an empty list in which the temporary headers are stored.
+    """
+    if not isinstance(var, dict):
+        sep = "." if path else ""
+        add_str = ".".join(add) if add else ""
+        yield (var, path + sep + add_str)
+        return
+    for key, item in var.items():
+        yield from _solve_var_name(item, path, add + [key])
+
+
 def _convert_to_wflow_v1(
     config: tomlkit.TOMLDocument,
     wflow_vars: Dict,
@@ -598,16 +621,6 @@ def _convert_to_wflow_v1(
             ] = var_name
         else:
             _warn_str(var_name, "netcdf_grid")
-
-    # Solve the var name
-    def _solve_var_name(var: str | dict, path: str, add: list):
-        if not isinstance(var, dict):
-            sep = "." if path else ""
-            add_str = ".".join(add) if add else ""
-            yield (var, path + sep + add_str)
-            return
-        for key, item in var.items():
-            yield from _solve_var_name(item, path, add + [key])
 
     # Initialize the output config
     logger.info("Converting config to Wflow v1 format")
