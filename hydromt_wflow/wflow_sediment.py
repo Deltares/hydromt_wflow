@@ -583,9 +583,7 @@ river cells."
             }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid.rename(
-                    rename_dict
-                ),  # TODO should have erosion_usle_c in the grid already
+                self.grid.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
