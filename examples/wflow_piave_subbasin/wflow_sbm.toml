@@ -42,22 +42,6 @@ gauges = "wflow_gauges"
 gauges_grdc = "wflow_gauges_grdc"
 
 [state.variables]
-<<<<<<< HEAD
-vegetation_canopy_water__depth = "canopystorage"
-soil_water_sat-zone__depth = "satwaterdepth"
-soil_layer_water_unsat-zone__depth = "ustorelayerdepth"
-soil_surface__temperature = "tsoil"
-"snowpack~dry__leq-depth" = "snow"
-"snowpack~liquid__depth" = "snowwater"
-land_surface_water__instantaneous_volume_flow_rate = "land_q"
-land_surface_water__instantaneous_depth = "land_h"
-subsurface_water__volume_flow_rate = "ssf"
-river_water__instantaneous_volume_flow_rate = "river_q"
-river_water__instantaneous_depth = "river_h"
-reservoir_water__instantaneous_volume = "volume_reservoir"
-lake_water_surface__instantaneous_elevation = "waterlevel_lake"
-glacier_ice__leq-depth = "glacierstore"
-=======
 vegetation_canopy_water__depth = "vegetation_water_depth"
 soil_water_sat-zone__depth = "soil_saturated_depth"
 soil_layer_water_unsat-zone__depth = "soil_unsaturated_depth"
@@ -72,7 +56,6 @@ river_water__instantaneous_depth = "river_instantaneous_h"
 reservoir_water__instantaneous_volume = "reservoir_instantaneous_volume"
 lake_water_surface__instantaneous_elevation = "lake_instantaneous_water_level"
 glacier_ice__leq-depth = "glacier_leq_depth"
->>>>>>> naming_update
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "precip"
