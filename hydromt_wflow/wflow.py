@@ -2574,9 +2574,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
         paddy_waterlevels: Dict = {
-            "demand_paddy_h_min": 20,
-            "demand_paddy_h_opt": 50,
-            "demand_paddy_h_max ": 80,
+            "h_min": 20,
+            "h_opt": 50,
+            "h_max ": 80,
         },
         save_high_resolution_lulc: bool = False,
         output_names_suffix: str | None = None,
@@ -2630,9 +2630,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
           reduced (Feddes) [cm]
         * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
           (Feddes) [cm]
-        * **demand_paddy_h_min** map: Minimum required water depth for paddy fields [mm]
-        * **demand_paddy_h_opt** map: Optimal water depth for paddy fields [mm]
-        * **demand_paddy_h_max** map: Maximum water depth for paddy fields [mm]
+        * **land~irrigated-paddy__min_depth** value: Minimum required water depth for
+        paddy fields [mm]
+        * **land~irrigated-paddy__optimal_depth** value: Optimal water depth for paddy
+          fields [mm]
+        * **land~irrigated-paddy__max_depth** value: Maximum water depth for paddy
+          fields [mm]
         * **kvfrac**: Map with a multiplication factor for the vertical conductivity [-]
 
         Updates model layers:
@@ -4367,7 +4370,12 @@ Run setup_soilmaps first"
     def setup_other_demand(
         self,
         demand_fn: str | Dict[str, Dict[str, Any]] | xr.Dataset,
-        variables: list = ["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
+        variables: list = [
+            "industry_gross",
+            "industry_net",
+            "livestock_gross",
+            "livestock_net",
+        ],
         resampling_method: str = "average",
         output_names: Dict = {
             "land~industry__gross_water_demand_volume_flux": "demand_industry_gross",
