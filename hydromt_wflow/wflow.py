@@ -2609,7 +2609,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         The different values for the minimum/optimal/maximum water levels for paddy
         fields will be added as constant values in the toml file, through the
-        ``vertical.paddy.demand_paddy_h_min.value = 20`` interface.
+        ``land~irrigated-paddy__min_depth.value = 20`` interface.
 
         Adds model layers:
 
