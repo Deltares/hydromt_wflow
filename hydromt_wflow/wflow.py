@@ -98,7 +98,7 @@ class WflowModel(GridModel):
         output_names: Dict = {
             "basin__local_drain_direction": "wflow_ldd",
             "subbasin_location__count": "wflow_subcatch",
-            "land_surface__slope": "Slope",
+            "land_surface__slope": "land_slope",
         },
     ):
         """
@@ -157,11 +157,11 @@ class WflowModel(GridModel):
 
         * **wflow_ldd** map: flow direction in LDD format [-]
         * **wflow_subcatch** map: basin ID map [-]
-        * **wflow_uparea** map: upstream area [km2]
-        * **wflow_streamorder** map: Strahler stream order [-]
-        * **wflow_dem** map: average elevation [m+REF]
-        * **dem_subgrid** map: subgrid outlet elevation [m+REF]
-        * **Slope** map: average land surface slope [m/m]
+        * **meta_upstream_area** map: upstream area [km2]
+        * **meta_streamorder** map: Strahler stream order [-]
+        * **land_elevation** map: average elevation [m+REF]
+        * **meta_subgrid_elevation** map: subgrid outlet elevation [m+REF]
+        * **land_slope** map: average land surface slope [m/m]
         * **basins** geom: basins boundary vector
         * **region** geom: region boundary vector
 
@@ -265,6 +265,9 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             logger=self.logger,
         )
         # Rename and add to grid
+        # rename idx_out coords
+        if "idx_out" in ds_base:
+            ds_base = ds_base.rename({"idx_out": "meta_subgrid_outlet_idx"})
         rmdict = {k: self._MAPS.get(k, k) for k in ds_base.data_vars}
         self.set_grid(ds_base.rename(rmdict))
         # update config
@@ -306,17 +309,17 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         rivman_mapping_fn: str
         | Path
         | pd.DataFrame = "roughness_river_mapping_default",
-        elevtn_map: str = "wflow_dem",
+        elevtn_map: str = "land_elevation",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
         output_names: Dict = {
             "river_location__mask": "wflow_river",
-            "river__length": "wflow_riverlength",
-            "river__width": "wflow_riverwidth",
-            "river_bank_water__depth": "RiverDepth",
-            "river__slope": "RiverSlope",
-            "river_water_flow__manning_n_parameter": "N_River",
-            "river_bank_water__elevation": "hydrodem_avg",
+            "river__length": "river_length",
+            "river__width": "river_width",
+            "river_bank_water__depth": "river_depth",
+            "river__slope": "river_slope",
+            "river_water_flow__manning_n_parameter": "river_manning_n",
+            "river_bank_water__elevation": "river_bank_elevation",
         },
     ):
         """
@@ -349,8 +352,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         :py:meth:`hydromt.workflows.river_depth`.
 
         If ``river_routing`` is set to "local-inertial", the bankfull elevation map
-        can be conditioned based on the average cell elevation ("wflow_dem")
-        or subgrid outlet pixel elevation ("dem_subgrid").
+        can be conditioned based on the average cell elevation ("land_elevation")
+        or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         The subgrid elevation might provide a better representation
         of the river elevation profile, however in combination with
         local-inertial land routing (see :py:meth:`setup_floodplains`)
@@ -361,13 +364,13 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         Adds model layers:
 
         * **wflow_river** map: river mask [-]
-        * **wflow_riverlength** map: river length [m]
-        * **wflow_riverwidth** map: river width [m]
-        * **RiverDepth** map: bankfull river depth [m]
-        * **RiverSlope** map: river slope [m/m]
-        * **N_River** map: Manning coefficient for river cells [s.m^1/3]
+        * **river_length** map: river length [m]
+        * **river_width** map: river width [m]
+        * **river_depth** map: bankfull river depth [m]
+        * **river_slope** map: river slope [m/m]
+        * **river_manning_n** map: Manning coefficient for river cells [s.m^1/3]
         * **rivers** geom: river vector based on wflow_river mask
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF]
+        * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
 
         Parameters
         ----------
@@ -406,7 +409,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
             Minimum river width [m], by default 30.0
         elevtn_map : str, optional
             Name of the elevation map in the current WflowModel.grid.
-            By default "wflow_dem"
+            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -475,11 +478,11 @@ Select from {routing_options}.'
                 self._update_config_variable_name(self._MAPS[dvar])
 
         # TODO make separate workflows.river_manning  method
-        # Make N_River map from csv file with mapping
-        # between streamorder and N_River value
+        # Make river_manning_n map from csv file with mapping
+        # between streamorder and river_manning_n value
         strord = self.grid[self._MAPS["strord"]].copy()
         df = self.data_catalog.get_dataframe(rivman_mapping_fn)
-        # max streamorder value above which values get the same N_River value
+        # max streamorder value above which values get the same river_manning_n value
         max_str = df.index[-2]
         nodata = df.index[-1]
         # if streamorder value larger than max_str, assign last value
@@ -529,12 +532,13 @@ Select from {routing_options}.'
         self.logger.debug(f'Update wflow config model.river_routing="{river_routing}"')
         self.set_config("model.river_routing", river_routing)
         if river_routing == "local-inertial":
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
-                elevtn_map, ""
-            )
-            name = f"hydrodem{postfix}"
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
+            name = f"river_bank_elevation{postfix}"
             # Check if users wanted a specific name for the hydrodem
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["river_bank_elevation"])
             if hydrodem_var in output_names:
                 name = output_names[hydrodem_var]
             self._update_naming({hydrodem_var: name})
@@ -561,11 +565,11 @@ Select from {routing_options}.'
         river_upa: float | None = None,
         flood_depths: List = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0],
         ### Options for 2D floodplains
-        elevtn_map: str = "wflow_dem",
+        elevtn_map: str = "land_elevation",
         connectivity: int = 4,
         output_names: Dict = {
             "floodplain_water__sum_of_volume-per-depth": "floodplain_volume",
-            "hydrodem": "hydrodem_avg_D4",
+            "river_bank_elevation": "river_bank_elevation_avg_D4",
         },
     ):
         """
@@ -582,12 +586,12 @@ Select from {routing_options}.'
         :py:meth:`setup_rivers` method.
 
         If ``floodplain_type`` is set to "2d", this component adds
-        a hydrologically conditioned elevation (hydrodem) map for
+        a hydrologically conditioned elevation (river_bank_elevation) map for
         land routing (local-inertial). For this options, landcells need to be
         conditioned to D4 flow directions otherwise pits may remain in the land cells.
 
         The conditioned elevation can be based on the average cell elevation
-        ("wflow_dem") or subgrid outlet pixel elevation ("dem_subgrid").
+        ("land_elevation") or subgrid outlet pixel elevation ("meta_subgrid_elevation").
         Note that the subgrid elevation will likely overestimate
         the floodplain storage capacity.
 
@@ -601,8 +605,8 @@ Select from {routing_options}.'
 
         * **floodplain_volume** map: map with floodplain volumes, has flood depth as \
             third dimension [m3] (for 1D floodplains)
-        * **hydrodem** map: hydrologically conditioned elevation [m+REF] (for 2D \
-            floodplains)
+        * **river_bank_elevation** map: hydrologically conditioned elevation [m+REF]
+          (for 2D floodplains)
 
         Parameters
         ----------
@@ -622,9 +626,9 @@ Select from {routing_options}.'
             (1D floodplains) flood depths at which a volume is derived.
             By default [0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0]
 
-        elevtn_map: {"wflow_dem", "dem_subgrid"}
+        elevtn_map: {"land_elevation", "meta_subgrid_elevation"}
             (2D floodplains) Name of staticmap to hydrologically condition.
-            By default "wflow_dem"
+            By default "land_elevation"
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -718,14 +722,15 @@ setting new flood_depth dimensions"
             if elevtn_map not in self.grid:
                 raise ValueError(f'"{elevtn_map}" not found in grid')
 
-            postfix = {"wflow_dem": "_avg", "dem_subgrid": "_subgrid"}.get(
-                elevtn_map, ""
-            )
-            name = f"hydrodem{postfix}_D{connectivity}"
-            # Check if users wanted a specific name for the hydrodem
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
+            postfix = {
+                "land_elevation": "_avg",
+                "meta_subgrid_elevation": "_subgrid",
+            }.get(elevtn_map, "")
+            name = f"river_bank_elevation{postfix}_D{connectivity}"
+            # Check if users wanted a specific name for the river_bank_elevation
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["river_bank_elevation"])
             lndelv_var = self._WFLOW_NAMES.get(self._MAPS["elevtn"])
-            # hydrodem is used for two wflow variables
+            # river_bank_elevation is used for two wflow variables
             if hydrodem_var in output_names:
                 name = output_names[hydrodem_var]
             self._update_naming(
@@ -747,7 +752,7 @@ setting new flood_depth dimensions"
             self.set_grid(ds_out)
             # Update the bankfull elevation map
             self.set_config("input.static.river_bank_water__elevation", name)
-            # In this case hydrodem is also used for the ground elevation?
+            # In this case river_bank_elevation is also used for the ground elevation?
             self.set_config(
                 "input.static.land_surface_water_flow__ground_elevation", elevtn_map
             )
@@ -763,13 +768,16 @@ setting new flood_depth dimensions"
         if floodplain_type == "1d":
             # Add states
             self.set_config(
-                "state.floodplain_water__instantaneous_volume_flow_rate", "q_floodplain"
+                "state.floodplain_water__instantaneous_volume_flow_rate",
+                "floodplain_instantaneous_q",
             )
             self.set_config(
-                "state.floodplain_water__instantaneous_depth", "h_floodplain"
+                "state.floodplain_water__instantaneous_depth",
+                "floodplain_instantaneous_h",
             )
             self.set_config(
-                "state.land_surface_water__instantaneous_volume_flow_rate", "q_land"
+                "state.land_surface_water__instantaneous_volume_flow_rate",
+                "land_instantaneous_q",
             )
             # Remove local-inertial land states
             if (
@@ -817,11 +825,11 @@ setting new flood_depth dimensions"
             # Add local-inertial land routing states
             self.set_config(
                 "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                "qx_land",
+                "land_instantaneous_qx",
             )
             self.set_config(
                 "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                "qy_land",
+                "land_instantaneous_qy",
             )
             # Remove kinematic-wave and 1d floodplain states
             if (
@@ -866,7 +874,7 @@ setting new flood_depth dimensions"
         min_wth: float = 1.0,
         precip_fn: str | xr.DataArray = "chelsa",
         climate_fn: str | xr.DataArray = "koppen_geiger",
-        output_name: str = "wflow_riverwidth",
+        output_name: str = "river_width",
         **kwargs,
     ):
         """
@@ -884,7 +892,7 @@ setting new flood_depth dimensions"
         multiple linear regression with precipitation and upstream area
         per climate zone.
 
-        * **wflow_riverwidth** map: river width [m]
+        * **river_width** map: river width [m]
 
         Parameters
         ----------
@@ -973,7 +981,7 @@ and will soon be removed. '
         lulc_vars: Dict = {
             "landuse": None,
             "Kext": "vegetation_canopy__light-extinction_coefficient",
-            "N": "land_surface_water_flow__manning_n_parameter",
+            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
             "PathFrac": "soil~compacted__area_fraction",
             "RootingDepth": "vegetation_root__depth",
             "Sl": "vegetation__specific-leaf_storage",
@@ -1010,7 +1018,7 @@ and will soon be removed. '
         * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **land_manning_n** map: Manning Roughness [-]
         * **kc** map: Crop coefficient [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
           (0 or 1) [-]
@@ -1054,7 +1062,7 @@ and will soon be removed. '
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         if lulc_mapping_fn is None:
@@ -1089,7 +1097,7 @@ and will soon be removed. '
         lulc_vars: Dict = {
             "landuse": None,
             "Kext": "vegetation_canopy__light-extinction_coefficient",
-            "N": "land_surface_water_flow__manning_n_parameter",
+            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
             "PathFrac": "soil~compacted__area_fraction",
             "RootingDepth": "vegetation_root__depth",
             "Sl": "vegetation__specific-leaf_storage",
@@ -1129,7 +1137,7 @@ and will soon be removed. '
         * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **land_manning_n** map: Manning Roughness [-]
         * **kc** map: Crop coefficient [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
           (0 or 1) [-]
@@ -1191,7 +1199,7 @@ and will soon be removed. '
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         self.logger.info("Preparing LULC parameter maps.")
         # Read mapping table
@@ -1395,7 +1403,7 @@ and will soon be removed. '
         self,
         mapname: str,
         toml_output: str | None = "csv",
-        header: List[str] | None = ["Q"],
+        header: List[str] | None = ["river_q"],
         param: List[str] | None = ["river_water__volume_flow_rate"],
         reducer: List[str] | None = None,
     ):
@@ -1418,12 +1426,12 @@ and will soon be removed. '
         header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate).
+            By default saves river_q (for river_water__volume_flow_rate).
         param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the
             names in gauge_toml_header. By default saves river_water__volume_flow_rate
-            (for Q).
+            (for river_q).
         reducer: list, optional
             If map is an area rather than a point location, provides the reducer
             for the parameters to save. By default None.
@@ -1477,7 +1485,7 @@ skipping adding gauge specific outputs to the toml."
         self,
         river_only: bool = True,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["Q"],
+        gauge_toml_header: List[str] = ["river_q"],
         gauge_toml_param: List[str] = ["river_water__volume_flow_rate"],
     ):
         """Set the default gauge map based on basin outlets.
@@ -1504,11 +1512,11 @@ skipping adding gauge specific outputs to the toml."
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate).
+            By default saves river_q (for river_water__volume_flow_rate).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water__volume_flow_rate (for Q).
+            By default saves river_water__volume_flow_rate (for river_q).
         """
         # read existing geoms; important to get the right basin when updating
         # fix in set_geoms / set_geoms method
@@ -1564,7 +1572,7 @@ skipping adding gauge specific outputs to the toml."
         derive_subcatch: bool = False,
         basename: str | None = None,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["Q", "P"],
+        gauge_toml_header: List[str] = ["river_q", "precip"],
         gauge_toml_param: List[str] = [
             "river_water__volume_flow_rate",
             "atmosphere_water__precipitation_volume_flux",
@@ -1662,13 +1670,13 @@ gauge locations [-] (if derive_subcatch)
         gauge_toml_header : list, optional
             Save specific model parameters in csv section.
             This option defines the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate) and
-            P (for "atmosphere_water__precipitation_volume_flux").
+            By default saves river_q (for river_water__volume_flow_rate) and
+            precip (for "atmosphere_water__precipitation_volume_flux").
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water__volume_flow_rate (for Q) and
-            "atmosphere_water__precipitation_volume_flux" (for P).
+            By default saves river_water__volume_flow_rate (for river_q) and
+            "atmosphere_water__precipitation_volume_flux" (for precip).
         kwargs : dict, optional
             Additional keyword arguments to pass to the get_data method ie
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
@@ -1902,14 +1910,14 @@ gauge locations [-] (if derive_subcatch)
         output_names: Dict = {
             "lake_area__count": "wflow_lakeareas",
             "lake_location__count": "wflow_lakelocs",
-            "lake_surface__area": "LakeArea",
-            "lake_water_surface__initial_elevation": "LakeAvgLevel",
-            "lake_water_flow_threshold-level__elevation": "LakeThreshold",
-            "lake_water__rating_curve_coefficient": "Lake_b",
-            "lake_water__rating_curve_exponent": "Lake_e",
-            "lake_water__rating_curve_type_count": "LakeOutflowFunc",
-            "lake_water__storage_curve_type_count": "LakeStorFunc",
-            "lake~lower_location__count": "LinkedLakeLocs",
+            "lake_surface__area": "lake_area",
+            "lake_water_surface__initial_elevation": "lake_initial_depth",
+            "lake_water_flow_threshold-level__elevation": "lake_outflow_threshold",
+            "lake_water__rating_curve_coefficient": "lake_b",
+            "lake_water__rating_curve_exponent": "lake_e",
+            "lake_water__rating_curve_type_count": "lake_rating_curve",
+            "lake_water__storage_curve_type_count": "lake_storage_curve",
+            "lake~lower_location__count": "lake_lower_id",
         },
         geom_name: str = "lakes",
         **kwargs,
@@ -1925,7 +1933,7 @@ gauge locations [-] (if derive_subcatch)
 
         If rating curve data is available for storage and discharge they can be prepared
         via ``rating_curve_fns`` (see below for syntax and requirements).
-        Else the parameters 'Lake_b' and 'Lake_e' will be used for discharge and
+        Else the parameters 'lake_b' and 'lake_e' will be used for discharge and
         for storage a rectangular profile lake is assumed.
         See Wflow documentation for more information.
 
@@ -1936,15 +1944,15 @@ gauge locations [-] (if derive_subcatch)
 
         * **wflow_lakeareas** map: lake IDs [-]
         * **wflow_lakelocs** map: lake IDs at outlet locations [-]
-        * **LakeArea** map: lake area [m2]
-        * **LakeAvgLevel** map: lake average water level [m]
-        * **LakeThreshold** map: lake outflow threshold water level [m]
-        * **LakeAvgOut** map: lake average discharge [m3/s]
-        * **Lake_b** map: lake rating curve coefficient [-]
-        * **Lake_e** map: lake rating curve exponent [-]
-        * **LakeOutflowFunc** map: option to compute rating curve [-]
-        * **LakeStorFunc** map: option to compute storage curve [-]
-        * **LinkedLakeLocs** map: optional, lower linked lake locations [-]
+        * **lake_area** map: lake area [m2]
+        * **lake_initial_depth** map: lake average water level [m]
+        * **lake_outflow_threshold** map: lake outflow threshold water level [m]
+        * **meta_lake_mean_outflow** map: lake average discharge [m3/s]
+        * **lake_b** map: lake rating curve coefficient [-]
+        * **lake_e** map: lake rating curve exponent [-]
+        * **lake_rating_curve** map: option to compute rating curve [-]
+        * **lake_storage_curve** map: option to compute storage curve [-]
+        * **lake_lower_id** map: optional, lower linked lake locations [-]
         * **LakeMaxStorage** map: optional, maximum storage of lake [m3]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
@@ -1954,9 +1962,9 @@ gauge locations [-] (if derive_subcatch)
             Name of GeoDataFrame source for lake parameters.
 
             * Required variables for direct use: \
-'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'Lake_b' [-], \
-'Lake_e' [-], 'LakeOutflowFunc' [-], 'LakeStorFunc' [-], 'LakeThreshold' [m], \
-'LinkedLakeLocs' [-]
+'waterbody_id' [-], 'Area_avg' [m2], 'Depth_avg' [m], 'Dis_avg' [m3/s], 'lake_b' [-], \
+'lake_e' [-], 'lake_rating_curve' [-], 'lake_storage_curve' [-], \
+'lake_outflow_threshold' [m], 'lake_lower_id' [-]
 
             * Required variables for parameter estimation: \
 'waterbody_id' [-], 'Area_avg' [m2], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg'[m3/s]
@@ -2058,7 +2066,7 @@ Using default storage/outflow function parameters."
         self.set_config("model.lake__flag", True)
         self.set_config(
             "state.variables.lake_water_surface__instantaneous_elevation",
-            "waterlevel_lake",
+            "lake_instantaneous_water_level",
         )
 
         for dvar in ds_lakes.data_vars:
@@ -2075,12 +2083,12 @@ Using default storage/outflow function parameters."
         output_names: Dict = {
             "reservoir_area__count": "wflow_reservoirareas",
             "reservoir_location__count": "wflow_reservoirlocs",
-            "reservoir_surface__area": "ResSimpleArea",
-            "reservoir_water__max_volume": "ResMaxVolume",
-            "reservoir_water~min-target__volume_fraction": "ResTargetMinFrac",
-            "reservoir_water~full-target__volume_fraction": "ResTargetFullFrac",
-            "reservoir_water_demand~required~downstream__volume_flow_rate": "ResDemand",
-            "reservoir_water_release-below-spillway__max_volume_flow_rate": "ResMaxRelease",  # noqa: E501
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_water__max_volume": "reservoir_max_volume",
+            "reservoir_water~min-target__volume_fraction": "reservoir_target_min_fraction",  # noqa: E501
+            "reservoir_water~full-target__volume_fraction": "reservoir_target_full_fraction",  # noqa: E501
+            "reservoir_water_demand~required~downstream__volume_flow_rate": "reservoir_demand",  # noqa: E501
+            "reservoir_water_release-below-spillway__max_volume_flow_rate": "reservoir_max_release",  # noqa: E501
         },
         geom_name: str = "reservoirs",
         **kwargs,
@@ -2094,11 +2102,12 @@ Using default storage/outflow function parameters."
         from a database with reservoir geometry, IDs and metadata.
 
         Data requirements for direct use (i.e. wflow parameters are data already present
-        in reservoirs_fn) are reservoir ID 'waterbody_id', area 'ResSimpleArea' [m2],
-        maximum volume 'ResMaxVolume' [m3], the targeted minimum and maximum fraction of
-        water volume in the reservoir 'ResTargetMinFrac' and 'ResTargetMaxFrac' [-],
-        the average water demand ResDemand [m3/s] and the maximum release of
-        the reservoir before spilling 'ResMaxRelease' [m3/s].
+        in reservoirs_fn) are reservoir ID 'waterbody_id', area 'reservoir_area' [m2],
+        maximum volume 'reservoir_max_volume' [m3], the targeted minimum and maximum
+        fraction of water volume in the reservoir 'reservoir_target_min_fraction' and
+        'reservoir_target_full_fraction' [-], the average water demand
+        'reservoir_demand' [m3/s] and the maximum release of the reservoir before
+        spilling 'reservoir_max_release' [m3/s].
 
         In case the wflow parameters are not directly available they can be computed by
         HydroMT based on time series of reservoir surface water area.
@@ -2120,12 +2129,12 @@ Using default storage/outflow function parameters."
 
         * **wflow_reservoirareas** map: reservoir IDs [-]
         * **wflow_reservoirlocs** map: reservoir IDs at outlet locations [-]
-        * **ResSimpleArea** map: reservoir area [m2]
-        * **ResMaxVolume** map: reservoir max volume [m3]
-        * **ResTargetMinFrac** map: reservoir target min frac [m3/m3]
-        * **ResTargetFullFrac** map: reservoir target full frac [m3/m3]
-        * **ResDemand** map: reservoir demand flow [m3/s]
-        * **ResMaxRelease** map: reservoir max release flow [m3/s]
+        * **reservoir_area** map: reservoir area [m2]
+        * **reservoir_max_volume** map: reservoir max volume [m3]
+        * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
+        * **reservoir_target_full_fraction** map: reservoir target full frac [m3/m3]
+        * **reservoir_demand** map: reservoir demand flow [m3/s]
+        * **reservoir_max_release** map: reservoir max release flow [m3/s]
         * **reservoirs** geom: polygon with reservoirs and wflow reservoir parameters
 
         Parameters
@@ -2134,8 +2143,9 @@ Using default storage/outflow function parameters."
             Name of data source for reservoir parameters, see data/data_sources.yml.
 
             * Required variables for direct use: \
-'waterbody_id' [-], 'ResSimpleArea' [m2], 'ResMaxVolume' [m3], 'ResTargetMinFrac' \
-[m3/m3], 'ResTargetFullFrac' [m3/m3], 'ResDemand' [m3/s], 'ResMaxRelease' [m3/s]
+'waterbody_id' [-], 'reservoir_area' [m2], 'reservoir_max_volume' [m3], \
+'reservoir_target_min_fraction' [m3/m3], 'reservoir_target_full_fraction' [m3/m3], \
+'reservoir_demand' [m3/s], 'reservoir_max_release' [m3/s]
 
             * Required variables for computation with timeseries_fn: \
 'waterbody_id' [-], 'Hylak_id' [-], 'Vol_avg' [m3], 'Depth_avg' [m], 'Dis_avg' [m3/s], \
@@ -2184,12 +2194,12 @@ Using default storage/outflow function parameters."
         # if present use directly
         resattributes = [
             "waterbody_id",
-            "ResSimpleArea",
-            "ResMaxVolume",
-            "ResTargetMinFrac",
-            "ResTargetFullFrac",
-            "ResDemand",
-            "ResMaxRelease",
+            "reservoir_area",
+            "reservoir_max_volume",
+            "reservoir_target_min_fraction",
+            "reservoir_target_full_fraction",
+            "reservoir_demand",
+            "reservoir_max_release",
         ]
         if np.all(np.isin(resattributes, gdf_org.columns)):
             intbl_reservoirs = gdf_org[resattributes]
@@ -2241,7 +2251,8 @@ Using default storage/outflow function parameters."
         # update toml
         self.set_config("model.reservoir__flag", True)
         self.set_config(
-            "state.variables.reservoir_water__instantaneous_volume", "volume_reservoir"
+            "state.variables.reservoir_water__instantaneous_volume",
+            "reservoir_instantaneous_volume",
         )
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
@@ -2359,24 +2370,16 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
         * **KsatVer** map: vertical saturated hydraulic conductivity at \
 soil surface [mm/day]
         * **SoilThickness** map: soil thickness [mm]
-        * **SoilMinThickness** map: minimum soil thickness [mm] (equal to SoilThickness)
-        * **M** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth (fitted with curve_fit (scipy.optimize)), bounds of M are \
-    checked
-        * **M_** map: model parameter [mm] that controls exponential decline of \
-KsatVer with soil depth (fitted with numpy linalg regression), bounds of `M_` are \
-    checked
-        * **M_original** map: M without checking bounds
-        * **M_original_** map: `M_` without checking bounds
         * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
 (fitted with numpy linalg regression), bounds are checked
         * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
-        * **KsatVer_[z]cm** map: KsatVer [mm/day] at soil depths [z] of SoilGrids data \
-[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-        * **wflow_soil** map: soil texture based on USDA soil texture triangle \
+        * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
+            [mm/day] at soil depths [z] of ``soil_fn`` data
+            [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+        * **meta_soil_texture** map: soil texture based on USDA soil texture triangle \
 (mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam])
 
@@ -2556,7 +2559,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         lulc_vars: Dict = {
             "landuse": None,
             "Kext": "vegetation_canopy__light-extinction_coefficient",
-            "N": "land_surface_water_flow__manning_n_parameter",
+            "land_manning_n": "land_surface_water_flow__manning_n_parameter",
             "PathFrac": "soil~compacted__area_fraction",
             "RootingDepth": "vegetation_root__depth",
             "Sl": "vegetation__specific-leaf_storage",
@@ -2609,7 +2612,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         * **RootingDepth** map: Length of vegetation roots [mm]
         * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
         * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **N** map: Manning Roughness [-]
+        * **land_manning_n** map: Manning Roughness [-]
         * **kc** map: Crop coefficient [-]
         * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
           (0 or 1) [-]
@@ -2709,7 +2712,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self._update_naming(output_names)
         # As landuse is not a wflow variable, we update the name manually in self._MAPS
         if output_names_suffix is not None:
-            self._MAPS["landuse"] = f"wflow_landuse_{output_names_suffix}"
+            self._MAPS["landuse"] = f"meta_landuse_{output_names_suffix}"
 
         # Check if soil data is available
         if self._MAPS["ksat_vertical"] not in self.grid.data_vars:
@@ -2819,7 +2822,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
             self.set_config(
-                "state.variables.land_surface_water~paddy__depth", "h_paddy"
+                "state.variables.land_surface_water~paddy__depth", "demand_paddy_h"
             )
         else:
             self.logger.info("No paddy fields found, skipping updating soil parameters")
@@ -2830,7 +2833,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         min_area: float = 1.0,
         output_names: Dict = {
             "glacier_surface__area_fraction": "wflow_glacierfrac",
-            "glacier_ice__initial_leq-depth": "wflow_glacierstore",
+            "glacier_ice__initial_leq-depth": "glacier_initial_leq_depth",
         },
         geom_name: str = "glaciers",
     ):
@@ -2846,7 +2849,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         Adds model layers:
 
-        * **wflow_glacierareas** map: glacier IDs [-]
+        * **meta_glacier_area_id** map: glacier IDs [-]
         * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
         * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
 
@@ -2907,7 +2910,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
         self.set_config("model.glacier__flag", True)
-        self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
+        self.set_config("state.variables.glacier_ice__leq-depth", "glacier_leq_depth")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)
 
@@ -3309,7 +3312,7 @@ one variable and variables list is not provided."
         downscaled to model resolution using the elevation lapse rate. For better
         accuracy, you can provide the elevation grid of the climate data in
         `dem_forcing_fn`. If not present, the upscaled elevation grid of the wflow model
-        is used ('wflow_dem').
+        is used ('land_elevation').
 
         To compute PET (`skip_pet` is False), several methods are available. Before
         computation, both the temperature and pressure can be downscaled. Wind speed
@@ -4259,7 +4262,7 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(pop, name="population")  # meta_population
+            self.set_grid(pop, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic__flag", True)
@@ -4343,7 +4346,7 @@ Run setup_soilmaps first"
         rmdict = {k: self._MAPS.get(k, k) for k in domestic.data_vars}
         self.set_grid(domestic.rename(rmdict))
         if population_fn is not None:
-            self.set_grid(popu_scaled, name="population")  # meta_population
+            self.set_grid(popu_scaled, name="meta_population")
 
         # Update toml
         self.set_config("model.water_demand.domestic__flag", True)
@@ -4453,7 +4456,7 @@ Run setup_soilmaps first"
         paddy_class: List[int] = [],
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
-        lulcmap_name: str = "wflow_landuse",
+        lulcmap_name: str = "meta_landuse",
         output_names: Dict = {
             "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
             "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
@@ -4515,7 +4518,7 @@ Run setup_soilmaps first"
             default 0.2.
         lulcmap_name: str
             Name of the landuse map layer in the wflow model staticmaps. By default
-            'wflow_landuse'. Plese update if your landuse map has a different name
+            'meta_landuse'. Please update if your landuse map has a different name
             (eg 'landuse_globcover').
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
@@ -4812,36 +4815,36 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **satwaterdepth**: saturated store [mm]
-        * **snow**: snow storage [mm]
-        * **tsoil**: top soil temperature [°C]
-        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
-        * **snowwater**: liquid water content in the snow pack [mm]
-        * **canopystorage**: canopy storage [mm]
-        * **q_river**: river discharge [m3/s]
-        * **h_river**: river water level [m]
-        * **h_av_river**: river average water level [m]
-        * **ssf**: subsurface flow [m3/d]
-        * **h_land**: land water level [m]
-        * **h_av_land**: land average water level[m]
-        * **q_land** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+        * **soil_saturated_depth**: saturated store [mm]
+        * **snow_leq_depth**: snow storage [mm]
+        * **soil_temp**: top soil temperature [°C]
+        * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
+          layer [mm]
+        * **snow_water_depth**: liquid water content in the snow pack [mm]
+        * **vegetation_water_depth**: canopy storage [mm]
+        * **river_instantaneous_q**: river discharge [m3/s]
+        * **river_instantaneous_h**: river water level [m]
+        * **subsurface_q**: subsurface flow [m3/d]
+        * **land_instantaneous_h**: land water level [m]
+        * **land_instantaneous_q** or **land_instantaneous_qx**+
+          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local-inertial [m3/s]
 
         If lakes, also adds:
 
-        * **waterlevel_lake**: lake water level [m]
+        * **lake_instantaneous_water_level**: lake water level [m]
 
         If reservoirs, also adds:
 
-        * **volume_reservoir**: reservoir volume [m3]
+        * **reservoir_instantaneous_volume**: reservoir volume [m3]
 
         If glaciers, also adds:
 
-        * **glacierstore**: water within the glacier [mm]
+        * **glacier_leq_depth**: water within the glacier [mm]
 
         If paddy, also adds:
 
-        * **h_paddy**: water on the paddy fields [mm]
+        * **demand_paddy_h**: water on the paddy fields [mm]
 
         Parameters
         ----------
@@ -5990,12 +5993,12 @@ change name input.path_forcing "
                 remove_maps = [
                     self._MAPS["resareas"],
                     self._MAPS["reslocs"],
-                    self._MAPS["ResSimpleArea"],
-                    self._MAPS["ResDemand"],
-                    self._MAPS["ResTargetFullFrac"],
-                    self._MAPS["ResTargetMinFrac"],
-                    self._MAPS["ResMaxRelease"],
-                    self._MAPS["ResMaxVolume"],
+                    self._MAPS["reservoir_area"],
+                    self._MAPS["reservoir_demand"],
+                    self._MAPS["reservoir_target_full_fraction"],
+                    self._MAPS["reservoir_target_min_fraction"],
+                    self._MAPS["reservoir_max_release"],
+                    self._MAPS["reservoir_max_volume"],
                 ]
                 self._grid = self.grid.drop_vars(remove_maps)
 
@@ -6007,15 +6010,15 @@ change name input.path_forcing "
                 remove_maps = [
                     self._MAPS["lakeareas"],
                     self._MAPS["lakelocs"],
-                    self._MAPS["LinkedLakeLocs"],
-                    self._MAPS["LakeStorFunc"],
-                    self._MAPS["LakeOutflowFunc"],
-                    self._MAPS["LakeArea"],
-                    self._MAPS["LakeAvgLevel"],
+                    self._MAPS["lake_lower_id"],
+                    self._MAPS["lake_storage_curve"],
+                    self._MAPS["lake_rating_curve"],
+                    self._MAPS["lake_area"],
+                    self._MAPS["lake_initial_depth"],
                     "LakeAvgOut",  # this is a hydromt meta map
-                    self._MAPS["LakeThreshold"],
-                    self._MAPS["Lake_b"],
-                    self._MAPS["Lake_e"],
+                    self._MAPS["lake_outflow_threshold"],
+                    self._MAPS["lake_b"],
+                    self._MAPS["lake_e"],
                 ]
                 self._grid = self.grid.drop_vars(remove_maps)
 
@@ -6087,10 +6090,18 @@ change name input.path_forcing "
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
             if self._MAPS["resareas"] not in self.grid:
-                if "volume_reservoir" in ds_states:
-                    remove_maps.extend(["volume_reservoir"])
+                state_name = self.get_config(
+                    "state.variables.reservoir_water__instantaneous_volume",
+                    fallback="reservoir_instantaneous_volume",
+                )
+                if state_name in ds_states:
+                    remove_maps.extend([state_name])
             if self._MAPS["lakeareas"] not in self.grid:
-                if "waterlevel_lake" in ds_states:
-                    remove_maps.extend(["waterlevel_lake"])
+                state_name = self.get_config(
+                    "state.variables.lake_water_surface__instantaneous_elevation",
+                    fallback="lake_instantaneous_water_level",
+                )
+                if state_name in ds_states:
+                    remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
