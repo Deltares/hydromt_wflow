@@ -503,7 +503,7 @@ def surfacewaterfrac_used(
         fill_value=np.nan,
         dtype=np.float32,
     ).load()
-    swfrac.name = "frac_sw_used"
+    swfrac.name = "demand_surface_water_ratio"
     swfrac.attrs = {"_FillValue": -9999}
     swfrac.raster.set_crs(da_like.raster.crs)
 
@@ -654,8 +654,9 @@ def irrigation(
     Returns
     -------
     ds_irrigation: xr.Dataset
-        Dataset with paddy and non-paddy irrigation maps: ['paddy_irrigation_areas',
-        'nonpaddy_irrigation_areas', 'paddy_irrigation_trigger',
+        Dataset with paddy and non-paddy irrigation maps: [
+        'demand_paddy_irrigated_mask',
+        'demand_nonpaddy_irrigated_mask', 'paddy_irrigation_trigger',
         'nonpaddy_irrigation_trigger']
     """
     # Check that the landuse map is available
@@ -670,14 +671,14 @@ def irrigation(
     logger.info("Preparing irrigated areas map for non paddy.")
     nonpaddy = landuse.where(landuse.isin(cropland_class), landuse.raster.nodata)
     nonpaddy_areas = classify_pixels(irrigation_mask, nonpaddy, area_threshold)
-    ds_irrigation = nonpaddy_areas.to_dataset(name="nonpaddy_irrigation_areas")
+    ds_irrigation = nonpaddy_areas.to_dataset(name="demand_nonpaddy_irrigated_mask")
 
     # Get paddy mask from landuse
     if len(paddy_class) > 0:
         logger.info("Preparing irrigated areas map for paddy.")
         paddy = landuse.where(landuse.isin(paddy_class), landuse.raster.nodata)
         paddy_areas = classify_pixels(irrigation_mask, paddy, area_threshold)
-        ds_irrigation["paddy_irrigation_areas"] = paddy_areas
+        ds_irrigation["demand_paddy_irrigated_mask"] = paddy_areas
 
     # Calculate irrigation trigger based on LAI
     logger.info("Calculating irrigation trigger.")
@@ -687,9 +688,13 @@ def irrigation(
     trigger = calc_lai_threshold(lai, lai_threshold)
 
     # Mask trigger with paddy and nonpaddy
-    ds_irrigation["nonpaddy_irrigation_trigger"] = trigger.where(nonpaddy_areas == 1, 0)
+    ds_irrigation["demand_nonpaddy_irrigation_trigger"] = trigger.where(
+        nonpaddy_areas == 1, 0
+    )
     if len(paddy_class) > 0:
-        ds_irrigation["paddy_irrigation_trigger"] = trigger.where(paddy_areas == 1, 0)
+        ds_irrigation["demand_paddy_irrigation_trigger"] = trigger.where(
+            paddy_areas == 1, 0
+        )
 
     return ds_irrigation
 
@@ -729,8 +734,9 @@ def irrigation_from_vector(
     Returns
     -------
     ds_irrigation: xr.Dataset
-        Dataset with paddy and non-paddy irrigation maps: ['paddy_irrigation_areas',
-        'nonpaddy_irrigation_areas', 'paddy_irrigation_trigger',
+        Dataset with paddy and non-paddy irrigation maps: [
+        'pdemand_paddy_irrigated_mask',
+        'demand_nonpaddy_irrigated_mask', 'paddy_irrigation_trigger',
         'nonpaddy_irrigation_trigger']
 
     See Also
