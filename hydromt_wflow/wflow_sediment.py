@@ -550,7 +550,7 @@ river cells."
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito",
-            "erosion_usle_c _vito", etc.
+            "erosion_usle_c_vito", etc.
 
         See Also
         --------
@@ -578,9 +578,14 @@ river cells."
             if planted_forest is None:
                 self.logger.warning("No Planted forest data found within domain.")
                 return
+            rename_dict = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid,  # TODO should have erosion_usle_c in the grid already
+                self.grid.rename(
+                    rename_dict
+                ),  # TODO should have erosion_usle_c in the grid already
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,

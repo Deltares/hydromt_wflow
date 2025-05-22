@@ -770,7 +770,7 @@ def soilgrids_sediment(
     * soil_sagg_fraction: small aggregate content of the topsoil [g/g]
     * soil_lagg_fraction: large aggregate content of the topsoil [g/g]
     * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
-    * erosion_usle_k: soil erodibility factor from the USLE equation [-]
+    * usle_k: soil erodibility factor from the USLE equation [-]
     * soil_sediment_d50: median sediment diameter of the soil [mm]
     * land_govers_c: Govers factor for overland flow transport capacity [-]
     * land_govers_n: Govers exponent for overland flow transport capacity [-]
@@ -836,7 +836,7 @@ def soilgrids_sediment(
             keep_attrs=True,
         )
     usleK = usleK.raster.reproject_like(ds_like, method="average")
-    ds_out["erosion_usle_k"] = usleK.astype(np.float32)
+    ds_out["usle_k"] = usleK.astype(np.float32)
 
     # Mean diameter of the soil
     d50 = xr.apply_ufunc(
