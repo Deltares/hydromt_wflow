@@ -83,16 +83,16 @@ g_ttm = "G_TTM"
 g_sifrac = "G_SIfrac"
 
 [state.lateral.river]
-q = "river_q"
-h = "river_h"
+q = "q_river"
+h = "h_river"
 h_av = "h_av_river"
 
 [state.lateral.subsurface]
 ssf = "ssf"
 
 [state.lateral.land]
-q = "land_q"
-h = "land_h"
+q = "q_land"
+h = "h_land"
 h_av = "h_av_land"
 
 [input.lateral.river]
@@ -141,10 +141,10 @@ waterlevel = "LakeAvgLevel"
 path = "output.nc"
 
 [output.lateral.river]
-q_av = "river_q"
+q_av = "q_river"
 
 [output.lateral.land]
-h = "land_h"
+h = "h_land"
 
 [netcdf]
 path = "output_scalar.nc"
