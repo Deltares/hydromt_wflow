@@ -772,13 +772,16 @@ setting new flood_depth dimensions"
         if floodplain_type == "1d":
             # Add states
             self.set_config(
-                "state.floodplain_water__instantaneous_volume_flow_rate", "q_floodplain"
+                "state.floodplain_water__instantaneous_volume_flow_rate",
+                "floodplain_instantaneous_q",
             )
             self.set_config(
-                "state.floodplain_water__instantaneous_depth", "h_floodplain"
+                "state.floodplain_water__instantaneous_depth",
+                "floodplain_instantaneous_h",
             )
             self.set_config(
-                "state.land_surface_water__instantaneous_volume_flow_rate", "land_q"
+                "state.land_surface_water__instantaneous_volume_flow_rate",
+                "land_instantaneous_q",
             )
             # Remove local-inertial land states
             if (
@@ -826,11 +829,11 @@ setting new flood_depth dimensions"
             # Add local-inertial land routing states
             self.set_config(
                 "state.land_surface_water__x_component_of_instantaneous_volume_flow_rate",
-                "qx_land",
+                "land_instantaneous_qx",
             )
             self.set_config(
                 "state.land_surface_water__y_component_of_instantaneous_volume_flow_rate",
-                "qy_land",
+                "land_instantaneous_qy",
             )
             # Remove kinematic-wave and 1d floodplain states
             if (
@@ -1404,7 +1407,7 @@ and will soon be removed. '
         self,
         mapname: str,
         toml_output: str | None = "csv",
-        header: List[str] | None = ["Q"],
+        header: List[str] | None = ["river_q"],
         param: List[str] | None = ["river_water__volume_flow_rate"],
         reducer: List[str] | None = None,
     ):
@@ -1427,12 +1430,12 @@ and will soon be removed. '
         header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate).
+            By default saves river_q (for river_water__volume_flow_rate).
         param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the
             names in gauge_toml_header. By default saves river_water__volume_flow_rate
-            (for Q).
+            (for river_q).
         reducer: list, optional
             If map is an area rather than a point location, provides the reducer
             for the parameters to save. By default None.
@@ -1486,7 +1489,7 @@ skipping adding gauge specific outputs to the toml."
         self,
         river_only: bool = True,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["Q"],
+        gauge_toml_header: List[str] = ["river_q"],
         gauge_toml_param: List[str] = ["river_water__volume_flow_rate"],
     ):
         """Set the default gauge map based on basin outlets.
@@ -1513,11 +1516,11 @@ skipping adding gauge specific outputs to the toml."
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate).
+            By default saves river_q (for river_water__volume_flow_rate).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water__volume_flow_rate (for Q).
+            By default saves river_water__volume_flow_rate (for river_q).
         """
         # read existing geoms; important to get the right basin when updating
         # fix in set_geoms / set_geoms method
@@ -1573,7 +1576,7 @@ skipping adding gauge specific outputs to the toml."
         derive_subcatch: bool = False,
         basename: str | None = None,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["Q", "P"],
+        gauge_toml_header: List[str] = ["river_q", "precip"],
         gauge_toml_param: List[str] = [
             "river_water__volume_flow_rate",
             "atmosphere_water__precipitation_volume_flux",
@@ -1671,13 +1674,13 @@ gauge locations [-] (if derive_subcatch)
         gauge_toml_header : list, optional
             Save specific model parameters in csv section.
             This option defines the header of the csv file.
-            By default saves Q (for river_water__volume_flow_rate) and
-            P (for "atmosphere_water__precipitation_volume_flux").
+            By default saves river_q (for river_water__volume_flow_rate) and
+            precip (for "atmosphere_water__precipitation_volume_flux").
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
-            By default saves river_water__volume_flow_rate (for Q) and
-            "atmosphere_water__precipitation_volume_flux" (for P).
+            By default saves river_water__volume_flow_rate (for river_q) and
+            "atmosphere_water__precipitation_volume_flux" (for precip).
         kwargs : dict, optional
             Additional keyword arguments to pass to the get_data method ie
             get_geodataframe or get_geodataset depending  on the data_type of gauges_fn.
@@ -2067,7 +2070,7 @@ Using default storage/outflow function parameters."
         self.set_config("model.lakes", True)
         self.set_config(
             "state.variables.lake_water_surface__instantaneous_elevation",
-            "waterlevel_lake",
+            "lake_instantaneous_water_level",
         )
 
         for dvar in ds_lakes.data_vars:
@@ -2252,7 +2255,8 @@ Using default storage/outflow function parameters."
         # update toml
         self.set_config("model.reservoirs", True)
         self.set_config(
-            "state.variables.reservoir_water__instantaneous_volume", "volume_reservoir"
+            "state.variables.reservoir_water__instantaneous_volume",
+            "reservoir_instantaneous_volume",
         )
 
     def _setup_waterbodies(self, waterbodies_fn, wb_type, min_area=0.0, **kwargs):
@@ -2820,7 +2824,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
             # Update the states
             self.set_config(
-                "state.variables.land_surface_water~paddy__depth", "h_paddy"
+                "state.variables.land_surface_water~paddy__depth", "demand_paddy_h"
             )
         else:
             self.logger.info("No paddy fields found, skipping updating soil parameters")
@@ -2908,7 +2912,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
         self.set_config("model.glacier", True)
-        self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
+        self.set_config("state.variables.glacier_ice__leq-depth", "glacier_leq_depth")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)
 
@@ -4813,36 +4817,36 @@ Run setup_soilmaps first"
 
         Adds model layers:
 
-        * **satwaterdepth**: saturated store [mm]
-        * **snow**: snow storage [mm]
-        * **tsoil**: top soil temperature [°C]
-        * **ustorelayerdepth**: amount of water in the unsaturated store, per layer [mm]
-        * **snowwater**: liquid water content in the snow pack [mm]
-        * **canopystorage**: canopy storage [mm]
-        * **river_q**: river discharge [m3/s]
-        * **river_h**: river water level [m]
-        * **h_av_river**: river average water level [m]
-        * **ssf**: subsurface flow [m3/d]
-        * **land_h**: land water level [m]
-        * **h_av_land**: land average water level[m]
-        * **land_q** or **qx_land**+**qy_land**: overland flow for kinwave [m3/s] or
+        * **soil_saturated_depth**: saturated store [mm]
+        * **snow_leq_depth**: snow storage [mm]
+        * **soil_temp**: top soil temperature [°C]
+        * **soil_unsaturated_depth**: amount of water in the unsaturated store, per
+          layer [mm]
+        * **snow_water_depth**: liquid water content in the snow pack [mm]
+        * **vegetation_water_depth**: canopy storage [mm]
+        * **river_instantaneous_q**: river discharge [m3/s]
+        * **river_instantaneous_h**: river water level [m]
+        * **subsurface_q**: subsurface flow [m3/d]
+        * **land_instantaneous_h**: land water level [m]
+        * **land_instantaneous_q** or **land_instantaneous_qx**+
+          **land_instantaneous_qy**: overland flow for kinwave [m3/s] or
           overland flow in x/y directions for local-inertial [m3/s]
 
         If lakes, also adds:
 
-        * **waterlevel_lake**: lake water level [m]
+        * **lake_instantaneous_water_level**: lake water level [m]
 
         If reservoirs, also adds:
 
-        * **volume_reservoir**: reservoir volume [m3]
+        * **reservoir_instantaneous_volume**: reservoir volume [m3]
 
         If glaciers, also adds:
 
-        * **glacierstore**: water within the glacier [mm]
+        * **glacier_leq_depth**: water within the glacier [mm]
 
         If paddy, also adds:
 
-        * **h_paddy**: water on the paddy fields [mm]
+        * **demand_paddy_h**: water on the paddy fields [mm]
 
         Parameters
         ----------
@@ -6085,11 +6089,19 @@ change name input.path_forcing "
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
             if self._MAPS["resareas"] not in self.grid:
-                if "volume_reservoir" in ds_states:
-                    remove_maps.extend(["volume_reservoir"])
+                state_name = self.get_config(
+                    "state.variables.reservoir_water__instantaneous_volume",
+                    fallback="reservoir_instantaneous_volume",
+                )
+                if state_name in ds_states:
+                    remove_maps.extend([state_name])
             if self._MAPS["lakeareas"] not in self.grid:
-                if "waterlevel_lake" in ds_states:
-                    remove_maps.extend(["waterlevel_lake"])
+                state_name = self.get_config(
+                    "state.variables.lake_water_surface__instantaneous_elevation",
+                    fallback="lake_instantaneous_water_level",
+                )
+                if state_name in ds_states:
+                    remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
 
