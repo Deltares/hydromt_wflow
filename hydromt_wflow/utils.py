@@ -234,10 +234,10 @@ def get_config(
     >> get_config(config, 'a')
     >> 1
 
-    >> get_config(config, 'b', 'c', 'd') # identical to get_config('b.c.d')
+    >> get_config(config, 'b', 'c', 'd') # identical to get_config(config, 'b.c.d')
     >> 2
 
-    >> get_config(config, 'b.c') # # identical to get_config('b','c')
+    >> get_config(config, 'b.c') # # identical to get_config(config, 'b','c')
     >> {'d': 2}
     """
     args = list(args)
@@ -272,7 +272,7 @@ def set_config(config: tomlkit.TOMLDocument, *args):
     the toml file and add it under that.
 
     meaning that if you have a config toml that is empty and you run
-    ``wflow_model.set_config("input.forcing.scale", 1)``
+    ``set_config("input.forcing.scale", 1)``
 
     it will result in the following file:
 
@@ -326,13 +326,14 @@ def set_config(config: tomlkit.TOMLDocument, *args):
     --------
     .. code-block:: ipython
 
-        >> self.config
+        >> config
         >> {'a': 1, 'b': {'c': {'d': 2}}}
 
-        >> self.set_config('a', 99)
+        >> set_config(config, 'a', 99)
         >> {'a': 99, 'b': {'c': {'d': 2}}}
 
-        >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+        >> set_config(config, 'b', 'c', 'd', 99) # identical to \
+set_config(config, 'b.d.e', 99)
         >> {'a': 1, 'b': {'c': {'d': 99}}}
     """
     if len(args) < 2:
