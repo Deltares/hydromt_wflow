@@ -12,14 +12,14 @@ loglevel = "info"
 
 [model]
 type = "sediment"
-reinit = true
-run_river_model = true
+cold_start__flag = true
+run_river_model__flag = true
 rainfall_erosion = "answers"
 overland_flow_erosion = "answers"
 land_transport = "yalinpart"
 river_transport = "bagnold"
-reservoirs = true
-lakes = true
+reservoir__flag = true
+lake__flag = true
 
 [state]
 path_input = "instate/instates.nc"
@@ -28,8 +28,8 @@ path_output = "outstate/outstates.nc"
 [input]
 path_forcing = "output_grid_sbm.nc"
 path_static = "staticmaps.nc"
-local_drain_direction = "wflow_ldd"
-subcatchment_location__count = "wflow_subcatch"
+basin__local_drain_direction = "wflow_ldd"
+subbasin_location__count = "wflow_subcatch"
 river_location__mask = "wflow_river"
 reservoir_area__count = "wflow_reservoirareas"
 reservoir_location__count = "wflow_reservoirlocs"

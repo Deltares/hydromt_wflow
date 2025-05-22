@@ -163,7 +163,7 @@ def test_projected_crs(tmpdir):
     assert mod.grid.raster.crs == 3857
     # 95 quantile is class 190 ie urban
     assert (mod.grid["meta_landuse"] == 190).count().values == 338
-    assert mod.get_config("model.sizeinmetres") == True
+    assert mod.get_config("model.cell_length_in_meter__flag") == True
 
 
 def test_setup_lake(tmpdir, example_wflow_model):
@@ -754,7 +754,7 @@ def test_setup_floodplains_1d(example_wflow_model, floodplain1d_testdata):
     )
 
     assert "floodplain_volume" in example_wflow_model.grid
-    assert example_wflow_model.get_config("model.floodplain_1d") == True
+    assert example_wflow_model.get_config("model.floodplain_1d__flag") == True
     assert example_wflow_model.get_config("model.land_routing") == "kinematic-wave"
     assert (
         example_wflow_model.get_config(
@@ -794,7 +794,7 @@ def test_setup_floodplains_2d(elevtn_map, example_wflow_model, floodplain1d_test
     }[elevtn_map]
 
     assert f"{mapname}_D4" in example_wflow_model.grid
-    assert example_wflow_model.get_config("model.floodplain_1d") == False
+    assert example_wflow_model.get_config("model.floodplain_1d__flag") == False
     assert example_wflow_model.get_config("model.land_routing") == "local-inertial"
     assert (
         example_wflow_model.get_config("input.static.river_bank_water__elevation")
@@ -978,7 +978,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
         reservoirs_fn="hydro_reservoirs",
         min_area=0.0,
     )
-    assert clipped_wflow_model.config["model"]["reservoirs"] == False
+    assert clipped_wflow_model.config["model"]["reservoir__flag"] == False
     # Get names for two reservoir layers
     for mapname in ["resareas", "reslocs"]:
         # Check if layers are indeed not present in the model
@@ -1023,7 +1023,7 @@ def test_setup_lulc_paddy(example_wflow_model, tmpdir):
     assert "kc" in ds
     assert "c" in ds
     # Assert layers are updated
-    assert example_wflow_model.config["model"]["thicknesslayers"] == layers
+    assert example_wflow_model.config["model"]["soil_layer__thickness"] == layers
     # Adding +1 to the layers to also represent the last layer
     assert len(ds.layer) == len(layers) + 1
     assert ds.c.shape[0] == len(layers) + 1

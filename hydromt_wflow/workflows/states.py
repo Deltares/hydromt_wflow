@@ -229,7 +229,7 @@ def prepare_cold_states(
     # River
     zeromap_riv = ["river_instantaneous_q", "river_instantaneous_h"]
     # 1D floodplain
-    if config["model"].get("floodplain_1d", False):
+    if config["model"].get("floodplain_1d__flag", False):
         zeromap_riv.extend(["floodplain_instantaneous_q", "floodplain_instantaneous_h"])
         states_config[
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"
@@ -251,7 +251,7 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # reservoir
-    if config["model"].get("reservoirs", False):
+    if config["model"].get("reservoir__flag", False):
         tff = get_grid_from_config(
             "reservoir_water~full-target__volume_fraction",
             config=config,
@@ -277,7 +277,7 @@ def prepare_cold_states(
         )
 
     # lake
-    if config["model"].get("lakes", False):
+    if config["model"].get("lake__flag", False):
         ll = get_grid_from_config(
             "lake_water_surface__initial_elevation",
             config=config,
@@ -292,7 +292,7 @@ def prepare_cold_states(
         )
 
     # glacier
-    if config["model"].get("glacier", False):
+    if config["model"].get("glacier__flag", False):
         gs_vn = get_grid_from_config(
             "glacier_ice__initial_leq-depth",
             config=config,
@@ -314,7 +314,7 @@ def prepare_cold_states(
         states_config["state.variables.glacier_ice__leq-depth"] = "glacier_leq_depth"
 
     # paddy
-    if config["model"].get("water_demand.paddy", False):
+    if config["model"].get("water_demand.paddy__flag", False):
         h_paddy = grid_from_constant(
             ds_like,
             value=0.0,

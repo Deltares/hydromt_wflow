@@ -12,14 +12,14 @@ loglevel = "info"
 
 [model]
 type = "sediment"
-reinit = true
-run_river_model = true
+cold_start__flag = true
+run_river_model__flag = true
 rainfall_erosion = "answers"
 overland_flow_erosion = "answers"
 land_transport = "yalinpart"
 river_transport = "bagnold"
-reservoirs = true
-lakes = true
+reservoir__flag = true
+lake__flag = true
 
 [state]
 path_input = "instate/instates.nc"
@@ -28,8 +28,8 @@ path_output = "outstate/outstates.nc"
 [input]
 path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
-local_drain_direction = "wflow_ldd"
-subcatchment_location__count = "wflow_subcatch"
+basin__local_drain_direction = "wflow_ldd"
+subbasin_location__count = "wflow_subcatch"
 river_location__mask = "wflow_river"
 reservoir_area__count = "wflow_reservoirareas"
 reservoir_location__count = "wflow_reservoirlocs"
@@ -72,9 +72,9 @@ river__length = "river_length"
 river__slope = "river_slope"
 river__width = "river_width"
 reservoir_surface__area = "reservoir_area"
-"reservoir_sediment~bedload__trapping_efficiency_coefficient" = "reservoir_trapping_efficiency"
+"reservoir_water_sediment~bedload__trapping_efficiency" = "reservoir_trapping_efficiency"
 lake_surface__area = "lake_area"
-river_bottom-and-bank_sediment__d50_diameter = "D50_River"
+river_bottom-and-bank_sediment__median_diameter = "D50_River"
 river_bottom-and-bank_clay__mass_fraction = "ClayF_River"
 river_bottom-and-bank_silt__mass_fraction = "SiltF_River"
 river_bottom-and-bank_sand__mass_fraction = "SandF_River"
@@ -89,7 +89,7 @@ soil_erosion__usle_c_factor = "USLE_C"
 vegetation_canopy__height = "CanopyHeight"
 soil_erosion__rainfall_soil_detachability_factor = "soil_detachability"
 soil_erosion__usle_k_factor = "usle_k"
-land_surface_sediment__d50_diameter = "d50_soil"
+land_surface_sediment__median_diameter = "d50_soil"
 land_surface_water_sediment__govers_transport_capacity_coefficient = "c_govers"
 land_surface_water_sediment__govers_transport_capacity_exponent = "n_govers"
 soil_clay__mass_fraction = "fclay_soil"
@@ -119,25 +119,25 @@ header = "suspended_solids"
 map = "gauges_grdc"
 parameter = "river_water_sediment~suspended__mass_concentration"
 
-[input.static.land_surface_sediment__particle_density]
+[input.static.sediment__particle_density]
 value = 2650
 
-[input.static.clay__d50_diameter]
+[input.static.clay__mean_diameter]
 value = 2
 
-[input.static.silt__d50_diameter]
+[input.static.silt__mean_diameter]
 value = 10
 
-[input.static."sediment_aggregates~small__d50_diameter"]
+[input.static."sediment_aggregates~small__mean_diameter"]
 value = 30
 
-[input.static.sand__d50_diameter]
+[input.static.sand__mean_diameter]
 value = 200
 
-[input.static."sediment_aggregates~large__d50_diameter"]
+[input.static."sediment_aggregates~large__mean_diameter"]
 value = 500
 
-[input.static.gravel__d50_diameter]
+[input.static.gravel__mean_diameter]
 value = 2000
 
 [input.static.river_water_sediment__bagnold_transport_capacity_coefficient]

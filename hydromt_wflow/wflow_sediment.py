@@ -273,7 +273,7 @@ river cells."
         self.set_geoms(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
 
         # Lake settings in the toml to update
-        self.set_config("model.lakes", True)
+        self.set_config("model.lake__flag", True)
         for dvar in ds_lakes.data_vars:
             if dvar == "lakeareas" or dvar == "lakelocs":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
@@ -289,7 +289,7 @@ river cells."
             "reservoir_area__count": "wflow_reservoirareas",
             "reservoir_location__count": "wflow_reservoirlocs",
             "reservoir_surface__area": "reservoir_area",
-            "reservoir_sediment~bedload__trapping_efficiency_coefficient": "reservoir_trapping_efficiency",  # noqa: E501
+            "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
         geom_name: str = "reservoirs",
         **kwargs,
@@ -370,7 +370,7 @@ river cells."
         self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
         # Lake settings in the toml to update
-        self.set_config("model.reservoirs", True)
+        self.set_config("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
             if dvar in ["resareas", "reslocs"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
@@ -725,7 +725,7 @@ river cells."
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         output_names: Dict = {
-            "river_bottom-and-bank_sediment__d50_diameter": "D50_River",
+            "river_bottom-and-bank_sediment__median_diameter": "D50_River",
             "river_bottom-and-bank_clay__mass_fraction": "ClayF_River",
             "river_bottom-and-bank_silt__mass_fraction": "SiltF_River",
             "river_bottom-and-bank_sand__mass_fraction": "SandF_River",
@@ -856,7 +856,7 @@ river cells."
             "soil_aggregates~large__mass_fraction": "flagg_soil",
             "soil_erosion__rainfall_soil_detachability_factor": "soil_detachability",
             "soil_erosion__usle_k_factor": "usle_k",
-            "land_surface_sediment__d50_diameter": "d50_soil",
+            "land_surface_sediment__median_diameter": "d50_soil",
             "land_surface_water_sediment__govers_transport_capacity_coefficient": "c_govers",  # noqa: E501
             "land_surface_water_sediment__govers_transport_capacity_exponent": "n_govers",  # noqa: E501
         },
