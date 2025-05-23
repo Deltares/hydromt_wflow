@@ -29,6 +29,7 @@ Changed
 - **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping. PR #331
 - **setup_rivers**, **setup_lakes**, **setup_reservoirs** [sediment]: only create wflow sediment variables and not a mix of sbm and sediment ones.  PR #364
 - Grid data is masked to subcatchment on `set_grid` now instead of on `write_grid` (#349)
+- Signature of the standalone **set_config** and **get_config** functions, config is now first argument
 
 Fixed
 -----

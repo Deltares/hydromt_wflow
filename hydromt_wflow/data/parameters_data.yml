@@ -6,7 +6,7 @@ corine_mapping_default:
     dtype:
       landuse: int16
       Kext: float32
-      N: float32
+      land_manning_n: float32
       PathFrac: float32
       RootingDepth: float32
       Sl: float32
@@ -35,7 +35,7 @@ esa_worldcover_mapping_default:
     dtype:
       landuse: int16
       Kext: float32
-      N: float32
+      land_manning_n: float32
       PathFrac: float32
       RootingDepth: float32
       Sl: float32
@@ -64,7 +64,7 @@ globcover_mapping_default:
     dtype:
       landuse: int16
       Kext: float32
-      N: float32
+      land_manning_n: float32
       PathFrac: float32
       RootingDepth: float32
       Sl: float32
@@ -93,7 +93,7 @@ vito_mapping_default:
     dtype:
       landuse: int16
       Kext: float32
-      N: float32
+      land_manning_n: float32
       PathFrac: float32
       RootingDepth: float32
       Sl: float32
@@ -122,7 +122,7 @@ glcnmo_mapping_default:
     dtype:
       landuse: int16
       Kext: float32
-      N: float32
+      land_manning_n: float32
       PathFrac: float32
       RootingDepth: float32
       Sl: float32
@@ -151,7 +151,7 @@ paddy_mapping_default:
     dtype:
       landuse: int16
       Kext: float32
-      N: float32
+      land_manning_n: float32
       PathFrac: float32
       RootingDepth: float32
       Sl: float32
@@ -200,12 +200,12 @@ roughness_river_mapping_default:
   driver_kwargs:
     index_col: 0
     dtype:
-      N_River: float32
+      river_manning_n: float32
   meta:
     category: hydrography
     source_info: Mapping between streamorder and river Manning roughness
     source_version: 1.0
-  path: wflow/N_river_mapping.csv
+  path: wflow/river_manning_mapping.csv
 
 riverbedsed_mapping_default:
   data_type: DataFrame

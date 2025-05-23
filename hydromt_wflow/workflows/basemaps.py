@@ -292,7 +292,6 @@ parametrization of distributed hydrological models.
             ),
         )
         ds_out["flwdir"] = da_flwdir
-
     return ds_out, flwdir_out
 
 

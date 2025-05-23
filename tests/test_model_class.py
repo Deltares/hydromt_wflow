@@ -207,8 +207,8 @@ def test_model_results(example_wflow_results):
 
     # Checks for the csv columns
     # Q for gauges_grdc
-    assert len(example_wflow_results.results["Q_gauges_grdc"].index) == 3
-    assert np.isin(6349410, example_wflow_results.results["Q_gauges_grdc"].index)
+    assert len(example_wflow_results.results["river_q_gauges_grdc"].index) == 3
+    assert np.isin(6349410, example_wflow_results.results["river_q_gauges_grdc"].index)
 
     # Coordinates and values for coordinate.x and index.x for temp
     assert np.isclose(
@@ -221,4 +221,4 @@ def test_model_results(example_wflow_results):
     )
 
     # Coordinates of the reservoir
-    assert np.isclose(example_wflow_results.results["res-volume"]["y"], 46.16656)
+    assert np.isclose(example_wflow_results.results["reservoir_volume"]["y"], 46.16656)
