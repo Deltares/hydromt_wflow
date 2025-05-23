@@ -31,6 +31,8 @@ from hydromt.model.processes.region import (
     _parse_region_value,
 )
 
+from hydromt_wflow import workflows
+from hydromt_wflow.components import StaticMapsComponent
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
     DATADIR,
@@ -38,8 +40,6 @@ from hydromt_wflow.utils import (
     mask_raster_from_layer,
     read_csv_results,
 )
-
-from . import workflows
 
 __all__ = ["WflowModel"]
 __hydromt_eps__ = ["WflowModel"]  # core entrypoints
@@ -81,13 +81,13 @@ class WflowModel(Model):
     ):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
-        components = {}
+        components = {"staticmaps": StaticMapsComponent(model=self)}
 
         super().__init__(
             root,
             components=components,
             mode=mode,
-            region_component="grid",  # change when GridComponent is implemented
+            region_component="staticmaps",
             data_libs=data_libs,
             **catalog_keys,
         )
