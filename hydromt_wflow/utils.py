@@ -747,6 +747,8 @@ def _convert_to_wflow_v1(
 
     # Output netcdf_scalar section
     if get_config(config, "netcdf", fallback=None) is not None:
+        if "output" not in config_out:
+            config_out["output"] = {}
         config_out["output"]["netcdf_scalar"] = {
             "path": get_config(config, "netcdf.path", fallback="output_scalar.nc"),
         }
@@ -763,6 +765,8 @@ def _convert_to_wflow_v1(
 
     # Output csv section
     if get_config(config, "csv", fallback=None) is not None:
+        if "output" not in config_out:
+            config_out["output"] = {}
         config_out["output"]["csv"] = {}
 
         config_out["output"]["csv"]["path"] = get_config(
