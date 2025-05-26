@@ -66,7 +66,7 @@ class WflowSedimentModel(WflowModel):
             "river_location__mask": "river_mask",
             "river__length": "river_length",
             "river__width": "river_width",
-            "river__slope": "RiverSlope",
+            "river__slope": "river_slope",
         },
     ):
         """Set all river parameter maps.
@@ -275,7 +275,7 @@ river cells."
         # Lake settings in the toml to update
         self.set_config("model.lake__flag", True)
         for dvar in ds_lakes.data_vars:
-            if dvar == "lake_area_id " or dvar == "lakelocs":
+            if dvar == "lake_area_id " or dvar == "lake_outlet_id":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -388,7 +388,7 @@ river cells."
     ):
         """Set the default gauge map based on basin outlets.
 
-        If subcatchment is available, the catchment outlets IDs will be matching the
+        If the subcatchment map is available, the catchment outlets IDs will be matching the
         subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
 
         Can also add csv/netcdf_scalar output settings in the TOML.

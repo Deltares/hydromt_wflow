@@ -55,7 +55,7 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_laimaps`
       - This component sets leaf area index (LAI) climatology maps per month.
     * - :py:func:`~WflowModel.setup_laimaps_from_lulc_mapping`
-      - This component sets leaf area index (vegetation_leaf_area_index) climatology maps per month based on landuse mapping.
+      - This component sets leaf area index (LAI) climatology maps per month based on landuse mapping.
     * - :py:func:`~WflowModel.setup_soilmaps`
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
     * - :py:func:`~WflowModel.setup_ksathorfrac`

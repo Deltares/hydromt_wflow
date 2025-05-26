@@ -232,7 +232,7 @@ def brooks_corey_layers(
     Parameters
     ----------
     thetas_sl: xarray.Dataset
-        Dataset containing soil_theta_s at each soil layer depth.
+        Dataset containing theta_s at each soil layer depth.
     ds: xarray.Dataset
         Dataset containing soil properties at each soil depth.
     ds_like: xarray.Dataset
@@ -338,14 +338,14 @@ def kv_layers(ds, thetas, ptf_name):
     ds: xarray.Dataset
         Dataset containing soil properties at each soil depth [sl1 - sl7].
     thetas: xarray.Dataset
-        Dataset containing soil_theta_s at each soil layer depth.
+        Dataset containing theta_s at each soil layer depth.
     ptf_name : str
-        PTF to use for calculation soil_ksat_vertical .
+        PTF to use for calculation ksat_vertical .
 
     Returns
     -------
     ds_out : xarray.Dataset
-        Dataset containing soil_ksat_vertical  [mm/day] for each soil layer depth.
+        Dataset containing ksat_vertical  [mm/day] for each soil layer depth.
     """
     if ptf_name == "brakensiek":
         ds_out = xr.apply_ufunc(
@@ -475,9 +475,9 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
 
     The following soil parameter maps are calculated:
 
-    - **soil_theta_s** : average saturated soil water content [m3/m3]
-    - **soil_theta_r** : average residual water content [m3/m3]
-    - **soil_ksat_vertical ** : vertical saturated hydraulic conductivity at soil
+    - **theta_s** : average saturated soil water content [m3/m3]
+    - **theta_r** : average residual water content [m3/m3]
+    - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil
     surface [mm/day]
     - **soil_thickness** : soil thickness [mm]
     - **SoilMinThickness** : minimum soil thickness [mm] (equal to soil_thickness)
@@ -489,11 +489,11 @@ soil_ksat_vertical with soil depth (fitted with curve_fit (scipy.optimize)),
 (fitted with numpy linalg regression), bounds of **M_** are checked
     - **M_original** : **M** without checking bounds
     - **M_original_** : **M_** without checking bounds
-    - **f** : scaling parameter controlling the decline of soil_ksat_vertical  [mm-1] \
+    - **f** : scaling parameter controlling the decline of ksat_vertical  [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
-    - **f_** : scaling parameter controlling the decline of soil_ksat_vertical  [mm-1]
+    - **f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]
       (fitted with numpy linalg regression), bounds are checked
-    - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
+    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size distribution \
 index for the wflow_sbm soil layers.
     - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \
 [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
@@ -510,7 +510,7 @@ index for the wflow_sbm soil layers.
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculation soil_ksat_vertical .
+        PTF to use for calculation ksat_vertical .
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
@@ -542,7 +542,7 @@ index for the wflow_sbm soil layers.
     # concat along a sl dimension
     ds = concat_layers(ds, soil_fn)
 
-    logger.info("calculate and resample soil_theta_s")
+    logger.info("calculate and resample theta_s")
     thetas_sl = xr.apply_ufunc(
         ptf.thetas_toth,
         ds["ph"],
@@ -561,7 +561,7 @@ index for the wflow_sbm soil layers.
     thetas = thetas.raster.reproject_like(ds_like, method="average")
     ds_out["theta_s"] = thetas.astype(np.float32)
 
-    logger.info("calculate and resample soil_theta_r")
+    logger.info("calculate and resample theta_r")
     thetar_sl = xr.apply_ufunc(
         ptf.thetar_rawls_brakensiek,
         ds["sndppt"],
@@ -577,7 +577,7 @@ index for the wflow_sbm soil layers.
     else:
         thetar = average_soillayers(thetar_sl, ds["soilthickness"])
     thetar = thetar.raster.reproject_like(ds_like, method="average")
-    ds_out["soil_theta_r"] = thetar.astype(np.float32)
+    ds_out["theta_r"] = thetar.astype(np.float32)
 
     soilthickness_hr = ds["soilthickness"]
     soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
@@ -588,7 +588,7 @@ index for the wflow_sbm soil layers.
     ds_out["soil_thickness"] = soilthickness * 10.0  # from [cm] to [mm]
     ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["soil_thickness"], deep=False)
 
-    logger.info("calculate and resample soil_ksat_vertical ")
+    logger.info("calculate and resample ksat_vertical ")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
     kv_sl = np.log(kv_sl_hr)
     kv_sl = kv_sl.raster.reproject_like(ds_like, method="average")
@@ -605,7 +605,7 @@ index for the wflow_sbm soil layers.
     )
     ds_out["soil_brooks_corey_c"] = ds_c
 
-    ds_out["soil_ksat_vertical "] = kv_sl.sel(sl=1).astype(np.float32)
+    ds_out["ksat_vertical "] = kv_sl.sel(sl=1).astype(np.float32)
 
     for i, sl in enumerate(kv_sl["sl"]):
         kv = kv_sl.sel(sl=sl)
@@ -615,7 +615,7 @@ index for the wflow_sbm soil layers.
 
     kv = kv_sl / kv_sl.sel(sl=1)
     logger.info(
-        "fit z - log(soil_ksat_vertical ) with numpy linalg regression (y = b*x) -> M_"
+        "fit z - log(ksat_vertical ) with numpy linalg regression (y = b*x) -> M_"
     )
     popt_0_ = xr.apply_ufunc(
         do_linalg,
@@ -732,7 +732,7 @@ def soilgrids_brooks_corey(
     # concat along a sl dimension
     ds = concat_layers(ds, soil_fn)
 
-    logger.info("calculate and resample soil_theta_s")
+    logger.info("calculate and resample theta_s")
     thetas_sl = xr.apply_ufunc(
         ptf.thetas_toth,
         ds["ph"],

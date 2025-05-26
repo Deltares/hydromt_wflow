@@ -716,8 +716,8 @@ def rootzoneclim(
     if LAI == True:
         # Create a new xr dataset containing the interception pars
         intercep_vars = ds_like.LAI.to_dataset(name="LAI")
-        intercep_vars["vegetation_wood_storage"] = ds_like["vegetation_wood_storage"]
-        intercep_vars["vegetation_leaf_storage"] = ds_like["vegetation_leaf_storage"]
+        intercep_vars["wood_storage"] = ds_like["wood_storage"]
+        intercep_vars["leaf_storage"] = ds_like["leaf_storage"]
 
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
@@ -988,7 +988,7 @@ def rootzoneclim(
             ds_out[f"vegetation_root_depth_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim),
                 out_raster
-                / (ds_like["soil_theta_s"].values - ds_like["soil_theta_r"].values),
+                / (ds_like["theta_s"].values - ds_like["theta_r"].values),
             )
 
     return ds_out, gdf_basins_all

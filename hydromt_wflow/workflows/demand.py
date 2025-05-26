@@ -602,7 +602,7 @@ def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
     -------
     trigger:
         Maps with a value of 1 or 0.
-        1: where the vegetation_leaf_area_index indicates growing season
+        1: where LAI indicates growing season
         0: for all other pixels
     """
     # Compute min and max of vegetation_leaf_area_index
@@ -681,7 +681,7 @@ def irrigation(
         paddy_areas = classify_pixels(irrigation_mask, paddy, area_threshold)
         ds_irrigation["paddy_irrigation_areas"] = paddy_areas
 
-    # Calculate irrigation trigger based on vegetation_leaf_area_index
+    # Calculate irrigation trigger based on LAI
     logger.info("Calculating irrigation trigger.")
     if "LAI" not in ds_like:
         raise ValueError("LAI map is required in ds_like.")
@@ -726,7 +726,7 @@ def irrigation_from_vector(
         Threshold for the area of a pixel to be classified as irrigated (fraction of
         the cell covered).
     lai_threshold: float
-        Threshold for the vegetation_leaf_area_index value,
+        Threshold for the LAI value,
         to be classified as growing season.
 
     Returns

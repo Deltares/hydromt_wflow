@@ -195,11 +195,11 @@ def get_ks_veg(
 
     """
     # get the saturated hydraulic conductivity with fully developed vegetation.
-    ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(soil_ksat_vertical))
+    ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(ksat_vertical))
     # get the saturated hydraulic conductivity based on soil and
-    # vegetation mean vegetation_leaf_area_index
-    ks = ksmax - (ksmax - soil_ksat_vertical) / (
-        1 + (vegetation_leaf_area_index / alfa) ** beta
+    # vegetation mean LAI
+    ks = ksmax - (ksmax - ksat_vertical) / (
+        1 + (LAI / alfa) ** beta
     )
     return ks
 
@@ -219,14 +219,14 @@ def ksatver_vegetation(
     ----------
     ds_like : xr.Dataset
         Dataset at model resolution.
-        The required variables in ds_like are vegetation_leaf_area_index [-],
-        KSatVer [mm/d] and subcatchment
+        The required variables in ds_like are LAI [-],
+        ksat_vertical [mm/d] and subcatchment
     sndppt : [xr.DataSet, float]
         percentage sand [%].
     alfa : float, optional
-        Shape parameter. The default is 4.5 when using vegetation_leaf_area_index.
+        Shape parameter. The default is 4.5 when using LAI.
     beta : float, optional
-        Shape parameter. The default is 5 when using vegetation_leaf_area_index.
+        Shape parameter. The default is 5 when using LAI.
 
     Returns
     -------
@@ -244,7 +244,7 @@ def ksatver_vegetation(
     sndppt = sndppt.where(ds_like["basins"] > 0)
 
     # mean annual lai is required (see fig 1 in Bonetti et al. 2021)
-    LAI_mean = ds_like["vegetation_leaf_area_index"].mean("time")
+    LAI_mean = ds_like["LAI"].mean("time")
     LAI_mean.raster.set_nodata(255.0)
 
     # in this function, Ksatver should be provided in cm/d
