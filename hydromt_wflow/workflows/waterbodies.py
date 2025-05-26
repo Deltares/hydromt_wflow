@@ -118,7 +118,7 @@ def waterbodymaps(
     ds_out["resareas"] = ds_out["resareas"].astype("float32")
 
     if wb_type == "lake":
-        ds_out = ds_out.rename({"resareas": "lake_area_id", "reslocs": "lakelocs"})
+        ds_out = ds_out.rename({"reservoir_area_id": "lake_area_id", "reservoir_outlet": "lake_outlet_id"})
 
     return ds_out, outgdf
 

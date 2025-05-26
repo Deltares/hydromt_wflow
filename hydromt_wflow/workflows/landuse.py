@@ -184,7 +184,7 @@ def landuse_from_vector(
 
 
 def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
-    """Return climatology of Leaf Area Index (vegetation_leaf_area_index).
+    """Return climatology of Leaf Area Index (LAI).
 
     The following topography maps are calculated:
     - vegetation_leaf_area_index

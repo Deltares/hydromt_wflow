@@ -764,7 +764,7 @@ def convert_to_wflow_v1_sediment(
 
     # variables that were moved to input rather than input.static
     input_variables = [
-        "vertical.lake_area_id",
+        "vertical.lakeareas",
         "lateral.river.lakelocs",
         "vertical.resareas",
         "lateral.river.reslocs",

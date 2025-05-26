@@ -1337,14 +1337,14 @@ and will soon be removed. '
             By default "vegetation_leaf_area_index".
         """
         # retrieve data for region
-        self.logger.info("Preparing vegetation_leaf_area_index maps.")
-        wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_leaf_area_index"]]
+        self.logger.info("Preparing LAI maps.")
+        wflow_var = self._WFLOW_NAMES[self._MAPS["LAI"]]
         self._update_naming({wflow_var: output_name})
         da = self.data_catalog.get_rasterdataset(
             lai_fn, geom=self.region, buffer=buffer
         )
         if lulc_fn is not None:
-            self.logger.info("Preparing LULC-vegetation_leaf_area_index mapping table.")
+            self.logger.info("Preparing LULC-LAI mapping table.")
             da_lulc = self.data_catalog.get_rasterdataset(
                 lulc_fn, geom=self.region, buffer=buffer
             )
@@ -1372,10 +1372,10 @@ and will soon be removed. '
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
         self.set_grid(
-            da_lai.rename(rmdict), name=self._MAPS["vegetation_leaf_area_index"]
+            da_lai.rename(rmdict), name=self._MAPS["LAI"]
         )
         self._update_config_variable_name(
-            self._MAPS["vegetation_leaf_area_index"], data_type="cyclic"
+            self._MAPS["LAI"], data_type="cyclic"
         )
 
     def setup_laimaps_from_lulc_mapping(
@@ -1416,7 +1416,7 @@ and will soon be removed. '
             LULC-vegetation_leaf_area_index mapping table."
         )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
-        wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_leaf_area_index"]]
+        wflow_var = self._WFLOW_NAMES[self._MAPS["LAI"]]
         self._update_naming({wflow_var: output_name})
 
         # read landuse map to DataArray
@@ -1427,7 +1427,7 @@ and will soon be removed. '
             lai_mapping_fn,
             driver_kwargs={"index_col": 0},  # only used if fn_map is a file path
         )
-        # process landuse with LULC-vegetation_leaf_area_index mapping table
+        # process landuse with LULC-LAI mapping table
         da_lai = workflows.lai_from_lulc_mapping(
             da=da,
             ds_like=self.grid,
@@ -1435,10 +1435,10 @@ and will soon be removed. '
             logger=self.logger,
         )
         # Add to grid
-        self.set_grid(da_lai, name=self._MAPS["vegetation_leaf_area_index"])
+        self.set_grid(da_lai, name=self._MAPS["LAI"])
         # Add to config
         self._update_config_variable_name(
-            self._MAPS["vegetation_leaf_area_index"], data_type="cyclic"
+            self._MAPS["LAI"], data_type="cyclic"
         )
 
     def setup_config_output_timeseries(
@@ -2542,7 +2542,7 @@ using 'variable' argument."
             daout.name = output_name
         self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout, name=self._MAPS["subsurface_ksat_horizontal_ratio"])
+        self.set_grid(daout)
         self._update_config_variable_name(daout.name)
 
     def setup_ksatver_vegetation(
@@ -2550,9 +2550,9 @@ using 'variable' argument."
         soil_fn: str = "soilgrids",
         alfa: float = 4.5,
         beta: float = 5,
-        output_name: str = "KsatVer_vegetation",
+        output_name: str = "soil_ksat_vertical_vegetation",
     ):
-        """Calculate soil_ksat_vertical values from vegetation in addition to soil characteristics.
+        """Correct vertical saturated hydraulic conductivity with vegetation properties.
 
         This allows to account for biologically-promoted soil structure and \
         heterogeneities in natural landscapes based on the work of \
@@ -2573,9 +2573,9 @@ using 'variable' argument."
             Should contain info for the sand percentage of the upper layer
             * Required variable: 'sndppt_sl1' [%]
         alfa : float, optional
-            Shape parameter. The default is 4.5 when using vegetation_leaf_area_index.
+            Shape parameter. The default is 4.5 when using LAI.
         beta : float, optional
-            Shape parameter. The default is 5 when using vegetation_leaf_area_index.
+            Shape parameter. The default is 5 when using LAI.
         output_name : dict, optional
             Name of the output map. By default 'KsatVer_vegetation'.
         """  # noqa: E501
@@ -2587,7 +2587,7 @@ using 'variable' argument."
             soil_fn, geom=self.region, buffer=2, variables=["sndppt_sl1"]
         )
 
-        # get_ksatver_vegetation soil_ksat_vertical should be provided in mm/d
+        # in ksatver_vegetation, soil_ksat_vertical should be provided in mm/d
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
         KSatVer_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
@@ -3719,7 +3719,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         it may be useful to run this method as an update step in the setting-up of
         the hydrological model, once the forcing files have already been derived.
         In addition the setup_soilmaps method is also required to calculate
-        the vegetation_root_depth (rootzone_storage / (soil_theta_s-soil_theta_r)).
+        the vegetation_root_depth (rootzone_storage / (theta_s-theta_r)).
         The setup_laimaps method is also required if vegetation_leaf_area_index is
         set to True (interception capacity estimated from
         vegetation_leaf_area_index maps, instead of providing a default maximum
@@ -3739,7 +3739,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] \
 estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different \
 return periods RP. The translation to vegetation_root_depth is done by dividing \
-the rootzone_storage by (soil_theta_s - soil_theta_r).
+the rootzone_storage by (theta_s - theta_r).
         * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
 storage capacity [mm of water] for each catchment estimated before filling \
 the missing with data from downstream catchments.
@@ -3854,18 +3854,18 @@ the return_period argument.
         # check if setup_soilmaps and setup_laimaps were run when:
         # if vegetation_leaf_area_index == True and rooting_depth == True
         if (vegetation_leaf_area_index == True) and (
-            self._MAPS["vegetation_leaf_area_index"] not in self.grid
+            self._MAPS["LAI"] not in self.grid
         ):
             self.logger.error(
                 "vegetation_leaf_area_index variable not found in grid. \
 Set vegetation_leaf_area_index to False or run setup_laimaps first"
             )
 
-        if (self._MAPS["soil_theta_r"] not in self.grid) or (
-            self._MAPS["soil_theta_s"] not in self.grid
+        if (self._MAPS["theta_r"] not in self.grid) or (
+            self._MAPS["theta_s"] not in self.grid
         ):
             self.logger.error(
-                "soil_theta_s or soil_theta_r variables not found in grid. \
+                "theta_s or theta_r variables not found in grid. \
 Run setup_soilmaps first"
             )
 
@@ -3943,7 +3943,7 @@ Run setup_soilmaps first"
 
         * **subcatchment_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model.
-        * **subcatchment_riv_{mapname}** map/geom:  connection subbasins between
+        * **subcatchment_river_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model for river cells only.
         * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries
           flowing into the 1D model.
@@ -4054,7 +4054,7 @@ Run setup_soilmaps first"
         self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
+        self.set_grid(ds_out["subcatch_river"], name=f"subcatchment_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
@@ -4064,7 +4064,7 @@ Run setup_soilmaps first"
         # Update toml
         if update_toml:
             self.setup_config_output_timeseries(
-                mapname=f"subcatchment_riv_{mapname}",
+                mapname=f"subcatchment_river_{mapname}",
                 toml_output=toml_output,
                 header=["Qlat"],
                 param=["river_water_inflow~lateral__volume_flow_rate"],
@@ -4218,13 +4218,13 @@ Run setup_soilmaps first"
         # check whether to use the models own allocation areas
         if waterareas_fn is None:
             self.logger.info("Using wflow model allocation areas.")
-            if self._MAPS["demand_allocation_area_id"] not in self.grid:
+            if self._MAPS["allocation_areas"] not in self.grid:
                 self.logger.error(
                     "No allocation areas found. Run setup_allocation_areas first "
                     "or provide a waterareas_fn."
                 )
                 return
-            waterareas = self.grid[self._MAPS["demand_allocation_area_id"]]
+            waterareas = self.grid[self._MAPS["allocation_areas"]]
         else:
             waterareas = self.data_catalog.get_rasterdataset(
                 waterareas_fn,
@@ -4608,7 +4608,7 @@ Run setup_soilmaps first"
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
         lai_threshold: float
-            Value of vegetation_leaf_area_index variability to be used to determine the
+            Value of LAI variability to be used to determine the
             irrigation trigger. By default 0.2.
         lulcmap_name: str
             Name of the landuse map layer in the wflow model staticmaps. By default
@@ -4659,7 +4659,7 @@ Run setup_soilmaps first"
         )
 
         # Check if paddy and non paddy are present
-        cyclic_lai = len(self.grid[self._MAPS["vegetation_leaf_area_index"]].dims) > 2
+        cyclic_lai = len(self.grid[self._MAPS["LAI"]].dims) > 2
         if (
             "paddy_irrigation_areas" in ds_irrigation.data_vars
             and ds_irrigation["paddy_irrigation_areas"]
@@ -4784,7 +4784,7 @@ Run setup_soilmaps first"
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
         lai_threshold: float
-            Value of vegetation_leaf_area_index variability to be used to determine the
+            Value of LAI variability to be used to determine the
             irrigation trigger. By default 0.2.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
@@ -4831,7 +4831,7 @@ Run setup_soilmaps first"
         )
 
         # Check if paddy and non paddy are present
-        cyclic_lai = len(self.grid[self._MAPS["vegetation_leaf_area_index"]].dims) > 2
+        cyclic_lai = len(self.grid[self._MAPS["LAI"]].dims) > 2
         if (
             "paddy_irrigation_areas" in ds_irrigation.data_vars
             and ds_irrigation["paddy_irrigation_areas"]

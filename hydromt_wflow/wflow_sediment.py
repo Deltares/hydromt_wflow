@@ -63,8 +63,8 @@ class WflowSedimentModel(WflowModel):
         smooth_len: float = 5e3,
         output_names: Dict = {
             "river_location__mask": "river_mask",
-            "river__length": "river_mask_length",
-            "river__width": "river_mask_width",
+            "river__length": "river_length",
+            "river__width": "river_width",
             "river__slope": "RiverSlope",
         },
     ):
@@ -95,7 +95,7 @@ class WflowSedimentModel(WflowModel):
         * **river_mask_length** map: river length [m]
         * **river_mask_width** map: river width [m]
         * **RiverSlope** map: river slope [m/m]
-        * **rivers** geom: river vector based on river_mask mask
+        * **rivers** geom: river vector based on river mask
 
         Parameters
         ----------

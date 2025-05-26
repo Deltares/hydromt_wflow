@@ -188,7 +188,7 @@ def pore_size_distribution_index_layers(ds, thetas):
     ds: xarray.Dataset
         Dataset containing soil properties at each soil depth [sl1 - sl7].
     thetas: xarray.Dataset
-        Dataset containing soil_theta_s at each soil layer depth.
+        Dataset containing theta_s at each soil layer depth.
 
     Returns
     -------
@@ -558,7 +558,7 @@ index for the wflow_sbm soil layers.
     else:
         thetas = average_soillayers(thetas_sl, ds["soilthickness"])
     thetas = thetas.raster.reproject_like(ds_like, method="average")
-    ds_out["soil_theta_s"] = thetas.astype(np.float32)
+    ds_out["theta_s"] = thetas.astype(np.float32)
 
     logger.info("calculate and resample soil_theta_r")
     thetar_sl = xr.apply_ufunc(

@@ -582,15 +582,15 @@ def classify_pixels(
 
 def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
     """
-    Calculate irrigation trigger based on vegetation_leaf_area_index threshold.
+    Calculate irrigation trigger based on LAI threshold.
 
-    Trigger is set to 1 when the vegetation_leaf_area_index is bigger than 20%
+    Trigger is set to 1 when the LAI is bigger than 20%
     of the variation (set by the threshold value).
 
     Parameters
     ----------
     da_lai
-        Dataarray with vegetation_leaf_area_index values
+        Dataarray with LAI values
     threshold
         Value to be used as threshold
     dtype
@@ -639,7 +639,7 @@ def irrigation(
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
-        * Required variables: ['landuse', 'vegetation_leaf_area_index']
+        * Required variables: ['landuse', 'LAI']
     irrigation_value: List[int]
         Values that indicate irrigation in da_irrigation.
     cropland_class: List[int]
@@ -650,7 +650,7 @@ def irrigation(
         Threshold for the area of a pixel to be classified as irrigated (fraction of
         the cell covered).
     lai_threshold: float
-        Threshold for the vegetation_leaf_area_index value,
+        Threshold for the LAI value,
         to be classified as growing season.
 
     Returns
@@ -683,9 +683,9 @@ def irrigation(
 
     # Calculate irrigation trigger based on vegetation_leaf_area_index
     logger.info("Calculating irrigation trigger.")
-    if "vegetation_leaf_area_index" not in ds_like:
-        raise ValueError("vegetation_leaf_area_index map is required in ds_like.")
-    lai = ds_like["vegetation_leaf_area_index"].copy()
+    if "LAI" not in ds_like:
+        raise ValueError("LAI map is required in ds_like.")
+    lai = ds_like["LAI"].copy()
     trigger = calc_lai_threshold(lai, lai_threshold)
 
     # Mask trigger with paddy and nonpaddy
@@ -715,7 +715,7 @@ def irrigation_from_vector(
     ds_like: xr.Dataset
         Dataset at wflow model domain and resolution.
 
-        * Required variables: ['landuse', 'vegetation_leaf_area_index']
+        * Required variables: ['landuse', 'LAI']
     irrigation_value: List[int]
         Values that indicate irrigation in gdf_irrigation.
     cropland_class: List[int]

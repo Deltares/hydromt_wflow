@@ -62,11 +62,11 @@ def prepare_cold_states(
         Dataset containing the staticmaps grid and variables to prepare some of the
         states.
 
-        * Required variables: subcatchment, river_mask
+        * Required variables: `mask_name_land`, `mask_name_river`
 
-        * Other required variables (exact name from the wflow config):
+        * Other required variables (exact name will be read from the wflow config):
             soil_brooks_corey_c, soilthickness,
-            theta_s, theta_r, kv_0, f, slope, subsurface_ksat_horizontal_ratio
+            theta_s, theta_r, ksat_vertical, f, slope, subsurface_ksat_horizontal_ratio
 
         * Optional variables (exact name from the wflow config): reservoir.locs,
             glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,
