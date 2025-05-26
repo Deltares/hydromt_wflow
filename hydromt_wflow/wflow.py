@@ -1031,21 +1031,21 @@ and will soon be removed. '
             Crop coefficient [-]
         * **vegetation_feddes_alpha_h1** map:
             Root water uptake reduction at soil water pressure head
-            vegetation_feddes_h1 (0 or 1) [-]
-        * **vegetation_feddes_h1** map:
-            Soil water pressure head vegetation_feddes_h1 at which root water
+            h1 (0 or 1) [-]
+        * **h1** map:
+            Soil water pressure head h1 at which root water
             uptake is reduced (Feddes) [cm]
-        * **vegetation_feddes_h2** map:
-            Soil water pressure head vegetation_feddes_h2 at which root water
+        * **h2** map:
+            Soil water pressure head h2 at which root water
             uptake is reduced (Feddes) [cm]
-        * **vegetation_feddes_h3_high** map:
+        * **h3_high** map:
             Soil water pressure head h3 at which root water uptake is
             reduced (Feddes) [cm]
-        * **vegetation_feddes_h3_low** map:
+        * **h3_low** map:
             Soil water pressure head h3 at which root water uptake is
             reduced (Feddes) [cm]
-        * **vegetation_feddes_h4** map:
-            Soil water pressure head vegetation_feddes_h4 at which root water
+        * **h4** map:
+            Soil water pressure head h4 at which root water
             uptake is reduced (Feddes) [cm]
 
 
@@ -1383,10 +1383,7 @@ and will soon be removed. '
         output_name: str = "vegetation_leaf_area_index",
     ):
         """
-        Derive cyclic vegetation_leaf_area_index maps.
-
-        To derive the maps, a LULC data source and a LULC-vegetation_leaf_area_index
-        mapping table are used.
+        Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
 
         Adds model layers:
 
@@ -1410,8 +1407,7 @@ and will soon be removed. '
             By default "vegetation_leaf_area_index".
         """
         self.logger.info(
-            "Preparing vegetation_leaf_area_index maps from LULC data using \
-            LULC-vegetation_leaf_area_index mapping table."
+            "Preparing LAI maps from LULC data using LULC-LAI mapping table."
         )
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         wflow_var = self._WFLOW_NAMES[self._MAPS["LAI"]]
@@ -2108,7 +2104,7 @@ Using default storage/outflow function parameters."
         )
 
         for dvar in ds_lakes.data_vars:
-            if dvar == "lake_area_id" or dvar == "lakelocs":
+            if dvar == "lake_area_id" or dvar == "lake_outlet_id":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -2411,27 +2407,10 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
             vertical saturated hydraulic conductivity at soil surface [mm/day]
         * **soil_thickness** map:
             soil thickness [mm]
-        * **SoilMinThickness** map:
-            minimum soil thickness [mm] (equal to soil_thickness)
-        * **M** map:
-            model parameter [mm] that controls exponential decline of \
-soil_ksat_vertical with soil depth (fitted with curve_fit (scipy.optimize)), \
-bounds of M are checked
-        * **M_** map:
-            model parameter [mm] that controls exponential decline of \
-soil_ksat_vertical with soil depth (fitted with numpy linalg regression), \
-bounds of `M_` are checked
-        * **M_original** map:
-            M without checking bounds
-        * **M_original_** map:
-            `M_` without checking bounds
-        * **f** map:
-            scaling parameter controlling the decline of soil_ksat_vertical \
-[mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **f_** map:
+        * **soil_f_** map:
             scaling parameter controlling the decline of soil_ksat_vertical \
 [mm-1] (fitted with numpy linalg regression), bounds are checked
-        * **c_n** map:
+        * **soil_brooks_corey_c_n** map:
             Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
         * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
@@ -2453,7 +2432,7 @@ a map for each of the wflow_sbm soil layers (n in total)
 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%], 'oc_sl*' [%], 'ph_sl*' [-], \
 'sndppt_sl*' [%], 'soilthickness' [cm]
         ptf_ksatver : {'brakensiek', 'cosby'}
-            Pedotransfer function (PTF) to use for calculation soil_ksat_vertical
+            Pedotransfer function (PTF) to use for calculation of ksat vertical
             (vertical saturated hydraulic conductivity [mm/day]).
             By default 'brakensiek'.
         wflow_thicknesslayers : list of int, optional
@@ -3881,7 +3860,7 @@ Run setup_soilmaps first"
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
-            vegetation_leaf_area_index=LAI,
+            LAI=LAI,
             rootzone_storage=rootzone_storage,
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
@@ -6080,13 +6059,13 @@ change name input.path_forcing "
 
         # Update reservoir and lakes
         remove_reservoir = False
-        if self._MAPS["resareas"] in self.grid:
-            reservoir = self.grid[self._MAPS["resareas"]]
+        if self._MAPS["reservoir_area_id"] in self.grid:
+            reservoir = self.grid[self._MAPS["reservoir_area_id"]]
             if not np.any(reservoir > 0):
                 remove_reservoir = True
                 remove_maps = [
-                    self._MAPS["resareas"],
-                    self._MAPS["reslocs"],
+                    self._MAPS["reservoir_area_id"],
+                    self._MAPS["reservoir_outlet_id"],
                     self._MAPS["reservoir_area"],
                     self._MAPS["reservoir_demand"],
                     self._MAPS["reservoir_target_full_fraction"],
@@ -6103,7 +6082,7 @@ change name input.path_forcing "
                 remove_lake = True
                 remove_maps = [
                     self._MAPS["lake_area_id"],
-                    self._MAPS["lakelocs"],
+                    self._MAPS["lake_outlet_id"],
                     self._MAPS["lake_lower_id"],
                     self._MAPS["lake_storage_curve"],
                     self._MAPS["lake_rating_curve"],

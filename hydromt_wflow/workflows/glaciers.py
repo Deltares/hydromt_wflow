@@ -22,23 +22,23 @@ def glaciermaps(
 
     The following glacier maps are calculated:
 
-    - wflow_glacierareas: glacier IDs [ID]
-    - glacier_fraction: area fraction of glacier per cell [-]
-    - wflow_glacierstore: storage (volume) of glacier per cell [mm]
+    - glacareas: glacier IDs [ID]
+    - glacfrac: area fraction of glacier per cell [-]
+    - glacstore: storage (volume) of glacier per cell [mm]
 
     Parameters
     ----------
-    gdf : geopandas.GeoDataFrame
-        GeoDataFrame containing glacier geometries and attributes.
-    ds_like : xarray.DataArray
-        Dataset at model resolution.
-    id_column : str, optional, one of "simple_id", "C3S_id", "RGI_id", or "GLIMS_id"
-        Column used for the glacier IDs, see data/data_sources.yml.
+     gdf : geopandas.GeoDataFrame
+         GeoDataFrame containing glacier geometries and attributes.
+     ds_like : xarray.DataArray
+         Dataset at model resolution.
+     id_column : str, optional, one of "simple_id", "C3S_id", "RGI_id", or "GLIMS_id"
+         Column used for the glacier IDs, see data/data_sources.yml.
 
     Returns
     -------
-    ds_out : xarray.Dataset
-        Dataset containing gridded glacier data
+     ds_out : xarray.Dataset
+         Dataset containing gridded glacier data
     """
     # Rasterize the GeoDataFrame to get the areas mask of glaciers with their ids
     ds_out = ds_like.raster.rasterize(

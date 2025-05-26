@@ -492,13 +492,13 @@ def test_setup_rootzoneclim(example_wflow_model):
         "rootzone_storage_cc_fut_2"
     ] == pytest.approx(80.89081789601374, abs=0.5)
 
-    # change settings for vegetation_leaf_area_index and correct_cc_deficit
+    # change settings for LAI and correct_cc_deficit
     example_wflow_model.setup_rootzoneclim(
         run_fn=ds_run,
         forcing_obs_fn=ds,
         forcing_cc_hist_fn=ds_cc_hist,
         forcing_cc_fut_fn=ds_cc_fut,
-        vegetation_leaf_area_index=True,
+        LAI=True,
         start_hydro_year="Oct",
         start_field_capacity="Apr",
         time_tuple=("2005-01-01", "2015-12-31"),

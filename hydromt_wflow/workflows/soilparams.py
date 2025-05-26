@@ -83,7 +83,7 @@ def calc_kv_at_depth(depth, kv_0, f):
 
 
 def calc_kvfrac(kv_depth, target):
-    """Calculate the soil_ksat_vertical_factor.
+    """Calculate the kvfrac.
 
     Based on the kv value at a certain depth and the target value.
 
@@ -96,22 +96,22 @@ def calc_kvfrac(kv_depth, target):
 
     Returns
     -------
-    soil_ksat_vertical_factor:
+    kvfrac:
         The value which kv_depths needs to be multiplied with to reach the target value
     """
-    soil_ksat_vertical_factor = target / kv_depth
-    return soil_ksat_vertical_factor
+    kvfrac = target / kv_depth
+    return kvfrac
 
 
 def update_kvfrac(
     ds_model, kv0_mask, f_mask, wflow_thicknesslayers, target_conductivity
 ):
     """
-    Calculate soil_ksat_vertical_factor values for each layer.
+    Calculate kvfrac values for each layer.
 
     Done such that the bottom of the layer equals to the target_conductivity.
     Calculation assumes exponentially declining vertical conductivities, based on the f
-    parameter. If no target_conductivity is specified, soil_ksat_vertical_factor is set
+    parameter. If no target_conductivity is specified, kvfrac is set
     to be equal to 1.
 
     Parameters
@@ -131,7 +131,7 @@ def update_kvfrac(
     Returns
     -------
     da_kvfrac
-        Maps for each layer with the required soil_ksat_vertical_factor value
+        Maps for each layer with the required kvfrac value
     """
     # Convert to np.array
     wflow_thicknesslayers = np.array(wflow_thicknesslayers)
@@ -144,7 +144,7 @@ def update_kvfrac(
 
     # Get the actual depths
     wflow_depths = np.cumsum(wflow_thicknesslayers)
-    # Find the index of the layers where a soil_ksat_vertical_factor should be set
+    # Find the index of the layers where a kvfrac should be set
     idx = target_conductivity.nonzero()[0]
 
     # Loop through the target_conductivity values
@@ -156,22 +156,20 @@ def update_kvfrac(
             kv_depth = calc_kv_at_depth(depth=depth, kv_0=kv0_mask, f=f_mask)
             paddy_values = calc_kvfrac(kv_depth=kv_depth, target=target)
             # Set the values in the correct places
-            soil_ksat_vertical_factor = xr.where(
+            kvfrac = xr.where(
                 paddy_values.raster.mask_nodata().isnull(),
                 da_kvfrac.loc[dict(layer=idx)],
                 paddy_values,
             )
-            soil_ksat_vertical_factor = soil_ksat_vertical_factor.fillna(-9999)
-            soil_ksat_vertical_factor.raster.set_nodata(-9999)
+            kvfrac = kvfrac.fillna(-9999)
+            kvfrac.raster.set_nodata(-9999)
             # Update layer in dataarray
-            da_kvfrac.loc[dict(layer=idx)] = soil_ksat_vertical_factor
+            da_kvfrac.loc[dict(layer=idx)] = kvfrac
 
     return da_kvfrac
 
 
-def get_ks_veg(
-    soil_ksat_vertical, sndppt, vegetation_leaf_area_index, alfa=4.5, beta=5
-):
+def get_ks_veg(ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
     """
     Based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
 
@@ -181,12 +179,12 @@ def get_ks_veg(
         saturated hydraulic conductivity from PTF based on soil properties [cm/d].
     sndppt : [xr.DataSet, float]
         percentage sand [%].
-    vegetation_leaf_area_index : [xr.DataSet, float]
+    LAI : [xr.DataSet, float]
         Mean annual leaf area index [-].
     alfa : float, optional
-        Shape parameter. The default is 4.5 when using vegetation_leaf_area_index.
+        Shape parameter. The default is 4.5 when using LAI.
     beta : float, optional
-        Shape parameter. The default is 5 when using vegetation_leaf_area_index.
+        Shape parameter. The default is 5 when using LAI.
 
     Returns
     -------
@@ -198,9 +196,7 @@ def get_ks_veg(
     ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(ksat_vertical))
     # get the saturated hydraulic conductivity based on soil and
     # vegetation mean LAI
-    ks = ksmax - (ksmax - ksat_vertical) / (
-        1 + (LAI / alfa) ** beta
-    )
+    ks = ksmax - (ksmax - ksat_vertical) / (1 + (LAI / alfa) ** beta)
     return ks
 
 

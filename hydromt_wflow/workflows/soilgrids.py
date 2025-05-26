@@ -480,21 +480,10 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
     - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil
     surface [mm/day]
     - **soil_thickness** : soil thickness [mm]
-    - **SoilMinThickness** : minimum soil thickness [mm] (equal to soil_thickness)
-    - **M** : model parameter [mm] that controls exponential decline of \
-soil_ksat_vertical with soil depth (fitted with curve_fit (scipy.optimize)),
-    bounds of **M** are checked \
-- **M_** : model parameter [mm] that controls exponential decline of
-    soil_ksat_vertical with soil depth \
-(fitted with numpy linalg regression), bounds of **M_** are checked
-    - **M_original** : **M** without checking bounds
-    - **M_original_** : **M_** without checking bounds
-    - **f** : scaling parameter controlling the decline of ksat_vertical  [mm-1] \
-(fitted with curve_fit (scipy.optimize)), bounds are checked
-    - **f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]
+    - **f_** : scaling parameter controlling the decline of soil_ksat_vertical  [mm-1]
       (fitted with numpy linalg regression), bounds are checked
-    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size distribution \
-index for the wflow_sbm soil layers.
+    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \
+    distribution index for the wflow_sbm soil layers.
     - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \
 [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
     - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
@@ -586,7 +575,6 @@ index for the wflow_sbm soil layers.
     soilthickness.raster.set_nodata(np.nan)
     soilthickness = soilthickness.astype(np.float32)
     ds_out["soil_thickness"] = soilthickness * 10.0  # from [cm] to [mm]
-    ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["soil_thickness"], deep=False)
 
     logger.info("calculate and resample ksat_vertical ")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
