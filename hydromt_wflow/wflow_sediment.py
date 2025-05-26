@@ -7,6 +7,7 @@ from typing import Dict, List
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import tomlkit
 import xarray as xr
 
 from hydromt_wflow.utils import (
@@ -92,10 +93,10 @@ class WflowSedimentModel(WflowModel):
         Adds model layers:
 
         * **river_mask** map: river mask [-]
-        * **river_mask_length** map: river length [m]
-        * **river_mask_width** map: river width [m]
-        * **RiverSlope** map: river slope [m/m]
-        * **rivers** geom: river vector based on river mask
+        * **river_length** map: river length [m]
+        * **river_width** map: river width [m]
+        * **river_slope** map: river slope [m/m]
+        * **rivers** geom: river vector based on wflow_river mask
 
         Parameters
         ----------
@@ -208,7 +209,7 @@ river cells."
         output_names: Dict = {
             "lake_area__count": "lake_area_id",
             "lake_location__count": "lake_outlet_id",
-            "lake_surface__area": "LakeArea",
+            "lake_surface__area": "lake_area",
         },
         geom_name: str = "lakes",
         **kwargs,
@@ -225,7 +226,7 @@ river cells."
 
         * **lake_area_id** map: lake IDs [-]
         * **lake_outlet_id** map: lake IDs at outlet locations [-]
-        * **LakeArea** map: lake area [m2]
+        * **lake_area** map: lake area [m2]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
         Parameters
@@ -261,7 +262,7 @@ river cells."
             gdf_lakes[["waterbody_id", "Area_avg"]],
             geometry=gpd.points_from_xy(gdf_lakes.xout, gdf_lakes.yout),
         )
-        ds_lakes["LakeArea"] = self.grid.raster.rasterize(
+        ds_lakes["lake_area"] = self.grid.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
 
@@ -269,10 +270,10 @@ river cells."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
         self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes.rename({"Area_avg": "LakeArea"}), name=geom_name)
+        self.set_geoms(gdf_lakes.rename({"Area_avg": "lake_area"}), name=geom_name)
 
         # Lake settings in the toml to update
-        self.set_config("model.lakes", True)
+        self.set_config("model.lake__flag", True)
         for dvar in ds_lakes.data_vars:
             if dvar == "lake_area_id " or dvar == "lakelocs":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
@@ -287,8 +288,8 @@ river cells."
         output_names: Dict = {
             "reservoir_area__count": "reservoir_area_id",
             "reservoir_location__count": "reservoir_outlet_id",
-            "reservoir_surface__area": "ResSimpleArea",
-            "reservoir_sediment~bedload__trapping_efficiency_coefficient": "ResTrapEff",
+            "reservoir_surface__area": "reservoir_area",
+            "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
         geom_name: str = "reservoirs",
         **kwargs,
@@ -305,8 +306,9 @@ river cells."
 
         * **reservoir_area_id** map: reservoir IDs [-]
         * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
-        * **ResSimpleArea** map: reservoir area [m2]
-        * **ResTrapEff** map: reservoir trapping efficiency coefficient [-]
+        * **reservoir_area** map: reservoir area [m2]
+        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency
+         coefficient [-]
 
         Parameters
         ----------
@@ -315,7 +317,7 @@ river cells."
 
             * Required variables: ['waterbody_id', 'Area_avg']
 
-            * Optional variables: ['ResTrapEff']
+            * Optional variables: ['reservoir_trapping_efficiency']
         min_area : float, optional
             Minimum reservoir area threshold [km2], by default 1.0 km2.
         trapping_default : float, optional
@@ -344,28 +346,31 @@ river cells."
         self._update_naming(output_names)
 
         # Add default trapping efficiency coefficient if not in data source
-        if "ResTrapEff" not in gdf_res.columns:
-            gdf_res["ResTrapEff"] = trapping_default
+        if "reservoir_trapping_efficiency" not in gdf_res.columns:
+            gdf_res["reservoir_trapping_efficiency"] = trapping_default
         # add reservoirs parameters to grid
         gdf_points = gpd.GeoDataFrame(
-            gdf_res[["waterbody_id", "Area_avg", "ResTrapEff"]],
+            gdf_res[["waterbody_id", "Area_avg", "reservoir_trapping_efficiency"]],
             geometry=gpd.points_from_xy(gdf_res.xout, gdf_res.yout),
         )
-        ds_res["ResSimpleArea"] = self.grid.raster.rasterize(
+        ds_res["reservoir_area"] = self.grid.raster.rasterize(
             gdf_points, col_name="Area_avg", dtype="float32", nodata=-999
         )
-        ds_res["ResTrapEff"] = self.grid.raster.rasterize(
-            gdf_points, col_name="ResTrapEff", dtype="float32", nodata=-999
+        ds_res["reservoir_trapping_efficiency"] = self.grid.raster.rasterize(
+            gdf_points,
+            col_name="reservoir_trapping_efficiency",
+            dtype="float32",
+            nodata=-999,
         )
 
         # add to grid
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "ResSimpleArea"}), name=geom_name)
+        self.set_geoms(gdf_res.rename({"Area_avg": "reservoir_area"}), name=geom_name)
 
         # Lake settings in the toml to update
-        self.set_config("model.reservoirs", True)
+        self.set_config("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
             if dvar in ["resareas", "reslocs"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
@@ -376,7 +381,7 @@ river cells."
         self,
         river_only: bool = True,
         toml_output: str = "csv",
-        gauge_toml_header: List[str] = ["TSS"],
+        gauge_toml_header: List[str] = ["suspended_solids"],
         gauge_toml_param: List[str] = [
             "river_water_sediment~suspended__mass_concentration",
         ],
@@ -405,13 +410,13 @@ river cells."
         gauge_toml_header : list, optional
             Save specific model parameters in csv section. This option defines
             the header of the csv file.
-            By default saves TSS (for
+            By default saves suspended_solids (for
             river_water_sediment~suspended__mass_concentration).
         gauge_toml_param: list, optional
             Save specific model parameters in csv section. This option defines
             the wflow variable corresponding to the names in gauge_toml_header.
             By default saves river_water_sediment~suspended__mass_concentration (for
-            TSS).
+            suspended_solids).
         """
         super().setup_outlets(
             river_only=river_only,
@@ -435,7 +440,7 @@ river cells."
         derive_subcatch: bool = False,
         basename: str | None = None,
         toml_output: str | None = "csv",
-        gauge_toml_header: List[str] | None = ["Q", "TSS"],
+        gauge_toml_header: List[str] | None = ["river_q", "suspended_solids"],
         gauge_toml_param: List[str] | None = [
             "river_water__volume_flow_rate",
             "river_water_sediment~suspended__mass_concentration",
@@ -449,7 +454,7 @@ river cells."
 
         The only differences are the default values for the arguments:
 
-        - ``gauge_toml_header`` defaults to ["Q", "TSS"]
+        - ``gauge_toml_header`` defaults to ["river_q", "suspended_solids"]
         - ``gauge_toml_param`` defaults to ["river_water__volume_flow_rate",
             "river_water_sediment~suspended__mass_concentration"]
 
@@ -727,7 +732,7 @@ river cells."
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         output_names: Dict = {
-            "river_bottom-and-bank_sediment__d50_diameter": "D50_River",
+            "river_bottom-and-bank_sediment__median_diameter": "D50_River",
             "river_bottom-and-bank_clay__mass_fraction": "ClayF_River",
             "river_bottom-and-bank_silt__mass_fraction": "SiltF_River",
             "river_bottom-and-bank_sand__mass_fraction": "SandF_River",
@@ -858,7 +863,7 @@ river cells."
             "soil_aggregates~large__mass_fraction": "flagg_soil",
             "soil_erosion__rainfall_soil_detachability_factor": "soil_detachability",
             "soil_erosion__usle_k_factor": "usle_k",
-            "land_surface_sediment__d50_diameter": "d50_soil",
+            "land_surface_sediment__median_diameter": "d50_soil",
             "land_surface_water_sediment__govers_transport_capacity_coefficient": "c_govers",  # noqa: E501
             "land_surface_water_sediment__govers_transport_capacity_exponent": "n_govers",  # noqa: E501
         },
@@ -941,8 +946,14 @@ river cells."
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
         """
+        self.read()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
-        self._config = dict()
+        # tomlkit loads errors on this file so we have to do it in two steps
+        with open(DATADIR / "default_config_headers.toml", "r") as file:
+            default_header_str = file.read()
+
+        self._config = tomlkit.parse(default_header_str)
+
         for option in config_out:
             self.set_config(option, config_out[option])
 

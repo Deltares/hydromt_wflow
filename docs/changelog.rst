@@ -29,6 +29,7 @@ Changed
 - **setup_riverbedsed** [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping. PR #331
 - **setup_rivers**, **setup_lakes**, **setup_reservoirs** [sediment]: only create wflow sediment variables and not a mix of sbm and sediment ones.  PR #364
 - Grid data is masked to subcatchment on `set_grid` now instead of on `write_grid` (#349)
+- Signature of the standalone **set_config** and **get_config** functions, config is now first argument
 
 Fixed
 -----
@@ -38,6 +39,10 @@ Deprecated
 ----------
 - Support for building/updating models for Wflow.jl version < 1.0.0. We encourage you to upgrade your model to the new version using `upgrade_to_v1_wflow` or use an older release of hydromt_wflow if you do not want to upgrade your model.  PR #364
 - **setup_soilmaps**: drop possibility to derive parameters based on soil texture as InfiltCapSoil parameter is no longer supported in Wflow.jl 1.0.0 (duplicate of ksat_vertical). PR #334
+
+Removed
+----------
+Dropped support for `pcraster` and removed deprecated **pcrm** module. PR #408
 
 
 v0.8.0 (9 April 2025)
@@ -114,6 +119,8 @@ Changed
 -------
 - Individual methods like write_forcing will not longer write the config file if config settings get updated. Always call write_config as the last write method. PR #286
 - More uniform handling of the date typing when reading/writing dates from the wflow toml files. PR #286
+- ``Wflow._config`` is no longer a dictionary but a ``tomlkit.TOMLDocument`` to ensure structure of existing toml files are preserved upon write.
+  Due to this change we discourage users from modifying the config structure by hand, and instead rely on ``Wflow.set_config`` to avoid issues. (#387)
 
 Fixed
 -----
