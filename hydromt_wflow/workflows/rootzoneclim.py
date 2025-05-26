@@ -987,8 +987,7 @@ def rootzoneclim(
             # Store the vegetation_root_depth in ds_out
             ds_out[f"vegetation_root_depth_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim),
-                out_raster
-                / (ds_like["theta_s"].values - ds_like["theta_r"].values),
+                out_raster / (ds_like["theta_s"].values - ds_like["theta_r"].values),
             )
 
     return ds_out, gdf_basins_all
