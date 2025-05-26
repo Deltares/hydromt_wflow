@@ -388,8 +388,8 @@ river cells."
     ):
         """Set the default gauge map based on basin outlets.
 
-        If the subcatchment map is available, the catchment outlets IDs will be matching the
-        subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
+        If the subcatchment map is available, the catchment outlets IDs will be matching
+        the subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
 
         Can also add csv/netcdf_scalar output settings in the TOML.
 
