@@ -480,7 +480,9 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
     - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil
     surface [mm/day]
     - **soil_thickness** : soil thickness [mm]
-    - **f_** : scaling parameter controlling the decline of soil_ksat_vertical  [mm-1]
+    - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \
+(fitted with curve_fit (scipy.optimize)), bounds are checked
+    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]
       (fitted with numpy linalg regression), bounds are checked
     - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \
     distribution index for the wflow_sbm soil layers.
@@ -593,7 +595,7 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
     )
     ds_out["soil_brooks_corey_c"] = ds_c
 
-    ds_out["ksat_vertical "] = kv_sl.sel(sl=1).astype(np.float32)
+    ds_out["ksat_vertical"] = kv_sl.sel(sl=1).astype(np.float32)
 
     for i, sl in enumerate(kv_sl["sl"]):
         kv = kv_sl.sel(sl=sl)
@@ -618,7 +620,7 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
 
     M_ = (thetas - thetar) / (-popt_0_)
     M_ = constrain_M(M_, popt_0_, M_minmax)
-    ds_out["f_"] = ((thetas - thetar) / M_).astype(np.float32)
+    ds_out["soil_f_"] = ((thetas - thetar) / M_).astype(np.float32)
 
     logger.info("fit zi - Ksat with curve_fit (scipy.optimize) -> M")
     popt_0 = xr.apply_ufunc(

@@ -584,8 +584,8 @@ def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
     """
     Calculate irrigation trigger based on LAI threshold.
 
-    Trigger is set to 1 when the LAI is bigger than 20%
-    of the variation (set by the threshold value).
+    Trigger is set to 1 when the LAI is bigger than 20% of the variation (set by the
+    threshold value).
 
     Parameters
     ----------
@@ -601,11 +601,10 @@ def calc_lai_threshold(da_lai, threshold, dtype=np.int32, na_value=-9999):
     Returns
     -------
     trigger:
-        Maps with a value of 1 or 0.
-        1: where LAI indicates growing season
-        0: for all other pixels
+        Maps with a value of 1 where the LAI indicates growing season, and 0 for all
+        other pixels
     """
-    # Compute min and max of vegetation_leaf_area_index
+    # Compute min and max of LAI
     lai_min = da_lai.min(dim="time")
     lai_max = da_lai.max(dim="time")
     # Determine critical threshold
@@ -650,8 +649,7 @@ def irrigation(
         Threshold for the area of a pixel to be classified as irrigated (fraction of
         the cell covered).
     lai_threshold: float
-        Threshold for the LAI value,
-        to be classified as growing season.
+        Threshold for the LAI value to be classified as growing season.
 
     Returns
     -------
@@ -726,8 +724,7 @@ def irrigation_from_vector(
         Threshold for the area of a pixel to be classified as irrigated (fraction of
         the cell covered).
     lai_threshold: float
-        Threshold for the LAI value,
-        to be classified as growing season.
+        Threshold for the LAI value to be classified as growing season.
 
     Returns
     -------

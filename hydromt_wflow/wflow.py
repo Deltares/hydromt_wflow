@@ -1032,19 +1032,19 @@ and will soon be removed. '
         * **vegetation_feddes_alpha_h1** map:
             Root water uptake reduction at soil water pressure head
             h1 (0 or 1) [-]
-        * **h1** map:
+        * **vegetation_feddes_h1** map:
             Soil water pressure head h1 at which root water
             uptake is reduced (Feddes) [cm]
-        * **h2** map:
+        * **vegetation_feddes_h2** map:
             Soil water pressure head h2 at which root water
             uptake is reduced (Feddes) [cm]
-        * **h3_high** map:
+        * **vegetation_feddes_h3_high** map:
             Soil water pressure head h3 (high) at which root water uptake is
             reduced (Feddes) [cm]
-        * **h3_low** map:
+        * **vegetation_feddes_h3_low** map:
             Soil water pressure head h3 (low) at which root water uptake is
             reduced (Feddes) [cm]
-        * **h4** map:
+        * **vegetation_feddes_h4** map:
             Soil water pressure head h4 at which root water
             uptake is reduced (Feddes) [cm]
 
@@ -1164,21 +1164,21 @@ and will soon be removed. '
             Crop coefficient [-]
         * **vegetation_feddes_alpha_h1** map:
             Root water uptake reduction at soil water pressure head
-            vegetation_feddes_h1 (0 or 1) [-]
+            h1 (0 or 1) [-]
         * **vegetation_feddes_h1** map:
-            Soil water pressure head vegetation_feddes_h1 at which root water
+            Soil water pressure head h1 at which root water
             uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h2** map:
-            Soil water pressure head vegetation_feddes_h2 at which root water
+            Soil water pressure head h2 at which root water
             uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h3_high** map:
-            Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
         * **vegetation_feddes_h3_low** map:
-            Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
         * **vegetation_feddes_h4** map:
-            Soil water pressure head vegetation_feddes_h4 at which root water
+            Soil water pressure head h4 at which root water
             uptake is reduced (Feddes) [cm]
 
         Parameters
@@ -1298,25 +1298,23 @@ and will soon be removed. '
         Parameters
         ----------
         lai_fn : str, xarray.DataArray
-            Name of RasterDataset source for vegetation_leaf_area_index parameters,
-            see data/data_sources.yml.
+            Name of RasterDataset source for LAI parameters, see data/data_sources.yml.
 
             * Required variables: 'LAI' [-]
 
             * Required dimensions: 'time' = [1,2,3,...,12] (months)
         lulc_fn : str, xarray.DataArray, optional
             Name of RasterDataset source for landuse-landcover data.
-            If provided, the LAI values are mapped to landuse
-            classes and will be saved to a csv file.
+            If provided, the LAI values are mapped to landuse classes and will be saved
+            to a csv file.
         lulc_sampling_method : str, optional
-            Resampling method for the LULC data to the LAI
-            resolution. Two methods are supported:
+            Resampling method for the LULC data to the LAI resolution. Two methods are
+            supported:
 
             * 'any' (default): if any cell of the desired landuse class is present in
-              the resampling window (even just one), it will be used to derive
-              LAI values. This method is less exact but will
-              provide LAI values for all landuse classes for
-              the high resolution landuse map.
+              the resampling window (even just one), it will be used to derive LAI
+              values. This method is less exact but will provide LAI values for all
+              landuse classes for the high resolution landuse map.
             * 'mode': the most frequent value in the resampling window is
               used. This method is less precise as for cells with a lot of different
               landuse classes, the most frequent value might still be only a small
@@ -1325,8 +1323,8 @@ and will soon be removed. '
               the original high resolution one.
             * 'q3': only cells with the most frequent value (mode) and that cover 75%
               (q3) of the resampling window will be used. This method is more exact but
-              for small basins, you may have less or no samples to derive
-              LAI values for some classes.
+              for small basins, you may have less or no samples to derive LAI values
+              for some classes.
         lulc_zero_classes : list, optional
             List of landuse classes that should have zero for leaf area index values
             for example waterbodies, open ocean etc. For very high resolution landuse
@@ -1365,7 +1363,7 @@ and will soon be removed. '
                 df_fn = "lai_per_lulc.csv"
             df_lai_mapping.to_csv(join(self.root, df_fn))
 
-        # Resample vegetation_leaf_area_index data to wflow model resolution
+        # Resample LAI data to wflow model resolution
         da_lai = workflows.lai(
             da=da,
             ds_like=self.grid,
@@ -1397,9 +1395,8 @@ and will soon be removed. '
             Name of RasterDataset source for landuse-landcover data.
         lai_mapping_fn : str, pd.DataFrame
             Path to a mapping csv file from landuse in source name to
-            LAI values. The csv file should
-            contain rows with landuse classes and LAI
-            values for each month.  The columns should be named as the
+            LAI values. The csv file should contain rows with landuse classes
+            and LAI values for each month. The columns should be named as the
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
         output_name : str
@@ -1876,7 +1873,7 @@ gauge locations [-] (if derive_subcatch)
             mapname = self._MAPS["basins"] + "_" + basename
             self.set_grid(da_basins, name=mapname)
             gdf_basins = self.grid[mapname].raster.vectorize()
-            self.set_geoms(gdf_basins, name=mapname.replace("wflow_", ""))
+            self.set_geoms(gdf_basins, name=mapname)
 
     def setup_areamap(
         self,
@@ -2564,7 +2561,7 @@ using 'variable' argument."
             soil_fn, geom=self.region, buffer=2, variables=["sndppt_sl1"]
         )
 
-        # in ksatver_vegetation, soil_ksat_vertical should be provided in mm/d
+        # in ksatver_vegetation, ksat_vertical should be provided in mm/d
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
         KSatVer_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
@@ -2665,23 +2662,23 @@ using 'variable' argument."
         * **vegetation_crop_factor** map:
             Crop coefficient [-]
         * **vegetation_feddes_alpha_h1** map:
-            Root water uptake reduction at soil water pressure head vegetation_feddes_h1
-          (0 or 1) [-]
+            Root water uptake reduction at soil water pressure head
+            h1 (0 or 1) [-]
         * **vegetation_feddes_h1** map:
-            Soil water pressure head vegetation_feddes_h1 at which root water uptake
-            is reduced (Feddes) [cm]
+            Soil water pressure head h1 at which root water
+            uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h2** map:
-            Soil water pressure head vegetation_feddes_h2 at which root water uptake
-            is reduced (Feddes) [cm]
+            Soil water pressure head h2 at which root water
+            uptake is reduced (Feddes) [cm]
         * **vegetation_feddes_h3_high** map:
-            Soil water pressure head h3 at which root water uptake is reduced (Feddes)
-            [cm]
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
         * **vegetation_feddes_h3_low** map:
-            Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
         * **vegetation_feddes_h4** map:
-            Soil water pressure head vegetation_feddes_h4 at which root water uptake
-            is reduced (Feddes) [cm]
+            Soil water pressure head h4 at which root water
+            uptake is reduced (Feddes) [cm]
         * **h_min** map:
             Minimum required water depth for paddy fields [mm]
         * **h_opt** map:
@@ -3700,10 +3697,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         the hydrological model, once the forcing files have already been derived.
         In addition the setup_soilmaps method is also required to calculate
         the vegetation_root_depth (rootzone_storage / (theta_s-theta_r)).
-        The setup_laimaps method is also required if LAI is
-        set to True (interception capacity estimated from
-        LAI maps, instead of providing a default maximum
-        interception capacity).
+        The setup_laimaps method is also required if LAI is set to True
+        (interception capacity estimated from LAI maps, instead of providing
+        a default maximum interception capacity).
 
         References
         ----------
@@ -4553,13 +4549,12 @@ Run setup_soilmaps first"
 
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
-        expected to occur. This is done based on the Leaf Area Index
-        (LAI), that is already present in the wflow model
-        configuration. We follow the procedure described by Peano et al. (2019).
-        They describe a threshold value based on the LAI
-        variability to determine the growing season. This threshold is defined as
-        20% (default value) of the LAI variability, but can
-        be adjusted via the ``lai_threshold`` argument.
+        expected to occur. This is done based on the Leaf Area Index (LAI), that is
+        already present in the wflow model configuration. We follow the procedure
+        described by Peano et al. (2019). They describe a threshold value based on the
+        LAI variability to determine the growing season. This threshold is defined as
+        20% (default value) of the LAI variability, but can be adjusted via the
+        ``lai_threshold`` argument.
 
         Adds model layers:
 
@@ -4586,8 +4581,8 @@ Run setup_soilmaps first"
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
         lai_threshold: float
-            Value of LAI variability to be used to determine the
-            irrigation trigger. By default 0.2.
+            Value of LAI variability to be used to determine the irrigation trigger. By
+            default 0.2.
         lulcmap_name: str
             Name of the landuse map layer in the wflow model staticmaps. By default
             'meta_landuse'. Please update if your landuse map has a different name
@@ -4732,13 +4727,12 @@ Run setup_soilmaps first"
 
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
-        expected to occur. This is done based on the Leaf Area Index
-        (LAI), that is already present in the wflow model
-        configuration. We follow the procedure described by Peano et al. (2019).
-        They describe a threshold value based on the LAI
-        variability to determine the growing season. This threshold is defined as
-        20% (default value) of the LAI variability, but can
-        be adjusted via the ``lai_threshold`` argument.
+        expected to occur. This is done based on the Leaf Area Index (LAI), that is
+        already present in the wflow model configuration. We follow the procedure
+        described by Peano et al. (2019). They describe a threshold value based on the
+        LAI variability to determine the growing season. This threshold is defined as
+        20% (default value) of the LAI variability, but can be adjusted via the
+        ``lai_threshold`` argument.
 
         Adds model layers:
 
@@ -4762,8 +4756,8 @@ Run setup_soilmaps first"
             Fractional area of a (wflow) pixel before it gets classified as an irrigated
             pixel, by default 0.6
         lai_threshold: float
-            Value of LAI variability to be used to determine the
-            irrigation trigger. By default 0.2.
+            Value of LAI variability to be used to determine the irrigation trigger. By
+            default 0.2.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
@@ -6088,7 +6082,7 @@ change name input.path_forcing "
                     self._MAPS["lake_rating_curve"],
                     self._MAPS["lake_area"],
                     self._MAPS["lake_initial_depth"],
-                    "LakeAvgOut",  # this is a hydromt meta map
+                    "meta_lake_mean_outflow",  # this is a hydromt meta map
                     self._MAPS["lake_outflow_threshold"],
                     self._MAPS["lake_b"],
                     self._MAPS["lake_e"],
@@ -6162,7 +6156,7 @@ change name input.path_forcing "
             )
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
-            if self._MAPS["resareas"] not in self.grid:
+            if self._MAPS["reservoir_area_id"] not in self.grid:
                 state_name = self.get_config(
                     "state.variables.reservoir_water__instantaneous_volume",
                     fallback="reservoir_instantaneous_volume",

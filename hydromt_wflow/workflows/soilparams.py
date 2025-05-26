@@ -111,8 +111,7 @@ def update_kvfrac(
 
     Done such that the bottom of the layer equals to the target_conductivity.
     Calculation assumes exponentially declining vertical conductivities, based on the f
-    parameter. If no target_conductivity is specified, kvfrac is set
-    to be equal to 1.
+    parameter. If no target_conductivity is specified, kvfrac is set to be equal to 1.
 
     Parameters
     ----------

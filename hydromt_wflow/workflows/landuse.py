@@ -204,15 +204,12 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     if isinstance(da, xr.Dataset) and "LAI" in da:
         da = da["LAI"]
     elif not isinstance(da, xr.DataArray):
-        raise ValueError(
-            "lai method requires a DataArray or Dataset with LAI array"  # noqa: E501
-        )
+        raise ValueError("lai method requires a DataArray or Dataset with LAI array")
     method = RESAMPLING.get(da.name, "average")
     nodata = da.raster.nodata
     logger.info(f"Deriving {da.name} using {method} resampling (nodata={nodata}).")
     da = da.astype(np.float32)
-    # Assuming missing values correspond to:
-    # bare soil, urban and snow (LAI=0.0)
+    # Assuming missing values correspond to: bare soil, urban and snow (LAI=0.0)
     da = da.where(da.values != nodata).fillna(0.0)
     da_out = da.raster.reproject_like(ds_like, method=method)
     da_out.attrs.update(_FillValue=nodata)
@@ -240,10 +237,9 @@ def create_lulc_lai_mapping_table(
         Two methods are supported:
 
         * 'any' (default): if any cell of the desired landuse class is present in the
-            resampling window (even just one), it will be used to derive
-            LAI values.
-            This method is less exact but will provide LAI values
-            for all landuse classes for the high resolution landuse map.
+            resampling window (even just one), it will be used to derive LAI values.
+            This method is less exact but will provide LAI values for all landuse
+            classes for the high resolution landuse map.
         * 'mode': the most frequent value in the resampling window is
             used. This method is less precise as for cells with a lot of different
             landuse classes, the most frequent value might still be only a small
@@ -252,8 +248,8 @@ def create_lulc_lai_mapping_table(
             the original high resolution one.
         * 'q3': only cells with the most frequent value (mode) and that cover 75%
             (q3) of the resampling window will be used. This method is more exact but
-            for small basins, you may have less or no samples to derive
-            LAI values for some classes.
+            for small basins, you may have less or no samples to derive LAI values
+            for some classes.
     lulc_zero_classes : list of int, optional
         List of landuse classes that should have zero for leaf area index values
         for example waterbodies, open ocean etc. For very high resolution landuse
@@ -263,9 +259,8 @@ def create_lulc_lai_mapping_table(
     Returns
     -------
     df_lai_mapping : pd.DataFrame
-        Mapping table with LAI values per landuse class.
-        One column for each month and one line per landuse class.
-        The number of samples used to derive the mapping
+        Mapping table with LAI values per landuse class. One column for each month and
+        one line per landuse class. The number of samples used to derive the mapping
         values is also added to a `samples` column in the dataframe.
     """
     # check the method values
@@ -384,8 +379,8 @@ def lai_from_lulc_mapping(
     ds_like : xr.Dataset
         Dataset at model resolution.
     df : pd.DataFrame
-        Mapping table with LAI values per landuse class.
-        One column for each month and one line per landuse class.
+        Mapping table with LAI values per landuse class. One column for each month and
+        one line per landuse class.
     logger : logging.Logger, optional
         Logger object.
 
