@@ -963,7 +963,7 @@ and will soon be removed. '
             fill=fill,
             fill_outliers=kwargs.pop("fill_outliers", fill),
             min_wth=min_wth,
-            mask_names=["lake_area_id", "resareas", "glacareas"],
+            mask_names=["lake_area_id", "reservoir_area_id"],
             predictor=predictor,
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
@@ -1039,10 +1039,10 @@ and will soon be removed. '
             Soil water pressure head h2 at which root water
             uptake is reduced (Feddes) [cm]
         * **h3_high** map:
-            Soil water pressure head h3 at which root water uptake is
+            Soil water pressure head h3 (high) at which root water uptake is
             reduced (Feddes) [cm]
         * **h3_low** map:
-            Soil water pressure head h3 at which root water uptake is
+            Soil water pressure head h3 (low) at which root water uptake is
             reduced (Feddes) [cm]
         * **h4** map:
             Soil water pressure head h4 at which root water
@@ -1301,21 +1301,21 @@ and will soon be removed. '
             Name of RasterDataset source for vegetation_leaf_area_index parameters,
             see data/data_sources.yml.
 
-            * Required variables: 'vegetation_leaf_area_index' [-]
+            * Required variables: 'LAI' [-]
 
             * Required dimensions: 'time' = [1,2,3,...,12] (months)
         lulc_fn : str, xarray.DataArray, optional
             Name of RasterDataset source for landuse-landcover data.
-            If provided, the vegetation_leaf_area_index values are mapped to landuse
+            If provided, the LAI values are mapped to landuse
             classes and will be saved to a csv file.
         lulc_sampling_method : str, optional
-            Resampling method for the LULC data to the vegetation_leaf_area_index
+            Resampling method for the LULC data to the LAI
             resolution. Two methods are supported:
 
             * 'any' (default): if any cell of the desired landuse class is present in
               the resampling window (even just one), it will be used to derive
-              vegetation_leaf_area_index values. This method is less exact but will
-              provide vegetation_leaf_area_index values for all landuse classes for
+              LAI values. This method is less exact but will
+              provide LAI values for all landuse classes for
               the high resolution landuse map.
             * 'mode': the most frequent value in the resampling window is
               used. This method is less precise as for cells with a lot of different
@@ -1326,7 +1326,7 @@ and will soon be removed. '
             * 'q3': only cells with the most frequent value (mode) and that cover 75%
               (q3) of the resampling window will be used. This method is more exact but
               for small basins, you may have less or no samples to derive
-              vegetation_leaf_area_index values for some classes.
+              LAI values for some classes.
         lulc_zero_classes : list, optional
             List of landuse classes that should have zero for leaf area index values
             for example waterbodies, open ocean etc. For very high resolution landuse
@@ -1397,8 +1397,8 @@ and will soon be removed. '
             Name of RasterDataset source for landuse-landcover data.
         lai_mapping_fn : str, pd.DataFrame
             Path to a mapping csv file from landuse in source name to
-            vegetation_leaf_area_index values. The csv file should
-            contain rows with landuse classes and vegetation_leaf_area_index
+            LAI values. The csv file should
+            contain rows with landuse classes and LAI
             values for each month.  The columns should be named as the
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
@@ -1524,8 +1524,8 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set the default gauge map based on basin outlets.
 
-        If subcatchment is available, the catchment outlets IDs will be matching the
-        subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
+        If the subcatchment map is available, the catchment outlets IDs will be matching
+        the subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
 
         Can also add csv/netcdf_scalar output settings in the TOML.
 
@@ -1654,7 +1654,7 @@ skipping adding gauge specific outputs to the toml."
         * **subcatchment_source** map: subcatchment based on gauge locations [-] \
 (if derive_subcatch)
         * **gauges_source** geom: polygon of gauges from source
-        * **subcatch_source** geom: polygon of subcatchment based on \
+        * **subcatchment_source** geom: polygon of subcatchment based on \
 gauge locations [-] (if derive_subcatch)
 
         Parameters
@@ -2364,7 +2364,7 @@ Using default storage/outflow function parameters."
             "soil_water__residual_volume_fraction": "soil_theta_r",
             "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical ",  # noqa: E501
             "soil__thickness": "soil_thickness",
-            "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "f",  # noqa: E501
+            "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
             "soil_layer_water__brooks-corey_exponent": "soil_brooks_corey_c",
         },
     ):
@@ -2504,7 +2504,7 @@ or created by a third party/ individual.
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
             raise ValueError(
-                "The subsurface_ksat_horizontal_ratio data contains several variables. \
+                "The ksat_fn data contains several variables. \
 Select the variable to use for subsurface_ksat_horizontal_ratio \
 using 'variable' argument."
             )
@@ -3700,9 +3700,9 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         the hydrological model, once the forcing files have already been derived.
         In addition the setup_soilmaps method is also required to calculate
         the vegetation_root_depth (rootzone_storage / (theta_s-theta_r)).
-        The setup_laimaps method is also required if vegetation_leaf_area_index is
+        The setup_laimaps method is also required if LAI is
         set to True (interception capacity estimated from
-        vegetation_leaf_area_index maps, instead of providing a default maximum
+        LAI maps, instead of providing a default maximum
         interception capacity).
 
         References
@@ -3763,7 +3763,7 @@ different return periods RP. Only if rootzone_storage is set to True!
             moment when the soil is at field capacity, i.e. there is no storage
             deficit yet. The default is 'Apr'.
         LAI : bool, optional
-            Determine whether the vegetation_leaf_area_index will be used to
+            Determine whether the leaf area index will be used to
             determine Imax. The default is False.
             If set to True, requires to have run setup_laimaps.
         rootzone_storage : bool, optional
