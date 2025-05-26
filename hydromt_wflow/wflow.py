@@ -369,8 +369,8 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         Adds model layers:
 
         * **river_mask** map: river mask [-]
-        * **wflow_riverlength** map: river length [m]
-        * **wflow_riverwidth** map: river width [m]
+        * **river_mask_length** map: river length [m]
+        * **river_mask_width** map: river width [m]
         * **RiverDepth** map: bankfull river depth [m]
         * **RiverSlope** map: river slope [m/m]
         * **N_River** map: Manning coefficient for river cells [s.m^1/3]
@@ -1371,12 +1371,8 @@ and will soon be removed. '
         )
         # Rename the first dimension to time
         rmdict = {da_lai.dims[0]: "time"}
-        self.set_grid(
-            da_lai.rename(rmdict), name=self._MAPS["LAI"]
-        )
-        self._update_config_variable_name(
-            self._MAPS["LAI"], data_type="cyclic"
-        )
+        self.set_grid(da_lai.rename(rmdict), name=self._MAPS["LAI"])
+        self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     def setup_laimaps_from_lulc_mapping(
         self,
@@ -1437,9 +1433,7 @@ and will soon be removed. '
         # Add to grid
         self.set_grid(da_lai, name=self._MAPS["LAI"])
         # Add to config
-        self._update_config_variable_name(
-            self._MAPS["LAI"], data_type="cyclic"
-        )
+        self._update_config_variable_name(self._MAPS["LAI"], data_type="cyclic")
 
     def setup_config_output_timeseries(
         self,
@@ -2533,7 +2527,7 @@ using 'variable' argument."
             )
 
         # Create scaled subsurface_ksat_horizontal_ratio map
-        daout = workflows.subsurface_ksat_horizontal_ratio(
+        daout = workflows.ksat_horizontal_ratio(
             dain,
             ds_like=self.grid,
             resampling_method=resampling_method,
@@ -3683,7 +3677,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         Imax: float = 2.0,
         start_hydro_year: str = "Sep",
         start_field_capacity: str = "Apr",
-        vegetation_leaf_area_index: bool = False,
+        LAI: bool = False,
         rootzone_storage: bool = False,
         correct_cc_deficit: bool = False,
         time_tuple: tuple | None = None,
@@ -3782,7 +3776,7 @@ different return periods RP. Only if rootzone_storage is set to True!
             The end of the wet season / commencement of dry season. This is the
             moment when the soil is at field capacity, i.e. there is no storage
             deficit yet. The default is 'Apr'.
-        vegetation_leaf_area_index : bool, optional
+        LAI : bool, optional
             Determine whether the vegetation_leaf_area_index will be used to
             determine Imax. The default is False.
             If set to True, requires to have run setup_laimaps.
@@ -3852,13 +3846,11 @@ the return_period argument.
             )
 
         # check if setup_soilmaps and setup_laimaps were run when:
-        # if vegetation_leaf_area_index == True and rooting_depth == True
-        if (vegetation_leaf_area_index == True) and (
-            self._MAPS["LAI"] not in self.grid
-        ):
+        # if LAI == True and rooting_depth == True
+        if (LAI == True) and (self._MAPS["LAI"] not in self.grid):
             self.logger.error(
-                "vegetation_leaf_area_index variable not found in grid. \
-Set vegetation_leaf_area_index to False or run setup_laimaps first"
+                "LAI variable not found in grid. \
+Set LAI to False or run setup_laimaps first"
             )
 
         if (self._MAPS["theta_r"] not in self.grid) or (
@@ -3882,7 +3874,7 @@ Run setup_soilmaps first"
             Imax=Imax,
             start_hydro_year=start_hydro_year,
             start_field_capacity=start_field_capacity,
-            vegetation_leaf_area_index=vegetation_leaf_area_index,
+            vegetation_leaf_area_index=LAI,
             rootzone_storage=rootzone_storage,
             correct_cc_deficit=correct_cc_deficit,
             chunksize=chunksize,
@@ -4576,11 +4568,11 @@ Run setup_soilmaps first"
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
         expected to occur. This is done based on the Leaf Area Index
-        (vegetation_leaf_area_index), that is already present in the wflow model
+        (LAI), that is already present in the wflow model
         configuration. We follow the procedure described by Peano et al. (2019).
-        They describe a threshold value based on the vegetation_leaf_area_index
+        They describe a threshold value based on the LAI
         variability to determine the growing season. This threshold is defined as
-        20% (default value) of the vegetation_leaf_area_index variability, but can
+        20% (default value) of the LAI variability, but can
         be adjusted via the ``lai_threshold`` argument.
 
         Adds model layers:
@@ -4755,11 +4747,11 @@ Run setup_soilmaps first"
         To determine when irrigation is allowed to occur, an irrigation trigger map is
         defined. This is a cyclic map, that defines (with a mask) when irrigation is
         expected to occur. This is done based on the Leaf Area Index
-        (vegetation_leaf_area_index), that is already present in the wflow model
+        (LAI), that is already present in the wflow model
         configuration. We follow the procedure described by Peano et al. (2019).
-        They describe a threshold value based on the vegetation_leaf_area_index
+        They describe a threshold value based on the LAI
         variability to determine the growing season. This threshold is defined as
-        20% (default value) of the vegetation_leaf_area_index variability, but can
+        20% (default value) of the LAI variability, but can
         be adjusted via the ``lai_threshold`` argument.
 
         Adds model layers:

@@ -374,7 +374,7 @@ def allocation_areas(
         ds_like["basins"] != ds_like["basins"].raster.nodata,
         allocation_areas.raster.nodata,
     )
-    allocation_areas.name = "demand_allocation_area_id"
+    allocation_areas.name = "allocation_areas"
 
     # Create the equivalent geodataframe
     allocation_areas_gdf = allocation_areas.raster.vectorize()

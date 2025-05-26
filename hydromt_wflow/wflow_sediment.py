@@ -651,10 +651,10 @@ river cells."
             GeoDataFrame source with polygons of planted forests.
 
             * Optional variable: ["forest_type"]
-        lulc_vars : dict
-            List of landuse parameters to prepare.
-            By default ["landuse","vegetation_kext","vegetation_leaf_storage",
-            "vegetation_wood_storage","USLE_C","soil_compacted_fraction"]
+        lulc_vars : Dict
+            Dictionnary of landuse parameters to prepare. The names are the
+            the columns of the mapping file and the values are the corresponding
+            Wflow.jl variables if any.
         lulc_vars : Dict
             Dictionnary of landuse parameters to prepare. The names are the
             the columns of the mapping file and the values are the corresponding

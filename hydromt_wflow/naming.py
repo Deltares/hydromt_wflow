@@ -94,8 +94,6 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.ttm",
         "wflow_v1": "snowpack__melting_temperature_threshold",
     },
-    # I think there is a typo in the issue,
-    # I assume this is the `WH: show_whc` v1-style rename?
     "snow_whc": {
         "wflow_v0": "vertical.water_holding_capacity",
         "wflow_v1": "snowpack__liquid_water_holding_capacity",
@@ -106,7 +104,7 @@ WFLOW_NAMES = {
         "wflow_v1": "glacier_surface__area_fraction",
         "hydromt_name": "glacfracs",
     },
-    "wflow_glacierstore": {  # no v1-style rename?
+    "wflow_glacierstore": {
         "wflow_v0": "vertical.glacierstore",
         "wflow_v1": "glacier_ice__initial_leq-depth",
         "hydromt_name": "glacstore",
@@ -211,7 +209,7 @@ WFLOW_NAMES = {
         "wflow_v0": "vertical.infiltcappath",
         "wflow_v1": "soil~compacted_surface_water__infiltration_capacity",
     },
-    "InfiltCapSoil": {  # delete this one or leave like this?
+    "InfiltCapSoil": {
         "wflow_v0": "vertical.infiltcapsoil",
         "wflow_v1": None,
     },

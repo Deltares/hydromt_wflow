@@ -5,12 +5,12 @@ import xarray as xr
 from hydromt import raster
 
 __all__ = [
-    "subsurface_ksat_horizontal_ratio",
+    "ksat_horizontal_ratio",
     "ksatver_vegetation",
 ]
 
 
-def subsurface_ksat_horizontal_ratio(
+def ksat_horizontal_ratio(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     resampling_method: str,
