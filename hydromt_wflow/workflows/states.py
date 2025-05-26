@@ -162,13 +162,13 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # soil_unsaturated_depth (zero per layer)
-    # layers are based on soil_brooks_corey_c parameter
-    soil_brooks_corey_c = get_grid_from_config(
+    # layers are based on brooks_corey_c parameter
+    c = get_grid_from_config(
         "soil_layer_water__brooks-corey_exponent",
         config=config,
         grid=ds_like,
     )
-    usld = full_like(soil_brooks_corey_c, nodata=nodata)
+    usld = full_like(c, nodata=nodata)
     for sl in usld["layer"]:
         usld.loc[dict(layer=sl)] = xr.where(ds_like[mask_name_land], 0.0, nodata)
     ds_out["soil_unsaturated_depth"] = usld

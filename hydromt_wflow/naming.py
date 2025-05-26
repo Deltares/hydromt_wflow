@@ -698,11 +698,12 @@ WFLOW_SEDIMENT_NAMES = {
     },
     "vegetation_kext": {
         "wflow_v0": "vertical.kext",
-        "wflow_v1": None,  # put `vegetation_kext` here as well?
+        "wflow_v1": None,
     },
     "leaf_storage": {
         "wflow_v0": "vertical.specific_leaf",
         "wflow_v1": None,
+        "hydromt_name": "leaf_storage",
     },
     "vegetation_wood_storage": {
         "wflow_v0": "vertical.storage_wood",

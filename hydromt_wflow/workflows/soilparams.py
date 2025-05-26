@@ -174,7 +174,7 @@ def get_ks_veg(ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
 
     Parameters
     ----------
-    soil_ksat_vertical  : [xr.DataSet, float]
+    ksat_vertical  : [xr.DataSet, float]
         saturated hydraulic conductivity from PTF based on soil properties [cm/d].
     sndppt : [xr.DataSet, float]
         percentage sand [%].

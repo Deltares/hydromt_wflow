@@ -2404,6 +2404,8 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
             vertical saturated hydraulic conductivity at soil surface [mm/day]
         * **soil_thickness** map:
             soil thickness [mm]
+        * **soil_f** map: scaling parameter controlling the decline of ksat_vertical \
+[mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
         * **soil_f_** map:
             scaling parameter controlling the decline of soil_ksat_vertical \
 [mm-1] (fitted with numpy linalg regression), bounds are checked
@@ -2918,7 +2920,7 @@ using 'variable' argument."
 
         * **meta_glacier_area_id** map: glacier IDs [-]
         * **glacier_fraction** map: area fraction of glacier per cell [-]
-        * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
+        * **glacier_initial_leq_depth** map: storage (volume) of glacier per cell [mm]
 
         Parameters
         ----------
