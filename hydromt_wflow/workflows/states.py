@@ -17,8 +17,8 @@ def prepare_cold_states(
     ds_like: xr.Dataset,
     config: dict,
     timestamp: str = None,
-    mask_name_land: str = "wflow_subcatch",
-    mask_name_river: str = "wflow_river",
+    mask_name_land: str = "subcatchment",
+    mask_name_river: str = "river_mask",
 ) -> Tuple[xr.Dataset, Dict[str, str]]:
     """
     Prepare cold states for Wflow.
@@ -62,10 +62,11 @@ def prepare_cold_states(
         Dataset containing the staticmaps grid and variables to prepare some of the
         states.
 
-        * Required variables: wflow_subcatch, wflow_river
+        * Required variables: `mask_name_land`, `mask_name_river`
 
-        * Other required variables (exact name from the wflow config): c, soilthickness,
-            theta_s, theta_r, kv_0, f, slope, ksathorfrac
+        * Other required variables (exact name will be read from the wflow config):
+            soil_brooks_corey_c, soilthickness,
+            theta_s, theta_r, ksat_vertical, f, slope, subsurface_ksat_horizontal_ratio
 
         * Optional variables (exact name from the wflow config): reservoir.locs,
             glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,
@@ -77,10 +78,10 @@ def prepare_cold_states(
         from the config.
     mask_name_land : str, optional
         Name of the land mask variable in the ds_like dataset. By default
-        wflow_subcatch.
+        subcatchment.
     mask_name_river : str, optional
         Name of the river mask variable in the ds_like dataset. By default
-        wflow_river.
+        river_mask.
 
     Returns
     -------
@@ -161,7 +162,7 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # soil_unsaturated_depth (zero per layer)
-    # layers are based on c parameter
+    # layers are based on brooks_corey_c parameter
     c = get_grid_from_config(
         "soil_layer_water__brooks-corey_exponent",
         config=config,

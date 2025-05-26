@@ -63,7 +63,7 @@ class WflowSedimentModel(WflowModel):
         min_rivwth: float = 30,
         smooth_len: float = 5e3,
         output_names: Dict = {
-            "river_location__mask": "wflow_river",
+            "river_location__mask": "river_mask",
             "river__length": "river_length",
             "river__width": "river_width",
             "river__slope": "river_slope",
@@ -92,7 +92,7 @@ class WflowSedimentModel(WflowModel):
 
         Adds model layers:
 
-        * **wflow_river** map: river mask [-]
+        * **river_mask** map: river mask [-]
         * **river_length** map: river length [m]
         * **river_width** map: river width [m]
         * **river_slope** map: river slope [m/m]
@@ -207,8 +207,8 @@ river cells."
         lakes_fn: str | Path | gpd.GeoDataFrame = "hydro_lakes",
         min_area: float = 1.0,
         output_names: Dict = {
-            "lake_area__count": "wflow_lakeareas",
-            "lake_location__count": "wflow_lakelocs",
+            "lake_area__count": "lake_area_id",
+            "lake_location__count": "lake_outlet_id",
             "lake_surface__area": "lake_area",
         },
         geom_name: str = "lakes",
@@ -224,8 +224,8 @@ river cells."
 
         Adds model layers:
 
-        * **wflow_lakeareas** map: lake IDs [-]
-        * **wflow_lakelocs** map: lake IDs at outlet locations [-]
+        * **lake_area_id** map: lake IDs [-]
+        * **lake_outlet_id** map: lake IDs at outlet locations [-]
         * **lake_area** map: lake area [m2]
         * **lakes** geom: polygon with lakes and wflow lake parameters
 
@@ -275,7 +275,7 @@ river cells."
         # Lake settings in the toml to update
         self.set_config("model.lake__flag", True)
         for dvar in ds_lakes.data_vars:
-            if dvar == "lakeareas" or dvar == "lakelocs":
+            if dvar == "lake_area_id " or dvar == "lake_outlet_id":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -286,8 +286,8 @@ river cells."
         min_area: float = 1.0,
         trapping_default: float = 1.0,
         output_names: Dict = {
-            "reservoir_area__count": "wflow_reservoirareas",
-            "reservoir_location__count": "wflow_reservoirlocs",
+            "reservoir_area__count": "reservoir_area_id",
+            "reservoir_location__count": "reservoir_outlet_id",
             "reservoir_surface__area": "reservoir_area",
             "reservoir_water_sediment~bedload__trapping_efficiency": "reservoir_trapping_efficiency",  # noqa : E501
         },
@@ -304,8 +304,8 @@ river cells."
 
         Adds model layers:
 
-        * **wflow_reservoirareas** map: reservoir IDs [-]
-        * **wflow_reservoirlocs** map: reservoir IDs at outlet locations [-]
+        * **reservoir_area_id** map: reservoir IDs [-]
+        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
         * **reservoir_area** map: reservoir area [m2]
         * **reservoir_trapping_efficiency** map: reservoir trapping efficiency
          coefficient [-]
@@ -388,8 +388,8 @@ river cells."
     ):
         """Set the default gauge map based on basin outlets.
 
-        If wflow_subcatch is available, the catchment outlets IDs will be matching the
-        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.
+        If the subcatchment map is available, the catchment outlets IDs will be matching
+        the subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
 
         Can also add csv/netcdf_scalar output settings in the TOML.
 
@@ -489,9 +489,9 @@ river cells."
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
-            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
-            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
+            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "USLE_C": "soil_erosion__usle_c_factor",
+            "land_water_fraction": "land~water-covered__area_fraction",
         },
         planted_forest_c: float = 0.0881,
         orchard_name: str = "Orchard",
@@ -519,9 +519,12 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **USLE_C** map: Cover management factor from the USLE equation [-]
-        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of water covered area per grid cell [-]
+        * **USLE_C** map:
+            Cover management factor from the USLE equation [-]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of water covered area per grid cell [-]
 
         Parameters
         ----------
@@ -597,9 +600,9 @@ river cells."
         planted_forest_fn: str | Path | gpd.GeoDataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
-            "PathFrac": "soil~compacted__area_fraction",  # compacted_fraction
-            "USLE_C": "soil_erosion__usle_c_factor",  # usle_c
-            "WaterFrac": "land~water-covered__area_fraction",  # water_fraction
+            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "USLE_C": "soil_erosion__usle_c_factor",
+            "land_water_fraction": "land~water-covered__area_fraction",
         },
         lulc_res: float | int | None = None,
         all_touched: bool = False,
@@ -631,9 +634,12 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **USLE_C** map: Cover management factor from the USLE equation [-]
-        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of water covered area per grid cell [-]
+        * **USLE_C** map:
+            Cover management factor from the USLE equation [-]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of water covered area per grid cell [-]
 
         Parameters
         ----------
@@ -650,9 +656,10 @@ river cells."
             GeoDataFrame source with polygons of planted forests.
 
             * Optional variable: ["forest_type"]
-        lulc_vars : dict
-            List of landuse parameters to prepare.
-            By default ["landuse","Kext","Sl","Swood","USLE_C","PathFrac"]
+        lulc_vars : Dict
+            Dictionnary of landuse parameters to prepare. The names are the
+            the columns of the mapping file and the values are the corresponding
+            Wflow.jl variables if any.
         lulc_vars : Dict
             Dictionnary of landuse parameters to prepare. The names are the
             the columns of the mapping file and the values are the corresponding
