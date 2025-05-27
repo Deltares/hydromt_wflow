@@ -29,11 +29,11 @@ from hydromt.model.processes.region import (
     _parse_region_value,
 )
 
+from hydromt_wflow.components import WflowConfigComponent, WflowGridComponent
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
     DATADIR,
     convert_to_wflow_v1_sbm,
-    get_config,
     mask_raster_from_layer,
     read_csv_results,
 )
@@ -73,14 +73,16 @@ class WflowModel(Model):
     def __init__(
         self,
         root: str | None = None,
-        config_fn: Path | str = "wflow_sbm.toml",
+        config_path: Path | str = "wflow_sbm.toml",
         mode: str = "r",
         data_libs: list[str] | str | None = None,
         **catalog_keys,
     ):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
-        components = {}
+        config_component = WflowConfigComponent(self, filename=str(config_path))
+        grid_component = WflowGridComponent(self, filename=str(config_path))
+        components = {"config": config_component, "grid": grid_component}
 
         super().__init__(
             root,
@@ -98,7 +100,9 @@ class WflowModel(Model):
         # Supported Wflow.jl version
         logger.info("Supported Wflow.jl version v1+")
         # hydromt mapping and wflow variable names
-        self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(self.config)
+        self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
+            self.config.data
+        )
 
     # SETUP METHODS
     @hydromt_step
@@ -4973,10 +4977,10 @@ Run setup_soilmaps first"
             Name of the states file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
         """
-        self.logger.info(f"Write model data to {self.root}")
+        logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
-        if not self._write:
-            self.logger.warning("Cannot write in read-only mode")
+        if not self.root.is_writing_mode():
+            logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
         _ = self.config  # try to read default if not yet set
@@ -5825,56 +5829,7 @@ change name input.path_forcing "
             >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
             >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
-        self._initialize_config()
-        if len(args) < 2:
-            raise TypeError("set_config() requires a least one key and one value.")
-        if not all([isinstance(part, str) for part in args[:-1]]):
-            raise TypeError("All but last argument for set_config must be str")
-
-        args = list(args)
-        value = args.pop(-1)
-        keys = [part for arg in args for part in arg.split(".")]
-
-        # if we try to set dictionaries as values directly tomlkit will mess up the
-        # key bookkeeping, resulting in invalid toml, so instead
-        # if we see a mapping, we go over it recursively
-        # and manually add all of its keys, because of cloning issues.
-        if isinstance(value, (dict, tomlkit.items.AbstractTable)):
-            for key, inner_value in value.items():
-                self.set_config(*keys, key, inner_value)
-            return
-
-        # if the first key is not present
-        # we can just set the entire thing straight
-        if keys[0] not in self._config:
-            self._config.append(tomlkit.key(keys), value)
-            return
-
-        # If there is only one key we also just set that directly as
-        # a string key instead of the dotted variant
-        if len(keys) == 1:
-            self._config.update({keys[0]: value})
-            return
-
-        current = self._config
-        for idx in range(len(keys)):
-            if idx != len(keys) - 1:
-                remaining_key = tomlkit.key(keys[idx:])
-            else:
-                remaining_key = keys[idx]
-
-            if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
-                break
-
-            current = current[keys[idx]]
-
-        # tomlkit's update function doesn't work properly
-        # so instead of updating we take the key out if it is in there
-        # and readd it afterwards
-        if remaining_key in current:
-            _ = current.pop(remaining_key)
-
-        current[remaining_key] = value
+        self.config.set(*args)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
@@ -6249,7 +6204,7 @@ change name input.path_forcing "
         >> get_config('b.c') # # identical to get_config('b','c')
         >> {'d': 2}
         """
-        return get_config(
+        return self.config.get(
             *args,
             config=self.config,
             fallback=fallback,

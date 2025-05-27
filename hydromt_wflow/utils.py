@@ -32,6 +32,107 @@ __all__ = [
 ]
 
 
+def set_config(config: tomlkit.TOMLDocument, *args):
+    """
+    Update the config toml at key(s) with values.
+
+    This function is made to maintain the structure of your toml file.
+    When adding keys it will look for the most specific header present in
+    the toml file and add it under that.
+    meaning that if you have a config toml that is empty and you run
+    ``set_config("input.forcing.scale", 1)``
+    it will result in the following file:
+    .. code-block:: toml
+        input.forcing.scale = 1
+    however if your toml file looks like this before:
+    .. code-block:: toml
+        [input.forcing]
+    (i.e. you have a header in there that has no keys)
+    then after the insertion it will look like this:
+    .. code-block:: toml
+        [input.forcing]
+        scale = 1
+    .. warning::
+        Due to limitations of the underlying library it is currently not possible to
+        create new headers (i.e. groups like ``input.forcing`` in the example above)
+        programmatically, and they will need to be added to the default config
+        toml document
+    .. warning::
+        Even though the underlying config object behaves like a dictionary, it is
+        not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
+        error scan easily be introduced if this structure is modified by hand.
+        Therefore we strongly discourage users from manually modying it, and
+        instead ask them to use this ``set_config`` function to avoid problems.
+    Parameters.
+    ----------
+    config : tomlkit.TOMLDocument
+        The config settings in TOMLDocument object.
+    args : str, tuple, list
+        if tuple or list, minimal length of two
+        keys can given by multiple args: ('key1', 'key2', 'value')
+        or a string with '.' indicating a new level: ('key1.key2', 'value')
+
+    Examples
+    --------
+    .. code-block:: ipython
+        >> config
+        >> {'a': 1, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'a', 99)
+        >> {'a': 99, 'b': {'c': {'d': 2}}}
+        >> set_config(config, 'b', 'c', 'd', 99) # identical to \
+            set_config(config, 'b.d.e', 99)
+        >> {'a': 1, 'b': {'c': {'d': 99}}}
+    """
+    if len(args) < 2:
+        raise TypeError("set_config() requires a least one key and one value.")
+    if not all([isinstance(part, str) for part in args[:-1]]):
+        raise TypeError("All but last argument for set_config must be str")
+
+    args = list(args)
+    value = args.pop(-1)
+    keys = [part for arg in args for part in arg.split(".")]
+
+    # if we try to set dictionaries as values directly tomlkit will mess up the
+    # key bookkeeping, resulting in invalid toml, so instead
+    # if we see a mapping, we go over it recursively
+    # and manually add all of its keys, because of cloning issues.
+    if isinstance(value, (dict, tomlkit.items.AbstractTable)):
+        for key, inner_value in value.items():
+            set_config(config, *keys, key, inner_value)
+
+    # if the first key is not present
+    # we can just set the entire thing straight
+    if keys[0] not in config:
+        config.append(tomlkit.key(keys), value)
+        return
+
+    # If there is only one key we also just set that directly as
+    # a string key instead of the dotted variant
+    if len(keys) == 1:
+        config.update({keys[0]: value})
+        return
+
+    current = config
+    for idx in range(len(keys)):
+        if idx != len(keys) - 1:
+            remaining_key = tomlkit.key(keys[idx:])
+        else:
+            remaining_key = keys[idx]
+
+        if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
+            break
+
+        current = current[keys[idx]]
+
+    # tomlkit's update function doesn't work properly
+    # so instead of updating we take the key out if it is in there
+    # and readd it afterwards
+    if remaining_key in current:
+        _ = current.pop(remaining_key)
+
+    current[remaining_key] = value
+
+
 def read_csv_results(
     fn: Path | str, config: Dict, maps: xr.Dataset
 ) -> Dict[str, GeoDataArray]:
@@ -200,8 +301,8 @@ of the config.
 
 
 def get_config(
-    *args,
     config: tomlkit.TOMLDocument,
+    *args,
     root: Path | None = None,
     fallback: Any | None = None,
     abs_path: bool = False,

@@ -4,5 +4,7 @@ __version__ = "0.8.1.dev0"
 
 from .naming import *
 from .utils import *
-from .wflow import *
-from .wflow_sediment import *
+from .wflow import WflowModel
+from .wflow_sediment import WflowSedimentModel
+
+__all__ = ["WflowModel", "WflowSedimentModel"]

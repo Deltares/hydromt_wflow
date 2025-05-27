@@ -117,37 +117,40 @@ def test_convert_to_wflow_v1_sediment():
     assert "a_kodatie" in wflow.grid
 
 
+@pytest.mark.skip(
+    reason="Skip test until required hydromt-core v1 component(s) are implemented"
+)
 def test_config_toml_grouping(tmpdir):
     dummy_model = WflowModel(root=tmpdir, mode="w")
-    dummy_model.read_config()
+    dummy_model.config.read()
 
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input",
         "forcing",
         "netcdf.name",
         "blah.nc",
     )
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input",
         "forcing",
         "scale",
         1,
     )
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input",
         "static",
         "staticsoil~compacted_surface_water__infiltration_capacity",
         "value",
         5,
     )
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input",
         "static",
         "soil_root~wet__sigmoid_function_shape_parameter",
         "value",
         -500,
     )
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input.static.soil_water_sat-zone_bottom__max_leakage_volume_flux.value", 0
     )
 
@@ -162,15 +165,18 @@ def test_config_toml_grouping(tmpdir):
     assert written_config == expected_config
 
 
+@pytest.mark.skip(
+    reason="Skip test until required hydromt-core v1 component(s) are implemented"
+)
 def test_config_toml_overwrite(tmpdir):
     dummy_model = WflowModel(root=tmpdir, mode="w")
-    dummy_model.read_config()
-    dummy_model.set_config(
+    dummy_model.config.read()
+    dummy_model.config.set(
         "input.forcing.khorfrac.value",
         100,
     )
-    dummy_model.set_config(
+    dummy_model.config.set(
         "input.forcing.khorfrac.value",
         200,
     )
-    assert dummy_model.get_config("input.forcing.khorfrac.value") == 200
+    assert dummy_model.config.get("input.forcing.khorfrac.value") == 200

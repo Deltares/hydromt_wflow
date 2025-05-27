@@ -25,6 +25,7 @@ from . import workflows
 __all__ = ["WflowSedimentModel"]
 
 logger = logging.getLogger(__name__)
+__hydromt_eps__ = ["WflowSedimentModel"]
 
 
 class WflowSedimentModel(WflowModel):
