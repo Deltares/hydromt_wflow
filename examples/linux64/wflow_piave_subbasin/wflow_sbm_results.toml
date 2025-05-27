@@ -30,11 +30,11 @@ path_output = "outstate/outstates.nc"
 [input]
 path_forcing = "inmaps.nc"
 path_static = "staticmaps.nc"
-gauges = "wflow_gauges"
+outlets = "outlets"
 basin__local_drain_direction = "local_drain_direction"
 river_location__mask = "river_mask"
 subbasin_location__count = "subcatchment"
-gauges_grdc = "wflow_gauges_grdc"
+gauges_grdc = "gauges_grdc"
 lake_area__count = "lake_area_id"
 lake_location__count = "lake_outlet_id"
 reservoir_area__count = "reservoir_area_id"
@@ -135,7 +135,7 @@ path = "output_scalar.nc"
 
 [[output.netcdf_scalar.variable]]
 name = "river_q"
-map = "gauges"
+map = "outlets"
 parameter = "river_water__instantaneous_volume_flow_rate"
 
 [[output.netcdf_scalar.variable]]

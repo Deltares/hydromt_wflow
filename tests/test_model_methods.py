@@ -293,7 +293,7 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     model = "wflow"
     example_wflow_model.read()
     # Create dummy ksat data
-    da = full_like(example_wflow_model.grid["soil_ksat_vertical "])
+    da = full_like(example_wflow_model.grid["soil_ksat_vertical"])
     data = np.zeros(da.shape)
     for x, y in product(*[range(item) for item in da.shape]):
         data[x, y] = 750 - ((x + y) ** 0.4 * 114.07373)
@@ -325,7 +325,9 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
     )
 
     # Check values
-    values = example_wflow_model.grid["KsatVer_vegetation"].raster.mask_nodata()
+    values = example_wflow_model.grid[
+        "soil_ksat_vertical_vegetation"
+    ].raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
     assert int(max_val) == 4247
@@ -530,7 +532,7 @@ def test_setup_outlets(example_wflow_model):
     example_wflow_model.setup_outlets()
 
     # Check if the ID is indeed 1001
-    val, count = np.unique(example_wflow_model.grid["wflow_gauges"], return_counts=True)
+    val, count = np.unique(example_wflow_model.grid["outlets"], return_counts=True)
     # 0 is no data
     assert val[1] == 1001
     assert count[1] == 1

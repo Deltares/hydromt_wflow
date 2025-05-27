@@ -395,8 +395,8 @@ river cells."
 
         Adds model layers:
 
-        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
-        * **gauges** geom: polygon of catchment outlets
+        * **outlets** map: IDs map from catchment outlets [-]
+        * **outlets** geom: polygon of catchment outlets
 
         Parameters
         ----------

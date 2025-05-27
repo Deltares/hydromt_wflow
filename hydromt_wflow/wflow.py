@@ -1471,12 +1471,7 @@ and will soon be removed. '
         if toml_output == "csv" or toml_output == "netcdf_scalar":
             self.logger.info(f"Adding {param} to {toml_output} section of toml.")
             # Add map to the input section of config
-            basename = (
-                mapname
-                if not mapname.startswith("wflow")
-                else mapname.replace("wflow_", "")
-            )
-            self.set_config(f"input.{basename}", mapname)
+            self.set_config(f"input.{mapname}", mapname)
             # Settings and add csv or netcdf sections if not already in config
             # csv
             if toml_output == "csv":
@@ -1498,7 +1493,7 @@ and will soon be removed. '
             for o in range(len(param)):
                 gauge_toml_dict = {
                     header_name: header[o],
-                    "map": basename,
+                    "map": mapname,
                     "parameter": param[o],
                 }
                 if reducer is not None:
@@ -1528,8 +1523,8 @@ skipping adding gauge specific outputs to the toml."
 
         Adds model layers:
 
-        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]
-        * **gauges** geom: polygon of catchment outlets
+        * **outlets** map: IDs map from catchment outlets [-]
+        * **outlets** geom: polygon of catchment outlets
 
         Parameters
         ----------
@@ -1572,17 +1567,17 @@ skipping adding gauge specific outputs to the toml."
             flwdir=self.flwdir,
             logger=self.logger,
         )
-        self.set_grid(da_out, name="wflow_gauges")
+        self.set_grid(da_out, name="outlets")
         points = gpd.points_from_xy(*self.grid.raster.idx_to_xy(idxs_out))
         gdf = gpd.GeoDataFrame(
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
         )
         gdf["fid"] = ids_out.astype(np.int32)
-        self.set_geoms(gdf, name="gauges")
+        self.set_geoms(gdf, name="outlets")
         self.logger.info("Gauges map based on catchment river outlets added.")
 
         self.setup_config_output_timeseries(
-            mapname="wflow_gauges",
+            mapname="outlets",
             toml_output=toml_output,
             header=gauge_toml_header,
             param=gauge_toml_param,
@@ -1647,7 +1642,7 @@ skipping adding gauge specific outputs to the toml."
 
         Adds model layers:
 
-        * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
+        * **gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
         * **subcatchment_source** map: subcatchment based on gauge locations [-] \
 (if derive_subcatch)
         * **gauges_source** geom: polygon of gauges from source
@@ -1692,7 +1687,7 @@ gauge locations [-] (if derive_subcatch)
         derive_subcatch : bool, optional
             Derive subcatch map for gauges, by default False
         basename : str, optional
-            Map name in grid (wflow_gauges_basename)
+            Map name in grid (gauges_basename)
             if None use the gauges_fn basename.
         toml_output : str, optional
             One of ['csv', 'netcdf_scalar', None] to update [output.csv] or
@@ -1837,7 +1832,7 @@ gauge locations [-] (if derive_subcatch)
             return
 
         # Add to grid
-        mapname = f"wflow_gauges_{basename}"
+        mapname = f"gauges_{basename}"
         self.set_grid(da, name=mapname)
 
         # geoms
@@ -1857,7 +1852,7 @@ gauge locations [-] (if derive_subcatch)
         df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
         gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
         # Add gdf_snapped to geoms
-        self.set_geoms(gdf_snapped, name=mapname.replace("wflow_", ""))
+        self.set_geoms(gdf_snapped, name=mapname)
 
         # Add output timeseries for gauges in the toml
         self.setup_config_output_timeseries(
@@ -2359,7 +2354,7 @@ Using default storage/outflow function parameters."
         output_names: Dict = {
             "soil_water__saturated_volume_fraction": "soil_theta_s",
             "soil_water__residual_volume_fraction": "soil_theta_r",
-            "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical ",  # noqa: E501
+            "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical",  # noqa: E501
             "soil__thickness": "soil_thickness",
             "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
             "soil_layer_water__brooks-corey_exponent": "soil_brooks_corey_c",
@@ -3916,7 +3911,7 @@ Run setup_soilmaps first"
           wflow and the 1D model.
         * **subcatchment_river_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model for river cells only.
-        * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries
+        * **gauges_{mapname}** map/geom, optional: outlets of the tributaries
           flowing into the 1D model.
 
         Parameters
@@ -3983,7 +3978,7 @@ Run setup_soilmaps first"
 
         # Derive tributary gauge map
         if "gauges" in ds_out.data_vars:
-            self.set_grid(ds_out["gauges"], name=f"wflow_gauges_{mapname}")
+            self.set_grid(ds_out["gauges"], name=f"gauges_{mapname}")
             # Derive the gauges staticgeoms
             gdf_tributary = ds_out["gauges"].raster.vectorize()
             gdf_tributary["geometry"] = gdf_tributary["geometry"].centroid
@@ -4011,7 +4006,7 @@ Run setup_soilmaps first"
             # Update toml
             if update_toml and all_gauges_on_river:
                 self.setup_config_output_timeseries(
-                    mapname=f"wflow_gauges_{mapname}",
+                    mapname=f"gauges_{mapname}",
                     toml_output=toml_output,
                     header=["Q"],
                     param=["river_water__volume_flow_rate"],
@@ -4022,7 +4017,7 @@ Run setup_soilmaps first"
         self.set_grid(ds_out["subcatch"], name=f"subcatchment_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
-        self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
+        self.set_geoms(gdf_subcatch, name=f"subcatchment_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
         self.set_grid(ds_out["subcatch_river"], name=f"subcatchment_riv_{mapname}")
@@ -4030,7 +4025,7 @@ Run setup_soilmaps first"
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
         )
-        self.set_geoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
+        self.set_geoms(gdf_subcatch_riv, name=f"subcatchment_riv_{mapname}")
 
         # Update toml
         if update_toml:

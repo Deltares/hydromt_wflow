@@ -35,8 +35,8 @@ reservoir_area__count = "reservoir_area_id"
 reservoir_location__count = "reservoir_outlet_id"
 lake_area__count = "lake_area_id"
 lake_location__count = "lake_outlet_id"
-gauges = "wflow_gauges"
-gauges_grdc = "wflow_gauges_grdc"
+outlets = "outlets"
+gauges_grdc = "gauges_grdc"
 
 [state.variables]
 river_water_clay__mass = "river_clay_load"
@@ -106,7 +106,7 @@ compressionlevel = 1
 path = "output.csv"
 [[output.csv.column]]
 header = "suspended_solids"
-map = "gauges"
+map = "outlets"
 parameter = "river_water_sediment~suspended__mass_concentration"
 
 [[output.csv.column]]

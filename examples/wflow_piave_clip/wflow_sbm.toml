@@ -38,8 +38,8 @@ reservoir_area__count = "reservoir_area_id"
 reservoir_location__count = "reservoir_outlet_id"
 lake_area__count = "lake_area_id"
 lake_location__count = "lake_outlet_id"
-gauges = "wflow_gauges"
-gauges_grdc = "wflow_gauges_grdc"
+outlets = "outlets"
+gauges_grdc = "gauges_grdc"
 
 [state.variables]
 vegetation_canopy_water__depth = "vegetation_water_depth"
@@ -111,7 +111,7 @@ soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter = "soil_f"
 path = "output.csv"
 [[output.csv.column]]
 header = "river_q"
-map = "gauges"
+map = "outlets"
 parameter = "river_water__volume_flow_rate"
 
 [[output.csv.column]]
