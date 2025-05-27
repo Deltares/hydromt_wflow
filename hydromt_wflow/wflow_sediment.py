@@ -862,7 +862,7 @@ river cells."
             "soil_aggregates~large__mass_fraction": "soil_lagg_fraction",
             "soil_erosion__rainfall_soil_detachability_factor": "erosion_soil_detachability",  # noqa: E501
             "soil_erosion__usle_k_factor": "erosion_usle_k",
-            "land_surface_sediment__d50_diameter": "soil_sediment_d50",
+            "land_surface_sediment__median_diameter": "soil_sediment_d50",
             "land_surface_water_sediment__govers_transport_capacity_coefficient": "land_govers_c",  # noqa: E501
             "land_surface_water_sediment__govers_transport_capacity_exponent": "land_govers_n",  # noqa: E501
         },

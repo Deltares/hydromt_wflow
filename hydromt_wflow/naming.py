@@ -766,10 +766,6 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v1": "soil_aggregates~large__mass_fraction",
     },
     # land transport
-    "sediment_density_land": {
-        "wflow_v0": "vertical.rhos",
-        "wflow_v1": "sediment__particle_density",
-    },
     "land_govers_c": {
         "wflow_v0": None,
         "wflow_v1": "land_surface_water_sediment__govers_transport_capacity_coefficient",  # noqa: E501
@@ -783,13 +779,13 @@ WFLOW_SEDIMENT_NAMES = {
         "wflow_v1": "land_surface_sediment__median_diameter",
     },
     # river transport
-    "sediment_density_river": {
+    "sediment_density": {
         "wflow_v0": "lateral.river.rhos",
         "wflow_v1": "sediment__particle_density",
     },
     "river_sediment_d50": {
         "wflow_v0": "lateral.river.d50engelund",
-        "wflow_v1": "river_sediment__d50_diameter",
+        "wflow_v1": None,
     },
     "river_bagnold_c": {
         "wflow_v0": "lateral.river.cbagnold",

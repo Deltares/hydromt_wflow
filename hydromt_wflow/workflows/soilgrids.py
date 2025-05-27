@@ -773,7 +773,8 @@ def soilgrids_sediment(
     * soil_sand_fraction: sand content of the topsoil [g/g]
     * soil_sagg_fraction: small aggregate content of the topsoil [g/g]
     * soil_lagg_fraction: large aggregate content of the topsoil [g/g]
-    * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
+    * erosion_soil_detachability: mean detachability of the soil (Morgan et al., 1998)
+      [g/J]
     * usle_k: soil erodibility factor from the USLE equation [-]
     * soil_sediment_d50: median sediment diameter of the soil [mm]
     * land_govers_c: Govers factor for overland flow transport capacity [-]
