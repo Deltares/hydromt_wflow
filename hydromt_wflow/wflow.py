@@ -4826,7 +4826,7 @@ Run setup_soilmaps first"
             != 0
         ):
             paddy_names = {
-                k: v for k, v in output_names.items() if "irrigated-paddy" in v
+                k: v for k, v in output_names.items() if "irrigated-paddy" in k
             }
             self._update_naming(paddy_names)
             ds_paddy = ds_irrigation[
@@ -4860,7 +4860,7 @@ Run setup_soilmaps first"
             != 0
         ):
             nonpaddy_names = {
-                k: v for k, v in output_names.items() if "irrigated-non-paddy" in v
+                k: v for k, v in output_names.items() if "irrigated-non-paddy" in k
             }
             self._update_naming(nonpaddy_names)
             ds_nonpaddy = ds_irrigation[

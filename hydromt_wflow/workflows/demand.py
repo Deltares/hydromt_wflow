@@ -656,8 +656,8 @@ def irrigation(
     ds_irrigation: xr.Dataset
         Dataset with paddy and non-paddy irrigation maps: [
         'demand_paddy_irrigated_mask',
-        'demand_nonpaddy_irrigated_mask', 'paddy_irrigation_trigger',
-        'nonpaddy_irrigation_trigger']
+        'demand_nonpaddy_irrigated_mask', 'demand_paddy_irrigation_trigger',
+        'demand_nonpaddy_irrigation_trigger']
     """
     # Check that the landuse map is available
     if "landuse" not in ds_like:
@@ -735,9 +735,9 @@ def irrigation_from_vector(
     -------
     ds_irrigation: xr.Dataset
         Dataset with paddy and non-paddy irrigation maps: [
-        'pdemand_paddy_irrigated_mask',
-        'demand_nonpaddy_irrigated_mask', 'paddy_irrigation_trigger',
-        'nonpaddy_irrigation_trigger']
+        'demand_paddy_irrigated_mask',
+        'demand_nonpaddy_irrigated_mask', 'demand_paddy_irrigation_trigger',
+        'demand_nonpaddy_irrigation_trigger']
 
     See Also
     --------
