@@ -19,7 +19,7 @@ corine_mapping_default:
       vegetation_feddes_h3_high: int16
       vegetation_feddes_h3_low: int16
       vegetation_feddes_h4: int16
-      USLE_C: float32
+      erosion_usle_c: float32
       Cov_River: float32
   meta:
     category: landuse
@@ -48,7 +48,7 @@ esa_worldcover_mapping_default:
       vegetation_feddes_h3_high: int16
       vegetation_feddes_h3_low: int16
       vegetation_feddes_h4: int16
-      USLE_C: float32
+      erosion_usle_c: float32
       Cov_River: float32
   meta:
     category: landuse
@@ -77,7 +77,7 @@ globcover_mapping_default:
       vegetation_feddes_h3_high: int16
       vegetation_feddes_h3_low: int16
       vegetation_feddes_h4: int16
-      USLE_C: float32
+      erosion_usle_c: float32
       Cov_River: float32
   meta:
     category: landuse
@@ -106,7 +106,7 @@ vito_mapping_default:
       vegetation_feddes_h3_high: int16
       vegetation_feddes_h3_low: int16
       vegetation_feddes_h4: int16
-      USLE_C: float32
+      erosion_usle_c: float32
       Cov_River: float32
   meta:
     category: landuse
@@ -135,7 +135,7 @@ glcnmo_mapping_default:
       vegetation_feddes_h3_high: int16
       vegetation_feddes_h3_low: int16
       vegetation_feddes_h4: int16
-      USLE_C: float32
+      erosion_usle_c: float32
       Cov_River: float32
   meta:
     category: landuse
@@ -164,7 +164,7 @@ paddy_mapping_default:
       vegetation_feddes_h3_high: int16
       vegetation_feddes_h3_low: int16
       vegetation_feddes_h4: int16
-      USLE_C: float32
+      erosion_usle_c: float32
       Cov_River: float32
   meta:
     category: landuse
@@ -213,11 +213,11 @@ riverbedsed_mapping_default:
   driver_kwargs:
     index_col: 0
     dtype:
-      D50_River: float32
-      ClayF_River: float32
-      SiltF_River: float32
-      SandF_River: float32
-      GravelF_River: float32
+      river_bed_sediment_d50: float32
+      river_bed_clay_fraction: float32
+      river_bed_silt_fraction: float32
+      river_bed_sand_fraction: float32
+      river_bed_gravel_fraction: float32
   meta:
     category: landuse
     source_info: Mapping between stream order and river bed sediment

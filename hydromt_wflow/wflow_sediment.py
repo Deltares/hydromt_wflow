@@ -490,7 +490,7 @@ river cells."
         lulc_vars: Dict = {
             "landuse": None,
             "soil_compacted_fraction": "soil~compacted__area_fraction",
-            "USLE_C": "soil_erosion__usle_c_factor",
+            "erosion_usle_c ": "soil_erosion__usle_c_factor",
             "land_water_fraction": "land~water-covered__area_fraction",
         },
         planted_forest_c: float = 0.0881,
@@ -519,12 +519,11 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **USLE_C** map:
-            Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map:
-            The fraction of compacted or urban area per grid cell [-]
-        * **land_water_fraction** map:
-            The fraction of water covered area per grid cell [-]
+        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]
+        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
+          grid cell [-]
+        * **land_water_fraction** map: The fraction of water covered area per grid
+        cell [-]
 
         Parameters
         ----------
@@ -552,8 +551,8 @@ river cells."
         output_names_suffix : str, optional
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
-            variables in lulc_vars will be renamed to "landuse_vito", "USLE_C_vito",
-            etc.
+            variables in lulc_vars will be renamed to "landuse_vito",
+            "erosion_usle_c_vito", etc.
 
         See Also
         --------
@@ -569,7 +568,7 @@ river cells."
         )
 
         # If available, improve USLE C map with planted forest data
-        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+        if "erosion_usle_c " in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -581,9 +580,12 @@ river cells."
             if planted_forest is None:
                 self.logger.warning("No Planted forest data found within domain.")
                 return
+            rename_dict = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid,  # TODO should have USLE_C in the grid already
+                self.grid.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -601,7 +603,7 @@ river cells."
         lulc_vars: Dict = {
             "landuse": None,
             "soil_compacted_fraction": "soil~compacted__area_fraction",
-            "USLE_C": "soil_erosion__usle_c_factor",
+            "erosion_usle_c ": "soil_erosion__usle_c_factor",
             "land_water_fraction": "land~water-covered__area_fraction",
         },
         lulc_res: float | int | None = None,
@@ -634,12 +636,11 @@ river cells."
 
         * **landuse** map: Landuse class [-]
             Original source dependent LULC class, resampled using nearest neighbour.
-        * **USLE_C** map:
-            Cover management factor from the USLE equation [-]
-        * **soil_compacted_fraction** map:
-            The fraction of compacted or urban area per grid cell [-]
-        * **land_water_fraction** map:
-            The fraction of water covered area per grid cell [-]
+        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]
+        * **soil_compacted_fraction** map: The fraction of compacted or urban area per
+          grid cell [-]
+        * **land_water_fraction** map: The fraction of water covered area per grid
+          cell [-]
 
         Parameters
         ----------
@@ -657,11 +658,7 @@ river cells."
 
             * Optional variable: ["forest_type"]
         lulc_vars : Dict
-            Dictionnary of landuse parameters to prepare. The names are the
-            the columns of the mapping file and the values are the corresponding
-            Wflow.jl variables if any.
-        lulc_vars : Dict
-            Dictionnary of landuse parameters to prepare. The names are the
+            Dictionary of landuse parameters to prepare. The names are the
             the columns of the mapping file and the values are the corresponding
             Wflow.jl variables.
         all_touched : bool, optional
@@ -683,8 +680,8 @@ river cells."
         output_names_suffix : str, optional
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
-            variables in lulc_vars will be renamed to "landuse_vito", "USLE_C_vito",
-            etc.
+            variables in lulc_vars will be renamed to "landuse_vito",
+            "erosion_usle_c_vito", etc.
 
         See Also
         --------
@@ -704,7 +701,7 @@ river cells."
         )
 
         # If available, improve USLE C map with planted forest data
-        if "USLE_C" in lulc_vars and planted_forest_fn is not None:
+        if "erosion_usle_c" in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -732,15 +729,15 @@ river cells."
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         output_names: Dict = {
-            "river_bottom-and-bank_sediment__median_diameter": "D50_River",
-            "river_bottom-and-bank_clay__mass_fraction": "ClayF_River",
-            "river_bottom-and-bank_silt__mass_fraction": "SiltF_River",
-            "river_bottom-and-bank_sand__mass_fraction": "SandF_River",
-            "river_bottom-and-bank_gravel__mass_fraction": "GravelF_River",
-            "river_water_sediment__kodatie_transport_capacity_a-coefficient": "a_kodatie",  # noqa: E501
-            "river_water_sediment__kodatie_transport_capacity_b-coefficient": "b_kodatie",  # noqa: E501
-            "river_water_sediment__kodatie_transport_capacity_c-coefficient": "c_kodatie",  # noqa: E501
-            "river_water_sediment__kodatie_transport_capacity_d-coefficient": "d_kodatie",  # noqa: E501
+            "river_bottom-and-bank_sediment__median_diameter": "river_bed_sediment_d50",
+            "river_bottom-and-bank_clay__mass_fraction": "river_bed_clay_fraction",
+            "river_bottom-and-bank_silt__mass_fraction": "river_bed_silt_fraction",
+            "river_bottom-and-bank_sand__mass_fraction": "river_bed_sand_fraction",
+            "river_bottom-and-bank_gravel__mass_fraction": "river_bed_gravel_fraction",
+            "river_water_sediment__kodatie_transport_capacity_a-coefficient": "river_kodatie_a",  # noqa: E501
+            "river_water_sediment__kodatie_transport_capacity_b-coefficient": "river_kodatie_b",  # noqa: E501
+            "river_water_sediment__kodatie_transport_capacity_c-coefficient": "river_kodatie_c",  # noqa: E501
+            "river_water_sediment__kodatie_transport_capacity_d-coefficient": "river_kodatie_d",  # noqa: E501
         },
     ):
         """Generate sediments based river bed characteristics maps.
@@ -750,15 +747,15 @@ river cells."
 
         Adds model layers:
 
-        * **D50_River** map: median sediment diameter of the river bed [mm]
-        * **ClayF_River** map: fraction of clay material in the river bed [-]
-        * **SiltF_River** map: fraction of silt material in the river bed [-]
-        * **SandF_River** map: fraction of sand material in the river bed [-]
-        * **GravelF_River** map: fraction of gravel material in the river bed [-]
-        * **a_kodatie** map: Kodatie transport capacity coefficient a [-]
-        * **b_kodatie** map: Kodatie transport capacity coefficient b [-]
-        * **c_kodatie** map: Kodatie transport capacity coefficient c [-]
-        * **d_kodatie** map: Kodatie transport capacity coefficient d [-]
+        * **river_bed_sediment_d50** map: median sediment diameter of the river bed [mm]
+        * **river_bed_clay_fraction** map: fraction of clay material in the river bed [-]
+        * **river_bed_silt_fraction** map: fraction of silt material in the river bed [-]
+        * **river_bed_sand_fraction** map: fraction of sand material in the river bed [-]
+        * **river_bed_gravel_fraction** map: fraction of gravel material in the river bed [-]
+        * **river_kodatie_a** map: Kodatie transport capacity coefficient a [-]
+        * **river_kodatie_b** map: Kodatie transport capacity coefficient b [-]
+        * **river_kodatie_c** map: Kodatie transport capacity coefficient c [-]
+        * **river_kodatie_d** map: Kodatie transport capacity coefficient d [-]
 
         Parameters
         ----------
@@ -766,14 +763,16 @@ river cells."
             Path to a mapping csv file from streamorder to river bed particles
             characteristics. If None reverts to default values.
 
-            * Required variable: ['strord','D50_River', 'ClayF_River', 'SiltF_River',
-              'SandF_River', 'GravelF_River']
-            * Optional variable: ['a_kodatie', 'b_kodatie', 'c_kodatie', 'd_kodatie']
+            * Required variable: ['strord','river_bed_sediment_d50',
+              'river_bed_clay_fraction', 'river_bed_silt_fraction',
+                'river_bed_sand_fraction', 'river_bed_gravel_fraction']
+            * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
+              'river_kodatie_c', 'river_kodatie_d']
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
-        """
+        """  # noqa: E501
         self.logger.info("Preparing riverbedsed parameter maps.")
         if self._MAPS["strord"] not in self.grid.data_vars:
             raise ValueError(
@@ -782,8 +781,8 @@ river cells."
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
 
-        # Make D50_River map from csv file with mapping between streamorder and
-        # D50_River value
+        # Make river_bed_sediment_d50 map from csv file with mapping between streamorder
+        #  and river_bed_sediment_d50 value
         if bedsed_mapping_fn is None:
             fn_map = "riverbedsed_mapping_default"
         else:
@@ -816,20 +815,20 @@ river cells."
     def setup_canopymaps(
         self,
         canopy_fn: str | Path | xr.DataArray,
-        output_name: str = "CanopyHeight",
+        output_name: str = "vegetation_height",
     ):
         """Generate sediments based canopy height maps.
 
         Adds model layers:
 
-        * **CanopyHeight** map: height of the vegetation canopy [m]
+        * **vegetation_height** map: height of the vegetation canopy [m]
 
         Parameters
         ----------
         canopy_fn :
             Canopy height data source (DataArray).
         output_name : dict, optional
-            Name of the output map. By default 'CanopyHeight'.
+            Name of the output map. By default 'vegetation_height'.
         """
         self.logger.info("Preparing canopy height map.")
 
@@ -839,14 +838,14 @@ river cells."
         )
         dsout = xr.Dataset(coords=self.grid.raster.coords)
         ds_out = dsin.raster.reproject_like(self.grid, method="average")
-        dsout["CanopyHeight"] = ds_out.astype(np.float32)
-        dsout["CanopyHeight"] = dsout["CanopyHeight"].fillna(-9999.0)
-        dsout["CanopyHeight"].raster.set_nodata(-9999.0)
+        dsout["vegetation_height"] = ds_out.astype(np.float32)
+        dsout["vegetation_height"] = dsout["vegetation_height"].fillna(-9999.0)
+        dsout["vegetation_height"].raster.set_nodata(-9999.0)
 
         # update name
-        wflow_var = self._WFLOW_NAMES[self._MAPS["CanopyHeight"]]
+        wflow_var = self._WFLOW_NAMES[self._MAPS["vegetation_height"]]
         self._update_naming({wflow_var: output_name})
-        self.set_grid(dsout["CanopyHeight"], name=output_name)
+        self.set_grid(dsout["vegetation_height"], name=output_name)
         # update config
         self._update_config_variable_name(output_name)
 
@@ -856,16 +855,16 @@ river cells."
         usleK_method: str = "renard",
         add_aggregates: bool = True,
         output_names: Dict = {
-            "soil_clay__mass_fraction": "fclay_soil",
-            "soil_silt__mass_fraction": "fsilt_soil",
-            "soil_sand__mass_fraction": "fsand_soil",
-            "soil_aggregates~small__mass_fraction": "fsagg_soil",
-            "soil_aggregates~large__mass_fraction": "flagg_soil",
-            "soil_erosion__rainfall_soil_detachability_factor": "soil_detachability",
-            "soil_erosion__usle_k_factor": "usle_k",
-            "land_surface_sediment__median_diameter": "d50_soil",
-            "land_surface_water_sediment__govers_transport_capacity_coefficient": "c_govers",  # noqa: E501
-            "land_surface_water_sediment__govers_transport_capacity_exponent": "n_govers",  # noqa: E501
+            "soil_clay__mass_fraction": "soil_clay_fraction",
+            "soil_silt__mass_fraction": "soil_silt_fraction",
+            "soil_sand__mass_fraction": "soil_sand_fraction",
+            "soil_aggregates~small__mass_fraction": "soil_sagg_fraction",
+            "soil_aggregates~large__mass_fraction": "soil_lagg_fraction",
+            "soil_erosion__rainfall_soil_detachability_factor": "erosion_soil_detachability",  # noqa: E501
+            "soil_erosion__usle_k_factor": "erosion_usle_k",
+            "land_surface_sediment__median_diameter": "soil_sediment_d50",
+            "land_surface_water_sediment__govers_transport_capacity_coefficient": "land_govers_c",  # noqa: E501
+            "land_surface_water_sediment__govers_transport_capacity_exponent": "land_govers_n",  # noqa: E501
         },
     ):
         """Generate sediments based soil parameter maps.
@@ -878,17 +877,18 @@ river cells."
 
         Adds model layers:
 
-        * **fclay_soil**: clay content of the topsoil [g/g]
-        * **fsilt_soil**: silt content of the topsoil [g/g]
-        * **fsand_soil**: sand content of the topsoil [g/g]
-        * **fsagg_soil**: small aggregate content of the topsoil [g/g]
-        * **flagg_soil**: large aggregate content of the topsoil [g/g]
-        * **soil_detachability** map: mean detachability of the soil (Morgan et al.,
-          1998) [g/J]
-        * **usle_k** map: soil erodibility factor from the USLE equation [-]
-        * **d50_soil** map: median sediment diameter of the soil [mm]
-        * **c_govers** map: Govers factor for overland flow transport capacity [-]
-        * **n_govers** map: Govers exponent for overland flow transport capacity [-]
+        * **soil_clay_fraction**: clay content of the topsoil [g/g]
+        * **soil_silt_fraction**: silt content of the topsoil [g/g]
+        * **soil_sand_fraction**: sand content of the topsoil [g/g]
+        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
+        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
+        * **erosion_soil_detachability** map: mean detachability of the soil
+        (Morgan et al., 1998) [g/J]
+        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
+        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
+        * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
+        * **land_govers_n** map: Govers exponent for overland flow transport
+        capacity [-]
 
 
         Parameters

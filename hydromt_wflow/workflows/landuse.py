@@ -489,7 +489,7 @@ def add_planted_forest_to_landuse(
         GeoDataFrame containing planted forest data. Required columns are: 'geometry',
         and optionally 'forest_type' to find orchards.
     ds_like : xr.Dataset
-        Dataset at model resolution. Required variables are 'USLE_C'.
+        Dataset at model resolution. Required variables are 'usle_c'.
     planted_forest_c : float, optional
         USLE C value for planted forest, by default 0.0881.
     orchard_name : str, optional
@@ -502,27 +502,27 @@ def add_planted_forest_to_landuse(
     usle_c : xr.DataArray
         Updated USLE C map.
     """
-    # Add a USLE_C column with default value
+    # Add a usle_c column with default value
     logger.info(
-        "Correcting USLE_C with planted forest and orchards using {planted_forest_fn}."
+        "Correcting usle_c with planted forest and orchards using {planted_forest_fn}."  # noqa: E501
     )
-    planted_forest["USLE_C"] = planted_forest_c
-    # If forest_type column is available, update USLE_C value for orchards
+    planted_forest["usle_c"] = planted_forest_c
+    # If forest_type column is available, update usle_c value for orchards
     if "forest_type" in planted_forest.columns:
-        planted_forest.loc[planted_forest["forest_type"] == orchard_name, "USLE_C"] = (
+        planted_forest.loc[planted_forest["forest_type"] == orchard_name, "usle_c"] = (
             orchard_c
         )
     # Rasterize forest data
     usle_c = ds_like.raster.rasterize(
         gdf=planted_forest,
-        col_name="USLE_C",
-        nodata=ds_like["USLE_C"].raster.nodata,
+        col_name="usle_c",
+        nodata=ds_like["usle_c"].raster.nodata,
         all_touched=False,
     )
-    # Cover nodata with the USLE_C map from all landuse classes
+    # Cover nodata with the usle_c map from all landuse classes
     usle_c = usle_c.where(
         usle_c != usle_c.raster.nodata,
-        ds_like["USLE_C"],
+        ds_like["usle_c"],
     )
 
     return usle_c
