@@ -28,8 +28,8 @@ def waterbodymaps(
 
     The following waterbody maps are calculated:
 
-    - resareas/lakeareas : waterbody areas mask [ID]
-    - reslocs/lakelocs : waterbody outlets [ID]
+    - reservoir_area_id/lake_area_id : waterbody areas mask [ID]
+    - reservoir_outlet_id/lake_outet_id : waterbody outlets [ID]
 
     Parameters
     ----------
@@ -58,11 +58,11 @@ def waterbodymaps(
         dtype=None,
         sindex=False,
     )
-    da_wbmask = da_wbmask.rename("resareas")
+    da_wbmask = da_wbmask.rename("reservoir_area_id")
     da_wbmask.attrs.update(_FillValue=-999)
     ds_out = da_wbmask.to_dataset()
-    if not np.all(np.isin(res_id, ds_out["resareas"])):
-        gdf = gdf.loc[np.isin(res_id, ds_out["resareas"])]
+    if not np.all(np.isin(res_id, ds_out["reservoir_area_id"])):
+        gdf = gdf.loc[np.isin(res_id, ds_out["reservoir_area_id"])]
         nskipped = res_id.size - gdf.index.size
         res_id = gdf["waterbody_id"].values
         logger.warning(
@@ -71,7 +71,7 @@ def waterbodymaps(
         )
 
     # Initialize the waterbody outlet map
-    ds_out["reslocs"] = xr.full_like(ds_out["resareas"], -999)
+    ds_out["reservoir_outlet_id"] = xr.full_like(ds_out["reservoir_area_id"], -999)
     # If an upstream area map is present in the model, gets outlets coordinates using/
     # the maximum uparea in each waterbody mask to match model river network.
     if uparea_name is not None and uparea_name in ds_like.data_vars:
@@ -82,11 +82,13 @@ def waterbodymaps(
         ydim = ds_like.raster.y_dim
         xdim = ds_like.raster.x_dim
         for i in res_id:
-            res_acc = ds_like[uparea_name].where(ds_out["resareas"] == i).load()
+            res_acc = (
+                ds_like[uparea_name].where(ds_out["reservoir_area_id"] == i).load()
+            )
             max_res_acc = res_acc.where(res_acc == res_acc.max(), drop=True).squeeze()
             yacc = max_res_acc[ydim].values
             xacc = max_res_acc[xdim].values
-            ds_out["reslocs"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
+            ds_out["reservoir_outlet_id"].loc[{f"{ydim}": yacc, f"{xdim}": xacc}] = i
             outdf.loc[outdf.waterbody_id == i, "xout"] = xacc
             outdf.loc[outdf.waterbody_id == i, "yout"] = yacc
         outgdf = gp.GeoDataFrame(
@@ -100,25 +102,30 @@ def waterbodymaps(
         outgdf = gp.GeoDataFrame(
             outdf, geometry=gp.points_from_xy(outdf.xout, outdf.yout)
         )
-        ds_out["reslocs"] = ds_like.raster.rasterize(
+        ds_out["reservoir_outlet_id"] = ds_like.raster.rasterize(
             outgdf, col_name="waterbody_id", nodata=-999
         )
     # Else outlet map is equal to areas mask map
     else:
-        ds_out["reslocs"] = ds_out["resareas"]
+        ds_out["reservoir_outlet_id"] = ds_out["reservoir_area_id"]
         logger.warning(
             f"Neither upstream area map nor {wb_type}'s outlet coordinates found. "
             f"Setting {wb_type} outlet map equal to the area map."
         )
         # dummy outgdf
         outgdf = gdf[["waterbody_id"]]
-    ds_out["reslocs"].attrs.update(_FillValue=-999)
+    ds_out["reservoir_outlet_id"].attrs.update(_FillValue=-999)
     # fix dtypes
-    ds_out["reslocs"] = ds_out["reslocs"].astype("int32")
-    ds_out["resareas"] = ds_out["resareas"].astype("float32")
+    ds_out["reservoir_outlet_id"] = ds_out["reservoir_outlet_id"].astype("int32")
+    ds_out["reservoir_area_id"] = ds_out["reservoir_area_id"].astype("float32")
 
     if wb_type == "lake":
-        ds_out = ds_out.rename({"resareas": "lakeareas", "reslocs": "lakelocs"})
+        ds_out = ds_out.rename(
+            {
+                "reservoir_area_id": "lake_area_id",
+                "reservoir_outlet_id": "lake_outlet_id",
+            }
+        )
 
     return ds_out, outgdf
 

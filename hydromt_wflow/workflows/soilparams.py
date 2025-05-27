@@ -5,12 +5,12 @@ import xarray as xr
 from hydromt import raster
 
 __all__ = [
-    "ksathorfrac",
+    "ksat_horizontal_ratio",
     "ksatver_vegetation",
 ]
 
 
-def ksathorfrac(
+def ksat_horizontal_ratio(
     da: xr.DataArray,
     ds_like: xr.Dataset,
     resampling_method: str,
@@ -137,7 +137,7 @@ def update_kvfrac(
     target_conductivity = np.array(target_conductivity)
 
     # Prepare empty dataarray
-    da_kvfrac = raster.full_like(ds_model["c"])
+    da_kvfrac = raster.full_like(ds_model["soil_brooks_corey_c"])
     # Set all values to 1
     da_kvfrac = da_kvfrac.where(ds_model["elevtn"].raster.mask_nodata().isnull(), 1.0)
 
@@ -168,13 +168,13 @@ def update_kvfrac(
     return da_kvfrac
 
 
-def get_ks_veg(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
+def get_ks_veg(ksat_vertical, sndppt, LAI, alfa=4.5, beta=5):
     """
     Based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.
 
     Parameters
     ----------
-    KsatVer : [xr.DataSet, float]
+    ksat_vertical  : [xr.DataSet, float]
         saturated hydraulic conductivity from PTF based on soil properties [cm/d].
     sndppt : [xr.DataSet, float]
         percentage sand [%].
@@ -192,9 +192,10 @@ def get_ks_veg(KsatVer, sndppt, LAI, alfa=4.5, beta=5):
 
     """
     # get the saturated hydraulic conductivity with fully developed vegetation.
-    ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(KsatVer))
-    # get the saturated hydraulic conductivity based on soil and vegetation mean LAI
-    ks = ksmax - (ksmax - KsatVer) / (1 + (LAI / alfa) ** beta)
+    ksmax = 10 ** (3.5 - 1.5 * sndppt**0.13 + np.log10(ksat_vertical))
+    # get the saturated hydraulic conductivity based on soil and
+    # vegetation mean LAI
+    ks = ksmax - (ksmax - ksat_vertical) / (1 + (LAI / alfa) ** beta)
     return ks
 
 
@@ -213,7 +214,8 @@ def ksatver_vegetation(
     ----------
     ds_like : xr.Dataset
         Dataset at model resolution.
-        The required variables in ds_like are LAI [-], KSatVer [mm/d] and wflow_subcatch
+        The required variables in ds_like are LAI [-],
+        ksat_vertical [mm/d] and subcatchment
     sndppt : [xr.DataSet, float]
         percentage sand [%].
     alfa : float, optional
