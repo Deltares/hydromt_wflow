@@ -83,7 +83,7 @@ class WflowModel(Model):
 
         geoms_component = WflowGeomsComponent(
             model=self,
-            region_component="grid",  # change when GridComponent is implemented
+            region_component="grid",  # TODO change when GridComponent is implemented? or set to None?  # noqa: E501
             region_filename="geoms/geoms_region.geojson",  # TODO read from config?
         )
 
@@ -106,11 +106,6 @@ class WflowModel(Model):
         logger.info("Supported Wflow.jl version v1+")
         # hydromt mapping and wflow variable names
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(self.config)
-
-    @property
-    def geoms(self) -> WflowGeomsComponent:
-        """Return the WflowGeomsComponent instance."""
-        return self.components["geoms"]
 
     # SETUP METHODS
     @hydromt_step
@@ -1531,7 +1526,7 @@ skipping adding gauge specific outputs to the toml."
             index=ids_out.astype(np.int32), geometry=points, crs=self.crs
         )
         gdf["fid"] = ids_out.astype(np.int32)
-        self.set_geoms(gdf, name="gauges")
+        self.geoms.set(gdf, name="gauges")
         logger.info("Gauges map based on catchment river outlets added.")
 
         self.setup_config_output_timeseries(
@@ -1811,7 +1806,7 @@ gauge locations [-] (if derive_subcatch)
         df_attrs = df_attrs[np.isin(df_attrs.index, gdf_snapped.index)]
         gdf_snapped = gdf_snapped.merge(df_attrs, how="inner", on=gdf_gauges.index.name)
         # Add gdf_snapped to geoms
-        self.set_geoms(gdf_snapped, name=mapname.replace("wflow_", ""))
+        self.geoms.set(gdf_snapped, name=mapname.replace("wflow_", ""))
 
         # Add output timeseries for gauges in the toml
         self.setup_config_output_timeseries(
@@ -1827,7 +1822,7 @@ gauge locations [-] (if derive_subcatch)
             mapname = self._MAPS["basins"] + "_" + basename
             self.set_grid(da_basins, name=mapname)
             gdf_basins = self.grid[mapname].raster.vectorize()
-            self.set_geoms(gdf_basins, name=mapname.replace("wflow_", ""))
+            self.geoms.set(gdf_basins, name=mapname.replace("wflow_", ""))
 
     @hydromt_step
     def setup_areamap(
@@ -2044,7 +2039,7 @@ Using default storage/outflow function parameters."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
         self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes, name=geom_name)
+        self.geoms.set(gdf_lakes, name=geom_name)
         # add the tables
         for k, v in rating_curves.items():
             self.set_tables(v, name=k)
@@ -2214,7 +2209,7 @@ Using default storage/outflow function parameters."
         gdf_org = gdf_org.merge(intbl_reservoirs, on="waterbody_id")
 
         # write reservoirs with param values to geoms
-        self.set_geoms(gdf_org, name=geom_name)
+        self.geoms.set(gdf_org, name=geom_name)
 
         for name in gdf_org_points.columns[2:]:
             gdf_org_points[name] = gdf_org_points[name].astype("float32")
@@ -2906,7 +2901,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.set_config("model.glacier", True)
         self.set_config("state.variables.glacier_ice__leq-depth", "glacierstore")
         # update geoms
-        self.set_geoms(gdf_org, name=geom_name)
+        self.geoms.set(gdf_org, name=geom_name)
 
     @hydromt_step
     def setup_constant_pars(self, **kwargs):
@@ -3282,7 +3277,7 @@ one variable and variables list is not provided."
 
         # Add to geoms
         gdf_stations = da_precip.vector.to_gdf().to_crs(self.crs)
-        self.set_geoms(gdf_stations, name="stations_precipitation")
+        self.geoms.set(gdf_stations, name="stations_precipitation")
 
     @hydromt_step
     def setup_temp_pet_forcing(
@@ -3797,7 +3792,7 @@ Run setup_soilmaps first"
         for var in dsout.data_vars:
             dsout[var].raster.set_nodata(-999)
         self.set_grid(dsout)
-        self.set_geoms(gdf, name="rootzone_storage")
+        self.geoms.set(gdf, name="rootzone_storage")
 
         # update config
         self.set_config("input.static.vegetation_root__depth", output_name_rootingdepth)
@@ -3922,7 +3917,7 @@ Run setup_soilmaps first"
             gdf_tributary["value"] = gdf_tributary["value"].astype(
                 ds_out["gauges"].dtype
             )
-            self.set_geoms(gdf_tributary, name=f"gauges_{mapname}")
+            self.geoms.set(gdf_tributary, name=f"gauges_{mapname}")
 
             # Add a check that all gauges are on the river
             if (
@@ -3954,7 +3949,7 @@ Run setup_soilmaps first"
         self.set_grid(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
-        self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
+        self.geoms.set(gdf_subcatch, name=f"subcatch_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
         self.set_grid(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
@@ -3962,7 +3957,7 @@ Run setup_soilmaps first"
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
         )
-        self.set_geoms(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
+        self.geoms.set(gdf_subcatch_riv, name=f"subcatch_riv_{mapname}")
 
         # Update toml
         if update_toml:
@@ -4036,7 +4031,7 @@ Run setup_soilmaps first"
         # Update the config
         self.set_config("input.static.land_water_allocation_area__number", output_name)
         # Add alloc to geoms
-        self.set_geoms(gdf_alloc, name=output_name)
+        self.geoms.set(gdf_alloc, name=output_name)
 
     @hydromt_step
     def setup_allocation_surfacewaterfrac(
@@ -4921,10 +4916,10 @@ Run setup_soilmaps first"
             Name of the states file relative to model root/dir_input. By default None
             to use the name as defined in the model config file.
         """
-        self.logger.info(f"Write model data to {self.root}")
+        logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
         if not self._write:
-            self.logger.warning("Cannot write in read-only mode")
+            logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
         _ = self.config  # try to read default if not yet set
@@ -5192,7 +5187,7 @@ Run setup_soilmaps first"
         for fn in fns:
             name = basename(fn).split(".")[0]
             if name != "region":
-                self.set_geoms(gpd.read_file(fn), name=name)
+                self.geoms.set(gpd.read_file(fn), name=name)
 
     @hydromt_step
     def write_geoms(
@@ -5759,10 +5754,15 @@ change name input.path_forcing "
         )
 
     @property
+    def geoms(self) -> WflowGeomsComponent:
+        """Return the WflowGeomsComponent instance."""
+        return self.components["geoms"]
+
+    @property
     def basins(self):
         """Returns a basin(s) geometry as a geopandas.GeoDataFrame."""
-        if "basins" in self.geoms:
-            gdf = self.geoms["basins"]
+        if self.geoms.get("basins") is not None:
+            gdf = self.geoms.get("basins")
         elif self._MAPS["basins"] in self.grid:
             gdf = (
                 self.grid[self._MAPS["basins"]]
@@ -5779,8 +5779,9 @@ change name input.path_forcing "
     @property
     def basins_highres(self):
         """Returns a high resolution basin(s) geometry."""
-        if "basins_highres" in self.geoms:
-            gdf = self.geoms["basins_highres"]
+        if self.geoms.get("basins_highres") is not None:
+            # If highres basins are already set, return them
+            gdf = self.geoms.get("basins_highres")
         else:
             gdf = self.basins
         return gdf
@@ -5792,7 +5793,7 @@ change name input.path_forcing "
         If available, the stream order and upstream area values are added to
         the geometry properties.
         """
-        if "rivers" in self.geoms:
+        if self.geoms.get("rivers") is not None:
             gdf = self.geoms["rivers"]
         elif self._MAPS["rivmsk"] in self.grid:
             rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
