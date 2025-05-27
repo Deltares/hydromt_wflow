@@ -139,6 +139,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
+@pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     model = "wflow"
 
@@ -146,7 +147,7 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     destination = str(tmpdir.join(model))
     region = {
         "subbasin": [12.3006, 46.4324],
-        "wflow_streamorder": 4,
+        "meta_streamorder": 4,
     }
 
     # Clip workflow, based on example model
@@ -169,11 +170,11 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-def test_model_inverse_clip(tmpdir, example_wflow_model):
+def test_model_inverse_clip(example_wflow_model):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
-        "wflow_streamorder": 4,
+        "meta_streamorder": 4,
     }
 
     # Clip workflow, based on example model
