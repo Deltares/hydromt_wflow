@@ -9,13 +9,13 @@ import numpy as np
 import pandas as pd
 import tomlkit
 import xarray as xr
-from tomlkit import TOMLDocument
 from hydromt import hydromt_step
 
 from hydromt_wflow.naming import (
     _create_hydromt_wflow_mapping_sediment,
 )
 from hydromt_wflow.utils import (
+    DATADIR,
     convert_to_wflow_v1_sediment,
 )
 from hydromt_wflow.wflow import WflowModel
@@ -32,7 +32,6 @@ class WflowSedimentModel(WflowModel):
     """The wflow sediment model class, a subclass of WflowModel."""
 
     name: str = "wflow_sediment"
-    _GEOMS = {}
 
     def __init__(
         self,
@@ -269,7 +268,7 @@ river cells."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_lakes.data_vars}
         self.set_grid(ds_lakes.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_lakes.rename({"Area_avg": "LakeArea"}), name=geom_name)
+        self.geoms.set(gdf_lakes.rename({"Area_avg": "LakeArea"}), name=geom_name)
 
         # Lake settings in the toml to update
         self.set_config("model.lakes", True)
@@ -363,7 +362,7 @@ river cells."
         rmdict = {k: self._MAPS.get(k, k) for k in ds_res.data_vars}
         self.set_grid(ds_res.rename(rmdict))
         # write lakes with attr tables to static geoms.
-        self.set_geoms(gdf_res.rename({"Area_avg": "ResSimpleArea"}), name=geom_name)
+        self.geoms.set(gdf_res.rename({"Area_avg": "ResSimpleArea"}), name=geom_name)
 
         # Lake settings in the toml to update
         self.set_config("model.reservoirs", True)
