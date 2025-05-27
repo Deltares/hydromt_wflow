@@ -5780,7 +5780,6 @@ change name input.path_forcing "
     def basins_highres(self):
         """Returns a high resolution basin(s) geometry."""
         if self.geoms.get("basins_highres") is not None:
-            # If highres basins are already set, return them
             gdf = self.geoms.get("basins_highres")
         else:
             gdf = self.basins
@@ -5794,7 +5793,7 @@ change name input.path_forcing "
         the geometry properties.
         """
         if self.geoms.get("rivers") is not None:
-            gdf = self.geoms["rivers"]
+            gdf = self.geoms.get("rivers")
         elif self._MAPS["rivmsk"] in self.grid:
             rivmsk = self.grid[self._MAPS["rivmsk"]].values != 0
             # Check if there are river cells in the model before continuing
