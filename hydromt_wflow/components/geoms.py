@@ -42,8 +42,8 @@ class WflowGeomsComponent(GeomsComponent):
     def parse_region(
         self,
         region: dict,
+        hydrography_fn: str | xr.Dataset,
         resolution: float | int = 1 / 120.0,
-        hydrography_fn: str | xr.Dataset | None = None,
         basin_index_fn: str | xr.Dataset | None = None,
     ) -> tuple[gpd.GeoDataFrame, Optional[np.ndarray], xr.Dataset]:
         """Parse the region dictionary to get basin geometry and coordinates."""

@@ -238,8 +238,8 @@ class WflowModel(Model):
 
         geom, xy, ds_org = self.geoms.parse_region(
             region,
-            resolution=res,
             hydrography_fn=hydrography_fn,
+            resolution=res,
             basin_index_fn=basin_index_fn,
         )
 
