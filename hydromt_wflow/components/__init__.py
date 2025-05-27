@@ -1,5 +1,7 @@
-from hydromt_wflow.components.geoms import WflowGeomsComponent
+"""submodule for model components."""
 
-__all__ = [
-    "WflowGeomsComponent",
-]
+from hydromt_wflow.components.config import WflowConfigComponent
+from hydromt_wflow.components.geoms import WflowGeomsComponent
+from hydromt_wflow.components.grid import WflowGridComponent
+
+__all__ = ["WflowConfigComponent", "WflowGridComponent", "WflowGeomsComponent"]

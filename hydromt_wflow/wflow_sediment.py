@@ -7,6 +7,7 @@ from typing import Dict, List
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import tomlkit
 import xarray as xr
 from hydromt import hydromt_step
 
@@ -14,6 +15,7 @@ from hydromt_wflow.naming import (
     _create_hydromt_wflow_mapping_sediment,
 )
 from hydromt_wflow.utils import (
+    DATADIR,
     convert_to_wflow_v1_sediment,
 )
 from hydromt_wflow.wflow import WflowModel
@@ -23,6 +25,7 @@ from . import workflows
 __all__ = ["WflowSedimentModel"]
 
 logger = logging.getLogger(__name__)
+__hydromt_eps__ = ["WflowSedimentModel"]
 
 
 class WflowSedimentModel(WflowModel):
@@ -938,8 +941,14 @@ river cells."
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
         """
+        self.read()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=logger)
-        self._config = dict()
+        # tomlkit loads errors on this file so we have to do it in two steps
+        with open(DATADIR / "default_config_headers.toml", "r") as file:
+            default_header_str = file.read()
+
+        self._config = tomlkit.parse(default_header_str)
+
         for option in config_out:
             self.set_config(option, config_out[option])
 

@@ -11,14 +11,12 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import geopandas as gpd
-
-# from dask.distributed import LocalCluster, Client, performance_report
 import hydromt
 import numpy as np
 import pandas as pd
 import pyflwdir
 import pyproj
-import toml
+import tomlkit
 import xarray as xr
 from dask.diagnostics import ProgressBar
 from hydromt import hydromt_step
@@ -30,7 +28,11 @@ from hydromt.model.processes.region import (
     _parse_region_value,
 )
 
-from hydromt_wflow.components.geoms import WflowGeomsComponent
+from hydromt_wflow.components import (
+    WflowConfigComponent,
+    WflowGeomsComponent,
+    WflowGridComponent,
+)
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
     DATADIR,
@@ -73,13 +75,15 @@ class WflowModel(Model):
     def __init__(
         self,
         root: str | None = None,
-        config_fn: Path | str = "wflow_sbm.toml",
+        config_path: Path | str = "wflow_sbm.toml",
         mode: str = "r",
         data_libs: list[str] | str | None = None,
         **catalog_keys,
     ):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
+        config_component = WflowConfigComponent(self, filename=str(config_path))
+        grid_component = WflowGridComponent(self, filename=str(config_path))
 
         geoms_component = WflowGeomsComponent(
             model=self,
@@ -87,7 +91,11 @@ class WflowModel(Model):
             region_filename="geoms/geoms_region.geojson",  # TODO read from config?
         )
 
-        components = {"geoms": geoms_component}
+        components = {
+            "config": config_component,
+            "grid": grid_component,
+            "geoms": geoms_component,
+        }
 
         super().__init__(
             root,
@@ -105,7 +113,9 @@ class WflowModel(Model):
         # Supported Wflow.jl version
         logger.info("Supported Wflow.jl version v1+")
         # hydromt mapping and wflow variable names
-        self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(self.config)
+        self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
+            self.config.data
+        )
 
     # SETUP METHODS
     @hydromt_step
@@ -158,8 +168,8 @@ class WflowModel(Model):
         at 3 arcsec resolution).
         Alternative sources include "merit_hydro_1k" at 30 arcsec resolution.
         Users can also supply their own elevation and flow direction data
-        in any CRS and not only EPSG:4326. Both arcgis D8 and pcraster LDD
-        conventions are supported (see also `PyFlwDir documentation
+        in any CRS and not only EPSG:4326. The ArcGIS D8 convention is supported
+        (see also `PyFlwDir documentation
         <https://deltares.github.io/pyflwdir/latest/_examples/flwdir.html>`).
 
         Note that in order to define the region, using points or bounding box,
@@ -3173,7 +3183,8 @@ one variable and variables list is not provided."
         """
         starttime = self.get_config("time.starttime")
         endtime = self.get_config("time.endtime")
-        freq = pd.to_timedelta(self.get_config("time.timestepsecs"), unit="s")
+        timestep = self.get_config("time.timestepsecs")
+        freq = pd.to_timedelta(timestep, unit="s")
         mask = self.grid[self._MAPS["basins"]].values > 0
 
         # Check data type of precip_fn if it is provided through the data catalog
@@ -4876,8 +4887,15 @@ Run setup_soilmaps first"
         The other components stay the same.
         This function should be followed by write_config() to write the upgraded file.
         """
+        self.read()
+
         config_out = convert_to_wflow_v1_sbm(self.config, logger=logger)
-        self._config = dict()
+        # tomlkit loads errors on this file so we have to do it in two steps
+        with open(DATADIR / "default_config_headers.toml", "r") as file:
+            default_header_str = file.read()
+
+        self._config = tomlkit.parse(default_header_str)
+
         for option in config_out:
             self.set_config(option, config_out[option])
 
@@ -4918,7 +4936,7 @@ Run setup_soilmaps first"
         """
         logger.info(f"Write model data to {self.root}")
         # if in r, r+ mode, only write updated components
-        if not self._write:
+        if not self.root.is_writing_mode():
             logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
@@ -4975,12 +4993,6 @@ Run setup_soilmaps first"
         Checks the path of the file in the config toml using both ``input.path_static``
         and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
         root folder.
-
-        For reading old PCRaster maps, see the pcrm submodule.
-
-        See Also
-        --------
-        pcrm.read_staticmaps_pcr
         """
         fn_default = "staticmaps.nc"
         fn = self.get_config(
@@ -5579,7 +5591,6 @@ change name input.path_forcing "
         """Write results at <root/?/> in model ready format."""
         if not self._write:
             raise IOError("Model opened in read-only mode")
-        # raise NotImplementedError()
 
     @hydromt_step
     def read_intbl(self, **kwargs):
@@ -5664,12 +5675,85 @@ change name input.path_forcing "
 
     def _configread(self, fn):
         with codecs.open(fn, "r", encoding="utf-8") as f:
-            fdict = toml.load(f)
+            fdict = tomlkit.load(f)
+
         return fdict
 
     def _configwrite(self, fn):
         with codecs.open(fn, "w", encoding="utf-8") as f:
-            toml.dump(self.config, f)
+            tomlkit.dump(self.config, f)
+
+    def set_config(self, *args):
+        """
+        Update the config toml at key(s) with values.
+
+        This function is made to maintain the structure of your toml file.
+        When adding keys it will look for the most specific header present in
+        the toml file and add it under that.
+
+        meaning that if you have a config toml that is empty and you run
+        ``wflow_model.set_config("input.forcing.scale", 1)``
+
+        it will result in the following file:
+
+        .. code-block:: toml
+
+            input.forcing.scale = 1
+
+
+        however if your toml file looks like this before:
+
+        .. code-block:: toml
+
+            [input.forcing]
+
+        (i.e. you have a header in there that has no keys)
+
+        then after the insertion it will look like this:
+
+        .. code-block:: toml
+
+            [input.forcing]
+            scale = 1
+
+
+        .. warning::
+
+            Due to limitations of the underlying library it is currently not possible to
+            create new headers (i.e. groups like ``input.forcing`` in the example above)
+            programmatically, and they will need to be added to the default config
+            toml document
+
+
+        .. warning::
+
+            Even though the underlying config object behaves like a dictionary, it is
+            not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
+            error scan easily be introduced if this structure is modified by hand.
+            Therefore we strongly discourage users from manually modying it, and
+            instead ask them to use this ``set_config`` function to avoid problems.
+
+        Parameters
+        ----------
+        args : str, tuple, list
+            if tuple or list, minimal length of two
+            keys can given by multiple args: ('key1', 'key2', 'value')
+            or a string with '.' indicating a new level: ('key1.key2', 'value')
+
+        Examples
+        --------
+        .. code-block:: ipython
+
+            >> self.config
+            >> {'a': 1, 'b': {'c': {'d': 2}}}
+
+            >> self.set_config('a', 99)
+            >> {'a': 99, 'b': {'c': {'d': 2}}}
+
+            >> self.set_config('b', 'c', 'd', 99) # identical to set_config('b.d.e', 99)
+            >> {'a': 1, 'b': {'c': {'d': 99}}}
+        """
+        self.config.set(*args)
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
@@ -5721,13 +5805,6 @@ change name input.path_forcing "
             # (spelling mistakes should have been checked in _update_naming)
 
     ## WFLOW specific data and method
-    @property
-    def intbl(self):
-        """Return a dictionary of pandas.DataFrames representing wflow intbl files."""
-        if not self._intbl:
-            self.read_intbl()
-        return self._intbl
-
     @property
     # Move to core Model API ?
     def tables(self):
@@ -6017,3 +6094,49 @@ change name input.path_forcing "
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
+
+    def get_config(
+        self,
+        *args,
+        fallback: Any = None,
+        abs_path: bool = False,
+    ) -> str | None:
+        """Get a config value at key.
+
+        Parameters
+        ----------
+        args : tuple, str
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: Any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+            NOTE: this assumes the config is located in model root!
+
+        Returns
+        -------
+        value : Any
+            dictionary value
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> get_config('a')
+        >> 1
+
+        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+        >> 2
+
+        >> get_config('b.c') # # identical to get_config('b','c')
+        >> {'d': 2}
+        """
+        return self.config.get(
+            *args,
+            config=self.config,
+            fallback=fallback,
+            abs_path=abs_path,
+            root=self.root,
+        )
