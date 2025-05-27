@@ -568,7 +568,7 @@ river cells."
         )
 
         # If available, improve USLE C map with planted forest data
-        if "erosion_usle_c " in lulc_vars and planted_forest_fn is not None:
+        if self._MAPS["usle_c"] in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -593,7 +593,7 @@ river cells."
             )
 
             # Add to grid
-            self.set_grid(usle_c)
+            self.set_grid(usle_c, name=self._MAPS["usle_c"])
 
     def setup_lulcmaps_from_vector(
         self,
@@ -701,7 +701,7 @@ river cells."
         )
 
         # If available, improve USLE C map with planted forest data
-        if "erosion_usle_c" in lulc_vars and planted_forest_fn is not None:
+        if self._MAPS["usle_c"] in lulc_vars and planted_forest_fn is not None:
             # Read forest data
             planted_forest = self.data_catalog.get_geodataframe(
                 planted_forest_fn,
@@ -713,9 +713,12 @@ river cells."
             if planted_forest is None:
                 self.logger.warning("No Planted forest data found within domain.")
                 return
+            rename_dict = {
+                v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
+            }
             usle_c = workflows.add_planted_forest_to_landuse(
                 planted_forest,
-                self.grid,
+                self.grid.rename(rename_dict),
                 planted_forest_c=planted_forest_c,
                 orchard_name=orchard_name,
                 orchard_c=orchard_c,
@@ -723,7 +726,7 @@ river cells."
             )
 
             # Add to grid
-            self.set_grid(usle_c)
+            self.set_grid(usle_c, name=self._MAPS["usle_c"])
 
     def setup_riverbedsed(
         self,

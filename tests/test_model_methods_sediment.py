@@ -23,7 +23,7 @@ def test_setup_lulc_sed(example_sediment_model, planted_forest_testdata):
     )
 
     # Strict equality checking is okay here because no processing is actually happening
-    # and we want to make sure we don't add any roudning errors
+    # and we want to make sure we don't add any rounding errors
     assert np.all(da.values == np.array([0.0881, 0.2188]))
 
 
