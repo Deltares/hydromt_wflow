@@ -1035,7 +1035,7 @@ def _create_hydromt_wflow_mapping(
 
 def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
     """
-    Create a dictionnary to convert from hydromt names to wflow sbm input names.
+    Create a dictionary to convert from hydromt names to wflow sbm input names.
 
     These names will be used in staticmaps/forcing and linked to the right wflow
     internal variables in the toml.
@@ -1045,7 +1045,7 @@ def _create_hydromt_wflow_mapping_sbm(config: dict) -> Tuple[dict, dict]:
 
 def _create_hydromt_wflow_mapping_sediment(config: dict) -> Tuple[dict, dict]:
     """
-    Create a dictionnary to convert from hydromt names to wflow sediment input names.
+    Create a dictionary to convert from hydromt names to wflow sediment input names.
 
     These names will be used in staticmaps/forcing and linked to the right wflow
     internal variables in the toml.

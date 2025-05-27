@@ -729,7 +729,7 @@ river cells."
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
         output_names: Dict = {
-            "river_bottom-and-bank_sediment__d50_diameter": "river_bed_sediment_d50",
+            "river_bottom-and-bank_sediment__median_diameter": "river_bed_sediment_d50",
             "river_bottom-and-bank_clay__mass_fraction": "river_bed_clay_fraction",
             "river_bottom-and-bank_silt__mass_fraction": "river_bed_silt_fraction",
             "river_bottom-and-bank_sand__mass_fraction": "river_bed_sand_fraction",
@@ -882,8 +882,8 @@ river cells."
         * **soil_sand_fraction**: sand content of the topsoil [g/g]
         * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]
         * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]
-        * **soil_detachability** map: mean detachability of the soil (Morgan et al.,
-          1998) [g/J]
+        * **erosion_soil_detachability** map: mean detachability of the soil
+        (Morgan et al., 1998) [g/J]
         * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
         * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
         * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
