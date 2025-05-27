@@ -2611,11 +2611,7 @@ using 'variable' argument."
             "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
             "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
-        paddy_waterlevels: Dict = {
-            "h_min": 20,
-            "h_opt": 50,
-            "h_max ": 80,
-        },
+        paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max ": 80},
         save_high_resolution_lulc: bool = False,
         output_names_suffix: str | None = None,
     ):
@@ -2744,8 +2740,8 @@ using 'variable' argument."
             Wflow.jl variables.
         paddy_waterlevels : dict
             Dictionary with the minimum, optimal and maximum water levels for paddy
-            fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,
-              "demand_paddy_h_max": 80}
+            fields [mm]. By default {"h_min": 20, "h_opt": 50,
+              "h_max": 80}
         save_high_resolution_lulc : bool
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
@@ -2753,9 +2749,8 @@ using 'variable' argument."
             Suffix to be added to the output names to avoid having to rename all the
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
-            Note that the suffix will also be used to rename the paddy parameters
-           soil_ksat_vertical_factor, demand_paddy_h_min, demand_paddy_h_opt and
-            demand_paddy_h_max but not the soil_brooks_corey_c parameter.
+            Note that the suffix will also be used to rename the paddy parameter
+           soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         if output_names_suffix is not None:
@@ -2763,20 +2758,11 @@ using 'variable' argument."
             output_names = {
                 v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
             }
-            # Add the other parameters
-            for var in [
-                "soil_ksat_vertical_factor",
-                "demand_paddy_h_min",
-                "demand_paddy_h_opt",
-                "demand_paddy_h_max",
-            ]:
-                output_names[self._WFLOW_NAMES[self._MAPS[var]]] = (
-                    f"{var}_{output_names_suffix}"
-                )
-                # for paddy also update the dictionnary
-                if var != "soil_ksat_vertical_factor":
-                    value = paddy_waterlevels.pop(var)
-                    paddy_waterlevels[f"{var}_{output_names_suffix}"] = value
+            # Add soil_ksat_vertical_factor
+            output_names[self._WFLOW_NAMES[self._MAPS["soil_ksat_vertical_factor"]]] = (
+                f"soil_ksat_vertical_factor_{output_names_suffix}"
+            )
+
         else:
             output_names = {v: k for k, v in lulc_vars.items()}
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
@@ -4544,8 +4530,8 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
         lulcmap_name: str = "meta_landuse",
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "demand_paddy_irrigated_mask",
-            "land~irrigated-non-paddy_area__number": "demand_nonpaddy_irrigated_mask",
+            "land~irrigated-paddy_area__count": "demand_paddy_irrigated_mask",
+            "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
             "land~irrigated-paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
             "land~irrigated-non-paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -4662,7 +4648,7 @@ Run setup_soilmaps first"
         ):
             # Select the paddy variables in output_names
             paddy_names = {
-                k: v for k, v in output_names.items() if "irrigated-paddy" in v
+                k: v for k, v in output_names.items() if "irrigated-paddy" in k
             }
             self._update_naming(paddy_names)
             ds_paddy = ds_irrigation[
@@ -4695,7 +4681,7 @@ Run setup_soilmaps first"
             != 0
         ):
             nonpaddy_names = {
-                k: v for k, v in output_names.items() if "irrigated-non-paddy" in v
+                k: v for k, v in output_names.items() if "irrigated-non-paddy" in k
             }
             self._update_naming(nonpaddy_names)
             ds_nonpaddy = ds_irrigation[
@@ -4765,10 +4751,10 @@ Run setup_soilmaps first"
 
         * **demand_paddy_irrigated_mask**: Irrigated (paddy) mask [-]
         * **demand_nonpaddy_irrigated_mask**: Irrigated (non-paddy) mask [-]
-        * **paddy_irrigation_trigger**: Map with monthly values, indicating whether
-          irrigation is allowed (1) or not (0) [-] for paddy areas
-        * **nonpaddy_irrigation_trigger**: Map with monthly values, indicating whether
-          irrigation is allowed (1) or not (0) [-] for non-paddy areas
+        * **demand_paddy_irrigation_trigger**: Map with monthly values, indicating
+          whether irrigation is allowed (1) or not (0) [-] for paddy areas
+        * **demand_nonpaddy_irrigation_trigger**: Map with monthly values, indicating
+          whether irrigation is allowed (1) or not (0) [-] for non-paddy areas
 
         Parameters
         ----------
