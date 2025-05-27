@@ -230,7 +230,7 @@ def determine_Peffective_Interception_explicit(ds_sub, Imax, intercep_vars_sub=N
         # Loop through the time steps and determine the variables per time step.
         for i in range(0, nr_time_steps):
             if intercep_vars_sub is not None:
-                # TODO: for now assumed that LAI contains monthly data,
+                # TODO: assumption LAI contains monthly data,
                 # change this for future
                 month = pd.to_datetime(ds_sub.time[i].values).month
                 Imax = intercep_vars_sub["Imax"].sel(time=month)
@@ -619,7 +619,7 @@ def rootzoneclim(
 
     The root zone storage capacity parameter is calculated per subcatchment and is
     converted to a gridded map at model resolution. Optionally, this function
-    can return the wflow_sbm parameter RootingDepth by dividing the root zone
+    can return the wflow_sbm parameter vegetation_root_depth by dividing the root zone
     storage parameter by (theta_s - theta_r).
 
     The method is based on the estimation of maximum annual storage deficits based on
@@ -692,8 +692,8 @@ def rootzoneclim(
     Returns
     -------
     ds_out : xr.Dataset
-        Dataset containing root zone storage capacity (optional) and RootingDepth for
-        several forcing and return periods.
+        Dataset containing root zone storage capacity (optional) and
+        vegetation_root_depth for several forcing and return periods.
     gdf_basins_all : GeoDataFrame
         Geodataframe containing the root zone storage capacity values for
         each basin before filling NaN.
@@ -713,11 +713,11 @@ def rootzoneclim(
         start_hydro_year, start_field_capacity, dsrun, ds_obs, ds_cc_hist, ds_cc_fut
     )
 
-    # If LAI = True, create a new xr dataset containing the interception pars
     if LAI == True:
+        # Create a new xr dataset containing the interception pars
         intercep_vars = ds_like.LAI.to_dataset(name="LAI")
-        intercep_vars["Swood"] = ds_like["Swood"]
-        intercep_vars["Sl"] = ds_like["Sl"]
+        intercep_vars["wood_storage"] = ds_like["wood_storage"]
+        intercep_vars["leaf_storage"] = ds_like["leaf_storage"]
 
     # Set the output dataset at model resolution
     ds_out = xr.Dataset(coords=ds_like.raster.coords)
@@ -984,10 +984,10 @@ def rootzoneclim(
                     (y_dim, x_dim),
                     out_raster,
                 )
-            # Store the RootingDepth in ds_out
-            ds_out[f"RootingDepth_{forcing_type}_{str(return_period)}"] = (
+            # Store the vegetation_root_depth in ds_out
+            ds_out[f"vegetation_root_depth_{forcing_type}_{str(return_period)}"] = (
                 (y_dim, x_dim),
-                out_raster / (ds_like["thetaS"].values - ds_like["thetaR"].values),
+                out_raster / (ds_like["theta_s"].values - ds_like["theta_r"].values),
             )
 
     return ds_out, gdf_basins_all

@@ -26,8 +26,12 @@ __all__ = [
 ]
 
 
-RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
-DTYPES = {"landuse": np.int16, "alpha_h1": np.int16}
+RESAMPLING = {
+    "landuse": "nearest",
+    "lai": "average",
+    "vegetation_feddes_alpha_h1": "mode",
+}
+DTYPES = {"landuse": np.int16, "vegetation_feddes_alpha_h1": np.int16}
 
 
 def landuse(
@@ -182,13 +186,13 @@ def landuse_from_vector(
 def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     """Return climatology of Leaf Area Index (LAI).
 
-    The following topography maps are calculated:
+    The following maps are calculated:
     - LAI
 
     Parameters
     ----------
     da : xarray.DataArray or xarray.Dataset
-        DataArray or Dataset with LAI array containing LAI values.
+        LAI array containing LAI values.
     ds_like : xarray.DataArray
         Dataset at model resolution.
 
@@ -205,9 +209,8 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     nodata = da.raster.nodata
     logger.info(f"Deriving {da.name} using {method} resampling (nodata={nodata}).")
     da = da.astype(np.float32)
-    da = da.where(da.values != nodata).fillna(
-        0.0
-    )  # Assuming missing values correspond to bare soil, urban and snow (LAI=0.0)
+    # Assuming missing values correspond to: bare soil, urban and snow (LAI=0.0)
+    da = da.where(da.values != nodata).fillna(0.0)
     da_out = da.raster.reproject_like(ds_like, method=method)
     da_out.attrs.update(_FillValue=nodata)
     return da_out
@@ -230,8 +233,8 @@ def create_lulc_lai_mapping_table(
     da_lai : xr.DataArray
         Cyclic LAI map.
     sampling_method : str, optional
-        Resampling method for the LULC data to the LAI resolution. Two methods are
-        supported:
+        Resampling method for the LULC data to LAI resolution.
+        Two methods are supported:
 
         * 'any' (default): if any cell of the desired landuse class is present in the
             resampling window (even just one), it will be used to derive LAI values.
@@ -311,7 +314,7 @@ def create_lulc_lai_mapping_table(
             lu = lu.raster.mask_nodata()
 
             if sampling_method == "any":
-                # Resample only now the landuse data to the LAI resolution
+                # Resample the landuse data to the LAI resolution
                 lu = lu.raster.reproject_like(da_lai, method="mode")
 
             # Add lai

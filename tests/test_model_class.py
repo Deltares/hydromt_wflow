@@ -179,16 +179,16 @@ def test_model_inverse_clip(tmpdir, example_wflow_model):
     # Clip workflow, based on example model
     example_wflow_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.grid["wflow_subcatch"].sum()
+    n_pixels_full = example_wflow_model.grid["subcatchment"].sum()
     example_wflow_model.clip_grid(region, inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+    n_pixels_inverse_clipped = example_wflow_model.grid["subcatchment"].sum()
 
     # Do clipping again, but normally
     example_wflow_model.read()
     example_wflow_model.clip_grid(region, inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+    n_pixels_clipped = example_wflow_model.grid["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped

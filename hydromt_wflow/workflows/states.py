@@ -17,8 +17,8 @@ def prepare_cold_states(
     ds_like: xr.Dataset,
     config: dict,
     timestamp: str = None,
-    mask_name_land: str = "wflow_subcatch",
-    mask_name_river: str = "wflow_river",
+    mask_name_land: str = "subcatchment",
+    mask_name_river: str = "river_mask",
 ) -> Tuple[xr.Dataset, Dict[str, str]]:
     """
     Prepare cold states for Wflow.
@@ -62,10 +62,11 @@ def prepare_cold_states(
         Dataset containing the staticmaps grid and variables to prepare some of the
         states.
 
-        * Required variables: wflow_subcatch, wflow_river
+        * Required variables: `mask_name_land`, `mask_name_river`
 
-        * Other required variables (exact name from the wflow config): c, soilthickness,
-            theta_s, theta_r, kv_0, f, slope, ksathorfrac
+        * Other required variables (exact name will be read from the wflow config):
+            soil_brooks_corey_c, soilthickness,
+            theta_s, theta_r, ksat_vertical, f, slope, subsurface_ksat_horizontal_ratio
 
         * Optional variables (exact name from the wflow config): reservoir.locs,
             glacierstore, reservoir.maxvolume, reservoir.targetfullfrac,
@@ -77,10 +78,10 @@ def prepare_cold_states(
         from the config.
     mask_name_land : str, optional
         Name of the land mask variable in the ds_like dataset. By default
-        wflow_subcatch.
+        subcatchment.
     mask_name_river : str, optional
         Name of the river mask variable in the ds_like dataset. By default
-        wflow_river.
+        river_mask.
 
     Returns
     -------
@@ -161,7 +162,7 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # soil_unsaturated_depth (zero per layer)
-    # layers are based on c parameter
+    # layers are based on brooks_corey_c parameter
     c = get_grid_from_config(
         "soil_layer_water__brooks-corey_exponent",
         config=config,
@@ -229,7 +230,7 @@ def prepare_cold_states(
     # River
     zeromap_riv = ["river_instantaneous_q", "river_instantaneous_h"]
     # 1D floodplain
-    if config["model"].get("floodplain_1d", False):
+    if config["model"].get("floodplain_1d__flag", False):
         zeromap_riv.extend(["floodplain_instantaneous_q", "floodplain_instantaneous_h"])
         states_config[
             "state.variables.floodplain_water__instantaneous_volume_flow_rate"
@@ -251,7 +252,7 @@ def prepare_cold_states(
         ds_out[var] = da_param
 
     # reservoir
-    if config["model"].get("reservoirs", False):
+    if config["model"].get("reservoir__flag", False):
         tff = get_grid_from_config(
             "reservoir_water~full-target__volume_fraction",
             config=config,
@@ -277,7 +278,7 @@ def prepare_cold_states(
         )
 
     # lake
-    if config["model"].get("lakes", False):
+    if config["model"].get("lake__flag", False):
         ll = get_grid_from_config(
             "lake_water_surface__initial_elevation",
             config=config,
@@ -292,7 +293,7 @@ def prepare_cold_states(
         )
 
     # glacier
-    if config["model"].get("glacier", False):
+    if config["model"].get("glacier__flag", False):
         gs_vn = get_grid_from_config(
             "glacier_ice__initial_leq-depth",
             config=config,
@@ -314,7 +315,7 @@ def prepare_cold_states(
         states_config["state.variables.glacier_ice__leq-depth"] = "glacier_leq_depth"
 
     # paddy
-    if config["model"].get("water_demand.paddy", False):
+    if config["model"].get("water_demand.paddy__flag", False):
         h_paddy = grid_from_constant(
             ds_like,
             value=0.0,

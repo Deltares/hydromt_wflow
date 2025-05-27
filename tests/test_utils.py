@@ -31,7 +31,7 @@ def test_grid_from_config(demda):
                 },
             },
             "cyclic": {
-                "ksathorfrac": {"value": 500},
+                "subsurface_ksat_horizontal_ratio": {"value": 500},
                 "ksathorfrac2": {
                     "netcdf": {"variable": {"name": "dem"}},
                     "scale": 0,
@@ -51,19 +51,19 @@ def test_grid_from_config(demda):
     altitude = get_grid_from_config("altitude", config=config, grid=grid)
     assert altitude.equals(grid["slope"] * 10)
 
-    ksathorfrac = get_grid_from_config(
-        "ksathorfrac",
+    subsurface_ksat_horizontal_ratio = get_grid_from_config(
+        "subsurface_ksat_horizontal_ratio",
         config=config,
         grid=grid,
     )
-    assert np.unique(ksathorfrac.raster.mask_nodata()) == [500]
+    assert np.unique(subsurface_ksat_horizontal_ratio.raster.mask_nodata()) == [500]
 
     ksathorfrac2 = get_grid_from_config(
         "ksathorfrac2",
         config=config,
         grid=grid,
     )
-    assert ksathorfrac2.equals(ksathorfrac)
+    assert ksathorfrac2.equals(subsurface_ksat_horizontal_ratio)
 
 
 def test_convert_to_wflow_v1_sbm():

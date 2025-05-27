@@ -25,13 +25,7 @@ from hydromt.models.model_grid import GridModel
 from hydromt.nodata import NoDataStrategy
 from shapely.geometry import box
 
-from hydromt_wflow.utils import (
-    DATADIR,
-    convert_to_wflow_v1_sbm,
-    get_config,
-    mask_raster_from_layer,
-    read_csv_results,
-)
+import hydromt_wflow.utils as utils
 
 from . import workflows
 from .naming import _create_hydromt_wflow_mapping_sbm
@@ -47,7 +41,7 @@ class WflowModel(GridModel):
     _NAME = "wflow"
     _CONF = "wflow_sbm.toml"
     _CLI_ARGS = {"region": "setup_basemaps", "res": "setup_basemaps"}
-    _DATADIR = DATADIR
+    _DATADIR = utils.DATADIR
     _GEOMS = {}
     _FOLDERS = []
     _CATALOGS = join(_DATADIR, "parameters_data.yml")
@@ -102,8 +96,8 @@ class WflowModel(GridModel):
         res: float | int = 1 / 120.0,
         upscale_method: str = "ihu",
         output_names: Dict = {
-            "local_drain_direction": "wflow_ldd",
-            "subcatchment_location__count": "wflow_subcatch",
+            "basin__local_drain_direction": "local_drain_direction",
+            "subbasin_location__count": "subcatchment",
             "land_surface__slope": "land_slope",
         },
     ):
@@ -161,8 +155,8 @@ class WflowModel(GridModel):
 
         Adds model layers:
 
-        * **wflow_ldd** map: flow direction in LDD format [-]
-        * **wflow_subcatch** map: basin ID map [-]
+        * **local_drain_direction** map: flow direction in LDD format [-]
+        * **subcatchment** map: basin ID map [-]
         * **meta_upstream_area** map: upstream area [km2]
         * **meta_streamorder** map: Strahler stream order [-]
         * **land_elevation** map: average elevation [m+REF]
@@ -299,7 +293,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
 
         # update toml for degree/meters if needed
         if ds_base.raster.crs.is_projected:
-            self.set_config("model.sizeinmetres", True)
+            self.set_config("model.cell_length_in_meter__flag", True)
 
     def setup_rivers(
         self,
@@ -319,7 +313,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
         output_names: Dict = {
-            "river_location__mask": "wflow_river",
+            "river_location__mask": "river_mask",
             "river__length": "river_length",
             "river__width": "river_width",
             "river_bank_water__depth": "river_depth",
@@ -764,8 +758,10 @@ setting new flood_depth dimensions"
             )
 
         # Update config
-        self.logger.debug(f'Update wflow config model.floodplain_1d="{floodplain_1d}"')
-        self.set_config("model.floodplain_1d", floodplain_1d)
+        self.logger.debug(
+            f'Update wflow config model.floodplain_1d__flag="{floodplain_1d}"',
+        )
+        self.set_config("model.floodplain_1d__flag", floodplain_1d)
         self.logger.debug(f'Update wflow config model.land_routing="{land_routing}"')
         self.set_config("model.land_routing", land_routing)
 
@@ -967,7 +963,7 @@ and will soon be removed. '
             fill=fill,
             fill_outliers=kwargs.pop("fill_outliers", fill),
             min_wth=min_wth,
-            mask_names=["lakeareas", "resareas", "glacareas"],
+            mask_names=["lake_area_id", "reservoir_area_id"],
             predictor=predictor,
             a=kwargs.get("a", None),
             b=kwargs.get("b", None),
@@ -984,20 +980,20 @@ and will soon be removed. '
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
-            "Kext": "vegetation_canopy__light-extinction_coefficient",
+            "vegetation_kext": "vegetation_canopy__light-extinction_coefficient",
             "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "PathFrac": "soil~compacted__area_fraction",
-            "RootingDepth": "vegetation_root__depth",
-            "Sl": "vegetation__specific-leaf_storage",
-            "Swood": "vegetation_wood_water__storage_capacity",
-            "WaterFrac": "land~water-covered__area_fraction",
-            "kc": "vegetation__crop_factor",
-            "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
-            "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
-            "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
-            "h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",
-            "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
-            "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "vegetation_root_depth": "vegetation_root__depth",
+            "vegetation_leaf_storage": "vegetation__specific-leaf_storage",
+            "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
+            "land_water_fraction": "land~water-covered__area_fraction",
+            "vegetation_crop_factor": "vegetation__crop_factor",
+            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+            "vegetation_feddes_h1": "vegetation_root__feddes_critial_pressure_head_h~1",
+            "vegetation_feddes_h2": "vegetation_root__feddes_critial_pressure_head_h~2",
+            "vegetation_feddes_h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",  # noqa: E501
+            "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
+            "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
         output_names_suffix: str | None = None,
     ):
@@ -1015,27 +1011,42 @@ and will soon be removed. '
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
-        * **Sl** map: Specific leaf storage [mm]
-        * **Swood** map: Fraction of wood in the vegetation/plant [-]
-        * **RootingDepth** map: Length of vegetation roots [mm]
-        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **land_manning_n** map: Manning Roughness [-]
-        * **kc** map: Crop coefficient [-]
-        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
-          (0 or 1) [-]
-        * **h1** map: Soil water pressure head h1 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h2** map: Soil water pressure head h2 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h3_high** map: Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
-        * **h3_low** map: Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
-        * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
-          (Feddes) [cm]
+        * **landuse** map:
+            Landuse class [-]
+        * **vegetation_kext** map:
+            Extinction coefficient in the canopy gap fraction equation [-]
+        * **vegetation_leaf_storage** map:
+            Specific leaf storage [mm]
+        * **vegetation_wood_storage** map:
+            Fraction of wood in the vegetation/plant [-]
+        * **vegetation_root_depth** map:
+            Length of vegetation roots [mm]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of open water per grid cell [-]
+        * **land_manning_n** map:
+            Manning Roughness [-]
+        * **vegetation_crop_factor** map:
+            Crop coefficient [-]
+        * **vegetation_feddes_alpha_h1** map:
+            Root water uptake reduction at soil water pressure head
+            h1 (0 or 1) [-]
+        * **vegetation_feddes_h1** map:
+            Soil water pressure head h1 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h2** map:
+            Soil water pressure head h2 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_high** map:
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_low** map:
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h4** map:
+            Soil water pressure head h4 at which root water
+            uptake is reduced (Feddes) [cm]
 
 
         Parameters
@@ -1100,20 +1111,20 @@ and will soon be removed. '
         lulc_mapping_fn: str | Path | pd.DataFrame | None = None,
         lulc_vars: Dict = {
             "landuse": None,
-            "Kext": "vegetation_canopy__light-extinction_coefficient",
+            "vegetation_kext": "vegetation_canopy__light-extinction_coefficient",
             "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "PathFrac": "soil~compacted__area_fraction",
-            "RootingDepth": "vegetation_root__depth",
-            "Sl": "vegetation__specific-leaf_storage",
-            "Swood": "vegetation_wood_water__storage_capacity",
-            "WaterFrac": "land~water-covered__area_fraction",
-            "kc": "vegetation__crop_factor",
-            "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
-            "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
-            "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
-            "h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",
-            "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
-            "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "vegetation_root_depth": "vegetation_root__depth",
+            "vegetation_leaf_storage": "vegetation__specific-leaf_storage",
+            "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
+            "land_water_fraction": "land~water-covered__area_fraction",
+            "vegetation_crop_factor": "vegetation__crop_factor",
+            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+            "vegetation_feddes_h1": "vegetation_root__feddes_critial_pressure_head_h~1",
+            "vegetation_feddes_h2": "vegetation_root__feddes_critial_pressure_head_h~2",
+            "vegetation_feddes_h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",  # noqa: E501
+            "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
+            "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
         lulc_res: float | int | None = None,
         all_touched: bool = False,
@@ -1134,27 +1145,41 @@ and will soon be removed. '
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
-        * **Sl** map: Specific leaf storage [mm]
-        * **Swood** map: Fraction of wood in the vegetation/plant [-]
-        * **RootingDepth** map: Length of vegetation roots [mm]
-        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of open water per grid cell [-]
+        * **landuse** map:
+            Landuse class [-]
+        * **vegetation_kext** map:
+            Extinction coefficient in the canopy gap fraction equation [-]
+        * **vegetation_leaf_storage** map:
+            Specific leaf storage [mm]
+        * **vegetation_wood_storage** map:
+            Fraction of wood in the vegetation/plant [-]
+        * **vegetation_root_depth** map:
+            Length of vegetation roots [mm]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of open water per grid cell [-]
         * **land_manning_n** map: Manning Roughness [-]
-        * **kc** map: Crop coefficient [-]
-        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
-          (0 or 1) [-]
-        * **h1** map: Soil water pressure head h1 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h2** map: Soil water pressure head h2 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h3_high** map: Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
-        * **h3_low** map: Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
-        * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
-          (Feddes) [cm]
+        * **vegetation_crop_factor** map:
+            Crop coefficient [-]
+        * **vegetation_feddes_alpha_h1** map:
+            Root water uptake reduction at soil water pressure head
+            h1 (0 or 1) [-]
+        * **vegetation_feddes_h1** map:
+            Soil water pressure head h1 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h2** map:
+            Soil water pressure head h2 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_high** map:
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_low** map:
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h4** map:
+            Soil water pressure head h4 at which root water
+            uptake is reduced (Feddes) [cm]
 
         Parameters
         ----------
@@ -1249,7 +1274,7 @@ and will soon be removed. '
         lulc_sampling_method: str = "any",
         lulc_zero_classes: List[int] = [],
         buffer: int = 2,
-        output_name: str = "LAI",
+        output_name: str = "vegetation_leaf_area_index",
     ):
         """
         Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].
@@ -1266,7 +1291,7 @@ and will soon be removed. '
 
         Adds model layers:
 
-        * **LAI** map: Leaf Area Index climatology [-]
+        * **vegetation_leaf_area_index** map: Leaf Area Index climatology [-]
             Resampled from source data using average. Assuming that missing values
             correspond to bare soil, these are set to zero before resampling.
 
@@ -1308,7 +1333,8 @@ and will soon be removed. '
         buffer : int, optional
             Buffer around the region to read the data, by default 2.
         output_name : str
-            Name of the output vegetation__leaf-area_index map. By default "LAI".
+            Name of the output vegetation__leaf-area_index map.
+            By default "vegetation_leaf_area_index".
         """
         # retrieve data for region
         self.logger.info("Preparing LAI maps.")
@@ -1352,14 +1378,14 @@ and will soon be removed. '
         self,
         lulc_fn: str | xr.DataArray,
         lai_mapping_fn: str | pd.DataFrame,
-        output_name: str = "LAI",
+        output_name: str = "vegetation_leaf_area_index",
     ):
         """
         Derive cyclic LAI maps from a LULC data source and a LULC-LAI mapping table.
 
         Adds model layers:
 
-        * **LAI** map: Leaf Area Index climatology [-]
+        * **vegetation_leaf_area_index** map: Leaf Area Index climatology [-]
             Resampled from source data using average. Assuming that missing values
             correspond to bare soil, these are set to zero before resampling.
 
@@ -1374,7 +1400,8 @@ and will soon be removed. '
             months (1,2,3,...,12).
             This table can be created using the :py:meth:`setup_laimaps` method.
         output_name : str
-            Name of the output vegetation__leaf-area_index map. By default "LAI".
+            Name of the output vegetation__leaf-area_index map.
+            By default "vegetation_leaf_area_index".
         """
         self.logger.info(
             "Preparing LAI maps from LULC data using LULC-LAI mapping table."
@@ -1494,8 +1521,8 @@ skipping adding gauge specific outputs to the toml."
     ):
         """Set the default gauge map based on basin outlets.
 
-        If wflow_subcatch is available, the catchment outlets IDs will be matching the
-        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.
+        If the subcatchment map is available, the catchment outlets IDs will be matching
+        the subcatchment IDs. If not, then IDs from 1 to number of outlets are used.
 
         Can also add csv/netcdf_scalar output settings in the TOML.
 
@@ -1533,7 +1560,7 @@ skipping adding gauge specific outputs to the toml."
             idxs_out = idxs_out[
                 (self.grid[self._MAPS["rivmsk"]] > 0).values.flat[idxs_out]
             ]
-        # Use the wflow_subcatch ids
+        # Use the subcatchment ids
         if self._MAPS["basins"] in self.grid:
             ids = self.grid[self._MAPS["basins"]].values.flat[idxs_out]
         else:
@@ -1621,10 +1648,10 @@ skipping adding gauge specific outputs to the toml."
         Adds model layers:
 
         * **wflow_gauges_source** map: gauge IDs map from source [-] (if gauges_fn)
-        * **wflow_subcatch_source** map: subcatchment based on gauge locations [-] \
+        * **subcatchment_source** map: subcatchment based on gauge locations [-] \
 (if derive_subcatch)
         * **gauges_source** geom: polygon of gauges from source
-        * **subcatch_source** geom: polygon of subcatchment based on \
+        * **subcatchment_source** geom: polygon of subcatchment based on \
 gauge locations [-] (if derive_subcatch)
 
         Parameters
@@ -1846,7 +1873,7 @@ gauge locations [-] (if derive_subcatch)
             mapname = self._MAPS["basins"] + "_" + basename
             self.set_grid(da_basins, name=mapname)
             gdf_basins = self.grid[mapname].raster.vectorize()
-            self.set_geoms(gdf_basins, name=mapname.replace("wflow_", ""))
+            self.set_geoms(gdf_basins, name=mapname)
 
     def setup_areamap(
         self,
@@ -1912,8 +1939,8 @@ gauge locations [-] (if derive_subcatch)
         min_area: float = 10.0,
         add_maxstorage: bool = False,
         output_names: Dict = {
-            "lake_area__count": "wflow_lakeareas",
-            "lake_location__count": "wflow_lakelocs",
+            "lake_area__count": "lake_area_id",
+            "lake_location__count": "lake_outlet_id",
             "lake_surface__area": "lake_area",
             "lake_water_surface__initial_elevation": "lake_initial_depth",
             "lake_water_flow_threshold-level__elevation": "lake_outflow_threshold",
@@ -1946,8 +1973,8 @@ gauge locations [-] (if derive_subcatch)
 
         Adds model layers:
 
-        * **wflow_lakeareas** map: lake IDs [-]
-        * **wflow_lakelocs** map: lake IDs at outlet locations [-]
+        * **lake_area_id** map: lake IDs [-]
+        * **lake_outlet_id** map: lake IDs at outlet locations [-]
         * **lake_area** map: lake area [m2]
         * **lake_initial_depth** map: lake average water level [m]
         * **lake_outflow_threshold** map: lake outflow threshold water level [m]
@@ -2067,14 +2094,14 @@ Using default storage/outflow function parameters."
             self.set_tables(v, name=k)
 
         # Lake settings in the toml to update
-        self.set_config("model.lakes", True)
+        self.set_config("model.lake__flag", True)
         self.set_config(
             "state.variables.lake_water_surface__instantaneous_elevation",
             "lake_instantaneous_water_level",
         )
 
         for dvar in ds_lakes.data_vars:
-            if dvar == "lakeareas" or dvar == "lakelocs":
+            if dvar == "lake_area_id" or dvar == "lake_outlet_id":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -2085,8 +2112,8 @@ Using default storage/outflow function parameters."
         timeseries_fn: str | None = None,
         min_area: float = 1.0,
         output_names: Dict = {
-            "reservoir_area__count": "wflow_reservoirareas",
-            "reservoir_location__count": "wflow_reservoirlocs",
+            "reservoir_area__count": "reservoir_area_id",
+            "reservoir_location__count": "reservoir_outlet_id",
             "reservoir_surface__area": "reservoir_area",
             "reservoir_water__max_volume": "reservoir_max_volume",
             "reservoir_water~min-target__volume_fraction": "reservoir_target_min_fraction",  # noqa: E501
@@ -2131,8 +2158,8 @@ Using default storage/outflow function parameters."
 
         Adds model layers:
 
-        * **wflow_reservoirareas** map: reservoir IDs [-]
-        * **wflow_reservoirlocs** map: reservoir IDs at outlet locations [-]
+        * **reservoir_area_id** map: reservoir IDs [-]
+        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]
         * **reservoir_area** map: reservoir area [m2]
         * **reservoir_max_volume** map: reservoir max volume [m3]
         * **reservoir_target_min_fraction** map: reservoir target min frac [m3/m3]
@@ -2253,7 +2280,7 @@ Using default storage/outflow function parameters."
             )
 
         # update toml
-        self.set_config("model.reservoirs", True)
+        self.set_config("model.reservoir__flag", True)
         self.set_config(
             "state.variables.reservoir_water__instantaneous_volume",
             "reservoir_instantaneous_volume",
@@ -2330,12 +2357,12 @@ Using default storage/outflow function parameters."
         ptf_ksatver: str = "brakensiek",
         wflow_thicknesslayers: List[int] = [100, 300, 800],
         output_names: Dict = {
-            "soil_water__saturated_volume_fraction": "thetaS",
-            "soil_water__residual_volume_fraction": "thetaR",
-            "soil_surface_water__vertical_saturated_hydraulic_conductivity": "KsatVer",
-            "soil__thickness": "SoilThickness",
-            "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "f",  # noqa: E501
-            "soil_layer_water__brooks-corey_exponent": "c",
+            "soil_water__saturated_volume_fraction": "soil_theta_s",
+            "soil_water__residual_volume_fraction": "soil_theta_r",
+            "soil_surface_water__vertical_saturated_hydraulic_conductivity": "soil_ksat_vertical ",  # noqa: E501
+            "soil__thickness": "soil_thickness",
+            "soil_water__vertical_saturated_hydraulic_conductivity_scale_parameter": "soil_f",  # noqa: E501
+            "soil_layer_water__brooks-corey_exponent": "soil_brooks_corey_c",
         },
     ):
         """
@@ -2355,8 +2382,8 @@ specific depths in soilgrids,
         (2) weighted average of soil properties over soil thickness is done with \
 the trapezoidal rule in soilgrids versus simple block weighted average in \
 soilgrids_2020,
-        (3) the c parameter is computed as weighted average over wflow_sbm soil layers \
-defined in ``wflow_thicknesslayers``.
+        (3) the soil_brooks_corey_c parameter is computed as weighted average over \
+wflow_sbm soil layers defined in ``wflow_thicknesslayers``.
 
         The required data from soilgrids are soil bulk density 'bd_sl*' [g/cm3], \
 clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon content \
@@ -2369,16 +2396,21 @@ clay content 'clyppt_sl*' [%], silt content 'sltppt_sl*' [%], organic carbon con
 
         The following maps are added to grid:
 
-        * **thetaS** map: average saturated soil water content [m3/m3]
-        * **thetaR** map: average residual water content [m3/m3]
-        * **KsatVer** map: vertical saturated hydraulic conductivity at \
-soil surface [mm/day]
-        * **SoilThickness** map: soil thickness [mm]
-        * **f** map: scaling parameter controlling the decline of KsatVer [mm-1] \
-(fitted with curve_fit (scipy.optimize)), bounds are checked
-        * **f_** map: scaling parameter controlling the decline of KsatVer [mm-1] \
-(fitted with numpy linalg regression), bounds are checked
-        * **c_n** map: Brooks Corey coefficients [-] based on pore size distribution, \
+        * **soil_theta_s** map:
+            average saturated soil water content [m3/m3]
+        * **soil_theta_r** map:
+            average residual water content [m3/m3]
+        * **soil_ksat_vertical ** map:
+            vertical saturated hydraulic conductivity at soil surface [mm/day]
+        * **soil_thickness** map:
+            soil thickness [mm]
+        * **soil_f** map: scaling parameter controlling the decline of ksat_vertical \
+[mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
+        * **soil_f_** map:
+            scaling parameter controlling the decline of soil_ksat_vertical \
+[mm-1] (fitted with numpy linalg regression), bounds are checked
+        * **soil_brooks_corey_c_n** map:
+            Brooks Corey coefficients [-] based on pore size distribution, \
 a map for each of the wflow_sbm soil layers (n in total)
         * **meta_{soil_fn}_ksat_vertical_[z]cm** map: vertical hydraulic conductivity
             [mm/day] at soil depths [z] of ``soil_fn`` data
@@ -2399,7 +2431,7 @@ a map for each of the wflow_sbm soil layers (n in total)
 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%], 'oc_sl*' [%], 'ph_sl*' [-], \
 'sndppt_sl*' [%], 'soilthickness' [cm]
         ptf_ksatver : {'brakensiek', 'cosby'}
-            Pedotransfer function (PTF) to use for calculation KsatVer
+            Pedotransfer function (PTF) to use for calculation of ksat vertical
             (vertical saturated hydraulic conductivity [mm/day]).
             By default 'brakensiek'.
         wflow_thicknesslayers : list of int, optional
@@ -2428,7 +2460,7 @@ a map for each of the wflow_sbm soil layers (n in total)
         self.set_grid(dsout.rename(rmdict))
 
         # Update the toml file
-        self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+        self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     def setup_ksathorfrac(
@@ -2449,8 +2481,9 @@ or created by a third party/ individual.
         ksat_fn : str, xr.DataArray
             The identifier of the KsatHorFrac dataset in the data catalog.
         variable : str, optional
-            The variable name for the ksathorfrac map to use in ``ksat_fn`` in case \
-``ksat_fn`` contains several variables. By default None.
+            The variable name for the subsurface_ksat_horizontal_ratio map to
+            use in ``ksat_fn`` in case ``ksat_fn`` contains several variables.
+            By default None.
         resampling_method : str, optional
             The resampling method when up- or downscaled, by default "average"
         output_name : str, optional
@@ -2470,12 +2503,13 @@ or created by a third party/ individual.
         # Ensure its a DataArray
         if isinstance(dain, xr.Dataset):
             raise ValueError(
-                "The ksathorfrac data contains several variables. \
-Select the variable to use for ksathorfrac using 'variable' argument."
+                "The ksat_fn data contains several variables. \
+Select the variable to use for subsurface_ksat_horizontal_ratio \
+using 'variable' argument."
             )
 
-        # Create scaled ksathorfrac map
-        daout = workflows.ksathorfrac(
+        # Create scaled subsurface_ksat_horizontal_ratio map
+        daout = workflows.ksat_horizontal_ratio(
             dain,
             ds_like=self.grid,
             resampling_method=resampling_method,
@@ -2484,7 +2518,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             daout.name = output_name
         self._update_naming({wflow_var: daout.name})
         # Set the grid
-        self.set_grid(daout, name=self._MAPS["ksathorfrac"])
+        self.set_grid(daout)
         self._update_config_variable_name(daout.name)
 
     def setup_ksatver_vegetation(
@@ -2492,9 +2526,9 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         soil_fn: str = "soilgrids",
         alfa: float = 4.5,
         beta: float = 5,
-        output_name: str = "KsatVer_vegetation",
+        output_name: str = "soil_ksat_vertical_vegetation",
     ):
-        """Calculate KsatVer values from vegetation in addition to soil characteristics.
+        """Correct vertical saturated hydraulic conductivity with vegetation properties.
 
         This allows to account for biologically-promoted soil structure and \
         heterogeneities in natural landscapes based on the work of \
@@ -2520,7 +2554,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             Shape parameter. The default is 5 when using LAI.
         output_name : dict, optional
             Name of the output map. By default 'KsatVer_vegetation'.
-        """
+        """  # noqa: E501
         self.logger.info("Modifying ksat_vertical based on vegetation characteristics")
         wflow_var = self._WFLOW_NAMES[self._MAPS["ksat_vertical"]]
 
@@ -2529,7 +2563,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             soil_fn, geom=self.region, buffer=2, variables=["sndppt_sl1"]
         )
 
-        # in function get_ksatver_vegetation KsatVer should be provided in mm/d
+        # in ksatver_vegetation, ksat_vertical should be provided in mm/d
         inv_rename = {v: k for k, v in self._MAPS.items() if v in self.grid.data_vars}
         KSatVer_vegetation = workflows.ksatver_vegetation(
             ds_like=self.grid.rename(inv_rename),
@@ -2562,20 +2596,20 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         ],
         lulc_vars: Dict = {
             "landuse": None,
-            "Kext": "vegetation_canopy__light-extinction_coefficient",
+            "vegetation_kext": "vegetation_canopy__light-extinction_coefficient",
             "land_manning_n": "land_surface_water_flow__manning_n_parameter",
-            "PathFrac": "soil~compacted__area_fraction",
-            "RootingDepth": "vegetation_root__depth",
-            "Sl": "vegetation__specific-leaf_storage",
-            "Swood": "vegetation_wood_water__storage_capacity",
-            "WaterFrac": "land~water-covered__area_fraction",
-            "kc": "vegetation__crop_factor",
-            "alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
-            "h1": "vegetation_root__feddes_critial_pressure_head_h~1",
-            "h2": "vegetation_root__feddes_critial_pressure_head_h~2",
-            "h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",
-            "h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",
-            "h4": "vegetation_root__feddes_critial_pressure_head_h~4",
+            "soil_compacted_fraction": "soil~compacted__area_fraction",
+            "vegetation_root_depth": "vegetation_root__depth",
+            "vegetation_leaf_storage": "vegetation__specific-leaf_storage",
+            "vegetation_wood_storage": "vegetation_wood_water__storage_capacity",
+            "land_water_fraction": "land~water-covered__area_fraction",
+            "vegetation_crop_factor": "vegetation__crop_factor",
+            "vegetation_feddes_alpha_h1": "vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient",  # noqa: E501
+            "vegetation_feddes_h1": "vegetation_root__feddes_critial_pressure_head_h~1",
+            "vegetation_feddes_h2": "vegetation_root__feddes_critial_pressure_head_h~2",
+            "vegetation_feddes_h3_high": "vegetation_root__feddes_critial_pressure_head_h~3~high",  # noqa: E501
+            "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
+            "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
         paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
         save_high_resolution_lulc: bool = False,
@@ -2595,13 +2629,14 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         To allow for water to pool on the surface (for paddy/rice fields), the layers in
         the model can be updated to new depths, such that we can allow a thin layer with
-        limited vertical conductivity. These updated layers means that the ``c``
-        parameter needs to be calculated again. Next, the kvfrac layer corrects the
-        vertical conductivity (by multiplying) such that the bottom of the layer
-        corresponds to the ``target_conductivity`` for that layer. This currently
-        assumes the wflow models to have an exponential declining vertical conductivity
-        (using the ``f`` parameter). If no target_conductivity is specified for a layer
-        (``None``), the kvfrac value is set to 1.
+        limited vertical conductivity. These updated layers means that the
+        ``soil_brooks_corey_c`` parameter needs to be calculated again. Next, the
+        soil_ksat_vertical_factor layer corrects the vertical conductivity
+        (by multiplying) such that the bottom of the layer corresponds to the
+        ``target_conductivity`` for that layer. This currently assumes the wflow models
+        to have an exponential declining vertical conductivity (using the ``f``
+        parameter). If no target_conductivity is specified for a layer (``None``),
+        the soil_ksat_vertical_factor value is set to 1.
 
         The different values for the minimum/optimal/maximum water levels for paddy
         fields will be added as constant values in the toml file, through the
@@ -2609,37 +2644,58 @@ Select the variable to use for ksathorfrac using 'variable' argument."
 
         Adds model layers:
 
-        * **landuse** map: Landuse class [-]
-        * **Kext** map: Extinction coefficient in the canopy gap fraction equation [-]
-        * **Sl** map: Specific leaf storage [mm]
-        * **Swood** map: Fraction of wood in the vegetation/plant [-]
-        * **RootingDepth** map: Length of vegetation roots [mm]
-        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]
-        * **WaterFrac** map: The fraction of open water per grid cell [-]
-        * **land_manning_n** map: Manning Roughness [-]
-        * **kc** map: Crop coefficient [-]
-        * **alpha_h1** map: Root water uptake reduction at soil water pressure head h1
-          (0 or 1) [-]
-        * **h1** map: Soil water pressure head h1 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h2** map: Soil water pressure head h2 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h3_high** map: Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
-        * **h3_low** map: Soil water pressure head h3 at which root water uptake is
-          reduced (Feddes) [cm]
-        * **h4** map: Soil water pressure head h4 at which root water uptake is reduced
-          (Feddes) [cm]
-        * **h_min** map: Minimum required water depth for paddy fields [mm]
-        * **h_opt** map: Optimal water depth for paddy fields [mm]
-        * **h_max** map: Maximum water depth for paddy fields [mm]
-        * **kvfrac**: Map with a multiplication factor for the vertical conductivity [-]
+        * **landuse** map:
+            Landuse class [-]
+        * **vegetation_kext** map:
+            Extinction coefficient in the canopy gap fraction
+          equation [-]
+        * **vegetation_leaf_storage** map:
+            Specific leaf storage [mm]
+        * **vegetation_wood_storage** map:
+            Fraction of wood in the vegetation/plant [-]
+        * **vegetation_root_depth** map:
+            Length of vegetation roots [mm]
+        * **soil_compacted_fraction** map:
+            The fraction of compacted or urban area per grid cell [-]
+        * **land_water_fraction** map:
+            The fraction of open water per grid cell [-]
+        * **land_manning_n** map:
+            Manning Roughness [-]
+        * **vegetation_crop_factor** map:
+            Crop coefficient [-]
+        * **vegetation_feddes_alpha_h1** map:
+            Root water uptake reduction at soil water pressure head
+            h1 (0 or 1) [-]
+        * **vegetation_feddes_h1** map:
+            Soil water pressure head h1 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h2** map:
+            Soil water pressure head h2 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_high** map:
+            Soil water pressure head h3 (high) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h3_low** map:
+            Soil water pressure head h3 (low) at which root water uptake is
+            reduced (Feddes) [cm]
+        * **vegetation_feddes_h4** map:
+            Soil water pressure head h4 at which root water
+            uptake is reduced (Feddes) [cm]
+        * **h_min** map:
+            Minimum required water depth for paddy fields [mm]
+        * **h_opt** map:
+            Optimal water depth for paddy fields [mm]
+        * **h_max** map:
+            Maximum water depth for paddy fields [mm]
+        * **soil_ksat_vertical_factor**:
+            Map with a multiplication factor for the vertical conductivity [-]
 
         Updates model layers:
 
-        * **c**: Brooks Corey coefficients [-] based on pore size distribution, a map
-          for each of the wflow_sbm soil layers (updated based on the newly specified
-          layers)
+        * **soil_brooks_corey_c**:
+            Brooks Corey coefficients [-] based on pore size
+            distribution, a map for each of the wflow_sbm soil layers (updated based
+            on the newly specified layers)
 
 
         Parameters
@@ -2665,10 +2721,10 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             in lulc_vars. A default mapping table for rice parameters is used if not
             provided.
         soil_fn : str, Path, xr.DataArray, optional
-            Soil data to be used to recalculate the Brooks-Corey coefficients (`c`
-            parameter), based on the provided ``wflow_thicknesslayers``, by default
-            "soilgrids", but should ideally be equal to the data used in
-            :py:meth:`setup_soilmaps`
+            Soil data to be used to recalculate the Brooks-Corey coefficients
+            (`soil_brooks_corey_c` parameter), based on the provided
+            ``wflow_thicknesslayers``, by default "soilgrids", but should ideally
+            be equal to the data used in :py:meth:`setup_soilmaps`
 
             * Required variables: 'bd_sl*' [g/cm3], 'clyppt_sl*' [%], 'sltppt_sl*' [%],
               'ph_sl*' [-].
@@ -2693,7 +2749,8 @@ Select the variable to use for ksathorfrac using 'variable' argument."
             columns of the mapping tables. For example if the suffix is "vito", all
             variables in lulc_vars will be renamed to "landuse_vito", "Kext_vito", etc.
             Note that the suffix will also be used to rename the paddy parameters
-            kvfrac, h_min, h_opt and h_max but not the c parameter.
+            soil_ksat_vertical_factor, h_min, h_opt and h_max but not the
+            soil_brooks_corey_c parameter.
         """
         self.logger.info("Preparing LULC parameter maps including paddies.")
         if output_names_suffix is not None:
@@ -2702,12 +2759,12 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 v: f"{k}_{output_names_suffix}" for k, v in lulc_vars.items()
             }
             # Add the other parameters
-            for var in ["kvfrac", "h_min", "h_opt", "h_max"]:
+            for var in ["soil_ksat_vertical_factor", "h_min", "h_opt", "h_max"]:
                 output_names[self._WFLOW_NAMES[self._MAPS[var]]] = (
                     f"{var}_{output_names_suffix}"
                 )
                 # for paddy also update the dictionnary
-                if var != "kvfrac":
+                if var != "soil_ksat_vertical_factor":
                     value = paddy_waterlevels.pop(var)
                     paddy_waterlevels[f"{var}_{output_names_suffix}"] = value
         else:
@@ -2785,21 +2842,25 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         # Get paddy pixels at model resolution
         wflow_paddy = landuse_maps["landuse"] == output_paddy_class
         if wflow_paddy.any():
-            if self.get_config("model.thicknesslayers") == len(wflow_thicknesslayers):
+            if self.get_config("model.soil_layer__thickness") == len(
+                wflow_thicknesslayers
+            ):
                 self.logger.info(
-                    "same thickness already present, skipping updating `c` parameter"
+                    "same thickness already present, skipping updating"
+                    " `soil_brooks_corey_c` parameter"
                 )
                 update_c = False
             else:
                 self.logger.info(
-                    "Different thicknesslayers requested, updating `c` parameter"
+                    "Different thicknesslayers requested, updating "
+                    "`soil_brooks_corey_c` parameter"
                 )
                 update_c = True
             # Read soil data
             soil = self.data_catalog.get_rasterdataset(
                 soil_fn, geom=self.region, buffer=2
             )
-            # update soil parameters c and kvfrac
+            # update soil parameters soil_brooks_corey_c and soil_ksat_vertical_factor
             inv_rename = {
                 v: k for k, v in self._MAPS.items() if v in self.grid.data_vars
             }
@@ -2813,12 +2874,18 @@ Select the variable to use for ksathorfrac using 'variable' argument."
                 target_conductivity=target_conductivity,
                 logger=self.logger,
             )
-            self.set_grid(soil_maps["kvfrac"], name=self._MAPS["kvfrac"])
-            self._update_config_variable_name(self._MAPS["kvfrac"])
-            if "c" in soil_maps:
-                self.set_grid(soil_maps["c"], name=self._MAPS["c"])
-                self._update_config_variable_name(self._MAPS["c"])
-                self.set_config("model.thicknesslayers", wflow_thicknesslayers)
+            self.set_grid(
+                soil_maps["soil_ksat_vertical_factor"],
+                name=self._MAPS["soil_ksat_vertical_factor"],
+            )
+            self._update_config_variable_name(self._MAPS["soil_ksat_vertical_factor"])
+            if "soil_brooks_corey_c" in soil_maps:
+                self.set_grid(
+                    soil_maps["soil_brooks_corey_c"],
+                    name=self._MAPS["soil_brooks_corey_c"],
+                )
+                self._update_config_variable_name(self._MAPS["soil_brooks_corey_c"])
+                self.set_config("model.soil_layer__thickness", wflow_thicknesslayers)
             # Add paddy water levels to the config
             for key, value in paddy_waterlevels.items():
                 self.set_config(f"input.static.{self._WFLOW_NAMES[key]}.value", value)
@@ -2834,7 +2901,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         glaciers_fn: str | Path | gpd.GeoDataFrame,
         min_area: float = 1.0,
         output_names: Dict = {
-            "glacier_surface__area_fraction": "wflow_glacierfrac",
+            "glacier_surface__area_fraction": "glacier_fraction",
             "glacier_ice__initial_leq-depth": "glacier_initial_leq_depth",
         },
         geom_name: str = "glaciers",
@@ -2852,8 +2919,8 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         Adds model layers:
 
         * **meta_glacier_area_id** map: glacier IDs [-]
-        * **wflow_glacierfrac** map: area fraction of glacier per cell [-]
-        * **wflow_glacierstore** map: storage (volume) of glacier per cell [mm]
+        * **glacier_fraction** map: area fraction of glacier per cell [-]
+        * **glacier_initial_leq_depth** map: storage (volume) of glacier per cell [mm]
 
         Parameters
         ----------
@@ -2911,7 +2978,7 @@ Select the variable to use for ksathorfrac using 'variable' argument."
         self.set_grid(ds_glac.rename(rmdict))
         # update config
         self._update_config_variable_name(ds_glac.rename(rmdict).data_vars)
-        self.set_config("model.glacier", True)
+        self.set_config("model.glacier__flag", True)
         self.set_config("state.variables.glacier_ice__leq-depth", "glacier_leq_depth")
         # update geoms
         self.set_geoms(gdf_org, name=geom_name)
@@ -3604,13 +3671,13 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         output_name_rootingdepth: str = "RootingDepth_obs_20",
     ) -> None:
         """
-        Set the RootingDepth.
+        Set the vegetation_root_depth.
 
         Done by estimating the catchment-scale root-zone storage capacity from observed
         hydroclimatic data (and optionally also for climate change historical and
         future periods).
 
-        This presents an alternative approach to determine the RootingDepth
+        This presents an alternative approach to determine the vegetation_root_depth
         based on hydroclimatic data instead of through a look-up table relating
         land use to rooting depth (as usually done for the wflow_sbm model).
         The method is based on the estimation of maximum annual storage deficits
@@ -3631,7 +3698,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         it may be useful to run this method as an update step in the setting-up of
         the hydrological model, once the forcing files have already been derived.
         In addition the setup_soilmaps method is also required to calculate
-        the RootingDepth (rootzone_storage / (thetaS-thetaR)).
+        the vegetation_root_depth (rootzone_storage / (theta_s-theta_r)).
         The setup_laimaps method is also required if LAI is set to True
         (interception capacity estimated from LAI maps, instead of providing
         a default maximum interception capacity).
@@ -3649,8 +3716,8 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] \
 estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different \
-return periods RP. The translation to RootingDepth is done by dividing \
-the rootzone_storage by (thetaS - thetaR).
+return periods RP. The translation to vegetation_root_depth is done by dividing \
+the rootzone_storage by (theta_s - theta_r).
         * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
 storage capacity [mm of water] for each catchment estimated before filling \
 the missing with data from downstream catchments.
@@ -3694,8 +3761,8 @@ different return periods RP. Only if rootzone_storage is set to True!
             moment when the soil is at field capacity, i.e. there is no storage
             deficit yet. The default is 'Apr'.
         LAI : bool, optional
-            Determine whether the LAI will be used to determine Imax. The
-            default is False.
+            Determine whether the leaf area index will be used to
+            determine Imax. The default is False.
             If set to True, requires to have run setup_laimaps.
         rootzone_storage : bool, optional
             Determines whether the rootzone storage maps
@@ -3714,8 +3781,8 @@ different return periods RP. Only if rootzone_storage is set to True!
             Minimum number of days within a year for that year to be counted in
             the long-term Budyko analysis.
         output_name_rootingdepth: str, optional
-            Update the wflow_sbm model config of the RootingDepth variable with
-            the estimated RootingDepth.
+            Update the wflow_sbm model config of the vegetation_root_depth variable with
+            the estimated vegetation_root_depth.
             The default is RootingDepth_obs_20,
             which requires to have RP 20 in the list provided for \
 the return_period argument.
@@ -3762,19 +3829,19 @@ the return_period argument.
                 "No overlapping period between the meteo and observed streamflow data"
             )
 
-        # check if setup_soilmaps and setup_laimaps were run if LAI =True and
-        # if rooting_depth = True"
+        # check if setup_soilmaps and setup_laimaps were run when:
+        # if LAI == True and rooting_depth == True
         if (LAI == True) and (self._MAPS["LAI"] not in self.grid):
             self.logger.error(
                 "LAI variable not found in grid. \
 Set LAI to False or run setup_laimaps first"
             )
 
-        if (self._MAPS["thetaR"] not in self.grid) or (
-            self._MAPS["thetaS"] not in self.grid
+        if (self._MAPS["theta_r"] not in self.grid) or (
+            self._MAPS["theta_s"] not in self.grid
         ):
             self.logger.error(
-                "thetaS or thetaR variables not found in grid. \
+                "theta_s or theta_r variables not found in grid. \
 Run setup_soilmaps first"
             )
 
@@ -3850,9 +3917,9 @@ Run setup_soilmaps first"
 
         Adds model layer:
 
-        * **wflow_subcatch_{mapname}** map/geom:  connection subbasins between
+        * **subcatchment_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model.
-        * **wflow_subcatch_riv_{mapname}** map/geom:  connection subbasins between
+        * **subcatchment_river_{mapname}** map/geom:  connection subbasins between
           wflow and the 1D model for river cells only.
         * **wflow_gauges_{mapname}** map/geom, optional: outlets of the tributaries
           flowing into the 1D model.
@@ -3877,7 +3944,7 @@ Run setup_soilmaps first"
             additional tributary(ies).
         mapname : str, default 1dmodel
             Name of the map to save the subcatchments and tributaries in the wflow model
-            staticmaps and geoms (wflow_subcatch_{mapname}).
+            staticmaps and geoms (subcatchment_{mapname}).
         update_toml : bool, default True
             If True, updates the wflow configuration file to save the required outputs
             for the 1D model.
@@ -3957,13 +4024,13 @@ Run setup_soilmaps first"
                 )
 
         # Derive subcatchment map
-        self.set_grid(ds_out["subcatch"], name=f"wflow_subcatch_{mapname}")
+        self.set_grid(ds_out["subcatch"], name=f"subcatchment_{mapname}")
         gdf_subcatch = ds_out["subcatch"].raster.vectorize()
         gdf_subcatch["value"] = gdf_subcatch["value"].astype(ds_out["subcatch"].dtype)
         self.set_geoms(gdf_subcatch, name=f"subcatch_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_riv"], name=f"wflow_subcatch_riv_{mapname}")
+        self.set_grid(ds_out["subcatch_river"], name=f"subcatchment_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype
@@ -3973,7 +4040,7 @@ Run setup_soilmaps first"
         # Update toml
         if update_toml:
             self.setup_config_output_timeseries(
-                mapname=f"wflow_subcatch_riv_{mapname}",
+                mapname=f"subcatchment_river_{mapname}",
                 toml_output=toml_output,
                 header=["Qlat"],
                 param=["river_water_inflow~lateral__volume_flow_rate"],
@@ -3985,7 +4052,7 @@ Run setup_soilmaps first"
         waterareas_fn: str | gpd.GeoDataFrame,
         priority_basins: bool = True,
         minimum_area: float = 50.0,
-        output_name: str = "allocation_areas",
+        output_name: str = "demand_allocation_area_id",
     ):
         """Create water demand allocation areas.
 
@@ -4017,11 +4084,11 @@ Run setup_soilmaps first"
             Minimum area of the subbasins to keep in km2. Default is 50 km2.
         output_name : str, optional
             Name of the allocation areas map to be saved in the wflow model staticmaps
-            and staticgeoms. Default is 'allocation_areas'.
+            and staticgeoms. Default is 'demand_allocation_area_id'.
 
         """
         self.logger.info("Preparing water demand allocation map.")
-        self._update_naming({"land_water_allocation_area__number": output_name})
+        self._update_naming({"land_water_allocation_area__count": output_name})
         # Read the data
         waterareas = self.data_catalog.get_geodataframe(
             waterareas_fn,
@@ -4039,7 +4106,7 @@ Run setup_soilmaps first"
         )
         self.set_grid(da_alloc, name=output_name)
         # Update the config
-        self.set_config("input.static.land_water_allocation_area__number", output_name)
+        self.set_config("input.static.land_water_allocation_area__count", output_name)
         # Add alloc to geoms
         self.set_geoms(gdf_alloc, name=output_name)
 
@@ -4267,7 +4334,7 @@ Run setup_soilmaps first"
             self.set_grid(pop, name="meta_population")
 
         # Update toml
-        self.set_config("model.water_demand.domestic", True)
+        self.set_config("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -4351,7 +4418,7 @@ Run setup_soilmaps first"
             self.set_grid(popu_scaled, name="meta_population")
 
         # Update toml
-        self.set_config("model.water_demand.domestic", True)
+        self.set_config("model.water_demand.domestic__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(domestic.rename(rmdict).data_vars, data_type)
 
@@ -4442,11 +4509,11 @@ Run setup_soilmaps first"
 
         # Update the settings toml
         if "dom_gross" in demand.data_vars:
-            self.set_config("model.water_demand.domestic", True)
+            self.set_config("model.water_demand.domestic__flag", True)
         if "ind_gross" in demand.data_vars:
-            self.set_config("model.water_demand.industry", True)
+            self.set_config("model.water_demand.industry__flag", True)
         if "lsk_gross" in demand.data_vars:
-            self.set_config("model.water_demand.livestock", True)
+            self.set_config("model.water_demand.livestock__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(demand.rename(rmdict).data_vars, data_type)
 
@@ -4460,8 +4527,8 @@ Run setup_soilmaps first"
         lai_threshold: float = 0.2,
         lulcmap_name: str = "meta_landuse",
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -4586,7 +4653,7 @@ Run setup_soilmaps first"
             ]
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
-            self.set_config("model.water_demand.paddy", True)
+            self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
                 "static",
@@ -4597,7 +4664,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.set_config("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
@@ -4613,7 +4680,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
@@ -4628,7 +4695,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.set_config("model.water_demand.nonpaddy__flag", False)
 
     def setup_irrigation_from_vector(
         self,
@@ -4638,8 +4705,8 @@ Run setup_soilmaps first"
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "paddy_irrigation_areas",
-            "land~irrigated-non-paddy_area__number": "nonpaddy_irrigation_areas",
+            "land~irrigated-paddy_area__count": "paddy_irrigation_areas",
+            "land~irrigated-non-paddy_area__count": "nonpaddy_irrigation_areas",
             "land~irrigated-paddy__irrigation_trigger_flag": "paddy_irrigation_trigger",
             "land~irrigated-non-paddy__irrigation_trigger_flag": "nonpaddy_irrigation_trigger",  # noqa: E501
         },
@@ -4757,7 +4824,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_paddy.data_vars}
             self.set_grid(ds_paddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.paddy", True)
+            self.set_config("model.water_demand.paddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get("paddy_irrigation_areas", "paddy_irrigation_areas"),
                 "static",
@@ -4768,7 +4835,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.paddy", False)
+            self.set_config("model.water_demand.paddy__flag", False)
 
         if (
             ds_irrigation["nonpaddy_irrigation_areas"].raster.mask_nodata().sum().values
@@ -4784,7 +4851,7 @@ Run setup_soilmaps first"
             rmdict = {k: self._MAPS.get(k, k) for k in ds_nonpaddy.data_vars}
             self.set_grid(ds_nonpaddy.rename(rmdict))
             # Update the config
-            self.set_config("model.water_demand.nonpaddy", True)
+            self.set_config("model.water_demand.nonpaddy__flag", True)
             self._update_config_variable_name(
                 self._MAPS.get(
                     "nonpaddy_irrigation_areas", "nonpaddy_irrigation_areas"
@@ -4799,7 +4866,7 @@ Run setup_soilmaps first"
                 data_type,
             )
         else:
-            self.set_config("model.water_demand.nonpaddy", False)
+            self.set_config("model.water_demand.nonpaddy__flag", False)
 
     def setup_cold_states(
         self,
@@ -4865,7 +4932,7 @@ Run setup_soilmaps first"
         self.set_states(states)
 
         # Update config to read the states
-        self.set_config("model.reinit", False)
+        self.set_config("model.cold_start__flag", False)
         # Update states variables names in config
         for option in states_config:
             self.set_config(option, states_config[option])
@@ -4880,9 +4947,9 @@ Run setup_soilmaps first"
         """
         self.read()
 
-        config_out = convert_to_wflow_v1_sbm(self.config, logger=self.logger)
+        config_out = utils.convert_to_wflow_v1_sbm(self.config, logger=self.logger)
         # tomlkit loads errors on this file so we have to do it in two steps
-        with open(DATADIR / "default_config_headers.toml", "r") as file:
+        with open(utils.DATADIR / "default_config_headers.toml", "r") as file:
             default_header_str = file.read()
 
         self._config = tomlkit.parse(default_header_str)
@@ -5159,9 +5226,9 @@ Run setup_soilmaps first"
             if name is not None:
                 self.logger.warning(f"Layer {name} will not be masked with basins.")
         elif self._MAPS["basins"] in self.grid:
-            data = mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
+            data = utils.mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
         elif self._MAPS["basins"] in data:
-            data = mask_raster_from_layer(data, data[self._MAPS["basins"]])
+            data = utils.mask_raster_from_layer(data, data[self._MAPS["basins"]])
         # fall back on default set_grid behaviour
         GridModel.set_grid(self, data, name)
 
@@ -5606,7 +5673,9 @@ change name input.path_forcing "
             csv_fn.parent / output_dir / csv_fn.name if csv_fn is not None else csv_fn
         )
         if csv_fn is not None and isfile(csv_fn):
-            csv_dict = read_csv_results(csv_fn, config=self.config, maps=self.grid)
+            csv_dict = utils.read_csv_results(
+                csv_fn, config=self.config, maps=self.grid
+            )
             for key in csv_dict:
                 # Add to results
                 self.set_results(csv_dict[f"{key}"])
@@ -5659,6 +5728,52 @@ change name input.path_forcing "
     def _configwrite(self, fn):
         with codecs.open(fn, "w", encoding="utf-8") as f:
             tomlkit.dump(self.config, f)
+
+    def get_config(
+        self,
+        *args,
+        fallback: Any = None,
+        abs_path: bool = False,
+    ) -> str | None:
+        """Get a config value at key.
+
+        Parameters
+        ----------
+        args : tuple, str
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: Any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+            NOTE: this assumes the config is located in model root!
+
+        Returns
+        -------
+        value : Any
+            dictionary value
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> get_config('a')
+        >> 1
+
+        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+        >> 2
+
+        >> get_config('b.c') # # identical to get_config('b','c')
+        >> {'d': 2}
+        """
+        return utils.get_config(
+            self.config,
+            *args,
+            fallback=fallback,
+            abs_path=abs_path,
+            root=self.root,
+        )
 
     def set_config(self, *args):
         """
@@ -5731,55 +5846,10 @@ change name input.path_forcing "
             >> {'a': 1, 'b': {'c': {'d': 99}}}
         """
         self._initialize_config()
-        if len(args) < 2:
-            raise TypeError("set_config() requires a least one key and one value.")
-        if not all([isinstance(part, str) for part in args[:-1]]):
-            raise TypeError("All but last argument for set_config must be str")
-
-        args = list(args)
-        value = args.pop(-1)
-        keys = [part for arg in args for part in arg.split(".")]
-
-        # if we try to set dictionaries as values directly tomlkit will mess up the
-        # key bookkeeping, resulting in invalid toml, so instead
-        # if we see a mapping, we go over it recursively
-        # and manually add all of its keys, because of cloning issues.
-        if isinstance(value, (dict, tomlkit.items.AbstractTable)):
-            for key, inner_value in value.items():
-                self.set_config(*keys, key, inner_value)
-            return
-
-        # if the first key is not present
-        # we can just set the entire thing straight
-        if keys[0] not in self._config:
-            self._config.append(tomlkit.key(keys), value)
-            return
-
-        # If there is only one key we also just set that directly as
-        # a string key instead of the dotted variant
-        if len(keys) == 1:
-            self._config.update({keys[0]: value})
-            return
-
-        current = self._config
-        for idx in range(len(keys)):
-            if idx != len(keys) - 1:
-                remaining_key = tomlkit.key(keys[idx:])
-            else:
-                remaining_key = keys[idx]
-
-            if keys[idx] not in current or not isinstance(current[keys[idx]], dict):
-                break
-
-            current = current[keys[idx]]
-
-        # tomlkit's update function doesn't work properly
-        # so instead of updating we take the key out if it is in there
-        # and readd it afterwards
-        if remaining_key in current:
-            _ = current.pop(remaining_key)
-
-        current[remaining_key] = value
+        utils.set_config(
+            self._config,
+            *args,
+        )
 
     def _update_naming(self, rename_dict: dict):
         """Update the naming of the model variables.
@@ -5985,13 +6055,13 @@ change name input.path_forcing "
 
         # Update reservoir and lakes
         remove_reservoir = False
-        if self._MAPS["resareas"] in self.grid:
-            reservoir = self.grid[self._MAPS["resareas"]]
+        if self._MAPS["reservoir_area_id"] in self.grid:
+            reservoir = self.grid[self._MAPS["reservoir_area_id"]]
             if not np.any(reservoir > 0):
                 remove_reservoir = True
                 remove_maps = [
-                    self._MAPS["resareas"],
-                    self._MAPS["reslocs"],
+                    self._MAPS["reservoir_area_id"],
+                    self._MAPS["reservoir_outlet_id"],
                     self._MAPS["reservoir_area"],
                     self._MAPS["reservoir_demand"],
                     self._MAPS["reservoir_target_full_fraction"],
@@ -6002,19 +6072,19 @@ change name input.path_forcing "
                 self._grid = self.grid.drop_vars(remove_maps)
 
         remove_lake = False
-        if self._MAPS["lakeareas"] in self.grid:
-            lake = self.grid[self._MAPS["lakeareas"]]
+        if self._MAPS["lake_area_id"] in self.grid:
+            lake = self.grid[self._MAPS["lake_area_id"]]
             if not np.any(lake > 0):
                 remove_lake = True
                 remove_maps = [
-                    self._MAPS["lakeareas"],
-                    self._MAPS["lakelocs"],
+                    self._MAPS["lake_area_id"],
+                    self._MAPS["lake_outlet_id"],
                     self._MAPS["lake_lower_id"],
                     self._MAPS["lake_storage_curve"],
                     self._MAPS["lake_rating_curve"],
                     self._MAPS["lake_area"],
                     self._MAPS["lake_initial_depth"],
-                    "LakeAvgOut",  # this is a hydromt meta map
+                    "meta_lake_mean_outflow",  # this is a hydromt meta map
                     self._MAPS["lake_outflow_threshold"],
                     self._MAPS["lake_b"],
                     self._MAPS["lake_e"],
@@ -6032,8 +6102,8 @@ change name input.path_forcing "
         # Update config
         # Remove the absolute path and if needed remove lakes and reservoirs
         if remove_reservoir:
-            # change reservoirs = true to false
-            self.set_config("model.reservoirs", False)
+            # change reservoir__flag = true to false
+            self.set_config("model.reservoir__flag", False)
             # remove states
             if (
                 self.get_config("state.variables.reservoir_water__instantaneous_volume")
@@ -6044,8 +6114,8 @@ change name input.path_forcing "
                 ]
 
         if remove_lake:
-            # change lakes = true to false
-            self.set_config("model.lakes", False)
+            # change lake__flag = true to false
+            self.set_config("model.lake__flag", False)
             # remove states
             if (
                 self.get_config(
@@ -6088,14 +6158,14 @@ change name input.path_forcing "
             )
             # Check for reservoirs/lakes presence in the clipped model
             remove_maps = []
-            if self._MAPS["resareas"] not in self.grid:
+            if self._MAPS["reservoir_area_id"] not in self.grid:
                 state_name = self.get_config(
                     "state.variables.reservoir_water__instantaneous_volume",
                     fallback="reservoir_instantaneous_volume",
                 )
                 if state_name in ds_states:
                     remove_maps.extend([state_name])
-            if self._MAPS["lakeareas"] not in self.grid:
+            if self._MAPS["lake_area_id"] not in self.grid:
                 state_name = self.get_config(
                     "state.variables.lake_water_surface__instantaneous_elevation",
                     fallback="lake_instantaneous_water_level",
@@ -6104,49 +6174,3 @@ change name input.path_forcing "
                     remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
-
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
-
-        Parameters
-        ----------
-        args : tuple, str
-            keys can given by multiple args: ('key1', 'key2')
-            or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
-            fallback value if key(s) not found in config, by default None.
-        abs_path: bool, optional
-            If True return the absolute path relative to the model root,
-            by default False.
-            NOTE: this assumes the config is located in model root!
-
-        Returns
-        -------
-        value : Any
-            dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
-        """
-        return get_config(
-            *args,
-            config=self.config,
-            fallback=fallback,
-            abs_path=abs_path,
-            root=self.root,
-        )
