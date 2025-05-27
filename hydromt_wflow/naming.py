@@ -266,32 +266,32 @@ WFLOW_NAMES = {
     "domestic_gross": {
         "wflow_v0": "vertical.domestic.demand_gross",
         "wflow_v1": "land~domestic__gross_water_demand_volume_flux",
-        "hydromt_name": "dom_gross",
+        "hydromt_name": "domestic_gross",
     },
     "domestic_net": {
         "wflow_v0": "vertical.domestic.demand_net",
         "wflow_v1": "land~domestic__net_water_demand_volume_flux",
-        "hydromt_name": "dom_net",
+        "hydromt_name": "domestic_net",
     },
     "industry_gross": {
         "wflow_v0": "vertical.industry.demand_gross",
         "wflow_v1": "land~industry__gross_water_demand_volume_flux",
-        "hydromt_name": "ind_gross",
+        "hydromt_name": "industry_gross",
     },
     "industry_net": {
         "wflow_v0": "vertical.industry.demand_net",
         "wflow_v1": "land~industry__net_water_demand_volume_flux",
-        "hydromt_name": "ind_net",
+        "hydromt_name": "industry_net",
     },
     "livestock_gross": {
         "wflow_v0": "vertical.livestock.demand_gross",
         "wflow_v1": "land~livestock__gross_water_demand_volume_flux",
-        "hydromt_name": "lsk_gross",
+        "hydromt_name": "livestock_gross",
     },
     "livestock_net": {
         "wflow_v0": "vertical.livestock.demand_net",
         "wflow_v1": "land~livestock__net_water_demand_volume_flux",
-        "hydromt_name": "lsk_net",
+        "hydromt_name": "livestock_net",
     },
     "h_min": {
         "wflow_v0": "vertical.paddy.h_min",

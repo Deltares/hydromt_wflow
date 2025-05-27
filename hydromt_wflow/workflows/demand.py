@@ -211,9 +211,9 @@ def domestic_from_population(
     # Non-cyclic
     if len(gross_per_capita) == 1:
         ds_demand = popu_scaled * gross_per_capita[0]
-        ds_demand.name = "dom_gross"
+        ds_demand.name = "domestic_gross"
         ds_demand = ds_demand.to_dataset()
-        ds_demand["dom_net"] = popu_scaled * net_per_capita[0]
+        ds_demand["domestic_net"] = popu_scaled * net_per_capita[0]
     # Cyclic
     else:
         ds_demand = xr.concat(
@@ -224,8 +224,8 @@ def domestic_from_population(
         ds_demand = ds_demand.assign_coords(
             time=[i for i in range(len(gross_per_capita))]
         )
-        ds_demand = ds_demand.to_dataset(name="dom_gross")
-        ds_demand["dom_net"] = xr.concat(
+        ds_demand = ds_demand.to_dataset(name="domestic_gross")
+        ds_demand["domestic_net"] = xr.concat(
             [popu_scaled * net_per_capita[i] for i in range(len(net_per_capita))],
             dim="time",
         )
