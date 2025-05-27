@@ -312,6 +312,7 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         elevtn_map: str = "land_elevation",
         river_routing: str = "kinematic-wave",
         connectivity: int = 8,
+        strord_name: str = "meta_streamorder",
         output_names: Dict = {
             "river_location__mask": "river_mask",
             "river__length": "river_length",
@@ -425,6 +426,15 @@ larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
         self.logger.info("Preparing river maps.")
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
+        # check for streamorder
+        if self._MAPS["strord"] not in self.grid:
+            if strord_name not in self.grid:
+                raise ValueError(
+                    f"Streamorder map {strord_name} not found in grid. "
+                    "Please run setup_basemaps or update the strord_name argument."
+                )
+            else:
+                self._MAPS["strord"] = strord_name
 
         # Check that river_upa threshold is bigger than the maximum uparea in the grid
         if river_upa > float(self.grid[self._MAPS["uparea"]].max()):

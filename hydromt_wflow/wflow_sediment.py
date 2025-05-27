@@ -731,6 +731,7 @@ river cells."
     def setup_riverbedsed(
         self,
         bedsed_mapping_fn: str | Path | pd.DataFrame | None = None,
+        strord_name: str = "meta_streamorder",
         output_names: Dict = {
             "river_bottom-and-bank_sediment__median_diameter": "river_bed_sediment_d50",
             "river_bottom-and-bank_clay__mass_fraction": "river_bed_clay_fraction",
@@ -771,16 +772,23 @@ river cells."
                 'river_bed_sand_fraction', 'river_bed_gravel_fraction']
             * Optional variable: ['river_kodatie_a', 'river_kodatie_b',
               'river_kodatie_c', 'river_kodatie_d']
+        strord_name : str, optional
+            Name of the stream order map in the grid, by default 'meta_streamorder'.
         output_names : dict, optional
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
         """  # noqa: E501
         self.logger.info("Preparing riverbedsed parameter maps.")
-        if self._MAPS["strord"] not in self.grid.data_vars:
-            raise ValueError(
-                "Streamorder map is not available, please run setup_basemaps first."
-            )
+        # check for streamorder
+        if self._MAPS["strord"] not in self.grid:
+            if strord_name not in self.grid:
+                raise ValueError(
+                    f"Streamorder map {strord_name} not found in grid. "
+                    "Please run setup_basemaps or update the strord_name argument."
+                )
+            else:
+                self._MAPS["strord"] = strord_name
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
 
@@ -935,6 +943,7 @@ river cells."
         self,
         soil_fn: str = "soilgrids",
         usle_k_method: str = "renard",
+        strord_name: str = "wflow_streamorder",
     ):
         """
         Upgrade the model to wflow v1 format.
@@ -948,6 +957,15 @@ river cells."
 
         This function should be followed by ``write_config`` to write the upgraded TOML
         file and by ``write_grid`` to write the upgraded static netcdf input file.
+
+        Parameters
+        ----------
+        soil_fn : str, optional
+            soil_fn argument of setup_soilmaps method.
+        usle_k_method : str, optional
+            usle_k_method argument of setup_soilmaps method.
+        strord_name : str, optional
+            strord_name argument of setup_riverbedsed method.
         """
         self.read()
         config_out = convert_to_wflow_v1_sediment(self.config, logger=self.logger)
@@ -968,4 +986,4 @@ river cells."
         )
 
         # Rerun setup_riverbedsed
-        self.setup_riverbedsed(bedsed_mapping_fn=None)
+        self.setup_riverbedsed(bedsed_mapping_fn=None, strord_name=strord_name)

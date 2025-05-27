@@ -8,7 +8,7 @@ time_units = "days since 1900-01-01 00:00:00"
 timestepsecs = 86400
 
 [model]
-type = "sbm"
+snow_gravitional_transport__flag = true
 snow__flag = true
 cold_start__flag = true
 reservoir__flag = true
@@ -18,24 +18,10 @@ kinematic_wave__adaptive_time_step_flag = true
 river_kinematic_wave__time_step = 900
 land_kinematic_wave__time_step = 3600
 soil_layer__thickness = [ 100, 300, 800,]
-snow_gravitional_transport__flag = true
 
 [state]
 path_input = "instate/instates.nc"
 path_output = "outstate/outstates.nc"
-
-[input]
-path_forcing = "inmaps.nc"
-path_static = "staticmaps.nc"
-gauges = "wflow_gauges"
-basin__local_drain_direction = "wflow_ldd"
-river_location__mask = "wflow_river"
-subbasin_location__count = "wflow_subcatch"
-gauges_grdc = "wflow_gauges_grdc"
-lake_area__count = "wflow_lakeareas"
-lake_location__count = "wflow_lakelocs"
-reservoir_area__count = "wflow_reservoirareas"
-reservoir_location__count = "wflow_reservoirlocs"
 
 [state.variables]
 vegetation_canopy_water__depth = "canopystorage"
@@ -52,6 +38,19 @@ river_water__instantaneous_volume_flow_rate = "q_river"
 river_water__instantaneous_depth = "h_river"
 lake_water_surface__instantaneous_elevation = "waterlevel_lake"
 reservoir_water__instantaneous_volume = "volume_reservoir"
+
+[input]
+path_forcing = "inmaps.nc"
+path_static = "staticmaps.nc"
+gauges = "wflow_gauges"
+basin__local_drain_direction = "wflow_ldd"
+river_location__mask = "wflow_river"
+subbasin_location__count = "wflow_subcatch"
+gauges_grdc = "wflow_gauges_grdc"
+lake_area__count = "wflow_lakeareas"
+lake_location__count = "wflow_lakelocs"
+reservoir_area__count = "wflow_reservoirareas"
+reservoir_location__count = "wflow_reservoirlocs"
 
 [input.forcing]
 atmosphere_water__precipitation_volume_flux = "precip"
@@ -117,6 +116,10 @@ reservoir_water__max_volume = "ResMaxVolume"
 path = "output.nc"
 compressionlevel = 1
 
+[output.netcdf_grid.variables]
+river_water__volume_flow_rate = "q_river"
+land_surface_water__instantaneous_depth = "h_land"
+
 [output.netcdf_scalar]
 path = "output_scalar.nc"
 [[output.netcdf_scalar.variable]]
@@ -169,7 +172,3 @@ header = "P"
 map = "subbasin_location__count"
 parameter = "atmosphere_water__precipitation_volume_flux"
 reducer = "mean"
-
-[output.netcdf_grid.variables]
-land_surface_water__instantaneous_depth = "h_land"
-river_water__volume_flow_rate = "q_river"
