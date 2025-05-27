@@ -752,7 +752,7 @@ def soilgrids_brooks_corey(
 def soilgrids_sediment(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
-    usleK_method: str = "renard",
+    usle_k_method: str = "renard",
     add_aggregates: bool = True,
     logger=logger,
 ) -> xr.Dataset:
@@ -786,7 +786,7 @@ def soilgrids_sediment(
         Dataset containing soil properties.
     ds_like : xarray.DataArray
         Dataset at model resolution.
-    usleK_method : str
+    usle_k_method : str
         Method to use for calculation of USLE_K {"renard", "epic"}.
     add_aggregates : bool
         Add small and large aggregates to the soil properties. Default is True.
@@ -821,8 +821,8 @@ def soilgrids_sediment(
     ds_out["erosion_soil_detachability"] = erosK.astype(np.float32)
 
     # USLE K parameter
-    if usleK_method == "renard":
-        usleK = xr.apply_ufunc(
+    if usle_k_method == "renard":
+        usle_k = xr.apply_ufunc(
             ptf.UsleK_Renard,
             pclay,
             psilt,
@@ -830,8 +830,8 @@ def soilgrids_sediment(
             output_dtypes=[float],
             keep_attrs=True,
         )
-    elif usleK_method == "epic":
-        usleK = xr.apply_ufunc(
+    elif usle_k_method == "epic":
+        usle_k = xr.apply_ufunc(
             ptf.UsleK_EPIC,
             pclay,
             psilt,
@@ -840,8 +840,8 @@ def soilgrids_sediment(
             output_dtypes=[float],
             keep_attrs=True,
         )
-    usleK = usleK.raster.reproject_like(ds_like, method="average")
-    ds_out["usle_k"] = usleK.astype(np.float32)
+    usle_k = usle_k.raster.reproject_like(ds_like, method="average")
+    ds_out["usle_k"] = usle_k.astype(np.float32)
 
     # Mean diameter of the soil
     d50 = xr.apply_ufunc(

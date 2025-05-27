@@ -53,7 +53,7 @@ def test_setup_soilmaps_sed(
 
     example_sediment_model.setup_soilmaps(
         soil_fn="soilgrids",
-        usleK_method="epic",
+        usle_k_method="epic",
         add_aggregates=False,
     )
     da = example_sediment_model.grid

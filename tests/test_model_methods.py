@@ -172,7 +172,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
     lake_id = lakes["waterbody_id"].iloc[0]
     area = lakes["lake_area"].iloc[0]
     dis = lakes["LakeAvgOut"].iloc[0]
-    lvl = lakes["LakeAvgLevel"].iloc[0]
+    lvl = lakes["lake_initial_depth"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
     lvls = np.linspace(0, lvl)
 

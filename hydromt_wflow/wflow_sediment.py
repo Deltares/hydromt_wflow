@@ -275,7 +275,7 @@ river cells."
         # Lake settings in the toml to update
         self.set_config("model.lake__flag", True)
         for dvar in ds_lakes.data_vars:
-            if dvar == "lake_area_id " or dvar == "lake_outlet_id":
+            if dvar == "lake_area_id" or dvar == "lake_outlet_id":
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -372,7 +372,7 @@ river cells."
         # Lake settings in the toml to update
         self.set_config("model.reservoir__flag", True)
         for dvar in ds_res.data_vars:
-            if dvar in ["resareas", "reslocs"]:
+            if dvar in ["reservoir_area_id", "reservoir_outlet_id"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])
@@ -490,7 +490,7 @@ river cells."
         lulc_vars: Dict = {
             "landuse": None,
             "soil_compacted_fraction": "soil~compacted__area_fraction",
-            "erosion_usle_c ": "soil_erosion__usle_c_factor",
+            "erosion_usle_c": "soil_erosion__usle_c_factor",
             "land_water_fraction": "land~water-covered__area_fraction",
         },
         planted_forest_c: float = 0.0881,
@@ -603,7 +603,7 @@ river cells."
         lulc_vars: Dict = {
             "landuse": None,
             "soil_compacted_fraction": "soil~compacted__area_fraction",
-            "erosion_usle_c ": "soil_erosion__usle_c_factor",
+            "erosion_usle_c": "soil_erosion__usle_c_factor",
             "land_water_fraction": "land~water-covered__area_fraction",
         },
         lulc_res: float | int | None = None,
@@ -852,7 +852,7 @@ river cells."
     def setup_soilmaps(
         self,
         soil_fn: str = "soilgrids",
-        usleK_method: str = "renard",
+        usle_k_method: str = "renard",
         add_aggregates: bool = True,
         output_names: Dict = {
             "soil_clay__mass_fraction": "soil_clay_fraction",
@@ -897,7 +897,7 @@ river cells."
             Name of soil data source in data_sources.yml file.
 
             * Required variables: ['clyppt_sl1', 'sltppt_sl1', 'oc_sl1']
-        usleK_method: {"renard", "epic"}
+        usle_k_method: {"renard", "epic"}
             Method to compute the USLE K factor, by default renard.
         add_aggregates: bool, optional
             Add small and large aggregates based on soil texture, by default True.
@@ -920,18 +920,18 @@ river cells."
         dsout = workflows.soilgrids_sediment(
             dsin,
             self.grid,
-            usleK_method=usleK_method,
+            usle_k_method=usle_k_method,
             add_aggregates=add_aggregates,
             logger=self.logger,
         )
         rmdict = {k: self._MAPS.get(k, k) for k in dsout.data_vars}
-        self.set_grid(dsout)
+        self.set_grid(dsout.rename(rmdict))
         self._update_config_variable_name(dsout.rename(rmdict).data_vars)
 
     def upgrade_to_v1_wflow(
         self,
         soil_fn: str = "soilgrids",
-        usleK_method: str = "renard",
+        usle_k_method: str = "renard",
     ):
         """
         Upgrade the model to wflow v1 format.
@@ -960,7 +960,7 @@ river cells."
         # Rerun setup_soilmaps
         self.setup_soilmaps(
             soil_fn=soil_fn,
-            usleK_method=usleK_method,
+            usle_k_method=usle_k_method,
             add_aggregates=True,
         )
 
