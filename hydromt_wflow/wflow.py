@@ -2611,7 +2611,7 @@ using 'variable' argument."
             "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
             "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
-        paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max ": 80},
+        paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
         save_high_resolution_lulc: bool = False,
         output_names_suffix: str | None = None,
     ):
@@ -2740,8 +2740,7 @@ using 'variable' argument."
             Wflow.jl variables.
         paddy_waterlevels : dict
             Dictionary with the minimum, optimal and maximum water levels for paddy
-            fields [mm]. By default {"h_min": 20, "h_opt": 50,
-              "h_max": 80}
+            fields [mm]. By default {"h_min": 20, "h_opt": 50, "h_max": 80}
         save_high_resolution_lulc : bool
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
@@ -4716,8 +4715,8 @@ Run setup_soilmaps first"
         area_threshold: float = 0.6,
         lai_threshold: float = 0.2,
         output_names: Dict = {
-            "land~irrigated-paddy_area__number": "demand_paddy_irrigated_mask",
-            "land~irrigated-non-paddy_area__number": "demand_nonpaddy_irrigated_mask",
+            "land~irrigated-paddy_area__count": "demand_paddy_irrigated_mask",
+            "land~irrigated-non-paddy_area__count": "demand_nonpaddy_irrigated_mask",
             "land~irrigated-paddy__irrigation_trigger_flag": "demand_paddy_irrigation_trigger",  # noqa: E501
             "land~irrigated-non-paddy__irrigation_trigger_flag": "demand_nonpaddy_irrigation_trigger",  # noqa: E501
         },
