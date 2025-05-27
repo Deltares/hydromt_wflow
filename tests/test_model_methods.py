@@ -171,7 +171,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
     lakes = example_wflow_model.geoms["lakes"]
     lake_id = lakes["waterbody_id"].iloc[0]
     area = lakes["lake_area"].iloc[0]
-    dis = lakes["LakeAvgOut"].iloc[0]
+    dis = lakes["meta_lake_mean_outflow"].iloc[0]
     lvl = lakes["lake_initial_depth"].iloc[0]
     elev = lakes["Elevation"].iloc[0]
     lvls = np.linspace(0, lvl)
@@ -225,7 +225,7 @@ def test_setup_lake(tmpdir, example_wflow_model):
     assert example_wflow_model.tables[f"lake_sh_{lake_id}"].equals(test_table)
 
 
-@pytest.mark.timeout(300)  # max 5 min
+@pytest.mark.timeout(120)  # max 2 min
 @pytest.mark.parametrize("source", ["gww", "jrc"])
 def test_setup_reservoirs(source, tmpdir, example_wflow_model):
     # Read model 'wflow_piave_subbasin' from EXAMPLEDIR
@@ -309,24 +309,25 @@ def test_setup_ksathorfrac(tmpdir, example_wflow_model):
     )
 
     # Check values
-    values = (
-        example_wflow_model.grid.subsurface_ksat_horizontal_ratio.raster.mask_nodata()
-    )
+    values = example_wflow_model.grid[
+        "subsurface_ksat_horizontal_ratio"
+    ].raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
     assert np.isclose(max_val, 431.75)
     assert np.isclose(mean_val, 220.206)
 
 
-def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
+def test_setup_ksatver_vegetation(example_wflow_model):
     # Build the soil_ksat_vertical vegetation map
     example_wflow_model.setup_ksatver_vegetation(
         soil_fn="soilgrids",
+        output_name="soil_ksat_vertical_vegetation_test",
     )
 
     # Check values
     values = example_wflow_model.grid[
-        "soil_ksat_vertical_vegetation"
+        "soil_ksat_vertical_vegetation_test"
     ].raster.mask_nodata()
     max_val = values.max().values
     mean_val = values.mean().values
@@ -334,7 +335,7 @@ def test_setup_ksatver_vegetation(tmpdir, example_wflow_model):
     assert int(mean_val) == 1672
 
 
-def test_setup_lai(tmpdir, example_wflow_model):
+def test_setup_lai(example_wflow_model):
     # Use vito and MODIS lai data for testing
     # Read vegetation_leaf_area_index data
     da_lai = example_wflow_model.data_catalog.get_rasterdataset(
@@ -345,7 +346,7 @@ def test_setup_lai(tmpdir, example_wflow_model):
         "vito_2015", geom=example_wflow_model.region, buffer=2
     )
 
-    # Derive mapping for using the method any
+    # Derive mapping using the method any
     df_lai_any = workflows.create_lulc_lai_mapping_table(
         da_lulc=da_landuse,
         da_lai=da_lai.copy(),
@@ -381,9 +382,14 @@ def test_setup_lai(tmpdir, example_wflow_model):
     example_wflow_model.setup_laimaps_from_lulc_mapping(
         lulc_fn="vito_2015",
         lai_mapping_fn=df_lai_any,
+        output_name="lai_from_vito_mapping",
     )
 
-    assert "vegetation_leaf_area_index" in example_wflow_model.grid
+    assert "lai_from_vito_mapping" in example_wflow_model.grid
+    assert (
+        example_wflow_model.get_config("input.cyclic.vegetation__leaf-area_index")
+        == "lai_from_vito_mapping"
+    )
 
 
 def test_setup_rootzoneclim(example_wflow_model):
@@ -467,21 +473,21 @@ def test_setup_rootzoneclim(example_wflow_model):
         time_tuple_fut=("2005-01-01", "2020-12-31"),
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
-        output_name_rootingdepth="RootingDepth_obs_2",
+        output_name_rootingdepth="vegetation_root_depth_obs_2",
         rootzone_storage=True,
     )
 
-    assert "RootingDepth_obs_20" in example_wflow_model.grid
-    assert "RootingDepth_cc_hist_20" in example_wflow_model.grid
-    assert "RootingDepth_cc_fut_20" in example_wflow_model.grid
+    assert "vegetation_root_depth_obs_20" in example_wflow_model.grid
+    assert "vegetation_root_depth_cc_hist_20" in example_wflow_model.grid
+    assert "vegetation_root_depth_cc_fut_20" in example_wflow_model.grid
 
-    assert "rootzone_storage_obs_15" in example_wflow_model.grid
-    assert "rootzone_storage_cc_hist_15" in example_wflow_model.grid
-    assert "rootzone_storage_cc_fut_15" in example_wflow_model.grid
+    assert "meta_rootzone_storage_obs_15" in example_wflow_model.grid
+    assert "meta_rootzone_storage_cc_hist_15" in example_wflow_model.grid
+    assert "meta_rootzone_storage_cc_fut_15" in example_wflow_model.grid
 
     assert (
         example_wflow_model.get_config("input.static.vegetation_root__depth")
-        == "RootingDepth_obs_2"
+        == "vegetation_root_depth_obs_2"
     )
 
     assert example_wflow_model.geoms["rootzone_storage"].loc[1][
@@ -508,7 +514,7 @@ def test_setup_rootzoneclim(example_wflow_model):
         correct_cc_deficit=True,
         missing_days_threshold=330,
         return_period=[2, 5, 10, 15, 20],
-        output_name_rootingdepth="RootingDepth_obs_2",
+        output_name_rootingdepth="vegetation_root_depth_obs_2",
     )
 
     assert example_wflow_model.geoms["rootzone_storage"].loc[1][
@@ -927,11 +933,11 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     )
 
     assert "gauges_1dmodel" in example_wflow_model.geoms
-    assert "subcatch_1dmodel" in example_wflow_model.geoms
-    assert "subcatch_riv_1dmodel" in example_wflow_model.geoms
+    assert "subcatchment_1dmodel" in example_wflow_model.geoms
+    assert "subcatchment_riv_1dmodel" in example_wflow_model.geoms
 
     assert len(example_wflow_model.geoms["gauges_1dmodel"]) == 3
-    assert len(example_wflow_model.geoms["subcatch_1dmodel"]) == 2
+    assert len(example_wflow_model.geoms["subcatchment_1dmodel"]) == 2
     conf_dict = {
         "name": "Q",
         "map": "gauges_1dmodel",
@@ -954,10 +960,10 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     )
 
     assert len(example_wflow_model.geoms["gauges_1dmodel-nobounds"]) == 1
-    assert len(example_wflow_model.geoms["subcatch_1dmodel-nobounds"]) == 2
+    assert len(example_wflow_model.geoms["subcatchment_1dmodel-nobounds"]) == 2
     assert np.all(
-        example_wflow_model.geoms["subcatch_1dmodel"].geometry.geom_equals(
-            example_wflow_model.geoms["subcatch_1dmodel-nobounds"].geometry
+        example_wflow_model.geoms["subcatchment_1dmodel"].geometry.geom_equals(
+            example_wflow_model.geoms["subcatchment_1dmodel-nobounds"].geometry
         )
     )
 
@@ -973,7 +979,7 @@ def test_setup_1dmodel_connection(example_wflow_model, rivers1d):
     )
 
     assert "gauges_1dmodel-nodes" not in example_wflow_model.geoms
-    assert len(example_wflow_model.geoms["subcatch_1dmodel-nodes"]) == 6
+    assert len(example_wflow_model.geoms["subcatchment_1dmodel-nodes"]) == 6
 
 
 def test_skip_nodata_reservoir(clipped_wflow_model):
@@ -984,7 +990,7 @@ def test_skip_nodata_reservoir(clipped_wflow_model):
     )
     assert clipped_wflow_model.config["model"]["reservoir__flag"] == False
     # Get names for two reservoir layers
-    for mapname in ["resareas", "reslocs"]:
+    for mapname in ["reservoir_area_id", "reservoir_outlet_id"]:
         # Check if layers are indeed not present in the model
         assert (
             clipped_wflow_model._MAPS[mapname] not in clipped_wflow_model.grid.data_vars
@@ -1162,7 +1168,7 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
 
-def test_setup_non_irrigation(example_wflow_model, tmpdir):
+def test_setup_non_irrigation(example_wflow_model, tmpdir, pcrglobwb):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(
@@ -1174,12 +1180,12 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
 
     # Use the method
     example_wflow_model.setup_domestic_demand(
-        domestic_fn="pcr_globwb",
+        domestic_fn=pcrglobwb,
         population_fn="worldpop_2020_constrained",
         domestic_fn_original_res=0.5,
     )
     example_wflow_model.setup_other_demand(
-        demand_fn="pcr_globwb",
+        demand_fn=pcrglobwb,
         variables=[
             "industry_gross",
             "industry_net",
@@ -1190,7 +1196,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
 
     # Assert entries
     assert "demand_domestic_gross" in example_wflow_model.grid
-    assert "population" in example_wflow_model.grid
+    assert "meta_population" in example_wflow_model.grid
 
     # Assert some values
     dom_gross_vals = (
@@ -1200,7 +1206,9 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
     assert int(np.mean(dom_gross_vals) * 100) == 136
     popu_val = (
-        example_wflow_model.grid["population"].isel(latitude=32, longitude=26).values
+        example_wflow_model.grid["meta_population"]
+        .isel(latitude=32, longitude=26)
+        .values
     )
     assert int(popu_val) == 7842
 
@@ -1216,7 +1224,7 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
 
     # Assert entries
     assert "demand_domestic_gross" in example_wflow_model.grid
-    assert "population" in example_wflow_model.grid
+    assert "meta_population" in example_wflow_model.grid
 
     # Assert some values
     dom_gross_vals = (

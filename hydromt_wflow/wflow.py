@@ -548,7 +548,7 @@ Select from {routing_options}.'
             }.get(elevtn_map, "")
             name = f"river_bank_elevation{postfix}"
             # Check if users wanted a specific name for the hydrodem
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["river_bank_elevation"])
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
             if hydrodem_var in output_names:
                 name = output_names[hydrodem_var]
             self._update_naming({hydrodem_var: name})
@@ -738,7 +738,7 @@ setting new flood_depth dimensions"
             }.get(elevtn_map, "")
             name = f"river_bank_elevation{postfix}_D{connectivity}"
             # Check if users wanted a specific name for the river_bank_elevation
-            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["river_bank_elevation"])
+            hydrodem_var = self._WFLOW_NAMES.get(self._MAPS["hydrodem"])
             lndelv_var = self._WFLOW_NAMES.get(self._MAPS["elevtn"])
             # river_bank_elevation is used for two wflow variables
             if hydrodem_var in output_names:
@@ -2616,7 +2616,11 @@ using 'variable' argument."
             "vegetation_feddes_h3_low": "vegetation_root__feddes_critial_pressure_head_h~3~low",  # noqa: E501
             "vegetation_feddes_h4": "vegetation_root__feddes_critial_pressure_head_h~4",
         },
-        paddy_waterlevels: Dict = {"h_min": 20, "h_opt": 50, "h_max": 80},
+        paddy_waterlevels: Dict = {
+            "demand_paddy_h_min": 20,
+            "demand_paddy_h_opt": 50,
+            "demand_paddy_h_max": 80,
+        },
         save_high_resolution_lulc: bool = False,
         output_names_suffix: str | None = None,
     ):
@@ -2686,11 +2690,11 @@ using 'variable' argument."
         * **vegetation_feddes_h4** map:
             Soil water pressure head h4 at which root water
             uptake is reduced (Feddes) [cm]
-        * **h_min** map:
+        * **demand_paddy_h_min** value:
             Minimum required water depth for paddy fields [mm]
-        * **h_opt** map:
+        * **demand_paddy_h_opt** value:
             Optimal water depth for paddy fields [mm]
-        * **h_max** map:
+        * **demand_paddy_h_max** value:
             Maximum water depth for paddy fields [mm]
         * **soil_ksat_vertical_factor**:
             Map with a multiplication factor for the vertical conductivity [-]
@@ -2745,7 +2749,8 @@ using 'variable' argument."
             Wflow.jl variables.
         paddy_waterlevels : dict
             Dictionary with the minimum, optimal and maximum water levels for paddy
-            fields [mm]. By default {"h_min": 20, "h_opt": 50, "h_max": 80}
+            fields [mm]. By default {"demand_paddy_h_min": 20, "demand_paddy_h_opt": 50,
+            "demand_paddy_h_max": 80}
         save_high_resolution_lulc : bool
             Save the high resolution landuse map merged with the paddies to the static
             folder. By default False.
@@ -3668,7 +3673,7 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
         time_tuple: tuple | None = None,
         time_tuple_fut: tuple | None = None,
         missing_days_threshold: int | None = 330,
-        output_name_rootingdepth: str = "RootingDepth_obs_20",
+        output_name_rootingdepth: str = "vegetation_root_depth_obs_20",
     ) -> None:
         """
         Set the vegetation_root_depth.
@@ -3714,14 +3719,14 @@ either {'temp' [°C], 'temp_min' [°C], 'temp_max' [°C], 'wind' [m/s], 'rh' [%]
 
         Adds model layer:
 
-        * **RootingDepth_{forcing}_{RP}** map: rooting depth [mm of the soil column] \
-estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for different \
-return periods RP. The translation to vegetation_root_depth is done by dividing \
-the rootzone_storage by (theta_s - theta_r).
-        * **rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
+        * **vegetation_root_depth_{forcing}_{RP}** map: rooting depth [mm of the soil \
+column] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for \
+different return periods RP. The translation to vegetation_root_depth is done by \
+dividing the rootzone_storage by (theta_s - theta_r).
+        * **meta_rootzone_storage_{forcing}_{RP}** geom: polygons of rootzone \
 storage capacity [mm of water] for each catchment estimated before filling \
 the missing with data from downstream catchments.
-        * **rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity \
+        * **meta_rootzone_storage_{forcing}_{RP}** map: rootzone storage capacity \
 [mm of water] estimated from hydroclimatic data {forcing: obs, cc_hist or cc_fut} for \
 different return periods RP. Only if rootzone_storage is set to True!
 
@@ -3783,7 +3788,7 @@ different return periods RP. Only if rootzone_storage is set to True!
         output_name_rootingdepth: str, optional
             Update the wflow_sbm model config of the vegetation_root_depth variable with
             the estimated vegetation_root_depth.
-            The default is RootingDepth_obs_20,
+            The default is vegetation_root_depth_obs_20,
             which requires to have RP 20 in the list provided for \
 the return_period argument.
         """
@@ -4030,7 +4035,7 @@ Run setup_soilmaps first"
         self.set_geoms(gdf_subcatch, name=f"subcatchment_{mapname}")
         # Subcatchment map for river cells only (to be able to save river outputs
         # in wflow)
-        self.set_grid(ds_out["subcatch_river"], name=f"subcatchment_riv_{mapname}")
+        self.set_grid(ds_out["subcatch_riv"], name=f"subcatchment_riv_{mapname}")
         gdf_subcatch_riv = ds_out["subcatch_riv"].raster.vectorize()
         gdf_subcatch_riv["value"] = gdf_subcatch_riv["value"].astype(
             ds_out["subcatch"].dtype

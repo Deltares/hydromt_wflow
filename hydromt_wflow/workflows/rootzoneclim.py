@@ -791,8 +791,8 @@ def rootzoneclim(
         intercep_vars_sub = intercep_vars_sub.compute()
         # Determine the Imax for every time step in the LAI data
         intercep_vars_sub["Imax"] = (
-            intercep_vars_sub["Swood_mean"]
-            + intercep_vars_sub["LAI_mean"] * intercep_vars_sub["Sl_mean"]
+            intercep_vars_sub["wood_storage_mean"]
+            + intercep_vars_sub["LAI_mean"] * intercep_vars_sub["leaf_storage_mean"]
         )
     else:
         intercep_vars_sub = None
@@ -980,7 +980,7 @@ def rootzoneclim(
             # Store the rootzone_storage in ds_out is rootzone_storage flag is
             # set to True.
             if rootzone_storage == True:
-                ds_out[f"rootzone_storage_{forcing_type}_{str(return_period)}"] = (
+                ds_out[f"meta_rootzone_storage_{forcing_type}_{str(return_period)}"] = (
                     (y_dim, x_dim),
                     out_raster,
                 )
