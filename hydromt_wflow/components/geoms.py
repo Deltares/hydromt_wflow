@@ -123,10 +123,10 @@ degree (111km) for geographic coordinate systems. "
     def get(self, name: str) -> Optional[gpd.GeoDataFrame | gpd.GeoSeries]:
         """Get geometry by name."""
         geom = self.data.get(name, None)
-        if geom is not None:
-            logger.info(f"Retrieved geometry '{name}' from geoms.")
-        else:
+        if geom is None:
             logger.warning(f"Geometry '{name}' not found in geoms.")
+        else:
+            logger.info(f"Retrieved geometry '{name}' from geoms.")
         return geom
 
     def pop(
