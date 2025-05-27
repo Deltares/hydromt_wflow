@@ -887,7 +887,8 @@ river cells."
         * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]
         * **soil_sediment_d50** map: median sediment diameter of the soil [mm]
         * **land_govers_c** map: Govers factor for overland flow transport capacity [-]
-        * **land_govers_n** map: Govers exponent for overland flow transport capacity [-]
+        * **land_govers_n** map: Govers exponent for overland flow transport
+        capacity [-]
 
 
         Parameters
@@ -904,7 +905,7 @@ river cells."
             Dictionary with output names that will be used in the model netcdf input
             files. Users should provide the Wflow.jl variable name followed by the name
             in the netcdf file.
-        """  # noqa: E501
+        """
         self.logger.info("Preparing soil parameter maps.")
 
         # Soil related maps
