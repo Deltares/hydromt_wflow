@@ -56,6 +56,8 @@ def test_parse_region(mock_get_basin_geometry, mock_wflow_model):
     # Act
     geom, xy, ds_org = component.parse_region(
         region=region.copy(),
+        hydrography_fn="mock_hydrography",
+        # datacatalog is mocked so no need for a real file
     )
 
     # Assert
