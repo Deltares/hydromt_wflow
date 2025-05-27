@@ -21,7 +21,7 @@ from hydromt_wflow.wflow import WflowModel
 from . import workflows
 
 __all__ = ["WflowSedimentModel"]
-
+__hydromt_eps__ = ["WflowSedimentModel"]  # core entrypoints
 logger = logging.getLogger(__name__)
 
 
