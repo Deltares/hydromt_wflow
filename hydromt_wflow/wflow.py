@@ -4264,7 +4264,7 @@ Run setup_soilmaps first"
             (with a `time` dimension) or non-cyclic. Allowed cyclic data can be monthly
             (12) or dayofyear (365 or 366).
 
-            * Required variables: 'dom_gross' [mm/day], 'dom_net' [mm/day]
+            * Required variables: 'domestic_gross' [mm/day], 'domestic_net' [mm/day]
         population_fn : str | xr.Dataset
             The population dataset in capita. Either provided as a dataset directly or
             as a string referring to an entry in the data catalog.
@@ -4286,7 +4286,7 @@ Run setup_soilmaps first"
             domestic_fn,
             geom=self.region,
             buffer=2,
-            variables=["dom_gross", "dom_net"],
+            variables=["domestic_gross", "domestic_net"],
         )
         # Increase the buffer if original resolution is provided
         if domestic_fn_original_res is not None:
@@ -4295,7 +4295,7 @@ Run setup_soilmaps first"
                 domestic_fn,
                 geom=self.region,
                 buffer=buffer,
-                variables=["dom_gross", "dom_net"],
+                variables=["domestic_gross", "domestic_net"],
             )
         # Check if data is time dependent
         if "time" in domestic_raw.coords:
@@ -4467,10 +4467,10 @@ Run setup_soilmaps first"
 
             * Required variables: variables listed in `variables` in [mm/day].
         variables : list, optional
-            The variables to be processed. Supported variables are ['dom_gross',
-            'dom_net', 'ind_gross', 'ind_net', 'lsk_gross', 'lsk_net'] where 'dom' is
-            domestic, 'ind' is industrial and 'lsk' is livestock. By default gross and
-            net demand for industry and livestock are processed.
+            The variables to be processed. Supported variables are ['domestic_gross',
+            'domestic_net', 'industry_gross', 'industry_net', 'livestock_gross',
+            'livestock_net']. By default gross and net demand for industry and livestock
+            are processed.
         resampling_method : str, optional
             Resampling method for the demand maps, by default "average"
         output_names : dict, optional
@@ -4511,11 +4511,11 @@ Run setup_soilmaps first"
         self.set_grid(demand.rename(rmdict))
 
         # Update the settings toml
-        if "dom_gross" in demand.data_vars:
+        if "domestic_gross" in demand.data_vars:
             self.set_config("model.water_demand.domestic__flag", True)
-        if "ind_gross" in demand.data_vars:
+        if "industry_gross" in demand.data_vars:
             self.set_config("model.water_demand.industry__flag", True)
-        if "lsk_gross" in demand.data_vars:
+        if "livestock_gross" in demand.data_vars:
             self.set_config("model.water_demand.livestock__flag", True)
         data_type = "cyclic" if _cyclic else "static"
         self._update_config_variable_name(demand.rename(rmdict).data_vars, data_type)

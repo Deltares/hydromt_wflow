@@ -1178,7 +1178,12 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir):
     )
     example_wflow_model.setup_other_demand(
         demand_fn="pcr_globwb",
-        variables=["ind_gross", "ind_net", "lsk_gross", "lsk_net"],
+        variables=[
+            "industry_gross",
+            "industry_net",
+            "livestock_gross",
+            "livestock_net",
+        ],
     )
 
     # Assert entries
