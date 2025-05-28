@@ -34,6 +34,8 @@ path_static  = "staticmaps.nc"
 
 [input.forcing]
 
+[input.cyclic]
+
 [state.variables]
 vegetation_canopy_water__depth                     = "vegetation_water_depth"
 soil_water_sat-zone__depth                         = "soil_saturated_depth"
@@ -46,3 +48,9 @@ land_surface_water__instantaneous_depth            = "land_instantaneous_h"
 subsurface_water__volume_flow_rate                 = "subsurface_q"
 river_water__instantaneous_volume_flow_rate        = "river_instantaneous_q"
 river_water__instantaneous_depth                   = "river_instantaneous_h"
+
+[output.netcdf_grid]
+
+[output.csv]
+
+[output.netcdf_grid.variables]
