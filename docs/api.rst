@@ -275,7 +275,6 @@ Wflow workflows
    workflows.lai_from_lulc_mapping
    workflows.add_paddy_to_landuse
    workflows.add_planted_forest_to_landuse
-   workflows.subsurface_ksat_horizontal_ratio
    workflows.ksatver_vegetation
    workflows.soilgrids
    workflows.soilgrids_sediment
