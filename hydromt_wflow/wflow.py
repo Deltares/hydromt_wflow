@@ -1487,7 +1487,8 @@ and will soon be removed. '
             if toml_output == "csv":
                 header_name = "header"
                 var_name = "column"
-                if self.get_config("output.csv") is None:
+                current_config = self.get_config("output.csv")
+                if current_config is None or len(current_config) == 0:
                     self.set_config("output.csv.path", "output.csv")
             # netcdf
             if toml_output == "netcdf_scalar":
