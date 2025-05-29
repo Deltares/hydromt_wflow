@@ -1494,7 +1494,8 @@ and will soon be removed. '
             if toml_output == "netcdf_scalar":
                 header_name = "name"
                 var_name = "variable"
-                if self.get_config("output.netcdf_scalar") is None:
+                current_config = self.get_config("output.netcdf_scalar")
+                if current_config is None or len(current_config) == 0:
                     self.set_config("output.netcdf_scalar.path", "output_scalar.nc")
             # initialise column / variable section
             if self.get_config(f"output.{toml_output}.{var_name}") is None:
@@ -1510,8 +1511,10 @@ and will soon be removed. '
                 if reducer is not None:
                     gauge_toml_dict["reducer"] = reducer[o]
                 # If the gauge column/variable already exists skip writing twice
-                if gauge_toml_dict not in self.config["output"][toml_output][var_name]:
-                    self.config["output"][toml_output][var_name].append(gauge_toml_dict)
+                variables = self.get_config(f"output.{toml_output}.{var_name}")
+                if gauge_toml_dict not in variables:
+                    variables.append(gauge_toml_dict)
+                    self.set_config(f"output.{toml_output}.{var_name}", variables)
         else:
             self.logger.info(
                 f"toml_output set to {toml_output}, \
@@ -5850,8 +5853,8 @@ change name input.path_forcing "
 
             Even though the underlying config object behaves like a dictionary, it is
             not, it is a ``tomlkit.TOMLDocument``. Due to implementation limitations,
-            error scan easily be introduced if this structure is modified by hand.
-            Therefore we strongly discourage users from manually modying it, and
+            errors can easily be introduced if this structure is modified by hand.
+            Therefore we strongly discourage users from manually modyfing it, and
             instead ask them to use this ``set_config`` function to avoid problems.
 
         Parameters
@@ -5876,7 +5879,7 @@ change name input.path_forcing "
         """
         self._initialize_config()
         utils.set_config(
-            self._config,
+            self.config,  # read config at first call
             *args,
         )
 
