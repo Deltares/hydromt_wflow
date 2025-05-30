@@ -1,3 +1,53 @@
+glcnmo:
+  data_type: RasterDataset
+  path: glcnmo.tif
+  driver: raster
+  filesystem: local
+  nodata: -9999
+  crs: 4326
+
+irrigated_area:
+  data_type: RasterDataset
+  path: irrigated_area.tif
+  driver: raster
+  filesystem: local
+  nodata: -9999
+  crs: 4326
+
+mirca_crop_info:
+  data_type: DataFrame
+  path: mirca_crop_info.csv
+  driver: csv
+  driver_kwargs:
+    index_col: 0
+  filesystem: local
+  meta:
+    category: landuse
+
+mirca_irrigated_data:
+  crs: 4326
+  data_type: RasterDataset
+  driver: netcdf
+  kwargs:
+    chunks:
+      x: 3600
+      y: 3600
+  path: V3_crop_factor_irrigated_rice-excluded.nc
+  unit_mult:
+    rootingdepth: 1000
+
+mirca_rainfed_data:
+  crs: 4326
+  data_type: RasterDataset
+  driver: netcdf
+  kwargs:
+    chunks:
+      x: 3600
+      y: 3600
+  path: V3_crop_factor_rainfed_rice-excluded.nc
+  unit_mult:
+    rootingdepth: 1000
+
 lisflood_gwbodies:
   data_type: RasterDataset
   path: lisflood_gwbodies.tif
@@ -6,6 +56,7 @@ lisflood_gwbodies:
   meta:
     source_url: https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-GLOFAS/LISFLOOD_static_and_parameter_maps_for_GloFAS/Water_demand/
   crs: 4326
+
 lisflood_gwfrac:
   data_type: RasterDataset
   path: lisflood_gwfrac.tif
@@ -14,6 +65,7 @@ lisflood_gwfrac:
   meta:
     source_url: https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-GLOFAS/LISFLOOD_static_and_parameter_maps_for_GloFAS/Water_demand/
   crs: 4326
+
 lisflood_ncfrac:
   data_type: RasterDataset
   path: lisflood_ncfrac.tif
@@ -22,6 +74,7 @@ lisflood_ncfrac:
   meta:
     source_url: https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-GLOFAS/LISFLOOD_static_and_parameter_maps_for_GloFAS/Water_demand/
   crs: 4326
+
 lisflood_waterregions:
   data_type: RasterDataset
   path: lisflood_waterregions.tif
@@ -31,3 +84,27 @@ lisflood_waterregions:
   meta:
     source_url: https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/CEMS-GLOFAS/LISFLOOD_static_and_parameter_maps_for_GloFAS/Water_demand/
   crs: 4326
+
+pcr_globwb:
+  data_type: RasterDataset
+  version: '2005'
+  path: pcr_globwb.nc
+  driver: netcdf
+  filesystem: local
+  nodata: -9999
+  meta:
+    category: water demand
+    notes: last downloaded 2023-11-23
+    paper_doi: 10.5281/zenodo.1045339
+    paper_ref: Sutanudjaja, E. H., et al (2017)
+    source_url: https://zenodo.org/records/1045339#.XWUr7E2P5aR
+    source_version: 2017.11b1
+    processing_script: hydro/pcr_globwb/prep_glob.py
+  crs: 4326
+  rename:
+    dom_gross: domestic_gross
+    dom_net: domestic_net
+    ind_gross: industry_gross
+    ind_net: industry_net
+    lsk_gross: livestock_gross
+    lsk_net: livestock_net

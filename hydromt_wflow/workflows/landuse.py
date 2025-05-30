@@ -26,8 +26,12 @@ __all__ = [
 ]
 
 
-RESAMPLING = {"landuse": "nearest", "lai": "average", "alpha_h1": "mode"}
-DTYPES = {"landuse": np.int16, "alpha_h1": np.int16}
+RESAMPLING = {
+    "landuse": "nearest",
+    "lai": "average",
+    "vegetation_feddes_alpha_h1": "mode",
+}
+DTYPES = {"landuse": np.int16, "vegetation_feddes_alpha_h1": np.int16}
 
 
 def landuse(
@@ -182,13 +186,13 @@ def landuse_from_vector(
 def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     """Return climatology of Leaf Area Index (LAI).
 
-    The following topography maps are calculated:
+    The following maps are calculated:
     - LAI
 
     Parameters
     ----------
     da : xarray.DataArray or xarray.Dataset
-        DataArray or Dataset with LAI array containing LAI values.
+        LAI array containing LAI values.
     ds_like : xarray.DataArray
         Dataset at model resolution.
 
@@ -205,9 +209,8 @@ def lai(da: xr.DataArray, ds_like: xr.Dataset, logger=logger):
     nodata = da.raster.nodata
     logger.info(f"Deriving {da.name} using {method} resampling (nodata={nodata}).")
     da = da.astype(np.float32)
-    da = da.where(da.values != nodata).fillna(
-        0.0
-    )  # Assuming missing values correspond to bare soil, urban and snow (LAI=0.0)
+    # Assuming missing values correspond to: bare soil, urban and snow (LAI=0.0)
+    da = da.where(da.values != nodata).fillna(0.0)
     da_out = da.raster.reproject_like(ds_like, method=method)
     da_out.attrs.update(_FillValue=nodata)
     return da_out
@@ -230,8 +233,8 @@ def create_lulc_lai_mapping_table(
     da_lai : xr.DataArray
         Cyclic LAI map.
     sampling_method : str, optional
-        Resampling method for the LULC data to the LAI resolution. Two methods are
-        supported:
+        Resampling method for the LULC data to LAI resolution.
+        Two methods are supported:
 
         * 'any' (default): if any cell of the desired landuse class is present in the
             resampling window (even just one), it will be used to derive LAI values.
@@ -311,7 +314,7 @@ def create_lulc_lai_mapping_table(
             lu = lu.raster.mask_nodata()
 
             if sampling_method == "any":
-                # Resample only now the landuse data to the LAI resolution
+                # Resample the landuse data to the LAI resolution
                 lu = lu.raster.reproject_like(da_lai, method="mode")
 
             # Add lai
@@ -486,7 +489,7 @@ def add_planted_forest_to_landuse(
         GeoDataFrame containing planted forest data. Required columns are: 'geometry',
         and optionally 'forest_type' to find orchards.
     ds_like : xr.Dataset
-        Dataset at model resolution. Required variables are 'USLE_C'.
+        Dataset at model resolution. Required variables are 'usle_c'.
     planted_forest_c : float, optional
         USLE C value for planted forest, by default 0.0881.
     orchard_name : str, optional
@@ -499,27 +502,27 @@ def add_planted_forest_to_landuse(
     usle_c : xr.DataArray
         Updated USLE C map.
     """
-    # Add a USLE_C column with default value
+    # Add a usle_c column with default value
     logger.info(
-        "Correcting USLE_C with planted forest and orchards using {planted_forest_fn}."
+        "Correcting usle_c with planted forest and orchards using {planted_forest_fn}."  # noqa: E501
     )
-    planted_forest["USLE_C"] = planted_forest_c
-    # If forest_type column is available, update USLE_C value for orchards
+    planted_forest["usle_c"] = planted_forest_c
+    # If forest_type column is available, update usle_c value for orchards
     if "forest_type" in planted_forest.columns:
-        planted_forest.loc[planted_forest["forest_type"] == orchard_name, "USLE_C"] = (
+        planted_forest.loc[planted_forest["forest_type"] == orchard_name, "usle_c"] = (
             orchard_c
         )
     # Rasterize forest data
     usle_c = ds_like.raster.rasterize(
         gdf=planted_forest,
-        col_name="USLE_C",
-        nodata=ds_like["USLE_C"].raster.nodata,
+        col_name="usle_c",
+        nodata=ds_like["usle_c"].raster.nodata,
         all_touched=False,
     )
-    # Cover nodata with the USLE_C map from all landuse classes
+    # Cover nodata with the usle_c map from all landuse classes
     usle_c = usle_c.where(
         usle_c != usle_c.raster.nodata,
-        ds_like["USLE_C"],
+        ds_like["usle_c"],
     )
 
     return usle_c

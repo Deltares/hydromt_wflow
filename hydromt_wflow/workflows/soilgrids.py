@@ -31,7 +31,7 @@ M_minmax = 10000.0
 nodata = -9999.0
 
 # default z [cm] of soil layers wflow_sbm: 10, 40, 120, > 120
-# mapping of wflow_sbm parameter c to soil layer SoilGrids
+# mapping of wflow_sbm parameter soil_brooks_corey_c to soil layer SoilGrids
 c_sl_index = [2, 4, 6, 7]  # v2017 direct mapping
 # c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,
 # averages are taken instead.
@@ -188,7 +188,7 @@ def pore_size_distribution_index_layers(ds, thetas):
     ds: xarray.Dataset
         Dataset containing soil properties at each soil depth [sl1 - sl7].
     thetas: xarray.Dataset
-        Dataset containing thetaS at each soil layer depth.
+        Dataset containing theta_s at each soil layer depth.
 
     Returns
     -------
@@ -232,7 +232,7 @@ def brooks_corey_layers(
     Parameters
     ----------
     thetas_sl: xarray.Dataset
-        Dataset containing thetaS at each soil layer depth.
+        Dataset containing theta_s at each soil layer depth.
     ds: xarray.Dataset
         Dataset containing soil properties at each soil depth.
     ds_like: xarray.Dataset
@@ -240,14 +240,14 @@ def brooks_corey_layers(
     soil_fn: str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers: list
-        List of soil layer depths [cm] for which c is calculated.
+        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.
     soildepth_cm: np.array
         Depth of each soil layers [cm].
 
     Returns
     -------
     ds_c : xarray.Dataset
-        Dataset containing c for the wflow_sbm soil layers.
+        Dataset containing soil_brooks_corey_c for the wflow_sbm soil layers.
     """
     # Get pore size distribution index
     lambda_sl_hr = pore_size_distribution_index_layers(ds, thetas_sl)
@@ -278,18 +278,18 @@ soilgrids data does not go deeper than 2 m."
     # Soil data depth
     soildepth = soildepth_cm * 10
 
-    # make empty dataarray for c for the 4 sbm layers
+    # make empty dataarray for soil_brooks_corey_c for the 4 sbm layers
     ds_c = hydromt.raster.full(
         coords=c_sl.raster.coords,
         nodata=np.nan,
         crs=c_sl.raster.crs,
         dtype="float32",
-        name="c",
+        name="soil_brooks_corey_c",
         attrs={"thickness": wflow_thickness, "soil_fn": soil_fn},
     )
     ds_c = ds_c.expand_dims(dim=dict(layer=np.arange(len(wflow_thickness)))).copy()
 
-    # calc weighted average values of c over the sbm soil layers
+    # calc weighted average values of soil_brooks_corey_c over the sbm soil layers
     for nl in range(len(wflow_thickness)):
         top_depth = wflow_depths[nl]
         bottom_depth = wflow_depths[nl + 1]
@@ -329,7 +329,7 @@ soilgrids data does not go deeper than 2 m."
 
 def kv_layers(ds, thetas, ptf_name):
     """
-    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.
+    Determine vertical saturated hydraulic conductivity per soil layer depth.
 
     Based on PTF.
 
@@ -338,14 +338,14 @@ def kv_layers(ds, thetas, ptf_name):
     ds: xarray.Dataset
         Dataset containing soil properties at each soil depth [sl1 - sl7].
     thetas: xarray.Dataset
-        Dataset containing thetaS at each soil layer depth.
+        Dataset containing theta_s at each soil layer depth.
     ptf_name : str
-        PTF to use for calculation KsatVer.
+        PTF to use for calculation ksat_vertical .
 
     Returns
     -------
     ds_out : xarray.Dataset
-        Dataset containing KsatVer [mm/day] for each soil layer depth.
+        Dataset containing ksat_vertical  [mm/day] for each soil layer depth.
     """
     if ptf_name == "brakensiek":
         ds_out = xr.apply_ufunc(
@@ -475,28 +475,21 @@ producing quality-assessed soil information for the globe. SOIL Discussions, pp.
 
     The following soil parameter maps are calculated:
 
-    - **thetaS** : average saturated soil water content [m3/m3]
-    - **thetaR** : average residual water content [m3/m3]
-    - **KsatVer** : vertical saturated hydraulic conductivity at soil surface [mm/day]
-    - **SoilThickness** : soil thickness [mm]
-    - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)
-    - **M** : model parameter [mm] that controls exponential decline of KsatVer with \
-soil depth
-      (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked
-    - **M_** : model parameter [mm] that controls exponential decline of KsatVer with \
-soil depth
-      (fitted with numpy linalg regression), bounds of **M_** are checked
-    - **M_original** : **M** without checking bounds
-    - **M_original_** : **M_** without checking bounds
-    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] \
+    - **theta_s** : average saturated soil water content [m3/m3]
+    - **theta_r** : average residual water content [m3/m3]
+    - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil
+    surface [mm/day]
+    - **soil_thickness** : soil thickness [mm]
+    - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \
 (fitted with curve_fit (scipy.optimize)), bounds are checked
-    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]
+    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]
       (fitted with numpy linalg regression), bounds are checked
-    - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \
-index for the wflow_sbm soil layers.
-    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \
-[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
-    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \
+    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \
+    distribution index for the wflow_sbm soil layers.
+    - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \
+[z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]
+    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,
+    sand mapping: \
 [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \
 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]
 
@@ -508,11 +501,11 @@ index for the wflow_sbm soil layers.
     ds_like : xarray.DataArray
         Dataset at model resolution.
     ptfKsatVer : str
-        PTF to use for calculation KsatVer.
+        PTF to use for calculation ksat_vertical .
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
-        List of soil layer depths [cm] for which c is calculated.
+        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.
 
     Returns
     -------
@@ -540,7 +533,7 @@ index for the wflow_sbm soil layers.
     # concat along a sl dimension
     ds = concat_layers(ds, soil_fn)
 
-    logger.info("calculate and resample thetaS")
+    logger.info("calculate and resample theta_s")
     thetas_sl = xr.apply_ufunc(
         ptf.thetas_toth,
         ds["ph"],
@@ -557,9 +550,9 @@ index for the wflow_sbm soil layers.
     else:
         thetas = average_soillayers(thetas_sl, ds["soilthickness"])
     thetas = thetas.raster.reproject_like(ds_like, method="average")
-    ds_out["thetaS"] = thetas.astype(np.float32)
+    ds_out["theta_s"] = thetas.astype(np.float32)
 
-    logger.info("calculate and resample thetaR")
+    logger.info("calculate and resample theta_r")
     thetar_sl = xr.apply_ufunc(
         ptf.thetar_rawls_brakensiek,
         ds["sndppt"],
@@ -575,7 +568,7 @@ index for the wflow_sbm soil layers.
     else:
         thetar = average_soillayers(thetar_sl, ds["soilthickness"])
     thetar = thetar.raster.reproject_like(ds_like, method="average")
-    ds_out["thetaR"] = thetar.astype(np.float32)
+    ds_out["theta_r"] = thetar.astype(np.float32)
 
     soilthickness_hr = ds["soilthickness"]
     soilthickness = soilthickness_hr.raster.reproject_like(ds_like, method="average")
@@ -583,10 +576,9 @@ index for the wflow_sbm soil layers.
     soilthickness = soilthickness.where(soilthickness > 0.0, np.nan)
     soilthickness.raster.set_nodata(np.nan)
     soilthickness = soilthickness.astype(np.float32)
-    ds_out["SoilThickness"] = soilthickness * 10.0  # from [cm] to [mm]
-    ds_out["SoilMinThickness"] = xr.DataArray.copy(ds_out["SoilThickness"], deep=False)
+    ds_out["soil_thickness"] = soilthickness * 10.0  # from [cm] to [mm]
 
-    logger.info("calculate and resample KsatVer")
+    logger.info("calculate and resample ksat_vertical ")
     kv_sl_hr = kv_layers(ds, thetas_sl, ptfKsatVer)
     kv_sl = np.log(kv_sl_hr)
     kv_sl = kv_sl.raster.reproject_like(ds_like, method="average")
@@ -601,18 +593,20 @@ index for the wflow_sbm soil layers.
         wflow_layers=wflow_layers,
         soildepth_cm=soildepth_cm,
     )
-    ds_out["c"] = ds_c
+    ds_out["soil_brooks_corey_c"] = ds_c
 
-    ds_out["KsatVer"] = kv_sl.sel(sl=1).astype(np.float32)
+    ds_out["ksat_vertical"] = kv_sl.sel(sl=1).astype(np.float32)
 
     for i, sl in enumerate(kv_sl["sl"]):
         kv = kv_sl.sel(sl=sl)
-        ds_out["KsatVer_" + str(soildepth_cm_midpoint[i]) + "cm"] = kv.astype(
-            np.float32
-        )
+        ds_out[
+            f"meta_{soil_fn}_ksat_vertical_" + str(soildepth_cm_midpoint[i]) + "cm"
+        ] = kv.astype(np.float32)
 
     kv = kv_sl / kv_sl.sel(sl=1)
-    logger.info("fit z - log(KsatVer) with numpy linalg regression (y = b*x) -> M_")
+    logger.info(
+        "fit z - log(ksat_vertical ) with numpy linalg regression (y = b*x) -> M_"
+    )
     popt_0_ = xr.apply_ufunc(
         do_linalg,
         soildepth_mm_midpoint_surface,
@@ -625,10 +619,8 @@ index for the wflow_sbm soil layers.
     )
 
     M_ = (thetas - thetar) / (-popt_0_)
-    ds_out["M_original_"] = M_.astype(np.float32)
     M_ = constrain_M(M_, popt_0_, M_minmax)
-    ds_out["M_"] = M_.astype(np.float32)
-    ds_out["f_"] = ((thetas - thetar) / M_).astype(np.float32)
+    ds_out["soil_f_"] = ((thetas - thetar) / M_).astype(np.float32)
 
     logger.info("fit zi - Ksat with curve_fit (scipy.optimize) -> M")
     popt_0 = xr.apply_ufunc(
@@ -643,9 +635,7 @@ index for the wflow_sbm soil layers.
     )
 
     M = (thetas - thetar) / (popt_0)
-    ds_out["M_original"] = M.astype(np.float32)
     M = constrain_M(M, popt_0, M_minmax)
-    ds_out["M"] = M.astype(np.float32)
     ds_out["f"] = ((thetas - thetar) / M).astype(np.float32)
 
     # wflow soil map is based on USDA soil classification
@@ -675,10 +665,10 @@ index for the wflow_sbm soil layers.
 
     soil_texture_out = soil_texture.raster.reproject_like(ds_like, method="mode")
     # np.nan is not a valid value for array with type integer
-    ds_out["wflow_soil"] = soil_texture_out
-    ds_out["wflow_soil"].raster.set_nodata(0)
+    ds_out["meta_soil_texture"] = soil_texture_out
+    ds_out["meta_soil_texture"].raster.set_nodata(0)
 
-    dtypes = {"wflow_soil": np.int32}
+    dtypes = {"meta_soil_texture": np.int32}
     for var in ds_out:
         dtype = dtypes.get(var, np.float32)
         logger.debug(f"Interpolate nodata (NaN) values for {var}")
@@ -714,12 +704,13 @@ def soilgrids_brooks_corey(
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     wflow_layers : list
-        List of wflow soil layer depths [cm] over which c is calculated.
+        List of wflow soil layer depths [cm] over which soil_brooks_corey_c is
+        calculated.
 
     Returns
     -------
     ds_out : xarray.Dataset
-        Dataset containing c for the wflow_sbm soil layers.
+        Dataset containing soil_brooks_corey_c for the wflow_sbm soil layers.
     """
     if soil_fn == "soilgrids_2020" or soil_fn == "soilgrids":
         soildepth_cm = np.array([0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0])
@@ -731,7 +722,7 @@ def soilgrids_brooks_corey(
     # concat along a sl dimension
     ds = concat_layers(ds, soil_fn)
 
-    logger.info("calculate and resample thetaS")
+    logger.info("calculate and resample theta_s")
     thetas_sl = xr.apply_ufunc(
         ptf.thetas_toth,
         ds["ph"],
@@ -753,7 +744,7 @@ def soilgrids_brooks_corey(
         wflow_layers=wflow_layers,
         soildepth_cm=soildepth_cm,
     )
-    ds_out["c"] = ds_c
+    ds_out["soil_brooks_corey_c"] = ds_c
 
     return ds_out
 
@@ -761,7 +752,7 @@ def soilgrids_brooks_corey(
 def soilgrids_sediment(
     ds: xr.Dataset,
     ds_like: xr.Dataset,
-    usleK_method: str = "renard",
+    usle_k_method: str = "renard",
     add_aggregates: bool = True,
     logger=logger,
 ) -> xr.Dataset:
@@ -777,16 +768,17 @@ def soilgrids_sediment(
 
     The following soil parameter maps are calculated:
 
-    * fclay_soil: clay content of the topsoil [g/g]
-    * fsilt_soil: silt content of the topsoil [g/g]
-    * fsand_soil: sand content of the topsoil [g/g]
-    * fsagg_soil: small aggregate content of the topsoil [g/g]
-    * flagg_soil: large aggregate content of the topsoil [g/g]
-    * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]
+    * soil_clay_fraction: clay content of the topsoil [g/g]
+    * soil_silt_fraction: silt content of the topsoil [g/g]
+    * soil_sand_fraction: sand content of the topsoil [g/g]
+    * soil_sagg_fraction: small aggregate content of the topsoil [g/g]
+    * soil_lagg_fraction: large aggregate content of the topsoil [g/g]
+    * erosion_soil_detachability: mean detachability of the soil (Morgan et al., 1998)
+      [g/J]
     * usle_k: soil erodibility factor from the USLE equation [-]
-    * d50_soil: median sediment diameter of the soil [mm]
-    * c_govers: Govers factor for overland flow transport capacity [-]
-    * n_govers: Govers exponent for overland flow transport capacity [-]
+    * soil_sediment_d50: median sediment diameter of the soil [mm]
+    * land_govers_c: Govers factor for overland flow transport capacity [-]
+    * land_govers_n: Govers exponent for overland flow transport capacity [-]
 
     Parameters
     ----------
@@ -794,7 +786,7 @@ def soilgrids_sediment(
         Dataset containing soil properties.
     ds_like : xarray.DataArray
         Dataset at model resolution.
-    usleK_method : str
+    usle_k_method : str
         Method to use for calculation of USLE_K {"renard", "epic"}.
     add_aggregates : bool
         Add small and large aggregates to the soil properties. Default is True.
@@ -826,11 +818,11 @@ def soilgrids_sediment(
         keep_attrs=True,
     )
     erosK = erosK.raster.reproject_like(ds_like, method="average")
-    ds_out["soil_detachability"] = erosK.astype(np.float32)
+    ds_out["erosion_soil_detachability"] = erosK.astype(np.float32)
 
     # USLE K parameter
-    if usleK_method == "renard":
-        usleK = xr.apply_ufunc(
+    if usle_k_method == "renard":
+        usle_k = xr.apply_ufunc(
             ptf.UsleK_Renard,
             pclay,
             psilt,
@@ -838,8 +830,8 @@ def soilgrids_sediment(
             output_dtypes=[float],
             keep_attrs=True,
         )
-    elif usleK_method == "epic":
-        usleK = xr.apply_ufunc(
+    elif usle_k_method == "epic":
+        usle_k = xr.apply_ufunc(
             ptf.UsleK_EPIC,
             pclay,
             psilt,
@@ -848,8 +840,8 @@ def soilgrids_sediment(
             output_dtypes=[float],
             keep_attrs=True,
         )
-    usleK = usleK.raster.reproject_like(ds_like, method="average")
-    ds_out["usle_k"] = usleK.astype(np.float32)
+    usle_k = usle_k.raster.reproject_like(ds_like, method="average")
+    ds_out["usle_k"] = usle_k.astype(np.float32)
 
     # Mean diameter of the soil
     d50 = xr.apply_ufunc(
@@ -860,17 +852,17 @@ def soilgrids_sediment(
         output_dtypes=[float],
         keep_attrs=True,
     )
-    ds_out["d50_soil"] = d50.raster.reproject_like(ds_like, method="average").astype(
-        np.float32
-    )
+    ds_out["soil_sediment_d50"] = d50.raster.reproject_like(
+        ds_like, method="average"
+    ).astype(np.float32)
 
     # Govers factor and exponent for overland flow transport capacity
     c_govers = ((d50 * 1000 + 5) / 0.32) ** (-0.6)
     n_govers = ((d50 * 1000 + 5) / 300) ** (0.25)
-    ds_out["c_govers"] = c_govers.raster.reproject_like(
+    ds_out["land_govers_c"] = c_govers.raster.reproject_like(
         ds_like, method="average"
     ).astype(np.float32)
-    ds_out["n_govers"] = n_govers.raster.reproject_like(
+    ds_out["land_govers_n"] = n_govers.raster.reproject_like(
         ds_like, method="average"
     ).astype(np.float32)
 
@@ -889,21 +881,23 @@ def soilgrids_sediment(
 
     # Reproject to model resolution
     fclay = fclay.raster.reproject_like(ds_like, method="average")
-    ds_out["fclay_soil"] = fclay.astype(np.float32)
+    ds_out["soil_clay_fraction"] = fclay.astype(np.float32)
     fsilt = fsilt.raster.reproject_like(ds_like, method="average")
-    ds_out["fsilt_soil"] = fsilt.astype(np.float32)
+    ds_out["soil_silt_fraction"] = fsilt.astype(np.float32)
     fsagg = fsagg.raster.reproject_like(ds_like, method="average")
-    ds_out["fsagg_soil"] = fsagg.astype(np.float32)
+    ds_out["soil_sagg_fraction"] = fsagg.astype(np.float32)
     # Make sure that the sum of the percentages is 100
     if add_aggregates:
         fsand = fsand.raster.reproject_like(ds_like, method="average").astype(
             np.float32
         )
-        ds_out["fsand_soil"] = fsand
-        ds_out["flagg_soil"] = (1 - fclay - fsilt - fsand - fsagg).astype(np.float32)
+        ds_out["soil_sand_fraction"] = fsand
+        ds_out["soil_lagg_fraction"] = (1 - fclay - fsilt - fsand - fsagg).astype(
+            np.float32
+        )
     else:
-        ds_out["fsand_soil"] = (1 - fclay - fsilt).astype(np.float32)
-        ds_out["flagg_soil"] = (fclay * 0.0).astype(np.float32)
+        ds_out["soil_sand_fraction"] = (1 - fclay - fsilt).astype(np.float32)
+        ds_out["soil_lagg_fraction"] = (fclay * 0.0).astype(np.float32)
 
     for var in ds_out:
         ds_out[var] = ds_out[var].raster.interpolate_na("nearest")
@@ -925,7 +919,7 @@ def update_soil_with_paddy(
     logger=logger,
 ):
     """
-    Update c and kvfrac soil properties for paddy fields.
+    Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.
 
     Parameters
     ----------
@@ -933,15 +927,15 @@ def update_soil_with_paddy(
         Dataset containing soil properties.
     ds_like : xarray.DataArray
         Dataset at model resolution.
-        Required variables: basins, ksat_vertical, f, elevtn, c
+        Required variables: basins, ksat_vertical, f, elevtn, soil_brooks_corey_c
     paddy_mask : xarray.DataArray
         Dataset containing paddy fields mask.
     soil_fn : str
         soilgrids version {'soilgrids', 'soilgrids_2020'}
     update_c : bool
-        Update c based on change in wflow_layers.
+        Update soil_brooks_corey_c based on change in wflow_layers.
     wflow_layers : list
-        List of soil layer depths [cm] for which c is calculated.
+        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.
     target_conductivity : list
         Target conductivity for each wflow layer.
 
@@ -955,18 +949,19 @@ def update_soil_with_paddy(
             "Lengths of wflow_thicknesslayers and target_conductivity does not match"
         )
 
-    # Set kvfrac maps, determine the fraction required to reach target_conductivity
+    # Set soil_ksat_vertical_factor maps
+    # Determine the fraction required to reach target_conductivity
     # Using to wflow exponential decline to determine the conductivity at the
     # required depth Find value at the bottom of the required layer and infer
     # required correction factor for that layer Values are only set for locations
     # with paddy irrigation, all other cells are set to be equal to 1
-    logger.info("Adding kvfrac map")
+    logger.info("Adding soil_ksat_vertical_factor map")
     kv0 = ds_like["ksat_vertical"]
     f = ds_like["f"]
     kv0_mask = kv0.where(paddy_mask == 1)
     f_mask = f.where(paddy_mask == 1)
 
-    # update c
+    # update soil_brooks_corey_c
     if update_c:
         ds_out = soilgrids_brooks_corey(
             ds=ds,
@@ -987,7 +982,7 @@ def update_soil_with_paddy(
         # temporarily add the dem to the dataset
         ds_out["elevtn"] = ds_like["elevtn"]
 
-    # Compute the kv_frac (should be done after updating c!)
+    # Compute the kv_frac (should be done after updating soil_brooks_corey_c!)
     da_kvfrac = soilparams.update_kvfrac(
         ds_model=ds_like if not update_c else ds_out,
         kv0_mask=kv0_mask,
@@ -996,10 +991,10 @@ def update_soil_with_paddy(
         target_conductivity=target_conductivity,
     )
     if update_c:
-        ds_out["kvfrac"] = da_kvfrac
+        ds_out["soil_ksat_vertical_factor"] = da_kvfrac
         # Remove wflow_dem
         ds_out = ds_out.drop_vars("elevtn")
     else:
-        ds_out = da_kvfrac.to_dataset(name="kvfrac")
+        ds_out = da_kvfrac.to_dataset(name="soil_ksat_vertical_factor")
 
     return ds_out

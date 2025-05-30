@@ -59,7 +59,7 @@ a specific method see its documentation.
     * - :py:func:`~WflowModel.setup_soilmaps`
       - This component derives several (layered) soil parameters based on a database with physical soil properties using available point-scale (pedo)transfer functions (PTFs) from literature with upscaling rules to ensure flux matching across scales.
     * - :py:func:`~WflowModel.setup_ksathorfrac`
-      - This component prepares ksathorfrac from existing ksathorfrac data.
+      - This component prepares the saturated hydraulic conductivity horizontal ratio from an existing map.
     * - :py:func:`~WflowModel.setup_ksatver_vegetation`
       - This component prepares ksatver from soil and vegetation parameters.
     * - :py:func:`~WflowModel.setup_rootzoneclim`
