@@ -1168,7 +1168,7 @@ def test_setup_allocation_surfacewaterfrac(example_wflow_model, tmpdir):
     )
 
 
-def test_setup_non_irrigation(example_wflow_model, tmpdir, pcrglobwb):
+def test_setup_non_irrigation(example_wflow_model, tmpdir):
     # Read the data
     example_wflow_model.read()
     example_wflow_model.set_root(
@@ -1180,12 +1180,12 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir, pcrglobwb):
 
     # Use the method
     example_wflow_model.setup_domestic_demand(
-        domestic_fn=pcrglobwb,
-        population_fn="worldpop_2020_constrained",
+        domestic_fn="pcr_globwb",
+        population_fn="ghs_pop_2015",
         domestic_fn_original_res=0.5,
     )
     example_wflow_model.setup_other_demand(
-        demand_fn=pcrglobwb,
+        demand_fn="pcr_globwb",
         variables=[
             "industry_gross",
             "industry_net",
@@ -1204,20 +1204,20 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir, pcrglobwb):
         .isel(latitude=32, longitude=26)
         .values
     )
-    assert int(np.mean(dom_gross_vals) * 100) == 136
+    assert int(np.mean(dom_gross_vals) * 100) == 127
     popu_val = (
         example_wflow_model.grid["meta_population"]
         .isel(latitude=32, longitude=26)
         .values
     )
-    assert int(popu_val) == 7842
+    assert int(popu_val) == 7450
 
     ind_mean = example_wflow_model.grid["demand_industry_gross"].mean().values
     assert np.isclose(ind_mean, 0.065195)
 
     # test with other method
     example_wflow_model.setup_domestic_demand_from_population(
-        population_fn="worldpop_2020_constrained",
+        population_fn="ghs_pop_2015",
         domestic_gross_per_capita=0.35,
         domestic_net_per_capita=0.25,
     )
@@ -1232,19 +1232,19 @@ def test_setup_non_irrigation(example_wflow_model, tmpdir, pcrglobwb):
         .isel(latitude=32, longitude=26)
         .values
     )
-    assert int(dom_gross_vals * 100) == 115
+    assert int(dom_gross_vals * 100) == 109
 
     # Check other combination
     with pytest.raises(ValueError, match="The provided domestic demand data is "):
         example_wflow_model.setup_domestic_demand_from_population(
-            population_fn="worldpop_2020_constrained",
+            population_fn="ghs_pop_2015",
             domestic_gross_per_capita=[0.35, 0.35, 0.34, 0.36],
             domestic_net_per_capita=[0.25, 0.25, 0.24, 0.26],
         )
 
     # Check cyclic
     example_wflow_model.setup_domestic_demand_from_population(
-        population_fn="worldpop_2020_constrained",
+        population_fn="ghs_pop_2015",
         domestic_gross_per_capita=[
             0.35,
             0.35,

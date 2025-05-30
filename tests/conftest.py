@@ -32,7 +32,7 @@ def example_wflow_model():
         mode="r",
         data_libs=[
             "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+            join(EXAMPLEDIR, "data", "demand", "data_catalog.yml"),
         ],
         logger=logger,
     )
@@ -218,24 +218,3 @@ def demda():
     # NOTE epsg 3785 is deprecated https://epsg.io/3785
     da.raster.set_crs(3857)
     return da
-
-
-@pytest.fixture
-def pcrglobwb():
-    """PCR-GLOBWB test data."""
-    cat = DataCatalog(
-        "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml"
-    )
-    pcrglobwb = cat.get_rasterdataset("pcr_globwb")
-    # Temporary rename of variables while we wait for the updating of the data catalogs
-    pcrglobwb = pcrglobwb.rename(
-        {
-            "dom_gross": "domestic_gross",
-            "dom_net": "domestic_net",
-            "ind_gross": "industry_gross",
-            "ind_net": "industry_net",
-            "lsk_gross": "livestock_gross",
-            "lsk_net": "livestock_net",
-        }
-    )
-    return pcrglobwb
