@@ -2110,7 +2110,7 @@ Using default storage/outflow function parameters."
         )
 
         for dvar in ds_lakes.data_vars:
-            if dvar == "lake_area_id" or dvar == "lake_outlet_id":
+            if dvar in ["lake_area_id", "lake_outlet_id", "lake_lower_id"]:
                 self._update_config_variable_name(self._MAPS[dvar], data_type=None)
             elif dvar in self._WFLOW_NAMES:
                 self._update_config_variable_name(self._MAPS[dvar])

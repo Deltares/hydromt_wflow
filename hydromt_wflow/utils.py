@@ -885,6 +885,7 @@ def convert_to_wflow_v1_sbm(
     input_variables = [
         "lateral.river.lake.areas",
         "lateral.river.lake.locs",
+        "lateral.river.lake.linkedlakelocs",
         "lateral.river.reservoir.areas",
         "lateral.river.reservoir.locs",
     ]
