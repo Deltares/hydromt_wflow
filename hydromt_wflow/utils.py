@@ -24,11 +24,12 @@ logger = logging.getLogger(__name__)
 DATADIR = Path(join(dirname(abspath(__file__)), "data"))
 
 __all__ = [
-    "read_csv_results",
-    "get_config",
-    "get_grid_from_config",
     "convert_to_wflow_v1_sbm",
     "convert_to_wflow_v1_sediment",
+    "get_config",
+    "get_grid_from_config",
+    "read_csv_results",
+    "set_config",
 ]
 
 

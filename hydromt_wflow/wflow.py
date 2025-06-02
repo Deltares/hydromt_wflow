@@ -2,7 +2,6 @@
 
 # Implement model class following model API
 
-import codecs
 import glob
 import logging
 import os
@@ -29,7 +28,11 @@ from hydromt.model.processes.region import (
     _parse_region_value,
 )
 
-from hydromt_wflow.components import WflowConfigComponent, WflowGridComponent
+from hydromt_wflow import workflows
+from hydromt_wflow.components import (
+    StaticmapsComponent,
+    WflowConfigComponent,
+)
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
     DATADIR,
@@ -37,8 +40,6 @@ from hydromt_wflow.utils import (
     mask_raster_from_layer,
     read_csv_results,
 )
-
-from . import workflows
 
 __all__ = ["WflowModel"]
 __hydromt_eps__ = ["WflowModel"]  # core entrypoints
@@ -81,14 +82,17 @@ class WflowModel(Model):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
         config_component = WflowConfigComponent(self, filename=str(config_path))
-        grid_component = WflowGridComponent(self, filename=str(config_path))
-        components = {"config": config_component, "grid": grid_component}
+        staticmaps_component = StaticmapsComponent(self)
+        components = {
+            "config": config_component,
+            "staticmaps": staticmaps_component,
+        }
 
         super().__init__(
             root,
             components=components,
             mode=mode,
-            region_component="grid",  # change when GridComponent is implemented
+            region_component="staticmaps",  # change when GridComponent is implemented
             data_libs=data_libs,
             **catalog_keys,
         )
@@ -103,6 +107,17 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
+
+    # Properties
+    @property
+    def config(self) -> WflowConfigComponent:
+        """Return the config component."""
+        return self.components["config"]
+
+    @property
+    def staticmaps(self) -> StaticmapsComponent:
+        """Return the staticmaps component."""
+        return self.components["staticmaps"]
 
     # SETUP METHODS
     @hydromt_step
@@ -4942,8 +4957,7 @@ Run setup_soilmaps first"
         for option in config_out:
             self.set_config(option, config_out[option])
 
-    # I/O
-
+    ## I/O
     @hydromt_step
     def write(
         self,
@@ -4983,7 +4997,7 @@ Run setup_soilmaps first"
             logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
-        _ = self.config  # try to read default if not yet set
+        _ = self.config.data  # try to read default if not yet set
         if self._grid:
             self.write_grid(fn_out=grid_fn)
         if self._geoms:
@@ -5014,19 +5028,13 @@ Run setup_soilmaps first"
         config_root : str, optional
             Root folder to write the config file if different from model root (default).
         """
-        self._assert_write_mode()
-        if config_name is not None:
-            self._config_fn = config_name
-        elif self._config_fn is None:
-            self._config_fn = self._CONF
-        if config_root is None:
-            config_root = self.root
-        fn = join(config_root, self._config_fn)
-        # Create the folder if it does not exist
-        if not isdir(dirname(fn)):
-            os.makedirs(dirname(fn))
-        logger.info(f"Writing model config to {fn}")
-        self._configwrite(fn)
+        # TODO is a compat method, remove in future
+        # Bridge the diff in api
+        p = config_name or self.config._filename
+        if config_root is not None:
+            p = Path(config_root, p)
+        # Call the component
+        self.config.write(p)
 
     @hydromt_step
     def read_grid(self, **kwargs):
@@ -5748,16 +5756,6 @@ change name input.path_forcing "
             elif self._read:
                 logger.warning(f"Overwriting table: {name}")
         self._tables[name] = df
-
-    def _configread(self, fn):
-        with codecs.open(fn, "r", encoding="utf-8") as f:
-            fdict = tomlkit.load(f)
-
-        return fdict
-
-    def _configwrite(self, fn):
-        with codecs.open(fn, "w", encoding="utf-8") as f:
-            tomlkit.dump(self.config, f)
 
     def set_config(self, *args):
         """

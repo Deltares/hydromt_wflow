@@ -9,23 +9,21 @@ import numpy as np
 import pandas as pd
 import tomlkit
 import xarray as xr
-from tomlkit import TOMLDocument
 from hydromt import hydromt_step
 
+from hydromt_wflow import workflows
 from hydromt_wflow.naming import (
     _create_hydromt_wflow_mapping_sediment,
 )
 from hydromt_wflow.utils import (
+    DATADIR,
     convert_to_wflow_v1_sediment,
 )
 from hydromt_wflow.wflow import WflowModel
 
-from . import workflows
-
 __all__ = ["WflowSedimentModel"]
-
-logger = logging.getLogger(__name__)
 __hydromt_eps__ = ["WflowSedimentModel"]
+logger = logging.getLogger(__name__)
 
 
 class WflowSedimentModel(WflowModel):
