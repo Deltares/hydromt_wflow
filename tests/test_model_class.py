@@ -139,6 +139,7 @@ def test_model_build(tmpdir, model, example_models, example_inis):
         _compare_wflow_models(mod0, mod1)
 
 
+@pytest.mark.timeout(60)  # max 1 min
 def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     model = "wflow"
 
@@ -146,7 +147,7 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     destination = str(tmpdir.join(model))
     region = {
         "subbasin": [12.3006, 46.4324],
-        "wflow_streamorder": 4,
+        "meta_streamorder": 4,
     }
 
     # Clip workflow, based on example model
@@ -169,26 +170,26 @@ def test_model_clip(tmpdir, example_wflow_model, clipped_wflow_model):
     _compare_wflow_models(clipped_wflow_model, mod1)
 
 
-def test_model_inverse_clip(tmpdir, example_wflow_model):
+def test_model_inverse_clip(example_wflow_model):
     # Clip method options
     region = {
         "subbasin": [12.3006, 46.4324],
-        "wflow_streamorder": 4,
+        "meta_streamorder": 4,
     }
 
     # Clip workflow, based on example model
     example_wflow_model.read()
     # Get number of active pixels from full model
-    n_pixels_full = example_wflow_model.grid["wflow_subcatch"].sum()
+    n_pixels_full = example_wflow_model.grid["subcatchment"].sum()
     example_wflow_model.clip_grid(region, inverse_clip=True)
     # Get number of active pixels from inversely clipped model
-    n_pixels_inverse_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+    n_pixels_inverse_clipped = example_wflow_model.grid["subcatchment"].sum()
 
     # Do clipping again, but normally
     example_wflow_model.read()
     example_wflow_model.clip_grid(region, inverse_clip=False)
     # Get number of active pixels from clipped model
-    n_pixels_clipped = example_wflow_model.grid["wflow_subcatch"].sum()
+    n_pixels_clipped = example_wflow_model.grid["subcatchment"].sum()
 
     assert n_pixels_inverse_clipped < n_pixels_full
     assert n_pixels_full == n_pixels_inverse_clipped + n_pixels_clipped
@@ -207,8 +208,8 @@ def test_model_results(example_wflow_results):
 
     # Checks for the csv columns
     # Q for gauges_grdc
-    assert len(example_wflow_results.results["Q_gauges_grdc"].index) == 3
-    assert np.isin(6349410, example_wflow_results.results["Q_gauges_grdc"].index)
+    assert len(example_wflow_results.results["river_q_gauges_grdc"].index) == 3
+    assert np.isin(6349410, example_wflow_results.results["river_q_gauges_grdc"].index)
 
     # Coordinates and values for coordinate.x and index.x for temp
     assert np.isclose(
@@ -221,4 +222,4 @@ def test_model_results(example_wflow_results):
     )
 
     # Coordinates of the reservoir
-    assert np.isclose(example_wflow_results.results["res-volume"]["y"], 46.16656)
+    assert np.isclose(example_wflow_results.results["reservoir_volume"]["y"], 46.16656)

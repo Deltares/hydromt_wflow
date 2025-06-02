@@ -5,7 +5,7 @@ setup_config:                 # options parsed to wflow toml file <section>.<opt
   input.path_forcing: inmaps-era5-2010.nc
   output.netcdf_grid.path: output.nc
   output.netcdf_grid.compressionlevel: 1
-  output.netcdf_grid.variables.river_water__volume_flow_rate: q_av
+  output.netcdf_grid.variables.river_water__volume_flow_rate: river_q
 
 setup_basemaps:
   hydrography_fn: merit_hydro   # source hydrography data {merit_hydro, merit_hydro_1k}
@@ -60,7 +60,7 @@ setup_lulcmaps:
   lulc_mapping_fn: globcover_mapping_default  # default mapping for lulc classes
 
 setup_laimaps:
-  lai_fn: modis_lai     # source for LAI: {modis_lai}
+  lai_fn: modis_lai     # source for Leaf Area Index: {modis_lai}
 
 setup_soilmaps:
   soil_fn: soilgrids     # source for soilmaps: {soilgrids}
