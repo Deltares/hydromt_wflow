@@ -1,6 +1,8 @@
+import logging
 from pathlib import Path
 from unittest.mock import PropertyMock
 
+import pytest
 from hydromt.model import ModelRoot
 from pytest_mock import MockerFixture
 from tomlkit import TOMLDocument
@@ -21,18 +23,15 @@ def test_wflow_config_component_init(mock_model: MockerFixture):
     assert len(component.data) == 0
 
 
-def test_wflow_config_component_get(mock_model: MockerFixture):
+def test_wflow_config_component_get(
+    mock_model: MockerFixture,
+    config_dummy_data: dict,
+):
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
     # Update it like a dummy to request
-    component.data.update(
-        {
-            "biem": "bam",
-            "time": {"sometime": "now"},
-            "foo": {"bar": "baz", "bip": "bop"},
-        }
-    )
+    component.data.update(config_dummy_data)
 
     # Assert asking for entry
     assert component.get("biem") == "bam"
@@ -69,7 +68,7 @@ def test_wflow_config_component_set_alt(mock_model: MockerFixture):
     assert len(component.data) == 1
 
 
-def test_wflow_component_read(model_subbasin_cached: Path, mock_model: MockerFixture):
+def test_wflow_component_read(mock_model: MockerFixture, model_subbasin_cached: Path):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
@@ -89,4 +88,94 @@ def test_wflow_component_read(model_subbasin_cached: Path, mock_model: MockerFix
     assert len(component.data) == 7
     assert component.data["dir_output"] == "run_default"
     assert component.data["input"]
-    pass
+
+
+def test_wflow_component_read_init(
+    mock_model: MockerFixture, model_subbasin_cached: Path
+):
+    # Set it to read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
+    )
+
+    # Setup the component
+    component = WflowConfigComponent(mock_model)
+    assert component._data is None  # Assert no data or structure yet
+
+    # Read at init
+    assert len(component.data) == 7
+    assert component.data["dir_output"] == "run_default"
+
+
+def test_wflow_component_read_warnings(
+    caplog: pytest.LogCaptureFixture,
+    mock_model: MockerFixture,
+    model_subbasin_cached: Path,
+):
+    caplog.set_level(logging.INFO)
+    # Set it to read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
+    )
+
+    # Setup the component
+    component = WflowConfigComponent(mock_model, filename="unknown.toml")
+
+    # Read the content
+    component.read()
+
+    # Check for the warning
+    assert "No default model config was found at" in caplog.text
+    assert len(component.data) == 0
+
+
+def test_wflow_component_write(mock_model: MockerFixture, config_dummy_data: dict):
+    # Setup the component
+    component = WflowConfigComponent(mock_model)
+
+    # Update it like a dummy to request
+    component.data.update(config_dummy_data)
+
+    # Write the data
+    component.write()
+
+    # Assert the output
+    file = Path(component.root.path, component._filename)
+    assert file.is_file()
+    with open(file) as f:
+        data = f.read()
+        assert data.startswith('biem = "bam"\n\n[time]')
+
+
+def test_wflow_component_write_warnings(
+    caplog: pytest.LogCaptureFixture,
+    mock_model: MockerFixture,
+):
+    caplog.set_level(logging.INFO)
+    # Setup the component
+    component = WflowConfigComponent(mock_model)
+
+    # Write empty
+    component.write()
+
+    # Assert the warning
+    assert "Model config has no data, skip writing." in caplog.text
+
+
+def test_wflow_component_equal(mock_model: MockerFixture, config_dummy_data: dict):
+    # Setup the components
+    component = WflowConfigComponent(mock_model)
+    component2 = WflowConfigComponent(mock_model)
+
+    # Updatethem like a dummy to request
+    component.data.update(config_dummy_data)
+    component2.data.update(config_dummy_data)
+
+    # Assert these are equal
+    assert component == component2
+
+    # Update component2 to make them not equal
+    component2.set("time.spooky", "ghost")
+
+    # Assert unequal
+    assert component != component2

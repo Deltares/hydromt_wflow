@@ -1,17 +1,24 @@
 """Custom wflow config component module."""
 
-from typing import Any
+import logging
+from pathlib import Path
+from typing import Any, cast
 
 import tomlkit
 from hydromt.model import Model
-from hydromt.model.components.config import ConfigComponent
+from hydromt.model.components.base import ModelComponent
+from hydromt.model.steps import hydromt_step
+from tomli_w import dump as dump_toml
+from tomllib import load as load_toml
 
 from hydromt_wflow.utils import get_config, set_config
 
 __all__ = ["WflowConfigComponent"]
 
+logger = logging.getLogger(f"hydromt.{__name__}")
 
-class WflowConfigComponent(ConfigComponent):
+
+class WflowConfigComponent(ModelComponent):
     """Manage the wflow configurations.
 
     Parameters
@@ -34,13 +41,16 @@ class WflowConfigComponent(ConfigComponent):
         model: Model,
         *,
         filename="wflow_sbm.toml",
-        default_template_filename: str | None = None,
     ):
-        super().__init__(
-            model=model,
-            filename=filename,
-            default_template_filename=default_template_filename,
-        )
+        self._data: tomlkit.TOMLDocument[str, Any] | None = None
+        self._filename: str = filename
+
+        super().__init__(model=model)
+
+    def __eq__(self, other: ModelComponent):
+        """Compare components based on content."""
+        other_config = cast(WflowConfigComponent, other)
+        return self.data == other_config.data
 
     ## Private
     def _initialize(self, skip_read=False) -> None:
@@ -50,13 +60,72 @@ class WflowConfigComponent(ConfigComponent):
             if self.root.is_reading_mode() and not skip_read:
                 self.read()
 
+    ## Properties
+    @property
+    def data(self) -> tomlkit.TOMLDocument[str, Any]:
+        """Model config values."""
+        if self._data is None:
+            self._initialize()
+        return self._data
+
+    ## I/O Methods
+    @hydromt_step
+    def read(
+        self,
+        path: Path | str | None = None,
+    ):
+        """Read the wflow configurations file."""
+        self._initialize(skip_read=True)
+
+        # Solve pathing
+        p = path or self._filename
+        read_path = Path(self.root.path, p)
+
+        # Check if the file exists
+        if read_path.is_file():
+            logger.info(f"Reading model config file from {read_path.as_posix()}.")
+        else:
+            logger.warning(
+                f"No default model config was found at {read_path.as_posix()}. "
+                "It wil be initialized as empty dictionary"
+            )
+            return
+
+        # Read the data and set it in the document
+        with open(read_path, "rb") as f:
+            data = load_toml(f)
+
+        self.data.update(data)
+
+    def write(self, path: Path | str | None = None):
+        """Write the wflow configurations to a file."""
+        self.root._assert_write_mode()
+        # If there is data
+        if self.data:
+            p = path or self._filename
+
+            # Sort the pathing
+            write_path = Path(self.root.path, p)
+            logger.info(f"Writing model config to {write_path.as_posix()}.")
+            write_path.parent.mkdir(parents=True, exist_ok=True)
+
+            # Dump the toml
+            with open(write_path, "wb") as f:
+                dump_toml(self.data, f)
+
+        # Warn when there is no data being written
+        else:
+            logger.warning("Model config has no data, skip writing.")
+
     ## Modifying methods
     def get(self, *args) -> Any | None:
         """Get config options."""
         self._initialize()
+        # Refer to utils function of get_config
         return get_config(self._data, *args)
 
     def set(self, *args):
         """Set the config options."""
         self._initialize()
+        # Refer to utils function of set_config
         set_config(self._data, *args)

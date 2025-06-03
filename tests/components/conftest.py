@@ -42,3 +42,14 @@ def mock_model(tmp_path: Path, mocker: MockerFixture) -> MagicMock:
     type(model).crs = PropertyMock(side_effect=lambda: CRS.from_epsg(4326))
     type(model).root = PropertyMock(side_effect=lambda: ModelRoot(tmp_path))
     return model
+
+
+## Extra data structures
+@pytest.fixture(scope="session")
+def config_dummy_data() -> dict:
+    data = {
+        "biem": "bam",
+        "time": {"sometime": "now"},
+        "foo": {"bar": "baz", "bip": "bop"},
+    }
+    return data
