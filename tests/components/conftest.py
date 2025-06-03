@@ -13,13 +13,13 @@ from hydromt_wflow import WflowModel
 SUBDIR = ""
 if platform.system().lower() != "windows":
     SUBDIR = "linux64"
-HERE = Path(__file__).parent
+TEST_COMPONENT_ROOT_FOLDER = Path(__file__).parent
 
 
 ## Data directories
 @pytest.fixture(scope="session")
 def cached_models() -> Path:
-    p = Path(HERE, "..", "..", "examples", SUBDIR)
+    p = Path(TEST_COMPONENT_ROOT_FOLDER, "..", "..", "examples", SUBDIR)
     assert p.is_dir()
     return p
 

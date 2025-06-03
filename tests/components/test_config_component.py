@@ -6,6 +6,7 @@ import pytest
 from hydromt.model import ModelRoot
 from pytest_mock import MockerFixture
 from tomlkit import TOMLDocument
+from tomlkit.items import Table
 
 from hydromt_wflow.components import WflowConfigComponent
 
@@ -37,6 +38,7 @@ def test_wflow_config_component_get(
     assert component.get("biem") == "bam"
     assert component.get("time") == {"sometime": "now"}
     assert isinstance(component.get("foo"), dict)
+    assert isinstance(component.data["foo"], Table)
     assert component.get("foo.bar") == "baz"
     assert component.get("foo", "bip") == "bop"
     assert component.get("no") is None
@@ -179,3 +181,15 @@ def test_wflow_component_equal(mock_model: MockerFixture, config_dummy_data: dic
 
     # Assert unequal
     assert component != component2
+
+
+def test_wflow_component_equal_error(mock_model: MockerFixture):
+    # Setup the components
+    component = WflowConfigComponent(mock_model)
+
+    # Error as wrong type is compared
+    with pytest.raises(
+        ValueError,
+        match="Can't compare WflowConfigComponent with type int",
+    ):
+        _ = component == 1

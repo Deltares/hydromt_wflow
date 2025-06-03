@@ -49,6 +49,11 @@ class WflowConfigComponent(ModelComponent):
 
     def __eq__(self, other: ModelComponent):
         """Compare components based on content."""
+        if not isinstance(other, WflowConfigComponent):
+            raise ValueError(
+                f"Can't compare {self.__class__.__name__} \
+with type {type(other).__name__}"
+            )
         other_config = cast(WflowConfigComponent, other)
         return self.data == other_config.data
 
