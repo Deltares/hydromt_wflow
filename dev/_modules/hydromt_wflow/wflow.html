@@ -6280,6 +6280,50 @@
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Overwriting table: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tables</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="n">fallback</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">abs_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a config value at key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args : tuple, str</span>
+<span class="sd">            keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
+<span class="sd">            or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
+<span class="sd">        fallback: Any, optional</span>
+<span class="sd">            fallback value if key(s) not found in config, by default None.</span>
+<span class="sd">        abs_path: bool, optional</span>
+<span class="sd">            If True return the absolute path relative to the model root,</span>
+<span class="sd">            by default False.</span>
+<span class="sd">            NOTE: this assumes the config is located in model root!</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        value : Any</span>
+<span class="sd">            dictionary value</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt; # self.config = {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
+
+<span class="sd">        &gt;&gt; get_config(&#39;a&#39;)</span>
+<span class="sd">        &gt;&gt; 1</span>
+
+<span class="sd">        &gt;&gt; get_config(&#39;b&#39;, &#39;c&#39;, &#39;d&#39;) # identical to get_config(&#39;b.c.d&#39;)</span>
+<span class="sd">        &gt;&gt; 2</span>
+
+<span class="sd">        &gt;&gt; get_config(&#39;b.c&#39;) # # identical to get_config(&#39;b&#39;,&#39;c&#39;)</span>
+<span class="sd">        &gt;&gt; {&#39;d&#39;: 2}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+            <span class="n">fallback</span><span class="o">=</span><span class="n">fallback</span><span class="p">,</span>
+            <span class="n">abs_path</span><span class="o">=</span><span class="n">abs_path</span><span class="p">,</span>
+        <span class="p">)</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">set_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update the config toml at key(s) with values.</span>
@@ -6685,53 +6729,7 @@
                 <span class="k">if</span> <span class="s2">&quot;waterlevel_lake&quot;</span> <span class="ow">in</span> <span class="n">ds_states</span><span class="p">:</span>
                     <span class="n">remove_maps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">&quot;waterlevel_lake&quot;</span><span class="p">])</span>
             <span class="n">ds_states</span> <span class="o">=</span> <span class="n">ds_states</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="n">remove_maps</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">ds_states</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-        <span class="n">fallback</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">abs_path</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a config value at key.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        args : tuple, str</span>
-<span class="sd">            keys can given by multiple args: (&#39;key1&#39;, &#39;key2&#39;)</span>
-<span class="sd">            or a string with &#39;.&#39; indicating a new level: (&#39;key1.key2&#39;)</span>
-<span class="sd">        fallback: Any, optional</span>
-<span class="sd">            fallback value if key(s) not found in config, by default None.</span>
-<span class="sd">        abs_path: bool, optional</span>
-<span class="sd">            If True return the absolute path relative to the model root,</span>
-<span class="sd">            by default False.</span>
-<span class="sd">            NOTE: this assumes the config is located in model root!</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        value : Any</span>
-<span class="sd">            dictionary value</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt; # self.config = {&#39;a&#39;: 1, &#39;b&#39;: {&#39;c&#39;: {&#39;d&#39;: 2}}}</span>
-
-<span class="sd">        &gt;&gt; get_config(&#39;a&#39;)</span>
-<span class="sd">        &gt;&gt; 1</span>
-
-<span class="sd">        &gt;&gt; get_config(&#39;b&#39;, &#39;c&#39;, &#39;d&#39;) # identical to get_config(&#39;b.c.d&#39;)</span>
-<span class="sd">        &gt;&gt; 2</span>
-
-<span class="sd">        &gt;&gt; get_config(&#39;b.c&#39;) # # identical to get_config(&#39;b&#39;,&#39;c&#39;)</span>
-<span class="sd">        &gt;&gt; {&#39;d&#39;: 2}</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-            <span class="n">config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
-            <span class="n">fallback</span><span class="o">=</span><span class="n">fallback</span><span class="p">,</span>
-            <span class="n">abs_path</span><span class="o">=</span><span class="n">abs_path</span><span class="p">,</span>
-            <span class="n">root</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span>
-        <span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_states</span><span class="p">(</span><span class="n">ds_states</span><span class="p">)</span></div>
 
 </pre></div>
 
