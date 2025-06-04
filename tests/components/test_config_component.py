@@ -9,6 +9,7 @@ from tomlkit import TOMLDocument
 from tomlkit.items import Table
 
 from hydromt_wflow.components import WflowConfigComponent
+from hydromt_wflow.utils import DATADIR
 
 
 def test_wflow_config_component_init(mock_model: MockerFixture):
@@ -107,6 +108,33 @@ def test_wflow_component_read_init(
     # Read at init
     assert len(component.data) == 7
     assert component.data["dir_output"] == "run_default"
+
+
+def test_wflow_component_read_default(
+    tmp_path: Path,
+    caplog: pytest.LogCaptureFixture,
+    mock_model: MockerFixture,
+):
+    # Set it to read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(tmp_path, mode="r"),
+    )
+
+    # Setup the component
+    component = WflowConfigComponent(
+        model=mock_model,
+        default_template_filename=Path(DATADIR, "wflow", "wflow_sbm.toml"),
+    )
+    assert component._data is None  # Assert no data or structure yet
+
+    # Read at init
+    assert len(component.data) == 6
+    assert component.data["dir_output"] == "run_default"
+    assert (
+        f"No config file found at {Path(tmp_path, component._filename).as_posix()} \
+defaulting to"
+        in caplog.text
+    )
 
 
 def test_wflow_component_read_warnings(

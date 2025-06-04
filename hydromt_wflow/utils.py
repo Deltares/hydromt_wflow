@@ -1,7 +1,7 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from os.path import abspath, dirname, join
+from os.path import abspath, join
 from pathlib import Path
 from typing import Any, Dict
 
@@ -21,7 +21,7 @@ from .naming import (
 
 logger = logging.getLogger(__name__)
 
-DATADIR = Path(join(dirname(abspath(__file__)), "data"))
+DATADIR = Path(Path(__file__).parent, "data")
 
 __all__ = [
     "convert_to_wflow_v1_sbm",
