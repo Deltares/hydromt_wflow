@@ -1,6 +1,8 @@
+import logging
 from unittest import mock
 
 import geopandas as gpd
+import hydromt
 import numpy as np
 import pytest
 import xarray as xr
@@ -87,3 +89,28 @@ def test_parse_region(mock_get_basin_geometry, mock_wflow_model):
     assert np.array_equal(mask, np.array([[1, 0], [0, 1]])), (
         "Mask values should match mocked output."
     )
+
+
+def test_get(mock_wflow_model, caplog, mocker):
+    component = WflowGeomsComponent(model=mock_wflow_model)
+    caplog.set_level(logging.WARNING)
+
+    # Mock the data property of the parent geoms component
+    mocker.patch.object(hydromt.model.components.geoms.GeomsComponent, "data", {})
+    geom = component.get("not_a_geom")
+    assert "Geometry 'not_a_geom' not found in geoms." in caplog.text
+    assert geom is None
+
+    mocker.patch.object(
+        hydromt.model.components.geoms.GeomsComponent,
+        "data",
+        {"geom": gpd.GeoDataFrame()},
+    )
+    caplog.set_level(logging.INFO)
+    geom = component.get("geom")
+    assert "Retrieved geometry 'geom' from geoms." in caplog.text
+    assert isinstance(geom, gpd.GeoDataFrame)
+
+
+def test_pop():
+    pass
