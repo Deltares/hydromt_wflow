@@ -25,9 +25,3 @@ See the following model API:
 
 * :py:func:`~WflowModel.clip_staticmaps`
 * :py:func:`~WflowModel.clip_forcing`
-
-
-.. toctree::
-    :hidden:
-
-    Example: Clip Wflow model <../_examples/clip_model.ipynb>

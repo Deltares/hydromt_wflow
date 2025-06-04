@@ -24,7 +24,6 @@ for a proper implementation of this model are:
 The coordinate reference system (CRS) of the model will be the same as the one of the input hydrography data. If the region
 is specified using point coordinates or a bounding box, the coordinates used should match the CRS of the hydrography data.
 If the user wants to use a different CRS, we advise to reproject the hydrography data to the desired CRS before building the model.
-You can find some examples on how to do this in the `example notebook <../_examples/prepare_ldd.ipynb>`_.
 
 .. _model_config:
 
@@ -63,8 +62,3 @@ are three ways for the user to select which data libraries to use:
   `HydroMT documentation <https://deltares.github.io/hydromt/latest/index>`_ to check the guidelines).
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
-
-.. toctree::
-    :hidden:
-
-    Example: Build Wflow model <../_examples/build_model.ipynb>

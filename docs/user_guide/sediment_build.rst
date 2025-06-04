@@ -72,8 +72,3 @@ command line would be:
 
 .. _data: https://deltares.github.io/hydromt/latest/user_guide/data.html
 .. _region: https://deltares.github.io/hydromt/latest/user_guide/cli.html#region-options
-
-.. toctree::
-    :hidden:
-
-    Example: Build Wflow Sediment model <../_examples/build_sediment.ipynb>
