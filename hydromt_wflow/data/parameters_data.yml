@@ -1,5 +1,11 @@
+meta:
+  version: v2025.2
+  name: parameter-data
+  hydromt_version: '>1.0a,<2'
+
 corine_mapping_default:
   data_type: DataFrame
+  uri: lulc/corine_mapping.csv
   driver:
     name: pandas
     options:
@@ -24,12 +30,12 @@ corine_mapping_default:
         Cov_River: float32
   metadata:
     category: landuse
-    source_info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
     source_version: 1.0
-  uri: lulc/corine_mapping.csv
+    info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
 
 esa_worldcover_mapping_default:
   data_type: DataFrame
+  uri: lulc/esa_worldcover_mapping.csv
   driver:
     name: pandas
     options:
@@ -54,12 +60,12 @@ esa_worldcover_mapping_default:
         Cov_River: float32
   metadata:
     category: landuse
-    source_info: landuse parameters based on esa worldcover classification (https://doi.org/10.5281/zenodo.5571936)
     source_version: 1.0
-  uri: lulc/esa_worldcover_mapping.csv
+    info: landuse parameters based on esa worldcover classification (https://doi.org/10.5281/zenodo.5571936)
 
 globcover_mapping_default:
   data_type: DataFrame
+  uri: lulc/globcover_mapping.csv
   driver:
     name: pandas
     options:
@@ -84,12 +90,12 @@ globcover_mapping_default:
         Cov_River: float32
   metadata:
     category: landuse
-    source_info: landuse parameters based on globcover classification (http://due.esrin.esa.int/page_globcover.php)
     source_version: 1.0
-  uri: lulc/globcover_mapping.csv
+    info: landuse parameters based on globcover classification (http://due.esrin.esa.int/page_globcover.php)
 
 vito_mapping_default:
   data_type: DataFrame
+  uri: lulc/vito_mapping.csv
   driver:
     name: pandas
     options:
@@ -114,12 +120,12 @@ vito_mapping_default:
         Cov_River: float32
   metadata:
     category: landuse
-    source_info: landuse parameters based on vito classification (https://land.copernicus.eu/global/products/lc)
     source_version: 1.0
-  uri: lulc/vito_mapping.csv
+    info: landuse parameters based on vito classification (https://land.copernicus.eu/global/products/lc)
 
 glcnmo_mapping_default:
   data_type: DataFrame
+  uri: lulc/glcnmo_mapping.csv
   driver:
     name: pandas
     options:
@@ -144,12 +150,12 @@ glcnmo_mapping_default:
         Cov_River: float32
   metadata:
     category: landuse
-    source_info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
     source_version: 1.0
-  uri: lulc/glcnmo_mapping.csv
+    info: landuse parameters based on corine classification (https://land.copernicus.eu/pan-european/corine-land-cover/clc2018)
 
 paddy_mapping_default:
   data_type: DataFrame
+  uri: lulc/paddy_mapping.csv
   driver:
     name: pandas
     options:
@@ -174,36 +180,38 @@ paddy_mapping_default:
         Cov_River: float32
   metadata:
     category: landuse
-    source_info: landuse parameters for rice based on glcnmo classification
     source_version: 1.0
-  uri: lulc/paddy_mapping.csv
+    info: landuse parameters for rice based on glcnmo classification
 
 koppen_geiger_mapping_default:
   data_type: DataFrame
+  uri: rivwth/koppen_geiger.csv
   driver:
     name: pandas
     options:
       index_col: class
   metadata:
     category: landuse
-    source_info: Mapping between climate classification and base_class (te be used for river width estimation)
     source_version: 1.0
-  uri: rivwth/koppen_geiger.csv
+    info: Mapping between climate classification and base_class (te be used for river
+      width estimation)
 
 regr_chelsa_mapping_default:
   data_type: DataFrame
+  uri: rivwth/regr_chelsa.csv
   driver:
     name: pandas
     options:
       index_col: source
   metadata:
     category: hydrography
-    source_info: Mapping between climate base class and parameters used to estimate river width
     source_version: 1.0
-  uri: rivwth/regr_chelsa.csv
+    info: Mapping between climate base class and parameters used to estimate river
+      width
 
 roughness_river_mapping_default:
   data_type: DataFrame
+  uri: wflow/N_river_mapping.csv
   driver:
     name: pandas
     options:
@@ -212,12 +220,12 @@ roughness_river_mapping_default:
         N_River: float32
   metadata:
     category: hydrography
-    source_info: Mapping between streamorder and river Manning roughness
     source_version: 1.0
-  uri: wflow/N_river_mapping.csv
+    info: Mapping between streamorder and river Manning roughness
 
 riverbedsed_mapping_default:
   data_type: DataFrame
+  uri: wflow_sediment/riverbedsed_mapping.csv
   driver:
     name: pandas
     options:
@@ -230,6 +238,5 @@ riverbedsed_mapping_default:
         GravelF_River: float32
   metadata:
     category: landuse
-    source_info: Mapping between stream order and river bed sediment
     source_version: 1.0
-  uri: wflow_sediment/riverbedsed_mapping.csv
+    info: Mapping between stream order and river bed sediment
