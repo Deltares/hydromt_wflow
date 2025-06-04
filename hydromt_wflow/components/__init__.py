@@ -1,6 +1,6 @@
-"""submodule for model components."""
+"""Wflow model components submodule."""
 
-from hydromt_wflow.components.config import WflowConfigComponent
-from hydromt_wflow.components.grid import WflowGridComponent
+from .config import WflowConfigComponent
+from .staticmaps import StaticmapsComponent
 
-__all__ = ["WflowConfigComponent", "WflowGridComponent"]
+__all__ = ["StaticmapsComponent", "WflowConfigComponent"]
