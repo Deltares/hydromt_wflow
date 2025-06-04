@@ -81,11 +81,9 @@ class WflowModel(Model):
     ):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
-        config_component = WflowConfigComponent(self, filename=str(config_path))
-        staticmaps_component = StaticmapsComponent(self)
         components = {
-            "config": config_component,
-            "staticmaps": staticmaps_component,
+            "config": WflowConfigComponent(self, filename=str(config_path)),
+            "staticmaps": StaticmapsComponent(self),
         }
 
         super().__init__(
@@ -5035,43 +5033,6 @@ Run setup_soilmaps first"
             p = Path(config_root, p)
         # Call the component
         self.config.write(p)
-
-    @hydromt_step
-    def read_grid(self, **kwargs):
-        """
-        Read wflow static input and add to ``grid``.
-
-        Checks the path of the file in the config toml using both ``input.path_static``
-        and ``dir_input``. If not found uses the default path ``staticmaps.nc`` in the
-        root folder.
-        """
-        fn_default = "staticmaps.nc"
-        fn = self.get_config(
-            "input.path_static", abs_path=True, fallback=join(self.root, fn_default)
-        )
-
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.get_config("input.path_static", fallback=fn_default),
-            )
-            logger.info(f"Input directory found {input_dir}")
-
-        if not self._write:
-            # start fresh in read-only mode
-            self._grid = xr.Dataset()
-        if fn is not None and isfile(fn):
-            logger.info(f"Read grid from {fn}")
-            # FIXME: we need a smarter (lazy) solution for big models which also
-            # works when overwriting / appending data in the same source!
-            ds = xr.load_dataset(
-                fn, mask_and_scale=False, decode_coords="all", **kwargs
-            )
-            # make sure internally maps are always North -> South oriented
-            if ds.raster.res[1] > 0:
-                ds = ds.raster.flipud()
-            self.set_grid(ds)
 
     @hydromt_step
     def write_grid(

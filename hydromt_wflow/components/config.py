@@ -113,7 +113,11 @@ defaulting to {_new_path.as_posix()}"
 
         self.data.update(data)
 
-    def write(self, path: Path | str | None = None):
+    @hydromt_step
+    def write(
+        self,
+        path: Path | str | None = None,
+    ):
         """Write the wflow configurations to a file."""
         self.root._assert_write_mode()
         # If there is data
@@ -134,11 +138,11 @@ defaulting to {_new_path.as_posix()}"
             logger.warning("Model config has no data, skip writing.")
 
     ## Modifying methods
-    def get(self, *args) -> Any | None:
+    def get(self, *args, **kwargs) -> Any | None:
         """Get config options."""
         self._initialize()
         # Refer to utils function of get_config
-        return get_config(self._data, *args)
+        return get_config(self._data, *args, **kwargs)
 
     def set(self, *args):
         """Set the config options."""
