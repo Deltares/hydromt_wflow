@@ -163,6 +163,42 @@ def test_parse_region_errors(
         component.parse_region(mock_region, hydrography_fn="test")
 
 
+def test_parse_regions_different_kinds(
+    mock_geometry, mock_region, mock_xy, mock_wflow_model, caplog, mocker
+):
+    component = WflowGeomsComponent(model=mock_wflow_model)
+    caplog.set_level(logging.WARNING)
+    x, y = mock_xy
+    bbox_region = {"bbox": [x - 1, y - 1, x + 1, y + 1]}
+
+    mock_parse_region_bbox = mocker.patch(
+        "hydromt_wflow.components.geoms.parse_region_bbox"
+    )
+    mock_parse_region_bbox.return_value = mock_geometry
+    parsed_region = component.parse_region(region=bbox_region, hydrography_fn="test")
+
+    assert (
+        "Kind 'bbox' for the region is not recommended as it can lead "
+        "to mistakes in the catchment delineation. Use carefully."
+    ) in caplog.text
+    assert isinstance(parsed_region[0], gpd.GeoDataFrame)
+    assert parsed_region[1] is None
+
+    geom_region = {"geom": mock_geometry.geometry}
+    mock_parse_region_geom = mocker.patch(
+        "hydromt_wflow.components.geoms.parse_region_geom"
+    )
+    mock_parse_region_geom.return_value = mock_geometry
+    parsed_region = component.parse_region(region=geom_region, hydrography_fn="test")
+
+    assert (
+        "Kind 'geom' for the region is not recommended as it can lead "
+        "to mistakes in the catchment delineation. Use carefully."
+    ) in caplog.text
+    assert isinstance(parsed_region[0], gpd.GeoDataFrame)
+    assert parsed_region[1] is None
+
+
 def test_get(mock_wflow_model, caplog, mocker):
     component = WflowGeomsComponent(model=mock_wflow_model)
 
