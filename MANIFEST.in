@@ -1,0 +1,8 @@
+# No egg-info pls, except for sources.txt
+prune **/*.egg-info
+
+# Include extra in the sdist
+recursive-include tests *
+
+# Remove unwanted stuff from sdist
+recursive-exclude **/__pycache__ *
