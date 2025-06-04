@@ -27,7 +27,6 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
-   WflowModel.setup_config
    WflowModel.setup_basemaps
    WflowModel.setup_rivers
    WflowModel.setup_floodplains
@@ -72,18 +71,7 @@ Attributes
 
    WflowModel.region
    WflowModel.crs
-   WflowModel.res
    WflowModel.root
-   WflowModel.config
-   WflowModel.grid
-   WflowModel.geoms
-   WflowModel.forcing
-   WflowModel.states
-   WflowModel.results
-   WflowModel.tables
-   WflowModel.flwdir
-   WflowModel.basins
-   WflowModel.rivers
 
 High level methods
 ------------------
@@ -95,7 +83,6 @@ High level methods
    WflowModel.write
    WflowModel.build
    WflowModel.update
-   WflowModel.set_root
 
 General methods
 ---------------
@@ -103,40 +90,6 @@ General methods
 .. autosummary::
    :toctree: _generated
 
-
-   WflowModel.setup_config
-   WflowModel.get_config
-   WflowModel.set_config
-   WflowModel.read_config
-   WflowModel.write_config
-
-   WflowModel.set_grid
-   WflowModel.read_grid
-   WflowModel.write_grid
-   WflowModel.clip_grid
-
-   WflowModel.set_geoms
-   WflowModel.read_geoms
-   WflowModel.write_geoms
-
-   WflowModel.set_forcing
-   WflowModel.read_forcing
-   WflowModel.write_forcing
-   WflowModel.clip_forcing
-
-   WflowModel.set_states
-   WflowModel.read_states
-   WflowModel.write_states
-   WflowModel.clip_states
-
-   WflowModel.set_results
-   WflowModel.read_results
-
-   WflowModel.set_tables
-   WflowModel.read_tables
-   WflowModel.write_tables
-
-   WflowModel.set_flwdir
 
 .. _api_model_sediment:
 
@@ -159,7 +112,6 @@ Setup components
 .. autosummary::
    :toctree: _generated
 
-   WflowSedimentModel.setup_config
    WflowSedimentModel.setup_basemaps
    WflowSedimentModel.setup_rivers
    WflowSedimentModel.setup_lakes
@@ -188,17 +140,7 @@ Attributes
 
    WflowSedimentModel.region
    WflowSedimentModel.crs
-   WflowSedimentModel.res
    WflowSedimentModel.root
-   WflowSedimentModel.config
-   WflowSedimentModel.grid
-   WflowSedimentModel.geoms
-   WflowSedimentModel.forcing
-   WflowSedimentModel.states
-   WflowSedimentModel.results
-   WflowSedimentModel.flwdir
-   WflowSedimentModel.basins
-   WflowSedimentModel.rivers
 
 High level methods
 ------------------
@@ -210,42 +152,6 @@ High level methods
    WflowSedimentModel.write
    WflowSedimentModel.build
    WflowSedimentModel.update
-   WflowSedimentModel.set_root
-
-General methods
----------------
-
-.. autosummary::
-   :toctree: _generated
-
-   WflowSedimentModel.setup_config
-   WflowSedimentModel.get_config
-   WflowSedimentModel.set_config
-   WflowSedimentModel.read_config
-   WflowSedimentModel.write_config
-
-   WflowSedimentModel.set_grid
-   WflowSedimentModel.read_grid
-   WflowSedimentModel.write_grid
-   WflowSedimentModel.clip_grid
-
-   WflowSedimentModel.set_geoms
-   WflowSedimentModel.read_geoms
-   WflowSedimentModel.write_geoms
-
-   WflowSedimentModel.set_forcing
-   WflowSedimentModel.read_forcing
-   WflowSedimentModel.write_forcing
-   WflowSedimentModel.clip_forcing
-
-   WflowSedimentModel.set_states
-   WflowSedimentModel.read_states
-   WflowSedimentModel.write_states
-
-   WflowSedimentModel.set_results
-   WflowSedimentModel.read_results
-
-   WflowSedimentModel.set_flwdir
 
 .. _workflows:
 
@@ -295,14 +201,6 @@ Wflow workflows
 
 Wflow low-level methods
 =======================
-
-Input/Output methods
----------------------
-
-.. autosummary::
-   :toctree: _generated
-
-   read_csv_results
 
 Utility methods
 ---------------
