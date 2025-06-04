@@ -138,7 +138,12 @@ defaulting to {_new_path.as_posix()}"
             logger.warning("Model config has no data, skip writing.")
 
     ## Modifying methods
-    def get(self, *args, **kwargs) -> Any | None:
+    def get(
+        self,
+        *args,
+        fallback: Any | None = None,
+        abs_path: bool = False,
+    ) -> Any | None:
         """Get config options."""
         self._initialize()
         # Refer to utils function of get_config
@@ -146,7 +151,8 @@ defaulting to {_new_path.as_posix()}"
             self._data,
             *args,
             root=self.root.path,
-            **kwargs,
+            fallback=fallback,
+            abs_path=abs_path,
         )
 
     def set(self, *args):
