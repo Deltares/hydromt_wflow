@@ -32,7 +32,6 @@ from hydromt_wflow.components import (
     StaticmapsComponent,
     WflowConfigComponent,
     WflowGeomsComponent,
-    WflowGridComponent,
 )
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
@@ -82,7 +81,6 @@ class WflowModel(Model):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
         config_component = WflowConfigComponent(self, filename=str(config_path))
-        grid_component = WflowGridComponent(self, filename=str(config_path))
 
         geoms_component = WflowGeomsComponent(
             model=self,
@@ -93,7 +91,6 @@ class WflowModel(Model):
         staticmaps_component = StaticmapsComponent(self)
         components = {
             "config": config_component,
-            "grid": grid_component,
             "geoms": geoms_component,
             "staticmaps": staticmaps_component,
         }
