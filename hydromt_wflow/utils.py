@@ -45,6 +45,8 @@ def get_config(
 
     Parameters
     ----------
+    config : tomlkit.TOMLDocument
+        The config settings in TOMLDocument object.
     args : tuple, str
         keys can given by multiple args: ('key1', 'key2')
         or a string with '.' indicating a new level: ('key1.key2')

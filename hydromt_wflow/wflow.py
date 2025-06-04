@@ -5718,6 +5718,50 @@ change name input.path_forcing "
                 logger.warning(f"Overwriting table: {name}")
         self._tables[name] = df
 
+    def get_config(
+        self,
+        *args,
+        fallback: Any = None,
+        abs_path: bool = False,
+    ) -> str | None:
+        """Get a config value at key.
+
+        Parameters
+        ----------
+        args : tuple, str
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: Any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+            NOTE: this assumes the config is located in model root!
+
+        Returns
+        -------
+        value : Any
+            dictionary value
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> get_config('a')
+        >> 1
+
+        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+        >> 2
+
+        >> get_config('b.c') # # identical to get_config('b','c')
+        >> {'d': 2}
+        """
+        return self.config.get(
+            *args,
+            fallback=fallback,
+            abs_path=abs_path,
+        )
+
     def set_config(self, *args):
         """
         Update the config toml at key(s) with values.
@@ -6124,49 +6168,3 @@ change name input.path_forcing "
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
-
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
-
-        Parameters
-        ----------
-        args : tuple, str
-            keys can given by multiple args: ('key1', 'key2')
-            or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
-            fallback value if key(s) not found in config, by default None.
-        abs_path: bool, optional
-            If True return the absolute path relative to the model root,
-            by default False.
-            NOTE: this assumes the config is located in model root!
-
-        Returns
-        -------
-        value : Any
-            dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
-        """
-        return self.config.get(
-            *args,
-            config=self.config,
-            fallback=fallback,
-            abs_path=abs_path,
-            root=self.root,
-        )
