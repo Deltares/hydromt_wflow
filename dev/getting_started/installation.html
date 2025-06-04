@@ -1,0 +1,738 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Installation Guide &#8212; HydroMT Wflow  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/theme-deltares.css?v=5ca2d357" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/installation';</script>
+    <link rel="icon" href="../_static/hydromt-icon.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="example_index.html" />
+    <link rel="prev" title="Getting started" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0.dev" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+    
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/hydromt-icon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">HydroMT Wflow</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="intro.html">
+    Getting started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/intro.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev_guide/intro.html">
+    Developments
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-external" href="https://deltares.github.io/hydromt/latest/index.html">
+    HydroMT core
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Deltares/hydromt_wflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://deltares.github.io/Wflow.jl/dev/" title="Wflow" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/wflow_logo.png" class="icon-link-image" alt="Wflow"/></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.deltares.nl/en/" title="Deltares" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><img src="../_static/deltares-blue.svg" class="icon-link-image" alt="Deltares"/></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Table of Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://deltares.github.io/hydromt/latest/getting_started/user_stories">User's stories</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently asked questions</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="intro.html" class="nav-link">Getting started</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Installation Guide</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="installation-guide">
+<span id="id1"></span><h1>Installation Guide<a class="headerlink" href="#installation-guide" title="Link to this heading">#</a></h1>
+<section id="optional-dependencies">
+<span id="id2"></span><h2>Optional Dependencies<a class="headerlink" href="#optional-dependencies" title="Link to this heading">#</a></h2>
+<p>HydroMT-Wflow has several optional dependencies that need to be installed in your environment to enable specific
+functionalities, though they are not necessary for hydromt-wflow to function as a whole. Due to limitations in the conda-forge
+package specification you will have to install these yourself in addition to hydromt-wflow if you want to use them.</p>
+<p>They are:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pcraster.geo.uu.nl">pcraster</a> This package is used for the reading and writing of pcr maps, which is the file format used by the old Wflow software (written in Python). It is therefore required when you want to convert Wflow models from the Python version to the Julia version. Note that the pcraster package is only available on conda-forge which works if you install hydromt-wflow using Pixi or Conda. If you install hydromt-wflow through pypi you will not be able to access this functionality.</p></li>
+<li><p><a class="reference external" href="https://github.com/global-water-watch/gww-api">gwwapi</a> This package is used for providing more resources about reservoirs monitored by the Global Water Watch project. This package is only available through pypi at the moment.</p></li>
+<li><p><a class="reference external" href="https://github.com/openearth/hydro-engine">hydroengine</a> Similar to <code class="docutils literal notranslate"><span class="pre">gwwapi</span></code> the <code class="docutils literal notranslate"><span class="pre">hydroengine</span></code> package gives access to more data sources, and is currently only available through pypi.</p></li>
+<li><p><a class="reference external" href="https://github.com/wradlib/wradlib">wradlib</a> Provides downloading and processing functionalities of radar weather data and interpolation functions. Available in both conda-forge and pypi.</p></li>
+<li><p><a class="reference external" href="https://github.com/pyet-org/pyet">pyet</a> Provides processing functionalities of several methods to calculate evapotranspriation. Available in both conda-forge and pypi.</p></li>
+<li><p><a class="reference external" href="https://gdal.org/en/stable/">gdal</a> Provides many drivers and GIS transformations.  Only available through conda-forge.</p></li>
+</ul>
+<p>Since some dependencies are only availabe through conda-forge and some only through pypi, you will need a packange manager that can handle both.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<p>There are various ways in which one can install hydrom_wflow in a python environment, the main being:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#user-install-pixi"><span class="std std-ref">Pixi</span></a></p></li>
+<li><p><a class="reference internal" href="#user-install-conda"><span class="std std-ref">Miniforge/conda</span></a></p></li>
+</ul>
+<p>All of these options will be discussed below but we recommend using pixi, as it is the fastest and most
+robust (and reproducible) option.</p>
+<section id="installation-using-pixi">
+<span id="user-install-pixi"></span><h3>Installation using Pixi<a class="headerlink" href="#installation-using-pixi" title="Link to this heading">#</a></h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>This is our recommended way of installing HydroMT-Wflow!</p>
+</div>
+<p>If you do not have a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> yet you can make one by executing the command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>init<span class="w"> </span>--format<span class="w"> </span>pyproject<span class="w"> </span>myproject
+</pre></div>
+</div>
+<p>A new folder with a <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> called <code class="docutils literal notranslate"><span class="pre">myproject</span></code> will be created for you. After this, you can
+navigate to this new directory and add <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> as a dependency:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydromt_wflow<span class="o">[</span>extra<span class="o">]</span><span class="w"> </span>--pypi
+</pre></div>
+</div>
+<p>Pixi will then add it as a dependency to the project. The <code class="docutils literal notranslate"><span class="pre">[extra]</span></code> instruct pixi to also
+include some optional dependencies.</p>
+<p>If you don’t want these extra dependencies (or need specific versions, or only want some)</p>
+<p>You can also add it like so:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydromt_wflow
+</pre></div>
+</div>
+<p>This will install hydromt_wflow from conda-forge without any of the optional dependencies
+which you can then add yourself afterwards as you like:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>gwwapi<span class="w"> </span>--pypi
+<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>hydroengine<span class="w"> </span>--pypi
+<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>pcraster
+<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>wradlib
+<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>pyet
+<span class="gp">$ </span>pixi<span class="w"> </span>add<span class="w"> </span>gdal
+</pre></div>
+</div>
+<p>the <code class="docutils literal notranslate"><span class="pre">--pypi</span></code> in this case is necessary because these dependencies are only available through pypi and not conda-forge
+adding this flag will tell pixi to install them from there.</p>
+<p>For a more indepth explanation on the dependencies see <a class="reference internal" href="#optional-dependencies"><span class="std std-ref">this section</span></a>.</p>
+<p>Once you have your new (or existing <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>) file install the pixi
+environment and activate it with the following commands to be able to start using it:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>install
+<span class="gp">$ </span>pixi<span class="w"> </span>shell<span class="w"> </span>activate
+</pre></div>
+</div>
+<p>If you did activate the shell like above you should now be able to run any python script like usual:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>python<span class="w"> </span>path/to/script.py
+</pre></div>
+</div>
+<p>If you did not activate the shell you can still run the script in the environment by running it through pixi:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pixi<span class="w"> </span>run<span class="w"> </span>path/to/script.py
+</pre></div>
+</div>
+<p>If you intend to only use <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> via the command line interface (CLI, see also the explanation in
+the <a class="reference external" href="https://deltares.github.io/hydromt/stable/guides/user_guide/hydromt_cli.html">HydroMT-core docs</a>), then you can also install it globally using pixi.
+This will allow you to access HydroMT functionality without having to create a <cite>pyproject.toml</cite> file for your project.
+Building or updating a Wflow model is done by calling <cite>hydromt wflow …</cite> in the CLI, which means that we need to access <cite>hydromt_wflow</cite> through <cite>hydromt</cite>.</p>
+<p>This means that we need to globally install <cite>hydromt</cite> with a <cite>hydromt_wflow</cite> dependency:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>global<span class="w"> </span>install<span class="w"> </span>hydromt<span class="w"> </span>--expose<span class="w"> </span><span class="nv">hydromt</span><span class="o">=</span><span class="s2">&quot;hydromt&quot;</span><span class="w"> </span>--with<span class="w"> </span>hydromt_wflow
+</pre></div>
+</div>
+<p>This will install hydromt and hydromt_wflow in an isolated environment for you and make it available to run from basically
+anywhere on your system through the commandline. For more information on global tools in pixi, see also the description in the
+<a class="reference external" href="https://pixi.sh/latest/global_tools/introduction/#basic-usage">pixi documentation</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The current version of hydromt_wflow is not compatible with hydromt version 1 and later. As a result, we need to restrict the version of hydromt
+to ensure that the latest version of hydromt_wflow is installed:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pixi<span class="w"> </span>global<span class="w"> </span>install<span class="w"> </span>hydromt<span class="s2">&quot;==0.10.1&quot;</span><span class="w"> </span>--expose<span class="w"> </span><span class="nv">hydromt</span><span class="o">=</span><span class="s2">&quot;hydromt&quot;</span><span class="w"> </span>--with<span class="w"> </span>hydromt_wflow
+</pre></div>
+</div>
+</div>
+</section>
+<section id="installation-using-conda">
+<span id="user-install-conda"></span><h3>Installation using Conda<a class="headerlink" href="#installation-using-conda" title="Link to this heading">#</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Due to the changes Anaconda made to their <cite>lisencing agreements in 2024 &lt;https://legal.anaconda.com/policies/en/?name=terms-of-service#anaconda-terms-of-service&gt;</cite>
+using any packages from the anaconda channel (which is available by default in the main <cite>conda</cite> and <cite>mamba</cite> distributions) may require a paid license.
+Therefore we highly recommend you only use the free and community maintained <cite>conda-forge</cite> channel. While you can configure existing <cite>conda</cite> / <cite>mamba</cite>
+installations to do this correctly, we recommend that if you do not want to use pixi, that you use a <cite>miniforge&lt;https://github.com/conda-forge/miniforge&gt;</cite> distribution which has this correctly
+configured by default.</p>
+</div>
+<p>You can install HydroMT-Wflow in a new environment called <code class="docutils literal notranslate"><span class="pre">hydromt-wflow</span></code>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>hydromt-wflow<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow
+</pre></div>
+</div>
+<p>Then, activate the environment (as stated by mamba/conda depending on which you are using) to start making use of that environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>hydromt-wflow
+</pre></div>
+</div>
+<p>After it has been activated you can install hydromt-wflow into it using this command:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>hydromt_wflow
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you already have this environment with this name either remove it with
+<cite>conda env remove -n hydromt-wflow</cite> <strong>or</strong> set a new name for the environment
+by changing <cite>-n &lt;name&gt;</cite> to the name of your new environment.</p>
+</div>
+<p>After you have installed <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> in your environment you will also need to add
+the optional dependencies to it, if you want to make use of all the functionalities available:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
+<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
+<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pcraster
+<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>wradlib
+<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pyet
+<span class="gp gp-VirtualEnv">(hydromt-wflow)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>gdal
+</pre></div>
+</div>
+<p>For a more indepth explanation on the dependencies see <a class="reference internal" href="#optional-dependencies"><span class="std std-ref">this section</span></a>.</p>
+</section>
+<section id="install-hydromt-wflow-in-an-existing-environment">
+<h3>Install HydroMT-Wflow in an existing environment<a class="headerlink" href="#install-hydromt-wflow-in-an-existing-environment" title="Link to this heading">#</a></h3>
+<p>To install HydroMT-Wflow in an existing environment execute the command below
+where you replace <code class="docutils literal notranslate"><span class="pre">&lt;environment_name&gt;</span></code> with the name of the existing environment.
+Note that if some dependencies are not installed from conda-forge but from other
+channels the installation may fail.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>hydromt_wflow<span class="w"> </span>-n<span class="w"> </span>&lt;environment_name&gt;
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>conda<span class="w"> </span>activate<span class="w"> </span>&lt;environment_name&gt;
+</pre></div>
+</div>
+<p>After you have installed <code class="docutils literal notranslate"><span class="pre">hydromt_wflow</span></code> in your environment you will also need to add
+the optional dependencies to it, if you want to make use of all the functionalities available:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>gwwapi
+<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>hydroengine
+<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pcraster
+<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>wradlib
+<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>pyet
+<span class="gp gp-VirtualEnv">(&lt;environment_name&gt;)</span> <span class="gp">$ </span>conda<span class="w"> </span>install<span class="w"> </span>gdal
+</pre></div>
+</div>
+<p>For a more indepth explanation on the dependencies see <a class="reference internal" href="#optional-dependencies"><span class="std std-ref">this section</span></a>.</p>
+</section>
+</section>
+<section id="developer-install">
+<h2>Developer install<a class="headerlink" href="#developer-install" title="Link to this heading">#</a></h2>
+<p>To be able to test and develop the HydroMT-Wflow package see instructions in the <a class="reference internal" href="../dev_guide/dev_install.html#dev-env"><span class="std std-ref">Developer installation guide</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Getting started</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="example_index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-dependencies">Optional Dependencies</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-using-pixi">Installation using Pixi</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-using-conda">Installation using Conda</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-hydromt-wflow-in-an-existing-environment">Install HydroMT-Wflow in an existing environment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#developer-install">Developer install</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/getting_started/installation.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/getting_started/installation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright Deltares.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
