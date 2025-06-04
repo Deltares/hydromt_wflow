@@ -93,10 +93,10 @@ def test_parse_region(mock_get_basin_geometry, mock_wflow_model):
 
 def test_get(mock_wflow_model, caplog, mocker):
     component = WflowGeomsComponent(model=mock_wflow_model)
-    caplog.set_level(logging.WARNING)
 
     # Mock the data property of the parent geoms component
     mocker.patch.object(hydromt.model.components.geoms.GeomsComponent, "data", {})
+    caplog.set_level(logging.WARNING)
     geom = component.get("not_a_geom")
     assert "Geometry 'not_a_geom' not found in geoms." in caplog.text
     assert geom is None
@@ -112,5 +112,24 @@ def test_get(mock_wflow_model, caplog, mocker):
     assert isinstance(geom, gpd.GeoDataFrame)
 
 
-def test_pop():
-    pass
+def test_pop(mock_wflow_model, caplog, mocker):
+    component = WflowGeomsComponent(model=mock_wflow_model)
+
+    # Mock the data property of the parent geoms component
+    mocker.patch.object(hydromt.model.components.geoms.GeomsComponent, "data", {})
+    caplog.set_level(logging.WARNING)
+    geom = component.pop("not_a_geom")
+    assert (
+        "Geometry 'not_a_geom' not found in geoms, returning default value : None."
+    ) in caplog.text
+    assert geom is None
+    mocker.patch.object(
+        hydromt.model.components.geoms.GeomsComponent,
+        "data",
+        {"geom": gpd.GeoDataFrame()},
+    )
+    caplog.at_level(logging.INFO)
+    geom = component.pop("geom")
+    assert "Removed geometry 'geom' from geoms."
+    assert isinstance(geom, gpd.GeoDataFrame)
+    assert component.data == {}
