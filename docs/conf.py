@@ -286,5 +286,5 @@ nbsphinx_prolog = r"""
         </div>
 """
 
-nbsphinx_execute = "always"
+# nbsphinx_execute = "always"
 nbsphinx_timeout = 300
