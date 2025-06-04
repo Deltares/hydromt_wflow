@@ -27,7 +27,7 @@ See the following model API:
 * :py:func:`~WflowModel.clip_forcing`
 
 
-.. toctree::
-    :hidden:
+.. .. toctree::
+    .. :hidden:
 
-    Example: Clip Wflow model <../_examples/clip_model.ipynb>
+    .. Example: Clip Wflow model <../_examples/clip_model.ipynb>
