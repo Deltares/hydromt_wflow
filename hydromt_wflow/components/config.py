@@ -144,7 +144,19 @@ defaulting to {_new_path.as_posix()}"
         fallback: Any | None = None,
         abs_path: bool = False,
     ) -> Any | None:
-        """Get config options."""
+        """Get config options.
+
+        Parameters
+        ----------
+        args : tuple, str
+            Keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback : Any, optional
+            Fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+        """
         self._initialize()
         # Refer to utils function of get_config
         return get_config(
@@ -156,7 +168,15 @@ defaulting to {_new_path.as_posix()}"
         )
 
     def set(self, *args):
-        """Set the config options."""
+        """Set the config options.
+
+        Parameters
+        ----------
+        args : str, tuple, list
+            If tuple or list, minimal length of two
+            keys can given by multiple args: ('key1', 'key2', 'value')
+            or a string with '.' indicating a new level: ('key1.key2', 'value')
+        """
         self._initialize()
         # Refer to utils function of set_config
         set_config(self._data, *args)
