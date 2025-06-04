@@ -15,7 +15,8 @@ jobs:
   build-artifacts:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -24,18 +25,18 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: generate env
+      - name: Generate env
         run: |
-          pip install tomli flit twine
+          pip install build tomli twine wheel
 
       - name: Build artifacts
         run: |
-          git clean -xdf
-          git restore -SW .
-          flit build
+          python -m build --sdist
+          python -m build --wheel
           python -m twine check dist/*
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: releases
           path: dist
@@ -50,16 +51,19 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
           name: releases
           path: dist
+
       - name: List contents of built dist
         run: |
           ls -ltrh
           ls -ltrh dist
 
-      - uses: actions/setup-python@v5
+      - name: Install Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.13'
 
@@ -73,10 +77,12 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
           name: releases
           path: dist
+
       - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@v1.12.4
         with:
@@ -91,10 +97,12 @@ jobs:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
         with:
           name: releases
           path: dist
+
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@v1.12.4
         with:

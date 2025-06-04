@@ -1,9 +1,6 @@
-"""hydroMT plugin for wflow models."""
+"""HydroMT plugin for wflow models."""
 
-__version__ = "0.8.1.dev0"
-
-from .naming import *
-from .utils import *
+from .version import __version__
 from .wflow import WflowModel
 from .wflow_sediment import WflowSedimentModel
 

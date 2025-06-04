@@ -1,14 +1,22 @@
+## Build system related
 [build-system]
-requires      = ["flit_core >=3.4.0,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
 
-[tool.flit.sdist]
-include = ["hydromt_wflow"]
-exclude = ["docs", "examples", "tests", ".github"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hydromt_wflow*"]
 
+[tool.setuptools.package-data]
+"hydromt_wflow.data" = ["**"]
+
+[tool.setuptools.dynamic]
+version = {attr = "hydromt_wflow.version.__version__"}
+
+## Project related
 [project]
 name    = "hydromt_wflow"
-dynamic = ['version', 'description']
+dynamic = ['version']
 
 authors = [
   { name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" },
@@ -21,13 +29,14 @@ authors = [
   { name = "Luuk Blom", email = "luuk.blom@deltares.nl" },
 ]
 
+description = "HydroMT plugin for wflow."
+license = "GPL-3.0-or-later"
 readme = "README.rst"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering :: Hydrology",
-  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
   "Programming Language :: Python :: 3",
 ]
 
@@ -227,12 +236,14 @@ test-cov-local = { cmd = [
 # Clean up (some of) the temporary files
 clean = { depends-on = [
   "clean-bin",
+  "clean-build",
   "clean-dist",
   "clean-docs-build",
   "clean-docs-example",
   "clean-docs-gen",
 ] }
 clean-bin = { cmd = ["rm", "-rf", "bin"] }
+clean-build = { cmd = ["rm", "-rf", "build"] }
 clean-dist = { cmd = ["rm", "-rf", "dist"] }
 clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
 clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }

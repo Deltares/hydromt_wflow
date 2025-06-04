@@ -2,7 +2,6 @@
 
 # Implement model class following model API
 
-import codecs
 import glob
 import logging
 import os
@@ -28,7 +27,9 @@ from hydromt.model.processes.region import (
     _parse_region_value,
 )
 
+from hydromt_wflow import workflows
 from hydromt_wflow.components import (
+    StaticmapsComponent,
     WflowConfigComponent,
     WflowGeomsComponent,
     WflowGridComponent,
@@ -40,8 +41,6 @@ from hydromt_wflow.utils import (
     mask_raster_from_layer,
     read_csv_results,
 )
-
-from . import workflows
 
 __all__ = ["WflowModel"]
 __hydromt_eps__ = ["WflowModel"]  # core entrypoints
@@ -91,17 +90,19 @@ class WflowModel(Model):
             region_filename="geoms/geoms_region.geojson",  # TODO read from config?
         )
 
+        staticmaps_component = StaticmapsComponent(self)
         components = {
             "config": config_component,
             "grid": grid_component,
             "geoms": geoms_component,
+            "staticmaps": staticmaps_component,
         }
 
         super().__init__(
             root,
             components=components,
             mode=mode,
-            region_component="grid",  # change when GridComponent is implemented
+            region_component="staticmaps",  # change when GridComponent is implemented
             data_libs=data_libs,
             **catalog_keys,
         )
@@ -116,6 +117,17 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
+
+    # Properties
+    @property
+    def config(self) -> WflowConfigComponent:
+        """Return the config component."""
+        return self.components["config"]
+
+    @property
+    def staticmaps(self) -> StaticmapsComponent:
+        """Return the staticmaps component."""
+        return self.components["staticmaps"]
 
     # SETUP METHODS
     @hydromt_step
@@ -4899,8 +4911,7 @@ Run setup_soilmaps first"
         for option in config_out:
             self.set_config(option, config_out[option])
 
-    # I/O
-
+    ## I/O
     @hydromt_step
     def write(
         self,
@@ -4940,7 +4951,7 @@ Run setup_soilmaps first"
             logger.warning("Cannot write in read-only mode")
             return
         self.write_data_catalog()
-        _ = self.config  # try to read default if not yet set
+        _ = self.config.data  # try to read default if not yet set
         if self._grid:
             self.write_grid(fn_out=grid_fn)
         if self._geoms:
@@ -4971,19 +4982,13 @@ Run setup_soilmaps first"
         config_root : str, optional
             Root folder to write the config file if different from model root (default).
         """
-        self._assert_write_mode()
-        if config_name is not None:
-            self._config_fn = config_name
-        elif self._config_fn is None:
-            self._config_fn = self._CONF
-        if config_root is None:
-            config_root = self.root
-        fn = join(config_root, self._config_fn)
-        # Create the folder if it does not exist
-        if not isdir(dirname(fn)):
-            os.makedirs(dirname(fn))
-        logger.info(f"Writing model config to {fn}")
-        self._configwrite(fn)
+        # TODO is a compat method, remove in future
+        # Bridge the diff in api
+        p = config_name or self.config._filename
+        if config_root is not None:
+            p = Path(config_root, p)
+        # Call the component
+        self.config.write(p)
 
     @hydromt_step
     def read_grid(self, **kwargs):
@@ -5673,15 +5678,49 @@ change name input.path_forcing "
                 logger.warning(f"Overwriting table: {name}")
         self._tables[name] = df
 
-    def _configread(self, fn):
-        with codecs.open(fn, "r", encoding="utf-8") as f:
-            fdict = tomlkit.load(f)
+    def get_config(
+        self,
+        *args,
+        fallback: Any = None,
+        abs_path: bool = False,
+    ) -> str | None:
+        """Get a config value at key.
 
-        return fdict
+        Parameters
+        ----------
+        args : tuple, str
+            keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback: Any, optional
+            fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+            NOTE: this assumes the config is located in model root!
 
-    def _configwrite(self, fn):
-        with codecs.open(fn, "w", encoding="utf-8") as f:
-            tomlkit.dump(self.config, f)
+        Returns
+        -------
+        value : Any
+            dictionary value
+
+        Examples
+        --------
+        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
+
+        >> get_config('a')
+        >> 1
+
+        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
+        >> 2
+
+        >> get_config('b.c') # # identical to get_config('b','c')
+        >> {'d': 2}
+        """
+        return self.config.get(
+            *args,
+            fallback=fallback,
+            abs_path=abs_path,
+        )
 
     def set_config(self, *args):
         """
@@ -6094,49 +6133,3 @@ change name input.path_forcing "
                     remove_maps.extend(["waterlevel_lake"])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
-
-    def get_config(
-        self,
-        *args,
-        fallback: Any = None,
-        abs_path: bool = False,
-    ) -> str | None:
-        """Get a config value at key.
-
-        Parameters
-        ----------
-        args : tuple, str
-            keys can given by multiple args: ('key1', 'key2')
-            or a string with '.' indicating a new level: ('key1.key2')
-        fallback: Any, optional
-            fallback value if key(s) not found in config, by default None.
-        abs_path: bool, optional
-            If True return the absolute path relative to the model root,
-            by default False.
-            NOTE: this assumes the config is located in model root!
-
-        Returns
-        -------
-        value : Any
-            dictionary value
-
-        Examples
-        --------
-        >> # self.config = {'a': 1, 'b': {'c': {'d': 2}}}
-
-        >> get_config('a')
-        >> 1
-
-        >> get_config('b', 'c', 'd') # identical to get_config('b.c.d')
-        >> 2
-
-        >> get_config('b.c') # # identical to get_config('b','c')
-        >> {'d': 2}
-        """
-        return self.config.get(
-            *args,
-            config=self.config,
-            fallback=fallback,
-            abs_path=abs_path,
-            root=self.root,
-        )

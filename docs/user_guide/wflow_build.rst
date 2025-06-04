@@ -64,7 +64,7 @@ are three ways for the user to select which data libraries to use:
   These user libraries can be added either in the command line using the **-d** option and path/to/yaml or in the **ini file**
   with the **data_libs** option in the [global] sections.
 
-.. toctree::
-    :hidden:
+.. .. toctree::
+..     :hidden:
 
-    Example: Build Wflow model <../_examples/build_model.ipynb>
+..     Example: Build Wflow model <../_examples/build_model.ipynb>

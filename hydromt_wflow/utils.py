@@ -1,7 +1,7 @@
 """Some utilities from the Wflow plugin."""
 
 import logging
-from os.path import abspath, dirname, join
+from os.path import abspath, join
 from pathlib import Path
 from typing import Any, Dict
 
@@ -21,15 +21,81 @@ from .naming import (
 
 logger = logging.getLogger(__name__)
 
-DATADIR = Path(join(dirname(abspath(__file__)), "data"))
+DATADIR = Path(Path(__file__).parent, "data")
 
 __all__ = [
-    "read_csv_results",
-    "get_config",
-    "get_grid_from_config",
     "convert_to_wflow_v1_sbm",
     "convert_to_wflow_v1_sediment",
+    "get_config",
+    "get_grid_from_config",
+    "read_csv_results",
+    "set_config",
 ]
+
+
+def get_config(
+    config: tomlkit.TOMLDocument,
+    *args,
+    root: Path | None = None,
+    fallback: Any | None = None,
+    abs_path: bool = False,
+):
+    """
+    Get a config value at key.
+
+    Parameters
+    ----------
+    config : tomlkit.TOMLDocument
+        The config settings in TOMLDocument object.
+    args : tuple, str
+        keys can given by multiple args: ('key1', 'key2')
+        or a string with '.' indicating a new level: ('key1.key2')
+    fallback: Any, optional
+        fallback value if key(s) not found in config, by default None.
+    abs_path: bool, optional
+        If True return the absolute path relative to the model root,
+        by default False.
+        NOTE: this assumes the config is located in model root!
+
+    Returns
+    -------
+    value : Any
+        dictionary value
+
+    Examples
+    --------
+    >> config = {'a': 1, 'b': {'c': {'d': 2}}
+
+    >> get_config('a', config)
+    >> 1
+
+    >> get_config('b', 'c', 'd', config) # identical to get_config('b.c.d')
+    >> 2
+
+    >> get_config('b.c', config) # # identical to get_config('b','c')
+    >> {'d': 2}
+    """
+    args = list(args)
+    if len(args) == 1 and "." in args[0]:
+        args = args[0].split(".") + args[1:]
+    branch = config  # reads config at first call
+    for key in args[:-1]:
+        branch = branch.get(key, {})
+        if not isinstance(branch, dict):
+            branch = dict()
+            break
+    value = branch.get(args[-1], fallback)
+    if abs_path and isinstance(value, str):
+        value = Path(value)
+        if not value.is_absolute():
+            value = Path(abspath(join(root, value)))
+
+    if isinstance(value, tomlkit.items.Item):
+        return value.unwrap()
+    elif value is None:
+        return fallback
+    else:
+        return value
 
 
 def set_config(config: tomlkit.TOMLDocument, *args):
@@ -298,69 +364,6 @@ of the config.
         csv_dict[f"{da.name}"] = da
 
     return csv_dict
-
-
-def get_config(
-    config: tomlkit.TOMLDocument,
-    *args,
-    root: Path | None = None,
-    fallback: Any | None = None,
-    abs_path: bool = False,
-):
-    """
-    Get a config value at key.
-
-    Parameters
-    ----------
-    args : tuple, str
-        keys can given by multiple args: ('key1', 'key2')
-        or a string with '.' indicating a new level: ('key1.key2')
-    fallback: Any, optional
-        fallback value if key(s) not found in config, by default None.
-    abs_path: bool, optional
-        If True return the absolute path relative to the model root,
-        by default False.
-        NOTE: this assumes the config is located in model root!
-
-    Returns
-    -------
-    value : Any
-        dictionary value
-
-    Examples
-    --------
-    >> config = {'a': 1, 'b': {'c': {'d': 2}}
-
-    >> get_config('a', config)
-    >> 1
-
-    >> get_config('b', 'c', 'd', config) # identical to get_config('b.c.d')
-    >> 2
-
-    >> get_config('b.c', config) # # identical to get_config('b','c')
-    >> {'d': 2}
-    """
-    args = list(args)
-    if len(args) == 1 and "." in args[0]:
-        args = args[0].split(".") + args[1:]
-    branch = config  # reads config at first call
-    for key in args[:-1]:
-        branch = branch.get(key, {})
-        if not isinstance(branch, dict):
-            branch = dict()
-            break
-    value = branch.get(args[-1], fallback)
-    if abs_path and isinstance(value, str):
-        value = Path(value)
-        if not value.is_absolute():
-            value = Path(abspath(join(root, value)))
-
-    if isinstance(value, tomlkit.items.Item):
-        return value.unwrap()
-    elif value is None:
-        return fallback
-    else:
-        return value
 
 
 def get_grid_from_config(
