@@ -113,7 +113,11 @@ defaulting to {_new_path.as_posix()}"
 
         self.data.update(data)
 
-    def write(self, path: Path | str | None = None):
+    @hydromt_step
+    def write(
+        self,
+        path: Path | str | None = None,
+    ):
         """Write the wflow configurations to a file."""
         self.root._assert_write_mode()
         # If there is data
@@ -134,14 +138,45 @@ defaulting to {_new_path.as_posix()}"
             logger.warning("Model config has no data, skip writing.")
 
     ## Modifying methods
-    def get(self, *args) -> Any | None:
-        """Get config options."""
+    def get(
+        self,
+        *args,
+        fallback: Any | None = None,
+        abs_path: bool = False,
+    ) -> Any | None:
+        """Get config options.
+
+        Parameters
+        ----------
+        args : tuple, str
+            Keys can given by multiple args: ('key1', 'key2')
+            or a string with '.' indicating a new level: ('key1.key2')
+        fallback : Any, optional
+            Fallback value if key(s) not found in config, by default None.
+        abs_path: bool, optional
+            If True return the absolute path relative to the model root,
+            by default False.
+        """
         self._initialize()
         # Refer to utils function of get_config
-        return get_config(self._data, *args)
+        return get_config(
+            self._data,
+            *args,
+            root=self.root.path,
+            fallback=fallback,
+            abs_path=abs_path,
+        )
 
     def set(self, *args):
-        """Set the config options."""
+        """Set the config options.
+
+        Parameters
+        ----------
+        args : str, tuple, list
+            If tuple or list, minimal length of two
+            keys can given by multiple args: ('key1', 'key2', 'value')
+            or a string with '.' indicating a new level: ('key1.key2', 'value')
+        """
         self._initialize()
         # Refer to utils function of set_config
         set_config(self._data, *args)
