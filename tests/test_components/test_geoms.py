@@ -1,4 +1,5 @@
 import logging
+import re
 from unittest import mock
 
 import geopandas as gpd
@@ -38,26 +39,39 @@ def mock_wflow_model():
     return model
 
 
-@mock.patch("hydromt_wflow.components.geoms.get_basin_geometry")
-def test_parse_region(mock_get_basin_geometry, mock_wflow_model):
-    """Test the parsing of a basin region."""
-    component = WflowGeomsComponent(model=mock_wflow_model)
-    x, y = 12.2051, 45.8331
-    test_geom = gpd.GeoDataFrame(
-        geometry=[box(x - 1, y - 1, x + 1, y + 1)], crs="EPSG:4326"
-    )
-    test_xy = np.array([[x, y]])
+@pytest.fixture
+def mock_xy() -> tuple[float, float]:
+    return (12.2051, 45.8331)
 
-    mock_get_basin_geometry.return_value = (test_geom, test_xy)
-    region = {
+
+@pytest.fixture
+def mock_geometry(mock_xy) -> gpd.GeoDataFrame:
+    x, y = mock_xy
+    return gpd.GeoDataFrame(geometry=[box(x - 1, y - 1, x + 1, y + 1)], crs="EPSG:4326")
+
+
+@pytest.fixture
+def mock_region(mock_xy) -> dict:
+    x, y = mock_xy
+    return {
         "basin": [x, y],
         "strord": 4,
         "bounds": [x - 1, y - 1, x + 1, y + 1],
     }
 
+
+@mock.patch("hydromt_wflow.components.geoms.get_basin_geometry")
+def test_parse_region(
+    mock_get_basin_geometry, mock_wflow_model, mock_geometry, mock_xy, mock_region
+):
+    """Test the parsing of a basin region."""
+    component = WflowGeomsComponent(model=mock_wflow_model)
+    x, y = mock_xy
+    test_xy = np.array([[x, y]])
+    mock_get_basin_geometry.return_value = (mock_geometry, test_xy)
     # Act
     geom, xy, ds_org = component.parse_region(
-        region=region.copy(),
+        region=mock_region.copy(),
         hydrography_fn="mock_hydrography",
         # datacatalog is mocked so no need for a real file
     )
@@ -89,6 +103,64 @@ def test_parse_region(mock_get_basin_geometry, mock_wflow_model):
     assert np.array_equal(mask, np.array([[1, 0], [0, 1]])), (
         "Mask values should match mocked output."
     )
+
+
+def test_parse_region_errors(
+    mock_wflow_model, mock_region, mocker, mock_geometry, mock_xy
+):
+    component = WflowGeomsComponent(model=mock_wflow_model)
+
+    # Mock the datacatalog.get_rasterdataset method
+    with mock.patch.object(
+        component.data_catalog, "get_rasterdataset", return_value=None
+    ):
+        with pytest.raises(
+            ValueError,
+            match="hydrography_fn hydrography_file not found in data catalog.",
+        ):
+            component.parse_region(mock_region, hydrography_fn="hydrography_file")
+
+    bad_resolution = 1 / 240
+    err_msg = (
+        f"The model resolution {bad_resolution} should be larger than the "
+        f"hydrography_fn resolution {1 / 120.0}"
+    )
+    with pytest.raises(ValueError, match=err_msg):
+        component.parse_region(
+            region=mock_region,
+            hydrography_fn="hydrography_fn",
+            resolution=bad_resolution,
+        )
+
+    bad_resolution = 2
+    err_msg = (
+        f"The model resolution {bad_resolution} should be smaller than 1 degree "
+        "(111km) for geographic coordinate systems. "
+        "Make sure you provided res in degree rather than in meters."
+    )
+    with pytest.raises(ValueError, match=re.escape(err_msg)):
+        component.parse_region(
+            region=mock_region, hydrography_fn="hydrography_region", resolution=2
+        )
+
+    interbasin_region = {"interbasin": mock_region["basin"]}
+    err_msg = (
+        "wflow region kind not understood or supported: interbasin. "
+        "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+    )
+
+    with pytest.raises(ValueError, match=err_msg):
+        component.parse_region(interbasin_region, hydrography_fn="hydrography_fn")
+
+    mock_get_basin_geometry = mocker.patch(
+        "hydromt_wflow.components.geoms.get_basin_geometry"
+    )
+    x, y = mock_xy
+    test_xy = np.array([[x, y]])
+    mock_geometry.crs = None
+    mock_get_basin_geometry.return_value = (mock_geometry, test_xy)
+    with pytest.raises(ValueError, match="wflow region geometry has no CRS"):
+        component.parse_region(mock_region, hydrography_fn="test")
 
 
 def test_get(mock_wflow_model, caplog, mocker):
