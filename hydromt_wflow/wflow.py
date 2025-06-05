@@ -5053,53 +5053,8 @@ Run setup_soilmaps first"
             path/name relative to the root folder and if present the ``dir_input``
             folder.
         """
-        if not self._write:
-            raise IOError("Model opened in read-only mode")
-        # clean-up grid and write CRS according to CF-conventions
-        # TODO replace later with hydromt.raster.gdal_compliant method
-        # after core release
-        crs = self.grid.raster.crs
-        ds_out = self.grid.reset_coords()
-        # TODO?!
-        # if ds_out.raster.res[1] < 0: # write data with South -> North orientation
-        #     ds_out = ds_out.raster.flipud()
-        x_dim, y_dim, x_attrs, y_attrs = hydromt.gis_utils.axes_attrs(crs)
-        ds_out = ds_out.rename({ds_out.raster.x_dim: x_dim, ds_out.raster.y_dim: y_dim})
-        ds_out[x_dim].attrs.update(x_attrs)
-        ds_out[y_dim].attrs.update(y_attrs)
-        ds_out = ds_out.drop_vars(["mask", "spatial_ref", "ls"], errors="ignore")
-        ds_out.rio.write_crs(crs, inplace=True)
-        ds_out.rio.write_transform(self.grid.raster.transform, inplace=True)
-        ds_out.raster.set_spatial_dims()
-
-        # Remove FillValue Nan for x_dim, y_dim
-        encoding = dict()
-        for v in [ds_out.raster.x_dim, ds_out.raster.y_dim]:
-            ds_out[v].attrs.pop("_FillValue", None)
-            encoding[v] = {"_FillValue": None}
-
-        # filename
-        if fn_out is not None:
-            fn = join(self.root, fn_out)
-            self.set_config("input.path_static", fn_out)
-        else:
-            fn_out = "staticmaps.nc"
-            fn = self.get_config(
-                "input.path_static", abs_path=True, fallback=join(self.root, fn_out)
-            )
-        # Append inputdir if required
-        if self.get_config("dir_input") is not None:
-            input_dir = self.get_config("dir_input", abs_path=True)
-            fn = join(
-                input_dir,
-                self.get_config("input.path_static", fallback=fn_out),
-            )
-        # Check if all sub-folders in fn exists and if not create them
-        if not isdir(dirname(fn)):
-            os.makedirs(dirname(fn))
-        logger.info(f"Write grid to {fn}")
-
-        ds_out.to_netcdf(fn, encoding=encoding)
+        # Call the component write method
+        self.staticmaps.write(filename=fn_out)
 
     @hydromt_step
     def set_grid(

@@ -1,10 +1,9 @@
 import logging
 from pathlib import Path
-from unittest.mock import PropertyMock
+from unittest.mock import MagicMock, PropertyMock
 
 import pytest
 from hydromt.model import ModelRoot
-from pytest_mock import MockerFixture
 from tomlkit import TOMLDocument
 from tomlkit.items import Table
 
@@ -12,7 +11,7 @@ from hydromt_wflow.components import WflowConfigComponent
 from hydromt_wflow.utils import DATADIR
 
 
-def test_wflow_config_component_init(mock_model: MockerFixture):
+def test_wflow_config_component_init(mock_model: MagicMock):
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
@@ -26,7 +25,7 @@ def test_wflow_config_component_init(mock_model: MockerFixture):
 
 
 def test_wflow_config_component_get(
-    mock_model: MockerFixture,
+    mock_model: MagicMock,
     config_dummy_data: dict,
 ):
     # Setup the component
@@ -45,7 +44,7 @@ def test_wflow_config_component_get(
     assert component.get("no") is None
 
 
-def test_wflow_config_component_set(mock_model: MockerFixture):
+def test_wflow_config_component_set(mock_model: MagicMock):
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
@@ -60,7 +59,7 @@ def test_wflow_config_component_set(mock_model: MockerFixture):
     assert len(component.data) == 1
 
 
-def test_wflow_config_component_set_alt(mock_model: MockerFixture):
+def test_wflow_config_component_set_alt(mock_model: MagicMock):
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
@@ -71,7 +70,7 @@ def test_wflow_config_component_set_alt(mock_model: MockerFixture):
     assert len(component.data) == 1
 
 
-def test_wflow_component_read(mock_model: MockerFixture, model_subbasin_cached: Path):
+def test_wflow_component_read(mock_model: MagicMock, model_subbasin_cached: Path):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
@@ -93,9 +92,7 @@ def test_wflow_component_read(mock_model: MockerFixture, model_subbasin_cached: 
     assert component.data["input"]
 
 
-def test_wflow_component_read_init(
-    mock_model: MockerFixture, model_subbasin_cached: Path
-):
+def test_wflow_component_read_init(mock_model: MagicMock, model_subbasin_cached: Path):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
@@ -113,7 +110,7 @@ def test_wflow_component_read_init(
 def test_wflow_component_read_default(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
-    mock_model: MockerFixture,
+    mock_model: MagicMock,
 ):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
@@ -139,7 +136,7 @@ defaulting to"
 
 def test_wflow_component_read_warnings(
     caplog: pytest.LogCaptureFixture,
-    mock_model: MockerFixture,
+    mock_model: MagicMock,
     model_subbasin_cached: Path,
 ):
     caplog.set_level(logging.INFO)
@@ -159,7 +156,7 @@ def test_wflow_component_read_warnings(
     assert len(component.data) == 0
 
 
-def test_wflow_component_write(mock_model: MockerFixture, config_dummy_data: dict):
+def test_wflow_component_write(mock_model: MagicMock, config_dummy_data: dict):
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
@@ -179,7 +176,7 @@ def test_wflow_component_write(mock_model: MockerFixture, config_dummy_data: dic
 
 def test_wflow_component_write_warnings(
     caplog: pytest.LogCaptureFixture,
-    mock_model: MockerFixture,
+    mock_model: MagicMock,
 ):
     caplog.set_level(logging.INFO)
     # Setup the component
@@ -192,7 +189,7 @@ def test_wflow_component_write_warnings(
     assert "Model config has no data, skip writing." in caplog.text
 
 
-def test_wflow_component_equal(mock_model: MockerFixture, config_dummy_data: dict):
+def test_wflow_component_equal(mock_model: MagicMock, config_dummy_data: dict):
     # Setup the components
     component = WflowConfigComponent(mock_model)
     component2 = WflowConfigComponent(mock_model)
@@ -211,7 +208,7 @@ def test_wflow_component_equal(mock_model: MockerFixture, config_dummy_data: dic
     assert component != component2
 
 
-def test_wflow_component_equal_error(mock_model: MockerFixture):
+def test_wflow_component_equal_error(mock_model: MagicMock):
     # Setup the components
     component = WflowConfigComponent(mock_model)
 

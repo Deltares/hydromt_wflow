@@ -41,7 +41,7 @@ class StaticmapsComponent(GridComponent):
         self,
         model: Model,
         *,
-        filename: str = "staticmaps_blep.nc",
+        filename: str = "staticmaps.nc",
         region_component: str | None = None,
         region_filename: str = "region.geojson",
     ):
@@ -101,6 +101,36 @@ class StaticmapsComponent(GridComponent):
             if ds.raster.res[1] > 0:  # Make sure its north-south oriented
                 ds = ds.raster.flipud()
             self.set(ds)
+
+    def write(
+        self,
+        filename: Path | str | None = None,
+        **kwargs,
+    ):
+        """Write staticmaps model data.
+
+        Key-word arguments are passed to :py:meth:`~hydromt.model.Model.write_nc`
+
+        Parameters
+        ----------
+        filename : str, optional
+            filename relative to model root, by default None
+        **kwargs : dict
+            Additional keyword arguments to be passed to the `write_nc` method.
+        """
+        # Solve pathing same as read
+        # Hierarchy is: 1: signature, 2: config, 3: default
+        p = filename or self.model.config.get("input.path_static") or self._filename
+        # Check for input dir
+        p_input = self.model.config.get("dir_input", fallback="")
+
+        # Supercharge with the base grid component write method
+        super().write(
+            Path(p_input, p),
+            gdal_compliant=True,
+            rename_dims=True,
+            **kwargs,
+        )
 
     ## Mutating methods
     def set(
@@ -178,6 +208,16 @@ class StaticmapsComponent(GridComponent):
                 self._data[dvar] = data[dvar]
 
     ## Setup and update methods
-    def update_names(**select):
-        """_summary_."""
-        pass
+    def update_names(
+        self,
+        **select,
+    ):
+        """Map the names of the data variables to new ones.
+
+        Parameters
+        ----------
+        select : dict, optional
+            Keyword arguments that map the old names to the new names.
+            So < old-name > = < new-name >.
+        """
+        self._data = self.data.rename(**select)

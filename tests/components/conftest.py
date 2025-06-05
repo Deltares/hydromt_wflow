@@ -2,7 +2,9 @@ import platform
 from pathlib import Path
 from unittest.mock import MagicMock, PropertyMock
 
+import numpy as np
 import pytest
+import xarray as xr
 from hydromt import DataCatalog
 from hydromt.model import ModelRoot
 from pyproj.crs import CRS
@@ -53,3 +55,44 @@ def config_dummy_data() -> dict:
         "foo": {"bar": "baz", "bip": "bop"},
     }
     return data
+
+
+@pytest.fixture
+def cyclic_layer() -> xr.DataArray:
+    da = xr.DataArray(
+        np.ones((12, 2, 2)),
+        coords={
+            "time": range(1, 13),
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["time", "lat", "lon"],
+    )
+    return da
+
+
+@pytest.fixture
+def cyclic_layer_large() -> xr.DataArray:
+    da = xr.DataArray(
+        np.ones((365, 2, 2)),
+        coords={
+            "time": range(1, 366),
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["time", "lat", "lon"],
+    )
+    return da
+
+
+@pytest.fixture
+def static_layer() -> xr.DataArray:
+    da = xr.DataArray(
+        np.ones((2, 2)),
+        coords={
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["lat", "lon"],
+    )
+    return da
