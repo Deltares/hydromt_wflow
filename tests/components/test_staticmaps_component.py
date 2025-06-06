@@ -31,10 +31,16 @@ def test_staticmaps_component_set_cyclic(
 
     # Set the data in the component
     component.set(cyclic_layer, "layer1")
-    pass
+
+    # Assert the current state
+    assert "layer1" in component.data.data_vars
+    assert "time" in component.data.dims
+    assert len(component.data.time) == 12
 
 
 def test_staticmaps_component_update_naming(mock_model: MagicMock):
+    # Setup the component
+    component = StaticmapsComponent(mock_model)
     pass
 
 

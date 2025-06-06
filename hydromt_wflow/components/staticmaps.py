@@ -102,6 +102,7 @@ class StaticmapsComponent(GridComponent):
                 ds = ds.raster.flipud()
             self.set(ds)
 
+    @hydromt_step
     def write(
         self,
         filename: Path | str | None = None,
@@ -122,15 +123,18 @@ class StaticmapsComponent(GridComponent):
         # Hierarchy is: 1: signature, 2: config, 3: default
         p = filename or self.model.config.get("input.path_static") or self._filename
         # Check for input dir
-        p_input = self.model.config.get("dir_input", fallback="")
+        p_input = Path(self.model.config.get("dir_input", fallback=""), p)
 
         # Supercharge with the base grid component write method
         super().write(
-            Path(p_input, p),
+            p_input,
             gdal_compliant=True,
             rename_dims=True,
             **kwargs,
         )
+
+        # Set the config entry to the correct path
+        self.model.config.set("input.path_static", Path(self.root.path, p_input))
 
     ## Mutating methods
     def set(
@@ -208,6 +212,7 @@ class StaticmapsComponent(GridComponent):
                 self._data[dvar] = data[dvar]
 
     ## Setup and update methods
+    @hydromt_step
     def update_names(
         self,
         **select,
