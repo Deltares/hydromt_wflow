@@ -70,7 +70,10 @@ def test_wflow_config_component_set_alt(mock_model: MagicMock):
     assert len(component.data) == 1
 
 
-def test_wflow_component_read(mock_model: MagicMock, model_subbasin_cached: Path):
+def test_wflow_config_component_read(
+    mock_model: MagicMock,
+    model_subbasin_cached: Path,
+):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
@@ -92,7 +95,10 @@ def test_wflow_component_read(mock_model: MagicMock, model_subbasin_cached: Path
     assert component.data["input"]
 
 
-def test_wflow_component_read_init(mock_model: MagicMock, model_subbasin_cached: Path):
+def test_wflow_config_component_read_init(
+    mock_model: MagicMock,
+    model_subbasin_cached: Path,
+):
     # Set it to read mode
     type(mock_model).root = PropertyMock(
         side_effect=lambda: ModelRoot(model_subbasin_cached, mode="r"),
@@ -107,7 +113,7 @@ def test_wflow_component_read_init(mock_model: MagicMock, model_subbasin_cached:
     assert component.data["dir_output"] == "run_default"
 
 
-def test_wflow_component_read_default(
+def test_wflow_config_component_read_default(
     tmp_path: Path,
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
@@ -134,7 +140,7 @@ defaulting to"
     )
 
 
-def test_wflow_component_read_warnings(
+def test_wflow_config_component_read_warnings(
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
     model_subbasin_cached: Path,
@@ -156,7 +162,10 @@ def test_wflow_component_read_warnings(
     assert len(component.data) == 0
 
 
-def test_wflow_component_write(mock_model: MagicMock, config_dummy_data: dict):
+def test_wflow_config_component_write(
+    mock_model: MagicMock,
+    config_dummy_data: dict,
+):
     # Setup the component
     component = WflowConfigComponent(mock_model)
 
@@ -174,7 +183,7 @@ def test_wflow_component_write(mock_model: MagicMock, config_dummy_data: dict):
         assert data.startswith('biem = "bam"\n\n[time]')
 
 
-def test_wflow_component_write_warnings(
+def test_wflow_config_component_write_warnings(
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
 ):
@@ -189,7 +198,7 @@ def test_wflow_component_write_warnings(
     assert "Model config has no data, skip writing." in caplog.text
 
 
-def test_wflow_component_equal(mock_model: MagicMock, config_dummy_data: dict):
+def test_wflow_config_component_equal(mock_model: MagicMock, config_dummy_data: dict):
     # Setup the components
     component = WflowConfigComponent(mock_model)
     component2 = WflowConfigComponent(mock_model)
@@ -208,7 +217,7 @@ def test_wflow_component_equal(mock_model: MagicMock, config_dummy_data: dict):
     assert component != component2
 
 
-def test_wflow_component_equal_error(mock_model: MagicMock):
+def test_wflow_config_component_equal_error(mock_model: MagicMock):
     # Setup the components
     component = WflowConfigComponent(mock_model)
 

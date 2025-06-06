@@ -8,8 +8,7 @@ import tomlkit
 from hydromt.model import Model
 from hydromt.model.components.base import ModelComponent
 from hydromt.model.steps import hydromt_step
-from tomli_w import dump as dump_toml
-from tomllib import load as load_toml
+from tomlkit.toml_file import TOMLFile
 
 from hydromt_wflow.utils import get_config, set_config
 
@@ -108,10 +107,11 @@ defaulting to {_new_path.as_posix()}"
             return
 
         # Read the data and set it in the document
-        with open(read_path, "rb") as f:
-            data = load_toml(f)
-
-        self.data.update(data)
+        data = TOMLFile(read_path).read()
+        # TODO figure out whether .update might be a good alternative
+        # Seems to not preserve the structure as well as direct setting
+        # But now it overwrites the already existing keys.
+        self._data = data
 
     @hydromt_step
     def write(
@@ -130,8 +130,7 @@ defaulting to {_new_path.as_posix()}"
             write_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Dump the toml
-            with open(write_path, "wb") as f:
-                dump_toml(self.data, f)
+            TOMLFile(write_path).write(self.data)
 
         # Warn when there is no data being written
         else:
