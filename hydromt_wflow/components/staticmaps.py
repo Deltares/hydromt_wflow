@@ -127,14 +127,17 @@ class StaticmapsComponent(GridComponent):
 
         # Supercharge with the base grid component write method
         super().write(
-            p_input,
+            p_input.as_posix(),
             gdal_compliant=True,
             rename_dims=True,
             **kwargs,
         )
 
         # Set the config entry to the correct path
-        self.model.config.set("input.path_static", Path(self.root.path, p_input))
+        self.model.config.set(
+            "input.path_static",
+            Path(self.root.path, p_input).as_posix(),
+        )
 
     ## Mutating methods
     def set(
@@ -165,14 +168,14 @@ class StaticmapsComponent(GridComponent):
                 data.name = name
             data = data.to_dataset()
         elif not isinstance(data, xr.Dataset):
-            raise ValueError(f"cannot set data of type {type(data).__name__}")
+            raise ValueError(f"Cannot set data of type {type(data).__name__}")
 
         # Check for cyclic data
         if "time" in data.dims:
             # Raise error if the dimension does not have a supported length
             if len(data.time) not in [12, 365, 366]:
                 raise ValueError(
-                    f"Length of cyclic dataset ({len(data)}) is not supported by "
+                    f"Length of cyclic dataset ({len(data.time)}) is not supported by "
                     "Wflow.jl. Ensure the data has length 12, 365, or 366"
                 )
             tname = "time"
@@ -225,4 +228,12 @@ class StaticmapsComponent(GridComponent):
             Keyword arguments that map the old names to the new names.
             So < old-name > = < new-name >.
         """
+        # Check whether they are in the maps
+        nf = []
+        for key in list(select.keys()):
+            if key not in self.data.data_vars:
+                nf.append(key)
+                _ = select.pop(key)
+        if len(nf) != 0:
+            logger.warning(f"Could not rename {nf}, not found in data")
         self._data = self.data.rename(**select)

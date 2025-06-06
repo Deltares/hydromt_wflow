@@ -10,6 +10,7 @@ from hydromt.model.components.base import ModelComponent
 from hydromt.model.steps import hydromt_step
 from tomlkit.toml_file import TOMLFile
 
+from hydromt_wflow.components.utils import make_config_paths_relative
 from hydromt_wflow.utils import get_config, set_config
 
 __all__ = ["WflowConfigComponent"]
@@ -129,8 +130,11 @@ defaulting to {_new_path.as_posix()}"
             logger.info(f"Writing model config to {write_path.as_posix()}.")
             write_path.parent.mkdir(parents=True, exist_ok=True)
 
+            # Solve the pathing in the data
+            write_data = make_config_paths_relative(self.data, write_path.parent)
+
             # Dump the toml
-            TOMLFile(write_path).write(self.data)
+            TOMLFile(write_path).write(write_data)
 
         # Warn when there is no data being written
         else:

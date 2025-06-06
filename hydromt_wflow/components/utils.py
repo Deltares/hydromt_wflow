@@ -17,7 +17,7 @@ def _relpath(
         value = Path(value)
     if isinstance(value, Path):
         try:
-            value = relpath(value, root)
+            value = Path(relpath(value, root))
         except ValueError:
             pass  # `value` path is not relative to root
         finally:

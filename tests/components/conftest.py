@@ -95,4 +95,5 @@ def static_layer() -> xr.DataArray:
         },
         dims=["lat", "lon"],
     )
+    da.raster.set_crs(4326)
     return da
