@@ -52,20 +52,32 @@ class WflowGeomsComponent(GeomsComponent):
             raise ValueError(
                 f"hydrography_fn {hydrography_fn} not found in data catalog."
             )
-        # Check on resolution (degree vs meter) depending on ds_org res/crs
-        scale_ratio = int(np.round(resolution / ds_org.raster.res[0]))
-        if scale_ratio < 1:
+
+        # Check on resolution
+        res_arg = np.round(resolution)
+        res_org = ds_org.raster.res[0]
+        scale_ratio = res_arg / res_org
+
+        if scale_ratio < 0.75:
             raise ValueError(
-                f"The model resolution {resolution} should be \
-larger than the {hydrography_fn} resolution {ds_org.raster.res[0]}"
+                f"Model resolution {resolution} should be larger than the "
+                f"{hydrography_fn} resolution {res_org}."
             )
-        if ds_org.raster.crs.is_geographic:
-            if resolution > 1:  # 111 km
-                raise ValueError(
-                    f"The model resolution {resolution} should be smaller than 1 \
-degree (111km) for geographic coordinate systems. "
-                    "Make sure you provided res in degree rather than in meters."
-                )
+        elif 0.75 < scale_ratio < 1.25:
+            logger.warning(
+                f"Model resolution {resolution} does not match the hydrography "
+                f"resolution {res_org}. This might lead to unexpected results, "
+                f"using hydrography resolution instead: {res_org}."
+            )
+            resolution = res_org
+        else:
+            if ds_org.raster.crs.is_geographic:
+                if resolution > 1:  # 111 km
+                    raise ValueError(
+                        f"The model resolution {resolution} should be smaller than 1 \
+    degree (111km) for geographic coordinate systems. "
+                        "Make sure you provided res in degree rather than in meters."
+                    )
 
         # get basin geometry and clip data
         kind = next(iter(region))

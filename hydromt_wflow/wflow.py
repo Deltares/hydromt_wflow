@@ -82,11 +82,7 @@ class WflowModel(Model):
         # This is when config_fn should be able to be passed to ConfigComponent later
         config_component = WflowConfigComponent(self, filename=str(config_path))
 
-        geoms_component = WflowGeomsComponent(
-            model=self,
-            region_component="grid",  # TODO change when GridComponent is implemented? or set to None?  # noqa: E501
-            region_filename="geoms/geoms_region.geojson",  # TODO read from config?
-        )
+        geoms_component = WflowGeomsComponent(model=self, region_component="grid")
 
         staticmaps_component = StaticmapsComponent(self)
         components = {
