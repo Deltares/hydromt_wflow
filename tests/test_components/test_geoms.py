@@ -201,7 +201,7 @@ def test_parse_region_geometry_without_crs(
         (
             2,
             True,
-            "The model resolution 2 should be smaller than 1 degree (111km) for "
+            r"The model resolution 2 should be smaller than 1 degree \(111km\) for "
             "geographic coordinate systems. Make sure you provided res in degree rather"
             " than in meters.",
         ),  # Case 2: scale ratio >> 1 (geographic crs)
