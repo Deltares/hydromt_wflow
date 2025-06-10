@@ -131,8 +131,24 @@ def test_wflow_config_component_read_default(
     assert component._data is None  # Assert no data or structure yet
 
     # Read at init
-    assert len(component.data) == 6
-    assert component.data["dir_output"] == "run_default"
+    assert len(component.data) == 0
+
+    # Reading the template only happens in w and w+ modes
+    # Set it to read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(tmp_path, mode="w"),
+    )
+
+    # Setup the component
+    component2 = WflowConfigComponent(
+        model=mock_model,
+        default_template_filename=Path(DATADIR, "wflow", "wflow_sbm.toml"),
+    )
+    assert component2._data is None  # Assert no data or structure yet
+
+    # Read at init
+    assert len(component2.data) == 6
+    assert component2.data["dir_output"] == "run_default"
     assert (
         f"No config file found at {Path(tmp_path, component._filename).as_posix()} \
 defaulting to"

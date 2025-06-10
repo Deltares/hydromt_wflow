@@ -18,21 +18,14 @@ logger = logging.getLogger(f"hydromt.{__name__}")
 
 
 class WflowConfigComponent(ModelComponent):
-    """Manage the wflow configurations.
+    """Manage the wflow TOML configuration file for model simulations/settings.
 
-    Parameters
-    ----------
-    model : Model
-        HydroMT model instance
-    filename : str
-        A path relative to the root where the configuration file will
-        be read and written if user does not provide a path themselves.
-        By default 'wflow_sbm.toml'
-    default_template_filename : str, optional
-        A path to a template file that will be used as default in the ``create``
-        method to initialize the configuration file if the user does not provide
-        their own template file. This can be used by model plugins to provide a
-        default configuration template. By default None.
+    ``WflowConfigComponent`` data is stored in a tomlkit.TOMLDocument. The component
+    is used to prepare and update model simulations/settings of the wflow model.
+    TOML config files will be read and written using
+    `TOMLkit <https://tomlkit.readthedocs.io/en/latest/quickstart/>`__.
+    This package will preserve the order and comments in a TOML file. Note, that any
+    comments associated with sections that are to be updated will still disappear.
     """
 
     def __init__(
@@ -42,6 +35,23 @@ class WflowConfigComponent(ModelComponent):
         filename="wflow_sbm.toml",
         default_template_filename: Path | str | None = None,
     ):
+        """
+        Initialize a WflowConfigComponent.
+
+        Parameters
+        ----------
+        model : Model
+            HydroMT model instance
+        filename : str
+            A path relative to the root where the configuration file will
+            be read and written if user does not provide a path themselves.
+            By default 'wflow_sbm.toml'
+        default_template_filename : str, optional
+            A path to a template file that will be used as default in the ``create``
+            method to initialize the configuration file if the user does not provide
+            their own template file. This can be used by model plugins to provide a
+            default configuration template. By default None.
+        """
         self._data: tomlkit.TOMLDocument[str, Any] | None = None
         self._filename: str = filename
         self._default_template_filename: Path | str | None = default_template_filename
@@ -63,7 +73,10 @@ with type {type(other).__name__}"
         """Initialize the model config."""
         if self._data is None:
             self._data = tomlkit.TOMLDocument()
-            if self.root.is_reading_mode() and not skip_read:
+            if not skip_read:
+                # no check for read mode here
+                # model config is read if in read-mode and it exists
+                # default config if in write-mode
                 self.read()
 
     ## Properties
@@ -80,15 +93,19 @@ with type {type(other).__name__}"
         self,
         path: Path | str | None = None,
     ):
-        """Read the wflow configurations file."""
+        """Read the wflow configuration file at <root>/{path}."""
         self._initialize(skip_read=True)
 
-        # Solve pathing
+        # Check if user-defined path or template should be used
         p = path or self._filename
         read_path = Path(self.root.path, p)
 
         # Switch to default if available and supplied config is not found
-        if not read_path.is_file() and self._default_template_filename is not None:
+        if (
+            not read_path.is_file()
+            and self._default_template_filename is not None
+            and not self.root.is_reading_mode()
+        ):
             _new_path = Path(self.root.path, self._default_template_filename)
             logger.warning(
                 f"No config file found at {read_path.as_posix()} \
