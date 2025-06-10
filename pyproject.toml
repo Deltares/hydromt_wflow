@@ -56,6 +56,7 @@ docs = [
   "sphinx",
   "sphinx_design",
   "sphinx_autosummary_accessors",
+  "sbom4python"
 ]
 extra = ["gwwapi", "hydroengine", "pyet", "wradlib"]
 examples = [
@@ -147,7 +148,36 @@ lint = { cmd = ["pre-commit", "run", "--all"] }
 # Docker related stuff (expand in future)
 docker-clean = { cmd = ["docker", "system", "prune", "-f"] }
 
+# Clean up (some of) the temporary files
+clean = { depends-on = [
+  "clean-bin",
+  "clean-dist",
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
+] }
+clean-bin = { cmd = ["rm", "-rf", "bin"] }
+clean-dist = { cmd = ["rm", "-rf", "dist"] }
+clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
+clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
+clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
+clean-docs = { depends-on = [
+  "clean-docs-build",
+  "clean-docs-example",
+  "clean-docs-gen",
+] }
+
 # Documentation generation
+[tool.pixi.feature.docs.tasks]
+generate-sbom = { cmd = [
+  "sbom4python",
+  "--module", "hydromt_wflow",
+  "--output-file", "hydromt-wflow-sbom.json",
+  "--sbom", "spdx",
+  "--format", "json",
+  "--system",
+] }
+
 docs-dummy = { cmd = [
   "sphinx-build",
   "./docs",
@@ -177,6 +207,7 @@ serve = { cmd = [
 ] }
 
 # Testing
+[tool.pixi.feature.test.tasks]
 test = { cmd = ["pytest"] }
 test-lf = { cmd = ["pytest", "--lf", "--tb=short"] }
 test-cov = { cmd = [
@@ -194,24 +225,6 @@ test-cov-local = { cmd = [
   "html",
 ] }
 
-# Clean up (some of) the temporary files
-clean = { depends-on = [
-  "clean-bin",
-  "clean-dist",
-  "clean-docs-build",
-  "clean-docs-example",
-  "clean-docs-gen",
-] }
-clean-bin = { cmd = ["rm", "-rf", "bin"] }
-clean-dist = { cmd = ["rm", "-rf", "dist"] }
-clean-docs-build = { cmd = ["rm", "-rf", "docs/_build"] }
-clean-docs-example = { cmd = ["rm", "-rf", "docs/_examples"] }
-clean-docs-gen = { cmd = ["rm", "-rf", "docs/_generated"] }
-clean-docs = { depends-on = [
-  "clean-docs-build",
-  "clean-docs-example",
-  "clean-docs-gen",
-] }
 
 ## Dependencies
 [tool.pixi.dependencies]
