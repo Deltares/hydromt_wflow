@@ -55,9 +55,11 @@ class WflowGeomsComponent(GeomsComponent):
 
         # Check on resolution
         hydrography_resolution = ds_org.raster.res[0]
-        scale_ratio = np.round(resolution) / hydrography_resolution
+        scale_ratio = resolution / hydrography_resolution
 
-        if scale_ratio < 0.75:
+        if math.isclose(scale_ratio, 1):
+            pass
+        elif scale_ratio < 0.75:
             raise ValueError(
                 f"Model resolution {resolution} should be larger than the "
                 f"{hydrography_fn} resolution {hydrography_resolution}."
@@ -65,7 +67,7 @@ class WflowGeomsComponent(GeomsComponent):
         elif 0.75 < scale_ratio < 1.25:
             logger.warning(
                 f"Model resolution {resolution} does not match the hydrography "
-                f"resolution {hydrography_resolution}. This might lead to unexpected"
+                f"resolution {hydrography_resolution}. This might lead to unexpected "
                 f"results, using hydrography resolution instead: "
                 f"{hydrography_resolution}."
             )
@@ -74,8 +76,8 @@ class WflowGeomsComponent(GeomsComponent):
             if ds_org.raster.crs.is_geographic:
                 if resolution > 1:  # 111 km
                     raise ValueError(
-                        f"The model resolution {resolution} should be smaller than 1 \
-    degree (111km) for geographic coordinate systems. "
+                        f"The model resolution {resolution} should be smaller than 1 "
+                        "degree (111km) for geographic coordinate systems. "
                         "Make sure you provided res in degree rather than in meters."
                     )
 
