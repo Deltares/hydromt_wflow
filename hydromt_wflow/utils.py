@@ -474,53 +474,6 @@ def get_grid_from_config(
     return da
 
 
-def mask_raster_from_layer(
-    data: xr.Dataset | xr.DataArray, mask: xr.DataArray
-) -> xr.Dataset | xr.DataArray:
-    """Mask the data in the supplied grid based on the value in one of the layers.
-
-        This for example can be used to mask a grid based on subcatchment data.
-        All data in the rest of the data variables in the dataset will be set to
-        the `raster.nodata` value except for boolean variables which will be set to
-        False. If the supplied grid is not an xarray dataset, or does not contain
-        the correct layer, it will be returned unaltered.
-
-        The layer supplied can be either boolean or numeric. Array elements where the
-        layer is larger than 0 (after type conversion) will be masked.
-
-    Parameters
-    ----------
-        data (xr.Dataset, xr.DataArray):
-            The grid data containing the data that should be masked
-        layer_name (string):
-            mask that the data will be masked to. Values can be boolean or
-            numeric. Places where this layer is different than the rater nodata will be
-            masked in the other data variables
-
-    Returns
-    -------
-        xr.Dataset, xr.DataArray: The grid with all of the data variables masked.
-    """
-    mask = mask != mask.raster.nodata
-    # Need to duplicate or else data should have a name ie we duplicate functionality
-    # of GridModel.set_grid
-    if isinstance(data, xr.DataArray):
-        # nodata is required for all but boolean fields
-        if data.dtype != "bool":
-            data = data.where(mask, data.raster.nodata)
-        else:
-            data = data.where(mask, False)
-    else:
-        for var in data.data_vars:
-            # nodata is required for all but boolean fields
-            if data[var].dtype != "bool":
-                data[var] = data[var].where(mask, data[var].raster.nodata)
-            else:
-                data[var] = data[var].where(mask, False)
-
-    return data
-
-
 def _convert_to_wflow_v1(
     config: tomlkit.TOMLDocument,
     wflow_vars: Dict,

@@ -1,16 +1,18 @@
 import logging
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, PropertyMock
 
+import numpy as np
 import pytest
 import xarray as xr
+from hydromt.model import ModelRoot
 
-from hydromt_wflow.components import StaticmapsComponent, WflowConfigComponent
+from hydromt_wflow.components import WflowConfigComponent, WflowStaticmapsComponent
 
 
-def test_staticmaps_component_init(mock_model: MagicMock):
+def test_wflow_staticmaps_component_init(mock_model: MagicMock):
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # Assert that the internal data is None
     assert component._data is None
@@ -21,28 +23,32 @@ def test_staticmaps_component_init(mock_model: MagicMock):
     assert len(component.data) == 0  # Zero data vars
 
 
-def test_staticmaps_component_set(
+def test_wflow_staticmaps_component_set(
     mock_model: MagicMock,
     static_layer: xr.DataArray,
 ):
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # Set the data in the component
     component.set(static_layer, "layer1")
+    # Set with name included in the dataarray
+    static_layer.name = "layer2"
+    component.set(static_layer * 2)
 
     # Assert the data
     assert "layer1" in component.data.data_vars
+    assert "layer2" in component.data.data_vars
     assert list(component.data.dims) == ["lat", "lon"]
 
 
-def test_staticmaps_component_set_cyclic(
+def test_wflow_staticmaps_component_set_cyclic(
     mock_model: MagicMock,
     cyclic_layer: xr.DataArray,
     cyclic_layer_large: xr.DataArray,
 ):
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # Set the data in the component
     component.set(cyclic_layer, "layer1")
@@ -68,12 +74,41 @@ def test_staticmaps_component_set_cyclic(
     assert "time" in component.data.dims  # Still there, not changed
 
 
-def test_staticmaps_component_set_errors(
+def test_wflow_staticmaps_component_set_mask(
+    mock_model: MagicMock,
+    static_layer: xr.DataArray,
+    mask_layer: xr.DataArray,
+):
+    # Setup the component
+    component = WflowStaticmapsComponent(mock_model)
+
+    # Set with the mask supplied as a dataarray
+    component.set(static_layer, name="layer1", mask=mask_layer)
+
+    # Assert that layer1 has been masked
+    np.testing.assert_array_equal(
+        component.data["layer1"],
+        np.array([[1, 1], [1, -9999]]),
+    )
+
+    # Set the mask layer in the dataset and use that as the mask in the set method
+    # For the next layer
+    component.set(mask_layer, name="mask")
+    component.set(static_layer, name="layer2", mask="mask")
+
+    # Assert that layer2 has been masked
+    np.testing.assert_array_equal(
+        component.data["layer2"],
+        np.array([[1, 1], [1, -9999]]),
+    )
+
+
+def test_wflow_staticmaps_component_set_errors(
     mock_model: MagicMock,
     cyclic_layer: xr.DataArray,
 ):
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # No naming given either via the dataarray or argument
     with pytest.raises(ValueError, match="Unable to set DataArray data without a name"):
@@ -98,19 +133,43 @@ def test_staticmaps_component_set_errors(
         )
 
 
-def test_staticmaps_component_set_warnings(
+def test_wflow_staticmaps_component_set_warnings(
+    caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
     static_layer: xr.DataArray,
+    cyclic_layer: xr.DataArray,
+    cyclic_layer_large: xr.DataArray,
 ):
-    pass
+    caplog.set_level(logging.WARNING)
+    # Setup the component
+    component = WflowStaticmapsComponent(mock_model)
+
+    # Set the data
+    component.set(static_layer, "layer1")
+    component.set(cyclic_layer.rename(time="layer"), "layer2")
+
+    # First warning when replacing a layer that is already present
+    component.set(static_layer * 2, "layer1")
+    # Assert the logging message
+    assert "Replacing grid map: layer1" in caplog.text
+
+    # Second warning when setting a layer with a 'layer' dimension that differs
+    # from the layer dimension that is already in there
+    component.set(cyclic_layer_large.rename(time="layer"), "layer3")
+    # Assert the logging message
+    assert (
+        "Replacing 'layer' coordinate, dropping variables \
+(['layer2']) associated with old coordinate"
+        in caplog.text
+    )
 
 
-def test_staticmaps_component_update_names(
+def test_wflow_staticmaps_component_update_names(
     mock_model: MagicMock,
     static_layer: xr.DataArray,
 ):
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # Set data like a dummy
     component._data = static_layer.to_dataset(name="layer1")
@@ -125,14 +184,14 @@ def test_staticmaps_component_update_names(
     assert "bar" in component.data.data_vars
 
 
-def test_staticmaps_component_update_names_warming(
+def test_wflow_staticmaps_component_update_names_warming(
     caplog: pytest.LogCaptureFixture,
     mock_model: MagicMock,
     static_layer: xr.DataArray,
 ):
     caplog.set_level(logging.INFO)
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # Set data like a dummy
     component._data = static_layer.to_dataset(name="layer1")
@@ -143,11 +202,68 @@ def test_staticmaps_component_update_names_warming(
     assert "Could not rename ['layer2'], not found in data" in caplog.text
 
 
-def test_staticmaps_component_read():
-    pass
+def test_wflow_staticmaps_component_read(
+    tmp_path: Path,
+    mock_model: MagicMock,
+    static_file: Path,
+):
+    # Set the root to model dir in read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(tmp_path, mode="r+"),
+    )
+    # Add the config component as the mocked property will kind of screw this test
+    mock_model.config = WflowConfigComponent(mock_model)
+    # To make sure the name can be found in the config
+    mock_model.config.set("input.path_static", "tmp.nc")
+
+    # Setup the component
+    component = WflowStaticmapsComponent(mock_model)
+    # Assert the internal data is None
+    assert component._data is None
+
+    # Read the data
+    component.read()
+
+    # Assert the data
+    assert isinstance(component.data, xr.Dataset)
+    assert "layer1" in component.data.data_vars
+    assert len(component.data) == 2  # 2 layers
+
+    # Can also be read by using the argument in read
+    component._data = None
+    mock_model.config.set("input.path_static", "unknown.nc")
+    component.read(filename="tmp.nc")
+
+    # Assert the data
+    assert isinstance(component.data, xr.Dataset)
+    assert "layer1" in component.data.data_vars
+    assert len(component.data) == 2  # 2 layers
 
 
-def test_staticmaps_component_write(
+def test_wflow_staticmaps_component_read_empty(
+    tmp_path: Path,
+    mock_model: MagicMock,
+):
+    # Set the root to model dir in read mode
+    type(mock_model).root = PropertyMock(
+        side_effect=lambda: ModelRoot(tmp_path, mode="r"),
+    )
+    # Add the config component as the mocked property will kind of screw this test
+    mock_model.config = WflowConfigComponent(mock_model)
+
+    # Setup the component
+    component = WflowStaticmapsComponent(mock_model)
+    # Assert the internal data is None
+    assert component._data is None
+
+    # Read the data
+    component.read()
+    # Assert that its an emptry Dataset
+    assert isinstance(component.data, xr.Dataset)
+    assert len(component.data) == 0
+
+
+def test_wflow_staticmaps_component_write(
     mock_model: MagicMock,
     static_layer: xr.DataArray,
 ):
@@ -155,7 +271,7 @@ def test_staticmaps_component_write(
     mock_model.config = WflowConfigComponent(mock_model)
 
     # Setup the component
-    component = StaticmapsComponent(mock_model)
+    component = WflowStaticmapsComponent(mock_model)
 
     # Set the data like a dummy
     component._data = static_layer.to_dataset(name="layer1")

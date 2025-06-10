@@ -9,6 +9,7 @@ from hydromt import DataCatalog
 from hydromt.model import ModelRoot
 from pyproj.crs import CRS
 from pytest_mock import MockerFixture
+from tomlkit import TOMLDocument
 
 from hydromt_wflow import WflowModel
 
@@ -18,12 +19,20 @@ if platform.system().lower() != "windows":
 TEST_COMPONENT_ROOT_FOLDER = Path(__file__).parent
 
 
+## OS related fixture
+@pytest.fixture(scope="session")
+def mount_string() -> str:
+    if platform.system().lower() == "windows":
+        return "d:/"
+    return "/d/"  # Posix paths
+
+
 ## Data directories
 @pytest.fixture(scope="session")
 def cached_models() -> Path:
     p = Path(TEST_COMPONENT_ROOT_FOLDER, "..", "..", "examples", SUBDIR)
     assert p.is_dir()
-    return p
+    return p.resolve()
 
 
 @pytest.fixture(scope="session")
@@ -58,6 +67,22 @@ def config_dummy_data() -> dict:
 
 
 @pytest.fixture
+def config_dummy_document(tmp_path: Path) -> TOMLDocument:
+    data = TOMLDocument()
+    data.update(
+        {
+            "foo": "bar",
+            "baz": {
+                "file1": Path(tmp_path, "tmp.txt").as_posix(),
+                "file2": "tmp/tmp.txt",
+            },
+            "spooky": {"ghost": [1, 2, 3]},
+        }
+    )
+    return data
+
+
+@pytest.fixture
 def cyclic_layer() -> xr.DataArray:
     da = xr.DataArray(
         np.ones((12, 2, 2)),
@@ -68,6 +93,7 @@ def cyclic_layer() -> xr.DataArray:
         },
         dims=["time", "lat", "lon"],
     )
+    da.raster.set_nodata(-9999)
     return da
 
 
@@ -82,6 +108,23 @@ def cyclic_layer_large() -> xr.DataArray:
         },
         dims=["time", "lat", "lon"],
     )
+    da.raster.set_nodata(-9999)
+    return da
+
+
+@pytest.fixture
+def mask_layer() -> xr.DataArray:
+    data = np.ones((2, 2))
+    data[1, 1] = -9999
+    da = xr.DataArray(
+        data,
+        coords={
+            "lat": range(2),
+            "lon": range(2),
+        },
+        dims=["lat", "lon"],
+    )
+    da.raster.set_nodata(-9999)
     return da
 
 
@@ -96,4 +139,18 @@ def static_layer() -> xr.DataArray:
         dims=["lat", "lon"],
     )
     da.raster.set_crs(4326)
+    da.raster.set_nodata(-9999)
     return da
+
+
+@pytest.fixture
+def static_file(tmp_path: Path, static_layer: xr.DataArray) -> Path:
+    p = Path(tmp_path, "tmp.nc")
+    ds = static_layer.to_dataset(name="layer1")
+    ds["layer2"] = static_layer.where(
+        static_layer == static_layer.raster.nodata,
+        static_layer * 2,
+    )
+    ds = ds.raster.gdal_compliant()
+    ds.to_netcdf(p)
+    return p

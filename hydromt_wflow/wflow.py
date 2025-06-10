@@ -30,14 +30,13 @@ from hydromt.model.processes.region import (
 
 from hydromt_wflow import workflows
 from hydromt_wflow.components import (
-    StaticmapsComponent,
     WflowConfigComponent,
+    WflowStaticmapsComponent,
 )
 from hydromt_wflow.naming import _create_hydromt_wflow_mapping_sbm
 from hydromt_wflow.utils import (
     DATADIR,
     convert_to_wflow_v1_sbm,
-    mask_raster_from_layer,
     read_csv_results,
 )
 
@@ -83,7 +82,7 @@ class WflowModel(Model):
         # This is when config_fn should be able to be passed to ConfigComponent later
         components = {
             "config": WflowConfigComponent(self, filename=str(config_path)),
-            "staticmaps": StaticmapsComponent(self),
+            "staticmaps": WflowStaticmapsComponent(self),
         }
 
         super().__init__(
@@ -113,7 +112,7 @@ class WflowModel(Model):
         return self.components["config"]
 
     @property
-    def staticmaps(self) -> StaticmapsComponent:
+    def staticmaps(self) -> WflowStaticmapsComponent:
         """Return the staticmaps component."""
         return self.components["staticmaps"]
 
@@ -5059,7 +5058,7 @@ Run setup_soilmaps first"
     @hydromt_step
     def set_grid(
         self,
-        data: xr.DataArray | xr.Dataset | np.ndarray,
+        data: xr.DataArray | xr.Dataset,
         name: str | None = None,
     ):
         """Add data to grid.
@@ -5089,51 +5088,8 @@ Run setup_soilmaps first"
             Name of new map layer, this is used to overwrite the name of a DataArray and
             ignored if data is a Dataset
         """
-        if "time" in data.dims:
-            # Raise error if the dimension does not have a supported length
-            if len(data.time) not in [12, 365, 366]:
-                raise ValueError(
-                    f"Length of cyclic dataset ({len(data)}) is not supported by "
-                    "Wflow.jl. Ensure the data has length 12, 365, or 366"
-                )
-            tname = "time"
-            time_axes = {
-                k: v for k, v in dict(self.grid.dims).items() if k.startswith("time")
-            }
-            if data["time"].size not in time_axes.values():
-                tname = f"time_{data['time'].size}" if "time" in time_axes else tname
-            else:
-                k = list(
-                    filter(lambda x: time_axes[x] == data["time"].size, time_axes)
-                )[0]
-                tname = k
-
-            if tname != "time":
-                data = data.rename_dims({"time": tname})
-        if "layer" in data.dims and "layer" in self.grid:
-            if len(data["layer"]) != len(self.grid["layer"]):
-                vars_to_drop = [
-                    var for var in self.grid.variables if "layer" in self.grid[var].dims
-                ]
-                # Drop variables
-                logger.info(
-                    "Dropping these variables, as they depend on the layer "
-                    f"dimension: {vars_to_drop}"
-                )
-                # Use `_grid` as `grid` cannot be set
-                self._grid = self.grid.drop_vars(vars_to_drop)
-
-        if isinstance(data, np.ndarray):
-            # TODO: because of all types for data, masking should move to
-            # GridModel.set_grid or we should duplicate functionality here
-            if name is not None:
-                logger.warning(f"Layer {name} will not be masked with basins.")
-        elif self._MAPS["basins"] in self.grid:
-            data = mask_raster_from_layer(data, self.grid[self._MAPS["basins"]])
-        elif self._MAPS["basins"] in data:
-            data = mask_raster_from_layer(data, data[self._MAPS["basins"]])
-        # fall back on default set_grid behaviour
-        super().set_grid(self, data, name)
+        # Call the staticmaps set method
+        self.staticmaps.set(data, name=name, mask=self._MAPS["basins"])
 
     @hydromt_step
     def read_geoms(

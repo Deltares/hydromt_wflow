@@ -9,12 +9,14 @@ from hydromt.model import Model
 from hydromt.model.components import GridComponent
 from hydromt.model.steps import hydromt_step
 
-__all__ = ["StaticmapsComponent"]
+from hydromt_wflow.components.utils import get_mask_layer
+
+__all__ = ["WflowStaticmapsComponent"]
 
 logger = logging.getLogger(f"hydromt.{__name__}")
 
 
-class StaticmapsComponent(GridComponent):
+class WflowStaticmapsComponent(GridComponent):
     """Custom staticmaps component.
 
     Inherits from the HydroMT-core GridComponent model-component.
@@ -144,6 +146,7 @@ class StaticmapsComponent(GridComponent):
         self,
         data: xr.DataArray | xr.Dataset,
         name: str | None = None,
+        mask: str | xr.DataArray | None = None,
     ):
         """Add data to the staticmaps.
 
@@ -156,6 +159,8 @@ class StaticmapsComponent(GridComponent):
         name : str, optional
             Name of new map layer, this is used to overwrite the name of a DataArray
             and ignored if data is a Dataset
+        mask : str | xr.DataArray, optional
+            A mask to clip
         """
         self._initialize_grid()
         assert self._data is not None
@@ -195,24 +200,34 @@ class StaticmapsComponent(GridComponent):
         if "layer" in data.dims and "layer" in self.data:
             if len(data["layer"]) != len(self.data["layer"]):
                 vars_to_drop = [
-                    var for var in self.data.variables if "layer" in self.data[var].dims
+                    var for var in self.data.data_vars if "layer" in self.data[var].dims
                 ]
                 # Drop variables
-                logger.info(
-                    "Dropping these variables, as they depend on the layer "
-                    f"dimension: {vars_to_drop}"
+                logger.warning(
+                    f"Replacing 'layer' coordinate, dropping variables \
+({vars_to_drop}) associated with old coordinate"
                 )
                 # Use `_grid` as `grid` cannot be set
-                self._data = self.data.drop_vars(vars_to_drop)
+                self._data = self.data.drop_vars(vars_to_drop + ["layer"])
 
-        # Really set the data
-        if len(self._data) == 0:  # empty grid
-            self._data = data
-        else:
-            for dvar in data.data_vars:
-                if dvar in self._data and self.root.is_reading_mode():
-                    logger.warning(f"Replacing grid map: {dvar}")
-                self._data[dvar] = data[dvar]
+        # Determine the masking layer
+        mask = get_mask_layer(mask, self.data, data)
+
+        # Set the data per layer
+        for dvar in data.data_vars:
+            # TODO removed reading mode check, review the exact effect of this
+            # I personally couldn't see the point..
+            if dvar in self._data:
+                logger.warning(f"Replacing grid map: {dvar}")
+            if mask is not None:
+                # TODO maybe we could outlaw boolean layers
+                # Instead use 0 and 1 for actual data and -1 or -9999 for all i care
+                # for the nodata value
+                if data[dvar].dtype != "bool":
+                    data[dvar] = data[dvar].where(mask, data[dvar].raster.nodata)
+                else:
+                    data[dvar] = data[dvar].where(mask, False)
+            self._data[dvar] = data[dvar]
 
     ## Setup and update methods
     @hydromt_step
