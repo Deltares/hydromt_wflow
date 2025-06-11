@@ -1,18 +1,11 @@
+import glob
 import logging
-import math
+from pathlib import Path
 from typing import Optional
 
 import geopandas as gpd
-import numpy as np
-import xarray as xr
 from hydromt.model import Model
 from hydromt.model.components import GeomsComponent
-from hydromt.model.processes.basin_mask import get_basin_geometry
-from hydromt.model.processes.region import (
-    _parse_region_value,
-    parse_region_bbox,
-    parse_region_geom,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +25,24 @@ class WflowGeomsComponent(GeomsComponent):
         region_component: Optional[str] = None,
         region_filename: str = "geoms/geoms_region.geojson",
     ):
+        """Initialize a GeomsComponent.
+
+        Parameters
+        ----------
+        model: Model
+            HydroMT model instance
+        filename: str
+            The path to use for reading and writing of component data by default.
+            by default "geoms/{name}.geojson", i.e. one file per geodataframe in
+            the data dictionary.
+        region_component: str, optional
+            The name of the region component to use as reference for this component's
+            region. If None, the region will be set to the union of all geometries in
+            the data dictionary.
+        region_filename: str
+            The path to use for writing the region data to a file. By default
+            "geoms/geoms_region.geojson".
+        """
         super().__init__(
             model=model,
             filename=filename,
@@ -39,108 +50,99 @@ class WflowGeomsComponent(GeomsComponent):
             region_filename=region_filename,
         )
 
-    def parse_region(
+    def read(
         self,
-        region: dict,
-        hydrography_fn: str | xr.Dataset,
-        resolution: float | int = 1 / 120.0,
-        basin_index_fn: str | xr.Dataset | None = None,
-    ) -> tuple[gpd.GeoDataFrame, Optional[np.ndarray], xr.Dataset]:
-        """Parse the region dictionary to get basin geometry and coordinates."""
-        ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
-        if ds_org is None:
-            raise ValueError(
-                f"hydrography_fn {hydrography_fn} not found in data catalog."
-            )
+        read_dir: Path,
+        merge_data: bool = False,
+        **kwargs: dict,
+    ):
+        r"""Read model geometries files at <read_dir>/*.geojson.
 
-        # Check on resolution
-        hydrography_resolution = ds_org.raster.res[0]
-        scale_ratio = resolution / hydrography_resolution
+        key-word arguments are passed to :py:func:`geopandas.read_file`
 
-        if math.isclose(scale_ratio, 1):
-            pass
-        elif scale_ratio < 0.75:
-            raise ValueError(
-                f"Model resolution {resolution} should be larger than the "
-                f"{hydrography_fn} resolution {hydrography_resolution}."
-            )
-        elif 0.75 < scale_ratio < 1.25:
-            logger.warning(
-                f"Model resolution {resolution} does not match the hydrography "
-                f"resolution {hydrography_resolution}. This might lead to unexpected "
-                f"results, using hydrography resolution instead: "
-                f"{hydrography_resolution}."
-            )
-            resolution = hydrography_resolution
-        else:
-            if ds_org.raster.crs.is_geographic:
-                if resolution > 1:  # 111 km
-                    raise ValueError(
-                        f"The model resolution {resolution} should be smaller than 1 "
-                        "degree (111km) for geographic coordinate systems. "
-                        "Make sure you provided res in degree rather than in meters."
-                    )
+        Parameters
+        ----------
+        read_dir : Path
+            The directory to read the geometry files from.
+        merge_data : bool, optional
+            If True, the data will be merged into the existing data dictionary.
+            If False, the existing data will be cleared before reading.
+        **kwargs:
+            Additional keyword arguments that are passed to the
+            `geopandas.read_file` function.
+        """
+        if not merge_data:
+            self._data = {}
 
-        # get basin geometry and clip data
-        kind = next(iter(region))
-        xy = None
-        if kind in ["basin", "subbasin"]:
-            # parse_region_basin does not return xy, only geom...
-            # should be fixed in core
-            region_kwargs = _parse_region_value(
-                region.pop(kind),
-                data_catalog=self.data_catalog,
-            )
-            region_kwargs.update(region)
-            if basin_index_fn is not None:
-                bas_index = self.data_catalog.get_source(basin_index_fn)
+        fns = glob.glob(str(read_dir / "*.geojson"))
+        if fns:
+            logger.info("Reading model staticgeom files.")
+        for fn in fns:
+            name = Path(fn).stem
+            if name != "region":
+                self.set(gpd.read_file(fn, **kwargs), name=name)
+
+    def write(
+        self,
+        dir_out: Path,
+        to_wgs84: bool = False,
+        precision: Optional[int] = None,
+        **kwargs,
+    ) -> None:
+        r"""Write model geometries to a vector file (by default GeoJSON) at <dir_out>/*.geojson.
+
+        key-word arguments are passed to :py:meth:`geopandas.GeoDataFrame.to_file`
+
+        Parameters
+        ----------
+        dir_out: Path, optional
+            The directory to write the geometry files to. If it does not exist, it will
+            be created.
+        to_wgs84: bool, optional
+            If True, the geoms will be reprojected to WGS84(EPSG:4326) before being
+            written.
+        precision: int, optional
+            The precision to use for writing the geometries. If None, it will be set to 1
+            for projected CRS and 6 for geographic CRS.
+        **kwargs:
+            Additional keyword arguments that are passed to the
+            `geopandas.to_file` function.
+        """  # noqa: E501
+        self.root._assert_write_mode()
+        if len(self.data) == 0:
+            logger.debug("No geoms data found, skip writing.")
+            return
+
+        if precision is None:
+            if self.crs.is_projected:
+                _precision = 1
             else:
-                bas_index = None
-            geom, xy = get_basin_geometry(
-                ds=ds_org,
-                kind=kind,
-                basin_index=bas_index,
-                **region,
-            )
-        elif kind == "bbox":
-            logger.warning(
-                "Kind 'bbox' for the region is not recommended as it can lead "
-                "to mistakes in the catchment delineation. Use carefully."
-            )
-            geom = parse_region_bbox(region)
-        elif kind == "geom":
-            logger.warning(
-                "Kind 'geom' for the region is not recommended as it can lead "
-                "to mistakes in the catchment delineation. Use carefully."
-            )
-            geom = parse_region_geom(region)
+                _precision = 6
         else:
-            raise ValueError(
-                f"wflow region kind not understood or supported: {kind}. "
-                "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+            _precision = precision
+
+        grid_size = 10 ** (-_precision)
+        dir_out.parent.mkdir(parents=True, exist_ok=True)
+
+        for name, gdf in self.data.items():
+            if len(gdf) == 0:
+                logger.warning(f"{name} is empty. Skipping...")
+                continue
+            fn_out = dir_out / f"{name}.geojson"
+            logger.debug(f"Writing file {fn_out}")
+
+            gdf.geometry.set_precision(
+                grid_size=grid_size,
             )
-
-        if geom is not None and geom.crs is None:
-            raise ValueError("wflow region geometry has no CRS")
-
-        # Set the basins geometry
-        logger.debug("Adding basins vector to geoms.")
-        ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
-        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
-
-        # Set name based on scale_factor
-        if not math.isclose(scale_ratio, 1):
-            self.set(geom, name="basins_highres")
-
-        return geom, xy, ds_org
+            if to_wgs84:
+                gdf.to_crs(epsg=4326, inplace=True)
+            gdf.to_file(fn_out, **kwargs)
 
     def get(self, name: str) -> Optional[gpd.GeoDataFrame | gpd.GeoSeries]:
         """Get geometry by name."""
         geom = self.data.get(name, None)
         if geom is None:
             logger.warning(f"Geometry '{name}' not found in geoms.")
-        else:
-            logger.info(f"Retrieved geometry '{name}' from geoms.")
         return geom
 
     def pop(

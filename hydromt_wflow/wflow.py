@@ -4,10 +4,11 @@
 
 import glob
 import logging
+import math
 import os
 from os.path import basename, dirname, isdir, isfile, join
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import geopandas as gpd
 import hydromt
@@ -25,6 +26,8 @@ from hydromt.model import Model
 from hydromt.model.processes.basin_mask import get_basin_geometry
 from hydromt.model.processes.region import (
     _parse_region_value,
+    parse_region_bbox,
+    parse_region_geom,
 )
 
 import hydromt_wflow.utils as utils
@@ -76,10 +79,9 @@ class WflowModel(Model):
         # Define components when they are implemented
         # This is when config_fn should be able to be passed to ConfigComponent later
         config_component = WflowConfigComponent(self, filename=str(config_path))
-
         geoms_component = WflowGeomsComponent(model=self, region_component="grid")
-
         staticmaps_component = StaticmapsComponent(self)
+
         components = {
             "config": config_component,
             "geoms": geoms_component,
@@ -105,17 +107,6 @@ class WflowModel(Model):
         self._MAPS, self._WFLOW_NAMES = _create_hydromt_wflow_mapping_sbm(
             self.config.data
         )
-
-    # Properties
-    @property
-    def config(self) -> WflowConfigComponent:
-        """Return the config component."""
-        return self.components["config"]
-
-    @property
-    def staticmaps(self) -> StaticmapsComponent:
-        """Return the staticmaps component."""
-        return self.components["staticmaps"]
 
     # SETUP METHODS
     @hydromt_step
@@ -236,7 +227,7 @@ class WflowModel(Model):
         # update self._MAPS and self._WFLOW_NAMES with user defined output names
         self._update_naming(output_names)
 
-        geom, xy, ds_org = self.geoms.parse_region(
+        geom, xy, ds_org = self._parse_region(
             region,
             hydrography_fn=hydrography_fn,
             resolution=res,
@@ -1883,7 +1874,6 @@ gauge locations [-] (if derive_subcatch)
             self.set_grid(da_basins, name=mapname)
             gdf_basins = self.grid[mapname].raster.vectorize()
             self.geoms.set(gdf_basins, name=mapname.replace("wflow_", ""))
-
 
     @hydromt_step
     def setup_areamap(
@@ -5279,36 +5269,34 @@ Run setup_soilmaps first"
         """
         Read static geometries and adds to ``geoms``.
 
-        Assumes that the `geoms_fn` folder is located relative to root and ``dir_input``
-        if defined in the toml. If not found, uses assumes they are in <root/geoms_fn>.
+        If ``dir_input`` is set in the config, that folder will be used to read all
+        geometries, ignoring ``geoms_fn``.
+        If ``dir_input`` is None, it will read all .geojson files at <root>/<geoms_fn>
 
         Parameters
         ----------
         geoms_fn : str, optional
             Folder name/path where the static geometries are stored relative to the
-            model root and ``dir_input`` if any. By default "staticgeoms".
+            model root. By default "staticgeoms".
         """
-        if not self._write:
-            self._geoms = dict()  # fresh start in read-only mode
-        # Check if dir_input is set and add
-        if self.get_config("dir_input") is not None:
-            dir_mod = join(self.get_config("dir_input", abs_path=True), geoms_fn)
+        read_dir = self.get_config("dir_input", abs_path=True)
+        if read_dir is not None:
+            read_dir = Path(read_dir).resolve()
         else:
-            dir_mod = join(self.root, geoms_fn)
+            read_dir = self.root.path / geoms_fn
 
-        fns = glob.glob(join(dir_mod, "*.geojson"))
-        if len(fns) > 1:
-            logger.info("Reading model staticgeom files.")
-        for fn in fns:
-            name = basename(fn).split(".")[0]
-            if name != "region":
-                self.geoms.set(gpd.read_file(fn), name=name)
+        self.geoms.read(
+            read_dir=read_dir,
+            merge_data=not self._write,
+        )
 
     @hydromt_step
     def write_geoms(
         self,
         geoms_fn: str = "staticgeoms",
         precision: int | None = None,
+        to_wgs84: bool = False,
+        **kwargs: dict,
     ):
         """
         Write geoms in GeoJSON format.
@@ -5325,8 +5313,22 @@ Run setup_soilmaps first"
         precision : int, optional
             Decimal precision to write the geometries. By default None to use 1 decimal
             for projected crs and 6 for non-projected crs.
+        to_wgs84 : bool, optional
+            If True, geometries are transformed to WGS84 before writing. By default
+            False, which means geometries are written in their original CRS.
         """
-        self.geoms.write(filename=geoms_fn, precision=precision)
+        dir_out = self.get_config("dir_input", abs_path=True)
+        if dir_out is not None:
+            dir_out = Path(dir_out).resolve()
+        else:
+            dir_out = self.root.path / geoms_fn
+
+        self.geoms.write(
+            dir_out=dir_out,
+            to_wgs84=to_wgs84,
+            precision=precision,
+            kwargs=kwargs,
+        )
 
     @hydromt_step
     def read_forcing(self):
@@ -5925,6 +5927,17 @@ change name input.path_forcing "
             mask=(self.grid[self._MAPS["basins"]] > 0),
         )
 
+    # Properties
+    @property
+    def config(self) -> WflowConfigComponent:
+        """Return the config component."""
+        return self.components["config"]
+
+    @property
+    def staticmaps(self) -> StaticmapsComponent:
+        """Return the staticmaps component."""
+        return self.components["staticmaps"]
+
     @property
     def geoms(self) -> WflowGeomsComponent:
         """Return the WflowGeomsComponent instance."""
@@ -6197,3 +6210,98 @@ change name input.path_forcing "
                     remove_maps.extend([state_name])
             ds_states = ds_states.drop_vars(remove_maps)
             self.set_states(ds_states)
+
+    def _parse_region(
+        self,
+        region: dict,
+        hydrography_fn: str | xr.Dataset,
+        resolution: float | int = 1 / 120.0,
+        basin_index_fn: str | xr.Dataset | None = None,
+    ) -> tuple[gpd.GeoDataFrame, Optional[np.ndarray], xr.Dataset]:
+        """Parse the region dictionary to get basin geometry and coordinates."""
+        ds_org = self.data_catalog.get_rasterdataset(hydrography_fn)
+        if ds_org is None:
+            raise ValueError(
+                f"hydrography_fn {hydrography_fn} not found in data catalog."
+            )
+
+        # Check on resolution
+        hydrography_resolution = ds_org.raster.res[0]
+        scale_ratio = resolution / hydrography_resolution
+
+        if math.isclose(scale_ratio, 1):
+            pass
+        elif scale_ratio < 0.75:
+            raise ValueError(
+                f"Model resolution {resolution} should be larger than the "
+                f"{hydrography_fn} resolution {hydrography_resolution}."
+            )
+        elif 0.75 < scale_ratio < 1.25:
+            logger.warning(
+                f"Model resolution {resolution} does not match the hydrography "
+                f"resolution {hydrography_resolution}. This might lead to unexpected "
+                f"results, using hydrography resolution instead: "
+                f"{hydrography_resolution}."
+            )
+            resolution = hydrography_resolution
+        else:
+            if ds_org.raster.crs.is_geographic:
+                if resolution > 1:  # 111 km
+                    raise ValueError(
+                        f"The model resolution {resolution} should be smaller than 1 "
+                        "degree (111km) for geographic coordinate systems. "
+                        "Make sure you provided res in degree rather than in meters."
+                    )
+
+        # get basin geometry and clip data
+        kind = next(iter(region))
+        xy = None
+        if kind in ["basin", "subbasin"]:
+            # parse_region_basin does not return xy, only geom...
+            # should be fixed in core
+            region_kwargs = _parse_region_value(
+                region.pop(kind),
+                data_catalog=self.data_catalog,
+            )
+            region_kwargs.update(region)
+            if basin_index_fn is not None:
+                bas_index = self.data_catalog.get_source(basin_index_fn)
+            else:
+                bas_index = None
+            geom, xy = get_basin_geometry(
+                ds=ds_org,
+                kind=kind,
+                basin_index=bas_index,
+                **region,
+            )
+        elif kind == "bbox":
+            logger.warning(
+                "Kind 'bbox' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = parse_region_bbox(region)
+        elif kind == "geom":
+            logger.warning(
+                "Kind 'geom' for the region is not recommended as it can lead "
+                "to mistakes in the catchment delineation. Use carefully."
+            )
+            geom = parse_region_geom(region)
+        else:
+            raise ValueError(
+                f"wflow region kind not understood or supported: {kind}. "
+                "Use 'basin', 'subbasin', 'bbox' or 'geom'."
+            )
+
+        if geom is not None and geom.crs is None:
+            raise ValueError("wflow region geometry has no CRS")
+
+        # Set the basins geometry
+        logger.debug("Adding basins vector to geoms.")
+        ds_org = ds_org.raster.clip_geom(geom, align=resolution, buffer=10)
+        ds_org.coords["mask"] = ds_org.raster.geometry_mask(geom)
+
+        # Set name based on scale_factor
+        if not math.isclose(scale_ratio, 1):
+            self.geoms.set(geom, name="basins_highres")
+
+        return geom, xy, ds_org
