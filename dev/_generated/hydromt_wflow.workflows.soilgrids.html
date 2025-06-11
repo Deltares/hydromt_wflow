@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -567,39 +569,38 @@ on soil texture classes. A default table <em>soil_mapping_default</em> is availa
 to derive the infiltration capacity of the soil.</p>
 <p>The following soil parameter maps are calculated:</p>
 <ul class="simple">
-<li><p><strong>thetaS</strong> : average saturated soil water content [m3/m3]</p></li>
-<li><p><strong>thetaR</strong> : average residual water content [m3/m3]</p></li>
-<li><p><strong>KsatVer</strong> : vertical saturated hydraulic conductivity at soil surface [mm/day]</p></li>
-<li><p><strong>SoilThickness</strong> : soil thickness [mm]</p></li>
-<li><p><strong>SoilMinThickness</strong> : minimum soil thickness [mm] (equal to SoilThickness)</p></li>
-<li><p><strong>M</strong> : model parameter [mm] that controls exponential decline of KsatVer with soil depth
-(fitted with curve_fit (scipy.optimize)), bounds of <strong>M</strong> are checked</p></li>
-<li><p><strong>M_</strong> : model parameter [mm] that controls exponential decline of KsatVer with soil depth
-(fitted with numpy linalg regression), bounds of <strong>M_</strong> are checked</p></li>
-<li><p><strong>M_original</strong> : <strong>M</strong> without checking bounds</p></li>
-<li><p><strong>M_original_</strong> : <strong>M_</strong> without checking bounds</p></li>
-<li><p><strong>f</strong> : scaling parameter controlling the decline of KsatVer [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked</p></li>
-<li><p><strong>f_</strong> : scaling parameter controlling the decline of KsatVer [mm-1]
-(fitted with numpy linalg regression), bounds are checked</p></li>
-<li><p><strong>c_</strong> map: Brooks Corey coefficients [-] based on pore size distribution index for the wflow_sbm soil layers.</p></li>
-<li><p><strong>KsatVer_[z]cm</strong> : KsatVer [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
-<li><p><strong>wflow_soil</strong> : USDA Soil texture based on percentage clay, silt, sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</p></li>
+<li><p><strong>theta_s</strong> : average saturated soil water content [m3/m3]</p></li>
+<li><p><strong>theta_r</strong> : average residual water content [m3/m3]</p></li>
+<li><p><a href="#id1"><span class="problematic" id="id2">**</span></a>ksat_vertical ** : vertical saturated hydraulic conductivity at soil</p></li>
 </ul>
+<p>surface [mm/day]
+- <strong>soil_thickness</strong> : soil thickness [mm]
+- <strong>f</strong> : scaling parameter controlling the decline of ksat_vertical [mm-1] (fitted with curve_fit (scipy.optimize)), bounds are checked
+- <strong>soil_f_</strong> : scaling parameter controlling the decline of ksat_vertical  [mm-1]</p>
+<blockquote>
+<div><p>(fitted with numpy linalg regression), bounds are checked</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><strong>soil_brooks_corey_c_</strong> map: Brooks Corey coefficients [-] based on pore size     distribution index for the wflow_sbm soil layers.</p></li>
+<li><p><strong>meta_{soil_fn}_ksat_vertical_[z]cm</strong> : ksat vertical [mm/day] at soil depths [z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</p></li>
+<li><p><strong>meta_soil_texture</strong> : USDA Soil texture based on percentage clay, silt,</p></li>
+</ul>
+<p>sand mapping: [1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, 6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)"><em>xarray.Dataset</em></a>) – Dataset containing soil properties.</p></li>
-<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
-<li><p><strong>ptfKsatVer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – PTF to use for calculation KsatVer.</p></li>
+<li><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.6.1)"><em>xarray.Dataset</em></a>) – Dataset containing soil properties.</p></li>
+<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.6.1)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
+<li><p><strong>ptfKsatVer</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – PTF to use for calculation ksat_vertical .</p></li>
 <li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – soilgrids version {‘soilgrids’, ‘soilgrids_2020’}</p></li>
-<li><p><strong>wflow_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List of soil layer depths [cm] for which c is calculated.</p></li>
+<li><p><strong>wflow_layers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a>) – List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ds_out</strong> – Dataset containing gridded soil parameters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)">xarray.Dataset</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.6.1)">xarray.Dataset</a></p>
 </dd>
 </dl>
 </dd></dl>

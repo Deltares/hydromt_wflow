@@ -436,7 +436,16 @@
 <a class="reference external" href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <section id="unreleased">
 <h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
-<p>These are the unreleased changes.</p>
+<p>This is a pre-release version to start testing support for Wflow.jl version 1.0.0. The main changes are
+linked to the TOML file options. We have dropped support for Wflow.jl &lt; 1.0.0, but we allow users
+to upgrade their models to the new version using the <cite>upgrade_to_v1_wflow</cite> function. If you do not want
+to upgrade your model, you can use an older release of hydromt_wflow.</p>
+<p>In addition, we have updated the default grid names (staticmaps.nc) and states names to be more
+consistent and closer to the Wflow.jl names. We also added the possibility to choose the names of the
+variables in staticmaps.nc files in each of the setup methods. This allows users to have several versions
+of the same variable in the staticmaps.nc file using different options (eg. landuse_corine, landuse_vito, etc.).</p>
+<p>Finally, some of the staticgeoms names have changed, in particular gauges is now outlets and has been
+replaced in the input section of the TOML as well in order to save outputs for these locations.</p>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -449,6 +458,8 @@
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Support for Wflow.jl &gt;= 1.0.0 kernel. The main implication is for the generation of the TOML file. Consequently support for Wflow.jl &lt; 1.0.0 has been dropped (see below).  PR #364</p></li>
+<li><p>All default names in staticmpas.nc and states have been redefined and harmonized. PR #422</p></li>
+<li><p>Some of the geoms names have changed: gauges to outlets and subcatch to subcatchment. PR #422</p></li>
 <li><p><strong>setup_constant_pars</strong>: add the constant value to the TOML rather than creating an extra map in staticmaps.nc. The values should then be linked to the Wflow.jl variable name.  PR #364</p></li>
 <li><p><strong>setup_lulcmaps</strong> and equivalents: parameters to prepare from the mapping table are now linked to Wflow.jl variable names (dictionary and not list) to allow for renaming.  PR #364</p></li>
 <li><p><strong>setup_output_config_timeseries</strong>, <strong>setup_outlets</strong>, <strong>setup_gauges</strong>: the option to save parameters to netcdf scalar file as been renamed from <cite>netcdf</cite> to <cite>netcdf_scalar</cite> to better match the TOML file structure.  PR #364</p></li>
@@ -459,6 +470,8 @@
 <li><p><strong>setup_riverbedsed</strong> [sediment]: added option to derive Kodatie transport capacity parameters based on streamorder mapping. PR #331</p></li>
 <li><p><strong>setup_rivers</strong>, <strong>setup_lakes</strong>, <strong>setup_reservoirs</strong> [sediment]: only create wflow sediment variables and not a mix of sbm and sediment ones.  PR #364</p></li>
 <li><p>Grid data is masked to subcatchment on <cite>set_grid</cite> now instead of on <cite>write_grid</cite> (#349)</p></li>
+<li><p>Signature of the standalone <strong>set_config</strong> and <strong>get_config</strong> functions, config is now first argument</p></li>
+<li><p>TOML file options are added on the fly by each setup method rather than starting from a complete template.</p></li>
 </ul>
 </section>
 <section id="fixed">
@@ -476,7 +489,9 @@
 </section>
 <section id="removed">
 <h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">#</a></h3>
-<p>Dropped support for <cite>pcraster</cite> and removed deprecated <strong>pcrm</strong> module. PR #408</p>
+<ul class="simple">
+<li><p>Dropped support for <cite>pcraster</cite> and removed deprecated <strong>pcrm</strong> module. PR #408</p></li>
+</ul>
 </section>
 </section>
 <section id="v0-8-0-9-april-2025">

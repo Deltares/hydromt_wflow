@@ -626,9 +626,9 @@
     <span class="c1"># Non-cyclic</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gross_per_capita</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="n">ds_demand</span> <span class="o">=</span> <span class="n">popu_scaled</span> <span class="o">*</span> <span class="n">gross_per_capita</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">ds_demand</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;dom_gross&quot;</span>
+        <span class="n">ds_demand</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;domestic_gross&quot;</span>
         <span class="n">ds_demand</span> <span class="o">=</span> <span class="n">ds_demand</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
-        <span class="n">ds_demand</span><span class="p">[</span><span class="s2">&quot;dom_net&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">popu_scaled</span> <span class="o">*</span> <span class="n">net_per_capita</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ds_demand</span><span class="p">[</span><span class="s2">&quot;domestic_net&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">popu_scaled</span> <span class="o">*</span> <span class="n">net_per_capita</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="c1"># Cyclic</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">ds_demand</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
@@ -639,8 +639,8 @@
         <span class="n">ds_demand</span> <span class="o">=</span> <span class="n">ds_demand</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
             <span class="n">time</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gross_per_capita</span><span class="p">))]</span>
         <span class="p">)</span>
-        <span class="n">ds_demand</span> <span class="o">=</span> <span class="n">ds_demand</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;dom_gross&quot;</span><span class="p">)</span>
-        <span class="n">ds_demand</span><span class="p">[</span><span class="s2">&quot;dom_net&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="n">ds_demand</span> <span class="o">=</span> <span class="n">ds_demand</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;domestic_gross&quot;</span><span class="p">)</span>
+        <span class="n">ds_demand</span><span class="p">[</span><span class="s2">&quot;domestic_net&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
             <span class="p">[</span><span class="n">popu_scaled</span> <span class="o">*</span> <span class="n">net_per_capita</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">net_per_capita</span><span class="p">))],</span>
             <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
         <span class="p">)</span>
@@ -927,7 +927,7 @@
         <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
-    <span class="n">swfrac</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;frac_sw_used&quot;</span>
+    <span class="n">swfrac</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;demand_surface_water_ratio&quot;</span>
     <span class="n">swfrac</span><span class="o">.</span><span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;_FillValue&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">9999</span><span class="p">}</span>
     <span class="n">swfrac</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">da_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
 
@@ -1081,9 +1081,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_irrigation: xr.Dataset</span>
-<span class="sd">        Dataset with paddy and non-paddy irrigation maps: [&#39;paddy_irrigation_areas&#39;,</span>
-<span class="sd">        &#39;nonpaddy_irrigation_areas&#39;, &#39;paddy_irrigation_trigger&#39;,</span>
-<span class="sd">        &#39;nonpaddy_irrigation_trigger&#39;]</span>
+<span class="sd">        Dataset with paddy and non-paddy irrigation maps: [</span>
+<span class="sd">        &#39;demand_paddy_irrigated_mask&#39;,</span>
+<span class="sd">        &#39;demand_nonpaddy_irrigated_mask&#39;, &#39;demand_paddy_irrigation_trigger&#39;,</span>
+<span class="sd">        &#39;demand_nonpaddy_irrigation_trigger&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Check that the landuse map is available</span>
     <span class="k">if</span> <span class="s2">&quot;landuse&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds_like</span><span class="p">:</span>
@@ -1097,14 +1098,14 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing irrigated areas map for non paddy.&quot;</span><span class="p">)</span>
     <span class="n">nonpaddy</span> <span class="o">=</span> <span class="n">landuse</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">landuse</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">cropland_class</span><span class="p">),</span> <span class="n">landuse</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
     <span class="n">nonpaddy_areas</span> <span class="o">=</span> <span class="n">classify_pixels</span><span class="p">(</span><span class="n">irrigation_mask</span><span class="p">,</span> <span class="n">nonpaddy</span><span class="p">,</span> <span class="n">area_threshold</span><span class="p">)</span>
-    <span class="n">ds_irrigation</span> <span class="o">=</span> <span class="n">nonpaddy_areas</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;nonpaddy_irrigation_areas&quot;</span><span class="p">)</span>
+    <span class="n">ds_irrigation</span> <span class="o">=</span> <span class="n">nonpaddy_areas</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;demand_nonpaddy_irrigated_mask&quot;</span><span class="p">)</span>
 
     <span class="c1"># Get paddy mask from landuse</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paddy_class</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing irrigated areas map for paddy.&quot;</span><span class="p">)</span>
         <span class="n">paddy</span> <span class="o">=</span> <span class="n">landuse</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">landuse</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">paddy_class</span><span class="p">),</span> <span class="n">landuse</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">nodata</span><span class="p">)</span>
         <span class="n">paddy_areas</span> <span class="o">=</span> <span class="n">classify_pixels</span><span class="p">(</span><span class="n">irrigation_mask</span><span class="p">,</span> <span class="n">paddy</span><span class="p">,</span> <span class="n">area_threshold</span><span class="p">)</span>
-        <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;paddy_irrigation_areas&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paddy_areas</span>
+        <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;demand_paddy_irrigated_mask&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">paddy_areas</span>
 
     <span class="c1"># Calculate irrigation trigger based on LAI</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Calculating irrigation trigger.&quot;</span><span class="p">)</span>
@@ -1114,9 +1115,13 @@
     <span class="n">trigger</span> <span class="o">=</span> <span class="n">calc_lai_threshold</span><span class="p">(</span><span class="n">lai</span><span class="p">,</span> <span class="n">lai_threshold</span><span class="p">)</span>
 
     <span class="c1"># Mask trigger with paddy and nonpaddy</span>
-    <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;nonpaddy_irrigation_trigger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trigger</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">nonpaddy_areas</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;demand_nonpaddy_irrigation_trigger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trigger</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">nonpaddy_areas</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">paddy_class</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;paddy_irrigation_trigger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trigger</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">paddy_areas</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">ds_irrigation</span><span class="p">[</span><span class="s2">&quot;demand_paddy_irrigation_trigger&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trigger</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">paddy_areas</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_irrigation</span></div>
 
@@ -1159,9 +1164,10 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_irrigation: xr.Dataset</span>
-<span class="sd">        Dataset with paddy and non-paddy irrigation maps: [&#39;paddy_irrigation_areas&#39;,</span>
-<span class="sd">        &#39;nonpaddy_irrigation_areas&#39;, &#39;paddy_irrigation_trigger&#39;,</span>
-<span class="sd">        &#39;nonpaddy_irrigation_trigger&#39;]</span>
+<span class="sd">        Dataset with paddy and non-paddy irrigation maps: [</span>
+<span class="sd">        &#39;demand_paddy_irrigated_mask&#39;,</span>
+<span class="sd">        &#39;demand_nonpaddy_irrigated_mask&#39;, &#39;demand_paddy_irrigation_trigger&#39;,</span>
+<span class="sd">        &#39;demand_nonpaddy_irrigation_trigger&#39;]</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>

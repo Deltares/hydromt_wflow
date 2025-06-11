@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -550,7 +552,7 @@
 <h1>hydromt_wflow.WflowSedimentModel.setup_soilmaps<a class="headerlink" href="#hydromt-wflow-wflowsedimentmodel-setup-soilmaps" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowSedimentModel.setup_soilmaps">
-<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_soilmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usleK_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'renard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'land_surface_sediment__d50_diameter':</span> <span class="pre">'d50_soil',</span> <span class="pre">'land_surface_water_sediment__govers_transport_capacity_coefficient':</span> <span class="pre">'c_govers',</span> <span class="pre">'land_surface_water_sediment__govers_transport_capacity_exponent':</span> <span class="pre">'n_govers',</span> <span class="pre">'soil_aggregates~large__mass_fraction':</span> <span class="pre">'flagg_soil',</span> <span class="pre">'soil_aggregates~small__mass_fraction':</span> <span class="pre">'fsagg_soil',</span> <span class="pre">'soil_clay__mass_fraction':</span> <span class="pre">'fclay_soil',</span> <span class="pre">'soil_erosion__rainfall_soil_detachability_factor':</span> <span class="pre">'soil_detachability',</span> <span class="pre">'soil_erosion__usle_k_factor':</span> <span class="pre">'usle_k',</span> <span class="pre">'soil_sand__mass_fraction':</span> <span class="pre">'fsand_soil',</span> <span class="pre">'soil_silt__mass_fraction':</span> <span class="pre">'fsilt_soil'}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_soilmaps" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowSedimentModel.</span></span><span class="sig-name descname"><span class="pre">setup_soilmaps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usle_k_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'renard'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_aggregates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'land_surface_sediment__median_diameter':</span> <span class="pre">'soil_sediment_d50',</span> <span class="pre">'land_surface_water_sediment__govers_transport_capacity_coefficient':</span> <span class="pre">'land_govers_c',</span> <span class="pre">'land_surface_water_sediment__govers_transport_capacity_exponent':</span> <span class="pre">'land_govers_n',</span> <span class="pre">'soil_aggregates~large__mass_fraction':</span> <span class="pre">'soil_lagg_fraction',</span> <span class="pre">'soil_aggregates~small__mass_fraction':</span> <span class="pre">'soil_sagg_fraction',</span> <span class="pre">'soil_clay__mass_fraction':</span> <span class="pre">'soil_clay_fraction',</span> <span class="pre">'soil_erosion__rainfall_soil_detachability_factor':</span> <span class="pre">'erosion_soil_detachability',</span> <span class="pre">'soil_erosion__usle_k_factor':</span> <span class="pre">'erosion_usle_k',</span> <span class="pre">'soil_sand__mass_fraction':</span> <span class="pre">'soil_sand_fraction',</span> <span class="pre">'soil_silt__mass_fraction':</span> <span class="pre">'soil_silt_fraction'}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow_sediment.html#WflowSedimentModel.setup_soilmaps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowSedimentModel.setup_soilmaps" title="Link to this definition">#</a></dt>
 <dd><p>Generate sediments based soil parameter maps.</p>
 <p>Sediment size distribution and addition of small and large aggregates can be
 estimated from primary particle size distribution with Foster et al. (1980).
@@ -559,18 +561,19 @@ Calculation of D50 and fraction of fine and very fine sand (fvfs) from
 Fooladmand et al, 2006.</p>
 <p>Adds model layers:</p>
 <ul class="simple">
-<li><p><strong>fclay_soil</strong>: clay content of the topsoil [g/g]</p></li>
-<li><p><strong>fsilt_soil</strong>: silt content of the topsoil [g/g]</p></li>
-<li><p><strong>fsand_soil</strong>: sand content of the topsoil [g/g]</p></li>
-<li><p><strong>fsagg_soil</strong>: small aggregate content of the topsoil [g/g]</p></li>
-<li><p><strong>flagg_soil</strong>: large aggregate content of the topsoil [g/g]</p></li>
-<li><p><strong>soil_detachability</strong> map: mean detachability of the soil (Morgan et al.,
-1998) [g/J]</p></li>
-<li><p><strong>usle_k</strong> map: soil erodibility factor from the USLE equation [-]</p></li>
-<li><p><strong>d50_soil</strong> map: median sediment diameter of the soil [mm]</p></li>
-<li><p><strong>c_govers</strong> map: Govers factor for overland flow transport capacity [-]</p></li>
-<li><p><strong>n_govers</strong> map: Govers exponent for overland flow transport capacity [-]</p></li>
+<li><p><strong>soil_clay_fraction</strong>: clay content of the topsoil [g/g]</p></li>
+<li><p><strong>soil_silt_fraction</strong>: silt content of the topsoil [g/g]</p></li>
+<li><p><strong>soil_sand_fraction</strong>: sand content of the topsoil [g/g]</p></li>
+<li><p><strong>soil_sagg_fraction</strong>: small aggregate content of the topsoil [g/g]</p></li>
+<li><p><strong>soil_lagg_fraction</strong>: large aggregate content of the topsoil [g/g]</p></li>
+<li><p><strong>erosion_soil_detachability</strong> map: mean detachability of the soil</p></li>
 </ul>
+<p>(Morgan et al., 1998) [g/J]
+* <strong>erosion_usle_k</strong> map: soil erodibility factor from the USLE equation [-]
+* <strong>soil_sediment_d50</strong> map: median sediment diameter of the soil [mm]
+* <strong>land_govers_c</strong> map: Govers factor for overland flow transport capacity [-]
+* <strong>land_govers_n</strong> map: Govers exponent for overland flow transport
+capacity [-]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -579,7 +582,7 @@ Fooladmand et al, 2006.</p>
 <li><p>Required variables: [‘clyppt_sl1’, ‘sltppt_sl1’, ‘oc_sl1’]</p></li>
 </ul>
 </p></li>
-<li><p><strong>usleK_method</strong> (<em>{&quot;renard&quot;</em><em>, </em><em>&quot;epic&quot;}</em>) – Method to compute the USLE K factor, by default renard.</p></li>
+<li><p><strong>usle_k_method</strong> (<em>{&quot;renard&quot;</em><em>, </em><em>&quot;epic&quot;}</em>) – Method to compute the USLE K factor, by default renard.</p></li>
 <li><p><strong>add_aggregates</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Add small and large aggregates based on soil texture, by default True.</p></li>
 <li><p><strong>output_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>, </em><em>optional</em>) – Dictionary with output names that will be used in the model netcdf input
 files. Users should provide the Wflow.jl variable name followed by the name

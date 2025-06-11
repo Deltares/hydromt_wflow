@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -555,14 +557,14 @@
 <p>At model resolution based on gridded upstream area data input or outlet coordinates.</p>
 <p>The following waterbody maps are calculated:</p>
 <ul class="simple">
-<li><p>resareas/lakeareas : waterbody areas mask [ID]</p></li>
-<li><p>reslocs/lakelocs : waterbody outlets [ID]</p></li>
+<li><p>reservoir_area_id/lake_area_id : waterbody areas mask [ID]</p></li>
+<li><p>reservoir_outlet_id/lake_outet_id : waterbody outlets [ID]</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>gdf</strong> (<a class="reference external" href="https://geopandas.org/en/stable/docs/reference/api/geopandas.GeoDataFrame.html#geopandas.GeoDataFrame" title="(in GeoPandas v1.1.0)"><em>geopandas.GeoDataFrame</em></a>) – GeoDataFrame containing reservoirs/lakes geometries and attributes.</p></li>
-<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
+<li><p><strong>ds_like</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.6.1)"><em>xarray.DataArray</em></a>) – Dataset at model resolution.</p></li>
 <li><p><strong>uparea_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of uparea variable in ds_like. If None then database coordinates will be
 used to setup outlets</p></li>
 <li><p><strong>wb_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional either &quot;reservoir&quot;</em><em> or </em><em>&quot;lake&quot;</em>) – Option to change the name of the maps depending on reservoir or lake</p></li>
@@ -572,7 +574,7 @@ used to setup outlets</p></li>
 <dd class="field-even"><p><strong>ds_out</strong> – Dataset containing gridded waterbody data</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.6.1)">xarray.DataArray</a></p>
 </dd>
 </dl>
 </dd></dl>

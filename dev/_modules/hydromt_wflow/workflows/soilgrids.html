@@ -441,7 +441,7 @@
 <span class="n">nodata</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.0</span>
 
 <span class="c1"># default z [cm] of soil layers wflow_sbm: 10, 40, 120, &gt; 120</span>
-<span class="c1"># mapping of wflow_sbm parameter c to soil layer SoilGrids</span>
+<span class="c1"># mapping of wflow_sbm parameter soil_brooks_corey_c to soil layer SoilGrids</span>
 <span class="n">c_sl_index</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>  <span class="c1"># v2017 direct mapping</span>
 <span class="c1"># c_sl_index = [2, 3, 5, 6] #v2021 if direct mapping - not used,</span>
 <span class="c1"># averages are taken instead.</span>
@@ -598,7 +598,7 @@
 <span class="sd">    ds: xarray.Dataset</span>
 <span class="sd">        Dataset containing soil properties at each soil depth [sl1 - sl7].</span>
 <span class="sd">    thetas: xarray.Dataset</span>
-<span class="sd">        Dataset containing thetaS at each soil layer depth.</span>
+<span class="sd">        Dataset containing theta_s at each soil layer depth.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -642,7 +642,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    thetas_sl: xarray.Dataset</span>
-<span class="sd">        Dataset containing thetaS at each soil layer depth.</span>
+<span class="sd">        Dataset containing theta_s at each soil layer depth.</span>
 <span class="sd">    ds: xarray.Dataset</span>
 <span class="sd">        Dataset containing soil properties at each soil depth.</span>
 <span class="sd">    ds_like: xarray.Dataset</span>
@@ -650,14 +650,14 @@
 <span class="sd">    soil_fn: str</span>
 <span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
 <span class="sd">    wflow_layers: list</span>
-<span class="sd">        List of soil layer depths [cm] for which c is calculated.</span>
+<span class="sd">        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.</span>
 <span class="sd">    soildepth_cm: np.array</span>
 <span class="sd">        Depth of each soil layers [cm].</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_c : xarray.Dataset</span>
-<span class="sd">        Dataset containing c for the wflow_sbm soil layers.</span>
+<span class="sd">        Dataset containing soil_brooks_corey_c for the wflow_sbm soil layers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Get pore size distribution index</span>
     <span class="n">lambda_sl_hr</span> <span class="o">=</span> <span class="n">pore_size_distribution_index_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas_sl</span><span class="p">)</span>
@@ -688,18 +688,18 @@
     <span class="c1"># Soil data depth</span>
     <span class="n">soildepth</span> <span class="o">=</span> <span class="n">soildepth_cm</span> <span class="o">*</span> <span class="mi">10</span>
 
-    <span class="c1"># make empty dataarray for c for the 4 sbm layers</span>
+    <span class="c1"># make empty dataarray for soil_brooks_corey_c for the 4 sbm layers</span>
     <span class="n">ds_c</span> <span class="o">=</span> <span class="n">hydromt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
         <span class="n">coords</span><span class="o">=</span><span class="n">c_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span>
         <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
         <span class="n">crs</span><span class="o">=</span><span class="n">c_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;c&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">,</span>
         <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;thickness&quot;</span><span class="p">:</span> <span class="n">wflow_thickness</span><span class="p">,</span> <span class="s2">&quot;soil_fn&quot;</span><span class="p">:</span> <span class="n">soil_fn</span><span class="p">},</span>
     <span class="p">)</span>
     <span class="n">ds_c</span> <span class="o">=</span> <span class="n">ds_c</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">layer</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wflow_thickness</span><span class="p">))))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-    <span class="c1"># calc weighted average values of c over the sbm soil layers</span>
+    <span class="c1"># calc weighted average values of soil_brooks_corey_c over the sbm soil layers</span>
     <span class="k">for</span> <span class="n">nl</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wflow_thickness</span><span class="p">)):</span>
         <span class="n">top_depth</span> <span class="o">=</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="n">nl</span><span class="p">]</span>
         <span class="n">bottom_depth</span> <span class="o">=</span> <span class="n">wflow_depths</span><span class="p">[</span><span class="n">nl</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
@@ -739,7 +739,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas</span><span class="p">,</span> <span class="n">ptf_name</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine vertical saturated hydraulic conductivity (KsatVer) per soil layer depth.</span>
+<span class="sd">    Determine vertical saturated hydraulic conductivity per soil layer depth.</span>
 
 <span class="sd">    Based on PTF.</span>
 
@@ -748,14 +748,14 @@
 <span class="sd">    ds: xarray.Dataset</span>
 <span class="sd">        Dataset containing soil properties at each soil depth [sl1 - sl7].</span>
 <span class="sd">    thetas: xarray.Dataset</span>
-<span class="sd">        Dataset containing thetaS at each soil layer depth.</span>
+<span class="sd">        Dataset containing theta_s at each soil layer depth.</span>
 <span class="sd">    ptf_name : str</span>
-<span class="sd">        PTF to use for calculation KsatVer.</span>
+<span class="sd">        PTF to use for calculation ksat_vertical .</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_out : xarray.Dataset</span>
-<span class="sd">        Dataset containing KsatVer [mm/day] for each soil layer depth.</span>
+<span class="sd">        Dataset containing ksat_vertical  [mm/day] for each soil layer depth.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">ptf_name</span> <span class="o">==</span> <span class="s2">&quot;brakensiek&quot;</span><span class="p">:</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
@@ -887,28 +887,21 @@
 
 <span class="sd">    The following soil parameter maps are calculated:</span>
 
-<span class="sd">    - **thetaS** : average saturated soil water content [m3/m3]</span>
-<span class="sd">    - **thetaR** : average residual water content [m3/m3]</span>
-<span class="sd">    - **KsatVer** : vertical saturated hydraulic conductivity at soil surface [mm/day]</span>
-<span class="sd">    - **SoilThickness** : soil thickness [mm]</span>
-<span class="sd">    - **SoilMinThickness** : minimum soil thickness [mm] (equal to SoilThickness)</span>
-<span class="sd">    - **M** : model parameter [mm] that controls exponential decline of KsatVer with \</span>
-<span class="sd">soil depth</span>
-<span class="sd">      (fitted with curve_fit (scipy.optimize)), bounds of **M** are checked</span>
-<span class="sd">    - **M_** : model parameter [mm] that controls exponential decline of KsatVer with \</span>
-<span class="sd">soil depth</span>
-<span class="sd">      (fitted with numpy linalg regression), bounds of **M_** are checked</span>
-<span class="sd">    - **M_original** : **M** without checking bounds</span>
-<span class="sd">    - **M_original_** : **M_** without checking bounds</span>
-<span class="sd">    - **f** : scaling parameter controlling the decline of KsatVer [mm-1] \</span>
+<span class="sd">    - **theta_s** : average saturated soil water content [m3/m3]</span>
+<span class="sd">    - **theta_r** : average residual water content [m3/m3]</span>
+<span class="sd">    - **ksat_vertical ** : vertical saturated hydraulic conductivity at soil</span>
+<span class="sd">    surface [mm/day]</span>
+<span class="sd">    - **soil_thickness** : soil thickness [mm]</span>
+<span class="sd">    - **f** : scaling parameter controlling the decline of ksat_vertical [mm-1] \</span>
 <span class="sd">(fitted with curve_fit (scipy.optimize)), bounds are checked</span>
-<span class="sd">    - **f_** : scaling parameter controlling the decline of KsatVer [mm-1]</span>
+<span class="sd">    - **soil_f_** : scaling parameter controlling the decline of ksat_vertical  [mm-1]</span>
 <span class="sd">      (fitted with numpy linalg regression), bounds are checked</span>
-<span class="sd">    - **c_** map: Brooks Corey coefficients [-] based on pore size distribution \</span>
-<span class="sd">index for the wflow_sbm soil layers.</span>
-<span class="sd">    - **KsatVer_[z]cm** : KsatVer [mm/day] at soil depths [z] of SoilGrids data \</span>
-<span class="sd">[0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
-<span class="sd">    - **wflow_soil** : USDA Soil texture based on percentage clay, silt, sand mapping: \</span>
+<span class="sd">    - **soil_brooks_corey_c_** map: Brooks Corey coefficients [-] based on pore size \</span>
+<span class="sd">    distribution index for the wflow_sbm soil layers.</span>
+<span class="sd">    - **meta_{soil_fn}_ksat_vertical_[z]cm** : ksat vertical [mm/day] at soil depths \</span>
+<span class="sd">[z] of SoilGrids data [0.0, 5.0, 15.0, 30.0, 60.0, 100.0, 200.0]</span>
+<span class="sd">    - **meta_soil_texture** : USDA Soil texture based on percentage clay, silt,</span>
+<span class="sd">    sand mapping: \</span>
 <span class="sd">[1:Clay, 2:Silty Clay, 3:Silty Clay-Loam, 4:Sandy Clay, 5:Sandy Clay-Loam, \</span>
 <span class="sd">6:Clay-Loam, 7:Silt, 8:Silt-Loam, 9:Loam, 10:Sand, 11: Loamy Sand, 12:Sandy Loam]</span>
 
@@ -920,11 +913,11 @@
 <span class="sd">    ds_like : xarray.DataArray</span>
 <span class="sd">        Dataset at model resolution.</span>
 <span class="sd">    ptfKsatVer : str</span>
-<span class="sd">        PTF to use for calculation KsatVer.</span>
+<span class="sd">        PTF to use for calculation ksat_vertical .</span>
 <span class="sd">    soil_fn : str</span>
 <span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
 <span class="sd">    wflow_layers : list</span>
-<span class="sd">        List of soil layer depths [cm] for which c is calculated.</span>
+<span class="sd">        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -952,7 +945,7 @@
     <span class="c1"># concat along a sl dimension</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">concat_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample thetaS&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample theta_s&quot;</span><span class="p">)</span>
     <span class="n">thetas_sl</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">ptf</span><span class="o">.</span><span class="n">thetas_toth</span><span class="p">,</span>
         <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ph&quot;</span><span class="p">],</span>
@@ -969,9 +962,9 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">thetas</span> <span class="o">=</span> <span class="n">average_soillayers</span><span class="p">(</span><span class="n">thetas_sl</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;soilthickness&quot;</span><span class="p">])</span>
     <span class="n">thetas</span> <span class="o">=</span> <span class="n">thetas</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;thetaS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thetas</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;theta_s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thetas</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample thetaR&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample theta_r&quot;</span><span class="p">)</span>
     <span class="n">thetar_sl</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">ptf</span><span class="o">.</span><span class="n">thetar_rawls_brakensiek</span><span class="p">,</span>
         <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;sndppt&quot;</span><span class="p">],</span>
@@ -987,7 +980,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">thetar</span> <span class="o">=</span> <span class="n">average_soillayers</span><span class="p">(</span><span class="n">thetar_sl</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;soilthickness&quot;</span><span class="p">])</span>
     <span class="n">thetar</span> <span class="o">=</span> <span class="n">thetar</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;thetaR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thetar</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;theta_r&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">thetar</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="n">soilthickness_hr</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;soilthickness&quot;</span><span class="p">]</span>
     <span class="n">soilthickness</span> <span class="o">=</span> <span class="n">soilthickness_hr</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
@@ -995,10 +988,9 @@
     <span class="n">soilthickness</span> <span class="o">=</span> <span class="n">soilthickness</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">soilthickness</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="n">soilthickness</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
     <span class="n">soilthickness</span> <span class="o">=</span> <span class="n">soilthickness</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;SoilThickness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soilthickness</span> <span class="o">*</span> <span class="mf">10.0</span>  <span class="c1"># from [cm] to [mm]</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;SoilMinThickness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;SoilThickness&quot;</span><span class="p">],</span> <span class="n">deep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_thickness&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soilthickness</span> <span class="o">*</span> <span class="mf">10.0</span>  <span class="c1"># from [cm] to [mm]</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample KsatVer&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample ksat_vertical &quot;</span><span class="p">)</span>
     <span class="n">kv_sl_hr</span> <span class="o">=</span> <span class="n">kv_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">thetas_sl</span><span class="p">,</span> <span class="n">ptfKsatVer</span><span class="p">)</span>
     <span class="n">kv_sl</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">kv_sl_hr</span><span class="p">)</span>
     <span class="n">kv_sl</span> <span class="o">=</span> <span class="n">kv_sl</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
@@ -1013,18 +1005,20 @@
         <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_layers</span><span class="p">,</span>
         <span class="n">soildepth_cm</span><span class="o">=</span><span class="n">soildepth_cm</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_c</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_c</span>
 
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;KsatVer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kv_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;ksat_vertical&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kv_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sl</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kv_sl</span><span class="p">[</span><span class="s2">&quot;sl&quot;</span><span class="p">]):</span>
         <span class="n">kv</span> <span class="o">=</span> <span class="n">kv_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="n">sl</span><span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;KsatVer_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">soildepth_cm_midpoint</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;cm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kv</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
-        <span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;meta_</span><span class="si">{</span><span class="n">soil_fn</span><span class="si">}</span><span class="s2">_ksat_vertical_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">soildepth_cm_midpoint</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;cm&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">kv</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="n">kv</span> <span class="o">=</span> <span class="n">kv_sl</span> <span class="o">/</span> <span class="n">kv_sl</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">sl</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fit z - log(KsatVer) with numpy linalg regression (y = b*x) -&gt; M_&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;fit z - log(ksat_vertical ) with numpy linalg regression (y = b*x) -&gt; M_&quot;</span>
+    <span class="p">)</span>
     <span class="n">popt_0_</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">do_linalg</span><span class="p">,</span>
         <span class="n">soildepth_mm_midpoint_surface</span><span class="p">,</span>
@@ -1037,10 +1031,8 @@
     <span class="p">)</span>
 
     <span class="n">M_</span> <span class="o">=</span> <span class="p">(</span><span class="n">thetas</span> <span class="o">-</span> <span class="n">thetar</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="o">-</span><span class="n">popt_0_</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;M_original_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">M_</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">M_</span> <span class="o">=</span> <span class="n">constrain_M</span><span class="p">(</span><span class="n">M_</span><span class="p">,</span> <span class="n">popt_0_</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;M_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">M_</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;f_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">thetas</span> <span class="o">-</span> <span class="n">thetar</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_f_&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">thetas</span> <span class="o">-</span> <span class="n">thetar</span><span class="p">)</span> <span class="o">/</span> <span class="n">M_</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fit zi - Ksat with curve_fit (scipy.optimize) -&gt; M&quot;</span><span class="p">)</span>
     <span class="n">popt_0</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
@@ -1055,9 +1047,7 @@
     <span class="p">)</span>
 
     <span class="n">M</span> <span class="o">=</span> <span class="p">(</span><span class="n">thetas</span> <span class="o">-</span> <span class="n">thetar</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">popt_0</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;M_original&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">M</span> <span class="o">=</span> <span class="n">constrain_M</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">popt_0</span><span class="p">,</span> <span class="n">M_minmax</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">thetas</span> <span class="o">-</span> <span class="n">thetar</span><span class="p">)</span> <span class="o">/</span> <span class="n">M</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># wflow soil map is based on USDA soil classification</span>
@@ -1087,10 +1077,10 @@
 
     <span class="n">soil_texture_out</span> <span class="o">=</span> <span class="n">soil_texture</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
     <span class="c1"># np.nan is not a valid value for array with type integer</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;wflow_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soil_texture_out</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;wflow_soil&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;meta_soil_texture&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">soil_texture_out</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;meta_soil_texture&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wflow_soil&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">}</span>
+    <span class="n">dtypes</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;meta_soil_texture&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="p">:</span>
         <span class="n">dtype</span> <span class="o">=</span> <span class="n">dtypes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Interpolate nodata (NaN) values for </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1129,12 +1119,13 @@
 <span class="sd">    soil_fn : str</span>
 <span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
 <span class="sd">    wflow_layers : list</span>
-<span class="sd">        List of wflow soil layer depths [cm] over which c is calculated.</span>
+<span class="sd">        List of wflow soil layer depths [cm] over which soil_brooks_corey_c is</span>
+<span class="sd">        calculated.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_out : xarray.Dataset</span>
-<span class="sd">        Dataset containing c for the wflow_sbm soil layers.</span>
+<span class="sd">        Dataset containing soil_brooks_corey_c for the wflow_sbm soil layers.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids_2020&quot;</span> <span class="ow">or</span> <span class="n">soil_fn</span> <span class="o">==</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">:</span>
         <span class="n">soildepth_cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">,</span> <span class="mf">30.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">])</span>
@@ -1146,7 +1137,7 @@
     <span class="c1"># concat along a sl dimension</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">concat_layers</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">soil_fn</span><span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample thetaS&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;calculate and resample theta_s&quot;</span><span class="p">)</span>
     <span class="n">thetas_sl</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">ptf</span><span class="o">.</span><span class="n">thetas_toth</span><span class="p">,</span>
         <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;ph&quot;</span><span class="p">],</span>
@@ -1168,7 +1159,7 @@
         <span class="n">wflow_layers</span><span class="o">=</span><span class="n">wflow_layers</span><span class="p">,</span>
         <span class="n">soildepth_cm</span><span class="o">=</span><span class="n">soildepth_cm</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_c</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_c</span>
 
     <span class="k">return</span> <span class="n">ds_out</span></div>
 
@@ -1179,7 +1170,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">soilgrids_sediment</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">usleK_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
+    <span class="n">usle_k_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
     <span class="n">add_aggregates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
@@ -1195,16 +1186,17 @@
 
 <span class="sd">    The following soil parameter maps are calculated:</span>
 
-<span class="sd">    * fclay_soil: clay content of the topsoil [g/g]</span>
-<span class="sd">    * fsilt_soil: silt content of the topsoil [g/g]</span>
-<span class="sd">    * fsand_soil: sand content of the topsoil [g/g]</span>
-<span class="sd">    * fsagg_soil: small aggregate content of the topsoil [g/g]</span>
-<span class="sd">    * flagg_soil: large aggregate content of the topsoil [g/g]</span>
-<span class="sd">    * soil_detachability: mean detachability of the soil (Morgan et al., 1998) [g/J]</span>
+<span class="sd">    * soil_clay_fraction: clay content of the topsoil [g/g]</span>
+<span class="sd">    * soil_silt_fraction: silt content of the topsoil [g/g]</span>
+<span class="sd">    * soil_sand_fraction: sand content of the topsoil [g/g]</span>
+<span class="sd">    * soil_sagg_fraction: small aggregate content of the topsoil [g/g]</span>
+<span class="sd">    * soil_lagg_fraction: large aggregate content of the topsoil [g/g]</span>
+<span class="sd">    * erosion_soil_detachability: mean detachability of the soil (Morgan et al., 1998)</span>
+<span class="sd">      [g/J]</span>
 <span class="sd">    * usle_k: soil erodibility factor from the USLE equation [-]</span>
-<span class="sd">    * d50_soil: median sediment diameter of the soil [mm]</span>
-<span class="sd">    * c_govers: Govers factor for overland flow transport capacity [-]</span>
-<span class="sd">    * n_govers: Govers exponent for overland flow transport capacity [-]</span>
+<span class="sd">    * soil_sediment_d50: median sediment diameter of the soil [mm]</span>
+<span class="sd">    * land_govers_c: Govers factor for overland flow transport capacity [-]</span>
+<span class="sd">    * land_govers_n: Govers exponent for overland flow transport capacity [-]</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1212,7 +1204,7 @@
 <span class="sd">        Dataset containing soil properties.</span>
 <span class="sd">    ds_like : xarray.DataArray</span>
 <span class="sd">        Dataset at model resolution.</span>
-<span class="sd">    usleK_method : str</span>
+<span class="sd">    usle_k_method : str</span>
 <span class="sd">        Method to use for calculation of USLE_K {&quot;renard&quot;, &quot;epic&quot;}.</span>
 <span class="sd">    add_aggregates : bool</span>
 <span class="sd">        Add small and large aggregates to the soil properties. Default is True.</span>
@@ -1244,11 +1236,11 @@
         <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">erosK</span> <span class="o">=</span> <span class="n">erosK</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_detachability&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">erosK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;erosion_soil_detachability&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">erosK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># USLE K parameter</span>
-    <span class="k">if</span> <span class="n">usleK_method</span> <span class="o">==</span> <span class="s2">&quot;renard&quot;</span><span class="p">:</span>
-        <span class="n">usleK</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+    <span class="k">if</span> <span class="n">usle_k_method</span> <span class="o">==</span> <span class="s2">&quot;renard&quot;</span><span class="p">:</span>
+        <span class="n">usle_k</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
             <span class="n">ptf</span><span class="o">.</span><span class="n">UsleK_Renard</span><span class="p">,</span>
             <span class="n">pclay</span><span class="p">,</span>
             <span class="n">psilt</span><span class="p">,</span>
@@ -1256,8 +1248,8 @@
             <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
             <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">usleK_method</span> <span class="o">==</span> <span class="s2">&quot;epic&quot;</span><span class="p">:</span>
-        <span class="n">usleK</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
+    <span class="k">elif</span> <span class="n">usle_k_method</span> <span class="o">==</span> <span class="s2">&quot;epic&quot;</span><span class="p">:</span>
+        <span class="n">usle_k</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
             <span class="n">ptf</span><span class="o">.</span><span class="n">UsleK_EPIC</span><span class="p">,</span>
             <span class="n">pclay</span><span class="p">,</span>
             <span class="n">psilt</span><span class="p">,</span>
@@ -1266,8 +1258,8 @@
             <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
             <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">usleK</span> <span class="o">=</span> <span class="n">usleK</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;usle_k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usleK</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">usle_k</span> <span class="o">=</span> <span class="n">usle_k</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;usle_k&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usle_k</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># Mean diameter of the soil</span>
     <span class="n">d50</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
@@ -1278,17 +1270,17 @@
         <span class="n">output_dtypes</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
         <span class="n">keep_attrs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;d50_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d50</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
-    <span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_sediment_d50&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d50</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+        <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="c1"># Govers factor and exponent for overland flow transport capacity</span>
     <span class="n">c_govers</span> <span class="o">=</span> <span class="p">((</span><span class="n">d50</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.32</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.6</span><span class="p">)</span>
     <span class="n">n_govers</span> <span class="o">=</span> <span class="p">((</span><span class="n">d50</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span> <span class="o">/</span> <span class="mi">300</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;c_govers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_govers</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;land_govers_c&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c_govers</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
         <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span>
     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;n_govers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_govers</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;land_govers_n&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_govers</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span>
         <span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span>
     <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
@@ -1307,21 +1299,23 @@
 
     <span class="c1"># Reproject to model resolution</span>
     <span class="n">fclay</span> <span class="o">=</span> <span class="n">fclay</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fclay_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fclay</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_clay_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fclay</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">fsilt</span> <span class="o">=</span> <span class="n">fsilt</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsilt_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsilt</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_silt_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsilt</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">fsagg</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsagg_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_sagg_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsagg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="c1"># Make sure that the sum of the percentages is 100</span>
     <span class="k">if</span> <span class="n">add_aggregates</span><span class="p">:</span>
         <span class="n">fsand</span> <span class="o">=</span> <span class="n">fsand</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="n">ds_like</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
         <span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsand_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsand</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;flagg_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fclay</span> <span class="o">-</span> <span class="n">fsilt</span> <span class="o">-</span> <span class="n">fsand</span> <span class="o">-</span> <span class="n">fsagg</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_sand_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fsand</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_lagg_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fclay</span> <span class="o">-</span> <span class="n">fsilt</span> <span class="o">-</span> <span class="n">fsand</span> <span class="o">-</span> <span class="n">fsagg</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;fsand_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fclay</span> <span class="o">-</span> <span class="n">fsilt</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;flagg_soil&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">fclay</span> <span class="o">*</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_sand_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fclay</span> <span class="o">-</span> <span class="n">fsilt</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_lagg_fraction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">fclay</span> <span class="o">*</span> <span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">ds_out</span><span class="p">:</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="p">[</span><span class="n">var</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span><span class="s2">&quot;nearest&quot;</span><span class="p">)</span>
@@ -1346,7 +1340,7 @@
     <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Update c and kvfrac soil properties for paddy fields.</span>
+<span class="sd">    Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1354,15 +1348,15 @@
 <span class="sd">        Dataset containing soil properties.</span>
 <span class="sd">    ds_like : xarray.DataArray</span>
 <span class="sd">        Dataset at model resolution.</span>
-<span class="sd">        Required variables: basins, ksat_vertical, f, elevtn, c</span>
+<span class="sd">        Required variables: basins, ksat_vertical, f, elevtn, soil_brooks_corey_c</span>
 <span class="sd">    paddy_mask : xarray.DataArray</span>
 <span class="sd">        Dataset containing paddy fields mask.</span>
 <span class="sd">    soil_fn : str</span>
 <span class="sd">        soilgrids version {&#39;soilgrids&#39;, &#39;soilgrids_2020&#39;}</span>
 <span class="sd">    update_c : bool</span>
-<span class="sd">        Update c based on change in wflow_layers.</span>
+<span class="sd">        Update soil_brooks_corey_c based on change in wflow_layers.</span>
 <span class="sd">    wflow_layers : list</span>
-<span class="sd">        List of soil layer depths [cm] for which c is calculated.</span>
+<span class="sd">        List of soil layer depths [cm] for which soil_brooks_corey_c is calculated.</span>
 <span class="sd">    target_conductivity : list</span>
 <span class="sd">        Target conductivity for each wflow layer.</span>
 
@@ -1376,18 +1370,19 @@
             <span class="s2">&quot;Lengths of wflow_thicknesslayers and target_conductivity does not match&quot;</span>
         <span class="p">)</span>
 
-    <span class="c1"># Set kvfrac maps, determine the fraction required to reach target_conductivity</span>
+    <span class="c1"># Set soil_ksat_vertical_factor maps</span>
+    <span class="c1"># Determine the fraction required to reach target_conductivity</span>
     <span class="c1"># Using to wflow exponential decline to determine the conductivity at the</span>
     <span class="c1"># required depth Find value at the bottom of the required layer and infer</span>
     <span class="c1"># required correction factor for that layer Values are only set for locations</span>
     <span class="c1"># with paddy irrigation, all other cells are set to be equal to 1</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding kvfrac map&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Adding soil_ksat_vertical_factor map&quot;</span><span class="p">)</span>
     <span class="n">kv0</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;ksat_vertical&quot;</span><span class="p">]</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;f&quot;</span><span class="p">]</span>
     <span class="n">kv0_mask</span> <span class="o">=</span> <span class="n">kv0</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">paddy_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">f_mask</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">paddy_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="c1"># update c</span>
+    <span class="c1"># update soil_brooks_corey_c</span>
     <span class="k">if</span> <span class="n">update_c</span><span class="p">:</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">soilgrids_brooks_corey</span><span class="p">(</span>
             <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span>
@@ -1408,7 +1403,7 @@
         <span class="c1"># temporarily add the dem to the dataset</span>
         <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span>
 
-    <span class="c1"># Compute the kv_frac (should be done after updating c!)</span>
+    <span class="c1"># Compute the kv_frac (should be done after updating soil_brooks_corey_c!)</span>
     <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">soilparams</span><span class="o">.</span><span class="n">update_kvfrac</span><span class="p">(</span>
         <span class="n">ds_model</span><span class="o">=</span><span class="n">ds_like</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">update_c</span> <span class="k">else</span> <span class="n">ds_out</span><span class="p">,</span>
         <span class="n">kv0_mask</span><span class="o">=</span><span class="n">kv0_mask</span><span class="p">,</span>
@@ -1417,11 +1412,11 @@
         <span class="n">target_conductivity</span><span class="o">=</span><span class="n">target_conductivity</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">update_c</span><span class="p">:</span>
-        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;kvfrac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_kvfrac</span>
+        <span class="n">ds_out</span><span class="p">[</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">da_kvfrac</span>
         <span class="c1"># Remove wflow_dem</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;elevtn&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;kvfrac&quot;</span><span class="p">)</span>
+        <span class="n">ds_out</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;soil_ksat_vertical_factor&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_out</span></div>
 

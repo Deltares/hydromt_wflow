@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>hydromt_wflow.workflows.ksathorfrac &#8212; HydroMT Wflow  documentation</title>
+    <title>hydromt_wflow.utils.read_csv_results &#8212; HydroMT Wflow  documentation</title>
   
   
   
@@ -44,12 +44,12 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.workflows.ksathorfrac';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_generated/hydromt_wflow.utils.read_csv_results';</script>
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.workflows.ksatver_vegetation" href="hydromt_wflow.workflows.ksatver_vegetation.html" />
-    <link rel="prev" title="hydromt_wflow.workflows.add_planted_forest_to_landuse" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html" />
+    <link rel="next" title="hydromt_wflow.utils.get_grid_from_config" href="hydromt_wflow.utils.get_grid_from_config.html" />
+    <link rel="prev" title="hydromt_wflow.workflows.prepare_cold_states" href="hydromt_wflow.workflows.prepare_cold_states.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="1.0.0.dev" />
@@ -448,7 +448,7 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.build.html">hydromt_wflow.WflowSedimentModel.build</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.WflowSedimentModel.update.html">hydromt_wflow.WflowSedimentModel.update</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.allocation_areas.html">hydromt_wflow.workflows.allocation_areas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.surfacewaterfrac_used.html">hydromt_wflow.workflows.surfacewaterfrac_used</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.domestic.html">hydromt_wflow.workflows.domestic</a></li>
@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -529,7 +531,7 @@
     
     <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.workflows.ksathorfrac</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">hydromt_wflow.utils.read_csv_results</span></li>
   </ul>
 </nav>
 </div>
@@ -546,26 +548,30 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="hydromt-wflow-workflows-ksathorfrac">
-<h1>hydromt_wflow.workflows.ksathorfrac<a class="headerlink" href="#hydromt-wflow-workflows-ksathorfrac" title="Link to this heading">#</a></h1>
+  <section id="hydromt-wflow-utils-read-csv-results">
+<h1>hydromt_wflow.utils.read_csv_results<a class="headerlink" href="#hydromt-wflow-utils-read-csv-results" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="hydromt_wflow.workflows.ksathorfrac">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">ksathorfrac</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">da</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><span class="pre">DataArray</span></a></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/soilparams.html#ksathorfrac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.ksathorfrac" title="Link to this definition">#</a></dt>
-<dd><p>Create KsatHorfrac map.</p>
-<p>Based on the data properties of the WflowModel.</p>
+<dt class="sig sig-object py" id="hydromt_wflow.utils.read_csv_results">
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.utils.</span></span><span class="sig-name descname"><span class="pre">read_csv_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">maps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.6.1)"><span class="pre">Dataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">GeoDataArray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/hydromt_wflow/utils.html#read_csv_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.utils.read_csv_results" title="Link to this definition">#</a></dt>
+<dd><p>Read wflow results csv timeseries and parse to dictionary.</p>
+<p>Parses the wflow csv results file into different <code class="docutils literal notranslate"><span class="pre">hydromt.GeoDataArrays</span></code>, one per
+column (csv section and csv.column sections of the TOML). The xy coordinates are the
+coordinates of the station or of the representative point of the subcatch/area. The
+variable name in the <code class="docutils literal notranslate"><span class="pre">GeoDataArray</span></code> corresponds to the csv header attribute or
+header_map when available.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>da</strong> (<em>xr.DataArray</em>) – KsathorFrac values, i.e. an xarray.DataArray containing the values from the predefined KsatHorFrac map.</p></li>
-<li><p><strong>ds_like</strong> (<em>xr.Dataset</em>) – Dataset at model resolution.</p></li>
-<li><p><strong>resampling_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Scale method when up- or downscaling.</p></li>
+<li><p><strong>fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Path to the wflow csv results file.</p></li>
+<li><p><strong>config</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – wflow.toml configuration.</p></li>
+<li><p><strong>maps</strong> (<em>xr.Dataset</em>) – wflow staticmaps.nc dataset</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A xarray DataArray containing the scaled KsatHorFrac values.</p>
+<dd class="field-even"><p><strong>csv_dict</strong> – Dictionary of hydromt.GeoDataArrays for the different csv.column section of the config.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>xr.DataArray</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -583,20 +589,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html"
+       href="hydromt_wflow.workflows.prepare_cold_states.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.add_planted_forest_to_landuse</p>
+        <p class="prev-next-title">hydromt_wflow.workflows.prepare_cold_states</p>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.workflows.ksatver_vegetation.html"
+       href="hydromt_wflow.utils.get_grid_from_config.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.workflows.ksatver_vegetation</p>
+        <p class="prev-next-title">hydromt_wflow.utils.get_grid_from_config</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -619,7 +625,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.workflows.ksathorfrac"><code class="docutils literal notranslate"><span class="pre">ksathorfrac()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hydromt_wflow.utils.read_csv_results"><code class="docutils literal notranslate"><span class="pre">read_csv_results()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -627,7 +633,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.workflows.ksathorfrac.rst">
+    <a href="https://github.com/Deltares/hydromt_wflow/edit/main/docs/_generated/hydromt_wflow.utils.read_csv_results.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -643,7 +649,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/_generated/hydromt_wflow.workflows.ksathorfrac.rst.txt"
+      <li><a href="../_sources/_generated/hydromt_wflow.utils.read_csv_results.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

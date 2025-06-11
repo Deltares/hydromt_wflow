@@ -640,7 +640,7 @@
         <span class="c1"># Loop through the time steps and determine the variables per time step.</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nr_time_steps</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">intercep_vars_sub</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># TODO: for now assumed that LAI contains monthly data,</span>
+                <span class="c1"># TODO: assumption LAI contains monthly data,</span>
                 <span class="c1"># change this for future</span>
                 <span class="n">month</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">ds_sub</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">month</span>
                 <span class="n">Imax</span> <span class="o">=</span> <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;Imax&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">month</span><span class="p">)</span>
@@ -1031,7 +1031,7 @@
 
 <span class="sd">    The root zone storage capacity parameter is calculated per subcatchment and is</span>
 <span class="sd">    converted to a gridded map at model resolution. Optionally, this function</span>
-<span class="sd">    can return the wflow_sbm parameter RootingDepth by dividing the root zone</span>
+<span class="sd">    can return the wflow_sbm parameter vegetation_root_depth by dividing the root zone</span>
 <span class="sd">    storage parameter by (theta_s - theta_r).</span>
 
 <span class="sd">    The method is based on the estimation of maximum annual storage deficits based on</span>
@@ -1104,8 +1104,8 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    ds_out : xr.Dataset</span>
-<span class="sd">        Dataset containing root zone storage capacity (optional) and RootingDepth for</span>
-<span class="sd">        several forcing and return periods.</span>
+<span class="sd">        Dataset containing root zone storage capacity (optional) and</span>
+<span class="sd">        vegetation_root_depth for several forcing and return periods.</span>
 <span class="sd">    gdf_basins_all : GeoDataFrame</span>
 <span class="sd">        Geodataframe containing the root zone storage capacity values for</span>
 <span class="sd">        each basin before filling NaN.</span>
@@ -1125,11 +1125,11 @@
         <span class="n">start_hydro_year</span><span class="p">,</span> <span class="n">start_field_capacity</span><span class="p">,</span> <span class="n">dsrun</span><span class="p">,</span> <span class="n">ds_obs</span><span class="p">,</span> <span class="n">ds_cc_hist</span><span class="p">,</span> <span class="n">ds_cc_fut</span>
     <span class="p">)</span>
 
-    <span class="c1"># If LAI = True, create a new xr dataset containing the interception pars</span>
     <span class="k">if</span> <span class="n">LAI</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Create a new xr dataset containing the interception pars</span>
         <span class="n">intercep_vars</span> <span class="o">=</span> <span class="n">ds_like</span><span class="o">.</span><span class="n">LAI</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;LAI&quot;</span><span class="p">)</span>
-        <span class="n">intercep_vars</span><span class="p">[</span><span class="s2">&quot;Swood&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;Swood&quot;</span><span class="p">]</span>
-        <span class="n">intercep_vars</span><span class="p">[</span><span class="s2">&quot;Sl&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;Sl&quot;</span><span class="p">]</span>
+        <span class="n">intercep_vars</span><span class="p">[</span><span class="s2">&quot;wood_storage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;wood_storage&quot;</span><span class="p">]</span>
+        <span class="n">intercep_vars</span><span class="p">[</span><span class="s2">&quot;leaf_storage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;leaf_storage&quot;</span><span class="p">]</span>
 
     <span class="c1"># Set the output dataset at model resolution</span>
     <span class="n">ds_out</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">ds_like</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
@@ -1203,8 +1203,8 @@
         <span class="n">intercep_vars_sub</span> <span class="o">=</span> <span class="n">intercep_vars_sub</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span>
         <span class="c1"># Determine the Imax for every time step in the LAI data</span>
         <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;Imax&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;Swood_mean&quot;</span><span class="p">]</span>
-            <span class="o">+</span> <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;LAI_mean&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;Sl_mean&quot;</span><span class="p">]</span>
+            <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;wood_storage_mean&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;LAI_mean&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">intercep_vars_sub</span><span class="p">[</span><span class="s2">&quot;leaf_storage_mean&quot;</span><span class="p">]</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">intercep_vars_sub</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1392,14 +1392,14 @@
             <span class="c1"># Store the rootzone_storage in ds_out is rootzone_storage flag is</span>
             <span class="c1"># set to True.</span>
             <span class="k">if</span> <span class="n">rootzone_storage</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-                <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;rootzone_storage_</span><span class="si">{</span><span class="n">forcing_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">return_period</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;meta_rootzone_storage_</span><span class="si">{</span><span class="n">forcing_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">return_period</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="p">(</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">x_dim</span><span class="p">),</span>
                     <span class="n">out_raster</span><span class="p">,</span>
                 <span class="p">)</span>
-            <span class="c1"># Store the RootingDepth in ds_out</span>
-            <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;RootingDepth_</span><span class="si">{</span><span class="n">forcing_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">return_period</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="c1"># Store the vegetation_root_depth in ds_out</span>
+            <span class="n">ds_out</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;vegetation_root_depth_</span><span class="si">{</span><span class="n">forcing_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">return_period</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="p">(</span><span class="n">y_dim</span><span class="p">,</span> <span class="n">x_dim</span><span class="p">),</span>
-                <span class="n">out_raster</span> <span class="o">/</span> <span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;thetaS&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;thetaR&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
+                <span class="n">out_raster</span> <span class="o">/</span> <span class="p">(</span><span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;theta_s&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">ds_like</span><span class="p">[</span><span class="s2">&quot;theta_r&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">),</span>
             <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ds_out</span><span class="p">,</span> <span class="n">gdf_basins_all</span></div>

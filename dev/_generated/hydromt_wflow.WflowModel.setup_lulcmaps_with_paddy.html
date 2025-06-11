@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -550,7 +552,7 @@
 <h1>hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy<a class="headerlink" href="#hydromt-wflow-wflowmodel-setup-lulcmaps-with-paddy" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy">
-<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lulcmaps_with_paddy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lulc_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_paddy_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.2.3)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.4.1.dev0)"><span class="pre">DataArray</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wflow_thicknesslayers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[50,</span> <span class="pre">100,</span> <span class="pre">50,</span> <span class="pre">200,</span> <span class="pre">800]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_conductivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None,</span> <span class="pre">5,</span> <span class="pre">None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'Kext':</span> <span class="pre">'vegetation_canopy__light-extinction_coefficient',</span> <span class="pre">'N':</span> <span class="pre">'land_surface_water_flow__manning_n_parameter',</span> <span class="pre">'PathFrac':</span> <span class="pre">'soil~compacted__area_fraction',</span> <span class="pre">'RootingDepth':</span> <span class="pre">'vegetation_root__depth',</span> <span class="pre">'Sl':</span> <span class="pre">'vegetation__specific-leaf_storage',</span> <span class="pre">'Swood':</span> <span class="pre">'vegetation_wood_water__storage_capacity',</span> <span class="pre">'WaterFrac':</span> <span class="pre">'land~water-covered__area_fraction',</span> <span class="pre">'alpha_h1':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient',</span> <span class="pre">'h1':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~1',</span> <span class="pre">'h2':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~2',</span> <span class="pre">'h3_high':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~3~high',</span> <span class="pre">'h3_low':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~3~low',</span> <span class="pre">'h4':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~4',</span> <span class="pre">'kc':</span> <span class="pre">'vegetation__crop_factor',</span> <span class="pre">'landuse':</span> <span class="pre">None}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_waterlevels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'h_max':</span> <span class="pre">80,</span> <span class="pre">'h_min':</span> <span class="pre">20,</span> <span class="pre">'h_opt':</span> <span class="pre">50}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_high_resolution_lulc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lulcmaps_with_paddy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">WflowModel.</span></span><span class="sig-name descname"><span class="pre">setup_lulcmaps_with_paddy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lulc_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.6.1)"><span class="pre">DataArray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_paddy_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.0)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.6.1)"><span class="pre">DataArray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_mapping_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.0)"><span class="pre">DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">soil_fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.6.1)"><span class="pre">DataArray</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'soilgrids'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wflow_thicknesslayers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[50,</span> <span class="pre">100,</span> <span class="pre">50,</span> <span class="pre">200,</span> <span class="pre">800]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_conductivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None,</span> <span class="pre">5,</span> <span class="pre">None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lulc_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'land_manning_n':</span> <span class="pre">'land_surface_water_flow__manning_n_parameter',</span> <span class="pre">'land_water_fraction':</span> <span class="pre">'land~water-covered__area_fraction',</span> <span class="pre">'landuse':</span> <span class="pre">None,</span> <span class="pre">'soil_compacted_fraction':</span> <span class="pre">'soil~compacted__area_fraction',</span> <span class="pre">'vegetation_crop_factor':</span> <span class="pre">'vegetation__crop_factor',</span> <span class="pre">'vegetation_feddes_alpha_h1':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~1_reduction_coefficient',</span> <span class="pre">'vegetation_feddes_h1':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~1',</span> <span class="pre">'vegetation_feddes_h2':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~2',</span> <span class="pre">'vegetation_feddes_h3_high':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~3~high',</span> <span class="pre">'vegetation_feddes_h3_low':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~3~low',</span> <span class="pre">'vegetation_feddes_h4':</span> <span class="pre">'vegetation_root__feddes_critial_pressure_head_h~4',</span> <span class="pre">'vegetation_kext':</span> <span class="pre">'vegetation_canopy__light-extinction_coefficient',</span> <span class="pre">'vegetation_leaf_storage':</span> <span class="pre">'vegetation__specific-leaf_storage',</span> <span class="pre">'vegetation_root_depth':</span> <span class="pre">'vegetation_root__depth',</span> <span class="pre">'vegetation_wood_storage':</span> <span class="pre">'vegetation_wood_water__storage_capacity'}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paddy_waterlevels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'demand_paddy_h_max':</span> <span class="pre">80,</span> <span class="pre">'demand_paddy_h_min':</span> <span class="pre">20,</span> <span class="pre">'demand_paddy_h_opt':</span> <span class="pre">50}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_high_resolution_lulc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_names_suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/hydromt_wflow/wflow.html#WflowModel.setup_lulcmaps_with_paddy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.WflowModel.setup_lulcmaps_with_paddy" title="Link to this definition">#</a></dt>
 <dd><p>Set up landuse maps and parameters including for paddy fields.</p>
 <p>THIS FUNCTION SHOULD BE RUN AFTER setup_soilmaps.</p>
 <p>Lookup table <cite>lulc_mapping_fn</cite> columns are converted to lulc classes model
@@ -561,49 +563,131 @@ differently.</p>
 separate paddy_fn, the paddy class is used to derive the paddy parameters.</p>
 <p>To allow for water to pool on the surface (for paddy/rice fields), the layers in
 the model can be updated to new depths, such that we can allow a thin layer with
-limited vertical conductivity. These updated layers means that the <code class="docutils literal notranslate"><span class="pre">c</span></code>
-parameter needs to be calculated again. Next, the kvfrac layer corrects the
-vertical conductivity (by multiplying) such that the bottom of the layer
-corresponds to the <code class="docutils literal notranslate"><span class="pre">target_conductivity</span></code> for that layer. This currently
-assumes the wflow models to have an exponential declining vertical conductivity
-(using the <code class="docutils literal notranslate"><span class="pre">f</span></code> parameter). If no target_conductivity is specified for a layer
-(<code class="docutils literal notranslate"><span class="pre">None</span></code>), the kvfrac value is set to 1.</p>
+limited vertical conductivity. These updated layers means that the
+<code class="docutils literal notranslate"><span class="pre">soil_brooks_corey_c</span></code> parameter needs to be calculated again. Next, the
+soil_ksat_vertical_factor layer corrects the vertical conductivity
+(by multiplying) such that the bottom of the layer corresponds to the
+<code class="docutils literal notranslate"><span class="pre">target_conductivity</span></code> for that layer. This currently assumes the wflow models
+to have an exponential declining vertical conductivity (using the <code class="docutils literal notranslate"><span class="pre">f</span></code>
+parameter). If no target_conductivity is specified for a layer (<code class="docutils literal notranslate"><span class="pre">None</span></code>),
+the soil_ksat_vertical_factor value is set to 1.</p>
 <p>The different values for the minimum/optimal/maximum water levels for paddy
 fields will be added as constant values in the toml file, through the
-<code class="docutils literal notranslate"><span class="pre">vertical.paddy.h_min.value</span> <span class="pre">=</span> <span class="pre">20</span></code> interface.</p>
+<code class="docutils literal notranslate"><span class="pre">land~irrigated-paddy__min_depth.value</span> <span class="pre">=</span> <span class="pre">20</span></code> interface.</p>
 <p>Adds model layers:</p>
-<ul class="simple">
-<li><p><strong>landuse</strong> map: Landuse class [-]</p></li>
-<li><p><strong>Kext</strong> map: Extinction coefficient in the canopy gap fraction equation [-]</p></li>
-<li><p><strong>Sl</strong> map: Specific leaf storage [mm]</p></li>
-<li><p><strong>Swood</strong> map: Fraction of wood in the vegetation/plant [-]</p></li>
-<li><p><strong>RootingDepth</strong> map: Length of vegetation roots [mm]</p></li>
-<li><p><strong>PathFrac</strong> map: The fraction of compacted or urban area per grid cell [-]</p></li>
-<li><p><strong>WaterFrac</strong> map: The fraction of open water per grid cell [-]</p></li>
-<li><p><strong>N</strong> map: Manning Roughness [-]</p></li>
-<li><p><strong>kc</strong> map: Crop coefficient [-]</p></li>
-<li><p><strong>alpha_h1</strong> map: Root water uptake reduction at soil water pressure head h1
-(0 or 1) [-]</p></li>
-<li><p><strong>h1</strong> map: Soil water pressure head h1 at which root water uptake is reduced
-(Feddes) [cm]</p></li>
-<li><p><strong>h2</strong> map: Soil water pressure head h2 at which root water uptake is reduced
-(Feddes) [cm]</p></li>
-<li><p><strong>h3_high</strong> map: Soil water pressure head h3 at which root water uptake is
-reduced (Feddes) [cm]</p></li>
-<li><p><strong>h3_low</strong> map: Soil water pressure head h3 at which root water uptake is
-reduced (Feddes) [cm]</p></li>
-<li><p><strong>h4</strong> map: Soil water pressure head h4 at which root water uptake is reduced
-(Feddes) [cm]</p></li>
-<li><p><strong>h_min</strong> map: Minimum required water depth for paddy fields [mm]</p></li>
-<li><p><strong>h_opt</strong> map: Optimal water depth for paddy fields [mm]</p></li>
-<li><p><strong>h_max</strong> map: Maximum water depth for paddy fields [mm]</p></li>
-<li><p><strong>kvfrac</strong>: Map with a multiplication factor for the vertical conductivity [-]</p></li>
+<ul>
+<li><dl class="simple">
+<dt><strong>landuse</strong> map:</dt><dd><p>Landuse class [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_kext</strong> map:</dt><dd><p>Extinction coefficient in the canopy gap fraction</p>
+</dd>
+</dl>
+<p>equation [-]</p>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_leaf_storage</strong> map:</dt><dd><p>Specific leaf storage [mm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_wood_storage</strong> map:</dt><dd><p>Fraction of wood in the vegetation/plant [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_root_depth</strong> map:</dt><dd><p>Length of vegetation roots [mm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>soil_compacted_fraction</strong> map:</dt><dd><p>The fraction of compacted or urban area per grid cell [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>land_water_fraction</strong> map:</dt><dd><p>The fraction of open water per grid cell [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>land_manning_n</strong> map:</dt><dd><p>Manning Roughness [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_crop_factor</strong> map:</dt><dd><p>Crop coefficient [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_feddes_alpha_h1</strong> map:</dt><dd><p>Root water uptake reduction at soil water pressure head
+h1 (0 or 1) [-]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_feddes_h1</strong> map:</dt><dd><p>Soil water pressure head h1 at which root water
+uptake is reduced (Feddes) [cm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_feddes_h2</strong> map:</dt><dd><p>Soil water pressure head h2 at which root water
+uptake is reduced (Feddes) [cm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_feddes_h3_high</strong> map:</dt><dd><p>Soil water pressure head h3 (high) at which root water uptake is
+reduced (Feddes) [cm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_feddes_h3_low</strong> map:</dt><dd><p>Soil water pressure head h3 (low) at which root water uptake is
+reduced (Feddes) [cm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>vegetation_feddes_h4</strong> map:</dt><dd><p>Soil water pressure head h4 at which root water
+uptake is reduced (Feddes) [cm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>demand_paddy_h_min</strong> value:</dt><dd><p>Minimum required water depth for paddy fields [mm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>demand_paddy_h_opt</strong> value:</dt><dd><p>Optimal water depth for paddy fields [mm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>demand_paddy_h_max</strong> value:</dt><dd><p>Maximum water depth for paddy fields [mm]</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><strong>soil_ksat_vertical_factor</strong>:</dt><dd><p>Map with a multiplication factor for the vertical conductivity [-]</p>
+</dd>
+</dl>
+</li>
 </ul>
 <p>Updates model layers:</p>
 <ul class="simple">
-<li><p><strong>c</strong>: Brooks Corey coefficients [-] based on pore size distribution, a map
-for each of the wflow_sbm soil layers (updated based on the newly specified
-layers)</p></li>
+<li><dl class="simple">
+<dt><strong>soil_brooks_corey_c</strong>:</dt><dd><p>Brooks Corey coefficients [-] based on pore size
+distribution, a map for each of the wflow_sbm soil layers (updated based
+on the newly specified layers)</p>
+</dd>
+</dl>
+</li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -622,10 +706,10 @@ becomes optional.</p></li>
 <li><p><strong>paddy_mapping_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>pd.DataFrame</em><em>, </em><em>optional</em>) – Path to a mapping csv file from paddy in source name to parameter values
 in lulc_vars. A default mapping table for rice parameters is used if not
 provided.</p></li>
-<li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>xr.DataArray</em><em>, </em><em>optional</em>) – <p>Soil data to be used to recalculate the Brooks-Corey coefficients (<cite>c</cite>
-parameter), based on the provided <code class="docutils literal notranslate"><span class="pre">wflow_thicknesslayers</span></code>, by default
-“soilgrids”, but should ideally be equal to the data used in
-<a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p>
+<li><p><strong>soil_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>Path</em><em>, </em><em>xr.DataArray</em><em>, </em><em>optional</em>) – <p>Soil data to be used to recalculate the Brooks-Corey coefficients
+(<cite>soil_brooks_corey_c</cite> parameter), based on the provided
+<code class="docutils literal notranslate"><span class="pre">wflow_thicknesslayers</span></code>, by default “soilgrids”, but should ideally
+be equal to the data used in <a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-meth docutils literal notranslate"><span class="pre">setup_soilmaps()</span></code></a></p>
 <ul>
 <li><p>Required variables: ‘bd_sl*’ [g/cm3], ‘clyppt_sl*’ [%], ‘sltppt_sl*’ [%],
 ‘ph_sl*’ [-].</p></li>
@@ -639,14 +723,18 @@ required, by default [None, None, 5, None, None].</p></li>
 the columns of the mapping file and the values are the corresponding
 Wflow.jl variables.</p></li>
 <li><p><strong>paddy_waterlevels</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>) – Dictionary with the minimum, optimal and maximum water levels for paddy
-fields [mm]. By default {“h_min”: 20, “h_opt”: 50, “h_max”: 80}</p></li>
+fields [mm]. By default {“demand_paddy_h_min”: 20, “demand_paddy_h_opt”: 50,
+“demand_paddy_h_max”: 80}</p></li>
 <li><p><strong>save_high_resolution_lulc</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Save the high resolution landuse map merged with the paddies to the static
 folder. By default False.</p></li>
-<li><p><strong>output_names_suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Suffix to be added to the output names to avoid having to rename all the
-columns of the mapping tables. For example if the suffix is “vito”, all
+<li><p><strong>output_names_suffix</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – <dl class="simple">
+<dt>Suffix to be added to the output names to avoid having to rename all the</dt><dd><p>columns of the mapping tables. For example if the suffix is “vito”, all
 variables in lulc_vars will be renamed to “landuse_vito”, “Kext_vito”, etc.
-Note that the suffix will also be used to rename the paddy parameters
-kvfrac, h_min, h_opt and h_max but not the c parameter.</p></li>
+Note that the suffix will also be used to rename the paddy parameter</p>
+</dd>
+</dl>
+<p>soil_ksat_vertical_factor but not the soil_brooks_corey_c parameter.</p>
+</p></li>
 </ul>
 </dd>
 </dl>

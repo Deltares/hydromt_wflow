@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -556,16 +558,16 @@
 <p>The following reservoir attributes are calculated:</p>
 <ul class="simple">
 <li><p>waterbody_id : waterbody id</p></li>
-<li><p>LakeArea : lake area [m2]</p></li>
-<li><p>LakeAvgLevel: lake average level [m]</p></li>
-<li><p>LakeAvgOut: lake average outflow [m3/s]</p></li>
-<li><p>Lake_b: lake rating curve coefficient [-]</p></li>
-<li><p>Lake_e: lake rating curve exponent [-]</p></li>
-<li><p>LakeStorFunc: option to compute storage curve [-]</p></li>
-<li><p>LakeOutflowFunc: option to compute rating curve [-]</p></li>
-<li><p>LakeThreshold: minimum threshold for lake outflow [m]</p></li>
-<li><p>LinkedLakeLocs: id of linked lake location if any</p></li>
-<li><p>LakeMaxStorage: maximum storage [m3] (optional)</p></li>
+<li><p>lake_area : lake area [m2]</p></li>
+<li><p>lake_initial_depth: lake average level or initial depth (cold state) [m]</p></li>
+<li><p>meta_lake_mean_outflow: lake average outflow [m3/s]</p></li>
+<li><p>lake_b: lake rating curve coefficient [-]</p></li>
+<li><p>lake_e: lake rating curve exponent [-]</p></li>
+<li><p>lake_storage_curve: option to compute storage curve [-]</p></li>
+<li><p>lake_rating_curve: option to compute rating curve [-]</p></li>
+<li><p>lake_outflow_threshold: minimum threshold for lake outflow [m]</p></li>
+<li><p>lake_lower_id: id of linked lake location if any</p></li>
+<li><p>meta_lake_max_storage: maximum storage [m3] (optional)</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

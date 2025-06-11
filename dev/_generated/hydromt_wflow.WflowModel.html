@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -672,29 +674,23 @@ If there are no <cite>SpatialModelComponent</cite> it will raise a warning that 
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_grid</span></code>(**kwargs)</p></td>
 <td><p>Read wflow static input and add to <code class="docutils literal notranslate"><span class="pre">grid</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_intbl</span></code>(**kwargs)</p></td>
-<td><p>Read and intbl files at &lt;root/intbl&gt; and parse to xarray.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_results</span></code>()</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_results</span></code>()</p></td>
 <td><p>Read results at &lt;root/?/&gt; and parse to dict of xr.DataArray/xr.Dataset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_states</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_states</span></code>()</p></td>
 <td><p>Read states at &lt;root/instate/&gt; and parse to dict of xr.DataArray.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_tables</span></code>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_tables</span></code>(**kwargs)</p></td>
 <td><p>Read table files at &lt;root&gt; and parse to dict of dataframes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_config</span></code>(*args)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_config</span></code>(*args)</p></td>
 <td><p>Update the config toml at key(s) with values.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flwdir</span></code>([ftype])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_flwdir</span></code>([ftype])</p></td>
 <td><p>Parse pyflwdir.FlwdirRaster object parsed from the wflow ldd.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_grid</span></code>(data[, name])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_grid</span></code>(data[, name])</p></td>
 <td><p>Add data to grid.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_intbl</span></code>(df, name)</p></td>
-<td><p>Add intbl &lt;pandas.DataFrame&gt; to model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_tables</span></code>(df, name)</p></td>
 <td><p>Add table &lt;pandas.DataFrame&gt; to model.</p></td>
@@ -751,7 +747,7 @@ If there are no <cite>SpatialModelComponent</cite> it will raise a warning that 
 <td><p>Set KsatHorFrac parameter values from a predetermined map.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_ksatver_vegetation.html#hydromt_wflow.WflowModel.setup_ksatver_vegetation" title="hydromt_wflow.WflowModel.setup_ksatver_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_ksatver_vegetation</span></code></a>([soil_fn, alfa, ...])</p></td>
-<td><p>Calculate KsatVer values from vegetation in addition to soil characteristics.</p></td>
+<td><p>Correct vertical saturated hydraulic conductivity with vegetation properties.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_laimaps.html#hydromt_wflow.WflowModel.setup_laimaps" title="hydromt_wflow.WflowModel.setup_laimaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_laimaps</span></code></a>(lai_fn[, lulc_fn, ...])</p></td>
 <td><p>Set leaf area index (LAI) climatology maps per month [1,2,3,...,12].</p></td>
@@ -796,7 +792,7 @@ If there are no <cite>SpatialModelComponent</cite> it will raise a warning that 
 <td><p>Set the river width parameter based on power-law relationship with a predictor.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim" title="hydromt_wflow.WflowModel.setup_rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_rootzoneclim</span></code></a>(run_fn, forcing_obs_fn[, ...])</p></td>
-<td><p>Set the RootingDepth.</p></td>
+<td><p>Set the vegetation_root_depth.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_soilmaps</span></code></a>([soil_fn, ptf_ksatver, ...])</p></td>
 <td><p>Derive several (layered) soil parameters.</p></td>
@@ -831,16 +827,13 @@ If there are no <cite>SpatialModelComponent</cite> it will raise a warning that 
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_grid</span></code>([fn_out])</p></td>
 <td><p>Write grid to wflow static data file.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_intbl</span></code>()</p></td>
-<td><p>Write intbl at &lt;root/intbl&gt; in PCRaster table format.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_results</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_results</span></code>()</p></td>
 <td><p>Write results at &lt;root/?/&gt; in model ready format.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_states</span></code>([fn_out])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_states</span></code>([fn_out])</p></td>
 <td><p>Write states at &lt;root/instate/&gt; in model ready format.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_tables</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_tables</span></code>()</p></td>
 <td><p>Write tables at &lt;root&gt;.</p></td>
 </tr>
 </tbody>

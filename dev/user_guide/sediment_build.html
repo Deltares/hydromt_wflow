@@ -476,7 +476,7 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">output.netcdf_grid.path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
 <span class="w">  </span><span class="nt">output.netcdf_grid.compressionlevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">  </span><span class="nt">output.netcdf_grid.variables.soil_erosion__mass_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soil_loss</span>
-<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TSS</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">suspended_solids</span>
 
 <span class="nt">setup_basemaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">      </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
@@ -512,7 +512,7 @@ to a model component with the same name.</p>
 
 <span class="nt">setup_soilmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">        </span><span class="c1"># source for soilmaps: {soilgrids}</span>
-<span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">      </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">usle_k_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">      </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
 <span class="w">  </span><span class="nt">add_aggregates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">      </span><span class="c1"># if True add small and large aggregates to soil composition</span>
 
 <span class="nt">setup_outlets</span><span class="p">:</span>
@@ -528,13 +528,13 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">river_water_sediment__bagnold_transport_capacity_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
 <span class="w">  </span><span class="nt">soil_erosion__answers_overland_flow_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
 <span class="w">  </span><span class="nt">soil_erosion__eurosem_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
-<span class="w">  </span><span class="nt">land_surface_sediment__particle_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
-<span class="w">  </span><span class="nt">clay__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">  </span><span class="nt">silt__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">  </span><span class="s">&quot;sediment_aggregates~small__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="w">  </span><span class="nt">sand__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
-<span class="w">  </span><span class="s">&quot;sediment_aggregates~large__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
-<span class="w">  </span><span class="nt">gravel__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">  </span><span class="nt">sediment__particle_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
+<span class="w">  </span><span class="nt">clay__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">silt__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~small__mean_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">sand__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~large__mean_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">  </span><span class="nt">gravel__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
 </pre></div>
 </div>
 </section>
@@ -577,7 +577,7 @@ command line would be:</p>
 <span class="w">  </span><span class="nt">output.netcdf_grid.path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
 <span class="w">  </span><span class="nt">output.netcdf_grid.compressionlevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">  </span><span class="nt">output.netcdf_grid.variables.soil_erosion__mass_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soil_loss</span>
-<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TSS</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water_sediment~suspended__mass_concentration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">suspended_solids</span>
 
 <span class="nt">setup_riverbedsed</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">bedsed_mapping_fn</span><span class="p">:</span><span class="w">       </span><span class="c1"># path to a mapping csv file from streamorder to river bed particles characteristics if any, else default is used</span>
@@ -598,7 +598,7 @@ command line would be:</p>
 
 <span class="nt">setup_soilmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">        </span><span class="c1"># source for soilmaps: {soilgrids}</span>
-<span class="w">  </span><span class="nt">usleK_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">           </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
+<span class="w">  </span><span class="nt">usle_k_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">renard</span><span class="w">           </span><span class="c1"># method to compute the USLE K factor: {renard, epic}</span>
 <span class="w">  </span><span class="nt">add_aggregates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">      </span><span class="c1"># if True add small and large aggregates to soil composition</span>
 
 <span class="nt">setup_outlets</span><span class="p">:</span>
@@ -614,14 +614,14 @@ command line would be:</p>
 <span class="w">  </span><span class="nt">river_water_sediment__bagnold_transport_capacity_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.4</span>
 <span class="w">  </span><span class="nt">soil_erosion__answers_overland_flow_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.9</span>
 <span class="w">  </span><span class="nt">soil_erosion__eurosem_exponent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2.0</span>
-<span class="w">  </span><span class="nt">land_surface_sediment__particle_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
-<span class="w">  </span><span class="nt">clay__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">  </span><span class="nt">silt__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">  </span><span class="s">&quot;sediment_aggregates~small__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
-<span class="w">  </span><span class="nt">sand__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
-<span class="w">  </span><span class="s">&quot;sediment_aggregates~large__d50_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
-<span class="w">  </span><span class="nt">gravel__d50_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
-<span class="w">  </span><span class="s">&quot;reservoir_sediment~bedload__trapping_efficiency_coefficient&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+<span class="w">  </span><span class="nt">sediment__particle_density</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2650</span>
+<span class="w">  </span><span class="nt">clay__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">silt__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~small__mean_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span>
+<span class="w">  </span><span class="nt">sand__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">200</span>
+<span class="w">  </span><span class="s">&quot;sediment_aggregates~large__mean_diameter&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span>
+<span class="w">  </span><span class="nt">gravel__mean_diameter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">  </span><span class="s">&quot;reservoir_water_sediment~bedload__trapping_efficiency&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
 </pre></div>
 </div>
 </section>

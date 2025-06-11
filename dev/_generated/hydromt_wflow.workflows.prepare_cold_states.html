@@ -48,7 +48,7 @@
     <link rel="icon" href="../_static/hydromt-icon.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="hydromt_wflow.utils.get_grid_from_config" href="hydromt_wflow.utils.get_grid_from_config.html" />
+    <link rel="next" title="hydromt_wflow.utils.read_csv_results" href="hydromt_wflow.utils.read_csv_results.html" />
     <link rel="prev" title="hydromt_wflow.workflows.wflow_1dmodel_connection" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -550,40 +552,40 @@
 <h1>hydromt_wflow.workflows.prepare_cold_states<a class="headerlink" href="#hydromt-wflow-workflows-prepare-cold-states" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="hydromt_wflow.workflows.prepare_cold_states">
-<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">prepare_cold_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name_land</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_subcatch'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name_river</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'wflow_river'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.4.1.dev0)"><span class="pre">Dataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/states.html#prepare_cold_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.prepare_cold_states" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">hydromt_wflow.workflows.</span></span><span class="sig-name descname"><span class="pre">prepare_cold_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_like</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.6.1)"><span class="pre">Dataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name_land</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'subcatchment'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_name_river</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'river_mask'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.6.1)"><span class="pre">Dataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/hydromt_wflow/workflows/states.html#prepare_cold_states"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#hydromt_wflow.workflows.prepare_cold_states" title="Link to this definition">#</a></dt>
 <dd><p>Prepare cold states for Wflow.</p>
 <p>Compute cold states variables:</p>
 <ul class="simple">
-<li><p><strong>satwaterdepth</strong>: saturated store [mm]</p></li>
-<li><p><strong>snow</strong>: snow storage [mm]</p></li>
-<li><p><strong>tsoil</strong>: top soil temperature [°C]</p></li>
-<li><p><strong>ustorelayerdepth</strong>: amount of water in the unsaturated store, per layer [mm]</p></li>
-<li><p><strong>snowwater</strong>: liquid water content in the snow pack [mm]</p></li>
-<li><p><strong>canopystorage</strong>: canopy storage [mm]</p></li>
-<li><p><strong>q_river</strong>: river discharge [m3/s]</p></li>
-<li><p><strong>h_river</strong>: river water level [m]</p></li>
-<li><p><strong>h_av_river</strong>: river average water level [m]</p></li>
-<li><p><strong>ssf</strong>: subsurface flow [m3/d]</p></li>
-<li><p><strong>h_land</strong>: land water level [m]</p></li>
-<li><p><strong>h_av_land</strong>: land average water level[m]</p></li>
-<li><p><strong>q_land</strong> or <strong>qx_land**+**qy_land</strong>: overland flow for kinwave [m3/s] or
-overland flow in x/y directions for local-inertial [m3/s]</p></li>
+<li><p><strong>soil_saturated_depth</strong>: saturated store [mm]</p></li>
+<li><p><strong>snow_leq_depth</strong>: snow storage [mm]</p></li>
+<li><p><strong>soil_temp</strong>: top soil temperature [°C]</p></li>
+<li><p><strong>soil_unsaturated_depth</strong>: amount of water in the unsaturated store, per layer
+[mm]</p></li>
+<li><p><strong>snow_water_depth</strong>: liquid water content in the snow pack [mm]</p></li>
+<li><p><strong>vegetation_water_depth</strong>: canopy storage [mm]</p></li>
+<li><p><strong>river_instantaneous_q</strong>: river discharge [m3/s]</p></li>
+<li><p><strong>river_instantaneous_h</strong>: river water level [m]</p></li>
+<li><p><strong>subsurface_q</strong>: subsurface flow [m3/d]</p></li>
+<li><p><strong>land_instantaneous_h</strong>: land water level [m]</p></li>
+<li><p><strong>land_instantaneous_q</strong> or <strong>land_instantaneous_qx**+**land_instantaneous_qy</strong>:
+overland flow for kinwave [m3/s] or overland flow in x/y directions for
+local-inertial [m3/s]</p></li>
 </ul>
 <p>If lakes, also adds:</p>
 <ul class="simple">
-<li><p><strong>waterlevel_lake</strong>: lake water level [m]</p></li>
+<li><p><strong>lake_instantaneous_water_level</strong>: lake water level [m]</p></li>
 </ul>
 <p>If reservoirs, also adds:</p>
 <ul class="simple">
-<li><p><strong>volume_reservoir</strong>: reservoir volume [m3]</p></li>
+<li><p><strong>reservoir_instantaneous_volume</strong>: reservoir volume [m3]</p></li>
 </ul>
 <p>If glaciers, also adds:</p>
 <ul class="simple">
-<li><p><strong>glacierstore</strong>: water within the glacier [mm]</p></li>
+<li><p><strong>glacier_leq_depth</strong>: water within the glacier [mm]</p></li>
 </ul>
 <p>If paddy, also adds:</p>
 <ul class="simple">
-<li><p><strong>h_paddy</strong>: water on the paddy fields [mm]</p></li>
+<li><p><strong>demand_paddy_h</strong>: water on the paddy fields [mm]</p></li>
 </ul>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -591,9 +593,10 @@ overland flow in x/y directions for local-inertial [m3/s]</p></li>
 <li><p><strong>ds_like</strong> (<em>xr.Dataset</em>) – <p>Dataset containing the staticmaps grid and variables to prepare some of the
 states.</p>
 <ul>
-<li><p>Required variables: wflow_subcatch, wflow_river</p></li>
+<li><p>Required variables: <cite>mask_name_land</cite>, <cite>mask_name_river</cite></p></li>
 <li><dl class="simple">
-<dt>Other required variables (exact name from the wflow config): c, soilthickness,</dt><dd><p>theta_s, theta_r, kv_0, f, slope, ksathorfrac</p>
+<dt>Other required variables (exact name will be read from the wflow config):</dt><dd><p>soil_brooks_corey_c, soilthickness,
+theta_s, theta_r, ksat_vertical, f, slope, subsurface_ksat_horizontal_ratio</p>
 </dd>
 </dl>
 </li>
@@ -609,9 +612,9 @@ lake.waterlevel</p>
 <li><p><strong>timestamp</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Timestamp of the cold states. By default uses the starttime
 from the config.</p></li>
 <li><p><strong>mask_name_land</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the land mask variable in the ds_like dataset. By default
-wflow_subcatch.</p></li>
+subcatchment.</p></li>
 <li><p><strong>mask_name_river</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the river mask variable in the ds_like dataset. By default
-wflow_river.</p></li>
+river_mask.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -646,11 +649,11 @@ wflow_river.</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="hydromt_wflow.utils.get_grid_from_config.html"
+       href="hydromt_wflow.utils.read_csv_results.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">hydromt_wflow.utils.get_grid_from_config</p>
+        <p class="prev-next-title">hydromt_wflow.utils.read_csv_results</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

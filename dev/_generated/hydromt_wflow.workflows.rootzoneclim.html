@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -555,7 +557,7 @@
 <p>for current observed and (optionally) for future climate-based streamflow data.</p>
 <p>The root zone storage capacity parameter is calculated per subcatchment and is
 converted to a gridded map at model resolution. Optionally, this function
-can return the wflow_sbm parameter RootingDepth by dividing the root zone
+can return the wflow_sbm parameter vegetation_root_depth by dividing the root zone
 storage parameter by (theta_s - theta_r).</p>
 <p>The method is based on the estimation of maximum annual storage deficits based on
 precipitation and estimated actual evaporation time series, which in turn are
@@ -610,8 +612,8 @@ long-term Budyko analysis.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p><strong>ds_out</strong> (<em>xr.Dataset</em>) – Dataset containing root zone storage capacity (optional) and RootingDepth for
-several forcing and return periods.</p></li>
+<li><p><strong>ds_out</strong> (<em>xr.Dataset</em>) – Dataset containing root zone storage capacity (optional) and
+vegetation_root_depth for several forcing and return periods.</p></li>
 <li><p><strong>gdf_basins_all</strong> (<em>GeoDataFrame</em>) – Geodataframe containing the root zone storage capacity values for
 each basin before filling NaN.</p></li>
 </ul>

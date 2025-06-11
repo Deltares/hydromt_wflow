@@ -484,7 +484,7 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">input.path_forcing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inmaps-era5-2010.nc</span>
 <span class="w">  </span><span class="nt">output.netcdf_grid.path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output.nc</span>
 <span class="w">  </span><span class="nt">output.netcdf_grid.compressionlevel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water__volume_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">q_av</span>
+<span class="w">  </span><span class="nt">output.netcdf_grid.variables.river_water__volume_flow_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">river_q</span>
 
 <span class="nt">setup_basemaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hydrography_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merit_hydro</span><span class="w">   </span><span class="c1"># source hydrography data {merit_hydro, merit_hydro_1k}</span>
@@ -539,7 +539,7 @@ to a model component with the same name.</p>
 <span class="w">  </span><span class="nt">lulc_mapping_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">globcover_mapping_default</span><span class="w">  </span><span class="c1"># default mapping for lulc classes</span>
 
 <span class="nt">setup_laimaps</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">lai_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modis_lai</span><span class="w">     </span><span class="c1"># source for LAI: {modis_lai}</span>
+<span class="w">  </span><span class="nt">lai_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">modis_lai</span><span class="w">     </span><span class="c1"># source for Leaf Area Index: {modis_lai}</span>
 
 <span class="nt">setup_soilmaps</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">soil_fn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">soilgrids</span><span class="w">     </span><span class="c1"># source for soilmaps: {soilgrids}</span>

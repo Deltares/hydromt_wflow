@@ -415,14 +415,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">hydromt</span><span class="w"> </span><span class="kn">import</span> <span class="n">raster</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;ksathorfrac&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ksat_horizontal_ratio&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ksatver_vegetation&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<div class="viewcode-block" id="ksathorfrac">
-<a class="viewcode-back" href="../../../_generated/hydromt_wflow.workflows.ksathorfrac.html#hydromt_wflow.workflows.ksathorfrac">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">ksathorfrac</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ksat_horizontal_ratio</span><span class="p">(</span>
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">ds_like</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">resampling_method</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -466,8 +464,7 @@
     <span class="n">da</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
     <span class="n">da</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
     <span class="c1"># Return as a dataset to be used for &#39;set_grid&#39;</span>
-    <span class="k">return</span> <span class="n">da</span></div>
-
+    <span class="k">return</span> <span class="n">da</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">calc_kv_at_depth</span><span class="p">(</span><span class="n">depth</span><span class="p">,</span> <span class="n">kv_0</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
@@ -550,7 +547,7 @@
     <span class="n">target_conductivity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">target_conductivity</span><span class="p">)</span>
 
     <span class="c1"># Prepare empty dataarray</span>
-    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">raster</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;c&quot;</span><span class="p">])</span>
+    <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">raster</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;soil_brooks_corey_c&quot;</span><span class="p">])</span>
     <span class="c1"># Set all values to 1</span>
     <span class="n">da_kvfrac</span> <span class="o">=</span> <span class="n">da_kvfrac</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">ds_model</span><span class="p">[</span><span class="s2">&quot;elevtn&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">mask_nodata</span><span class="p">()</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">)</span>
 
@@ -581,13 +578,13 @@
     <span class="k">return</span> <span class="n">da_kvfrac</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">get_ks_veg</span><span class="p">(</span><span class="n">KsatVer</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI</span><span class="p">,</span> <span class="n">alfa</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_ks_veg</span><span class="p">(</span><span class="n">ksat_vertical</span><span class="p">,</span> <span class="n">sndppt</span><span class="p">,</span> <span class="n">LAI</span><span class="p">,</span> <span class="n">alfa</span><span class="o">=</span><span class="mf">4.5</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Based on Bonetti et al. (2021) https://www.nature.com/articles/s43247-021-00180-0.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    KsatVer : [xr.DataSet, float]</span>
+<span class="sd">    ksat_vertical  : [xr.DataSet, float]</span>
 <span class="sd">        saturated hydraulic conductivity from PTF based on soil properties [cm/d].</span>
 <span class="sd">    sndppt : [xr.DataSet, float]</span>
 <span class="sd">        percentage sand [%].</span>
@@ -605,9 +602,10 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># get the saturated hydraulic conductivity with fully developed vegetation.</span>
-    <span class="n">ksmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.5</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">sndppt</span><span class="o">**</span><span class="mf">0.13</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">KsatVer</span><span class="p">))</span>
-    <span class="c1"># get the saturated hydraulic conductivity based on soil and vegetation mean LAI</span>
-    <span class="n">ks</span> <span class="o">=</span> <span class="n">ksmax</span> <span class="o">-</span> <span class="p">(</span><span class="n">ksmax</span> <span class="o">-</span> <span class="n">KsatVer</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">LAI</span> <span class="o">/</span> <span class="n">alfa</span><span class="p">)</span> <span class="o">**</span> <span class="n">beta</span><span class="p">)</span>
+    <span class="n">ksmax</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="mf">3.5</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">sndppt</span><span class="o">**</span><span class="mf">0.13</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">ksat_vertical</span><span class="p">))</span>
+    <span class="c1"># get the saturated hydraulic conductivity based on soil and</span>
+    <span class="c1"># vegetation mean LAI</span>
+    <span class="n">ks</span> <span class="o">=</span> <span class="n">ksmax</span> <span class="o">-</span> <span class="p">(</span><span class="n">ksmax</span> <span class="o">-</span> <span class="n">ksat_vertical</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">LAI</span> <span class="o">/</span> <span class="n">alfa</span><span class="p">)</span> <span class="o">**</span> <span class="n">beta</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ks</span>
 
 
@@ -628,7 +626,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    ds_like : xr.Dataset</span>
 <span class="sd">        Dataset at model resolution.</span>
-<span class="sd">        The required variables in ds_like are LAI [-], KSatVer [mm/d] and wflow_subcatch</span>
+<span class="sd">        The required variables in ds_like are LAI [-],</span>
+<span class="sd">        ksat_vertical [mm/d] and subcatchment</span>
 <span class="sd">    sndppt : [xr.DataSet, float]</span>
 <span class="sd">        percentage sand [%].</span>
 <span class="sd">    alfa : float, optional</span>

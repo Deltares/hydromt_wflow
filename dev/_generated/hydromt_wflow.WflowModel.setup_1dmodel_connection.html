@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -581,11 +583,11 @@ save all river inflows for the subcatchments and lateral.river.q_av for the
 tributaries using <code class="xref py py-meth docutils literal notranslate"><span class="pre">hydromt_wflow.wflow.setup_config_output_timeseries()</span></code>.</p>
 <p>Adds model layer:</p>
 <ul class="simple">
-<li><p><strong>wflow_subcatch_{mapname}</strong> map/geom:  connection subbasins between
+<li><p><strong>subcatchment_{mapname}</strong> map/geom:  connection subbasins between
 wflow and the 1D model.</p></li>
-<li><p><strong>wflow_subcatch_riv_{mapname}</strong> map/geom:  connection subbasins between
+<li><p><strong>subcatchment_river_{mapname}</strong> map/geom:  connection subbasins between
 wflow and the 1D model for river cells only.</p></li>
-<li><p><strong>wflow_gauges_{mapname}</strong> map/geom, optional: outlets of the tributaries
+<li><p><strong>gauges_{mapname}</strong> map/geom, optional: outlets of the tributaries
 flowing into the 1D model.</p></li>
 </ul>
 <dl class="field-list simple">
@@ -606,7 +608,7 @@ True for <strong>subbasin_area</strong> method.</p></li>
 <li><p><strong>include_river_boundaries</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default True</em>) – If True, include the upstream boundary(ies) of the 1d river as an
 additional tributary(ies).</p></li>
 <li><p><strong>mapname</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>default 1dmodel</em>) – Name of the map to save the subcatchments and tributaries in the wflow model
-staticmaps and geoms (wflow_subcatch_{mapname}).</p></li>
+staticmaps and geoms (subcatchment_{mapname}).</p></li>
 <li><p><strong>update_toml</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default True</em>) – If True, updates the wflow configuration file to save the required outputs
 for the 1D model.</p></li>
 <li><p><strong>toml_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – One of [‘csv’, ‘netcdf_scalar’, None] to update [output.csv] or

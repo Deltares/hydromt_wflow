@@ -480,10 +480,10 @@
         <span class="n">min_rivwth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
         <span class="n">smooth_len</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e3</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;river_location__mask&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_river&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river__length&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_riverlength&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river__width&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_riverwidth&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river__slope&quot;</span><span class="p">:</span> <span class="s2">&quot;RiverSlope&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_location__mask&quot;</span><span class="p">:</span> <span class="s2">&quot;river_mask&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river__length&quot;</span><span class="p">:</span> <span class="s2">&quot;river_length&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river__width&quot;</span><span class="p">:</span> <span class="s2">&quot;river_width&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river__slope&quot;</span><span class="p">:</span> <span class="s2">&quot;river_slope&quot;</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set all river parameter maps.</span>
@@ -509,10 +509,10 @@
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **wflow_river** map: river mask [-]</span>
-<span class="sd">        * **wflow_riverlength** map: river length [m]</span>
-<span class="sd">        * **wflow_riverwidth** map: river width [m]</span>
-<span class="sd">        * **RiverSlope** map: river slope [m/m]</span>
+<span class="sd">        * **river_mask** map: river mask [-]</span>
+<span class="sd">        * **river_length** map: river length [m]</span>
+<span class="sd">        * **river_width** map: river width [m]</span>
+<span class="sd">        * **river_slope** map: river slope [m/m]</span>
 <span class="sd">        * **rivers** geom: river vector based on wflow_river mask</span>
 
 <span class="sd">        Parameters</span>
@@ -624,9 +624,9 @@
         <span class="n">lakes_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="s2">&quot;hydro_lakes&quot;</span><span class="p">,</span>
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;lake_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_lakeareas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_lakelocs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;lake_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeArea&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lake_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lake_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;lake_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lakes&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -641,9 +641,9 @@
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **wflow_lakeareas** map: lake IDs [-]</span>
-<span class="sd">        * **wflow_lakelocs** map: lake IDs at outlet locations [-]</span>
-<span class="sd">        * **LakeArea** map: lake area [m2]</span>
+<span class="sd">        * **lake_area_id** map: lake IDs [-]</span>
+<span class="sd">        * **lake_outlet_id** map: lake IDs at outlet locations [-]</span>
+<span class="sd">        * **lake_area** map: lake area [m2]</span>
 <span class="sd">        * **lakes** geom: polygon with lakes and wflow lake parameters</span>
 
 <span class="sd">        Parameters</span>
@@ -679,7 +679,7 @@
             <span class="n">gdf_lakes</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Area_avg&quot;</span><span class="p">]],</span>
             <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_lakes</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">ds_lakes</span><span class="p">[</span><span class="s2">&quot;LakeArea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">ds_lakes</span><span class="p">[</span><span class="s2">&quot;lake_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
         <span class="p">)</span>
 
@@ -687,12 +687,12 @@
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># write lakes with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;LakeArea&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_lakes</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;lake_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
 
         <span class="c1"># Lake settings in the toml to update</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.lakes&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.lake__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_lakes</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dvar</span> <span class="o">==</span> <span class="s2">&quot;lakeareas&quot;</span> <span class="ow">or</span> <span class="n">dvar</span> <span class="o">==</span> <span class="s2">&quot;lakelocs&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dvar</span> <span class="o">==</span> <span class="s2">&quot;lake_area_id&quot;</span> <span class="ow">or</span> <span class="n">dvar</span> <span class="o">==</span> <span class="s2">&quot;lake_outlet_id&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">])</span></div>
@@ -707,10 +707,10 @@
         <span class="n">min_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">trapping_default</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_reservoirareas&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;wflow_reservoirlocs&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;reservoir_sediment~bedload__trapping_efficiency_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;ResTrapEff&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_area__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_location__count&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_surface__area&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;reservoir_water_sediment~bedload__trapping_efficiency&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>  <span class="c1"># noqa : E501</span>
         <span class="p">},</span>
         <span class="n">geom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reservoirs&quot;</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -725,10 +725,11 @@
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **wflow_reservoirareas** map: reservoir IDs [-]</span>
-<span class="sd">        * **wflow_reservoirlocs** map: reservoir IDs at outlet locations [-]</span>
-<span class="sd">        * **ResSimpleArea** map: reservoir area [m2]</span>
-<span class="sd">        * **ResTrapEff** map: reservoir trapping efficiency coefficient [-]</span>
+<span class="sd">        * **reservoir_area_id** map: reservoir IDs [-]</span>
+<span class="sd">        * **reservoir_outlet_id** map: reservoir IDs at outlet locations [-]</span>
+<span class="sd">        * **reservoir_area** map: reservoir area [m2]</span>
+<span class="sd">        * **reservoir_trapping_efficiency** map: reservoir trapping efficiency</span>
+<span class="sd">         coefficient [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -737,7 +738,7 @@
 
 <span class="sd">            * Required variables: [&#39;waterbody_id&#39;, &#39;Area_avg&#39;]</span>
 
-<span class="sd">            * Optional variables: [&#39;ResTrapEff&#39;]</span>
+<span class="sd">            * Optional variables: [&#39;reservoir_trapping_efficiency&#39;]</span>
 <span class="sd">        min_area : float, optional</span>
 <span class="sd">            Minimum reservoir area threshold [km2], by default 1.0 km2.</span>
 <span class="sd">        trapping_default : float, optional</span>
@@ -766,30 +767,33 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
         <span class="c1"># Add default trapping efficiency coefficient if not in data source</span>
-        <span class="k">if</span> <span class="s2">&quot;ResTrapEff&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf_res</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">gdf_res</span><span class="p">[</span><span class="s2">&quot;ResTrapEff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trapping_default</span>
+        <span class="k">if</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf_res</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">gdf_res</span><span class="p">[</span><span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">trapping_default</span>
         <span class="c1"># add reservoirs parameters to grid</span>
         <span class="n">gdf_points</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-            <span class="n">gdf_res</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;ResTrapEff&quot;</span><span class="p">]],</span>
+            <span class="n">gdf_res</span><span class="p">[[</span><span class="s2">&quot;waterbody_id&quot;</span><span class="p">,</span> <span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">]],</span>
             <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">xout</span><span class="p">,</span> <span class="n">gdf_res</span><span class="o">.</span><span class="n">yout</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
             <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
         <span class="p">)</span>
-        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;ResTrapEff&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
-            <span class="n">gdf_points</span><span class="p">,</span> <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;ResTrapEff&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span>
+        <span class="n">ds_res</span><span class="p">[</span><span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">rasterize</span><span class="p">(</span>
+            <span class="n">gdf_points</span><span class="p">,</span>
+            <span class="n">col_name</span><span class="o">=</span><span class="s2">&quot;reservoir_trapping_efficiency&quot;</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">,</span>
+            <span class="n">nodata</span><span class="o">=-</span><span class="mi">999</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># add to grid</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">ds_res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="c1"># write lakes with attr tables to static geoms.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;ResSimpleArea&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_geoms</span><span class="p">(</span><span class="n">gdf_res</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;Area_avg&quot;</span><span class="p">:</span> <span class="s2">&quot;reservoir_area&quot;</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="n">geom_name</span><span class="p">)</span>
 
         <span class="c1"># Lake settings in the toml to update</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoirs&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_config</span><span class="p">(</span><span class="s2">&quot;model.reservoir__flag&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="n">ds_res</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;resareas&quot;</span><span class="p">,</span> <span class="s2">&quot;reslocs&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;reservoir_area_id&quot;</span><span class="p">,</span> <span class="s2">&quot;reservoir_outlet_id&quot;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">],</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">dvar</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="n">dvar</span><span class="p">])</span></div>
@@ -802,22 +806,22 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">river_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">toml_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
-        <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TSS&quot;</span><span class="p">],</span>
+        <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;suspended_solids&quot;</span><span class="p">],</span>
         <span class="n">gauge_toml_param</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;river_water_sediment~suspended__mass_concentration&quot;</span><span class="p">,</span>
         <span class="p">],</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the default gauge map based on basin outlets.</span>
 
-<span class="sd">        If wflow_subcatch is available, the catchment outlets IDs will be matching the</span>
-<span class="sd">        wflow_subcatch IDs. If not, then IDs from 1 to number of outlets are used.</span>
+<span class="sd">        If the subcatchment map is available, the catchment outlets IDs will be matching</span>
+<span class="sd">        the subcatchment IDs. If not, then IDs from 1 to number of outlets are used.</span>
 
 <span class="sd">        Can also add csv/netcdf_scalar output settings in the TOML.</span>
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **wflow_gauges** map: gauge IDs map from catchment outlets [-]</span>
-<span class="sd">        * **gauges** geom: polygon of catchment outlets</span>
+<span class="sd">        * **outlets** map: IDs map from catchment outlets [-]</span>
+<span class="sd">        * **outlets** geom: polygon of catchment outlets</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -831,13 +835,13 @@
 <span class="sd">        gauge_toml_header : list, optional</span>
 <span class="sd">            Save specific model parameters in csv section. This option defines</span>
 <span class="sd">            the header of the csv file.</span>
-<span class="sd">            By default saves TSS (for</span>
+<span class="sd">            By default saves suspended_solids (for</span>
 <span class="sd">            river_water_sediment~suspended__mass_concentration).</span>
 <span class="sd">        gauge_toml_param: list, optional</span>
 <span class="sd">            Save specific model parameters in csv section. This option defines</span>
 <span class="sd">            the wflow variable corresponding to the names in gauge_toml_header.</span>
 <span class="sd">            By default saves river_water_sediment~suspended__mass_concentration (for</span>
-<span class="sd">            TSS).</span>
+<span class="sd">            suspended_solids).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_outlets</span><span class="p">(</span>
             <span class="n">river_only</span><span class="o">=</span><span class="n">river_only</span><span class="p">,</span>
@@ -865,7 +869,7 @@
         <span class="n">derive_subcatch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">basename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">toml_output</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span>
-        <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Q&quot;</span><span class="p">,</span> <span class="s2">&quot;TSS&quot;</span><span class="p">],</span>
+        <span class="n">gauge_toml_header</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;river_q&quot;</span><span class="p">,</span> <span class="s2">&quot;suspended_solids&quot;</span><span class="p">],</span>
         <span class="n">gauge_toml_param</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;river_water__volume_flow_rate&quot;</span><span class="p">,</span>
             <span class="s2">&quot;river_water_sediment~suspended__mass_concentration&quot;</span><span class="p">,</span>
@@ -879,7 +883,7 @@
 
 <span class="sd">        The only differences are the default values for the arguments:</span>
 
-<span class="sd">        - ``gauge_toml_header`` defaults to [&quot;Q&quot;, &quot;TSS&quot;]</span>
+<span class="sd">        - ``gauge_toml_header`` defaults to [&quot;river_q&quot;, &quot;suspended_solids&quot;]</span>
 <span class="sd">        - ``gauge_toml_param`` defaults to [&quot;river_water__volume_flow_rate&quot;,</span>
 <span class="sd">            &quot;river_water_sediment~suspended__mass_concentration&quot;]</span>
 
@@ -918,9 +922,9 @@
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;PathFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>  <span class="c1"># compacted_fraction</span>
-            <span class="s2">&quot;USLE_C&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>  <span class="c1"># usle_c</span>
-            <span class="s2">&quot;WaterFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>  <span class="c1"># water_fraction</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">planted_forest_c</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0881</span><span class="p">,</span>
         <span class="n">orchard_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Orchard&quot;</span><span class="p">,</span>
@@ -948,9 +952,11 @@
 
 <span class="sd">        * **landuse** map: Landuse class [-]</span>
 <span class="sd">            Original source dependent LULC class, resampled using nearest neighbour.</span>
-<span class="sd">        * **USLE_C** map: Cover management factor from the USLE equation [-]</span>
-<span class="sd">        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]</span>
-<span class="sd">        * **WaterFrac** map: The fraction of water covered area per grid cell [-]</span>
+<span class="sd">        * **erosion_usle_c ** map: Cover management factor from the USLE equation [-]</span>
+<span class="sd">        * **soil_compacted_fraction** map: The fraction of compacted or urban area per</span>
+<span class="sd">          grid cell [-]</span>
+<span class="sd">        * **land_water_fraction** map: The fraction of water covered area per grid</span>
+<span class="sd">        cell [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -978,8 +984,8 @@
 <span class="sd">        output_names_suffix : str, optional</span>
 <span class="sd">            Suffix to be added to the output names to avoid having to rename all the</span>
 <span class="sd">            columns of the mapping tables. For example if the suffix is &quot;vito&quot;, all</span>
-<span class="sd">            variables in lulc_vars will be renamed to &quot;landuse_vito&quot;, &quot;USLE_C_vito&quot;,</span>
-<span class="sd">            etc.</span>
+<span class="sd">            variables in lulc_vars will be renamed to &quot;landuse_vito&quot;,</span>
+<span class="sd">            &quot;erosion_usle_c_vito&quot;, etc.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -995,7 +1001,7 @@
         <span class="p">)</span>
 
         <span class="c1"># If available, improve USLE C map with planted forest data</span>
-        <span class="k">if</span> <span class="s2">&quot;USLE_C&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Read forest data</span>
             <span class="n">planted_forest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
                 <span class="n">planted_forest_fn</span><span class="p">,</span>
@@ -1007,9 +1013,12 @@
             <span class="k">if</span> <span class="n">planted_forest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
+            <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="p">}</span>
             <span class="n">usle_c</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">add_planted_forest_to_landuse</span><span class="p">(</span>
                 <span class="n">planted_forest</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>  <span class="c1"># TODO should have USLE_C in the grid already</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">),</span>
                 <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
                 <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
                 <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
@@ -1017,7 +1026,7 @@
             <span class="p">)</span>
 
             <span class="c1"># Add to grid</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_lulcmaps_from_vector">
@@ -1030,9 +1039,9 @@
         <span class="n">planted_forest_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">lulc_vars</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;PathFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>  <span class="c1"># compacted_fraction</span>
-            <span class="s2">&quot;USLE_C&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>  <span class="c1"># usle_c</span>
-            <span class="s2">&quot;WaterFrac&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>  <span class="c1"># water_fraction</span>
+            <span class="s2">&quot;soil_compacted_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil~compacted__area_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;erosion_usle_c&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_erosion__usle_c_factor&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_water_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;land~water-covered__area_fraction&quot;</span><span class="p">,</span>
         <span class="p">},</span>
         <span class="n">lulc_res</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">all_touched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1064,9 +1073,11 @@
 
 <span class="sd">        * **landuse** map: Landuse class [-]</span>
 <span class="sd">            Original source dependent LULC class, resampled using nearest neighbour.</span>
-<span class="sd">        * **USLE_C** map: Cover management factor from the USLE equation [-]</span>
-<span class="sd">        * **PathFrac** map: The fraction of compacted or urban area per grid cell [-]</span>
-<span class="sd">        * **WaterFrac** map: The fraction of water covered area per grid cell [-]</span>
+<span class="sd">        * **erosion_usle_c** map: Cover management factor from the USLE equation [-]</span>
+<span class="sd">        * **soil_compacted_fraction** map: The fraction of compacted or urban area per</span>
+<span class="sd">          grid cell [-]</span>
+<span class="sd">        * **land_water_fraction** map: The fraction of water covered area per grid</span>
+<span class="sd">          cell [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1083,11 +1094,8 @@
 <span class="sd">            GeoDataFrame source with polygons of planted forests.</span>
 
 <span class="sd">            * Optional variable: [&quot;forest_type&quot;]</span>
-<span class="sd">        lulc_vars : dict</span>
-<span class="sd">            List of landuse parameters to prepare.</span>
-<span class="sd">            By default [&quot;landuse&quot;,&quot;Kext&quot;,&quot;Sl&quot;,&quot;Swood&quot;,&quot;USLE_C&quot;,&quot;PathFrac&quot;]</span>
 <span class="sd">        lulc_vars : Dict</span>
-<span class="sd">            Dictionnary of landuse parameters to prepare. The names are the</span>
+<span class="sd">            Dictionary of landuse parameters to prepare. The names are the</span>
 <span class="sd">            the columns of the mapping file and the values are the corresponding</span>
 <span class="sd">            Wflow.jl variables.</span>
 <span class="sd">        all_touched : bool, optional</span>
@@ -1109,8 +1117,8 @@
 <span class="sd">        output_names_suffix : str, optional</span>
 <span class="sd">            Suffix to be added to the output names to avoid having to rename all the</span>
 <span class="sd">            columns of the mapping tables. For example if the suffix is &quot;vito&quot;, all</span>
-<span class="sd">            variables in lulc_vars will be renamed to &quot;landuse_vito&quot;, &quot;USLE_C_vito&quot;,</span>
-<span class="sd">            etc.</span>
+<span class="sd">            variables in lulc_vars will be renamed to &quot;landuse_vito&quot;,</span>
+<span class="sd">            &quot;erosion_usle_c_vito&quot;, etc.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1130,7 +1138,7 @@
         <span class="p">)</span>
 
         <span class="c1"># If available, improve USLE C map with planted forest data</span>
-        <span class="k">if</span> <span class="s2">&quot;USLE_C&quot;</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">lulc_vars</span> <span class="ow">and</span> <span class="n">planted_forest_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Read forest data</span>
             <span class="n">planted_forest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_catalog</span><span class="o">.</span><span class="n">get_geodataframe</span><span class="p">(</span>
                 <span class="n">planted_forest_fn</span><span class="p">,</span>
@@ -1142,9 +1150,12 @@
             <span class="k">if</span> <span class="n">planted_forest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Planted forest data found within domain.&quot;</span><span class="p">)</span>
                 <span class="k">return</span>
+            <span class="n">rename_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span>
+            <span class="p">}</span>
             <span class="n">usle_c</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">add_planted_forest_to_landuse</span><span class="p">(</span>
                 <span class="n">planted_forest</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_dict</span><span class="p">),</span>
                 <span class="n">planted_forest_c</span><span class="o">=</span><span class="n">planted_forest_c</span><span class="p">,</span>
                 <span class="n">orchard_name</span><span class="o">=</span><span class="n">orchard_name</span><span class="p">,</span>
                 <span class="n">orchard_c</span><span class="o">=</span><span class="n">orchard_c</span><span class="p">,</span>
@@ -1152,7 +1163,7 @@
             <span class="p">)</span>
 
             <span class="c1"># Add to grid</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">usle_c</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;usle_c&quot;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="WflowSedimentModel.setup_riverbedsed">
@@ -1161,16 +1172,17 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_riverbedsed</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">bedsed_mapping_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">strord_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;meta_streamorder&quot;</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;river_bottom-and-bank_sediment__d50_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;D50_River&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;ClayF_River&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;SiltF_River&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;SandF_River&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_bottom-and-bank_gravel__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;GravelF_River&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_a-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;a_kodatie&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_b-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;b_kodatie&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_c-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;c_kodatie&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_d-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;d_kodatie&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_bottom-and-bank_sediment__median_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_sediment_d50&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom-and-bank_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_clay_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom-and-bank_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_silt_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom-and-bank_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_sand_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_bottom-and-bank_gravel__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;river_bed_gravel_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_a-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_a&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_b-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_b&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_c-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_c&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;river_water_sediment__kodatie_transport_capacity_d-coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;river_kodatie_d&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate sediments based river bed characteristics maps.</span>
@@ -1180,15 +1192,15 @@
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **D50_River** map: median sediment diameter of the river bed [mm]</span>
-<span class="sd">        * **ClayF_River** map: fraction of clay material in the river bed [-]</span>
-<span class="sd">        * **SiltF_River** map: fraction of silt material in the river bed [-]</span>
-<span class="sd">        * **SandF_River** map: fraction of sand material in the river bed [-]</span>
-<span class="sd">        * **GravelF_River** map: fraction of gravel material in the river bed [-]</span>
-<span class="sd">        * **a_kodatie** map: Kodatie transport capacity coefficient a [-]</span>
-<span class="sd">        * **b_kodatie** map: Kodatie transport capacity coefficient b [-]</span>
-<span class="sd">        * **c_kodatie** map: Kodatie transport capacity coefficient c [-]</span>
-<span class="sd">        * **d_kodatie** map: Kodatie transport capacity coefficient d [-]</span>
+<span class="sd">        * **river_bed_sediment_d50** map: median sediment diameter of the river bed [mm]</span>
+<span class="sd">        * **river_bed_clay_fraction** map: fraction of clay material in the river bed [-]</span>
+<span class="sd">        * **river_bed_silt_fraction** map: fraction of silt material in the river bed [-]</span>
+<span class="sd">        * **river_bed_sand_fraction** map: fraction of sand material in the river bed [-]</span>
+<span class="sd">        * **river_bed_gravel_fraction** map: fraction of gravel material in the river bed [-]</span>
+<span class="sd">        * **river_kodatie_a** map: Kodatie transport capacity coefficient a [-]</span>
+<span class="sd">        * **river_kodatie_b** map: Kodatie transport capacity coefficient b [-]</span>
+<span class="sd">        * **river_kodatie_c** map: Kodatie transport capacity coefficient c [-]</span>
+<span class="sd">        * **river_kodatie_d** map: Kodatie transport capacity coefficient d [-]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1196,24 +1208,33 @@
 <span class="sd">            Path to a mapping csv file from streamorder to river bed particles</span>
 <span class="sd">            characteristics. If None reverts to default values.</span>
 
-<span class="sd">            * Required variable: [&#39;strord&#39;,&#39;D50_River&#39;, &#39;ClayF_River&#39;, &#39;SiltF_River&#39;,</span>
-<span class="sd">              &#39;SandF_River&#39;, &#39;GravelF_River&#39;]</span>
-<span class="sd">            * Optional variable: [&#39;a_kodatie&#39;, &#39;b_kodatie&#39;, &#39;c_kodatie&#39;, &#39;d_kodatie&#39;]</span>
+<span class="sd">            * Required variable: [&#39;strord&#39;,&#39;river_bed_sediment_d50&#39;,</span>
+<span class="sd">              &#39;river_bed_clay_fraction&#39;, &#39;river_bed_silt_fraction&#39;,</span>
+<span class="sd">                &#39;river_bed_sand_fraction&#39;, &#39;river_bed_gravel_fraction&#39;]</span>
+<span class="sd">            * Optional variable: [&#39;river_kodatie_a&#39;, &#39;river_kodatie_b&#39;,</span>
+<span class="sd">              &#39;river_kodatie_c&#39;, &#39;river_kodatie_d&#39;]</span>
+<span class="sd">        strord_name : str, optional</span>
+<span class="sd">            Name of the stream order map in the grid, by default &#39;meta_streamorder&#39;.</span>
 <span class="sd">        output_names : dict, optional</span>
 <span class="sd">            Dictionary with output names that will be used in the model netcdf input</span>
 <span class="sd">            files. Users should provide the Wflow.jl variable name followed by the name</span>
 <span class="sd">            in the netcdf file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing riverbedsed parameter maps.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Streamorder map is not available, please run setup_basemaps first.&quot;</span>
-            <span class="p">)</span>
+        <span class="c1"># check for streamorder</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">strord_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Streamorder map </span><span class="si">{</span><span class="n">strord_name</span><span class="si">}</span><span class="s2"> not found in grid. &quot;</span>
+                    <span class="s2">&quot;Please run setup_basemaps or update the strord_name argument.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;strord&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">strord_name</span>
         <span class="c1"># update self._MAPS and self._WFLOW_NAMES with user defined output names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">(</span><span class="n">output_names</span><span class="p">)</span>
 
-        <span class="c1"># Make D50_River map from csv file with mapping between streamorder and</span>
-        <span class="c1"># D50_River value</span>
+        <span class="c1"># Make river_bed_sediment_d50 map from csv file with mapping between streamorder</span>
+        <span class="c1">#  and river_bed_sediment_d50 value</span>
         <span class="k">if</span> <span class="n">bedsed_mapping_fn</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fn_map</span> <span class="o">=</span> <span class="s2">&quot;riverbedsed_mapping_default&quot;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1250,20 +1271,20 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_canopymaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">canopy_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-        <span class="n">output_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;CanopyHeight&quot;</span><span class="p">,</span>
+        <span class="n">output_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;vegetation_height&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate sediments based canopy height maps.</span>
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **CanopyHeight** map: height of the vegetation canopy [m]</span>
+<span class="sd">        * **vegetation_height** map: height of the vegetation canopy [m]</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        canopy_fn :</span>
 <span class="sd">            Canopy height data source (DataArray).</span>
 <span class="sd">        output_name : dict, optional</span>
-<span class="sd">            Name of the output map. By default &#39;CanopyHeight&#39;.</span>
+<span class="sd">            Name of the output map. By default &#39;vegetation_height&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Preparing canopy height map.&quot;</span><span class="p">)</span>
 
@@ -1273,14 +1294,14 @@
         <span class="p">)</span>
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
         <span class="n">ds_out</span> <span class="o">=</span> <span class="n">dsin</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">reproject_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">)</span>
-        <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;CanopyHeight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-        <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;CanopyHeight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;CanopyHeight&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
-        <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;CanopyHeight&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
+        <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds_out</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
+        <span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">raster</span><span class="o">.</span><span class="n">set_nodata</span><span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">)</span>
 
         <span class="c1"># update name</span>
-        <span class="n">wflow_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;CanopyHeight&quot;</span><span class="p">]]</span>
+        <span class="n">wflow_var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_WFLOW_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">]]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_naming</span><span class="p">({</span><span class="n">wflow_var</span><span class="p">:</span> <span class="n">output_name</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;CanopyHeight&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">[</span><span class="s2">&quot;vegetation_height&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">output_name</span><span class="p">)</span>
         <span class="c1"># update config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">output_name</span><span class="p">)</span></div>
 
@@ -1290,19 +1311,19 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">setup_soilmaps</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
-        <span class="n">usleK_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
+        <span class="n">usle_k_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
         <span class="n">add_aggregates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">output_names</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;soil_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;fclay_soil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;fsilt_soil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;fsand_soil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_aggregates~small__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;fsagg_soil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_aggregates~large__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;flagg_soil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_erosion__rainfall_soil_detachability_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_detachability&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;soil_erosion__usle_k_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;usle_k&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_surface_sediment__d50_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;d50_soil&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;land_surface_water_sediment__govers_transport_capacity_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;c_govers&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
-            <span class="s2">&quot;land_surface_water_sediment__govers_transport_capacity_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;n_govers&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;soil_clay__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_clay_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_silt__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_silt_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_sand__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sand_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_aggregates~small__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sagg_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_aggregates~large__mass_fraction&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_lagg_fraction&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;soil_erosion__rainfall_soil_detachability_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;erosion_soil_detachability&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;soil_erosion__usle_k_factor&quot;</span><span class="p">:</span> <span class="s2">&quot;erosion_usle_k&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_surface_sediment__median_diameter&quot;</span><span class="p">:</span> <span class="s2">&quot;soil_sediment_d50&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;land_surface_water_sediment__govers_transport_capacity_coefficient&quot;</span><span class="p">:</span> <span class="s2">&quot;land_govers_c&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
+            <span class="s2">&quot;land_surface_water_sediment__govers_transport_capacity_exponent&quot;</span><span class="p">:</span> <span class="s2">&quot;land_govers_n&quot;</span><span class="p">,</span>  <span class="c1"># noqa: E501</span>
         <span class="p">},</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate sediments based soil parameter maps.</span>
@@ -1315,17 +1336,18 @@
 
 <span class="sd">        Adds model layers:</span>
 
-<span class="sd">        * **fclay_soil**: clay content of the topsoil [g/g]</span>
-<span class="sd">        * **fsilt_soil**: silt content of the topsoil [g/g]</span>
-<span class="sd">        * **fsand_soil**: sand content of the topsoil [g/g]</span>
-<span class="sd">        * **fsagg_soil**: small aggregate content of the topsoil [g/g]</span>
-<span class="sd">        * **flagg_soil**: large aggregate content of the topsoil [g/g]</span>
-<span class="sd">        * **soil_detachability** map: mean detachability of the soil (Morgan et al.,</span>
-<span class="sd">          1998) [g/J]</span>
-<span class="sd">        * **usle_k** map: soil erodibility factor from the USLE equation [-]</span>
-<span class="sd">        * **d50_soil** map: median sediment diameter of the soil [mm]</span>
-<span class="sd">        * **c_govers** map: Govers factor for overland flow transport capacity [-]</span>
-<span class="sd">        * **n_govers** map: Govers exponent for overland flow transport capacity [-]</span>
+<span class="sd">        * **soil_clay_fraction**: clay content of the topsoil [g/g]</span>
+<span class="sd">        * **soil_silt_fraction**: silt content of the topsoil [g/g]</span>
+<span class="sd">        * **soil_sand_fraction**: sand content of the topsoil [g/g]</span>
+<span class="sd">        * **soil_sagg_fraction**: small aggregate content of the topsoil [g/g]</span>
+<span class="sd">        * **soil_lagg_fraction**: large aggregate content of the topsoil [g/g]</span>
+<span class="sd">        * **erosion_soil_detachability** map: mean detachability of the soil</span>
+<span class="sd">        (Morgan et al., 1998) [g/J]</span>
+<span class="sd">        * **erosion_usle_k** map: soil erodibility factor from the USLE equation [-]</span>
+<span class="sd">        * **soil_sediment_d50** map: median sediment diameter of the soil [mm]</span>
+<span class="sd">        * **land_govers_c** map: Govers factor for overland flow transport capacity [-]</span>
+<span class="sd">        * **land_govers_n** map: Govers exponent for overland flow transport</span>
+<span class="sd">        capacity [-]</span>
 
 
 <span class="sd">        Parameters</span>
@@ -1334,7 +1356,7 @@
 <span class="sd">            Name of soil data source in data_sources.yml file.</span>
 
 <span class="sd">            * Required variables: [&#39;clyppt_sl1&#39;, &#39;sltppt_sl1&#39;, &#39;oc_sl1&#39;]</span>
-<span class="sd">        usleK_method: {&quot;renard&quot;, &quot;epic&quot;}</span>
+<span class="sd">        usle_k_method: {&quot;renard&quot;, &quot;epic&quot;}</span>
 <span class="sd">            Method to compute the USLE K factor, by default renard.</span>
 <span class="sd">        add_aggregates: bool, optional</span>
 <span class="sd">            Add small and large aggregates based on soil texture, by default True.</span>
@@ -1357,12 +1379,12 @@
         <span class="n">dsout</span> <span class="o">=</span> <span class="n">workflows</span><span class="o">.</span><span class="n">soilgrids_sediment</span><span class="p">(</span>
             <span class="n">dsin</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
-            <span class="n">usleK_method</span><span class="o">=</span><span class="n">usleK_method</span><span class="p">,</span>
+            <span class="n">usle_k_method</span><span class="o">=</span><span class="n">usle_k_method</span><span class="p">,</span>
             <span class="n">add_aggregates</span><span class="o">=</span><span class="n">add_aggregates</span><span class="p">,</span>
             <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">rmdict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_MAPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">dsout</span><span class="o">.</span><span class="n">data_vars</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_grid</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_config_variable_name</span><span class="p">(</span><span class="n">dsout</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rmdict</span><span class="p">)</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span></div>
 
 
@@ -1372,7 +1394,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">upgrade_to_v1_wflow</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">soil_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;soilgrids&quot;</span><span class="p">,</span>
-        <span class="n">usleK_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
+        <span class="n">usle_k_method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;renard&quot;</span><span class="p">,</span>
+        <span class="n">strord_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;wflow_streamorder&quot;</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Upgrade the model to wflow v1 format.</span>
@@ -1386,6 +1409,15 @@
 
 <span class="sd">        This function should be followed by ``write_config`` to write the upgraded TOML</span>
 <span class="sd">        file and by ``write_grid`` to write the upgraded static netcdf input file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        soil_fn : str, optional</span>
+<span class="sd">            soil_fn argument of setup_soilmaps method.</span>
+<span class="sd">        usle_k_method : str, optional</span>
+<span class="sd">            usle_k_method argument of setup_soilmaps method.</span>
+<span class="sd">        strord_name : str, optional</span>
+<span class="sd">            strord_name argument of setup_riverbedsed method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">config_out</span> <span class="o">=</span> <span class="n">convert_to_wflow_v1_sediment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
@@ -1401,12 +1433,12 @@
         <span class="c1"># Rerun setup_soilmaps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setup_soilmaps</span><span class="p">(</span>
             <span class="n">soil_fn</span><span class="o">=</span><span class="n">soil_fn</span><span class="p">,</span>
-            <span class="n">usleK_method</span><span class="o">=</span><span class="n">usleK_method</span><span class="p">,</span>
+            <span class="n">usle_k_method</span><span class="o">=</span><span class="n">usle_k_method</span><span class="p">,</span>
             <span class="n">add_aggregates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Rerun setup_riverbedsed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setup_riverbedsed</span><span class="p">(</span><span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_riverbedsed</span><span class="p">(</span><span class="n">bedsed_mapping_fn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strord_name</span><span class="o">=</span><span class="n">strord_name</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

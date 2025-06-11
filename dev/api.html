@@ -469,7 +469,6 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.lai_from_lulc_mapping.html">hydromt_wflow.workflows.lai_from_lulc_mapping</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.add_paddy_to_landuse.html">hydromt_wflow.workflows.add_paddy_to_landuse</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.add_planted_forest_to_landuse.html">hydromt_wflow.workflows.add_planted_forest_to_landuse</a></li>
-<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.ksathorfrac.html">hydromt_wflow.workflows.ksathorfrac</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.ksatver_vegetation.html">hydromt_wflow.workflows.ksatver_vegetation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids.html">hydromt_wflow.workflows.soilgrids</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_sediment.html">hydromt_wflow.workflows.soilgrids_sediment</a></li>
@@ -483,6 +482,9 @@
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html">hydromt_wflow.workflows.rootzoneclim</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html">hydromt_wflow.workflows.wflow_1dmodel_connection</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.workflows.prepare_cold_states.html">hydromt_wflow.workflows.prepare_cold_states</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.utils.read_csv_results.html">hydromt_wflow.utils.read_csv_results</a></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="_generated/hydromt_wflow.utils.get_grid_from_config.html">hydromt_wflow.utils.get_grid_from_config</a></li>
@@ -620,10 +622,10 @@
 <td><p>Set KsatHorFrac parameter values from a predetermined map.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_ksatver_vegetation.html#hydromt_wflow.WflowModel.setup_ksatver_vegetation" title="hydromt_wflow.WflowModel.setup_ksatver_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_ksatver_vegetation</span></code></a>([...])</p></td>
-<td><p>Calculate KsatVer values from vegetation in addition to soil characteristics.</p></td>
+<td><p>Correct vertical saturated hydraulic conductivity with vegetation properties.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_rootzoneclim.html#hydromt_wflow.WflowModel.setup_rootzoneclim" title="hydromt_wflow.WflowModel.setup_rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_rootzoneclim</span></code></a>(run_fn, ...[, ...])</p></td>
-<td><p>Set the RootingDepth.</p></td>
+<td><p>Set the vegetation_root_depth.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.WflowModel.setup_soilmaps.html#hydromt_wflow.WflowModel.setup_soilmaps" title="hydromt_wflow.WflowModel.setup_soilmaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WflowModel.setup_soilmaps</span></code></a>([soil_fn, ...])</p></td>
 <td><p>Derive several (layered) soil parameters.</p></td>
@@ -897,46 +899,43 @@
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.add_planted_forest_to_landuse.html#hydromt_wflow.workflows.add_planted_forest_to_landuse" title="hydromt_wflow.workflows.add_planted_forest_to_landuse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.add_planted_forest_to_landuse</span></code></a>(...)</p></td>
 <td><p>Update USLE C map with planted forest and orchard data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.ksathorfrac.html#hydromt_wflow.workflows.ksathorfrac" title="hydromt_wflow.workflows.ksathorfrac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.ksathorfrac</span></code></a>(da, ds_like, ...)</p></td>
-<td><p>Create KsatHorfrac map.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.ksatver_vegetation.html#hydromt_wflow.workflows.ksatver_vegetation" title="hydromt_wflow.workflows.ksatver_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.ksatver_vegetation</span></code></a>(ds_like, sndppt)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.ksatver_vegetation.html#hydromt_wflow.workflows.ksatver_vegetation" title="hydromt_wflow.workflows.ksatver_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.ksatver_vegetation</span></code></a>(ds_like, sndppt)</p></td>
 <td><p>Calculate saturated hydraulic conductivity based on soil and vegetation [mm/d].</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids" title="hydromt_wflow.workflows.soilgrids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids</span></code></a>(ds, ds_like[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids.html#hydromt_wflow.workflows.soilgrids" title="hydromt_wflow.workflows.soilgrids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids</span></code></a>(ds, ds_like[, ...])</p></td>
 <td><p>Return soil parameter maps at model resolution.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment" title="hydromt_wflow.workflows.soilgrids_sediment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids_sediment</span></code></a>(ds, ds_like[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_sediment.html#hydromt_wflow.workflows.soilgrids_sediment" title="hydromt_wflow.workflows.soilgrids_sediment"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids_sediment</span></code></a>(ds, ds_like[, ...])</p></td>
 <td><p>Return soil parameter maps for sediment modelling at model resolution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_brooks_corey.html#hydromt_wflow.workflows.soilgrids_brooks_corey" title="hydromt_wflow.workflows.soilgrids_brooks_corey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids_brooks_corey</span></code></a>(ds, ds_like)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.soilgrids_brooks_corey.html#hydromt_wflow.workflows.soilgrids_brooks_corey" title="hydromt_wflow.workflows.soilgrids_brooks_corey"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.soilgrids_brooks_corey</span></code></a>(ds, ds_like)</p></td>
 <td><p>Determine Brooks Corey coefficient per wflow soil layer depth.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.update_soil_with_paddy.html#hydromt_wflow.workflows.update_soil_with_paddy" title="hydromt_wflow.workflows.update_soil_with_paddy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.update_soil_with_paddy</span></code></a>(ds, ...[, ...])</p></td>
-<td><p>Update c and kvfrac soil properties for paddy fields.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.update_soil_with_paddy.html#hydromt_wflow.workflows.update_soil_with_paddy" title="hydromt_wflow.workflows.update_soil_with_paddy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.update_soil_with_paddy</span></code></a>(ds, ...[, ...])</p></td>
+<td><p>Update soil_brooks_corey_c and soil_ksat_vertical_factor for paddy fields.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps" title="hydromt_wflow.workflows.waterbodymaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.waterbodymaps</span></code></a>(gdf, ds_like[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.waterbodymaps.html#hydromt_wflow.workflows.waterbodymaps" title="hydromt_wflow.workflows.waterbodymaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.waterbodymaps</span></code></a>(gdf, ds_like[, ...])</p></td>
 <td><p>Return waterbody (reservoir/lake) maps (see list below).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs" title="hydromt_wflow.workflows.reservoirattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.reservoirattrs</span></code></a>(gdf[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.reservoirattrs.html#hydromt_wflow.workflows.reservoirattrs" title="hydromt_wflow.workflows.reservoirattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.reservoirattrs</span></code></a>(gdf[, ...])</p></td>
 <td><p>Return reservoir attributes (see list below) needed for modelling.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs" title="hydromt_wflow.workflows.lakeattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.lakeattrs</span></code></a>(ds, gdf[, rating_dict, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.lakeattrs.html#hydromt_wflow.workflows.lakeattrs" title="hydromt_wflow.workflows.lakeattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.lakeattrs</span></code></a>(ds, gdf[, rating_dict, ...])</p></td>
 <td><p>Return lake attributes (see list below) needed for modelling.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html#hydromt_wflow.workflows.glaciermaps" title="hydromt_wflow.workflows.glaciermaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glaciermaps</span></code></a>(gdf, ds_like[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glaciermaps.html#hydromt_wflow.workflows.glaciermaps" title="hydromt_wflow.workflows.glaciermaps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glaciermaps</span></code></a>(gdf, ds_like[, ...])</p></td>
 <td><p>Return glacier maps (see list below) at model resolution.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html#hydromt_wflow.workflows.glacierattrs" title="hydromt_wflow.workflows.glacierattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glacierattrs</span></code></a>(gdf[, TT, Cfmax, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.glacierattrs.html#hydromt_wflow.workflows.glacierattrs" title="hydromt_wflow.workflows.glacierattrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.glacierattrs</span></code></a>(gdf[, TT, Cfmax, ...])</p></td>
 <td><p>Return glacier intbls (see list below).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.rootzoneclim.html#hydromt_wflow.workflows.rootzoneclim" title="hydromt_wflow.workflows.rootzoneclim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.rootzoneclim</span></code></a>(dsrun, ds_obs, ...[, ...])</p></td>
 <td><p>Estimates the root zone storage parameter.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html#hydromt_wflow.workflows.wflow_1dmodel_connection" title="hydromt_wflow.workflows.wflow_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.wflow_1dmodel_connection</span></code></a>(gdf_riv, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.wflow_1dmodel_connection.html#hydromt_wflow.workflows.wflow_1dmodel_connection" title="hydromt_wflow.workflows.wflow_1dmodel_connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.wflow_1dmodel_connection</span></code></a>(gdf_riv, ...)</p></td>
 <td><p>Connect wflow to a 1D model by deriving linked subcatchs (and tributaries).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.prepare_cold_states.html#hydromt_wflow.workflows.prepare_cold_states" title="hydromt_wflow.workflows.prepare_cold_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.prepare_cold_states</span></code></a>(ds_like, config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.workflows.prepare_cold_states.html#hydromt_wflow.workflows.prepare_cold_states" title="hydromt_wflow.workflows.prepare_cold_states"><code class="xref py py-obj docutils literal notranslate"><span class="pre">workflows.prepare_cold_states</span></code></a>(ds_like, config)</p></td>
 <td><p>Prepare cold states for Wflow.</p></td>
 </tr>
 </tbody>
@@ -945,6 +944,17 @@
 </section>
 <section id="wflow-low-level-methods">
 <span id="methods"></span><h2>Wflow low-level methods<a class="headerlink" href="#wflow-low-level-methods" title="Link to this heading">#</a></h2>
+<section id="input-output-methods">
+<h3>Input/Output methods<a class="headerlink" href="#input-output-methods" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_generated/hydromt_wflow.utils.read_csv_results.html#hydromt_wflow.utils.read_csv_results" title="hydromt_wflow.utils.read_csv_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.read_csv_results</span></code></a>(fn, config, maps)</p></td>
+<td><p>Read wflow results csv timeseries and parse to dictionary.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="utility-methods">
 <h3>Utility methods<a class="headerlink" href="#utility-methods" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
@@ -1023,6 +1033,7 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wflow-workflows">Wflow workflows</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wflow-low-level-methods">Wflow low-level methods</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#input-output-methods">Input/Output methods</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#utility-methods">Utility methods</a></li>
 </ul>
 </li>
