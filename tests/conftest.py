@@ -20,6 +20,7 @@ if platform.system().lower() != "windows":
 
 TESTDATADIR = join(dirname(abspath(__file__)), "data")
 EXAMPLEDIR = join(dirname(abspath(__file__)), "..", "examples", SUBDIR)
+TESTCATALOGDIR = join(dirname(abspath(__file__)), "..", "examples", "data")
 
 
 @pytest.fixture
@@ -30,7 +31,7 @@ def example_wflow_model():
         mode="r",
         data_libs=[
             "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
+            join(TESTCATALOGDIR, "demand", "data_catalog.yml"),
         ],
     )
     return mod
@@ -42,10 +43,7 @@ def example_sediment_model():
     mod = WflowSedimentModel(
         root=root,
         mode="r",
-        data_libs=[
-            "artifact_data",
-            "https://github.com/Deltares/hydromt_wflow/releases/download/v0.5.0/wflow_artifacts.yml",
-        ],
+        data_libs=["artifact_data"],
     )
     return mod
 
@@ -120,6 +118,11 @@ def floodplain1d_testdata():
         lock=False,
         mode="r",
     )
+    # Rename testdata variables to match the model
+    for var in data.data_vars:
+        if "hydrodem" in var:
+            new_name = var.replace("hydrodem", "river_bank_elevation")
+            data = data.rename({var: new_name})
     return data
 
 
